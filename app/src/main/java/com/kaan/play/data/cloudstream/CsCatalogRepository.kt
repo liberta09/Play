@@ -1,6 +1,8 @@
 package com.kaan.play.data.cloudstream
 
 import android.util.Log
+import com.lagradost.cloudstream3.LoadResponse
+import com.lagradost.cloudstream3.MainAPI
 import com.lagradost.cloudstream3.MainPageRequest
 import com.lagradost.cloudstream3.SearchResponse
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +34,12 @@ data class CsCatalogPage(
     val items: List<CsCatalogItem>,
     val page: Int,
     val hasMore: Boolean,
+)
+
+/** Eklentinin kendi URL'sinden yüklenmiş detay; TMDB kimliğine dönüştürülmez. */
+data class CsCatalogDetail(
+    val item: CsCatalogItem,
+    val response: LoadResponse,
 )
 
 /** Etkin eklentilerin kataloglarını listeler ve seçilen kataloğun sayfalarını yükler. */
@@ -81,6 +89,27 @@ class CsCatalogRepository(
             page = page,
             hasMore = response.hasNext,
         )
+    }
+
+    /**
+     * Katalog kartını doğrudan ilgili CloudStream sağlayıcısında açar.
+     * Başlığı TMDB ile eşleştirmeye çalışmaz; böylece siteye özgü içerik URL'si korunur.
+     */
+    suspend fun loadDetail(item: CsCatalogItem): CsCatalogDetail? = withContext(Dispatchers.IO) {
+        val plugin = repository.enabledPlugins().firstOrNull { it.id == item.pluginId }
+            ?: return@withContext null
+        val apis = runCatching { repository.loadApis(plugin.id) }.getOrElse {
+            Log.w(TAG, "Detay için eklenti yüklenemedi: " + plugin.name, it)
+            return@withContext null
+        }
+        val api: MainAPI = apis.firstOrNull { it.name == item.apiName }
+            ?: return@withContext null
+        val response = withTimeoutOrNull(timeoutMs) {
+            runCatching { api.load(item.url) }
+                .onFailure { Log.w(TAG, "Detay yüklenemedi: " + item.title, it) }
+                .getOrNull()
+        } ?: return@withContext null
+        CsCatalogDetail(item, response)
     }
 
     private fun SearchResponse.toCatalogItem(catalog: CsCatalog) = CsCatalogItem(
