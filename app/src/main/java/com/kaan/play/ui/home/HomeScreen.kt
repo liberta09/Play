@@ -19,11 +19,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.R
 import com.kaan.play.data.library.ContinueItem
+import com.kaan.play.data.cloudstream.CsCatalog
+import com.kaan.play.data.cloudstream.CsCatalogItem
+import com.kaan.play.data.cloudstream.CsCatalogPage
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.i18n.AppLanguage
@@ -107,6 +114,31 @@ private fun HomeContent(
     // Durum kompozisyon kapsamında okunur (LazyColumn DSL bloğunda değil): değişince bu ekran yeniden çizilir.
     val continueWatching = vm.continueWatching.collectAsStateWithLifecycle().value
     val layout = rememberPlayLayout()
+    // CloudStream ana sayfa katalogları ayrı yüklenir; bir sağlayıcı hatası diğer satırları etkilemez.
+    val catalogRepository = container.csCatalogs
+    var csCatalogs by remember { mutableStateOf<List<CsCatalog>>(emptyList()) }
+    var csPages by remember { mutableStateOf<Map<String, CsCatalogPage>>(emptyMap()) }
+    var csLoading by remember { mutableStateOf(true) }
+    var selectedCsItem by remember { mutableStateOf<CsCatalogItem?>(null) }
+    var selectedCsDetail by remember { mutableStateOf<String?>(null) }
+    var csDetailLoading by remember { mutableStateOf(false) }
+    LaunchedEffect(catalogRepository) {
+        csLoading = true
+        val catalogs = runCatching { catalogRepository.catalogs() }.getOrDefault(emptyList())
+        csCatalogs = catalogs
+        csPages = catalogs.mapNotNull { catalog ->
+            runCatching { catalogRepository.loadPage(catalog, 1) }.getOrNull()?.let { catalog.key to it }
+        }.toMap()
+        csLoading = false
+    }
+    LaunchedEffect(selectedCsItem) {
+        val item = selectedCsItem ?: return@LaunchedEffect
+        csDetailLoading = true
+        selectedCsDetail = null
+        val detail = runCatching { catalogRepository.loadDetail(item) }.getOrNull()
+        selectedCsDetail = detail?.response?.name
+        csDetailLoading = false
+    }
     val cardWidth = if (layout.widthDp >= 600) 152.dp else 132.dp
     val heroHeight = heroHeightFor(layout.widthDp, layout.heightDp)
 
@@ -198,6 +230,41 @@ private fun HomeContent(
                 }
             }
         }
+    }
+        // CloudStream sağlayıcılarının ana sayfa katalogları; TMDB eşleştirmesi yapılmaz.
+        if (csLoading) {
+            item(key = "cs-catalog-loading") { Section(title = "CloudStream") { SkeletonRow(cardWidth) } }
+        } else {
+            csCatalogs.forEach { catalog ->
+                val catalogPage = csPages[catalog.key]
+                if (catalogPage != null && catalogPage.items.isNotEmpty()) {
+                    item(key = "cs-${catalog.key}") {
+                        Section(title = catalog.title) {
+                            LazyRow(contentPadding = PaddingValues(horizontal = ScreenPadding), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                items(catalogPage.items, key = { "${it.pluginId}:${it.apiName}:${it.url}" }) { item ->
+                                    PosterCard(title = item.title, subtitle = item.typeName, imageUrl = item.posterUrl, onClick = { selectedCsItem = item }, modifier = Modifier.width(cardWidth))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    selectedCsItem?.let { item ->
+        AlertDialog(
+            onDismissRequest = { selectedCsItem = null; selectedCsDetail = null },
+            title = { Text(selectedCsDetail ?: item.title) },
+            text = {
+                Text(
+                    when {
+                        csDetailLoading -> "CloudStream içerik ayrıntıları yükleniyor…"
+                        selectedCsDetail != null -> "Sağlayıcı: ${item.pluginName}\nTür: ${item.typeName}\n\nAyrıntı eklentiden yüklendi. Doğrudan oynatma bağlantısı sonraki entegrasyon adımında bağlanacak."
+                        else -> "Bu içerik ${item.pluginName} eklentisinden seçildi. Ayrıntılar yüklenemedi; eklentinin etkin ve erişilebilir olduğunu kontrol edin."
+                    }
+                )
+            },
+            confirmButton = { androidx.compose.material3.TextButton(onClick = { selectedCsItem = null; selectedCsDetail = null }) { Text("Kapat") } },
+        )
     }
     StatusBarScrim()
     }
