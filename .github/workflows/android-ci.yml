@@ -1,0 +1,31 @@
+name: Android compile check
+
+on:
+  push:
+    branches:
+      - feature/cloudstream-catalogs
+  pull_request:
+    branches:
+      - feature/cloudstream-catalogs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: Compile debug Kotlin
+        run: ./gradlew :app:compileDebugKotlin --stacktrace
