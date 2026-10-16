@@ -5,6 +5,7 @@ import com.lagradost.cloudstream3.LoadResponse
 import com.lagradost.cloudstream3.MainAPI
 import com.lagradost.cloudstream3.MainPageRequest
 import com.lagradost.cloudstream3.SearchResponse
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -65,6 +66,7 @@ class CsCatalogRepository(
                     }
                 }
             }.onFailure {
+                if (it is CancellationException) throw it
                 Log.w(TAG, "Katalog listesi alınamadı: ${plugin.name}", it)
             }
         }
@@ -80,7 +82,10 @@ class CsCatalogRepository(
         val api = apis.firstOrNull { it.name == catalog.apiName } ?: return@withContext null
         val response = withTimeoutOrNull(timeoutMs) {
             runCatching { api.getMainPage(page, catalog.request) }
-                .onFailure { Log.w(TAG, "Katalog yüklenemedi: ${catalog.title}, sayfa=$page", it) }
+                .onFailure {
+                    if (it is CancellationException) throw it
+                    Log.w(TAG, "Katalog yüklenemedi: ${catalog.title}, sayfa=$page", it)
+                }
                 .getOrNull()
         } ?: return@withContext null
         CsCatalogPage(
@@ -106,7 +111,10 @@ class CsCatalogRepository(
             ?: return@withContext null
         val response = withTimeoutOrNull(timeoutMs) {
             runCatching { api.load(item.url) }
-                .onFailure { Log.w(TAG, "Detay yüklenemedi: " + item.title, it) }
+                .onFailure {
+                    if (it is CancellationException) throw it
+                    Log.w(TAG, "Detay yüklenemedi: " + item.title, it)
+                }
                 .getOrNull()
         } ?: return@withContext null
         CsCatalogDetail(item, response)
