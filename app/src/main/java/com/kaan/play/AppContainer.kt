@@ -21,6 +21,7 @@ import com.kaan.play.data.net.PlayJson
 import com.kaan.play.data.cloudstream.CsDexLoader
 import com.kaan.play.data.cloudstream.CsDexStore
 import com.kaan.play.data.cloudstream.CsRepository
+import com.kaan.play.data.cloudstream.CsCatalogRepository
 import com.kaan.play.data.cloudstream.CsRuntime
 import com.kaan.play.data.cloudstream.CsStreamProvider
 import com.kaan.play.data.plugin.FilePluginCodeStore
@@ -180,6 +181,9 @@ class AppContainer(context: Context) {
             loader = csDexLoader,
         )
     }
+
+    /** CloudStream ana sayfa kataloglarını yükler; mevcut akış oynatımı ve Nuvio'dan bağımsızdır. */
+    val csCatalogs: CsCatalogRepository by lazy { CsCatalogRepository(csRepos) }
 
     /** "Eklenti ekle": adresin içeriğine bakıp addon mu eklenti deposu mu CloudStream deposu mu olduğunu kendisi anlar. */
     val sourceInstaller: SourceInstaller by lazy { SourceInstaller(addons, plugins, csRepos, OkHttpManifestFetcher(httpClient)) }
