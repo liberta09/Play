@@ -23,8 +23,10 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Install Android SDK packages
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-37"
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
       - name: Compile debug Kotlin
