@@ -38,6 +38,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import com.kaan.play.R
 import com.kaan.play.data.library.ContinueItem
 import com.kaan.play.data.cloudstream.CsCatalog
@@ -129,9 +132,16 @@ private fun HomeContent(
         csLoading = true
         val catalogs = runCatching { catalogRepository.catalogs() }.getOrDefault(emptyList())
         csCatalogs = catalogs
-        csPages = catalogs.mapNotNull { catalog ->
-            runCatching { catalogRepository.loadPage(catalog, 1) }.getOrNull()?.let { catalog.key to it }
-        }.toMap()
+        // Katalogları sırayla beklemek yerine paralel yükle; yavaş bir sağlayıcı diğer satırları geciktirmesin.
+        csPages = coroutineScope {
+            catalogs.map { catalog ->
+                async {
+                    runCatching { catalogRepository.loadPage(catalog, 1) }
+                        .getOrNull()
+                        ?.let { catalog.key to it }
+                }
+            }.awaitAll().filterNotNull().toMap()
+        }
         csLoading = false
     }
     LaunchedEffect(selectedCsItem) {
