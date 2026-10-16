@@ -1,7 +1,13 @@
 package com.kaan.play.data.cloudstream
 
 import android.util.Log
+import com.lagradost.cloudstream3.AnimeLoadResponse
+import com.lagradost.cloudstream3.LiveStreamLoadResponse
 import com.lagradost.cloudstream3.LoadResponse
+import com.lagradost.cloudstream3.MovieLoadResponse
+import com.lagradost.cloudstream3.TvSeriesLoadResponse
+import com.lagradost.cloudstream3.SubtitleFile
+import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.MainAPI
 import com.lagradost.cloudstream3.MainPageRequest
 import com.lagradost.cloudstream3.SearchResponse
@@ -41,6 +47,20 @@ data class CsCatalogPage(
 data class CsCatalogDetail(
     val item: CsCatalogItem,
     val response: LoadResponse,
+)
+
+data class CsCatalogStreams(
+    val detail: CsCatalogDetail,
+    val links: List<ExtractorLink>,
+    val subtitles: List<SubtitleFile>,
+    val episodeOptions: List<CsCatalogEpisode>,
+)
+
+data class CsCatalogEpisode(
+    val name: String,
+    val season: Int?,
+    val episode: Int?,
+    val data: String,
 )
 
 /** Etkin eklentilerin kataloglarını listeler ve seçilen kataloğun sayfalarını yükler. */
@@ -120,6 +140,37 @@ class CsCatalogRepository(
         CsCatalogDetail(item, response)
     }
 
+    /** İçerik ayrıntılarını ve eklentinin kendi oynatma bağlantılarını getirir. */
+    suspend fun loadStreams(item: CsCatalogItem, episodeData: String? = null): CsCatalogStreams? = withContext(Dispatchers.IO) {
+        val detail = loadDetail(item) ?: return@withContext null
+        val response = detail.response
+        val episodes = when (response) {
+            is TvSeriesLoadResponse -> response.episodes.map { CsCatalogEpisode(it.name, it.season, it.episode, it.data) }
+            is AnimeLoadResponse -> response.episodes.values.flatten().map { CsCatalogEpisode(it.name, null, it.episode, it.data) }
+            else -> emptyList()
+        }
+        val data = episodeData ?: when (response) {
+            is MovieLoadResponse -> response.dataUrl
+            is LiveStreamLoadResponse -> response.dataUrl
+            else -> null
+        }
+        if (data == null) return@withContext CsCatalogStreams(detail, emptyList(), emptyList(), episodes)
+        val plugin = repository.enabledPlugins().firstOrNull { it.id == item.pluginId } ?: return@withContext null
+        val api = runCatching { repository.loadApis(plugin.id).firstOrNull { it.name == item.apiName } }.getOrNull() ?: return@withContext null
+        val links = mutableListOf<ExtractorLink>()
+        val subtitles = mutableListOf<SubtitleFile>()
+        val completed = withTimeoutOrNull(timeoutMs) {
+            runCatching {
+                api.loadLinks(data = data, isCasting = false, subtitleCallback = { subtitles += it }, callback = { links += it })
+            }.onFailure {
+                if (it is CancellationException) throw it
+                Log.w(TAG, "Oynatma bağlantıları alınamadı: ${item.title}", it)
+            }
+            true
+        } ?: false
+        if (!completed) return@withContext null
+        CsCatalogStreams(detail, links, subtitles, episodes)
+    }
     private fun SearchResponse.toCatalogItem(catalog: CsCatalog) = CsCatalogItem(
         pluginId = catalog.pluginId,
         pluginName = catalog.pluginName,
