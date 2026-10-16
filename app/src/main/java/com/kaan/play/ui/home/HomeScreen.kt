@@ -234,7 +234,6 @@ private fun HomeContent(
                 }
             }
         }
-    }
         // CloudStream sağlayıcılarının ana sayfa katalogları; TMDB eşleştirmesi yapılmaz.
         if (csLoading) {
             item(key = "cs-catalog-loading") { Section(title = "CloudStream") { SkeletonRow(cardWidth) } }
@@ -254,6 +253,7 @@ private fun HomeContent(
                 }
             }
         }
+    }
     selectedCsItem?.let { item ->
         AlertDialog(
             onDismissRequest = { selectedCsItem = null; selectedCsDetail = null; selectedCsStreams = null },
