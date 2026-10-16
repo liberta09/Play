@@ -132,7 +132,7 @@ private fun HomeContent(
         csLoading = true
         val catalogs = runCatching { catalogRepository.catalogs() }.getOrDefault(emptyList())
         csCatalogs = catalogs
-        // Katalogları sırayla beklemek yerine paralel yükle; yavaş bir sağlayıcı diğer satırları geciktirmesin.
+        // Her sağlayıcı bağımsız yüklenir; bir katalog hata verse bile diğer katalogların sonuçları gösterilir.
         csPages = coroutineScope {
             catalogs.map { catalog ->
                 async {
