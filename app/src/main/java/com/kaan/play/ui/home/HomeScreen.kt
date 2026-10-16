@@ -43,6 +43,7 @@ import com.kaan.play.data.library.ContinueItem
 import com.kaan.play.data.cloudstream.CsCatalog
 import com.kaan.play.data.cloudstream.CsCatalogItem
 import com.kaan.play.data.cloudstream.CsCatalogPage
+import com.kaan.play.data.cloudstream.CsCatalogStreams
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.i18n.AppLanguage
@@ -122,6 +123,7 @@ private fun HomeContent(
     var csLoading by remember { mutableStateOf(true) }
     var selectedCsItem by remember { mutableStateOf<CsCatalogItem?>(null) }
     var selectedCsDetail by remember { mutableStateOf<String?>(null) }
+    var selectedCsStreams by remember { mutableStateOf<CsCatalogStreams?>(null) }
     var csDetailLoading by remember { mutableStateOf(false) }
     LaunchedEffect(catalogRepository) {
         csLoading = true
@@ -136,8 +138,9 @@ private fun HomeContent(
         val item = selectedCsItem ?: return@LaunchedEffect
         csDetailLoading = true
         selectedCsDetail = null
-        val detail = runCatching { catalogRepository.loadDetail(item) }.getOrNull()
-        selectedCsDetail = detail?.response?.name
+        val streams = runCatching { catalogRepository.loadStreams(item) }.getOrNull()
+        selectedCsStreams = streams
+        selectedCsDetail = streams?.detail?.response?.name
         csDetailLoading = false
     }
     val cardWidth = if (layout.widthDp >= 600) 152.dp else 132.dp
@@ -253,18 +256,24 @@ private fun HomeContent(
         }
     selectedCsItem?.let { item ->
         AlertDialog(
-            onDismissRequest = { selectedCsItem = null; selectedCsDetail = null },
+            onDismissRequest = { selectedCsItem = null; selectedCsDetail = null; selectedCsStreams = null },
             title = { Text(selectedCsDetail ?: item.title) },
             text = {
                 Text(
                     when {
                         csDetailLoading -> "CloudStream içerik ayrıntıları yükleniyor…"
-                        selectedCsDetail != null -> "Sağlayıcı: ${item.pluginName}\nTür: ${item.typeName}\n\nAyrıntı eklentiden yüklendi. Doğrudan oynatma bağlantısı sonraki entegrasyon adımında bağlanacak."
+                        selectedCsStreams != null -> {
+                            val data = selectedCsStreams!!
+                            val episodeSummary = if (data.episodeOptions.isNotEmpty()) "\nBölüm sayısı: ${data.episodeOptions.size}\nİlk bölümler: " + data.episodeOptions.take(5).joinToString { it.name } else ""
+                            "Sağlayıcı: ${item.pluginName}\nTür: ${item.typeName}\nBulunan oynatma bağlantısı: ${data.links.size}" +
+                                data.links.take(5).joinToString(separator = "") { "\n• ${it.name} · ${it.quality}p" } + episodeSummary +
+                                if (data.links.isEmpty() && data.episodeOptions.isEmpty()) "\nBu içerik için oynatma bağlantısı bulunamadı." else ""
+                        }
                         else -> "Bu içerik ${item.pluginName} eklentisinden seçildi. Ayrıntılar yüklenemedi; eklentinin etkin ve erişilebilir olduğunu kontrol edin."
                     }
                 )
             },
-            confirmButton = { androidx.compose.material3.TextButton(onClick = { selectedCsItem = null; selectedCsDetail = null }) { Text("Kapat") } },
+            confirmButton = { androidx.compose.material3.TextButton(onClick = { selectedCsItem = null; selectedCsDetail = null; selectedCsStreams = null }) { Text("Kapat") } },
         )
     }
     StatusBarScrim()
