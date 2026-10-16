@@ -107,6 +107,7 @@ private fun HomeContent(
     onOpenCategory: (HomeRow) -> Unit,
     onContinue: (ContinueItem) -> Unit,
 ) {
+    val container = rememberContainer()
     // Dil değişince (etkinlik yeniden kurulur) yeni dille taze bir ViewModel: satırlar yeni dilde yüklenir.
     val vm = containerViewModel(key = "home-${AppLanguage.effective().iso}") { HomeViewModel(it.tmdb, it.continueWatching) }
     val rows by vm.rows.collectAsStateWithLifecycle()
