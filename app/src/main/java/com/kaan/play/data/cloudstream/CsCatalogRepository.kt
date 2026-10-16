@@ -1,20 +1,13 @@
 package com.kaan.play.data.cloudstream
 
 import android.util.Log
-import com.lagradost.cloudstream3.HomePageList
-import com.lagradost.cloudstream3.MainAPI
 import com.lagradost.cloudstream3.MainPageRequest
 import com.lagradost.cloudstream3.SearchResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
-/**
- * CloudStream ana sayfa katalogları.
- *
- * Bu katman sadece eklentinin ilan ettiği katalogları okur; Nuvio ve mevcut akış
- * sağlayıcılarının davranışına dokunmaz. Her eklenti/katalog ayrı hata sınırında çalışır.
- */
+/** CloudStream ana sayfa katalogları; Nuvio ve mevcut oynatma akışından bağımsızdır. */
 data class CsCatalog(
     val key: String,
     val pluginId: Long,
@@ -41,16 +34,7 @@ data class CsCatalogPage(
     val hasMore: Boolean,
 )
 
-data class CsCatalogRow(
-    val catalog: CsCatalog,
-    val items: List<CsCatalogItem>,
-    val error: String? = null,
-)
-
-/**
- * Her çağrıda etkin eklentilerden katalogları üretir. DEX yükleme mevcut
- * CsRepository/CsDexLoader üzerinden yapıldığı için kurulum biçimi değişmez.
- */
+/** Etkin eklentilerin kataloglarını listeler ve seçilen kataloğun sayfalarını yükler. */
 class CsCatalogRepository(
     private val repository: CsRepository,
     private val timeoutMs: Long = 12_000L,
@@ -59,16 +43,16 @@ class CsCatalogRepository(
         val result = mutableListOf<CsCatalog>()
         repository.enabledPlugins().forEach { plugin ->
             runCatching {
-                repository.loadApis(plugin.id).forEach { api ->
-                    if (!api.hasMainPage) return@forEach
+                repository.loadApis(plugin.id).forEach apiLoop@{ api ->
+                    if (!api.hasMainPage) return@apiLoop
                     api.mainPage.forEach { page ->
                         result += CsCatalog(
-                            key = "${plugin.id}:${api.name}:${page.name}:${page.data.orEmpty()}",
+                            key = "${plugin.id}:${api.name}:${page.name}:${page.data}",
                             pluginId = plugin.id,
                             pluginName = plugin.name,
                             apiName = api.name,
                             title = if (api.mainPage.size > 1) "${plugin.name} · ${page.name}" else plugin.name,
-                            request = MainPageRequest(page.name, page.data.orEmpty()),
+                            request = MainPageRequest(page.name, page.data, page.horizontalImages),
                         )
                     }
                 }
