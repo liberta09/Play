@@ -444,7 +444,7 @@ private object StreamTapeHostExtractor {
                 true
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
-                Log.w("PlayCs", "StreamTape extractor failed for \${hostOf(url)}", e)
+                Log.w("PlayCs", "StreamTape extractor failed for ${hostOf(url)}", e)
                 false
             }
         }
