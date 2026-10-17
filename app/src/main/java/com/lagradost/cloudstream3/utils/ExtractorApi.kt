@@ -183,9 +183,9 @@ private object BuiltInEmbedResolver {
             .build()
     }
     private val mediaPattern = Regex(
-        """(?i)(https?://[^\\s"'<>\\\\]+?\\.(?:m3u8|mpd|mp4|m4v|webm|mp3)(?:\\?[^\\s"'<>\\\\]*)?)"""
+        """(?i)(https?://[^\s"'<>\\]+?\.(?:m3u8|mpd|mp4|m4v|webm|mp3)(?:\?[^\s"'<>\\]*)?)"""
     )
-    private val iframePattern = Regex("""(?is)<iframe\\b[^>]*?src\\s*=\\s*["']([^"']+)["']""")
+    private val iframePattern = Regex("""(?is)<iframe\b[^>]*?src\s*=\s*["']([^"']+)["']""")
 
     suspend fun resolve(
         initialUrl: String,
