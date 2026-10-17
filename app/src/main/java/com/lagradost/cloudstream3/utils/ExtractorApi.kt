@@ -76,6 +76,7 @@ suspend fun loadExtractor(
     val host = hostOf(url)
     if (host != null && host in DOOD_HOSTS && DoodHostExtractor.resolve(url, referer, callback)) return true
     if (host != null && host in MIXDROP_HOSTS && MixDropHostExtractor.resolve(url, referer, callback)) return true
+    if (host != null && host in STREAMTAPE_HOSTS && StreamTapeHostExtractor.resolve(url, referer, callback)) return true
 
     // Built-in fallback for common embed pages. Plugin-registered host-specific extractors always
     // take priority; this resolver only follows a small, bounded iframe chain and direct media URLs.
@@ -393,6 +394,57 @@ private object MixDropHostExtractor {
             } catch (e: Exception) {
                 if (e is kotlinx.coroutines.CancellationException) throw e
                 Log.w("PlayCs", "MixDrop extractor failed for ${hostOf(url)}", e)
+                false
+            }
+        }
+}
+
+
+/** StreamTape embeds often keep their stream URL in packed JavaScript's botlink variable. */
+private val STREAMTAPE_HOSTS = setOf(
+    "streamtape.com", "streamtape.to", "streamtape.net", "streamtape.xyz",
+    "streamtape.site", "streamtape.cc", "strtape.cloud", "stape.fun"
+)
+
+private object StreamTapeHostExtractor {
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(8, TimeUnit.SECONDS)
+        .readTimeout(12, TimeUnit.SECONDS)
+        .callTimeout(15, TimeUnit.SECONDS)
+        .followRedirects(true)
+        .build()
+    private const val UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36"
+
+    suspend fun resolve(url: String, referer: String?, callback: (ExtractorLink) -> Unit): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                val request = Request.Builder().url(url).header("User-Agent", UA)
+                    .apply { if (!referer.isNullOrBlank()) header("Referer", referer) }.build()
+                val html = client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) return@withContext false
+                    response.body?.string()?.take(2 * 1024 * 1024).orEmpty()
+                }
+                val unpacked = getAndUnpack(html)
+                val botlink = Regex("""(?is)botlink\s*=\s*["']([^"']+)["']""")
+                    .find(unpacked)?.groupValues?.getOrNull(1)
+                val direct = Regex("""(?i)["'](https?:)?//[^"'\s]+\.(?:mp4|m3u8)(?:\?[^"'\s]*)?["']""")
+                    .find(unpacked)?.value?.trim('"', '\'')
+                val raw = botlink ?: direct ?: return@withContext false
+                val mediaUrl = when {
+                    raw.startsWith("//") -> "https:$raw"
+                    raw.startsWith("http://") || raw.startsWith("https://") -> raw
+                    raw.startsWith("/") -> URI(url).resolve(raw).toString()
+                    else -> return@withContext false
+                }
+                val type = if (mediaUrl.substringBefore("?").endsWith(".m3u8", true))
+                    ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
+                callback(ExtractorLink("StreamTape", "StreamTape", mediaUrl,
+                    referer = url, quality = Qualities.Unknown.value,
+                    headers = mapOf("User-Agent" to UA), type = type))
+                true
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                Log.w("PlayCs", "StreamTape extractor failed for \${hostOf(url)}", e)
                 false
             }
         }
