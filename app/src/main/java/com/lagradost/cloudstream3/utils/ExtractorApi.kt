@@ -74,8 +74,8 @@ suspend fun loadExtractor(
 
     // Dedicated host-specific extractors run before the generic HTML/iframe fallback.
     val host = hostOf(url)
-    if (host in DOOD_HOSTS && DoodHostExtractor.resolve(url, referer, callback)) return true
-    if (host in MIXDROP_HOSTS && MixDropHostExtractor.resolve(url, referer, callback)) return true
+    if (host != null && host in DOOD_HOSTS && DoodHostExtractor.resolve(url, referer, callback)) return true
+    if (host != null && host in MIXDROP_HOSTS && MixDropHostExtractor.resolve(url, referer, callback)) return true
 
     // Built-in fallback for common embed pages. Plugin-registered host-specific extractors always
     // take priority; this resolver only follows a small, bounded iframe chain and direct media URLs.
@@ -374,9 +374,9 @@ private object MixDropHostExtractor {
                     response.body?.string().orEmpty()
                 }
                 val decoded = html.replace("\\\\/", "/").replace("\\u0026", "&").replace("&amp;", "&")
-                val candidate = Regex("""(?is)wurl\\s*[^=]*=\\s*["']([^"']+)["']""")
+                val candidate = Regex("""(?is)wurl\s*[^=]*=\s*["']([^"']+)["']""")
                     .find(decoded)?.groupValues?.getOrNull(1)
-                    ?: Regex("""(?i)["'](https?:)?//[^"'\\s]+\\.(?:mp4|m3u8)(?:\\?[^"'\\s]*)?["']""")
+                    ?: Regex("""(?i)["'](https?:)?//[^"'\s]+\.(?:mp4|m3u8)(?:\?[^"'\s]*)?["']""")
                         .find(decoded)?.value?.trim('"', '\'')
                     ?: return@withContext false
                 val mediaUrl = when {
