@@ -16,6 +16,7 @@ import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.StreamRequest
 import com.kaan.play.data.stream.StreamSource
 import com.kaan.play.data.stream.StreamSubtitle
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withTimeout
 
 /**
@@ -41,7 +42,7 @@ class CsRuntime {
         title: String,
         pluginRowId: Long,
         pluginName: String,
-        timeoutMs: Long = 15_000L,
+        timeoutMs: Long = 120_000L,
     ): List<PlayableStream> {
         val source = StreamSource(addonId = pluginRowId, addonName = pluginName)
         val results = mutableListOf<PlayableStream>()
@@ -54,8 +55,10 @@ class CsRuntime {
                 Log.d(TAG, "$pluginName/${api.name}: ${streams.size} akış (${System.currentTimeMillis() - started} ms)")
                 results += streams
                 if (results.isNotEmpty()) break
-            } catch (t: Throwable) {
-                Log.d(TAG, "$pluginName/${api.name}: hata ${t.javaClass.simpleName}: ${t.message} (${System.currentTimeMillis() - started} ms)")
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (t: Exception) {
+                Log.w(TAG, "$pluginName/${api.name}: hata ${t.javaClass.simpleName}: ${t.message} (${System.currentTimeMillis() - started} ms)", t)
             }
         }
         return results
@@ -82,8 +85,10 @@ class CsRuntime {
 
         // 3. Detay yükle
         val loadResp = withTimeout(timeoutMs) {
-            try { api.load(match.url) } catch (t: Throwable) {
-                Log.d(TAG, "${api.name}: load hata ${t.javaClass.simpleName}: ${t.message}", t)
+            try { api.load(match.url) } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (t: Exception) {
+                Log.w(TAG, "${api.name}: load hata ${t.javaClass.simpleName}: ${t.message}", t)
                 null
             }
         }
@@ -104,11 +109,13 @@ class CsRuntime {
                 api.loadLinks(
                     data = data,
                     isCasting = false,
-                    subtitleCallback = { subs += it },
-                    callback = { links += it },
+                    subtitleCallback = { subtitle -> synchronized(subs) { subs += subtitle } },
+                    callback = { link -> synchronized(links) { links += link } },
                 )
-            } catch (t: Throwable) {
-                Log.d(TAG, "${api.name}: loadLinks hata ${t.javaClass.simpleName}: ${t.message}", t)
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (t: Exception) {
+                Log.w(TAG, "${api.name}: loadLinks hata ${t.javaClass.simpleName}: ${t.message}", t)
             }
         }
         Log.d(TAG, "${api.name}: loadLinks ${links.size} ExtractorLink " +
@@ -139,8 +146,10 @@ class CsRuntime {
 
     private suspend fun search(api: MainAPI, query: String, timeoutMs: Long): List<SearchResponse>? {
         val results = withTimeout(timeoutMs) {
-            try { api.search(query) } catch (t: Throwable) {
-                Log.d(TAG, "${api.name}: search hata ${t.javaClass.simpleName}: ${t.message}", t)
+            try { api.search(query) } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (t: Exception) {
+                Log.w(TAG, "${api.name}: search hata ${t.javaClass.simpleName}: ${t.message}", t)
                 null
             }
         } ?: return null
