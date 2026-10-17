@@ -54,9 +54,9 @@ private fun findExtractor(url: String): ExtractorApi? {
 /**
  * Dışarıdan çağrılabilir `loadExtractor`: bir video host URL'sinden kaynak çıkarmayı dener.
  * Önce eklentilerin kaydettiği çıkarıcılar ([extractorApis]) sunucu adına göre denenir.
- * CloudStream'in yerleşik çıkarıcıları UYGULANMAZ; eşleşen çıkarıcı yoksa yalnızca adres
- * doğrudan medya gibi görünüyorsa (m3u8, mpd, mp4 …) `callback`'e gönderilir, aksi halde
- * oynatılamayacak bir gömme sayfası kaynak listesine girmesin diye atlanır.
+ * Eşleşen eklenti çıkarıcısı yoksa sınırlı yerleşik HTML/iframe çözümleyicisi denenir.
+ * Bu çözümleyici doğrudan medya adreslerini ve HTML'de açıkça görünen medya kaynaklarını
+ * bulabilir; token/şifreleme kullanan hostlar için tam hosta özel CloudStream çıkarıcısı gerekir.
  */
 suspend fun loadExtractor(
     url: String,
