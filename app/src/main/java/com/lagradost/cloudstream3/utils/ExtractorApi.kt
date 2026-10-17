@@ -72,6 +72,12 @@ suspend fun loadExtractor(
         return true
     }
 
+    // Dedicated host-specific extractors run before the generic HTML/iframe fallback.
+    when (hostOf(url)) {
+        in DOOD_HOSTS -> if (DoodHostExtractor.resolve(url, referer, callback)) return true
+        in MIXDROP_HOSTS -> if (MixDropHostExtractor.resolve(url, referer, callback)) return true
+    }
+
     // Built-in fallback for common embed pages. Plugin-registered host-specific extractors always
     // take priority; this resolver only follows a small, bounded iframe chain and direct media URLs.
     val resolved = BuiltInEmbedResolver.resolve(url, referer, callback)
@@ -285,4 +291,110 @@ private object BuiltInEmbedResolver {
 
     private const val DEFAULT_UA =
         "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36"
+}
+
+
+/** Domains sharing CloudStream's DoodStream pass_md5 token flow. */
+private val DOOD_HOSTS = setOf(
+    "dood.la", "dood.ws", "dood.to", "dood.so", "dood.pm", "dood.sh", "dood.watch",
+    "dood.cx", "dood.wf", "dood.yt", "dood.li", "doods.pro", "dsvplay.com",
+    "d0000d.com", "d000d.com", "doodstream.com", "dooood.com", "ds2play.com",
+    "ds2video.com", "myvidplay.com", "playmogo.com", "vide0.net"
+)
+private val MIXDROP_HOSTS = setOf(
+    "mixdrop.co", "mixdrop.to", "mixdrop.bz", "mixdrop.ch", "mixdrop.ag",
+    "mixdrop.ps", "mixdrop.si", "mxdrop.to", "mdy48tn97.com"
+)
+
+/**
+ * DoodStream's host-specific flow. The final URL is time/token based, so resolve it at playback
+ * time rather than caching it. This is adapted to Play's local ExtractorLink API.
+ */
+private object DoodHostExtractor {
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(8, TimeUnit.SECONDS).readTimeout(12, TimeUnit.SECONDS)
+        .callTimeout(15, TimeUnit.SECONDS).followRedirects(true).build()
+    private const val UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36"
+    private val random = java.security.SecureRandom()
+    private val alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+    suspend fun resolve(url: String, referer: String?, callback: (ExtractorLink) -> Unit): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                val embedUrl = url.replace("/d/", "/e/").replace("/v/", "/e/")
+                val page = get(embedUrl, referer)
+                val passPath = Regex("""/pass_md5/[^'""\s<>]+""").find(page)?.value ?: return@withContext false
+                val origin = URI(embedUrl)
+                val passUrl = "${origin.scheme}://${origin.host}" + passPath
+                val token = passPath.substringAfterLast("/")
+                val mediaBase = get(passUrl, embedUrl).trim()
+                if (!mediaBase.startsWith("http")) return@withContext false
+                val suffix = buildString { repeat(10) { append(alphabet[random.nextInt(alphabet.length)]) } }
+                val streamUrl = mediaBase + suffix + "?token=" + token
+                val quality = Regex("""(?i)(2160|1440|1080|720|480|360)p""")
+                    .find(Jsoup.parse(page).title())?.groupValues?.getOrNull(1)?.toIntOrNull()
+                    ?: Qualities.Unknown.value
+                callback(ExtractorLink("DoodStream", "DoodStream", streamUrl,
+                    referer = "${origin.scheme}://${origin.host}/",
+                    quality = quality,
+                    headers = mapOf("User-Agent" to UA),
+                    type = ExtractorLinkType.VIDEO))
+                true
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                Log.w("PlayCs", "DoodStream extractor failed for ${hostOf(url)}", e)
+                false
+            }
+        }
+
+    private fun get(url: String, referer: String? = null): String {
+        val request = Request.Builder().url(url).header("User-Agent", UA)
+            .apply { if (!referer.isNullOrBlank()) header("Referer", referer) }.build()
+        return client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) error("HTTP ${response.code}")
+            response.body?.string().orEmpty()
+        }
+    }
+}
+
+/** MixDrop embeds frequently expose their media URL in the wurl JavaScript variable. */
+private object MixDropHostExtractor {
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(8, TimeUnit.SECONDS).readTimeout(12, TimeUnit.SECONDS)
+        .callTimeout(15, TimeUnit.SECONDS).followRedirects(true).build()
+    private const val UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36"
+
+    suspend fun resolve(url: String, referer: String?, callback: (ExtractorLink) -> Unit): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                val embedUrl = url.replace("/f/", "/e/")
+                val request = Request.Builder().url(embedUrl).header("User-Agent", UA)
+                    .apply { if (!referer.isNullOrBlank()) header("Referer", referer) }.build()
+                val html = client.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) return@withContext false
+                    response.body?.string().orEmpty()
+                }
+                val decoded = html.replace("\\\\/", "/").replace("\\u0026", "&").replace("&amp;", "&")
+                val candidate = Regex("""(?is)wurl\\s*[^=]*=\\s*["']([^"']+)["']""")
+                    .find(decoded)?.groupValues?.getOrNull(1)
+                    ?: Regex("""(?i)["'](https?:)?//[^"'\\s]+\\.(?:mp4|m3u8)(?:\\?[^"'\\s]*)?["']""")
+                        .find(decoded)?.value?.trim('"', '\'')
+                    ?: return@withContext false
+                val mediaUrl = when {
+                    candidate.startsWith("//") -> "https:$candidate"
+                    candidate.startsWith("http") -> candidate
+                    else -> return@withContext false
+                }
+                val type = if (mediaUrl.substringBefore("?").endsWith(".m3u8", true))
+                    ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
+                callback(ExtractorLink("MixDrop", "MixDrop", mediaUrl,
+                    referer = embedUrl, quality = Qualities.Unknown.value,
+                    headers = mapOf("User-Agent" to UA), type = type))
+                true
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                Log.w("PlayCs", "MixDrop extractor failed for ${hostOf(url)}", e)
+                false
+            }
+        }
 }
