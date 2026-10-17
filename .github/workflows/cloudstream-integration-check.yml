@@ -1,0 +1,31 @@
+name: CloudStream integration checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [feature/cloudstream-built-in-extractors]
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    name: Android compile and unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: Compile debug variant
+        run: ./gradlew :app:assembleDebug --stacktrace
+      - name: Run unit tests
+        run: ./gradlew :app:testDebugUnitTest --stacktrace
