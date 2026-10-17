@@ -183,7 +183,7 @@ private object BuiltInEmbedResolver {
             .build()
     }
     private val mediaPattern = Regex(
-        """(?i)(https?:\\?/\\?/[^\\s"'<>\\\\]+?\\.(?:m3u8|mpd|mp4|m4v|webm|mp3)(?:\\?[^\\s"'<>\\\\]*)?)"""
+        """(?i)(https?://[^\\s"'<>\\\\]+?\\.(?:m3u8|mpd|mp4|m4v|webm|mp3)(?:\\?[^\\s"'<>\\\\]*)?)"""
     )
     private val iframePattern = Regex("""(?is)<iframe\\b[^>]*?src\\s*=\\s*["']([^"']+)["']""")
 
@@ -232,7 +232,7 @@ private object BuiltInEmbedResolver {
                     val value = el.attr("abs:src").ifBlank { el.attr("abs:href") }
                     if (directType(value) != null) candidates += value
                 }
-                mediaPattern.findAll(response).forEach { match ->
+                mediaPattern.findAll(response.replace("\\/", "/")).forEach { match ->
                     val candidate = match.value.replace("\\/", "/").replace("\\u0026", "&").replace("&amp;", "&")
                     if (directType(candidate) != null) candidates += resolveUrl(normalized, candidate)
                 }
@@ -257,9 +257,14 @@ private object BuiltInEmbedResolver {
     private fun makeLink(url: String, referer: String?, type: ExtractorLinkType) =
         ExtractorLink(source = "CloudStream Built-in", name = "Built-in", url = url, type = type).apply {
             this.referer = referer.orEmpty()
-            this.quality = getQualityFromString(url)
+            this.quality = qualityFromUrl(url)
             this.headers = mapOf("User-Agent" to DEFAULT_UA)
         }
+
+    private fun qualityFromUrl(value: String): Int {
+        val match = Regex("""(?i)(2160|1440|1080|720|480|360)p?""").find(value)
+        return match?.groupValues?.get(1)?.toIntOrNull() ?: Qualities.Unknown.value
+    }
 
     private fun directType(url: String): ExtractorLinkType? {
         if (!isHttpUrl(url)) return null
