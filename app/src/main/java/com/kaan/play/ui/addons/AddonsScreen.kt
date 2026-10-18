@@ -50,6 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.R
 import com.kaan.play.data.addon.Addon
 import com.kaan.play.data.plugin.AddResult
+import com.kaan.play.data.plugin.SourceType
 import com.kaan.play.data.settings.SettingsRepository
 import com.kaan.play.data.web.WebSite
 import com.kaan.play.ui.web.WebActivity
@@ -78,6 +79,7 @@ fun AddonsScreen(
     onOpenRepos: () -> Unit,
     onOpenInstalled: () -> Unit,
     onOpenCsRepos: () -> Unit,
+    onAdded: (AddResult) -> Unit,
 ) {
     val vm = containerViewModel { AddonsViewModel(it.sourceInstaller, it.addons, it.pendingAddonUrl) }
     val addons by vm.addons.collectAsStateWithLifecycle()
@@ -89,6 +91,7 @@ fun AddonsScreen(
     var showTimeout by remember { mutableStateOf(false) }
     val torrentServer by container.settings.torrentServer.collectAsStateWithLifecycle(initialValue = null)
     var showTorrentServer by remember { mutableStateOf(false) }
+    var showSourceChooser by remember { mutableStateOf(false) }
     val focus = rememberFocusMemory()
 
     // Sade bildirim: "Eklenti eklendi (addon)" ya da "Eklenti deposu eklendi" (atlanan dosya varsa sayısıyla).
@@ -105,11 +108,12 @@ fun AddonsScreen(
                     else appContext.getString(R.string.add_done_cs_repo)
             }
             Toast.makeText(appContext, text, Toast.LENGTH_SHORT).show()
+            onAdded(result)
         }
     }
 
-    // Ana sayfadaki "eklenti ekle" düğmesinden geldiyse pencere hemen açılır.
-    LaunchedEffect(startAdding) { if (startAdding) vm.startAddingOnce() }
+    // Ana sayfadaki ekleme kısayolu da kullanıcıyı önce kaynak türünü seçmeye götürür.
+    LaunchedEffect(startAdding) { if (startAdding) showSourceChooser = true }
 
     val webVm = containerViewModel { WebSitesViewModel(it.webSites) }
     val sites by webVm.sites.collectAsStateWithLifecycle()
@@ -126,7 +130,7 @@ fun AddonsScreen(
                 SettingsRow(
                     title = stringResource(R.string.addons_add),
                     modifier = Modifier.focusMemory(focus, "add", isDefault = true),
-                    onClick = { vm.openAdd() },
+                    onClick = { showSourceChooser = true },
                 )
             }
             item {
@@ -255,6 +259,16 @@ fun AddonsScreen(
         )
     }
 
+    if (showSourceChooser) {
+        SourceTypeChooserDialog(
+            onSelect = { type ->
+                showSourceChooser = false
+                vm.openAdd(expectedType = type)
+            },
+            onDismiss = { showSourceChooser = false },
+        )
+    }
+
     dialog?.let { state ->
         AddAddonDialog(
             state = state,
@@ -354,6 +368,33 @@ private fun TorrentServerDialog(current: String?, onSave: (String) -> Unit, onDi
 }
 
 @Composable
+private fun SourceTypeChooserDialog(
+    onSelect: (SourceType) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.addons_add_choose_type)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                TextButton(onClick = { onSelect(SourceType.CLOUDSTREAM) }, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.addons_add_cloudstream))
+                }
+                TextButton(onClick = { onSelect(SourceType.NUVIO_ADDON) }, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.addons_add_nuvio))
+                }
+                TextButton(onClick = { onSelect(SourceType.NUVIO_PLUGIN) }, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.addons_add_nuvio_plugin))
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
+        },
+    )
+}
+
+@Composable
 private fun AddAddonDialog(
     state: AddDialogState,
     onInputChange: (String) -> Unit,
@@ -363,7 +404,15 @@ private fun AddAddonDialog(
     val field = rememberCursorField(state.input, onInputChange)
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.addons_add_title)) },
+        title = {
+            val title = when (state.expectedType) {
+                SourceType.CLOUDSTREAM -> R.string.addons_add_cloudstream
+                SourceType.NUVIO_ADDON -> R.string.addons_add_nuvio
+                SourceType.NUVIO_PLUGIN -> R.string.addons_add_nuvio_plugin
+                null -> R.string.addons_add_title
+            }
+            Text(stringResource(title))
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
