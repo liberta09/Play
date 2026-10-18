@@ -14,6 +14,19 @@ sealed interface AddResult {
     data class CsRepo(val name: String, val installed: Int, val skipped: Int) : AddResult
 }
 
+/** Manuel ekleme ekranında kullanıcının seçtiği kaynak türü. Manifest yine içerikten doğrulanır. */
+enum class SourceType {
+    CLOUDSTREAM,
+    NUVIO_ADDON,
+    NUVIO_PLUGIN;
+
+    fun accepts(kind: ManifestKind): Boolean = when (this) {
+        CLOUDSTREAM -> kind == ManifestKind.External
+        NUVIO_ADDON -> kind == ManifestKind.Addon
+        NUVIO_PLUGIN -> kind == ManifestKind.PluginRepo
+    }
+}
+
 /**
  * "Eklenti ekle" penceresinin tek kapısı: adresi bir kez indirir ve **içeriğine** bakarak türünü anlar (etikete ya da
  * adın şekline değil): `resources` varsa addon, `scrapers` dizisi varsa eklenti deposu,
@@ -27,11 +40,15 @@ class SourceInstaller(
 ) {
 
     /** @throws AddonException */
-    suspend fun add(input: String): AddResult {
+    suspend fun add(input: String, expectedType: SourceType? = null): AddResult {
         val url = AddonUrl.normalize(input)
         if (addons.isKnown(url)) throw AddonException(Kind.AlreadyAdded)
         val raw = fetcher.fetch(url)
-        return when (ManifestKind.classify(raw)) {
+        val kind = ManifestKind.classify(raw)
+        if (expectedType != null && !expectedType.accepts(kind)) {
+            throw AddonException(Kind.WrongSourceType)
+        }
+        return when (kind) {
             ManifestKind.PluginRepo -> plugins.addFetched(url, raw).let { AddResult.PluginRepo(it.repo.name, it.installed, it.skipped) }
             ManifestKind.External -> csRepos.addFetched(url, raw).let { AddResult.CsRepo(it.repo.name, it.installed, it.skipped) }
             // Addon ve tanınmayan: addon ayrıştırıcısı kesin hatayı (eksik alan, `stream` yok...) verir.
