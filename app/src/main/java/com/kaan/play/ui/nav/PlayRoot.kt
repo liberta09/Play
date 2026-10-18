@@ -56,6 +56,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.kaan.play.R
 import com.kaan.play.data.db.DownloadEntity
+import com.kaan.play.data.plugin.AddResult
 import com.kaan.play.data.download.toTarget
 import com.kaan.play.data.library.ContinueItem
 import com.kaan.play.data.library.WatchRules
@@ -69,6 +70,7 @@ import com.kaan.play.ui.player.formatTime
 import com.kaan.play.ui.addons.AddonsScreen
 import com.kaan.play.ui.addons.CsReposScreen
 import com.kaan.play.ui.addons.InstalledAddonsScreen
+import com.kaan.play.ui.addons.InstalledAddonsSection
 import com.kaan.play.ui.addons.PluginSettingsScreen
 import com.kaan.play.ui.addons.RepositoriesScreen
 import com.kaan.play.ui.detail.DetailScreen
@@ -89,6 +91,8 @@ import kotlinx.coroutines.launch
 private const val ADDONS_ROUTE = "settings/addons?add={add}"
 private const val ADDONS_REPOS_ROUTE = "settings/addons/repos"
 private const val ADDONS_INSTALLED_ROUTE = "settings/addons/installed"
+private const val ADDONS_INSTALLED_NUVIO_ROUTE = "settings/addons/installed/nuvio"
+private const val ADDONS_INSTALLED_NUVIO_PLUGINS_ROUTE = "settings/addons/installed/nuvio-plugins"
 private const val CS_REPOS_ROUTE = "settings/addons/csrepos"
 private const val PLUGIN_ROUTE = "settings/addons/plugin/{id}"
 private const val PLAYER_SETTINGS_ROUTE = "settings/player"
@@ -151,10 +155,29 @@ fun PlayRoot() {
         navController.navigate(addonsRoute(startAdding)) { launchSingleTop = true }
     }
 
+    // Başarılı ekleme, kaynak türüne göre doğrudan ilgili listeyi açar.
+    fun openAddedSource(result: AddResult) {
+        openTab(Tab.Settings)
+        val destination = when (result) {
+            is AddResult.CsRepo -> CS_REPOS_ROUTE
+            is AddResult.PluginRepo -> ADDONS_INSTALLED_NUVIO_PLUGINS_ROUTE
+            is AddResult.Addon -> ADDONS_INSTALLED_NUVIO_ROUTE
+        }
+        navController.navigate(destination) { launchSingleTop = true }
+    }
+
     // https eklenti bağlantısıyla açılınca (MainActivity -> pendingAddonUrl) ekleme ekranına git.
     val pendingAddonUrl by container.pendingAddonUrl.collectAsStateWithLifecycle()
     LaunchedEffect(pendingAddonUrl) {
         if (pendingAddonUrl != null) openAddons(startAdding = false)
+    }
+
+    // Repo Manager deep link'i başarıyla kurulduğunda aynı yönlendirmeyi uygula.
+    val installedSource by container.deepLinks.installedSource.collectAsStateWithLifecycle()
+    LaunchedEffect(installedSource) {
+        val result = installedSource ?: return@LaunchedEffect
+        container.deepLinks.consumeInstalledSource()
+        openAddedSource(result)
     }
 
     // Oynat: aktif eklenti yoksa tek yol eklenti eklemektir. Aynı içerik yarım izlenmişse önce
@@ -365,6 +388,7 @@ fun PlayRoot() {
                         onOpenRepos = { navController.navigate(ADDONS_REPOS_ROUTE) },
                         onOpenInstalled = { navController.navigate(ADDONS_INSTALLED_ROUTE) },
                         onOpenCsRepos = { navController.navigate(CS_REPOS_ROUTE) },
+                        onAdded = { result -> openAddedSource(result) },
                     )
                 }
             }
@@ -375,6 +399,24 @@ fun PlayRoot() {
                     InstalledAddonsScreen(
                         onBack = { navController.popBackStack() },
                         onOpenPlugin = { navController.navigate("settings/addons/plugin/$it") },
+                    )
+                }
+            }
+            composable(ADDONS_INSTALLED_NUVIO_ROUTE) {
+                ReadableWidth {
+                    InstalledAddonsScreen(
+                        onBack = { navController.popBackStack() },
+                        onOpenPlugin = { navController.navigate("settings/addons/plugin/$it") },
+                        section = InstalledAddonsSection.NUVIO_ADDONS,
+                    )
+                }
+            }
+            composable(ADDONS_INSTALLED_NUVIO_PLUGINS_ROUTE) {
+                ReadableWidth {
+                    InstalledAddonsScreen(
+                        onBack = { navController.popBackStack() },
+                        onOpenPlugin = { navController.navigate("settings/addons/plugin/$it") },
+                        section = InstalledAddonsSection.NUVIO_PLUGINS,
                     )
                 }
             }
