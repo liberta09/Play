@@ -12,6 +12,7 @@ fun AddonException.userMessage(): String = when (kind) {
     Kind.InvalidUrl -> stringResource(R.string.addon_error_invalid_url)
     Kind.AlreadyAdded -> stringResource(R.string.addon_error_already_added)
     Kind.UnsupportedKind -> stringResource(R.string.addon_error_unsupported_kind)
+    Kind.WrongSourceType -> stringResource(R.string.addon_error_wrong_source_type)
     Kind.Network -> stringResource(R.string.addon_error_network)
     Kind.Http -> stringResource(R.string.addon_error_http, detail.orEmpty())
     Kind.TooLarge -> stringResource(R.string.addon_error_too_large)
