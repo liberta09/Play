@@ -127,6 +127,15 @@
     </plurals>
     <string name="addons_empty">No addons installed.</string>
     <string name="addons_add">Add addon</string>
+    <string name="addons_add_choose_type">Choose what to add</string>
+    <string name="addons_add_cloudstream">Add CloudStream Repository</string>
+    <string name="addons_add_nuvio">Add Nuvio Repository</string>
+    <string name="addons_add_nuvio_plugin">Add Nuvio Plugin</string>
+    <string name="addons_nuvio_title">Nuvio Repositories</string>
+    <string name="addons_nuvio_plugins_title">Nuvio Plugins</string>
+    <string name="addons_nuvio_empty">No Nuvio repositories added yet.</string>
+    <string name="addons_nuvio_plugins_empty">No Nuvio plugins installed yet.</string>
+    <string name="addon_error_wrong_source_type">This link does not match the selected type. Choose the correct add option and try again.</string>
     <string name="addons_repos">All installed repositories</string>
     <string name="addons_repos_empty">No repositories installed.</string>
     <string name="addons_installed">Installed addons</string>
