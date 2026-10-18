@@ -13,6 +13,7 @@ import com.kaan.play.data.plugin.InstalledPlugin
 import com.kaan.play.data.plugin.PluginRepo
 import com.kaan.play.data.plugin.PluginRepository
 import com.kaan.play.data.plugin.SourceInstaller
+import com.kaan.play.data.plugin.SourceType
 import com.kaan.play.data.plugin.UpdatePlan
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -33,6 +34,7 @@ data class AddDialogState(
     val input: String = "",
     val busy: Boolean = false,
     val error: AddonException? = null,
+    val expectedType: SourceType? = null,
 )
 
 class AddonsViewModel(
@@ -73,9 +75,9 @@ class AddonsViewModel(
         openAdd()
     }
 
-    fun openAdd(prefill: String = "") {
+    fun openAdd(prefill: String = "", expectedType: SourceType? = null) {
         submitJob?.cancel()
-        _dialog.value = AddDialogState(input = prefill)
+        _dialog.value = AddDialogState(input = prefill, expectedType = expectedType)
     }
 
     fun dismissAdd() {
@@ -93,7 +95,7 @@ class AddonsViewModel(
         _dialog.value = current.copy(busy = true, error = null)
         submitJob = viewModelScope.launch {
             try {
-                val result = installer.add(current.input)
+                val result = installer.add(current.input, current.expectedType)
                 _dialog.value = null
                 _added.emit(result)
             } catch (e: AddonException) {
