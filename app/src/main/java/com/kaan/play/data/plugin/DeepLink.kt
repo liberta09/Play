@@ -51,6 +51,14 @@ class DeepLinkHandler(
     private val channel = Channel<DeepLinkEvent>(Channel.BUFFERED)
     val events: Flow<DeepLinkEvent> = channel.receiveAsFlow()
 
+    // Başarılı kurulumun hedef ekranını PlayRoot'a ayrıca bildirir. Snackbar kanalıyla yarışmaz.
+    private val _installedSource = MutableStateFlow<AddResult?>(null)
+    val installedSource: StateFlow<AddResult?> = _installedSource.asStateFlow()
+
+    fun consumeInstalledSource() {
+        _installedSource.value = null
+    }
+
     /** Onay bekleyen adres; null = onay penceresi kapalı. Etkinlik yeniden oluşsa da (döndürme) pencere kalır. */
     private val _pending = MutableStateFlow<String?>(null)
     val pending: StateFlow<String?> = _pending.asStateFlow()
@@ -70,7 +78,9 @@ class DeepLinkHandler(
         _pending.value = null
         scope.launch {
             val event = try {
-                DeepLinkEvent.Added(installer.add(target))
+                val result = installer.add(target)
+                _installedSource.value = result
+                DeepLinkEvent.Added(result)
             } catch (e: AddonException) {
                 DeepLinkEvent.Failed(e)
             }
