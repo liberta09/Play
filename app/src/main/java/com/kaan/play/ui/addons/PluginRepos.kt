@@ -178,8 +178,18 @@ private fun RepoRow(repo: PluginRepo, busy: Boolean, enabled: Boolean, onCheck: 
  * "Yüklü eklentiler": addon'lar (aç/kapat/kaldır) ve eklenti depolarındaki eklentiler (depo adı altında, yalnızca aç/kapat).
  * Depo eklentileri **varsayılan kapalıdır**; kullanıcı bilinçle açar. Depoyu silmek "Kurulu tüm depolar"dandır.
  */
+enum class InstalledAddonsSection {
+    ALL,
+    NUVIO_ADDONS,
+    NUVIO_PLUGINS,
+}
+
 @Composable
-fun InstalledAddonsScreen(onBack: () -> Unit, onOpenPlugin: (Long) -> Unit) {
+fun InstalledAddonsScreen(
+    onBack: () -> Unit,
+    onOpenPlugin: (Long) -> Unit,
+    section: InstalledAddonsSection = InstalledAddonsSection.ALL,
+) {
     val vm = containerViewModel { InstalledAddonsViewModel(it.addons, it.plugins, it.csRepos) }
     val addons by vm.addons.collectAsStateWithLifecycle()
     val groups by vm.groups.collectAsStateWithLifecycle()
@@ -187,53 +197,71 @@ fun InstalledAddonsScreen(onBack: () -> Unit, onOpenPlugin: (Long) -> Unit) {
     var toRemove by remember { mutableStateOf<Addon?>(null) }
 
     Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
-        ScreenHeader(title = stringResource(R.string.addons_installed), onBack = onBack)
+        val title = when (section) {
+            InstalledAddonsSection.ALL -> R.string.addons_installed
+            InstalledAddonsSection.NUVIO_ADDONS -> R.string.addons_nuvio_title
+            InstalledAddonsSection.NUVIO_PLUGINS -> R.string.addons_nuvio_plugins_title
+        }
+        ScreenHeader(title = stringResource(title), onBack = onBack)
 
         val addonList = addons
         val groupList = groups
         val csGroupList = csGroups
         when {
             addonList == null || groupList == null || csGroupList == null -> Unit // yükleniyor: boş mesaj yanıp sönmesin
-            addonList.isEmpty() && groupList.isEmpty() && csGroupList.isEmpty() -> EmptyMessage(stringResource(R.string.addons_empty))
-            else -> LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                if (groupList.isNotEmpty()) item(key = "note") { Text(
-                    text = stringResource(R.string.plugins_note),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                ) }
-                items(addonList, key = { "a-${it.id}" }) { addon ->
-                    AddonRow(addon = addon, onToggle = { vm.setEnabled(addon, it) }, onRemove = { toRemove = addon })
-                }
-                groupList.forEach { group ->
-                    item(key = "g-${group.repo.id}") {
-                        Text(
-                            text = group.repo.name,
+            else -> {
+                val visibleAddons = if (section != InstalledAddonsSection.NUVIO_PLUGINS) addonList else emptyList()
+                val visibleGroups = if (section != InstalledAddonsSection.NUVIO_ADDONS) groupList else emptyList()
+                val visibleCsGroups = if (section == InstalledAddonsSection.ALL) csGroupList else emptyList()
+                if (visibleAddons.isEmpty() && visibleGroups.isEmpty() && visibleCsGroups.isEmpty()) {
+                    val emptyText = when (section) {
+                        InstalledAddonsSection.ALL -> R.string.addons_empty
+                        InstalledAddonsSection.NUVIO_ADDONS -> R.string.addons_nuvio_empty
+                        InstalledAddonsSection.NUVIO_PLUGINS -> R.string.addons_nuvio_plugins_empty
+                    }
+                    EmptyMessage(stringResource(emptyText))
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        if (visibleGroups.isNotEmpty()) item(key = "note") { Text(
+                            text = stringResource(R.string.plugins_note),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 20.dp, bottom = 4.dp),
-                        )
-                    }
-                    items(group.plugins, key = { "p-${it.id}" }) { plugin ->
-                        PluginRow(plugin = plugin, onToggle = { vm.setPluginEnabled(plugin, it) }, onOpen = { onOpenPlugin(plugin.id) })
-                    }
-                }
-                // CloudStream .cs3 eklentileri
-                csGroupList.forEach { group ->
-                    item(key = "cs-${group.repo.id}") {
-                        Text(
-                            text = group.repo.name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 20.dp, bottom = 4.dp),
-                        )
-                    }
-                    items(group.plugins, key = { "csp-${it.id}" }) { plugin ->
-                        CsPluginRow(plugin = plugin, onToggle = { vm.setCsPluginEnabled(plugin, it) })
+                            modifier = Modifier.padding(bottom = 8.dp),
+                        ) }
+                        items(visibleAddons, key = { "a-${it.id}" }) { addon ->
+                            AddonRow(addon = addon, onToggle = { vm.setEnabled(addon, it) }, onRemove = { toRemove = addon })
+                        }
+                        visibleGroups.forEach { group ->
+                            item(key = "g-${group.repo.id}") {
+                                Text(
+                                    text = group.repo.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(top = 20.dp, bottom = 4.dp),
+                                )
+                            }
+                            items(group.plugins, key = { "p-${it.id}" }) { plugin ->
+                                PluginRow(plugin = plugin, onToggle = { vm.setPluginEnabled(plugin, it) }, onOpen = { onOpenPlugin(plugin.id) })
+                            }
+                        }
+                        // CloudStream .cs3 eklentileri yalnızca genel "Yüklü eklentiler" ekranında gösterilir.
+                        visibleCsGroups.forEach { group ->
+                            item(key = "cs-${group.repo.id}") {
+                                Text(
+                                    text = group.repo.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(top = 20.dp, bottom = 4.dp),
+                                )
+                            }
+                            items(group.plugins, key = { "csp-${it.id}" }) { plugin ->
+                                CsPluginRow(plugin = plugin, onToggle = { vm.setCsPluginEnabled(plugin, it) })
+                            }
+                        }
                     }
                 }
             }
