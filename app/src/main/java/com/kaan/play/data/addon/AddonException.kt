@@ -27,6 +27,9 @@ class AddonException(
         /** `stream` kaynağı var ama ne film ne dizi için. */
         UnsupportedTypes,
 
+        /** Kullanıcının seçtiği kaynak türü ile manifest içeriği uyuşmuyor. */
+        WrongSourceType,
+
         /** Eklenti deposu geçerli ama kullanılabilir hiç kazıyıcı girişi yok. */
         NoPlugins,
 
