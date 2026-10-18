@@ -109,6 +109,15 @@
     </plurals>
     <string name="addons_empty">Yüklü eklenti yok.</string>
     <string name="addons_add">Eklenti ekle</string>
+    <string name="addons_add_choose_type">Eklenecek türü seç</string>
+    <string name="addons_add_cloudstream">CloudStream Deposu Ekle</string>
+    <string name="addons_add_nuvio">Nuvio Deposu Ekle</string>
+    <string name="addons_add_nuvio_plugin">Nuvio Plugin Ekle</string>
+    <string name="addons_nuvio_title">Nuvio Depoları</string>
+    <string name="addons_nuvio_plugins_title">Nuvio Pluginler</string>
+    <string name="addons_nuvio_empty">Henüz Nuvio deposu eklenmedi.</string>
+    <string name="addons_nuvio_plugins_empty">Henüz Nuvio plugin yüklenmedi.</string>
+    <string name="addon_error_wrong_source_type">Bağlantı seçtiğin türle eşleşmiyor. Doğru ekleme türünü seçip tekrar dene.</string>
     <string name="addons_repos">Kurulu tüm depolar</string>
     <string name="addons_repos_empty">Kurulu depo yok.</string>
     <string name="addons_installed">Yüklü eklentiler</string>
