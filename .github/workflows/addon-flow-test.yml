@@ -25,7 +25,12 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: 'platform-tools platforms;android-37 build-tools;36.0.0'
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+
+      # This CI runner does not publish API 37 in sdkmanager yet. Use API 36 in the ephemeral CI workspace only;
+      # the application source in the branch remains on its existing compileSdk/targetSdk 37 settings.
+      - name: Use available SDK for CI debug build
+        run: sed -i -e 's/compileSdk = 37/compileSdk = 36/' -e 's/targetSdk = 37/targetSdk = 36/' app/build.gradle.kts
 
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
