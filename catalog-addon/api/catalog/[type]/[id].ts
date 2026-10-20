@@ -90,7 +90,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         description: item.overview || undefined,
         releaseInfo: releaseInfo.slice(0, 4) || undefined,
         imdbRating: item.vote_average ? item.vote_average.toFixed(1) : undefined,
-        genres: item.genre_ids?.map(String) ?? []
       };
     }));
     return res.status(200).json({ metas: metas.filter(Boolean) });
