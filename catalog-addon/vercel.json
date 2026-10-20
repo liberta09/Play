@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/manifest.json",
+      "destination": "/api/manifest"
+    },
+    {
+      "source": "/catalog/:type/:id.json",
+      "destination": "/api/catalog/:type/:id"
+    }
+  ]
+}
