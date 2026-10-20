@@ -32,6 +32,12 @@ internal class TmdbService(
     suspend fun popular(type: String, language: String, page: Int): ListDto =
         get("$type/popular", ListDto.serializer(), language, "page" to page.toString())
 
+    /** Discover filters for genuine recent releases and country-of-origin catalogs. */
+    suspend fun discover(type: String, language: String, page: Int, filters: Map<String, String>): ListDto =
+        get("discover/$type", ListDto.serializer(), language, *(
+            listOf("page" to page.toString()) + filters.toList()
+        ).toTypedArray())
+
     /** Tür kimliği -> ad listesi (`genre/movie/list`, `genre/tv/list`), istenen dilde. */
     suspend fun genres(type: String, language: String): GenreListDto =
         get("genre/$type/list", GenreListDto.serializer(), language)

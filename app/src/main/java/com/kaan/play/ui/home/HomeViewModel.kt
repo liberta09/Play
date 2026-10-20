@@ -21,13 +21,14 @@ import kotlinx.coroutines.launch
 
 /** Ana sayfadaki TMDB sıraları (üstten alta). Her biri "tümü" ekranında sayfa sayfa açılır ([CategoryScreen]). */
 enum class HomeRow {
-    TrendingMovies, TrendingSeries, PopularMovies, PopularSeries;
+    NewMovies, NewSeries, WeeklyMovies, TurkishMovies, TurkishSeries;
 
     suspend fun page(tmdb: TmdbRepository, page: Int): Page<MediaSummary> = when (this) {
-        TrendingMovies -> tmdb.trending(MediaType.Movie, page)
-        TrendingSeries -> tmdb.trending(MediaType.Tv, page)
-        PopularMovies -> tmdb.popular(MediaType.Movie, page)
-        PopularSeries -> tmdb.popular(MediaType.Tv, page)
+        NewMovies -> tmdb.newMovies(page)
+        NewSeries -> tmdb.newSeries(page)
+        WeeklyMovies -> tmdb.weeklyMovies(page)
+        TurkishMovies -> tmdb.turkishMovies(page)
+        TurkishSeries -> tmdb.turkishSeries(page)
     }
 }
 

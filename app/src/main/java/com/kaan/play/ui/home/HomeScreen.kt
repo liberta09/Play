@@ -115,7 +115,7 @@ private fun HomeContent(
     val hasContinue = continueWatching.isNotEmpty()
     // Kumanda: başlangıç odağı kapak düğmesinde (yoksa devam et / ilk satırın ilk kartında); geri dönünce son odaklanan öğe.
     // Kapak yüklenirken beklenir ki odak sonradan eklenen öğenin altına düşmesin.
-    val firstReady = hero !is Loadable.Loading && (hasHero || hasContinue || rows.getValue(HomeRow.TrendingMovies) is Loadable.Ready)
+    val firstReady = hero !is Loadable.Loading && (hasHero || hasContinue || rows.getValue(HomeRow.NewMovies) is Loadable.Ready)
     val focus = rememberFocusMemory(enabled = firstReady)
 
     // LazyColumn anahtar bazlı konumu korur: en üste sonradan eklenen "devam et" satırı ekranın üstüne itilirdi.
@@ -189,7 +189,7 @@ private fun HomeContent(
                                         .focusMemory(
                                             focus,
                                             "${row.name}-${media.type}-${media.id}",
-                                            isDefault = !hasHero && !hasContinue && row == HomeRow.TrendingMovies && media == state.value.first(),
+                                            isDefault = !hasHero && !hasContinue && row == HomeRow.NewMovies && media == state.value.first(),
                                         ),
                                 )
                             }
@@ -291,8 +291,9 @@ private fun SkeletonRow(cardWidth: Dp) {
 }
 
 internal fun HomeRow.titleRes(): Int = when (this) {
-    HomeRow.TrendingMovies -> R.string.home_row_trending_movies
-    HomeRow.TrendingSeries -> R.string.home_row_trending_series
-    HomeRow.PopularMovies -> R.string.home_row_popular_movies
-    HomeRow.PopularSeries -> R.string.home_row_popular_series
+    HomeRow.NewMovies -> R.string.home_row_new_movies
+    HomeRow.NewSeries -> R.string.home_row_new_series
+    HomeRow.WeeklyMovies -> R.string.home_row_weekly_movies
+    HomeRow.TurkishMovies -> R.string.home_row_turkish_movies
+    HomeRow.TurkishSeries -> R.string.home_row_turkish_series
 }

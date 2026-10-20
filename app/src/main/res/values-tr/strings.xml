@@ -17,12 +17,13 @@
     <string name="home_empty_message">Henüz hiçbir eklenti yok.</string>
     <string name="home_empty_action">Başlamak için bir eklenti ekle</string>
     <string name="home_row_continue">İzlemeye devam et</string>
-    <string name="home_row_trending_movies">Trend filmler</string>
-    <string name="home_row_trending_series">Trend diziler</string>
+    <string name="home_row_new_movies">PLAY · Yeni Eklenen Filmler</string>
+    <string name="home_row_new_series">PLAY · Yeni Eklenen Diziler</string>
     <string name="home_hero_details">Detayları gör</string>
     <string name="home_see_all">Tümünü gör</string>
-    <string name="home_row_popular_movies">Popüler filmler</string>
-    <string name="home_row_popular_series">Popüler diziler</string>
+    <string name="home_row_weekly_movies">PLAY · Haftanın Filmleri</string>
+    <string name="home_row_turkish_movies">PLAY · Yerli Filmler</string>
+    <string name="home_row_turkish_series">PLAY · Yerli Diziler</string>
     <string name="continue_left_movie">%1$d dk kaldı</string>
     <string name="continue_left_episode">S%1$d B%2$d · %3$d dk kaldı</string>
     <string name="continue_next_episode">Sıradaki: S%1$d B%2$d</string>
