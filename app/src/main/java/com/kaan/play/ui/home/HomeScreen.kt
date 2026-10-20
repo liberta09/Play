@@ -115,7 +115,7 @@ private fun HomeContent(
     val hasContinue = continueWatching.isNotEmpty()
     // Kumanda: başlangıç odağı kapak düğmesinde (yoksa devam et / ilk satırın ilk kartında); geri dönünce son odaklanan öğe.
     // Kapak yüklenirken beklenir ki odak sonradan eklenen öğenin altına düşmesin.
-    val firstReady = hero !is Loadable.Loading && (hasHero || hasContinue || rows.getValue(HomeRow.TrendingMovies) is Loadable.Ready)
+    val firstReady = hero !is Loadable.Loading && (hasHero || hasContinue || rows.getValue(HomeRow.NewMovies) is Loadable.Ready)
     val focus = rememberFocusMemory(enabled = firstReady)
 
     // LazyColumn anahtar bazlı konumu korur: en üste sonradan eklenen "devam et" satırı ekranın üstüne itilirdi.
