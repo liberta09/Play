@@ -23,13 +23,14 @@
     <string name="home_empty_message">No addons yet.</string>
     <string name="home_empty_action">Add an addon to get started</string>
     <string name="home_row_continue">Continue watching</string>
-    <string name="home_row_trending_movies">Trending movies</string>
-    <string name="home_row_trending_series">Trending series</string>
+    <string name="home_row_new_movies">PLAY · Newly Added Movies</string>
+    <string name="home_row_new_series">PLAY · Newly Added Series</string>
     <string name="home_hero_details">See details</string>
     <string name="home_see_all">See all</string>
     <string name="rating_tmdb" translatable="false">TMDB %1$s</string>
-    <string name="home_row_popular_movies">Popular movies</string>
-    <string name="home_row_popular_series">Popular series</string>
+    <string name="home_row_weekly_movies">PLAY · Movies of the Week</string>
+    <string name="home_row_turkish_movies">PLAY · Turkish Movies</string>
+    <string name="home_row_turkish_series">PLAY · Turkish Series</string>
     <string name="continue_left_movie">%1$d min left</string>
     <string name="continue_left_episode">S%1$d E%2$d · %3$d min left</string>
     <string name="continue_next_episode">Next: S%1$d E%2$d</string>
