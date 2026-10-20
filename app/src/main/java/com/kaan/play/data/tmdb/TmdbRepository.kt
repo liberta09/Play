@@ -41,6 +41,64 @@ class TmdbRepository(
     suspend fun popular(type: MediaType, page: Int = 1): Page<MediaSummary> =
         service.popular(type.tmdbPath, lang(), page).toPage(defaultType = type)
 
+    /** Recently released movies (last 90 days), ordered newest first. */
+    suspend fun newMovies(page: Int = 1): Page<MediaSummary> {
+        val today = java.time.LocalDate.now()
+        return service.discover(
+            "movie", lang(), page,
+            mapOf(
+                "primary_release_date.gte" to today.minusDays(90).toString(),
+                "primary_release_date.lte" to today.toString(),
+                "sort_by" to "primary_release_date.desc",
+                "region" to "TR",
+                "include_adult" to "false",
+            ),
+        ).toPage(defaultType = MediaType.Movie)
+    }
+
+    /** Recently premiered series (last 90 days), ordered newest first. */
+    suspend fun newSeries(page: Int = 1): Page<MediaSummary> {
+        val today = java.time.LocalDate.now()
+        return service.discover(
+            "tv", lang(), page,
+            mapOf(
+                "first_air_date.gte" to today.minusDays(90).toString(),
+                "first_air_date.lte" to today.toString(),
+                "sort_by" to "first_air_date.desc",
+                "include_adult" to "false",
+            ),
+        ).toPage(defaultType = MediaType.Tv)
+    }
+
+    /** Films released in the last seven days, ordered by popularity. */
+    suspend fun weeklyMovies(page: Int = 1): Page<MediaSummary> {
+        val today = java.time.LocalDate.now()
+        return service.discover(
+            "movie", lang(), page,
+            mapOf(
+                "primary_release_date.gte" to today.minusDays(7).toString(),
+                "primary_release_date.lte" to today.toString(),
+                "sort_by" to "popularity.desc",
+                "region" to "TR",
+                "include_adult" to "false",
+            ),
+        ).toPage(defaultType = MediaType.Movie)
+    }
+
+    /** Movies whose country of origin is Türkiye. */
+    suspend fun turkishMovies(page: Int = 1): Page<MediaSummary> =
+        service.discover(
+            "movie", lang(), page,
+            mapOf("with_origin_country" to "TR", "sort_by" to "popularity.desc", "include_adult" to "false"),
+        ).toPage(defaultType = MediaType.Movie)
+
+    /** Series whose country of origin is Türkiye. */
+    suspend fun turkishSeries(page: Int = 1): Page<MediaSummary> =
+        service.discover(
+            "tv", lang(), page,
+            mapOf("with_origin_country" to "TR", "sort_by" to "popularity.desc", "include_adult" to "false"),
+        ).toPage(defaultType = MediaType.Tv)
+
     /** Yalnızca film ya da yalnızca dizi için bu haftanın trendleri. */
     suspend fun trending(type: MediaType, page: Int = 1): Page<MediaSummary> =
         service.trendingOf(type.tmdbPath, lang(), page).toPage(defaultType = type)
