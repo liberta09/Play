@@ -26,6 +26,7 @@ Değişmez kurallar: main'e birleştirme ve release yalnızca kullanıcı onayı
 - "Sorun bildir" düğmesi (teşhis bilgisi Telegram/e-posta).
 - GitHub'da her gönderimde otomatik derleme + test (bozuk kod ana dala girmesin).
 - Beta kanalı (Telegram gönüllüleri; ileride destekçilere "erken erişim").
+- Web görünümünde TV/kumanda desteği (şartname: docs/sartname-web-kumanda.md): Parça 1 (sanal imleç, ok tuşları, tıklama, kaydırma), Parça 2 (ekran klavyesi, Geri sırası) ve Parça 3 (tam ekranda imleç, otomatik tam ekran betiği) tamamlandı; TV kutusunda test edildi/edilecek.
 - Açık hatalar: (a) TV kutusunda "Eklenti API'si bulunamadı" (CsDexLoader.loadApis boş; hata metni koda Türkçe gömülü, string resource olmalı); (b) arkadaşın sağlayıcı seçimi sorunu, 1.1.4'te yeniden denenecek; (c) bir sonraki duyuruya Telegram adresi: https://t.me/+o-RFlV4U3UY5NGU8
 
 ### Aşama 1 — Yeni bölüm bilgisi (ücretsiz)
