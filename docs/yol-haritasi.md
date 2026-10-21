@@ -26,6 +26,8 @@ Değişmez kurallar: main'e birleştirme ve release yalnızca kullanıcı onayı
 - "Sorun bildir" düğmesi (teşhis bilgisi Telegram/e-posta).
 - GitHub'da her gönderimde otomatik derleme + test (bozuk kod ana dala girmesin).
 - Beta kanalı (Telegram gönüllüleri; ileride destekçilere "erken erişim").
+- **Web görünümü TV/kumanda desteği (kullanıcı listeye aldı, 2026-10-21):** TV'de normal kumandayla web görünümünde gezinilemiyor (telefonda dokunmatikle sorun yok). Hedef: yalnızca TV/kumanda için sanal imleç (ok tuşları hareket, Tamam tıklama, kenarda kaydırma), arama kutusunda ekran klavyesi, sitedeki tam ekran video (kumandayla durdur/sar), Geri tuşu sırası (tam ekran → sayfa geri → kapat), üst çubuğa erişim. Telefondaki davranış değişmez. Her sitede kusursuzluk vaat edilmez. Şartname yazılıp kullanıcı onaylayınca başlanır.
+- **Oynatma takılması araştırması (kullanıcı listeye aldı, 2026-10-21):** TV kutusunda bazı kaynaklar (örn. bir dizi bölümü) Play'de ve alternatif oynatıcılarda takılıyor/duruyor, aynı içerik web sitesinin kendi oynatıcısında sorunsuz. Önce teşhis: hangi kaynak, kalite, boyut, doğrudan mı torrent mi, Wi-Fi mi kablo mu. Sonuca göre karar verilir.
 - Açık hatalar: (a) TV kutusunda "Eklenti API'si bulunamadı" (CsDexLoader.loadApis boş; hata metni koda Türkçe gömülü, string resource olmalı); (b) arkadaşın sağlayıcı seçimi sorunu, 1.1.4'te yeniden denenecek; (c) bir sonraki duyuruya Telegram adresi: https://t.me/+o-RFlV4U3UY5NGU8
 
 ### Aşama 1 — Yeni bölüm bilgisi (ücretsiz)
