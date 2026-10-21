@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -31,13 +33,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kaan.play.BuildConfig
 import com.kaan.play.R
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.theme.PlayColors
 import com.kaan.play.ui.tv.focusRing
 
 /**
- * Hakkında ekranı: Referans tasarıma uygun Telegram Topluluğu kartı.
+ * Hakkında ekranı: Referans tasarıma uygun Telegram Topluluğu kartı, sürüm bilgisi ve lisans/atıf metinleri.
  */
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
@@ -48,7 +51,8 @@ fun AboutScreen(onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding(),
+            .statusBarsPadding()
+            .verticalScroll(rememberScrollState()),
     ) {
         com.kaan.play.ui.components.ScreenHeader(
             title = stringResource(R.string.settings_about),
@@ -143,6 +147,44 @@ fun AboutScreen(onBack: () -> Unit) {
                     }
                 }
             }
+        }
+
+        // Bilgi ve Lisans/Atıf Metinleri
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.about_version, BuildConfig.VERSION_NAME),
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = stringResource(R.string.about_no_content),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.about_web_blocking),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.about_tmdb_attribution),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.about_license_attribution),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

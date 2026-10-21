@@ -269,7 +269,7 @@
     <string name="settings_subtitle_language">Tercih edilen altyazı dili</string>
     <string name="about_no_content">Play hiçbir içerik sağlamaz; kullanıcı kendi eklentilerini ekler.</string>
     <string name="about_tmdb_attribution">Bu ürün TMDB API\'sini kullanır ancak TMDB tarafından onaylanmamıştır veya sertifikalandırılmamıştır.</string>
-    <string name="about_license_attribution">Bu uygulama GNU GPL v3.0 ile lisanslanmıştır. CloudStream (GPL-3.0) kütüphanesini kullanır.</string>
+    <string name="about_license_attribution">Bu uygulama GNU GPL v3.0 ile lisanslanmıştır. CloudStream (GPL-3.0) kütüphanesini ve EasyList (GPLv3 / CC BY-SA 3.0) filtre kurallarını kullanır.</string>
 
     <!-- Web siteleri (Eklentiler içinde) -->
     <string name="web_add">Web sitesi ekle</string>

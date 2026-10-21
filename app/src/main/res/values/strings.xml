@@ -120,7 +120,7 @@
     <string name="about_telegram_url" translatable="false">https://t.me/+o-RFlV4U3UY5NGU8</string>
     <!-- TMDB'nin zorunlu atıf metni; olduğu gibi (İngilizce) gösterilir. -->
     <string name="about_tmdb_attribution">This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
-    <string name="about_license_attribution">Licensed under GNU GPL v3.0. Uses the CloudStream (GPL-3.0) library.</string>
+    <string name="about_license_attribution">Licensed under GNU GPL v3.0. Uses the CloudStream (GPL-3.0) library and EasyList (GPLv3 / CC BY-SA 3.0) filter rules.</string>
 
     <!-- Eklentiler -->
     <string name="addons_title">Addons</string>
