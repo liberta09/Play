@@ -132,7 +132,8 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
         val forceRemote = BuildConfig.DEBUG && intent.getBooleanExtra(EXTRA_FORCE_REMOTE, false)
         isRemoteMode = forceRemote || !DeviceLevels.supportsTouch(this)
         if (isRemoteMode) {
-            val controller = WebCursorController()
+            // KeyEvent.eventTime uptimeMillis tabanlıdır; denetleyicinin saati de aynı olmalı (yoksa imleç hep soluk kalır).
+            val controller = WebCursorController(clock = { SystemClock.uptimeMillis() })
             cursorController = controller
             cursorView = WebCursorView(this).apply {
                 bind(controller)
