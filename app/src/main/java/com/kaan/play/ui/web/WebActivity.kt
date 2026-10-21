@@ -12,6 +12,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
@@ -58,12 +59,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.BuildConfig
 import com.kaan.play.PlayApp
 import com.kaan.play.data.web.MoveDirection
 import com.kaan.play.data.web.WebCursorController
+import com.kaan.play.data.web.WebKeyboardRules
 import com.kaan.play.ui.player.DeviceLevels
 import com.kaan.play.R
 import com.kaan.play.data.settings.ThemeMode
@@ -99,6 +102,7 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
     private var isRemoteMode: Boolean = false
     private var cursorController: WebCursorController? = null
     private var cursorView: WebCursorView? = null
+    private var isImeVisibleFlag: Boolean = false
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -174,9 +178,15 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
         )
         setContentView(root)
 
+        ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
+            isImeVisibleFlag = insets.isVisible(WindowInsetsCompat.Type.ime())
+            ViewCompat.onApplyWindowInsets(v, insets)
+        }
+
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when {
+                    isImeVisible() -> hideIme()
                     customView != null -> hide()
                     view.canGoBack() -> view.goBack()
                     else -> finish()
@@ -289,6 +299,11 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
             return super.dispatchKeyEvent(event)
         }
 
+        // Klavye açıkken ok tuşları/Tamam klavyeye gitsin; imleç katmanı klavyeyi bozmasın (K4)
+        if (isImeVisible()) {
+            return super.dispatchKeyEvent(event)
+        }
+
         val controller = cursorController ?: return super.dispatchKeyEvent(event)
 
         // Durum A: İmleç gizli (üst çubukta odak var)
@@ -396,6 +411,31 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
         )
         target.dispatchTouchEvent(upEvent)
         upEvent.recycle()
+
+        checkAndShowKeyboard(target)
+        target.post { checkAndShowKeyboard(target) }
+    }
+
+    private fun checkAndShowKeyboard(target: WebView) {
+        if (WebKeyboardRules.shouldRequestKeyboard(target.hitTestResult.type)) {
+            target.requestFocus()
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.showSoftInput(target, 0)
+        }
+    }
+
+    private fun isImeVisible(): Boolean {
+        val insets = ViewCompat.getRootWindowInsets(window.decorView)
+        return insets?.isVisible(WindowInsetsCompat.Type.ime()) ?: isImeVisibleFlag
+    }
+
+    private fun hideIme() {
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        controller.hide(WindowInsetsCompat.Type.ime())
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        val target = web ?: window.decorView
+        imm?.hideSoftInputFromWindow(target.windowToken, 0)
+        isImeVisibleFlag = false
     }
 
     override fun onDestroy() {
