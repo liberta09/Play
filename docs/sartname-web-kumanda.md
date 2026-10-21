@@ -15,6 +15,7 @@ TV kutusunda (normal ok tuşlu kumanda) Ayarlar > Eklentiler > Web siteleri'nden
 2. **Yazı yazma:** imleçle bir metin kutusuna tıklayınca sistem ekran klavyesi açılır; yazılan metin kutuya düşer; Geri klavyeyi kapatır (sayfadan çıkmaz).
 3. **Tam ekran video:** sitedeki oynatıcının tam ekran düğmesine imleçle basınca mevcut tam ekran yolu çalışır; tam ekranda imleç görünür kalır (site oynatıcısı düğmeleri için), Tamam tıklar. Geri tuşu önce tam ekrandan çıkarır.
 4. **Geri tuşu sırası** (mevcut, korunur ve test edilir): klavye → tam ekran → web geçmişi → kapat.
+6. **Otomatik tam ekran (kullanıcı isteği, 2026-10-22; yalnızca kumanda kipi):** imleçle bir videoya tıklayıp video oynamaya başlayınca video kendiliğinden tam ekrana geçer. Uygulama: `androidx.webkit` ile her sayfaya ve her iç pencereye (iframe) küçük, kendi yazdığımız bir betik yerleştirilir (`WebViewFeature.DOCUMENT_START_SCRIPT`, `allowedOriginRules = {"*"}`); betik `play` olayında, geçici kullanıcı etkinliği (`navigator.userActivation.isActive`) varsa ve video küçük önizleme/kısa reklam değilse (süre ≥ 60 sn ya da bilinmiyor/canlı; görünür genişlik ≥ pencerenin %40'ı) `requestFullscreen()` çağırır; zaten tam ekransa dokunmaz. Betik ağ isteği yapmaz, veri toplamaz, log yazmaz. Özellik desteklenmiyorsa sessizce devreye girmez; eski yol (imleçle sitenin tam ekran düğmesi) çalışmaya devam eder. Yeni Ayarlar kalemi yok.
 5. **Telefon:** `supportsTouch() == true` iken imleç kodu hiç çalışmaz, görünmez; bugünkü davranış aynen kalır.
 
 Kapsam dışı: her sitede kusursuz çalışma vaadi, imleç hız ayarı, yeni Ayarlar kalemi (yok), reklam/engelleme kurallarında değişiklik (yok), `WebPolicy`/`PlayWebViewClient` güvenlik kurallarının gevşetilmesi (yok).
@@ -29,7 +30,7 @@ Kapsam dışı: her sitede kusursuz çalışma vaadi, imleç hız ayarı, yeni A
 ## Parçalar (her biri ≤45 dk, sırayla)
 - **Parça 1:** `WebCursorController` + testleri; imleç çizimi; ok tuşları, Tamam tıklama, kenar kaydırma, imleç gizleme; çubuk ↔ sayfa geçişi; `play_force_remote`.
 - **Parça 2:** klavye açma/kapama ve Geri sırasına klavyeyi ekleme.
-- **Parça 3:** tam ekranda imleç; Geri sırası denetimi; duman testi kontrolü; belge güncellemesi (README + yol haritası).
+- **Parça 3:** tam ekranda imleç (tam ekran görünümünün üstünde, Tamam tıklar); otomatik tam ekran betiği (madde 6); Geri sırası denetimi; belge güncellemesi (README + yol haritası).
 
 ## Kabul maddeleri
 - K1: Kumanda kipinde, test sayfasında ok tuşları imleci hareket ettirir; basılı tutunca hızlanır; ekranın dışına çıkmaz. (birim test + cihaz)
@@ -42,6 +43,9 @@ Kapsam dışı: her sitede kusursuz çalışma vaadi, imleç hız ayarı, yeni A
 - K8: 3 sn tuşsuzluktan sonra imleç soluklaşır; tuşa basınca geri gelir.
 - K9: Dokunmatik kipte (varsayılan telefon) imleç hiç görünmez ve mevcut web testleri/davranış değişmez.
 - K10: Tüm testler yeşil (`StringResourcesTest` dahil), duman testinde gerileme yok, release (R8) derlenir.
+- K12: Kumanda kipinde, test sayfasındaki (ya da gerçek bir sitedeki) videoya imleçle tıklayıp oynatınca video kendiliğinden tam ekrana geçer; telefonda (dokunmatik) bu betik hiç yerleştirilmez.
+- K13: Sayfa yüklenince kendiliğinden başlayan kısa reklam/önizleme videosu (tıklama yok) tam ekrana ALINMAZ.
+- K14: Tam ekranda imleç görünür, ok tuşları onu oynatır, Tamam tıklar (oynat/durdur, ses vb.); Geri tam ekrandan çıkarır ve sayfa korunur.
 - K11 (kullanıcı denemesi, TV kutusu): gerçek bir sitede açma, gezinme, arama kutusuna yazma, bir videoyu tam ekranda izleyip çıkma çalışır. Siteye özgü kusurlar listelenir, kusursuzluk vaat edilmez.
 
 ## Riskler
