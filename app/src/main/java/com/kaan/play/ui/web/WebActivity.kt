@@ -57,9 +57,12 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
 import com.kaan.play.PlayApp
 import com.kaan.play.R
 import com.kaan.play.data.settings.ThemeMode
+import com.kaan.play.data.web.AdHostLoader
 import com.kaan.play.data.web.WebPolicy
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.theme.PlayTheme
@@ -93,6 +96,7 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AdHostLoader.ensureLoaded(this)
         val url = intent.getStringExtra(EXTRA_URL)
         val name = intent.getStringExtra(EXTRA_NAME).orEmpty()
         val policy = WebPolicy()
@@ -112,6 +116,8 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
             configure(this.settings)
             // İndirme istekleri yok sayılır (uygulama dosya indirmez).
             setDownloadListener { _, _, _, _, _ -> }
+            // Popunder engelleme betiği: window.open'ı etkisiz kılar, target=_blank'i aynı sekmede açar.
+            injectPopunderBlocker(this)
         }
         web = view
         CookieManager.getInstance().apply {
@@ -175,6 +181,44 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
         s.allowFileAccess = false
         s.allowContentAccess = false
         s.setGeolocationEnabled(false)
+    }
+
+    /**
+     * Hem telefonda hem TV'de, her sayfaya ve her iç pencereye (iframe) enjekte edilir.
+     * window.open çağrılarını null dönecek şekilde etkisiz kılar, <a target="_blank"> tıklamalarını
+     * aynı sekmede (_self) açılacak şekilde çevirir, sayfanın kendi kendine açtığı yeni pencereleri engeller.
+     * Ağ isteği yapmaz, veri toplamaz, console.log yazmaz, tamamen try/catch içindedir.
+     * WebViewFeature.DOCUMENT_START_SCRIPT desteklenmiyorsa sessizce devreye girmez.
+     */
+    private fun injectPopunderBlocker(webView: WebView) {
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+            val script = """
+                (function() {
+                    try {
+                        var noop = function() { return null; };
+                        window.open = noop;
+                        if (window.Window && window.Window.prototype) {
+                            try { window.Window.prototype.open = noop; } catch(e) {}
+                        }
+                        document.addEventListener('click', function(e) {
+                            try {
+                                var el = e.target;
+                                while (el && el.nodeName !== 'A') {
+                                    el = el.parentElement;
+                                }
+                                if (el && el.nodeName === 'A') {
+                                    var t = el.getAttribute('target');
+                                    if (t && t.toLowerCase() === '_blank') {
+                                        el.setAttribute('target', '_self');
+                                    }
+                                }
+                            } catch(e2) {}
+                        }, true);
+                    } catch(e) {}
+                })();
+            """.trimIndent()
+            WebViewCompat.addDocumentStartJavaScript(webView, script, setOf("*"))
+        }
     }
 
     // ---- WebPageListener ----

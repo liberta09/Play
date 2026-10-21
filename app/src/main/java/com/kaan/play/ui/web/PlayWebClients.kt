@@ -108,19 +108,10 @@ class PlayWebChromeClient(
     override fun onProgressChanged(view: WebView, newProgress: Int) = onProgress(newProgress)
 
     /**
-     * Yeni pencere hiçbir zaman açılmaz. Tek istisna: kullanıcının dokunduğu, aynı siteye giden `target=_blank`
-     * bağlantısı mevcut sayfada açılır (bölüm/sayfa bağlantıları çalışsın). Hareketsiz `window.open`
-     * zaten gelmez (`javaScriptCanOpenWindowsAutomatically` kapalı).
+     * Yeni pencere her durumda reddedilir (popunder ve açılır pencereler engellenir).
+     * Kullanıcı aynı sekmede gezinmeye devam eder (<a target="_blank"> DOCUMENT_START_SCRIPT ile _self'e çevrilir).
      */
     override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: android.os.Message?): Boolean {
-        if (isUserGesture) {
-            val hit = view.hitTestResult
-            val isLink = hit.type == WebView.HitTestResult.SRC_ANCHOR_TYPE || hit.type == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE
-            val target = hit.extra
-            if (isLink && policy.allowsNavigation(target) && WebPolicy.sameSite(view.url, target)) {
-                view.loadUrl(target!!)
-            }
-        }
         Log.d(TAG, "popup rejected")
         return false
     }
