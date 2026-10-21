@@ -26,6 +26,7 @@ Değişmez kurallar: main'e birleştirme ve release yalnızca kullanıcı onayı
 - "Sorun bildir" düğmesi (teşhis bilgisi Telegram/e-posta).
 - GitHub'da her gönderimde otomatik derleme + test (bozuk kod ana dala girmesin).
 - Beta kanalı (Telegram gönüllüleri; ileride destekçilere "erken erişim").
+- **Zorunlu güncelleme (öneri, şartname onayı bekliyor):** GitHub'da küçük bir `min-version.json` (en düşük sürüm + mesaj); uygulama açılışta bir kez bakar (duyuru kontrolü gibi, sessiz hata). Yüklü sürüm küçükse tam ekran, kapatılamayan "Güncelle" penceresi (mevcut `UpdateFlow` kullanılır). İki seviye: önerilen ("Sonra" var) ve zorunlu (yalnızca güvenlik/veri bozan hata/çalışmayan varsayılan addon). Güvenceler: değer yayınlanmış en son sürümden büyükse ya da dosya bozuksa yok sayılır; internet yoksa engellenmez (çevrimdışı indirilmiş içerik izlenebilir, açık karar: tam kilit mi istenir?). Sınır: bu özellikten önceki sürümler (1.1.0–1.1.4) zorlanamaz; kod açık olduğu için derlenmiş mod sürümde atlanabilir.
 - Açık hatalar: (a) TV kutusunda "Eklenti API'si bulunamadı" (CsDexLoader.loadApis boş; hata metni koda Türkçe gömülü, string resource olmalı); (b) arkadaşın sağlayıcı seçimi sorunu, 1.1.4'te yeniden denenecek; (c) bir sonraki duyuruya Telegram adresi: https://t.me/+o-RFlV4U3UY5NGU8
 
 ### Aşama 1 — Yeni bölüm bilgisi (ücretsiz)
@@ -53,6 +54,12 @@ Değişmez kurallar: main'e birleştirme ve release yalnızca kullanıcı onayı
 - Kullanıcı adı + şifre girişi, bulut eşitleme (eklentiler, ayarlar, geçmiş), çoklu profil/çocuk profili, telefondan TV'ye Cast, bulutta altyazı çevirisi, kişisel öneri rafları.
 - Sunucu tarafı destekçi kontrolü (cihaz sınırı 2–3). Sunucu maliyeti ve bakımı gerektirir.
 
+### Daha sonra — Sahte/mod sürümlere karşı önlem (kullanıcı fikri, büyüyünce)
+- GPL-3.0 nedeniyle modlamayı yasaklayamayız; hedef kullanıcıyı sahte sürümlerden korumaktır, mod yazanları engellemek değil.
+- Resmi indirme yerleri netleştirilir (GitHub releases + Telegram kanalı, SHA-256 yayınlanır, "başka yerden indirme" uyarısı).
+- Uygulama kendi imzasını denetler; resmi anahtarla imzalı değilse sakin bir uyarı: "Bu, Play'in resmi sürümü olmayabilir." Zorlama yok (atlanabilir ama sıradan kullanıcıyı korur).
+- Asıl koruma Aşama 4'te: destekçi özellikleri ve bulut hizmeti yalnızca resmi sürümden gelen istekleri kabul eder.
+
 ## 4. Açık sorular (kullanıcıdan beklenen)
 1. Ödeme sitesi: kullanıcı araştırıyor (Aşama 2 şartnamesinden önce gerekli).
 
@@ -61,6 +68,7 @@ Değişmez kurallar: main'e birleştirme ve release yalnızca kullanıcı onayı
 - Bir aşamanın şartnamesi bitip onaylanınca yapım başlar; yapım sürerken sıradaki aşama konuşulur.
 
 ## 6. Karar günlüğü
+- 2026-10-21: Zorunlu güncelleme (Aşama 0 önerisi) ve ileride sahte/mod sürüm uyarısı yol haritasına eklendi; ikisi de henüz şartnamesiz fikir aşamasında.
 - 2026-10-21: Yeni bölüm için hem rozet hem "Yeni bölümler" rafı. Ödeme sitesi kullanıcı araştırınca seçilecek.
 - 2026-10-21: Watch List, Play'e karıştırılmaz; ayrı bir oluşum olarak kalır.
 - 2026-10-21: Gelir için bağış/destekçi modeli ile başlanır; hesap + bulut sonraya. Çalışma sistemi (yukarıdaki 7 adım) ve bu dosya oluşturuldu.
