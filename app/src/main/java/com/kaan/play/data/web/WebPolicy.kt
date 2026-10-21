@@ -1,27 +1,20 @@
 package com.kaan.play.data.web
 
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import java.util.Locale
 
 /**
  * Web görünümünün Android'den bağımsız kuralları (birim testli): hangi alan adı engellenir, hangi
  * adrese gidilebilir, bir bağlantı aynı siteye mi gidiyor. Android tarafı yalnızca bunları uygular.
  */
-class WebPolicy(blockedDomains: Collection<String> = AdDomains.all) {
+class WebPolicy(
+    private val matcher: AdHostMatcher = AdHostMatcher.default
+) {
 
-    private val blocked: Set<String> = blockedDomains.mapTo(HashSet()) { it.trim().lowercase(Locale.ROOT).trimEnd('.') }
+    /** İkincil kurucu: testlerde veya özel durumlarda alan adı koleksiyonu verilebilsin diye. */
+    constructor(blockedDomains: Collection<String>) : this(AdHostMatcher(blockedDomains))
 
     /** [host], listedeki bir alan adının kendisi ya da alt alan adıysa true. `notdoubleclick.net` eşleşmez. */
-    fun isBlockedHost(host: String?): Boolean {
-        if (host.isNullOrEmpty()) return false
-        var h = host.lowercase(Locale.ROOT).trimEnd('.')
-        while (true) {
-            if (h in blocked) return true
-            val dot = h.indexOf('.')
-            if (dot < 0) return false
-            h = h.substring(dot + 1)
-        }
-    }
+    fun isBlockedHost(host: String?): Boolean = matcher.isBlocked(host)
 
     /** Tam adres için: çözümlenemeyen adres engellenmez (karar çağırana ait). */
     fun isBlockedUrl(url: String?): Boolean = isBlockedHost(url?.toHttpUrlOrNull()?.host)

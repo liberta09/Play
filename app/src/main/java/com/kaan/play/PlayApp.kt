@@ -5,6 +5,7 @@ import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
+import com.kaan.play.data.web.AdHostLoader
 
 class PlayApp : Application(), SingletonImageLoader.Factory {
 
@@ -20,6 +21,8 @@ class PlayApp : Application(), SingletonImageLoader.Factory {
         super.onCreate()
         appContext = applicationContext
         container = AppContainer(this)
+        // Reklam ve izleyici alan adı engelleme listesi arka planda yüklenir (AdDomains.all ile birleşir).
+        AdHostLoader.ensureLoaded(this)
         // İndirme yöneticisi açılışta kurulur: yarım kalan indirmeler (uygulama öldürüldükten sonra) kendiliğinden devam eder.
         container.downloads
         // Varsayılan altyazı ve katalog addon'ları ilk açılışta bir kez tohumlanır (kullanıcı kararları 2026-10-20/21; ağa çıkmaz).
