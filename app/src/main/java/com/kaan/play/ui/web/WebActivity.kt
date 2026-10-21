@@ -6,6 +6,9 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.os.Bundle
+import android.os.SystemClock
+import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -57,7 +60,11 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kaan.play.BuildConfig
 import com.kaan.play.PlayApp
+import com.kaan.play.data.web.MoveDirection
+import com.kaan.play.data.web.WebCursorController
+import com.kaan.play.ui.player.DeviceLevels
 import com.kaan.play.R
 import com.kaan.play.data.settings.ThemeMode
 import com.kaan.play.data.web.WebPolicy
@@ -89,6 +96,9 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
     private lateinit var root: FrameLayout
     private var customView: View? = null
     private var customCallback: WebChromeClient.CustomViewCallback? = null
+    private var isRemoteMode: Boolean = false
+    private var cursorController: WebCursorController? = null
+    private var cursorView: WebCursorView? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,6 +129,16 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
             setAcceptThirdPartyCookies(view, false) // üçüncü taraf çerezleri kapalı
         }
 
+        val forceRemote = BuildConfig.DEBUG && intent.getBooleanExtra(EXTRA_FORCE_REMOTE, false)
+        isRemoteMode = forceRemote || !DeviceLevels.supportsTouch(this)
+        if (isRemoteMode) {
+            val controller = WebCursorController()
+            cursorController = controller
+            cursorView = WebCursorView(this).apply {
+                bind(controller)
+            }
+        }
+
         // Kök: Compose çubuğu + WebView, üstünde tam ekran video için boş bir katman.
         root = FrameLayout(this)
         root.addView(
@@ -139,6 +159,7 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
                         WebScreen(
                             name = name.ifEmpty { url },
                             web = view,
+                            cursorView = cursorView,
                             state = ui,
                             onClose = ::finish,
                             onBack = { view.goBack() },
@@ -204,6 +225,7 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
 
     override fun onFocusLeaveUp() {
         ui.barFocusTick++
+        cursorController?.hide()
     }
 
     private fun syncHistory() {
@@ -256,8 +278,132 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
         super.onPause()
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (!isRemoteMode) {
+            return super.dispatchKeyEvent(event)
+        }
+
+        // Tam ekran video varsa imleç müdahale etmesin (Parça 3 kapsamı)
+        if (customView != null) {
+            return super.dispatchKeyEvent(event)
+        }
+
+        val controller = cursorController ?: return super.dispatchKeyEvent(event)
+
+        // Durum A: İmleç gizli (üst çubukta odak var)
+        if (!controller.isVisible) {
+            if (event.keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    controller.show()
+                    web?.requestFocus()
+                }
+                return true
+            }
+            return super.dispatchKeyEvent(event)
+        }
+
+        // Durum B: İmleç görünür (sayfada gezinme)
+        controller.onUserInteraction(event.eventTime)
+
+        when (event.keyCode) {
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    val webView = web
+                    val cannotScrollUp = webView == null || !webView.canScrollVertically(-1)
+                    if (controller.y <= 0f && cannotScrollUp) {
+                        onFocusLeaveUp()
+                        return true
+                    }
+                    val result = controller.move(MoveDirection.UP, event.eventTime)
+                    if (result.scrollDy != 0) {
+                        webView?.scrollBy(0, result.scrollDy)
+                    }
+                } else if (event.action == KeyEvent.ACTION_UP) {
+                    controller.resetAcceleration()
+                }
+                return true
+            }
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    val result = controller.move(MoveDirection.DOWN, event.eventTime)
+                    if (result.scrollDy != 0) {
+                        web?.scrollBy(0, result.scrollDy)
+                    }
+                } else if (event.action == KeyEvent.ACTION_UP) {
+                    controller.resetAcceleration()
+                }
+                return true
+            }
+            KeyEvent.KEYCODE_DPAD_LEFT -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    val result = controller.move(MoveDirection.LEFT, event.eventTime)
+                    if (result.scrollDx != 0) {
+                        web?.scrollBy(result.scrollDx, 0)
+                    }
+                } else if (event.action == KeyEvent.ACTION_UP) {
+                    controller.resetAcceleration()
+                }
+                return true
+            }
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    val result = controller.move(MoveDirection.RIGHT, event.eventTime)
+                    if (result.scrollDx != 0) {
+                        web?.scrollBy(result.scrollDx, 0)
+                    }
+                } else if (event.action == KeyEvent.ACTION_UP) {
+                    controller.resetAcceleration()
+                }
+                return true
+            }
+            KeyEvent.KEYCODE_DPAD_CENTER,
+            KeyEvent.KEYCODE_ENTER,
+            KeyEvent.KEYCODE_NUMPAD_ENTER -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    if (event.repeatCount == 0) {
+                        dispatchClick(controller.x, controller.y)
+                    }
+                }
+                return true
+            }
+        }
+
+        return super.dispatchKeyEvent(event)
+    }
+
+    private fun dispatchClick(x: Float, y: Float) {
+        val target = web ?: return
+        val downTime = SystemClock.uptimeMillis()
+        val downEvent = MotionEvent.obtain(
+            downTime,
+            downTime,
+            MotionEvent.ACTION_DOWN,
+            x,
+            y,
+            0
+        )
+        target.dispatchTouchEvent(downEvent)
+        downEvent.recycle()
+
+        val upEvent = MotionEvent.obtain(
+            downTime,
+            downTime + 30,
+            MotionEvent.ACTION_UP,
+            x,
+            y,
+            0
+        )
+        target.dispatchTouchEvent(upEvent)
+        upEvent.recycle()
+    }
+
     override fun onDestroy() {
         if (customView != null) hide()
+        cursorView?.let { cv ->
+            (cv.parent as? ViewGroup)?.removeView(cv)
+        }
+        cursorView = null
+        cursorController = null
         web?.let { w ->
             (w.parent as? ViewGroup)?.removeView(w)
             w.stopLoading()
@@ -270,9 +416,17 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
     companion object {
         private const val EXTRA_URL = "url"
         private const val EXTRA_NAME = "name"
+        private const val EXTRA_FORCE_REMOTE = "play_force_remote"
 
-        fun intent(context: Context, name: String, url: String): Intent =
-            Intent(context, WebActivity::class.java).putExtra(EXTRA_URL, url).putExtra(EXTRA_NAME, name)
+        fun intent(context: Context, name: String, url: String, forceRemote: Boolean = false): Intent =
+            Intent(context, WebActivity::class.java)
+                .putExtra(EXTRA_URL, url)
+                .putExtra(EXTRA_NAME, name)
+                .apply {
+                    if (BuildConfig.DEBUG && forceRemote) {
+                        putExtra(EXTRA_FORCE_REMOTE, true)
+                    }
+                }
     }
 }
 
@@ -280,6 +434,7 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
 private fun WebScreen(
     name: String,
     web: WebView,
+    cursorView: WebCursorView?,
     state: WebUiState,
     onClose: () -> Unit,
     onBack: () -> Unit,
@@ -337,6 +492,16 @@ private fun WebScreen(
             }
             Box(modifier = Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
                 AndroidView(factory = { web }, modifier = Modifier.fillMaxSize())
+                if (cursorView != null) {
+                    AndroidView(
+                        factory = {
+                            cursorView.apply {
+                                (parent as? ViewGroup)?.removeView(this)
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
                 if (state.failed) {
                     Box(
                         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(32.dp),
