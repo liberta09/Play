@@ -150,6 +150,8 @@ class SourceCoordinator(
     private var revertTo: PlayableStream? = null
     private var revertPositionMs = 0L
     private var lastStartMs = 0L
+    private var activeDubWaitMs: Long = StartPolicy.DUB_WAIT_MS
+    private var fallbackDubWaitJob: Job? = null
 
     /**
      * Oynarken kaynak değiştirilince (içerik reddi, elle seçim) eski kaynaktan kalan "ilk kare" olayı birkaç ms sonra yeni kaynağa yazılırdı:
@@ -201,6 +203,8 @@ class SourceCoordinator(
                 null
             }
             // Başka içeriğin kaynağı verilmişse yok sayılır: kaynaklar bu içerik için baştan aranır.
+            fallbackDubWaitJob?.cancel()
+            activeDubWaitMs = StartPolicy.DUB_WAIT_MS
             val first = initial?.takeIf(::acceptable)
             if (first != null) {
                 begin(first, startMs)
@@ -256,9 +260,17 @@ class SourceCoordinator(
             SourcePhase.Resolving -> {
                 // Daha önce denenip başarısız olan kaynaklar tekrar seçilmez.
                 val candidates = ranked().filter { it.url !in attempted }
-                when (val d = StartPolicy(preferDub).decide(clock() - resolveStartedAt, candidates, ctx, finished)) {
-                    is StartDecision.Start -> begin(d.stream, lastStartMs)
-                    StartDecision.NoSources -> phase = SourcePhase.Failed
+                when (val d = StartPolicy(preferDub, activeDubWaitMs).decide(clock() - resolveStartedAt, candidates, ctx, finished)) {
+                    is StartDecision.Start -> {
+                        fallbackDubWaitJob?.cancel()
+                        activeDubWaitMs = StartPolicy.DUB_WAIT_MS
+                        begin(d.stream, lastStartMs)
+                    }
+                    StartDecision.NoSources -> {
+                        fallbackDubWaitJob?.cancel()
+                        activeDubWaitMs = StartPolicy.DUB_WAIT_MS
+                        phase = SourcePhase.Failed
+                    }
                     is StartDecision.Wait -> Unit
                 }
             }
@@ -268,6 +280,7 @@ class SourceCoordinator(
     }
 
     private fun begin(stream: PlayableStream, startMs: Long) {
+        fallbackDubWaitJob?.cancel()
         firstFrameJob?.cancel()
         probeJob?.cancel()
         current = stream
@@ -378,9 +391,28 @@ class SourceCoordinator(
             begin(previous, revertPositionMs)
             return
         }
-        val next = nextCandidate()
+        if (failed != null) {
+            notice = if (mismatch) SourceNotice.Mismatch else SourceNotice.Skipped(detail)
+        }
+        val queued = nextQueuedCandidate()
+        if (queued != null) {
+            begin(queued, lastStartMs)
+            return
+        }
+        val next = ranked().firstOrNull { it.url !in attempted }
+        val shouldWaitForDub = preferDub && !mismatch && !finished && (next == null || !next.dubbed)
+        if (shouldWaitForDub) {
+            phase = SourcePhase.Resolving
+            resolveStartedAt = clock()
+            activeDubWaitMs = FALLBACK_DUB_WAIT_MS
+            fallbackDubWaitJob?.cancel()
+            fallbackDubWaitJob = scope.launch {
+                delay(FALLBACK_DUB_WAIT_MS)
+                onChange()
+            }
+            return
+        }
         if (next != null) {
-            if (failed != null) notice = if (mismatch) SourceNotice.Mismatch else SourceNotice.Skipped(detail)
             begin(next, lastStartMs)
         } else if (!finished) {
             // Daha kaynak gelebilir: gelince denenir.
@@ -430,12 +462,12 @@ class SourceCoordinator(
         }
     }
 
-    private fun nextCandidate(): PlayableStream? {
+    private fun nextQueuedCandidate(): PlayableStream? {
         while (true) {
             val queued = queue.removeFirstOrNull() ?: break
             if (queued.url !in attempted) return queued
         }
-        return ranked().firstOrNull { it.url !in attempted }
+        return null
     }
 
     // ---- kullanıcı eylemleri ----
@@ -446,6 +478,8 @@ class SourceCoordinator(
         userPicked = true
         dubSuggestion = null
         notice = null
+        fallbackDubWaitJob?.cancel()
+        activeDubWaitMs = StartPolicy.DUB_WAIT_MS
         scope.launch {
             try {
                 remember(request, stream)
@@ -530,6 +564,7 @@ class SourceCoordinator(
 
         /** Torrentte üst bilgi ve ilk parçalar için eş bulmak gerekir: 10 sn çoğu zaman yetmez. */
         const val TORRENT_FIRST_FRAME_TIMEOUT_MS = 40_000L
+        const val FALLBACK_DUB_WAIT_MS = 6_000L
         const val PROBE_LIMIT = 24
         const val PROBE_PARALLEL = 4
         const val PROBE_TIMEOUT_MS = 6_000L
