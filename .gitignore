@@ -73,3 +73,5 @@ tools/search_*.py
 tools/read_db.py
 screen*.png
 crop_*.png
+ld_*.png
+*_thumb.png
