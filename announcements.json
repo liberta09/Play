@@ -1,6 +1,14 @@
 {
   "announcements": [
     {
+      "id": "2026-10-22-play-115",
+      "title": "🎉 Play 1.1.5 yayında!",
+      "message": "Web görünümünde kumanda imleci, ekran klavyesi, otomatik tam ekran ve güçlendirilmiş reklam engeli eklendi. 🍿🎬",
+      "link": "https://t.me/+o-RFlV4U3UY5NGU8",
+      "minVersion": "1.1.5",
+      "until": "2026-12-31"
+    },
+    {
       "id": "2026-10-21-telegram",
       "title": "📢 Play Telegram kanalı açıldı!",
       "message": "Duyurular, yeni sürümler ve destek için kanalımıza katılın. 🍿",

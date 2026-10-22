@@ -2,6 +2,19 @@
 
 ## Yayınlanmamış / Unreleased
 
+## [1.1.5] — 2026-10-22
+
+### Türkçe
+- **Web görünümünde kumanda desteği:** Sanal fare imleci, ekran klavyesi (arama ve form alanlarında otomatik açılır) ve video başladığında otomatik tam ekrana geçiş eklendi.
+- **Güçlü reklam ve popunder engeli:** EasyList ve Türkçe filtre listeleri derlenerek web görünümüne entegre edildi. Video oynatıcı üstündeki afişler ve sahte butonlar gizlendi, yeni pencere/popunder açılması engellendi.
+- **Tam ekranda imleç:** Tam ekrana ve yatay düzene geçildiğinde imlecin doğru konumlandırılması ve görünürlüğü sağlandı.
+
+### English
+- **Remote control support in web view:** Added virtual cursor, on-screen keyboard (auto-opens for search and input fields), and automatic fullscreen when video playback starts.
+- **Stronger ad and popunder blocking:** EasyList and Turkish filter lists integrated into web view. Floating ad banners and fake buttons over video players hidden, popunder and new window creation blocked.
+- **Fullscreen cursor visibility:** Improved cursor centering and visibility when entering fullscreen and landscape orientation.
+
+
 ## [1.1.4] — 2026-10-21
 
 ### Türkçe

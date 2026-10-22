@@ -31,8 +31,8 @@ android {
         applicationId = "com.kaan.play"
         minSdk = 24
         targetSdk = 37
-        versionCode = 10
-        versionName = "1.1.4"
+        versionCode = 11
+        versionName = "1.1.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
