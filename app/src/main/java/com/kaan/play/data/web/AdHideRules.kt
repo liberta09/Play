@@ -109,9 +109,12 @@ class AdHideRules {
      * Hiç seçici yoksa null döner.
      */
     fun buildCssForHost(host: String?): String? {
-        val selectors = getSelectorsForHost(host)
+        val rawSelectors = getSelectorsForHost(host)
+        val selectors = AdHidePlayerGuard.filterSafeSelectors(rawSelectors)
         if (selectors.isEmpty()) return null
-        return selectors.joinToString(",\n") + " { display: none !important; }"
+        val hideBlock = selectors.joinToString(",\n") + " { display: none !important; }"
+        val protectBlock = "video, iframe, .jwplayer, .plyr, [id*=\"player\"] { display: revert !important; }"
+        return "$hideBlock\n$protectBlock"
     }
 
     /**
@@ -143,6 +146,9 @@ class AdHideRules {
             val domPart = line.substring(0, hashIdx).trim()
             val selector = line.substring(hashIdx + 2).trim()
             if (selector.isEmpty() || selector.startsWith("+js(") || selector.startsWith(":-abp-")) {
+                continue
+            }
+            if (AdHidePlayerGuard.isProtectedOrDangerous(selector)) {
                 continue
             }
 

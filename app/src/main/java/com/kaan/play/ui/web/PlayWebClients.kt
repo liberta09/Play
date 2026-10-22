@@ -42,8 +42,8 @@ class PlayWebViewClient(
 ) : WebViewClient() {
 
     companion object {
-        /** Geçici A/B testi bayrağı: CSS element gizlemeyi açıp/kapatır. */
-        var enableCssElementHiding: Boolean = false
+        /** CSS element gizleme etkinleştirme bayrağı. */
+        var enableCssElementHiding: Boolean = true
     }
 
     override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
@@ -79,12 +79,13 @@ class PlayWebViewClient(
     override fun onPageFinished(view: WebView, url: String?) {
         injectElementHiding(view, url)
         listener.onPageFinished()
+        schedulePlayerGuardCheck(view)
     }
 
     /**
      * Sayfanın alan adına uyan element gizleme seçicilerini tek bir CSS olarak enjekte eder:
      * `seçiciler { display:none !important; }` biçiminde <style> etiketi eklenir veya güncellenir.
-     * Hem ana çerçevede hem aynı kökenli iç çerçevelerde (iframe) çalışır.
+     * Video oynatıcıların çalıştığı iç çerçevelere (iframe) dokunmaz, yalnızca ana belgeye uygulanır.
      * Ağ isteği yapmaz, veri toplamaz, console.log yazmaz, tamamen try/catch içindedir.
      */
     private fun injectElementHiding(view: WebView, url: String?) {
@@ -97,42 +98,52 @@ class PlayWebViewClient(
             (function() {
                 try {
                     var css = $quotedCss;
-                    function applyStyle(doc) {
-                        try {
-                            if (!doc) return;
-                            var style = doc.getElementById('__play_ad_hide__');
-                            if (!style) {
-                                style = doc.createElement('style');
-                                style.id = '__play_ad_hide__';
-                                style.type = 'text/css';
-                                var target = doc.head || doc.documentElement || doc.body;
-                                if (target) {
-                                    target.appendChild(style);
-                                } else {
-                                    doc.addEventListener('DOMContentLoaded', function() {
-                                        try {
-                                            var t = doc.head || doc.documentElement || doc.body;
-                                            if (t && !doc.getElementById('__play_ad_hide__')) {
-                                                t.appendChild(style);
-                                            }
-                                        } catch(e1) {}
-                                    });
-                                }
-                            }
-                            if (style && style.textContent !== css) {
-                                style.textContent = css;
-                            }
-                        } catch(e2) {}
+                    var style = document.getElementById('__play_ad_hide__');
+                    if (!style) {
+                        style = document.createElement('style');
+                        style.id = '__play_ad_hide__';
+                        style.type = 'text/css';
+                        var target = document.head || document.documentElement || document.body;
+                        if (target) {
+                            target.appendChild(style);
+                        } else {
+                            document.addEventListener('DOMContentLoaded', function() {
+                                try {
+                                    var t = document.head || document.documentElement || document.body;
+                                    if (t && !document.getElementById('__play_ad_hide__')) {
+                                        t.appendChild(style);
+                                    }
+                                } catch(e1) {}
+                            });
+                        }
                     }
-                    applyStyle(document);
-                    var frames = document.querySelectorAll('iframe');
-                    for (var i = 0; i < frames.length; i++) {
-                        try { applyStyle(frames[i].contentDocument); } catch(e3) {}
+                    if (style && style.textContent !== css) {
+                        style.textContent = css;
                     }
                 } catch(e) {}
             })();
         """.trimIndent()
         view.evaluateJavascript(script, null)
+    }
+
+    /**
+     * Sayfa yüklendikten (onPageFinished + 1,5 sn sonra) oynatıcı koruma denetimi çalıştırır.
+     * Sayfadaki video/oynatıcı iframe'i ya da ata kutuları display:none ise CSS'i kaldırır.
+     * Adres veya URL loglamaz, yalnızca tek bir debug kaydı düşer.
+     */
+    private fun schedulePlayerGuardCheck(view: WebView) {
+        if (!enableCssElementHiding) return
+        view.postDelayed({
+            try {
+                view.evaluateJavascript(com.kaan.play.data.web.AdHidePlayerGuard.buildGuardScript()) { result ->
+                    if (result?.contains("REMOVED") == true) {
+                        Log.d(TAG, "player guard triggered: ad hide style removed to protect video playback")
+                    }
+                }
+            } catch (e: Exception) {
+                // Sessizce yutulur
+            }
+        }, 1500)
     }
 
     override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) = listener.onHistoryChanged()

@@ -172,7 +172,8 @@ class AdHideRulesTest {
         assertNotNull(css)
         assertTrue(css!!.contains(".gen-ad"))
         assertTrue(css.contains(".site-ad"))
-        assertTrue(css.endsWith("{ display: none !important; }"))
+        assertTrue(css.contains("{ display: none !important; }"))
+        assertTrue(css.contains("display: revert !important;"))
 
         val unstarted = AdHideRules()
         assertNull(unstarted.buildCssForHost("test.com"))
@@ -194,18 +195,31 @@ class AdHideRulesTest {
         println("adhide.txt yukleme suresi: $elapsed ms (genel: ${rules.genericRuleCount}, alan: ${rules.domainRuleCount})")
 
         assertTrue(rules.isLoaded)
-        assertTrue(rules.genericRuleCount > 10000)
-        assertTrue(rules.domainRuleCount > 20000)
+        // Genel kurallar tamamen kaldırılmıştır
+        assertEquals(0, rules.genericRuleCount)
+        assertTrue("En az 11 hdfilmcehennemi kuralı olmalı", rules.domainRuleCount >= 11)
 
         // hdfilmcehennemi kurallarını kontrol et
         val hdSelectors = rules.getDomainSelectorsForHost("hdfilmcehennemi.nl")
         println("hdfilmcehennemi.nl icin eslesen alan kurallari: $hdSelectors")
 
-        assertTrue("hdfilmcehennemi .money-wrapper kurali bulunmali", hdSelectors.contains(".money-wrapper"))
-        assertTrue("hdfilmcehennemi .money kurali bulunmali", hdSelectors.contains(".money"))
-        assertTrue("hdfilmcehennemi .money-item kurali bulunmali", hdSelectors.contains(".money-item"))
+        // İzin verilen 11 afiş gizleme seçicisinin varlığını doğrula
         assertTrue("hdfilmcehennemi .card-money kurali bulunmali", hdSelectors.contains(".card-money"))
-        assertTrue("hdfilmcehennemi [class^=\"money\"] kurali bulunmali", hdSelectors.contains("[class^=\"money\"]"))
+        assertTrue("hdfilmcehennemi .money kurali bulunmali", hdSelectors.contains(".money"))
+        assertTrue("hdfilmcehennemi .money--video kurali bulunmali", hdSelectors.contains(".money--video"))
+        assertTrue("hdfilmcehennemi .money-child kurali bulunmali", hdSelectors.contains(".money-child"))
+        assertTrue("hdfilmcehennemi .money-item kurali bulunmali", hdSelectors.contains(".money-item"))
+        assertTrue("hdfilmcehennemi .money-text kurali bulunmali", hdSelectors.contains(".money-text"))
+        assertTrue("hdfilmcehennemi .money-wrapper kurali bulunmali", hdSelectors.contains(".money-wrapper"))
+        assertTrue("hdfilmcehennemi .rek-wrap kurali bulunmali", hdSelectors.contains(".rek-wrap"))
+        assertTrue("hdfilmcehennemi .reklam-link kurali bulunmali", hdSelectors.contains(".reklam-link"))
+        assertTrue("hdfilmcehennemi video_content kurali bulunmali", hdSelectors.contains(""".video_content > a[target="_blank"]"""))
+        assertTrue("hdfilmcehennemi alert-danger kurali bulunmali", hdSelectors.contains(".col > .alert-danger-50.alert"))
+
+        // Oynatıcıyı gizleyebilecek 3 tehlikeli kuralın SİLİNDİĞİNİ doğrula
+        assertFalse("Tehlikeli [class*='money'] kuralı silinmiş olmalı", hdSelectors.contains("""[class*="money"]"""))
+        assertFalse("Tehlikeli .ps-head-container kuralı silinmiş olmalı", hdSelectors.contains(".ps-head-container"))
+        assertFalse("Tehlikeli div[class^='r_header_'] kuralı silinmiş olmalı", hdSelectors.contains("""div[class^="r_header_"]"""))
 
         // Sayfa içeriği/oynatıcı/menü seçicilerinin yanlışlıkla gizlenmediğini doğrula
         assertFalse(hdSelectors.contains("#player"))
@@ -227,7 +241,7 @@ class AdHideRulesTest {
 
         // 100 ardışık sorgu ve CSS üretiminin toplam süresini ölç
         val t0 = System.nanoTime()
-        val hosts = listOf("hdfilmcehennemi.nl", "example.com", "sub.dizipal.org", "filmizletv.net", "unknown-site.org")
+        val hosts = listOf("hdfilmcehennemi.nl", "dizi.hdfilmcehennemi.life", "www.hdfilmcehennemi.nl")
         for (i in 0 until 100) {
             val host = hosts[i % hosts.size]
             val css = rules.buildCssForHost(host)
