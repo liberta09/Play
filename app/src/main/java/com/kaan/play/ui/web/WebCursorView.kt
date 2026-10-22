@@ -98,7 +98,7 @@ class WebCursorView @JvmOverloads constructor(
         val c = controller ?: return
         if (!c.isVisible) return
 
-        val alpha = if (c.isFaded) 0.35f else 1.0f
+        val alpha = if (c.isFaded) 0.6f else 1.0f
         fillPaint.alpha = (alpha * 255).toInt()
         strokePaint.alpha = (alpha * 255).toInt()
 
