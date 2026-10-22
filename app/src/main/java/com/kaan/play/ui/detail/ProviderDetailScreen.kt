@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kaan.play.R
+import com.kaan.play.data.cloudstream.CsApiResult
 import com.kaan.play.data.model.Episode
 import com.kaan.play.data.model.MediaDetail
 import com.kaan.play.data.model.MediaSummary
@@ -106,7 +107,7 @@ private data class ProviderEpisodeItem(
 
 private sealed interface ProviderDetailUiState {
     data object Loading : ProviderDetailUiState
-    data class Error(val message: String) : ProviderDetailUiState
+    data class Error(val messageRes: Int, val fallbackText: String? = null) : ProviderDetailUiState
     data class Ready(
         val detail: MediaDetail,
         val isSeries: Boolean,
@@ -146,7 +147,7 @@ fun ProviderDetailScreen(
                 if (providerId.startsWith("nuvio_addon:")) {
                     val addonRowId = providerId.removePrefix("nuvio_addon:").toLongOrNull() ?: 0L
                     val addon = container.addons.byId(addonRowId)
-                        ?: return@withContext ProviderDetailUiState.Error("Eklenti bulunamadı")
+                        ?: return@withContext ProviderDetailUiState.Error(R.string.provider_error_not_found)
 
                     val metaUrl = when {
                         url.startsWith("http://") || url.startsWith("https://") -> url
@@ -154,7 +155,7 @@ fun ProviderDetailScreen(
                         else -> "${addon.baseUrl}/meta/movie/$url.json"
                     }
                     val httpUrl = metaUrl.toHttpUrlOrNull()
-                        ?: return@withContext ProviderDetailUiState.Error("Geçersiz meta adresi")
+                        ?: return@withContext ProviderDetailUiState.Error(R.string.provider_error_invalid_meta_url)
 
                     val jsonText = fetchAddonText(
                         container.httpClient,
@@ -163,7 +164,7 @@ fun ProviderDetailScreen(
                         maxBytes = 5L * 1024 * 1024,
                     )
                     val resp = PlayJson.decodeFromString(StremioMetaDetailResponse.serializer(), jsonText)
-                    val meta = resp.meta ?: return@withContext ProviderDetailUiState.Error("Meta bilgisi bulunamadı")
+                    val meta = resp.meta ?: return@withContext ProviderDetailUiState.Error(R.string.provider_error_meta_not_found)
 
                     val isSeries = meta.type.lowercase() in listOf("series", "tv")
                     val episodes: List<ProviderEpisodeItem> = if (isSeries) {
@@ -230,10 +231,19 @@ fun ProviderDetailScreen(
                     )
                 } else {
                     val pluginRowId = providerId.removePrefix("cs:").toLongOrNull() ?: 0L
-                    val apis: List<MainAPI> = container.csRepos.loadApis(pluginRowId)
+                    val result = container.csRepos.loadApis(pluginRowId)
+                    val apis = result.apisOrEmpty()
                     val api = apis.firstOrNull()
                     if (api == null) {
-                        return@withContext ProviderDetailUiState.Error("Eklenti API'si bulunamadı")
+                        val errorRes = when (result) {
+                            is CsApiResult.DexFileMissing -> R.string.provider_error_dex_missing
+                            is CsApiResult.IncompatibleLibrary -> R.string.provider_error_incompatible
+                            is CsApiResult.LoadFailed -> R.string.provider_error_load_failed
+                            is CsApiResult.PluginRowMissing -> R.string.provider_error_not_found
+                            is CsApiResult.NoApiRegistered,
+                            is CsApiResult.Success -> R.string.provider_error_no_api
+                        }
+                        return@withContext ProviderDetailUiState.Error(errorRes)
                     }
 
                     val loadResp: LoadResponse? = try {
@@ -244,7 +254,7 @@ fun ProviderDetailScreen(
                     }
 
                     if (loadResp == null) {
-                        return@withContext ProviderDetailUiState.Error("İçerik yüklenemedi")
+                        return@withContext ProviderDetailUiState.Error(R.string.provider_error_content_load_failed)
                     }
 
                     val isSeries = loadResp is TvSeriesLoadResponse || loadResp is AnimeLoadResponse
@@ -329,7 +339,7 @@ fun ProviderDetailScreen(
                 }
             } catch (t: Throwable) {
                 Log.e("ProviderDetail", "Error in ProviderDetailScreen", t)
-                ProviderDetailUiState.Error(t.message ?: "Beklenmeyen hata")
+                ProviderDetailUiState.Error(R.string.provider_error_unexpected)
             }
         }
         state = loadedState
@@ -345,7 +355,7 @@ fun ProviderDetailScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Text(
-                        text = s.message,
+                        text = stringResource(s.messageRes),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.error,
                         textAlign = TextAlign.Center,
