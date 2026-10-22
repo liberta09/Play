@@ -1,5 +1,8 @@
 package com.kaan.play.data.plugin
 
+import android.util.Log
+import com.kaan.play.data.match.ContentKind
+import com.kaan.play.data.match.PluginCallRules
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.plugin.runtime.PluginOutcome
 import com.kaan.play.data.plugin.runtime.PluginRequest
@@ -10,6 +13,7 @@ import com.kaan.play.data.stream.FailureReason
 import com.kaan.play.data.stream.StreamProvider
 import com.kaan.play.data.stream.StreamRequest
 import com.kaan.play.data.stream.StreamResult
+import com.kaan.play.data.stream.StreamLog
 import com.kaan.play.data.stream.StreamSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -75,6 +79,16 @@ class PluginStreamProvider(
             season = request.season.takeIf { isTv },
             episode = request.episode.takeIf { isTv },
         )
+        Log.d(TAG, "${plugin.name}: istek tmdbId=${pluginRequest.tmdbId} tür=${pluginRequest.mediaType} sezon=${pluginRequest.season} bölüm=${pluginRequest.episode}")
+        val problem = PluginCallRules.problem(
+            pluginRequest.tmdbId, pluginRequest.mediaType, pluginRequest.season, pluginRequest.episode,
+            if (isTv) ContentKind.Tv else ContentKind.Movie,
+        )
+        if (problem != null) {
+            // Tutarsız kimlik/tür: eklentiye gönderilmez, yanlış içerik getirmesin.
+            Log.d(TAG, "${plugin.name}: çağrı reddedildi: $problem")
+            return found(source, emptyList())
+        }
         val key = PluginResultCache.Key(plugin.id, plugin.version, pluginRequest, saved.hashCode())
         if (!request.refresh) {
             cache.get(key)?.let { cached -> return found(source, cached) }
@@ -82,6 +96,10 @@ class PluginStreamProvider(
 
         val script = code(plugin.id) ?: return StreamResult.Failed(source, FailureReason.InvalidResponse)
         val outcome = runner.run(script, pluginRequest, plugin.pluginId, limit.inWholeMilliseconds, saved)
+        if (outcome is PluginOutcome.Success) {
+            // Tanı: hangi akış geldi (adres yok; ana makine + yol biçimi + parametre özetleri).
+            outcome.streams.take(3).forEach { Log.d(TAG, "${plugin.name}: akış ${StreamLog.fingerprint(it.url)}") }
+        }
         // Yalnızca dolu başarılı sonuçlar saklanır: boş/hatalı sonuç (geçici site sorunu) yeniden denenebilsin.
         if (outcome is PluginOutcome.Success && outcome.streams.isNotEmpty()) cache.put(key, outcome.streams)
         return outcome.toStreamResult(source)
@@ -93,6 +111,8 @@ class PluginStreamProvider(
     private fun InstalledPlugin.toSource() = StreamSource(-id, name)
 
     companion object {
+        private const val TAG = "PlayPlugin"
+
         /** Aynı anda en çok çalışan eklenti sayısı (bellek/işlemci koruması: her biri ayrı bir QuickJS örneğidir). */
         const val MAX_PARALLEL = 6
 

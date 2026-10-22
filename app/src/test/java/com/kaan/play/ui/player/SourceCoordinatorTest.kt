@@ -224,6 +224,7 @@ class SourceCoordinatorTest {
         assertFalse(rig.coordinator.switching)
         val notice = rig.coordinator.notice as SourceNotice.SwitchFailed
         assertEquals("ERROR_CODE_TIMEOUT (1003)", notice.detail)
+        advanceTimeBy(400) // kaynak değişiminden hemen sonra gelen ilk kare olayı eski kaynağa aittir (yok sayılır)
         rig.coordinator.onFirstFrame()
         assertEquals(SourcePhase.Playing, rig.coordinator.phase)
         advanceUntilIdle()
@@ -239,6 +240,9 @@ class SourceCoordinatorTest {
         rig.coordinator.onFirstFrame()
         rig.coordinator.pick(rig.coordinator.streams.first { it.url != rig.lastUrl })
         assertTrue(rig.coordinator.switching)
+        rig.coordinator.onFirstFrame() // eski kaynaktan kalan olay: yok sayılır
+        assertTrue(rig.coordinator.switching)
+        advanceTimeBy(400)
         rig.coordinator.onFirstFrame()
         assertFalse(rig.coordinator.switching)
         assertNull(rig.coordinator.notice)

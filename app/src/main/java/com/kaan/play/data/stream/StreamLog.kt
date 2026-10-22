@@ -2,6 +2,8 @@ package com.kaan.play.data.stream
 
 import android.util.Log
 import com.kaan.play.BuildConfig
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import java.security.MessageDigest
 import java.util.Locale
 
 /**
@@ -23,6 +25,29 @@ object StreamLog {
         val ext = path.substringAfterLast('/').substringAfterLast('.', "").lowercase(Locale.ROOT).take(8)
         return "$scheme://$host/${if (ext.isEmpty()) "" else ".$ext"}"
     }
+
+    /**
+     * Kaynak kimliği için "parmak izi": ana makine + yolun biçimi (uzun parçalar uzunlukla) + her sorgu parametresinin adı ve değerinin
+     * SHA-256 özetinin ilk 6 hanesi. Adres, belirteç ya da imza yazılmaz; iki ortamda (ör. Node ve Play) aynı eklentinin aynı sonucu verip
+     * vermediği özet karşılaştırmasıyla anlaşılır. `id` gibi kısa, gizli olmayan sayısal kimlikler (yalnızca rakam, ≤ 10 hane) açık yazılır.
+     */
+    internal fun fingerprint(url: String): String {
+        val parsed = url.toHttpUrlOrNull() ?: return describe(url)
+        val path = parsed.pathSegments.joinToString("/") { if (it.length > 12) "<${it.length}>" else it }
+        val query = (0 until parsed.querySize).joinToString(" ") { i ->
+            val name = parsed.queryParameterName(i)
+            val value = parsed.queryParameterValue(i).orEmpty()
+            val shown = if (value.length <= 10 && value.all(Char::isDigit)) value else "#${sha6(value)}(len${value.length})"
+            "$name=$shown"
+        }
+        return "${parsed.scheme}://${parsed.host}/$path${if (query.isEmpty()) "" else "?$query"}"
+    }
+
+    /** Yalnızca ana makine adı (günlük için); adres değilse "?". */
+    fun hostOf(url: String): String = url.toHttpUrlOrNull()?.host ?: "?"
+
+    private fun sha6(value: String): String =
+        MessageDigest.getInstance("SHA-256").digest(value.toByteArray()).take(3).joinToString("") { "%02x".format(it) }
 
     fun rejected(origin: String, url: String) {
         if (BuildConfig.DEBUG) Log.d(TAG, "$origin: reddedildi (http(s) değil) ${describe(url)}")

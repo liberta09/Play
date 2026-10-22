@@ -1,5 +1,6 @@
 package com.kaan.play.ui.player
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,6 +14,7 @@ import com.kaan.play.data.stream.SourcePref
 import com.kaan.play.data.stream.StartDecision
 import com.kaan.play.data.stream.StartPolicy
 import com.kaan.play.data.stream.StreamRequest
+import com.kaan.play.data.stream.StreamLog
 import com.kaan.play.data.stream.StreamOwnership
 import com.kaan.play.data.stream.StreamResult
 import com.kaan.play.data.stream.StreamSource
@@ -143,6 +145,12 @@ class SourceCoordinator(
     private var revertTo: PlayableStream? = null
     private var revertPositionMs = 0L
     private var lastStartMs = 0L
+
+    /**
+     * Oynarken kaynak değiştirilince (içerik reddi, elle seçim) eski kaynaktan kalan "ilk kare" olayı birkaç ms sonra yeni kaynağa yazılırdı:
+     * faz erken "Playing" olur, yeni kaynak açılmazsa yedeğe düşülmezdi. Bu süreden önce gelen ilk kare olayı yok sayılır.
+     */
+    private var firstFrameNotBefore = 0L
     private val attempted = LinkedHashSet<String>()
     private val requestKey = StreamOwnership.keyOf(request)
     private var expectedRuntime: Int? = null
@@ -259,6 +267,7 @@ class SourceCoordinator(
         current = stream
         attempted += stream.url
         phase = SourcePhase.Starting
+        Log.d(TAG, "kaynak başlatılıyor: ${stream.source.addonName} (${StreamLog.hostOf(stream.url)})")
         load(stream, startMs)
         val timeout = if (TorrentLinks.isMagnet(stream.url)) TORRENT_FIRST_FRAME_TIMEOUT_MS else FIRST_FRAME_TIMEOUT_MS
         firstFrameJob = scope.launch {
@@ -269,6 +278,11 @@ class SourceCoordinator(
 
     /** Oynatıcı ilk kareyi çizdi: kaynak çalışıyor. */
     fun onFirstFrame() {
+        if (clock() < firstFrameNotBefore) {
+            Log.d(TAG, "ilk kare olayı yok sayıldı (eski kaynaktan kalma): ${current?.source?.addonName}")
+            return
+        }
+        Log.d(TAG, "ilk kare: ${current?.source?.addonName} (faz=$phase)")
         if (phase != SourcePhase.Starting) return
         firstFrameJob?.cancel()
         phase = SourcePhase.Playing
@@ -282,6 +296,7 @@ class SourceCoordinator(
      * gösterilmez); oynarken gelen hata arayüze bırakılır (false).
      */
     fun onFailure(detail: String): Boolean {
+        Log.d(TAG, "oynatıcı hatası: ${current?.source?.addonName} (faz=$phase) $detail")
         if (phase != SourcePhase.Starting) return false
         firstFrameJob?.cancel()
         startFailed(detail)
@@ -329,11 +344,19 @@ class SourceCoordinator(
             runtimeJob?.join()
             if (current?.url != stream.url || (phase != SourcePhase.Starting && phase != SourcePhase.Playing)) return@launch
             val kind = if (request.type == MediaType.Tv) ContentKind.Tv else ContentKind.Movie
-            if (ContentDurationCheck.check(durationMs, expectedRuntime, kind) != ContentDurationCheck.Result.Mismatch) return@launch
+            val verdict = ContentDurationCheck.check(durationMs, expectedRuntime, kind)
+            // Tanı (adres yok: kaynak adı + ana makine): süre, beklenen süre, karar.
+            Log.d(
+                "PlayMatch",
+                "süre kontrolü kaynak=${stream.source.addonName} (${StreamLog.hostOf(stream.url)}) süre=%.1f dk beklenen=${expectedRuntime ?: "?"} dk tür=$kind -> $verdict"
+                    .format(java.util.Locale.ROOT, durationMs / 60_000.0),
+            )
+            if (verdict != ContentDurationCheck.Result.Mismatch) return@launch
             verdicts.reject(requestKey, stream.url)
             streams = streams.filterNot { it.url == stream.url }
             firstFrameJob?.cancel()
             phase = SourcePhase.Starting // başarısızlık yolu (sıradaki kaynak / önceki kaynağa dön / hepsi bitti) ortak
+            firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
             startFailed("content-mismatch", mismatch = true)
         }
     }
@@ -370,6 +393,7 @@ class SourceCoordinator(
         switching = previous != null
         // Elle seçim yeniden denenebilsin: daha önce başarısız olduysa da bu sefer dene.
         attempted -= stream.url
+        if (previous != null) firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
         begin(stream, revertPositionMs)
     }
 
@@ -418,6 +442,9 @@ class SourceCoordinator(
     }
 
     companion object {
+        private const val TAG = "PlayMatch"
+        /** Kaynak değişiminden sonra bu süre içinde gelen ilk kare olayı eski kaynağa aittir. */
+        const val STALE_FRAME_GUARD_MS = 300L
         const val FIRST_FRAME_TIMEOUT_MS = 10_000L
 
         /** Torrentte üst bilgi ve ilk parçalar için eş bulmak gerekir: 10 sn çoğu zaman yetmez. */

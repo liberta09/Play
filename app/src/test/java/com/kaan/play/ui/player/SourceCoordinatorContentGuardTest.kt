@@ -68,6 +68,9 @@ class SourceCoordinatorContentGuardTest {
         rig.coordinator.onFirstFrame()
         rig.coordinator.onDuration(33 * min + 25_000) // 33:25
         advanceTimeBy(100)
+        rig.coordinator.onFirstFrame() // eski kaynaktan kalan olay: yok sayilir
+        assertEquals(SourcePhase.Starting, rig.coordinator.phase)
+        advanceTimeBy(300)
         assertEquals(listOf("https://bad/1", "https://good/2"), rig.loaded)
         assertEquals(SourceNotice.Mismatch, rig.coordinator.notice)
         assertTrue(rig.verdicts.isRejected(key, "https://bad/1"))
@@ -79,6 +82,28 @@ class SourceCoordinatorContentGuardTest {
         advanceTimeBy(100)
         assertEquals(2, rig.loaded.size)
         assertEquals(SourcePhase.Playing, rig.coordinator.phase)
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun afterMismatch_nextSourceFailingToOpenFallsThroughToTheFollowingOne() = runTest {
+        val bad = stream(bogard, "https://bad/1", dub = true)
+        val broken = stream(other, "https://broken/2", dub = true)
+        val good = stream(StreamSource(3, "Iyi"), "https://good/3", dub = true)
+        val rig = Rig(this, movie, listOf(bad, broken, good), runtime = 178)
+        rig.coordinator.start(null, emptyList(), 0)
+        advanceTimeBy(1_000)
+        rig.coordinator.onFirstFrame()
+        rig.coordinator.onDuration(33 * min)
+        advanceTimeBy(100)
+        rig.coordinator.onFirstFrame() // bayat olay: faz Starting kalmali ki hata yedege dussun
+        assertEquals(2, rig.loaded.size) // yanlis icerik elendi, siradaki denendi
+        // Siradaki kaynak acilmiyor (format hatasi): hata ekrani degil, bir sonraki kaynak.
+        assertTrue(rig.coordinator.onFailure("format"))
+        advanceTimeBy(100)
+        assertEquals(3, rig.loaded.size)
+        assertEquals("https://good/3", rig.loaded.last())
+        rig.coordinator.onFirstFrame()
         advanceUntilIdle()
     }
 

@@ -98,6 +98,13 @@ internal class PluginHttp(
                 totalBytes.addAndGet(bytes.size.toLong())
 
                 val charset = response.body.contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
+                // Tanı: yalnızca ana makine, yöntem, durum, içerik türü, bayt uzunluğu, yönlendirme olduysa son ana makine (yol/sorgu/çerez/başlık yok).
+                val finalHost = response.request.url.host.takeIf { it != host && !usesTmdbKey }
+                android.util.Log.d(
+                    "PlayPluginNet",
+                    "$host ${request.method} -> ${response.code} ctype=${response.body.contentType()?.let { "${it.type}/${it.subtype}" }} " +
+                        "len=${bytes.size}${if (truncated) "+" else ""} charset=${charset.name()}${finalHost?.let { " redirect->$it" }.orEmpty()}",
+                )
                 val headers = buildJsonObject {
                     response.headers.names().forEach { name -> put(name.lowercase(), response.headers.values(name).joinToString(", ")) }
                 }

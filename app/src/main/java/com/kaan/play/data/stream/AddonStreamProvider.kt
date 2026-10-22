@@ -44,6 +44,8 @@ class AddonStreamProvider(
 
     private suspend fun query(addon: Addon, type: String, contentId: String, limit: Duration): StreamResult {
         val source = StreamSource(addon.id, addon.manifest.name)
+        // Tanı: addon'a giden kimlik (IMDb "tt…" + sezon/bölüm); adres yazılmaz.
+        android.util.Log.d("PlayAddon", "${addon.manifest.name}: istek tür=$type kimlik=$contentId")
         val url = "${addon.baseUrl}/stream/$type/$contentId.json".toHttpUrlOrNull()
             ?: return StreamResult.Failed(source, FailureReason.Network)
 
