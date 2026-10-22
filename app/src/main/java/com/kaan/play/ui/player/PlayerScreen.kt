@@ -39,10 +39,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.ui.unit.DpSize
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -976,7 +978,6 @@ private fun SeekButton(
     }
 }
 
-@kotlin.OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProgressBar(
     position: Long,
@@ -994,51 +995,105 @@ private fun ProgressBar(
     val fraction = if (duration > 0) (position.toFloat() / duration).coerceIn(0f, 1f) else 0f
     val shown = if (dragging) dragFraction else fraction
 
-    val sliderColors = SliderDefaults.colors(
-        thumbColor = MaterialTheme.colorScheme.primary,
-        activeTrackColor = MaterialTheme.colorScheme.primary,
-        inactiveTrackColor = Color.White.copy(alpha = 0.3f),
-    )
-    val interactionSource = remember { MutableInteractionSource() }
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val inactiveColor = Color.White.copy(alpha = 0.3f)
 
     Row(
-        modifier = modifier.fillMaxWidth().onFocusChanged { onFocusChange(it.hasFocus) }.focusRing(RoundedCornerShape(24.dp))
+        modifier = modifier
+            .fillMaxWidth()
+            .onFocusChanged { onFocusChange(it.hasFocus) }
+            .focusRing(RoundedCornerShape(24.dp))
             .padding(horizontal = 12.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(formatTime((shown * duration).toLong()), style = MaterialTheme.typography.bodyMedium, color = Color.White)
-        Slider(
-            value = shown,
-            onValueChange = { dragging = true; dragFraction = it; onInteract() },
-            onValueChangeFinished = {
-                // Yalnızca gerçekten sürüklendiyse sar. Kumandada Sol/Sağ'ın KeyDown'ını kök yakalayıcı işler (10 sn);
-                // KeyUp ise Slider'a ulaşıp bu geri çağrıyı tetikliyordu ve hiç sürüklenmediği için dragFraction = 0 →
-                // video başa dönüyordu.
-                ProgressSeek.finishTargetMs(dragging, dragFraction, duration)?.let(onSeekTo)
-                dragging = false
-            },
-            colors = sliderColors,
-            interactionSource = interactionSource,
+        Box(
             modifier = Modifier
                 .weight(1f)
+                .height(48.dp)
                 .padding(horizontal = 12.dp)
                 .focusRequester(focus)
-                .focusProperties { up = upFocus; down = downFocus },
-            thumb = {
-                SliderDefaults.Thumb(
-                    interactionSource = interactionSource,
-                    colors = sliderColors,
-                    thumbSize = DpSize(12.dp, 12.dp),
+                .focusProperties { up = upFocus; down = downFocus }
+                .focusable()
+                .pointerInput(duration) {
+                    detectTapGestures(
+                        onPress = { offset ->
+                            onInteract()
+                            val frac = (offset.x / size.width).coerceIn(0f, 1f)
+                            dragging = true
+                            dragFraction = frac
+                            val success = tryAwaitRelease()
+                            if (success) {
+                                ProgressSeek.finishTargetMs(true, frac, duration)?.let(onSeekTo)
+                            }
+                            dragging = false
+                        }
+                    )
+                }
+                .pointerInput(duration) {
+                    detectHorizontalDragGestures(
+                        onDragStart = { offset ->
+                            dragging = true
+                            dragFraction = (offset.x / size.width).coerceIn(0f, 1f)
+                            onInteract()
+                        },
+                        onHorizontalDrag = { change, _ ->
+                            change.consume()
+                            dragFraction = (change.position.x / size.width).coerceIn(0f, 1f)
+                            onInteract()
+                        },
+                        onDragEnd = {
+                            ProgressSeek.finishTargetMs(dragging, dragFraction, duration)?.let(onSeekTo)
+                            dragging = false
+                        },
+                        onDragCancel = {
+                            dragging = false
+                        }
+                    )
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(16.dp)
+            ) {
+                val trackStroke = 4.dp.toPx()
+                val thumbRadius = 6.dp.toPx()
+                val cy = size.height / 2f
+                val startX = thumbRadius
+                val endX = size.width - thumbRadius
+                val availableWidth = (endX - startX).coerceAtLeast(0f)
+
+                // Inaktif iz (arkaplan)
+                drawLine(
+                    color = inactiveColor,
+                    start = Offset(startX, cy),
+                    end = Offset(endX, cy),
+                    strokeWidth = trackStroke,
+                    cap = StrokeCap.Round,
                 )
-            },
-            track = { sliderState ->
-                SliderDefaults.Track(
-                    sliderState = sliderState,
-                    colors = sliderColors,
-                    modifier = Modifier.height(4.dp),
+
+                val thumbX = startX + availableWidth * shown
+                // Aktif iz
+                if (thumbX > startX) {
+                    drawLine(
+                        color = primaryColor,
+                        start = Offset(startX, cy),
+                        end = Offset(thumbX, cy),
+                        strokeWidth = trackStroke,
+                        cap = StrokeCap.Round,
+                    )
+                }
+
+                // Yuvarlak tutamaç (12dp çap = 6dp yarıçap)
+                drawCircle(
+                    color = primaryColor,
+                    radius = thumbRadius,
+                    center = Offset(thumbX, cy),
                 )
-            },
-        )
+            }
+        }
         Text(formatTime(duration), style = MaterialTheme.typography.bodyMedium, color = Color.White)
     }
 }
