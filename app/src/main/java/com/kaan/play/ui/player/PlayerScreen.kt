@@ -2,6 +2,7 @@ package com.kaan.play.ui.player
 
 import android.content.Context
 import android.graphics.Color as AndroidColor
+import com.kaan.play.BuildConfig
 import android.net.Uri
 import android.os.SystemClock
 import android.provider.OpenableColumns
@@ -687,7 +688,7 @@ private fun SubtitleNotice(text: String, modifier: Modifier = Modifier) {
 
 /** Kaynak bildirimi: ana ileti sade; hata kodu küçük ayrıntı satırında. */
 @Composable
-private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier) {
+private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier, isDebug: Boolean = BuildConfig.DEBUG) {
     val (message, detail) = when (notice) {
         is SourceNotice.SwitchFailed -> R.string.player_switch_failed to notice.detail
         is SourceNotice.Skipped -> R.string.player_source_skipped to notice.detail
@@ -701,12 +702,14 @@ private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(stringResource(message), style = MaterialTheme.typography.bodyMedium, color = Color.White, textAlign = TextAlign.Center)
-        Text(
-            stringResource(R.string.player_error_detail, detail),
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.White.copy(alpha = 0.6f),
-            textAlign = TextAlign.Center,
-        )
+        if (PlayerNoticeLogic.shouldShowDetail(isDebug, detail)) {
+            Text(
+                stringResource(R.string.player_error_detail, detail),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White.copy(alpha = 0.6f),
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 
