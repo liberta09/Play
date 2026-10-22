@@ -41,6 +41,8 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -974,6 +976,7 @@ private fun SeekButton(
     }
 }
 
+@kotlin.OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProgressBar(
     position: Long,
@@ -991,6 +994,13 @@ private fun ProgressBar(
     val fraction = if (duration > 0) (position.toFloat() / duration).coerceIn(0f, 1f) else 0f
     val shown = if (dragging) dragFraction else fraction
 
+    val sliderColors = SliderDefaults.colors(
+        thumbColor = MaterialTheme.colorScheme.primary,
+        activeTrackColor = MaterialTheme.colorScheme.primary,
+        inactiveTrackColor = Color.White.copy(alpha = 0.3f),
+    )
+    val interactionSource = remember { MutableInteractionSource() }
+
     Row(
         modifier = modifier.fillMaxWidth().onFocusChanged { onFocusChange(it.hasFocus) }.focusRing(RoundedCornerShape(24.dp))
             .padding(horizontal = 12.dp, vertical = 4.dp),
@@ -1007,16 +1017,27 @@ private fun ProgressBar(
                 ProgressSeek.finishTargetMs(dragging, dragFraction, duration)?.let(onSeekTo)
                 dragging = false
             },
-            colors = SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.primary,
-                activeTrackColor = MaterialTheme.colorScheme.primary,
-                inactiveTrackColor = Color.White.copy(alpha = 0.3f),
-            ),
+            colors = sliderColors,
+            interactionSource = interactionSource,
             modifier = Modifier
                 .weight(1f)
                 .padding(horizontal = 12.dp)
                 .focusRequester(focus)
                 .focusProperties { up = upFocus; down = downFocus },
+            thumb = {
+                SliderDefaults.Thumb(
+                    interactionSource = interactionSource,
+                    colors = sliderColors,
+                    thumbSize = DpSize(12.dp, 12.dp),
+                )
+            },
+            track = { sliderState ->
+                SliderDefaults.Track(
+                    sliderState = sliderState,
+                    colors = sliderColors,
+                    modifier = Modifier.height(4.dp),
+                )
+            },
         )
         Text(formatTime(duration), style = MaterialTheme.typography.bodyMedium, color = Color.White)
     }
