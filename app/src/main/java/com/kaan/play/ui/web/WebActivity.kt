@@ -1,7 +1,9 @@
 package com.kaan.play.ui.web
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Color
@@ -540,10 +542,17 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
                 .putExtra(EXTRA_URL, url)
                 .putExtra(EXTRA_NAME, name)
                 .apply {
-                    if (BuildConfig.DEBUG && forceRemote) {
+                    val inheritedForce = BuildConfig.DEBUG && (findActivity(context)?.intent?.getBooleanExtra(EXTRA_FORCE_REMOTE, false) == true)
+                    if (BuildConfig.DEBUG && (forceRemote || inheritedForce)) {
                         putExtra(EXTRA_FORCE_REMOTE, true)
                     }
                 }
+
+        private fun findActivity(context: Context): Activity? = when (context) {
+            is Activity -> context
+            is ContextWrapper -> findActivity(context.baseContext)
+            else -> null
+        }
     }
 }
 
