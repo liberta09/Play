@@ -40,7 +40,7 @@ class CsStreamProvider(
             if (plugin != null) {
                 val source = StreamSource(addonId = plugin.id, addonName = plugin.name)
                 try {
-                    val apis = repository.loadApis(plugin.id)
+                    val apis = repository.loadApis(plugin.id).apisOrEmpty()
                     val streams = mutableListOf<PlayableStream>()
                     for (api in apis) {
                         val links = runtime.loadLinksDirect(
@@ -74,7 +74,7 @@ class CsStreamProvider(
             launch {
                 val source = StreamSource(addonId = plugin.id, addonName = plugin.name)
                 try {
-                    val apis = repository.loadApis(plugin.id)
+                    val apis = repository.loadApis(plugin.id).apisOrEmpty()
                     Log.d(TAG, "${plugin.name}: ${apis.size} MainAPI yüklendi")
                     val streams: List<PlayableStream> = if (apis.isEmpty()) {
                         emptyList()

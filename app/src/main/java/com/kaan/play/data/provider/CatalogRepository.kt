@@ -89,7 +89,7 @@ class CatalogRepository(
                         blockedVerifyHost = stuck.first
                         blockedVerifyUrl = stuck.second
                     }
-                    val apis = csRepository.loadApis(pluginRowId)
+                    val apis = csRepository.loadApis(pluginRowId).apisOrEmpty()
                     for (api in apis) {
                         if (com.kaan.play.data.cloudstream.cloudflare.CloudflareSolver.wasBlocked(api.mainUrl)) {
                             hasBotBlocked = true

@@ -53,6 +53,10 @@ data class InstalledCsPlugin(
 
 data class CsRepoAdded(val repo: CsRepo, val installed: Int, val skipped: Int)
 
+fun interface Cs3Downloader {
+    suspend fun download(url: String, expectedHash: String, pluginId: Long): Cs3Contents
+}
+
 /**
  * CloudStream eklenti depolarının tek kapısı (Faz 3). Depo satırı `addons` tablosunda
  * ([AddonType.CLOUDSTREAM_REPO]), eklentiler `plugins` tablosunda durur.
@@ -67,6 +71,9 @@ class CsRepository(
     private val loader: PluginDexLoader,
     private val clock: () -> Long = System::currentTimeMillis,
     private val parallelDownloads: Int = 2,
+    private val cs3Downloader: Cs3Downloader = Cs3Downloader { url, hash, id ->
+        downloadCs3(url, hash, httpClient, store, id)
+    },
 ) {
 
     val repos: Flow<List<CsRepo>> = combine(
@@ -145,7 +152,7 @@ class CsRepository(
         if (addonDao.countBySourceUrl(url) > 0) throw AddonException(Kind.AlreadyAdded)
 
         val tempId = System.nanoTime()
-        val contents = downloadCs3(url, "", httpClient, store, tempId)
+        val contents = cs3Downloader.download(url, "", tempId)
 
         val parsed = runCatching {
             PlayJson.parseToJsonElement(contents.pluginManifest) as? JsonObject
@@ -243,14 +250,36 @@ class CsRepository(
      * Açık eklentiler için [MainAPI] listesini döner.
      * Her çağrıda DEX'i [PathClassLoader] ile yükler (Android sınıf yükleyici önbelleği bunu ucuzlatır).
      */
-    suspend fun loadApis(pluginRowId: Long): List<MainAPI> {
-        val row = pluginDao.byId(pluginRowId) ?: return emptyList()
+    suspend fun loadApis(pluginRowId: Long, allowRedownload: Boolean = true): CsApiResult {
+        val row = pluginDao.byId(pluginRowId) ?: run {
+            val failure = CsApiResult.PluginRowMissing(pluginRowId)
+            Log.w(TAG, formatCsLog(failure))
+            return failure
+        }
         val dexFile = store.dexFile(pluginRowId)
-        if (!dexFile.exists()) return emptyList()
-        // row.pluginId = depo düzeyindeki internalName; gerçek sınıf adı manifest.json'daki
-        // pluginClassName'dir ve genelde farklıdır (bkz. resolveMainClassName).
+        if (!dexFile.exists()) {
+            if (allowRedownload) {
+                Log.w(TAG, "${row.pluginId}: DexFileMissing (tek seferlik yeniden indirme deneniyor)")
+                val downloaded = try {
+                    cs3Downloader.download(row.scriptUrl, row.sha256, pluginRowId)
+                    dexFile.exists()
+                } catch (e: Exception) {
+                    false
+                }
+                if (downloaded) {
+                    return loadApis(pluginRowId, allowRedownload = false)
+                }
+            }
+            val failure = CsApiResult.DexFileMissing(row.pluginId)
+            Log.w(TAG, formatCsLog(failure))
+            return failure
+        }
         val className = resolveMainClassName(store.readManifest(pluginRowId), row.pluginId)
-        return loader.loadPlugin(dexFile, className)
+        val result = loader.loadPlugin(dexFile, className, row.pluginId)
+        if (result is CsApiResult.Failure) {
+            Log.w(TAG, formatCsLog(result))
+        }
+        return result
     }
 
     suspend fun enabledPlugins(): List<InstalledCsPlugin> =
@@ -292,7 +321,7 @@ class CsRepository(
         return try {
             // Geçici bir id ile geçici dosya yolu belirle; eklenti satırı eklendikten sonra gerçek id alınır.
             val tempId = System.nanoTime()
-            val contents = downloadCs3(entry.url, entry.fileHash, httpClient, store, tempId)
+            val contents = cs3Downloader.download(entry.url, entry.fileHash, tempId)
 
             // Veritabanı satırını ekle
             val pluginEntity = PluginEntity(

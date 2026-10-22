@@ -341,7 +341,7 @@ object PlayDiagRunner {
         plugin: InstalledCsPlugin,
     ): CsDiagResult {
         Log.i(TAG, "[CS:${plugin.name}] Test başlıyor...")
-        val apis = runCatching { container.csRepos.loadApis(plugin.id) }.getOrNull()
+        val apis = runCatching { container.csRepos.loadApis(plugin.id).apisOrEmpty() }.getOrNull()
         if (apis.isNullOrEmpty()) {
             Log.w(TAG, "[CS:${plugin.name}] Dex yüklenemedi / API sınıfı bulunamadı")
             return CsDiagResult(
@@ -1021,7 +1021,7 @@ object PlayDiagRunner {
         }
 
         for (plugin in seriesPlugins) {
-            val apis = runCatching { container.csRepos.loadApis(plugin.id) }.getOrNull() ?: continue
+            val apis = runCatching { container.csRepos.loadApis(plugin.id).apisOrEmpty() }.getOrNull() ?: continue
             val api = apis.firstOrNull() ?: continue
             val sections = runCatching {
                 withTimeoutOrNull(CATALOG_TIMEOUT_MS) {

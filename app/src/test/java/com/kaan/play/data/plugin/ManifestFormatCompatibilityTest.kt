@@ -5,6 +5,7 @@ import com.kaan.play.data.addon.AddonException.Kind
 import com.kaan.play.data.addon.AddonManifestParser
 import com.kaan.play.data.addon.AddonRepository
 import com.kaan.play.data.addon.ManifestFetcher
+import com.kaan.play.data.cloudstream.CsApiResult
 import com.kaan.play.data.cloudstream.CsDexStore
 import com.kaan.play.data.cloudstream.CsRepoManifestParser
 import com.kaan.play.data.cloudstream.CsRepository
@@ -247,7 +248,7 @@ class ManifestFormatCompatibilityTest {
         }
         val csDexDir = File.createTempFile("csdex_test", "").also { it.delete(); it.mkdirs() }
         val csLoader = object : PluginDexLoader {
-            override suspend fun loadPlugin(dexFile: File, className: String): List<MainAPI> = emptyList()
+            override suspend fun loadPlugin(dexFile: File, className: String, pluginId: String): CsApiResult = CsApiResult.NoApiRegistered(pluginId)
         }
 
         val addonRepo = AddonRepository(db.addons, fetcher, clock = { 1000L })

@@ -25,7 +25,7 @@ class CsCatalog(
     override val providerId: String = "cs:$pluginId"
 
     override fun rows(): Flow<List<CatalogRow>> = flow {
-        val apis = repository.loadApis(pluginId)
+        val apis = repository.loadApis(pluginId).apisOrEmpty()
         if (apis.isEmpty()) {
             emit(emptyList())
             return@flow
@@ -68,7 +68,7 @@ class CsCatalog(
     }.flowOn(Dispatchers.IO)
 
     override suspend fun loadMore(rowId: String, page: Int): List<CatalogItem> = withContext(Dispatchers.IO) {
-        val apis = repository.loadApis(pluginId)
+        val apis = repository.loadApis(pluginId).apisOrEmpty()
         if (apis.isEmpty()) return@withContext emptyList()
 
         for (api in apis) {

@@ -28,24 +28,26 @@ internal fun resolveMainClassName(manifestJson: String?, fallbackInternalName: S
 }
 
 interface PluginDexLoader {
-    suspend fun loadPlugin(dexFile: File, className: String): List<MainAPI>
+    suspend fun loadPlugin(dexFile: File, className: String, pluginId: String = ""): CsApiResult
 }
 
 class CsDexLoader(private val context: Context) : PluginDexLoader {
 
     private val loadLock = Mutex()
 
-    override suspend fun loadPlugin(dexFile: File, className: String): List<MainAPI> = loadLock.withLock {
+    override suspend fun loadPlugin(dexFile: File, className: String, pluginId: String): CsApiResult = loadLock.withLock {
         if (!dexFile.exists()) {
-            Log.d(TAG, "loadPlugin: dex yok ($className)")
-            return@withLock emptyList()
+            val failure = CsApiResult.DexFileMissing(pluginId)
+            Log.w(TAG, formatCsLog(failure))
+            return@withLock failure
         }
 
         val cl = try {
             PathClassLoader(dexFile.absolutePath, context.classLoader)
         } catch (t: Throwable) {
-            Log.d(TAG, "loadPlugin: PathClassLoader hata ($className) ${t.javaClass.simpleName}: ${t.message}")
-            return@withLock emptyList()
+            val failure = classifyDexError(t, pluginId)
+            Log.w(TAG, formatCsLog(failure))
+            return@withLock failure
         }
 
         return@withLock try {
@@ -73,16 +75,24 @@ class CsDexLoader(private val context: Context) : PluginDexLoader {
                     listOf(api)
                 }
                 else -> {
-                    Log.d(TAG, "loadPlugin: bilinmeyen eklenti tipi (${clazz.name})")
-                    emptyList()
+                    val failure = CsApiResult.LoadFailed("UnknownPluginType", pluginId)
+                    Log.w(TAG, formatCsLog(failure))
+                    return@withLock failure
                 }
             }
 
-            Log.d(TAG, "loadPlugin: $className yüklendi -> ${apis.size} MainAPI (${apis.map { it.name }})")
-            apis
+            if (apis.isEmpty()) {
+                val failure = CsApiResult.NoApiRegistered(pluginId)
+                Log.w(TAG, formatCsLog(failure))
+                failure
+            } else {
+                Log.d(TAG, "$pluginId: Success (${apis.size} MainAPI)")
+                CsApiResult.Success(apis)
+            }
         } catch (t: Throwable) {
-            Log.d(TAG, "loadPlugin: sınıf yükleme/çalıştırma hatası ($className) ${t.javaClass.simpleName}: ${t.message}", t)
-            emptyList()
+            val failure = classifyDexError(t, pluginId)
+            Log.w(TAG, formatCsLog(failure))
+            failure
         }
     }
 

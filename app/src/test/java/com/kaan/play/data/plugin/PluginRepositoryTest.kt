@@ -4,6 +4,7 @@ import com.kaan.play.data.addon.AddonException
 import com.kaan.play.data.addon.AddonException.Kind
 import com.kaan.play.data.addon.AddonRepository
 import com.kaan.play.data.addon.ManifestFetcher
+import com.kaan.play.data.cloudstream.CsApiResult
 import com.kaan.play.data.cloudstream.CsDexStore
 import com.kaan.play.data.cloudstream.CsRepository
 import com.kaan.play.data.cloudstream.PluginDexLoader
@@ -156,7 +157,7 @@ class PluginRepositoryTest {
     private val csFetcher = ManifestFetcher { csPluginListJson }
     private val csDexDir = java.io.File.createTempFile("csdex", "").also { it.delete(); it.mkdirs() }
     private val csLoader = object : PluginDexLoader {
-        override suspend fun loadPlugin(dexFile: java.io.File, className: String): List<MainAPI> = emptyList()
+        override suspend fun loadPlugin(dexFile: java.io.File, className: String, pluginId: String): CsApiResult = CsApiResult.NoApiRegistered(pluginId)
     }
     private val csRepos = CsRepository(
         addonDao = db.addons,

@@ -6,6 +6,7 @@ import com.kaan.play.data.addon.AddonManifestParser
 import com.kaan.play.data.addon.AddonRepository
 import com.kaan.play.data.addon.AddonUrl
 import com.kaan.play.data.addon.ManifestFetcher
+import com.kaan.play.data.cloudstream.CsApiResult
 import com.kaan.play.data.cloudstream.CsDexStore
 import com.kaan.play.data.cloudstream.CsRepoManifestParser
 import com.kaan.play.data.cloudstream.CsRepository
@@ -279,7 +280,7 @@ class CentralReposCompatibilityTest {
                 }
                 val csDexDir = File.createTempFile("csdex_tmp", "").also { it.delete(); it.mkdirs() }
                 val testCsLoader = object : PluginDexLoader {
-                    override suspend fun loadPlugin(dexFile: File, className: String): List<MainAPI> = emptyList()
+                    override suspend fun loadPlugin(dexFile: File, className: String, pluginId: String): CsApiResult = CsApiResult.NoApiRegistered(pluginId)
                 }
                 val aRepo = AddonRepository(db.addons, testFetcher, clock = { 1000L })
                 val pRepo = PluginRepository(db.addons, db.plugins, testFetcher, testCodeFetcher, testCodeStore)

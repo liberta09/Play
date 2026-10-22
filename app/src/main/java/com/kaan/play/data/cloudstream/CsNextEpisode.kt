@@ -43,7 +43,7 @@ class CsNextEpisodeFinder(private val csRepos: CsRepository) {
             if (com.kaan.play.BuildConfig.DEBUG) android.util.Log.w("CsNextEpisode", "eklenti bulunamadı")
             return@withContext null
         }
-        val api = csRepos.loadApis(plugin.id).firstOrNull()
+        val api = csRepos.loadApis(plugin.id).apisOrEmpty().firstOrNull()
         if (api == null) {
             if (com.kaan.play.BuildConfig.DEBUG) android.util.Log.w("CsNextEpisode", "eklenti API yok")
             return@withContext null

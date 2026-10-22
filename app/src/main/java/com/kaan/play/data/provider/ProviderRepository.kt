@@ -52,7 +52,7 @@ class ProviderRepository(
         // önbelleğe yazıyordu; liste hesaplanırken uygulama arka plana geçince o eklenti oturum boyunca listeden
         // düşüyor, seçiliyse seçim de temizleniyordu.
         val apis = try {
-            repo.loadApis(pluginId)
+            repo.loadApis(pluginId).apisOrEmpty()
         } catch (e: CancellationException) {
             throw e
         } catch (_: Throwable) {
