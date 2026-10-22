@@ -86,6 +86,22 @@ object TitleText {
         return (listOf(name.trim()) + parts).distinct()
     }
 
+    /**
+     * Karşılaştırılacak ad biçimleri: tam ad + parçaları (yerel ad - özgün ad). Bir parça, ADIN DİĞER parçalarında devam/bölüm numarası
+     * varsa ("Dune: Çöl Gezegeni – Bölüm Üç" → "Dune: Çöl Gezegeni" parçası) aday dışıdır: o parça tek başına asıl içeriği temsil etmez.
+     */
+    fun comparableNames(name: String): List<String> {
+        val parts = name.split(SEGMENT_SPLIT).map(String::trim).filter { it.isNotEmpty() }
+        val result = arrayListOf(name.trim())
+        if (parts.size > 1) {
+            parts.forEachIndexed { i, part ->
+                val othersHaveNumber = parts.filterIndexed { j, _ -> j != i }.any { other -> tokens(other).any(::isNumber) }
+                if (!othersHaveNumber) result += part
+            }
+        }
+        return result.distinct()
+    }
+
     /** Noktalamasız arama sorgusu (":" "-" gibi karakterlerde boş dönen site aramaları için). */
     fun plainQuery(text: String): String = text.replace(NON_WORD, " ").trim().replace(Regex("\\s+"), " ")
 }

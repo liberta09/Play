@@ -190,7 +190,7 @@ object CsMatchRules {
             return null to "yıl farklı ($candidateYear ≠ $wantedYear)"
         }
         val yearExact = candidateYear != null && wantedYear != null && candidateYear == wantedYear
-        val names = (listOf(candidate.name) + candidate.otherNames).flatMap(TitleText::segments).distinct()
+        val names = (listOf(candidate.name) + candidate.otherNames).flatMap(TitleText::comparableNames).distinct()
         var best = TitleComparison(0.0)
         for (wanted in identity.titles) {
             for (name in names) {
@@ -235,7 +235,7 @@ object CsMatchRules {
         if (name != null) {
             val yearExact = info.year != null && wantedYear != null && info.year == wantedYear
             val ok = identity.titles.any { wanted ->
-                TitleText.segments(name).any { segment ->
+                TitleText.comparableNames(name).any { segment ->
                     val cmp = TitleMatch.compare(wanted, segment)
                     cmp.score >= TitleMatch.ACCEPT && (!cmp.partial || yearExact)
                 }

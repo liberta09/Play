@@ -130,6 +130,17 @@ class ContentMatchTest {
     }
 
     @Test
+    fun titleWithPartNumberAfterDashDoesNotMatchItsPrefix() {
+        // "Dune: Çöl Gezegeni – Bölüm Üç" (2026) 2021 filminin yerine geçmemeli: baştaki parça tek başına eşleşmez.
+        val id = movie("Dune: Çöl Gezegeni", "Dune", year = 2021)
+        assertNull(pickUrl(listOf(c("Dune: Çöl Gezegeni – Bölüm Üç", null, "p3")), id))
+        assertNull(pickUrl(listOf(c("Dune: Çöl Gezegeni - Bölüm Üç - Dune: Part Three", null, "p3")), id))
+        assertTrue(CsMatchRules.verifyLoaded(CsMatchRules.LoadedInfo("Dune: Çöl Gezegeni - Bölüm Üç - Dune: Part Three", null, null, null, null), id) is Verdict.Reject)
+        // Yerel - özgün ad biçimi (sayı yok) hâlâ eşleşir.
+        assertNotNull(pickUrl(listOf(c("Çöl Gezegeni - Dune", 2021, "ok")), id))
+    }
+
+    @Test
     fun siteNoiseWordsAndAccentsAreIgnored() {
         val id = movie("Yüzüklerin Efendisi: Yüzük Kardeşliği", year = 2001)
         assertNotNull(pickUrl(listOf(c("yuzuklerin efendisi yuzuk kardesligi Türkçe Dublaj izle Full HD", 2001)), id))
