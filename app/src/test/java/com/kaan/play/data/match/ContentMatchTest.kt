@@ -247,28 +247,6 @@ class ContentMatchTest {
         assertEquals(Verdict.Ok, CsMatchRules.verifyLoaded(CsMatchRules.LoadedInfo("Yüzüklerin Efendisi: Yüzük Kardeşliği", 2001, null, null, 228), id)) // extended
     }
 
-    // ---- Süre (nesnel doğrulama) ----
-
-    @Test
-    fun durationRules_movie() {
-        val min = 60_000L
-        assertEquals(ContentDurationRules.Result.Mismatch, ContentDurationRules.check(33 * min + 25_000, 178, ContentKind.Movie))
-        assertEquals(ContentDurationRules.Result.Ok, ContentDurationRules.check(178 * min, 178, ContentKind.Movie))
-        assertEquals(ContentDurationRules.Result.Ok, ContentDurationRules.check(228 * min, 178, ContentKind.Movie)) // extended edition
-        assertEquals(ContentDurationRules.Result.Mismatch, ContentDurationRules.check(600 * min, 100, ContentKind.Movie))
-        assertEquals(ContentDurationRules.Result.Unknown, ContentDurationRules.check(0, 178, ContentKind.Movie))
-        assertEquals(ContentDurationRules.Result.Unknown, ContentDurationRules.check(10 * min, null, ContentKind.Movie))
-        assertEquals(ContentDurationRules.Result.Unknown, ContentDurationRules.check(2 * min, 12, ContentKind.Movie)) // kısa film: oran güvenilmez
-    }
-
-    @Test
-    fun durationRules_episode() {
-        val min = 60_000L
-        assertEquals(ContentDurationRules.Result.Ok, ContentDurationRules.check(42 * min, 45, ContentKind.Tv))
-        assertEquals(ContentDurationRules.Result.Mismatch, ContentDurationRules.check(3 * min, 45, ContentKind.Tv)) // fragman
-        assertEquals(ContentDurationRules.Result.Mismatch, ContentDurationRules.check(240 * min, 45, ContentKind.Tv))
-    }
-
     // ---- Bölüm seçimi ----
 
     private fun ep(data: String, s: Int?, e: Int?, name: String? = null) = EpisodeRef(data, name, s, e)

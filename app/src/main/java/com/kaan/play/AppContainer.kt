@@ -41,6 +41,7 @@ import com.kaan.play.data.stream.SizeProbe
 import com.kaan.play.data.stream.SourceMemory
 import com.kaan.play.data.stream.TorrentStreamProvider
 import com.kaan.play.data.stream.StreamProvider
+import com.kaan.play.data.stream.StreamVerdicts
 import com.kaan.play.data.subtitle.AddonSubtitleProvider
 import com.kaan.play.data.subtitle.CompositeSubtitleProvider
 import com.kaan.play.data.subtitle.OnlineSubtitleProvider
@@ -361,24 +362,30 @@ class AppContainer(context: Context) {
     /** Torrent dosyasını oynatıcıya `127.0.0.1` üzerinden http olarak veren yerel sunucu. */
     val torrentServer: TorrentHttpServer by lazy { TorrentHttpServer(torrentEngine) }
 
+    /** Oynatma sırasında "bu içerik değil" diye reddedilen kaynaklar (bellek içi, oturum boyunca): aynı içerikte bir daha listeye girmez. */
+    val streamVerdicts: StreamVerdicts by lazy { StreamVerdicts() }
+
     private val rawStreams: StreamProvider by lazy {
         CompositeStreamProvider(
-            AddonStreamProvider(addons = addons::enabledAddons, client = httpClient, timeout = sourceTimeout),
-            PluginStreamProvider(
-                plugins = plugins::enabledPlugins,
-                code = plugins::loadCode,
-                runner = { code, request, scraperId, timeoutMs, saved -> pluginRuntime.run(code, request, scraperId, timeoutMs, saved) },
-                settings = pluginSettings::get,
-                timeout = sourceTimeout,
+            providers = listOf(
+                AddonStreamProvider(addons = addons::enabledAddons, client = httpClient, timeout = sourceTimeout),
+                PluginStreamProvider(
+                    plugins = plugins::enabledPlugins,
+                    code = plugins::loadCode,
+                    runner = { code, request, scraperId, timeoutMs, saved -> pluginRuntime.run(code, request, scraperId, timeoutMs, saved) },
+                    settings = pluginSettings::get,
+                    timeout = sourceTimeout,
+                ),
+                CsStreamProvider(
+                    repository = csRepos,
+                    runtime = csRuntime,
+                    identityResolver = { req ->
+                        runCatching { tmdb.detail(req.type, req.tmdbId).toContentIdentity(req.season, req.episode) }.getOrNull()
+                    },
+                    timeoutMs = 30_000L,
+                ),
             ),
-            CsStreamProvider(
-                repository = csRepos,
-                runtime = csRuntime,
-                identityResolver = { req ->
-                    runCatching { tmdb.detail(req.type, req.tmdbId).toContentIdentity(req.season, req.episode) }.getOrNull()
-                },
-                timeoutMs = 30_000L,
-            ),
+            verdicts = streamVerdicts,
         )
     }
 

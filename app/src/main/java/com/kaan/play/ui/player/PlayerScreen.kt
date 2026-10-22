@@ -687,6 +687,7 @@ private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier
     val (message, detail) = when (notice) {
         is SourceNotice.SwitchFailed -> R.string.player_switch_failed to notice.detail
         is SourceNotice.Skipped -> R.string.player_source_skipped to notice.detail
+        SourceNotice.Mismatch -> R.string.player_source_mismatch to "content"
     }
     Column(
         modifier = modifier

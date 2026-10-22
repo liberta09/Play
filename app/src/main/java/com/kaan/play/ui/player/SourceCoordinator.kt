@@ -3,6 +3,9 @@ package com.kaan.play.ui.player
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.kaan.play.data.match.ContentDurationCheck
+import com.kaan.play.data.match.ContentKind
+import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.RankContext
 import com.kaan.play.data.stream.SourceRanking
@@ -10,8 +13,10 @@ import com.kaan.play.data.stream.SourcePref
 import com.kaan.play.data.stream.StartDecision
 import com.kaan.play.data.stream.StartPolicy
 import com.kaan.play.data.stream.StreamRequest
+import com.kaan.play.data.stream.StreamOwnership
 import com.kaan.play.data.stream.StreamResult
 import com.kaan.play.data.stream.StreamSource
+import com.kaan.play.data.stream.StreamVerdicts
 import com.kaan.play.data.stream.TorrentLinks
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -49,6 +54,9 @@ sealed interface SourceNotice {
 
     /** Otomatik başlangıçta bozuk kaynak atlandı, sıradakine geçildi. */
     data class Skipped(val detail: String) : SourceNotice
+
+    /** Kaynağın videosu istenen içerikle bağdaşmıyordu (süre uyuşmuyor): atlandı, sıradakine geçildi / önceki kaynağa dönüldü. */
+    data object Mismatch : SourceNotice
 }
 
 /**
@@ -61,6 +69,11 @@ sealed interface SourceNotice {
  * ([SourceNotice.SwitchFailed]); seçim film/dizi için hatırlanır ([remember]) ve sonraki bölümde önce denenir.
  * **Geç gelen dublaj:** altyazılı başlanmışsa ve sonradan dublajlı kaynak gelirse [dubSuggestion] dolar (oynatma kesilmez).
  * Dosya boyutları ([sizeProbe]: HEAD, torrent üst bilgisi [reportSize]) bulundukça [sizes]'a girer ve sıralamada kullanılır.
+ *
+ * **İçerik güvencesi:** yalnızca bu içeriğin damgasını taşıyan kaynaklar kabul edilir ([StreamOwnership]; yedek listeye başka içeriğin
+ * kaynağı karışsa bile atılır). Oynatıcı süreyi öğrenince [onDuration]: süre TMDB süresiyle bağdaşmıyorsa ([ContentDurationCheck]; ör. 3 saatlik
+ * film yerine 33 dakikalık dizi bölümü) kaynak reddedilir, [verdicts]'e yazılır, listeden çıkar ve sıradakine geçilir; kalan kaynak yoksa
+ * "kaynak bulunamadı" ekranı gelir.
  */
 class SourceCoordinator(
     private val scope: CoroutineScope,
@@ -71,6 +84,9 @@ class SourceCoordinator(
     private val remember: suspend (StreamRequest, PlayableStream) -> Unit = { _, _ -> },
     /** Dosya boyutu (HEAD ile); bulunamazsa null. Hata fırlatmamalıdır. */
     private val sizeProbe: suspend (PlayableStream) -> Long? = { null },
+    /** İçeriğin TMDB süresi (film: süre, dizi: bölüm süresi; dk); bilinmiyorsa null. Hata fırlatmamalıdır. */
+    private val runtimeFor: suspend (StreamRequest) -> Int? = { null },
+    private val verdicts: StreamVerdicts = StreamVerdicts(),
     private val maxHeight: Int = 1080,
     private val preferDub: Boolean = true,
     private val autoSource: Boolean = true,
@@ -128,6 +144,10 @@ class SourceCoordinator(
     private var revertPositionMs = 0L
     private var lastStartMs = 0L
     private val attempted = LinkedHashSet<String>()
+    private val requestKey = StreamOwnership.keyOf(request)
+    private var expectedRuntime: Int? = null
+    private var runtimeJob: Job? = null
+    private val durationChecked = HashSet<String>()
     private val queue = ArrayDeque<PlayableStream>()
     private val probed = HashSet<String>()
     private val probeGate = Semaphore(PROBE_PARALLEL)
@@ -149,7 +169,16 @@ class SourceCoordinator(
     fun start(initial: PlayableStream?, fallbacks: List<PlayableStream>, startMs: Long) {
         lastStartMs = startMs
         queue.clear()
-        queue.addAll(fallbacks)
+        queue.addAll(fallbacks.filter(::acceptable))
+        runtimeJob = scope.launch {
+            expectedRuntime = try {
+                runtimeFor(request)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                null
+            }
+        }
         scope.launch {
             preference = try {
                 preferenceFor(request)
@@ -158,8 +187,10 @@ class SourceCoordinator(
             } catch (_: Exception) {
                 null
             }
-            if (initial != null) {
-                begin(initial, startMs)
+            // Başka içeriğin kaynağı verilmişse yok sayılır: kaynaklar bu içerik için baştan aranır.
+            val first = initial?.takeIf(::acceptable)
+            if (first != null) {
+                begin(first, startMs)
                 if (autoSource) ensureSources()
             } else {
                 phase = SourcePhase.Resolving
@@ -196,7 +227,7 @@ class SourceCoordinator(
                 .collect { result ->
                     answered = answered + result.source.addonId
                     when (result) {
-                        is StreamResult.Found -> streams = (streams + result.streams).distinctBy { it.url }
+                        is StreamResult.Found -> streams = (streams + result.streams.filter(::acceptable)).distinctBy { it.url }
                         is StreamResult.Failed -> failedSources = failedSources + result.source
                     }
                     onChange()
@@ -257,20 +288,20 @@ class SourceCoordinator(
         return true
     }
 
-    private fun startFailed(detail: String) {
+    private fun startFailed(detail: String, mismatch: Boolean = false) {
         val failed = current
         val previous = revertTo
         if (previous != null) {
             // Elle seçilen kaynak açılmadı: önceki kaynağa kaldığı saniyeden dön.
             revertTo = null
             switching = false
-            notice = SourceNotice.SwitchFailed(detail)
+            notice = if (mismatch) SourceNotice.Mismatch else SourceNotice.SwitchFailed(detail)
             begin(previous, revertPositionMs)
             return
         }
         val next = nextCandidate()
         if (next != null) {
-            if (failed != null) notice = SourceNotice.Skipped(detail)
+            if (failed != null) notice = if (mismatch) SourceNotice.Mismatch else SourceNotice.Skipped(detail)
             begin(next, lastStartMs)
         } else if (!finished) {
             // Daha kaynak gelebilir: gelince denenir.
@@ -279,6 +310,31 @@ class SourceCoordinator(
         } else {
             phase = SourcePhase.Failed
             switching = false
+        }
+    }
+
+    /** Bu içeriğin kaynağı mı (damga) ve oynatma sırasında reddedilmemiş mi? */
+    private fun acceptable(stream: PlayableStream): Boolean =
+        StreamOwnership.belongs(stream, request) && !verdicts.isRejected(requestKey, stream.url)
+
+    /**
+     * Oynatıcı videonun süresini öğrendi ([durationMs]; canlı/belirsizse çağrılmaz). Süre içeriğin TMDB süresiyle bağdaşmıyorsa
+     * kaynak başka bir içerik gösteriyor demektir: reddedilir, listeden çıkar, sıradakine geçilir. Aynı kaynak için bir kez bakılır.
+     */
+    fun onDuration(durationMs: Long) {
+        val stream = current ?: return
+        if (phase != SourcePhase.Starting && phase != SourcePhase.Playing) return
+        if (!durationChecked.add(stream.url)) return
+        scope.launch {
+            runtimeJob?.join()
+            if (current?.url != stream.url || (phase != SourcePhase.Starting && phase != SourcePhase.Playing)) return@launch
+            val kind = if (request.type == MediaType.Tv) ContentKind.Tv else ContentKind.Movie
+            if (ContentDurationCheck.check(durationMs, expectedRuntime, kind) != ContentDurationCheck.Result.Mismatch) return@launch
+            verdicts.reject(requestKey, stream.url)
+            streams = streams.filterNot { it.url == stream.url }
+            firstFrameJob?.cancel()
+            phase = SourcePhase.Starting // başarısızlık yolu (sıradaki kaynak / önceki kaynağa dön / hepsi bitti) ortak
+            startFailed("content-mismatch", mismatch = true)
         }
     }
 

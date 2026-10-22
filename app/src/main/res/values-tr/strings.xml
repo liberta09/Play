@@ -397,6 +397,7 @@
     <string name="player_no_sources">Bu içerik için kaynak bulunamadı.</string>
     <string name="player_switch_failed">Bu kaynak açılamadı, önceki kaynağa dönüldü.</string>
     <string name="player_source_skipped">Bir kaynak açılmadı, sıradakine geçildi.</string>
+    <string name="player_source_mismatch">Bu kaynak başka bir video gösteriyordu, atlandı.</string>
     <string name="player_error_detail">Ayrıntı: %1$s</string>
     <string name="dub_suggest_title">Dublajlı kaynak bulundu, geçilsin mi?</string>
     <string name="dub_suggest_switch">Geç</string>

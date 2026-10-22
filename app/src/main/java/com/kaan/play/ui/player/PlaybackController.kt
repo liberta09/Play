@@ -125,6 +125,9 @@ class PlaybackController(
     /** İlk video karesi çizildi (kaynak gerçekten açıldı); kaynak seçimi 10 sn'lik süreyi buna göre izler. */
     var onFirstFrame: (() -> Unit)? = null
 
+    /** Videonun süresi öğrenildi (ms; canlı yayında çağrılmaz): içerik doğrulaması süreyi TMDB süresiyle karşılaştırır. */
+    var onDurationKnown: ((Long) -> Unit)? = null
+
     init {
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -133,6 +136,10 @@ class PlaybackController(
 
             override fun onPlaybackStateChanged(state: Int) {
                 ui = ui.copy(buffering = state == Player.STATE_BUFFERING, ended = state == Player.STATE_ENDED)
+                if (state == Player.STATE_READY && !player.isCurrentMediaItemLive) {
+                    val duration = player.duration
+                    if (duration != C.TIME_UNSET && duration > 0) onDurationKnown?.invoke(duration)
+                }
                 // Görüntüsüz içerik (yalnızca ses) için ilk kare gelmez: hazır olunca açıldı sayılır.
                 if (state == Player.STATE_READY && player.currentTracks.groups.none { it.type == C.TRACK_TYPE_VIDEO && it.isSelected }) {
                     onFirstFrame?.invoke()

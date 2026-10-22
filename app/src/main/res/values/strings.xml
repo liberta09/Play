@@ -415,6 +415,7 @@
     <string name="player_no_sources">No sources found for this title.</string>
     <string name="player_switch_failed">Couldn\'t open that source. Went back to the previous one.</string>
     <string name="player_source_skipped">A source didn\'t open. Trying the next one.</string>
+    <string name="player_source_mismatch">That source was playing a different video, so it was skipped.</string>
     <string name="player_error_detail">Details: %1$s</string>
     <string name="dub_suggest_title">Dubbed source found. Switch?</string>
     <string name="dub_suggest_switch">Switch</string>

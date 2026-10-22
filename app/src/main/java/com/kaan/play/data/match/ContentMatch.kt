@@ -245,45 +245,11 @@ object CsMatchRules {
         val runtime = identity.runtimeMinutes
         val loaded = info.durationMinutes
         if (identity.kind == ContentKind.Movie && runtime != null && loaded != null && loaded > 0) {
-            if (ContentDurationRules.check(loaded * 60_000L, runtime, ContentKind.Movie) == ContentDurationRules.Result.Mismatch) {
+            if (ContentDurationCheck.check(loaded * 60_000L, runtime, ContentKind.Movie) == ContentDurationCheck.Result.Mismatch) {
                 return Verdict.Reject("süre farklı ($loaded dk ≠ $runtime dk)")
             }
         }
         return Verdict.Ok
-    }
-}
-
-/**
- * Oynatılan videonun süresi, istenen içeriğin TMDB süresiyle bağdaşıyor mu? Başlığı/kimliği olmayan kaynaklar (Nuvio JS eklentileri,
- * düz adresler) için tek nesnel doğrulama: 33 dakikalık bir dizi bölümü 3 saatlik bir filmin yerine oynatılamaz.
- * Süre bilinmiyorsa (canlı yayın, belirsiz) ya da beklenen süre bilinmiyorsa karar verilmez ([Result.Unknown]) ve kaynak engellenmez.
- */
-object ContentDurationRules {
-    enum class Result { Ok, Mismatch, Unknown }
-
-    /** Beklenen süre bundan kısaysa (kısa film/bölüm) oran güvenilmez: karar verilmez. */
-    private const val MIN_RELIABLE_MINUTES = 40
-
-    private const val MOVIE_MIN_RATIO = 0.45
-    private const val MOVIE_MAX_RATIO = 2.2
-    private const val EPISODE_MIN_RATIO = 0.3
-    private const val EPISODE_MAX_RATIO = 4.0
-
-    fun check(durationMs: Long, expectedMinutes: Int?, kind: ContentKind): Result {
-        if (durationMs <= 0 || expectedMinutes == null) return Result.Unknown
-        val minutes = durationMs / 60_000.0
-        return when (kind) {
-            ContentKind.Movie -> {
-                if (expectedMinutes < MIN_RELIABLE_MINUTES) return Result.Unknown
-                val ratio = minutes / expectedMinutes
-                if (ratio < MOVIE_MIN_RATIO || ratio > MOVIE_MAX_RATIO) Result.Mismatch else Result.Ok
-            }
-            ContentKind.Tv -> {
-                if (expectedMinutes <= 0) return Result.Unknown
-                val ratio = minutes / expectedMinutes
-                if (ratio < EPISODE_MIN_RATIO || ratio > EPISODE_MAX_RATIO) Result.Mismatch else Result.Ok
-            }
-        }
     }
 }
 

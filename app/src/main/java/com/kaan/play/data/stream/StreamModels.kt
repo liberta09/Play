@@ -69,6 +69,8 @@ data class PlayableStream(
     val torrentFileIdx: Int? = null,
     /** Ad/başlık/açıklamada Türkçe dublaj işareti var ([DubDetector]); belirsizse false = altyazılı. */
     val dubbed: Boolean = false,
+    /** Kaynağın ait olduğu içeriğin anahtarı ([StreamOwnership.keyOf]); birleşik sağlayıcı damgalar. Başka içeriğin kaynağı oynatılmaz. */
+    val forKey: String? = null,
 )
 
 /** Akışla gelen altyazı; [language] addon'un verdiği ham etiket (`eng`, `tur` ...). */

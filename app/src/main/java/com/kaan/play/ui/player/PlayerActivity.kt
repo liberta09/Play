@@ -196,6 +196,8 @@ class PlayerActivity : AppCompatActivity() {
                 preferenceFor = container.sourceMemory::get,
                 remember = container.sourceMemory::remember,
                 sizeProbe = container.sizeProbe::size,
+                runtimeFor = ::expectedRuntimeMinutes,
+                verdicts = container.streamVerdicts,
                 maxHeight = DeviceCodecs.maxDecodableHeight(),
                 preferDub = preferDub,
                 autoSource = autoSource,
@@ -205,6 +207,7 @@ class PlayerActivity : AppCompatActivity() {
             )
             coordinator = sources
             controller.onFirstFrame = { sources.onFirstFrame() }
+            controller.onDurationKnown = { sources.onDuration(it) }
             controller.onFailure = { detail -> leaving || sources.onFailure(detail) }
             // Torrent açılınca dosya boyutu panelde ve üst çubukta görünsün.
             container.torrentServer.onOpened = { magnet, size ->
@@ -375,6 +378,22 @@ class PlayerActivity : AppCompatActivity() {
         val next = appContainer.csNextEpisodes.next(pluginId, contentUrl, r.dataUrl, r.season, r.episode) ?: return null
         return Triple(next.season, next.episode, next.dataUrl)
     }
+
+    /**
+     * İçerik doğrulaması için TMDB süresi (dk): film süresi; dizide önce o bölümün süresi, yoksa dizinin bölüm süresi.
+     * Ağ/TMDB hatasında null: süre kontrolü yapılmaz (kaynak elenmez).
+     */
+    private suspend fun expectedRuntimeMinutes(request: com.kaan.play.data.stream.StreamRequest): Int? = runCatching {
+        val detail = appContainer.tmdb.detail(request.type, request.tmdbId)
+        val season = request.season
+        val episode = request.episode
+        if (request.type == MediaType.Tv && season != null && episode != null) {
+            appContainer.tmdb.season(request.tmdbId, season).episodes.firstOrNull { it.number == episode }?.runtimeMinutes
+                ?: detail.runtimeMinutes
+        } else {
+            detail.runtimeMinutes
+        }
+    }.getOrNull()
 
     /**
      * Bu bölümden sonraki (sezon, bölüm). Çevrimiçi: TMDB bölüm listesinden (aynı sezonun sonraki bölümü, bitince sonraki
