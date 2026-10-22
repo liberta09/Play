@@ -57,7 +57,7 @@ internal class TmdbService(
         val rating = if (type == "tv") "content_ratings" else "release_dates"
         return get(
             "$type/$id", DetailDto.serializer(), language,
-            "append_to_response" to "external_ids,credits,images,$rating",
+            "append_to_response" to "external_ids,credits,images,alternative_titles,$rating",
             "include_image_language" to imageLanguages,
         )
     }

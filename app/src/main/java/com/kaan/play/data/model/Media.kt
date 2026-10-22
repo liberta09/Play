@@ -57,6 +57,10 @@ data class MediaDetail(
     /** Yalnızca diziler: yaratıcılar. */
     val creators: List<String> = emptyList(),
     val cast: List<CastMember> = emptyList(),
+    /** TMDB özgün başlığı (örn. İngilizce); eklenti eşleştirmesi için. Arayüzde gösterilmez. */
+    val originalTitle: String? = null,
+    /** TMDB alternatif başlıkları (ülke/dil farkları); eklenti eşleştirmesi için. Arayüzde gösterilmez. */
+    val alternativeTitles: List<String> = emptyList(),
 )
 
 data class SeasonInfo(

@@ -25,6 +25,7 @@ import com.kaan.play.data.cloudstream.CsDexStore
 import com.kaan.play.data.cloudstream.CsRepository
 import com.kaan.play.data.cloudstream.CsRuntime
 import com.kaan.play.data.cloudstream.CsStreamProvider
+import com.kaan.play.data.match.toContentIdentity
 import com.kaan.play.data.plugin.FilePluginCodeStore
 import com.kaan.play.data.plugin.OkHttpPluginCodeFetcher
 import com.kaan.play.data.plugin.PluginRepository
@@ -373,7 +374,9 @@ class AppContainer(context: Context) {
             CsStreamProvider(
                 repository = csRepos,
                 runtime = csRuntime,
-                titleResolver = { req -> runCatching { tmdb.detail(req.type, req.tmdbId).summary.title }.getOrNull() },
+                identityResolver = { req ->
+                    runCatching { tmdb.detail(req.type, req.tmdbId).toContentIdentity(req.season, req.episode) }.getOrNull()
+                },
                 timeoutMs = 30_000L,
             ),
         )

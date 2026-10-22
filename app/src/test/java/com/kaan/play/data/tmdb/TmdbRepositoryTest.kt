@@ -1,5 +1,6 @@
 package com.kaan.play.data.tmdb
 
+import com.kaan.play.data.match.toContentIdentity
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.net.PlayJson
 import com.kaan.play.i18n.UiLanguage
@@ -145,9 +146,39 @@ class TmdbRepositoryTest {
         assertEquals(148, d.runtimeMinutes)
         assertEquals(listOf("Bilim Kurgu", "Aksiyon"), d.genres)
         assertEquals("Başlangıç", d.summary.title)
-        assertEquals("external_ids,credits,images,release_dates", seen.single().queryParameter("append_to_response"))
+        assertEquals("external_ids,credits,images,alternative_titles,release_dates", seen.single().queryParameter("append_to_response"))
         assertEquals("tr,en,null", seen.single().queryParameter("include_image_language"))
         assertEquals(1, seen.size) // Özet dolu: yedek isteği yok.
+    }
+
+    @Test
+    fun detailCarriesOriginalAndAlternativeTitlesForMatching() = runTest {
+        fixtures["movie/120|tr-TR"] = """
+            {"id":120,"title":"Yüzüklerin Efendisi: Yüzük Kardeşliği","original_title":"The Lord of the Rings: The Fellowship of the Ring",
+             "overview":"Özet","release_date":"2001-12-18","runtime":179,"external_ids":{"imdb_id":"tt0120737"},
+             "alternative_titles":{"titles":[{"iso_3166_1":"DE","title":"Der Herr der Ringe"},{"iso_3166_1":"US","title":"LOTR 1"},{"iso_3166_1":"TR","title":" "}]}}
+        """
+        val d = repo().detail(MediaType.Movie, 120)
+        assertEquals("The Lord of the Rings: The Fellowship of the Ring", d.originalTitle)
+        assertEquals(listOf("LOTR 1", "Der Herr der Ringe"), d.alternativeTitles) // TR/US/GB önce, boş başlık atılır
+        assertEquals(2001, d.summary.year)
+
+        val identity = d.toContentIdentity()
+        assertEquals(120, identity.tmdbId)
+        assertEquals("tt0120737", identity.imdbId)
+        assertEquals(179, identity.runtimeMinutes)
+        assertEquals("The Lord of the Rings: The Fellowship of the Ring", identity.searchQueries()[1])
+    }
+
+    @Test
+    fun tvDetailAlternativeTitlesComeFromResults() = runTest {
+        fixtures["tv/1399|tr-TR"] = """
+            {"id":1399,"name":"Taht Oyunları","original_name":"Game of Thrones","overview":"Özet","first_air_date":"2011-04-17",
+             "alternative_titles":{"results":[{"iso_3166_1":"US","title":"GoT"}]}}
+        """
+        val d = repo().detail(MediaType.Tv, 1399)
+        assertEquals("Game of Thrones", d.originalTitle)
+        assertEquals(listOf("GoT"), d.alternativeTitles)
     }
 
     @Test
@@ -361,7 +392,7 @@ class TmdbRepositoryTest {
 
         assertEquals("18+", d.certification)
         assertEquals(listOf("Yaratıcı A", "Yaratıcı B"), d.creators)
-        assertEquals("external_ids,credits,images,content_ratings", seen.single().queryParameter("append_to_response"))
+        assertEquals("external_ids,credits,images,alternative_titles,content_ratings", seen.single().queryParameter("append_to_response"))
     }
 
     @Test

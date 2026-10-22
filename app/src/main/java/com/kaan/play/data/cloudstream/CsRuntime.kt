@@ -2,14 +2,28 @@ package com.kaan.play.data.cloudstream
 
 import android.util.Log
 import androidx.media3.common.MimeTypes
+import com.kaan.play.data.match.ContentIdentity
+import com.kaan.play.data.match.ContentKind
+import com.kaan.play.data.match.CsMatchRules
+import com.kaan.play.data.match.EpisodePicker
+import com.kaan.play.data.match.EpisodeRef
+import com.kaan.play.data.match.MatchCandidate
+import com.kaan.play.data.match.MatchOutcome
+import com.kaan.play.data.match.TitleText
+import com.kaan.play.data.match.Verdict
+import com.kaan.play.data.model.MediaType
 import com.lagradost.cloudstream3.AnimeLoadResponse
+import com.lagradost.cloudstream3.AnimeSearchResponse
 import com.lagradost.cloudstream3.LiveStreamLoadResponse
 import com.lagradost.cloudstream3.LoadResponse
 import com.lagradost.cloudstream3.MainAPI
 import com.lagradost.cloudstream3.MovieLoadResponse
+import com.lagradost.cloudstream3.MovieSearchResponse
 import com.lagradost.cloudstream3.SearchResponse
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.TvSeriesLoadResponse
+import com.lagradost.cloudstream3.TvSeriesSearchResponse
+import com.lagradost.cloudstream3.TvType
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.ExtractorLinkType
 import com.kaan.play.data.stream.PlayableStream
@@ -21,8 +35,8 @@ import kotlinx.coroutines.withTimeout
 /**
  * CloudStream eklentisi çalıştırıcısı. Yüklenmiş [MainAPI] örnekleriyle şu akışı izler:
  *  1. [MainAPI.search] ile başlık arar
- *  2. Başlık eşlemesi ([matchResult])
- *  3. [MainAPI.load] ile detay yükler
+ *  2. Eşleştirme: başlık + yıl ([CsMatchRules]); yılı farklı aday asla, alt başlıklı aday yılsız asla, eşik altı yok
+ *  3. [MainAPI.load] ile detay yükler; yüklenen ad/yıl/kimlik istekle uyuşmuyorsa kaynak atılır ([CsMatchRules.verifyLoaded])
  *  4. Film: `dataUrl` ile [MainAPI.loadLinks] çağırır
  *     Dizi: hedef sezonu/bölümü [Episode] listesinden bulup [MainAPI.loadLinks] çağırır
  *  5. Gelen [ExtractorLink]'leri [PlayableStream]'e çevirir
@@ -33,12 +47,13 @@ class CsRuntime {
 
     /**
      * Kayıtlı [MainAPI] örneklerinden oynatılabilir kaynak listesi döner.
-     * [title] TMDB'den gelen başlık; CS eklentisi bu başlıkla arama yapar.
+     * [identity] TMDB'den gelen kimlik (başlıklar, yıl, kimlikler): eklenti bu başlıklarla aranır, sonuç yalnızca kimlikle
+     * uyuşuyorsa kullanılır. Doğrulanamayan kaynak listeye girmez.
      */
     suspend fun streams(
         apis: List<MainAPI>,
         request: StreamRequest,
-        title: String,
+        identity: ContentIdentity,
         pluginRowId: Long,
         pluginName: String,
         timeoutMs: Long = 15_000L,
@@ -46,11 +61,11 @@ class CsRuntime {
         val source = StreamSource(addonId = pluginRowId, addonName = pluginName)
         val results = mutableListOf<PlayableStream>()
 
-        Log.d(TAG, "$pluginName: ${apis.size} MainAPI ile deneniyor (başlık=\"$title\")")
+        Log.d(TAG, "$pluginName: ${apis.size} MainAPI ile deneniyor (sorgular=${identity.searchQueries()}, yıl=${identity.year}, tmdb=${identity.tmdbId}, imdb=${identity.imdbId})")
         for (api in apis) {
             val started = System.currentTimeMillis()
             try {
-                val streams = runForApi(api, request, title, source, timeoutMs)
+                val streams = runForApi(api, request, identity, source, timeoutMs)
                 Log.d(TAG, "$pluginName/${api.name}: ${streams.size} akış (${System.currentTimeMillis() - started} ms)")
                 results += streams
                 if (results.isNotEmpty()) break
@@ -64,21 +79,12 @@ class CsRuntime {
     private suspend fun runForApi(
         api: MainAPI,
         request: StreamRequest,
-        title: String,
+        identity: ContentIdentity,
         source: StreamSource,
         timeoutMs: Long,
     ): List<PlayableStream> {
-        // 1. Arama; sonuç yoksa noktalamasız başlıkla bir kez daha (bazı site aramaları ":" / "-" ile boş döner)
-        var searchResults = search(api, title, timeoutMs) ?: return emptyList()
-        val plain = normalize(title)
-        if (searchResults.isEmpty() && plain != title.lowercase()) {
-            searchResults = search(api, plain, timeoutMs) ?: return emptyList()
-        }
-
-        // 2. Eşleştirme
-        val match = matchResult(searchResults, title)
-        Log.d(TAG, "${api.name}: matchResult ${if (match != null) "bulundu" else "yok"}")
-        if (match == null) return emptyList()
+        // 1-2. Arama (yerel başlık, özgün başlık, alternatif) ve yıl/başlık eşleştirmesi
+        val match = findMatch(api, identity, timeoutMs) ?: return emptyList()
 
         // 3. Detay yükle
         val loadResp = withTimeout(timeoutMs) {
@@ -90,6 +96,16 @@ class CsRuntime {
         Log.d(TAG, "${api.name}: load ${if (loadResp != null) "başarılı" else "boş"}")
         if (loadResp == null) return emptyList()
 
+        // 3b. Yükleme sonrası doğrulama: eklentinin bildirdiği ad/yıl/kimlik istenen içerikle uyuşmuyorsa kaynak atılır.
+        val info = loadedInfo(loadResp)
+        when (val verdict = CsMatchRules.verifyLoaded(info, identity)) {
+            Verdict.Ok -> Log.d(TAG, "${api.name}: doğrulandı (ad=\"${info.name}\", yıl=${info.year}, tmdb=${info.tmdbId}, imdb=${info.imdbId})")
+            is Verdict.Reject -> {
+                Log.d(TAG, "${api.name}: kaynak ATILDI, yüklenen içerik istekle uyuşmuyor: ${verdict.reason} (ad=\"${info.name}\", yıl=${info.year})")
+                return emptyList()
+            }
+        }
+
         // 4. Link alma
         val data = resolveData(loadResp, request)
         if (data == null) {
@@ -98,6 +114,58 @@ class CsRuntime {
         }
         return loadLinksDirect(api, data, source, timeoutMs)
     }
+
+    /**
+     * Başlık sorgularını sırayla arar (ilk eşleşmede durur); sonuç boşsa noktalamasız halini de dener (bazı site aramaları ":" / "-"
+     * ile boş döner). Dönen aday [CsMatchRules] eşiğini geçmiştir; geçen yoksa null (günlükte en çok 3 ret sebebi).
+     */
+    private suspend fun findMatch(api: MainAPI, identity: ContentIdentity, timeoutMs: Long): MatchCandidate? {
+        val collected = LinkedHashMap<String, MatchCandidate>()
+        var lastRejections: List<String> = emptyList()
+        for (query in identity.searchQueries()) {
+            var results = search(api, query, timeoutMs) ?: continue
+            if (results.isEmpty()) {
+                val plain = TitleText.plainQuery(query)
+                if (plain != query) results = search(api, plain, timeoutMs) ?: emptyList()
+            }
+            for (r in results) collected.putIfAbsent(r.url, candidateOf(r))
+            when (val outcome = CsMatchRules.pick(collected.values.toList(), identity)) {
+                is MatchOutcome.Match -> {
+                    val best = outcome.best
+                    Log.d(TAG, "${api.name}: eşleşme \"${best.candidate.name}\" (yıl=${best.candidate.year}) puan=${"%.2f".format(java.util.Locale.ROOT, best.score)}")
+                    return best.candidate
+                }
+                is MatchOutcome.NoMatch -> lastRejections = outcome.rejections
+            }
+        }
+        Log.d(TAG, "${api.name}: matchResult yok${if (lastRejections.isEmpty()) "" else " (reddedilen: ${lastRejections.joinToString("; ")})"}")
+        return null
+    }
+
+    private fun candidateOf(r: SearchResponse): MatchCandidate = MatchCandidate(
+        name = r.name,
+        year = when (r) {
+            is MovieSearchResponse -> r.year
+            is TvSeriesSearchResponse -> r.year
+            is AnimeSearchResponse -> r.year
+            else -> null
+        },
+        url = r.url,
+        kind = when (r.type) {
+            TvType.Movie, TvType.AnimeMovie -> ContentKind.Movie
+            TvType.TvSeries, TvType.Anime, TvType.OVA, TvType.AsianDrama -> ContentKind.Tv
+            else -> null
+        },
+        otherNames = (r as? AnimeSearchResponse)?.otherName?.takeIf { it.isNotBlank() }?.let(::listOf).orEmpty(),
+    )
+
+    private fun loadedInfo(resp: LoadResponse): CsMatchRules.LoadedInfo = CsMatchRules.LoadedInfo(
+        name = resp.name,
+        year = resp.year,
+        imdbId = runCatching { with(LoadResponse.Companion) { resp.getImdbId() } }.getOrNull(),
+        tmdbId = runCatching { with(LoadResponse.Companion) { resp.getTMDbId() } }.getOrNull(),
+        durationMinutes = resp.duration,
+    )
 
     suspend fun loadLinksDirect(
         api: MainAPI,
@@ -190,80 +258,24 @@ class CsRuntime {
         return results
     }
 
-    /** Önce birebir, sonra noktalama/büyük-küçük harf yok sayılarak birebir, en son kelime sınırlı içerme. */
-    private fun matchResult(results: List<SearchResponse>, title: String): SearchResponse? {
-        val plain = normalize(title)
-        return results.firstOrNull { it.name == title }
-            ?: results.firstOrNull { normalize(it.name) == plain }
-            ?: results.firstOrNull {
-                val name = normalize(it.name)
-                name.isNotEmpty() && (" $name ".contains(" $plain ") || " $plain ".contains(" $name "))
-            }
-    }
-
-    /** Harf/rakam dışını boşluğa çevirir, boşlukları teke indirir; Türkçe büyük harfler (İ, I) doğru küçülür. */
-    private fun normalize(text: String): String =
-        text.lowercase(TURKISH).replace(NON_WORD, " ").trim().replace(SPACES, " ")
-
+    /**
+     * Yüklenen içerikten oynatma verisini seçer. Tür tutarlılığı: film isteğine çok bölümlü dizi, dizi isteğine tek parça film verilmez
+     * (yanlış içerik yerine boş döner); bölüm seçimi [EpisodePicker] kurallarıyla (başka sezonun bölümü asla).
+     */
     private fun resolveData(resp: LoadResponse, request: StreamRequest): String? = when (resp) {
-        is MovieLoadResponse -> resp.dataUrl
-        is LiveStreamLoadResponse -> resp.dataUrl
-        is TvSeriesLoadResponse -> {
-            val s = request.season
-            val e = request.episode
-            findEpisodeData(resp.episodes, s, e)
-        }
-        is AnimeLoadResponse -> {
-            val s = request.season
-            val e = request.episode
-            val allEpisodes = resp.episodes.values.flatten()
-            findEpisodeData(allEpisodes, s, e)
-        }
+        is MovieLoadResponse -> if (request.type == MediaType.Tv) null else resp.dataUrl
+        is LiveStreamLoadResponse -> if (request.type == MediaType.Tv) null else resp.dataUrl
+        is TvSeriesLoadResponse -> pickEpisode(resp.episodes, request)
+        is AnimeLoadResponse -> pickEpisode(resp.episodes.values.flatten(), request)
         else -> null
     }
 
-    private fun findEpisodeData(episodes: List<com.lagradost.cloudstream3.Episode>, season: Int?, episode: Int?): String? {
-        if (episodes.isEmpty()) return null
-        if (episode == null) return episodes.firstOrNull()?.data
-
-        // 1. Exact match on season and episode
-        if (season != null) {
-            val match = episodes.firstOrNull { it.season == season && it.episode == episode }
-            if (match != null) return match.data
+    private fun pickEpisode(episodes: List<com.lagradost.cloudstream3.Episode>, request: StreamRequest): String? {
+        if (request.type == MediaType.Movie) {
+            // Film isteği: tek parçalı "dizi" kabul edilir; çok bölümlü gerçek bir dizi film yerine geçemez.
+            return if (episodes.size == 1) episodes.first().data else null
         }
-
-        // 2. Match on episode directly
-        val epMatch = episodes.firstOrNull { it.episode == episode }
-        if (epMatch != null) return epMatch.data
-
-        // 3. Fallback: extract episode number from name or data URL
-        val extractedMatch = episodes.firstOrNull { ep ->
-            val num = extractEpisodeNum(ep)
-            num == episode && (season == null || ep.season == null || ep.season == season)
-        }
-        if (extractedMatch != null) return extractedMatch.data
-
-        // 4. Fallback if index-based: e.g. episode 1 is index 0
-        if (season == null || episodes.all { it.season == null || it.season == season }) {
-            val index = episode - 1
-            if (index in episodes.indices) {
-                return episodes[index].data
-            }
-        }
-
-        return null
-    }
-
-    private fun extractEpisodeNum(ep: com.lagradost.cloudstream3.Episode): Int? {
-        if (ep.episode != null && ep.episode!! > 0) return ep.episode
-        val name = ep.name ?: ""
-        val nameMatch = Regex("""(?:bölüm|episode|ep\.?)\s*(\d+)|\b(\d+)\s*\.\s*bölüm""", RegexOption.IGNORE_CASE).find(name)
-        if (nameMatch != null) {
-            val numStr = nameMatch.groupValues[1].ifEmpty { nameMatch.groupValues[2] }
-            numStr.toIntOrNull()?.let { return it }
-        }
-        val dataMatch = Regex("""(?:bölüm|bolum|ep)\D*?(\d+)""", RegexOption.IGNORE_CASE).find(ep.data)
-        return dataMatch?.groupValues?.get(1)?.toIntOrNull()
+        return EpisodePicker.pick(episodes.map { EpisodeRef(it.data, it.name, it.season, it.episode) }, request.season, request.episode)
     }
 
     private fun qualityToResolution(quality: Int): Int? = when {
@@ -410,9 +422,6 @@ class CsRuntime {
 
     private companion object {
         const val TAG = "PlayCs"
-        val TURKISH: java.util.Locale = java.util.Locale.forLanguageTag("tr")
-        val NON_WORD = Regex("[^\\p{L}\\p{N}]+")
-        val SPACES = Regex("\\s+")
     }
 }
 

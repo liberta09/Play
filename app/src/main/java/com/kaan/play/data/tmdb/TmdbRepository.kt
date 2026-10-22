@@ -195,7 +195,17 @@ private fun DetailDto.toDetail(type: MediaType, language: UiLanguage): MediaDeta
         .sortedBy { it.order }
         .take(CAST_COUNT)
         .map { CastMember(it.id, it.name.orEmpty(), it.character.orEmpty().trim(), it.profilePath) },
+    originalTitle = (originalTitle ?: originalName)?.takeIf { it.isNotBlank() },
+    alternativeTitles = alternativeTitleList(),
 )
+
+/** Alternatif başlıklar: önce Türkiye/ABD/Birleşik Krallık kayıtları, sonra diğerleri; boşlar atılır, yinelenenler [com.kaan.play.data.match.ContentIdentity] eler. */
+private fun DetailDto.alternativeTitleList(): List<String> {
+    val all = alternativeTitles?.let { it.titles + it.results }.orEmpty()
+    val preferred = setOf("TR", "US", "GB")
+    return all.filter { it.country in preferred }.plus(all.filter { it.country !in preferred })
+        .mapNotNull { it.title?.trim()?.takeIf(String::isNotEmpty) }
+}
 
 private val WRITER_JOBS = setOf("Screenplay", "Writer", "Story", "Novel")
 private const val CAST_COUNT = 12

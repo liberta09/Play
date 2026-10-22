@@ -38,6 +38,8 @@ internal data class DetailDto(
     val id: Int,
     val title: String? = null,
     val name: String? = null,
+    @SerialName("original_title") val originalTitle: String? = null,
+    @SerialName("original_name") val originalName: String? = null,
     val overview: String? = null,
     val tagline: String? = null,
     @SerialName("poster_path") val posterPath: String? = null,
@@ -56,6 +58,20 @@ internal data class DetailDto(
     @SerialName("release_dates") val releaseDates: ReleaseDatesDto? = null,
     @SerialName("content_ratings") val contentRatings: ContentRatingsDto? = null,
     @SerialName("created_by") val createdBy: List<PersonDto> = emptyList(),
+    @SerialName("alternative_titles") val alternativeTitles: AlternativeTitlesDto? = null,
+)
+
+/** Film: `titles`; dizi: `results`. Yalnızca eşleştirme için (arayüzde gösterilmez). */
+@Serializable
+internal data class AlternativeTitlesDto(
+    val titles: List<AlternativeTitleDto> = emptyList(),
+    val results: List<AlternativeTitleDto> = emptyList(),
+)
+
+@Serializable
+internal data class AlternativeTitleDto(
+    @SerialName("iso_3166_1") val country: String? = null,
+    val title: String? = null,
 )
 
 @Serializable
