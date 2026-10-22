@@ -466,4 +466,13 @@
     <string name="provider_verify_title">Güvenlik Doğrulaması</string>
     <string name="provider_verify_close">Kapat</string>
     <string name="provider_verify_hint">Lütfen ekrandaki kutucuğu işaretleyin</string>
+    <string name="provider_error_dex_missing">Eklenti dosyası bulunamadı, yeniden indirilemedi</string>
+    <string name="provider_error_incompatible">Bu eklenti Play\'in sürümüyle uyumlu değil</string>
+    <string name="provider_error_load_failed">Eklenti yüklenemedi</string>
+    <string name="provider_error_not_found">Eklenti bulunamadı</string>
+    <string name="provider_error_no_api">Eklenti API\'si bulunamadı</string>
+    <string name="provider_error_invalid_meta_url">Geçersiz meta adresi</string>
+    <string name="provider_error_meta_not_found">Meta bilgisi bulunamadı</string>
+    <string name="provider_error_content_load_failed">İçerik yüklenemedi</string>
+    <string name="provider_error_unexpected">Beklenmeyen hata</string>
 </resources>

@@ -484,4 +484,13 @@
     <string name="provider_verify_title">Security Verification</string>
     <string name="provider_verify_close">Close</string>
     <string name="provider_verify_hint">Please check the box on screen</string>
+    <string name="provider_error_dex_missing">Plugin file not found, re-download failed</string>
+    <string name="provider_error_incompatible">This plugin is not compatible with Play\'s version</string>
+    <string name="provider_error_load_failed">Failed to load plugin</string>
+    <string name="provider_error_not_found">Plugin not found</string>
+    <string name="provider_error_no_api">No plugin API found</string>
+    <string name="provider_error_invalid_meta_url">Invalid meta address</string>
+    <string name="provider_error_meta_not_found">Meta information not found</string>
+    <string name="provider_error_content_load_failed">Content could not be loaded</string>
+    <string name="provider_error_unexpected">Unexpected error</string>
 </resources>
