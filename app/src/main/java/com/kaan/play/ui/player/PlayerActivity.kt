@@ -204,6 +204,9 @@ class PlayerActivity : AppCompatActivity() {
                 load = ::loadStream,
                 position = { controller.positionMs() },
                 clock = SystemClock::elapsedRealtime,
+                sourceProbe = { stream ->
+                    container.sourceProbe.probe(stream.url, stream.headers, timeoutMs = 2_000L)
+                },
             )
             coordinator = sources
             controller.onFirstFrame = { sources.onFirstFrame() }

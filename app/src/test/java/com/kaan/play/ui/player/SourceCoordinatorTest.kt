@@ -1,5 +1,7 @@
 package com.kaan.play.ui.player
 
+import com.kaan.play.data.download.Probe
+import com.kaan.play.data.download.SourceKind
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.stream.FailureReason
 import com.kaan.play.data.stream.PlayableStream
@@ -47,6 +49,7 @@ class SourceCoordinatorTest {
         preference: SourcePref? = null,
         probe: suspend (PlayableStream) -> Long? = { null },
         request: StreamRequest,
+        sourceProbe: (suspend (PlayableStream) -> Probe)? = null,
     ) {
         val loaded = mutableListOf<Pair<PlayableStream, Long>>()
         val remembered = mutableListOf<PlayableStream>()
@@ -63,6 +66,7 @@ class SourceCoordinatorTest {
             load = { s, p -> loaded += s to p },
             position = { positionMs },
             clock = { scope.currentTime },
+            sourceProbe = sourceProbe,
         )
         val lastUrl get() = loaded.lastOrNull()?.first?.url
     }
@@ -415,5 +419,105 @@ class SourceCoordinatorTest {
         advanceUntilIdle()
         assertEquals("https://b/1", rig.loaded.first().first.url)
         rig.coordinator.onFirstFrame()
+    }
+    @Test
+    fun probeRejectsNotMediaAndAdvancesToNextCandidate() = runTest {
+        // Boyutu bilinmeyen (bu yüzden SourceMediaRules ile elenmemiş) ama yoklamada HTML/NotMedia dönen sahte kaynak
+        val badHtml = stream(source1, "https://a/fake_html", res = 1080, size = null)
+        val goodStream = stream(source2, "https://b/real_movie", res = 720, size = 1_500_000_000L)
+        val rig = Rig(
+            scope = this,
+            results = flow { emit(found(source1, badHtml)); emit(found(source2, goodStream)) },
+            preferDub = false,
+            request = request,
+            sourceProbe = { s ->
+                if (s.url == badHtml.url) Probe.Rejected(Probe.Reason.NotMedia)
+                else Probe.Ok(SourceKind.Progressive, s.sizeBytes)
+            },
+        )
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+        advanceTimeBy(100) // probe badHtml -> NotMedia -> startFailed -> nextCandidate(goodStream) -> probe goodStream -> Ok -> load(goodStream)
+        advanceTimeBy(100)
+
+        // Sahte kaynak (badHtml) yoklamada elenmeli ve iyi kaynağa (goodStream) geçmeli
+        assertEquals(listOf(goodStream.url), rig.loaded.map { it.first.url })
+        assertEquals(SourcePhase.Starting, rig.coordinator.phase)
+        rig.coordinator.onFirstFrame()
+        assertEquals(SourcePhase.Playing, rig.coordinator.phase)
+    }
+
+    @Test
+    fun probeTimeoutDoesNotEliminateAndStartsPlayback() = runTest {
+        val slowStream = stream(source1, "https://a/slow", size = 2_000_000_000L)
+        val rig = Rig(
+            scope = this,
+            results = flow { emit(found(source1, slowStream)) },
+            preferDub = false,
+            request = request,
+            sourceProbe = { s ->
+                delay(5_000) // 2s zaman aşımını aşıyor
+                Probe.Ok(SourceKind.Progressive, s.sizeBytes)
+            },
+        )
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+        advanceTimeBy(2_100) // 2s probe zaman aşımı
+
+        // Zaman aşımı durumunda kaynak elenmez ve oynatılmaya başlanır
+        assertEquals(listOf(slowStream.url), rig.loaded.map { it.first.url })
+        assertEquals(SourcePhase.Starting, rig.coordinator.phase)
+        rig.coordinator.onFirstFrame()
+        assertEquals(SourcePhase.Playing, rig.coordinator.phase)
+    }
+
+    @Test
+    fun probeSmallSizeBelowThresholdEliminatesAndAdvances() = runTest {
+        // Boyutu başta bilinmeyen ve yüksek çözünürlüklü olduğu için ilk denenen, ama probe ile 1 MB olduğu anlaşılan sahte film kaynağı
+        val fakeProbeStream = stream(source1, "https://a/fake_probe", res = 1080, size = null)
+        val realStream = stream(source2, "https://b/real_movie", res = 720, size = 800_000_000L)
+        val rig = Rig(
+            scope = this,
+            results = flow { emit(found(source1, fakeProbeStream)); emit(found(source2, realStream)) },
+            preferDub = false,
+            request = request, // Movie (eşik 20 MB)
+            sourceProbe = { s ->
+                if (s.url == fakeProbeStream.url) {
+                    Probe.Ok(SourceKind.Progressive, 1_000_000L) // 1 MB
+                } else {
+                    Probe.Ok(SourceKind.Progressive, s.sizeBytes)
+                }
+            },
+        )
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+        advanceTimeBy(100) // fakeProbeStream probe edilir, 1 MB bulunur, elenir
+        advanceTimeBy(100) // realStream probe edilir, oynatılır
+
+        // 1 MB olan sahte kaynak elenmeli, 800 MB olan gerçek kaynak oynatılmalı
+        assertEquals(listOf(realStream.url), rig.loaded.map { it.first.url })
+        rig.coordinator.onFirstFrame()
+        assertEquals(SourcePhase.Playing, rig.coordinator.phase)
+    }
+
+    @Test
+    fun allSourcesFailingProbeResultsInFailedPhase() = runTest {
+        val bad1 = stream(source1, "https://a/bad1", size = null)
+        val bad2 = stream(source2, "https://b/bad2", size = null)
+        val rig = Rig(
+            scope = this,
+            results = flow { emit(found(source1, bad1, bad2)) },
+            preferDub = false,
+            request = request,
+            sourceProbe = { s ->
+                Probe.Rejected(Probe.Reason.NotMedia)
+            },
+        )
+        rig.coordinator.start(null, emptyList(), 0)
+        advanceUntilIdle()
+
+        // Tüm kaynaklar elendiğinde siyah ekranda kalmaz, phase = Failed olur
+        assertTrue(rig.loaded.isEmpty())
+        assertEquals(SourcePhase.Failed, rig.coordinator.phase)
     }
 }

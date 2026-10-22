@@ -38,7 +38,7 @@ class CompositeStreamProvider(
         is StreamResult.Found -> StreamResult.Found(
             source,
             streams
-                .filter { StreamOwnership.belongs(it, request) && verdicts?.isRejected(key, it.url) != true }
+                .filter { StreamOwnership.belongs(it, request) && verdicts?.isRejected(key, it.url) != true && SourceMediaRules.isAcceptable(it, request.type) }
                 .map { it.copy(forKey = key) },
         )
         is StreamResult.Failed -> this

@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.kaan.play.data.download.Probe
+import com.kaan.play.data.stream.SourceMediaRules
 import com.kaan.play.data.match.ContentDurationCheck
 import com.kaan.play.data.match.ContentKind
 import com.kaan.play.data.model.MediaType
@@ -97,6 +99,8 @@ class SourceCoordinator(
     private val position: () -> Long = { 0L },
     /** Tekdüze saat (ms); testte sanal zaman verilir. */
     private val clock: () -> Long,
+    /** Medya içeriği yoklaması (HTML/sahte kaynak engeli; oynatmayı en çok 2 sn geciktirebilir). */
+    private val sourceProbe: (suspend (PlayableStream) -> Probe)? = null,
 ) {
     var phase by mutableStateOf(SourcePhase.Idle)
         private set
@@ -142,6 +146,7 @@ class SourceCoordinator(
     private var resolveStartedAt = 0L
     private var collectJob: Job? = null
     private var firstFrameJob: Job? = null
+    private var probeJob: Job? = null
     private var revertTo: PlayableStream? = null
     private var revertPositionMs = 0L
     private var lastStartMs = 0L
@@ -264,10 +269,67 @@ class SourceCoordinator(
 
     private fun begin(stream: PlayableStream, startMs: Long) {
         firstFrameJob?.cancel()
+        probeJob?.cancel()
         current = stream
         attempted += stream.url
         phase = SourcePhase.Starting
         Log.d(TAG, "kaynak başlatılıyor: ${stream.source.addonName} (${StreamLog.hostOf(stream.url)})")
+
+        val probe = sourceProbe
+        if (probe == null || TorrentLinks.isMagnet(stream.url)) {
+            startPlayback(stream, startMs)
+            return
+        }
+
+        probeJob = scope.launch {
+            val isMovie = request.type == MediaType.Movie
+            val result = try {
+                withTimeoutOrNull(PLAY_PROBE_TIMEOUT_MS) {
+                    probe(stream)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                null
+            }
+
+            if (current?.url != stream.url) return@launch
+
+            var eliminate = false
+            if (result != null) {
+                when (result) {
+                    is Probe.Rejected -> {
+                        if (result.reason == Probe.Reason.NotMedia || result.reason == Probe.Reason.Http) {
+                            Log.d(TAG, "kaynak yoklamada elendi (${result.reason}): ${stream.source.addonName} (${StreamLog.hostOf(stream.url)})")
+                            eliminate = true
+                        }
+                    }
+                    is Probe.Ok -> {
+                        result.lengthBytes?.let { len ->
+                            if (!SourceMediaRules.isAcceptableSize(len, isMovie)) {
+                                Log.d(TAG, "kaynak yoklamada elendi (boyut yetersiz: $len bayt): ${stream.source.addonName}")
+                                eliminate = true
+                            } else {
+                                reportSize(stream.url, len)
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (eliminate) {
+                verdicts.reject(requestKey, stream.url)
+                streams = streams.filterNot { it.url == stream.url }
+                startFailed("probe-not-media")
+                return@launch
+            }
+
+            startPlayback(stream, startMs)
+        }
+    }
+
+    private fun startPlayback(stream: PlayableStream, startMs: Long) {
+        if (current?.url != stream.url) return
         load(stream, startMs)
         val timeout = if (TorrentLinks.isMagnet(stream.url)) TORRENT_FIRST_FRAME_TIMEOUT_MS else FIRST_FRAME_TIMEOUT_MS
         firstFrameJob = scope.launch {
@@ -285,6 +347,7 @@ class SourceCoordinator(
         Log.d(TAG, "ilk kare: ${current?.source?.addonName} (faz=$phase)")
         if (phase != SourcePhase.Starting) return
         firstFrameJob?.cancel()
+        probeJob?.cancel()
         phase = SourcePhase.Playing
         switching = false
         revertTo = null
@@ -299,6 +362,7 @@ class SourceCoordinator(
         Log.d(TAG, "oynatıcı hatası: ${current?.source?.addonName} (faz=$phase) $detail")
         if (phase != SourcePhase.Starting) return false
         firstFrameJob?.cancel()
+        probeJob?.cancel()
         startFailed(detail)
         return true
     }
@@ -329,8 +393,13 @@ class SourceCoordinator(
     }
 
     /** Bu içeriğin kaynağı mı (damga) ve oynatma sırasında reddedilmemiş mi? */
-    private fun acceptable(stream: PlayableStream): Boolean =
-        StreamOwnership.belongs(stream, request) && !verdicts.isRejected(requestKey, stream.url)
+    private fun acceptable(stream: PlayableStream): Boolean {
+        val size = SourceRanking.sizeOf(stream, sizes)
+        val isMovie = request.type == MediaType.Movie
+        return StreamOwnership.belongs(stream, request) &&
+            !verdicts.isRejected(requestKey, stream.url) &&
+            SourceMediaRules.isAcceptableSize(size, isMovie)
+    }
 
     /**
      * Oynatıcı videonun süresini öğrendi ([durationMs]; canlı/belirsizse çağrılmaz). Süre içeriğin TMDB süresiyle bağdaşmıyorsa
@@ -415,6 +484,17 @@ class SourceCoordinator(
     fun reportSize(url: String, bytes: Long) {
         if (bytes <= 0 || sizes[url] == bytes) return
         sizes = sizes + (url to bytes)
+        val isMovie = request.type == MediaType.Movie
+        if (!SourceMediaRules.isAcceptableSize(bytes, isMovie)) {
+            Log.d(TAG, "kaynak boyutu çok küçük (sahte kaynak): $url (${bytes}B)")
+            verdicts.reject(requestKey, url)
+            streams = streams.filterNot { it.url == url }
+            if (current?.url == url && (phase == SourcePhase.Starting || phase == SourcePhase.Playing)) {
+                firstFrameJob?.cancel()
+                probeJob?.cancel()
+                startFailed("size-too-small")
+            }
+        }
     }
 
     // ---- iç işler ----
@@ -445,6 +525,7 @@ class SourceCoordinator(
         private const val TAG = "PlayMatch"
         /** Kaynak değişiminden sonra bu süre içinde gelen ilk kare olayı eski kaynağa aittir. */
         const val STALE_FRAME_GUARD_MS = 300L
+        const val PLAY_PROBE_TIMEOUT_MS = 2_000L
         const val FIRST_FRAME_TIMEOUT_MS = 10_000L
 
         /** Torrentte üst bilgi ve ilk parçalar için eş bulmak gerekir: 10 sn çoğu zaman yetmez. */

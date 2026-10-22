@@ -1,5 +1,6 @@
 package com.kaan.play.data.download
 
+import android.util.Log
 import com.kaan.play.data.net.await
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -49,7 +50,7 @@ class SourceProbe(
     private val timeoutMs: Long = 15_000,
 ) {
 
-    suspend fun probe(url: String, headers: Map<String, String>): Probe = withContext(Dispatchers.IO) {
+    suspend fun probe(url: String, headers: Map<String, String>, timeoutMs: Long = this.timeoutMs): Probe = withContext(Dispatchers.IO) {
         val httpUrl = url.toHttpUrlOrNull()
         if (httpUrl == null || (httpUrl.scheme != "http" && httpUrl.scheme != "https")) {
             return@withContext Probe.Rejected(Probe.Reason.NotMedia)
@@ -61,25 +62,32 @@ class SourceProbe(
         }.build()
         try {
             http.newCall(request).await().use { response ->
-                if (response.code != 200 && response.code != 206) return@use Probe.Rejected(Probe.Reason.Http)
+                val code = response.code
+                val contentType = response.header("Content-Type")
+                val length = lengthOf(code, response.header("Content-Range"), response.header("Content-Length"))
+                Log.d(TAG, "kaynak yoklama: host=${httpUrl.host} durum=$code type=$contentType uzunluk=$length")
+                if (code != 200 && code != 206) return@use Probe.Rejected(Probe.Reason.Http)
                 val body = response.body
                 val source = body.source()
                 source.request(PEEK_BYTES)
                 val head = source.buffer.snapshot(minOf(source.buffer.size, PEEK_BYTES).toInt()).utf8()
                 classify(
                     head = head,
-                    contentType = response.header("Content-Type"),
-                    length = lengthOf(response.code, response.header("Content-Range"), response.header("Content-Length")),
+                    contentType = contentType,
+                    length = length,
                 )
             }
         } catch (_: InterruptedIOException) { // SocketTimeoutException da bunun alt türü
+            Log.d(TAG, "kaynak yoklama: host=${httpUrl.host} durum=zaman_asimi")
             Probe.Rejected(Probe.Reason.Network)
         } catch (_: IOException) {
+            Log.d(TAG, "kaynak yoklama: host=${httpUrl.host} durum=ag_hatasi")
             Probe.Rejected(Probe.Reason.Network)
         }
     }
 
     companion object {
+        private const val TAG = "PlayProbe"
         private const val RANGE_END = 4095
         private const val PEEK_BYTES = 64L * 1024
 
