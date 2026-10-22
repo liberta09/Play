@@ -4,3 +4,4 @@ c) EVET - İmleç film posterine getirilip KEYCODE_DPAD_CENTER ile tıklandı, f
 d) EVET - Video imleçle başlatıldı, video akışı sorunsuz oynuyor, 232011 hatası yok.
 e) KISMEN - Video başlayınca otomatik tam ekran oldu (EVET), ancak tam ekranda imleç görünmüyor (HAYIR).
 f) HAYIR (Afiş yok) - Açılışta ve video açılırken reklam afişleri görünmüyor, afişler temizlendi.
+g) EVET - TV duzeninde (1920x1080) ana sayfa (08-tv-acilis), film sayfasi (09-tv-film-sayfasi) ve video acilisinda (10-tv-video-acilirken) reklam/bahis afisi yok.

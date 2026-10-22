@@ -75,3 +75,5 @@ screen*.png
 crop_*.png
 ld_*.png
 *_thumb.png
+temp_current.png
+test_up.png

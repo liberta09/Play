@@ -1,6 +1,7 @@
 package com.kaan.play.ui.web
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -323,7 +324,15 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
             (cv.parent as? ViewGroup)?.removeView(cv)
             root.addView(cv, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
             cv.bringToFront()
-            cursorController?.show()
+            cursorController?.let { c ->
+                c.show()
+                if (c.viewportWidth > 0f && c.viewportHeight > 0f) {
+                    c.setPosition(c.viewportWidth / 2f, c.viewportHeight / 2f)
+                }
+            }
+            if (BuildConfig.DEBUG) {
+                Log.d("WebCursor", "tam_ekran_imlec: parent=${cv.parent?.javaClass?.simpleName}, vis=${cv.visibility}, alpha=${cv.alpha}, index=${root.indexOfChild(cv)}")
+            }
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE

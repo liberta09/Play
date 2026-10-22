@@ -89,7 +89,8 @@ class WebCursorView @JvmOverloads constructor(
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         if (w > 0 && h > 0) {
-            controller?.setViewport(w.toFloat(), h.toFloat())
+            val orientationChanged = (oldw > 0 && oldh > 0) && ((w > h) != (oldw > oldh))
+            controller?.setViewport(w.toFloat(), h.toFloat(), resetToCenter = orientationChanged)
         }
     }
 
