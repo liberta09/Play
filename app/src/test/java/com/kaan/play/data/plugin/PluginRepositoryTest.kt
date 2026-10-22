@@ -258,7 +258,7 @@ class PluginRepositoryTest {
 
         val rows = db.pluginRows.value
         assertEquals(setOf("a", "b"), rows.map { it.pluginId }.toSet())
-        assertTrue("varsayılan KAPALI olmalı", rows.none { it.enabled })
+        assertTrue("varsayılan AÇIK olmalı", rows.all { it.enabled })
         assertEquals("providers/a.js", rows.first { it.pluginId == "a" }.filename)
         assertEquals("tr,en", rows[0].contentLanguage)
         assertEquals("movie,series", rows[0].supportedTypes)
@@ -270,8 +270,8 @@ class PluginRepositoryTest {
         assertEquals(2, plugins.repos.first().single().pluginCount)
         val installed = plugins.plugins.first()
         assertEquals(setOf("movie", "tv"), installed[0].supportedTypes)
-        assertTrue(installed.none { it.enabled })
-        assertTrue(plugins.enabledPlugins().isEmpty())
+        assertTrue(installed.all { it.enabled })
+        assertEquals(setOf("a", "b"), plugins.enabledPlugins().map { it.pluginId }.toSet())
     }
 
     @Test
@@ -432,11 +432,15 @@ class PluginRepositoryTest {
         stock("a", "b")
         plugins.addFetched(repoUrl, manifestText)
         val a = db.pluginRows.value.first { it.pluginId == "a" }
+        val b = db.pluginRows.value.first { it.pluginId == "b" }
 
+        assertEquals(setOf("a", "b"), plugins.enabledPlugins().map { it.pluginId }.toSet())
+        plugins.setPluginEnabled(a.id, false)
+        assertEquals(listOf("b"), plugins.enabledPlugins().map { it.pluginId })
+        plugins.setPluginEnabled(b.id, false)
+        assertTrue(plugins.enabledPlugins().isEmpty())
         plugins.setPluginEnabled(a.id, true)
         assertEquals(listOf("a"), plugins.enabledPlugins().map { it.pluginId })
-        plugins.setPluginEnabled(a.id, false)
-        assertTrue(plugins.enabledPlugins().isEmpty())
 
         assertEquals(good, plugins.loadCode(a.id))
         store.files[a.id] = good + "// değiştirildi"
@@ -485,7 +489,7 @@ class PluginRepositoryTest {
         val rows = db.pluginRows.value.associateBy { it.pluginId }
         assertEquals(setOf("a", "c"), rows.keys)
         assertTrue("güncellenen kazıyıcının açık durumu korunmalı", rows.getValue("a").enabled)
-        assertFalse("yeni kazıyıcı kapalı gelir", rows.getValue("c").enabled)
+        assertTrue("yeni kazıyıcı açık gelir", rows.getValue("c").enabled)
         assertEquals("1.1.0", rows.getValue("a").version)
         assertEquals(newCode, store.files[rows.getValue("a").id])
         assertEquals(PluginRepository.sha256(newCode), rows.getValue("a").sha256)
