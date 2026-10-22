@@ -542,3 +542,9 @@ Bu proje **GNU General Public License v3.0 (GPL-3.0)** altında lisanslanmışt�
 python tools/generate_adhosts.py
 ```
 
+### Web reklam engeli - doğrulama
+- **(a) Video oynuyor mu:** Evet. JWPlayer 232011 hatası genel element gizleme kurallarının kaldırılması ve iç çerçevelerin (iframe) korunmasıyla çözüldü; video akışı (Rapidrame / JWPlayer) sorunsuz başlatıldı ve oynatıldı.
+- **(b) Tam ekran çalışıyor mu:** Evet. Oynatıcı tam ekran düğmesi ile `SCREEN_ORIENTATION_SENSOR_LANDSCAPE` yatay tam ekran moduna geçilerek altyazılı tam ekran oynatma doğrulandı (`docs/web-reklam-dogrulama.png`).
+- **(c) Afişler gitti mi:** Evet. `hdfilmcehennemi` üzerinde başlık ve video üstündeki bahis ve reklam afişleri (`.card-money`, `.money`, `.rek-wrap` vb.) CSS element gizleme ile kaldırıldı; sayfa içeriği ve video oynatıcı korunarak afişsiz temiz arayüz sağlandı.
+
+

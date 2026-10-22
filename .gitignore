@@ -71,3 +71,5 @@ tools/patch_*.py
 tools/print_*.py
 tools/search_*.py
 tools/read_db.py
+screen*.png
+crop_*.png
