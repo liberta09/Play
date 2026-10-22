@@ -217,12 +217,12 @@ class StartPolicyTest {
     }
 
     @Test
-    fun waitsUpToThreeSecondsForADubbedSource() {
+    fun waitsUpToEightSecondsForADubbedSource() {
         val policy = StartPolicy(preferDub = true)
         val sub = listOf(s("https://a/s", false))
-        assertEquals(StartDecision.Wait(3_000), policy.decide(0, sub, ctx, finished = false))
-        assertEquals(StartDecision.Wait(3_000), policy.decide(2_999, sub, ctx, finished = false))
-        assertEquals(StartDecision.Start(sub[0]), policy.decide(3_000, sub, ctx, finished = false))
+        assertEquals(StartDecision.Wait(StartPolicy.DUB_WAIT_MS), policy.decide(0, sub, ctx, finished = false))
+        assertEquals(StartDecision.Wait(StartPolicy.DUB_WAIT_MS), policy.decide(StartPolicy.DUB_WAIT_MS - 1, sub, ctx, finished = false))
+        assertEquals(StartDecision.Start(sub[0]), policy.decide(StartPolicy.DUB_WAIT_MS, sub, ctx, finished = false))
     }
 
     @Test
@@ -241,7 +241,7 @@ class StartPolicyTest {
     fun heavyDubbedSourceDoesNotSkipTheWait() {
         val heavy = s("https://a/4k", true, res = 2160)
         val d = StartPolicy(true).decide(500, listOf(heavy), RankContext(maxHeight = 1080), finished = false)
-        assertEquals(StartDecision.Wait(3_000), d)
+        assertEquals(StartDecision.Wait(StartPolicy.DUB_WAIT_MS), d)
     }
 
     @Test

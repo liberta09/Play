@@ -2,6 +2,7 @@ package com.kaan.play.ui.player
 
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.stream.PlayableStream
+import com.kaan.play.data.stream.StartPolicy
 import com.kaan.play.data.stream.StreamOwnership
 import com.kaan.play.data.stream.StreamRequest
 import com.kaan.play.data.stream.StreamResult
@@ -112,7 +113,7 @@ class SourceCoordinatorContentGuardTest {
         val only = stream(bogard, "https://bad/1")
         val rig = Rig(this, movie, listOf(only), runtime = 178)
         rig.coordinator.start(null, emptyList(), 0)
-        advanceTimeBy(4_000)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 1_000)
         rig.coordinator.onFirstFrame()
         rig.coordinator.onDuration(33 * min)
         runCurrent()
@@ -128,7 +129,7 @@ class SourceCoordinatorContentGuardTest {
         val s = stream(bogard, "https://x/1")
         val rig = Rig(this, movie, listOf(s), runtime = null)
         rig.coordinator.start(null, emptyList(), 0)
-        advanceTimeBy(4_000)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 1_000)
         rig.coordinator.onFirstFrame()
         rig.coordinator.onDuration(5 * min)
         advanceUntilIdle()
@@ -142,7 +143,7 @@ class SourceCoordinatorContentGuardTest {
         val mine = stream(bogard, "https://mine/1")
         val rig = Rig(this, movie, listOf(mine), runtime = 178)
         rig.coordinator.start(null, listOf(foreign), 0)
-        advanceTimeBy(4_000)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 1_000)
         assertEquals(listOf("https://mine/1"), rig.loaded)
         // Kendi kaynagi bozulsa bile yabanci yedege dusulmez.
         rig.coordinator.onFailure("http 500")
@@ -157,7 +158,7 @@ class SourceCoordinatorContentGuardTest {
         val mine = stream(bogard, "https://mine/1")
         val rig = Rig(this, movie, listOf(mine), runtime = 178)
         rig.coordinator.start(foreign, emptyList(), 0)
-        advanceTimeBy(4_000)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 1_000)
         assertEquals(listOf("https://mine/1"), rig.loaded)
         advanceUntilIdle()
     }
@@ -169,7 +170,7 @@ class SourceCoordinatorContentGuardTest {
         val s = stream(bogard, "https://x/ep", forKey = epKey)
         val rig = Rig(this, ep, listOf(s), runtime = 45)
         rig.coordinator.start(null, emptyList(), 0)
-        advanceTimeBy(4_000)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 1_000)
         rig.coordinator.onFirstFrame()
         rig.coordinator.onDuration(70 * min) // 1,5 kat: eleme yok
         advanceUntilIdle()

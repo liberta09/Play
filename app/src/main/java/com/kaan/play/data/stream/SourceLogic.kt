@@ -153,7 +153,7 @@ sealed interface StartDecision {
 
 /**
  * Otomatik başlangıç kararı. Türkçe dublaj önceliği açıkken dublajlı (ve çok ağır olmayan) kaynak gelir gelmez o başlar; yoksa en çok
- * [dubWaitMs] (3 sn) beklenir, sonra altyazılıyla başlanır (tüm kaynaklar bundan önce bittiyse beklemeden). Öncelik kapalıyken ilk uygun
+ * [dubWaitMs] (8 sn) beklenir, sonra altyazılıyla başlanır (tüm kaynaklar bundan önce bittiyse beklemeden). Öncelik kapalıyken ilk uygun
  * kaynak gelir gelmez başlanır. [ordered]: o ana kadar gelenler, [SourceRanking.recommended] sırasında.
  */
 class StartPolicy(private val preferDub: Boolean, private val dubWaitMs: Long = DUB_WAIT_MS) {
@@ -168,6 +168,6 @@ class StartPolicy(private val preferDub: Boolean, private val dubWaitMs: Long = 
     }
 
     companion object {
-        const val DUB_WAIT_MS = 3_000L
+        const val DUB_WAIT_MS = 8_000L
     }
 }

@@ -5,6 +5,7 @@ import com.kaan.play.data.download.SourceKind
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.stream.FailureReason
 import com.kaan.play.data.stream.PlayableStream
+import com.kaan.play.data.stream.StartPolicy
 import com.kaan.play.data.stream.SourcePref
 import com.kaan.play.data.stream.StreamRequest
 import com.kaan.play.data.stream.StreamResult
@@ -97,14 +98,40 @@ class SourceCoordinatorTest {
     }
 
     @Test
-    fun startsWithSubtitledAfterThreeSecondsWhenNoDubArrives() = runTest {
+    fun openingDubWaitPrefersDubbedArrivingAtFiveSeconds() = runTest {
+        val sub = stream(source1, "https://a/sub")
+        val dub = stream(source2, "https://b/dub", dub = true, res = 720)
+        val rig = Rig(this, flow {
+            emit(found(source1, sub))
+            delay(5_000)
+            emit(found(source2, dub))
+            delay(60_000)
+        }, preferDub = true, request = request)
+
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+        assertEquals(SourcePhase.Resolving, rig.coordinator.phase)
+        assertTrue(rig.loaded.isEmpty())
+
+        // 3.5 sn'de (eski 3 sn beklemesi aşılmışken) henüz altyazılı başlamamalı, 8 sn beklenmeli
+        advanceTimeBy(3_500)
+        assertTrue("3.5 sn'de altyazılı başlamamalı, dublaj beklenmeli", rig.loaded.isEmpty())
+
+        // 5 sn'de dublajlı kaynak gelince dublajlı başlamalı
+        advanceTimeBy(1_600)
+        assertEquals(listOf("https://b/dub"), rig.loaded.map { it.first.url })
+        assertEquals(SourcePhase.Starting, rig.coordinator.phase)
+    }
+
+    @Test
+    fun startsWithSubtitledAfterEightSecondsWhenNoDubArrives() = runTest {
         val sub = stream(source1, "https://a/sub")
         val rig = Rig(this, flow {
             emit(found(source1, sub))
             delay(60_000)
         }, request = request)
         rig.coordinator.start(null, emptyList(), 0)
-        advanceTimeBy(2_900)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS - 100)
         assertTrue(rig.loaded.isEmpty())
         advanceTimeBy(200)
         assertEquals(listOf("https://a/sub"), rig.loaded.map { it.first.url })
@@ -191,7 +218,7 @@ class SourceCoordinatorTest {
             emit(found(source2, late))
         }, request = request)
         rig.coordinator.start(null, emptyList(), 0)
-        advanceTimeBy(3_100) // 3 sn bekleme sonrası a başlar
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100) // dublaj bekleme süresi sonrası a başlar
         assertEquals("https://a/1", rig.lastUrl)
         assertTrue(rig.coordinator.onFailure("x"))
         // Başka aday yok ama kaynaklar hâlâ geliyor: bekler (siyah ekran değil, yükleniyor).
@@ -259,11 +286,11 @@ class SourceCoordinatorTest {
         val dub = stream(source2, "https://b/dub", dub = true)
         val rig = Rig(this, flow {
             emit(found(source1, sub))
-            delay(6_000)
+            delay(StartPolicy.DUB_WAIT_MS + 3_000)
             emit(found(source2, dub))
         }, request = request)
         rig.coordinator.start(null, emptyList(), 0)
-        advanceTimeBy(3_100)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         assertEquals("https://a/sub", rig.lastUrl)
         rig.coordinator.onFirstFrame()
         assertNull(rig.coordinator.dubSuggestion)
@@ -290,13 +317,13 @@ class SourceCoordinatorTest {
         val dub2 = stream(StreamSource(3, "C"), "https://c/dub", dub = true)
         val rig = Rig(this, flow {
             emit(found(source1, sub))
-            delay(5_000)
+            delay(StartPolicy.DUB_WAIT_MS + 2_000)
             emit(found(source2, dub1))
             delay(5_000)
             emit(found(StreamSource(3, "C"), dub2))
         }, request = request)
         rig.coordinator.start(null, emptyList(), 0)
-        advanceTimeBy(3_100)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         rig.coordinator.onFirstFrame()
         advanceTimeBy(2_000)
         assertEquals(dub1, rig.coordinator.dubSuggestion)
