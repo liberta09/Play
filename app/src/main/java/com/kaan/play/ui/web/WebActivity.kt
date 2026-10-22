@@ -6,9 +6,13 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.os.Bundle
+import android.os.SystemClock
+import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
@@ -55,11 +59,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kaan.play.BuildConfig
+import com.kaan.play.PlayApp
+import com.kaan.play.data.web.MoveDirection
+import com.kaan.play.data.web.WebCursorController
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
-import com.kaan.play.PlayApp
+import com.kaan.play.data.web.WebAutoFullscreenRules
+import com.kaan.play.data.web.WebKeyboardRules
+import com.kaan.play.ui.player.DeviceLevels
 import com.kaan.play.R
 import com.kaan.play.data.settings.ThemeMode
 import com.kaan.play.data.web.AdHideLoader
@@ -77,6 +88,7 @@ private class WebUiState {
     var canGoBack by mutableStateOf(false)
     var canGoForward by mutableStateOf(false)
     var failed by mutableStateOf(false)
+    var isFullscreen by mutableStateOf(false)
     /** Kumandada sayfadan "Yukarı" ile çıkıldıkça artar; çubuk odağı alır. */
     var barFocusTick by mutableIntStateOf(0)
 }
@@ -93,6 +105,10 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
     private lateinit var root: FrameLayout
     private var customView: View? = null
     private var customCallback: WebChromeClient.CustomViewCallback? = null
+    private var isRemoteMode: Boolean = false
+    private var cursorController: WebCursorController? = null
+    private var cursorView: WebCursorView? = null
+    private var isImeVisibleFlag: Boolean = false
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -127,6 +143,29 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
             setAcceptThirdPartyCookies(view, false) // üçüncü taraf çerezleri kapalı
         }
 
+        val forceRemote = BuildConfig.DEBUG && intent.getBooleanExtra(EXTRA_FORCE_REMOTE, false)
+        isRemoteMode = forceRemote || !DeviceLevels.supportsTouch(this)
+
+        if (WebAutoFullscreenRules.shouldInjectScript(
+                isRemoteMode = isRemoteMode,
+                isDocumentStartScriptSupported = WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)
+            )
+        ) {
+            WebViewCompat.addDocumentStartJavaScript(
+                view,
+                WebAutoFullscreenRules.AUTO_FULLSCREEN_SCRIPT,
+                setOf("*")
+            )
+        }
+        if (isRemoteMode) {
+            // KeyEvent.eventTime uptimeMillis tabanlıdır; denetleyicinin saati de aynı olmalı (yoksa imleç hep soluk kalır).
+            val controller = WebCursorController(clock = { SystemClock.uptimeMillis() })
+            cursorController = controller
+            cursorView = WebCursorView(this).apply {
+                bind(controller)
+            }
+        }
+
         // Kök: Compose çubuğu + WebView, üstünde tam ekran video için boş bir katman.
         root = FrameLayout(this)
         root.addView(
@@ -147,6 +186,7 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
                         WebScreen(
                             name = name.ifEmpty { url },
                             web = view,
+                            cursorView = cursorView,
                             state = ui,
                             onClose = ::finish,
                             onBack = { view.goBack() },
@@ -160,9 +200,15 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
         )
         setContentView(root)
 
+        ViewCompat.setOnApplyWindowInsetsListener(root) { v, insets ->
+            isImeVisibleFlag = insets.isVisible(WindowInsetsCompat.Type.ime())
+            ViewCompat.onApplyWindowInsets(v, insets)
+        }
+
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 when {
+                    isImeVisible() -> hideIme()
                     customView != null -> hide()
                     view.canGoBack() -> view.goBack()
                     else -> finish()
@@ -250,6 +296,7 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
 
     override fun onFocusLeaveUp() {
         ui.barFocusTick++
+        cursorController?.hide()
     }
 
     private fun syncHistory() {
@@ -266,8 +313,16 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
         }
         customView = view
         customCallback = callback
+        ui.isFullscreen = true
         view.setBackgroundColor(Color.BLACK)
         root.addView(view, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        if (isRemoteMode && cursorView != null) {
+            val cv = cursorView!!
+            (cv.parent as? ViewGroup)?.removeView(cv)
+            root.addView(cv, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+            cv.bringToFront()
+            cursorController?.show()
+        }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -281,7 +336,11 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
     override fun hide() {
         val view = customView ?: return
         customView = null
+        ui.isFullscreen = false
         root.removeView(view)
+        if (isRemoteMode && cursorView != null) {
+            root.removeView(cursorView)
+        }
         customCallback?.onCustomViewHidden()
         customCallback = null
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -302,8 +361,166 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
         super.onPause()
     }
 
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (!isRemoteMode) {
+            return super.dispatchKeyEvent(event)
+        }
+
+        // Klavye açıkken ok tuşları/Tamam klavyeye gitsin; imleç katmanı klavyeyi bozmasın (K4)
+        if (isImeVisible()) {
+            return super.dispatchKeyEvent(event)
+        }
+
+        val controller = cursorController ?: return super.dispatchKeyEvent(event)
+
+        // Durum A: İmleç gizli (üst çubukta odak var - yalnızca tam ekran değilken)
+        if (customView == null && !controller.isVisible) {
+            if (event.keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    controller.show()
+                    web?.requestFocus()
+                }
+                return true
+            }
+            return super.dispatchKeyEvent(event)
+        }
+
+        // Durum B: İmleç görünür (sayfada veya tam ekran videoda gezinme)
+        controller.onUserInteraction(event.eventTime)
+
+        when (event.keyCode) {
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    if (customView == null) {
+                        val webView = web
+                        val cannotScrollUp = webView == null || !webView.canScrollVertically(-1)
+                        if (controller.y <= 0f && cannotScrollUp) {
+                            onFocusLeaveUp()
+                            return true
+                        }
+                        val result = controller.move(MoveDirection.UP, event.eventTime)
+                        if (result.scrollDy != 0) {
+                            webView?.scrollBy(0, result.scrollDy)
+                        }
+                    } else {
+                        // Tam ekranda kenar kaydırma yok (scrollBy yok) (K14)
+                        controller.move(MoveDirection.UP, event.eventTime)
+                    }
+                } else if (event.action == KeyEvent.ACTION_UP) {
+                    controller.resetAcceleration()
+                }
+                return true
+            }
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    val result = controller.move(MoveDirection.DOWN, event.eventTime)
+                    if (customView == null && result.scrollDy != 0) {
+                        web?.scrollBy(0, result.scrollDy)
+                    }
+                } else if (event.action == KeyEvent.ACTION_UP) {
+                    controller.resetAcceleration()
+                }
+                return true
+            }
+            KeyEvent.KEYCODE_DPAD_LEFT -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    val result = controller.move(MoveDirection.LEFT, event.eventTime)
+                    if (customView == null && result.scrollDx != 0) {
+                        web?.scrollBy(result.scrollDx, 0)
+                    }
+                } else if (event.action == KeyEvent.ACTION_UP) {
+                    controller.resetAcceleration()
+                }
+                return true
+            }
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    val result = controller.move(MoveDirection.RIGHT, event.eventTime)
+                    if (customView == null && result.scrollDx != 0) {
+                        web?.scrollBy(result.scrollDx, 0)
+                    }
+                } else if (event.action == KeyEvent.ACTION_UP) {
+                    controller.resetAcceleration()
+                }
+                return true
+            }
+            KeyEvent.KEYCODE_DPAD_CENTER,
+            KeyEvent.KEYCODE_ENTER,
+            KeyEvent.KEYCODE_NUMPAD_ENTER -> {
+                if (event.action == KeyEvent.ACTION_DOWN) {
+                    if (event.repeatCount == 0) {
+                        val target = customView ?: web
+                        if (target != null) {
+                            dispatchClick(target, controller.x, controller.y)
+                        }
+                    }
+                }
+                return true
+            }
+        }
+
+        return super.dispatchKeyEvent(event)
+    }
+
+    private fun dispatchClick(target: View, x: Float, y: Float) {
+        val downTime = SystemClock.uptimeMillis()
+        val downEvent = MotionEvent.obtain(
+            downTime,
+            downTime,
+            MotionEvent.ACTION_DOWN,
+            x,
+            y,
+            0
+        )
+        target.dispatchTouchEvent(downEvent)
+        downEvent.recycle()
+
+        val upEvent = MotionEvent.obtain(
+            downTime,
+            downTime + 30,
+            MotionEvent.ACTION_UP,
+            x,
+            y,
+            0
+        )
+        target.dispatchTouchEvent(upEvent)
+        upEvent.recycle()
+
+        if (target is WebView) {
+            checkAndShowKeyboard(target)
+            target.post { checkAndShowKeyboard(target) }
+        }
+    }
+
+    private fun checkAndShowKeyboard(target: WebView) {
+        if (WebKeyboardRules.shouldRequestKeyboard(target.hitTestResult.type)) {
+            target.requestFocus()
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.showSoftInput(target, 0)
+        }
+    }
+
+    private fun isImeVisible(): Boolean {
+        val insets = ViewCompat.getRootWindowInsets(window.decorView)
+        return insets?.isVisible(WindowInsetsCompat.Type.ime()) ?: isImeVisibleFlag
+    }
+
+    private fun hideIme() {
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        controller.hide(WindowInsetsCompat.Type.ime())
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        val target = web ?: window.decorView
+        imm?.hideSoftInputFromWindow(target.windowToken, 0)
+        isImeVisibleFlag = false
+    }
+
     override fun onDestroy() {
         if (customView != null) hide()
+        cursorView?.let { cv ->
+            (cv.parent as? ViewGroup)?.removeView(cv)
+        }
+        cursorView = null
+        cursorController = null
         web?.let { w ->
             (w.parent as? ViewGroup)?.removeView(w)
             w.stopLoading()
@@ -316,9 +533,17 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
     companion object {
         private const val EXTRA_URL = "url"
         private const val EXTRA_NAME = "name"
+        private const val EXTRA_FORCE_REMOTE = "play_force_remote"
 
-        fun intent(context: Context, name: String, url: String): Intent =
-            Intent(context, WebActivity::class.java).putExtra(EXTRA_URL, url).putExtra(EXTRA_NAME, name)
+        fun intent(context: Context, name: String, url: String, forceRemote: Boolean = false): Intent =
+            Intent(context, WebActivity::class.java)
+                .putExtra(EXTRA_URL, url)
+                .putExtra(EXTRA_NAME, name)
+                .apply {
+                    if (BuildConfig.DEBUG && forceRemote) {
+                        putExtra(EXTRA_FORCE_REMOTE, true)
+                    }
+                }
     }
 }
 
@@ -326,6 +551,7 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
 private fun WebScreen(
     name: String,
     web: WebView,
+    cursorView: WebCursorView?,
     state: WebUiState,
     onClose: () -> Unit,
     onBack: () -> Unit,
@@ -383,6 +609,16 @@ private fun WebScreen(
             }
             Box(modifier = Modifier.weight(1f).fillMaxWidth().navigationBarsPadding()) {
                 AndroidView(factory = { web }, modifier = Modifier.fillMaxSize())
+                if (!state.isFullscreen && cursorView != null) {
+                    AndroidView(
+                        factory = {
+                            cursorView.apply {
+                                (parent as? ViewGroup)?.removeView(this)
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
                 if (state.failed) {
                     Box(
                         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(32.dp),
