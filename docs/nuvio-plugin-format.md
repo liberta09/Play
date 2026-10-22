@@ -300,3 +300,8 @@ QuickJS **kendiliğinden** dosya sistemi/uygulama verisine erişmez; erişim yal
 - Resmî belge olmadığı için sözleşme **çalışma ortamı kaynağından** türetildi; Nuvio güncellenince alanlar/polyfill'ler değişebilir (ör. TV ↔ Mobil farkları zaten var). Faz 2 başlarken tekrar kısa bir doğrulama turu (güncel `JsBindings.kt` farkı) önerilir.
 
 **Örnek dosyalar** (`docs/ornekler/`): [`brellor.js`](ornekler/brellor.js) (en sade: yalnızca `fetch`, `module.exports = { getStreams }`) ve [`hexion.js`](ornekler/hexion.js) (`require("cheerio")` + `onSettings` + `SCRAPER_SETTINGS`). İkisi de `eclipsia/nuvio-plugin` (gitea.com aynasından, 2026-10-12) — **lisans GPL-3.0**; yalnızca belge amaçlı örnek olarak saklanır, uygulamaya **derlenmez/gömülmez/kopyalanmaz**. SHA-256: brellor `a0bb5c46…895e34`, hexion `681a06e6…7fc`. (Bkz. `docs/ornekler/KAYNAK.md`.)
+
+## Ek (2026-10-22): `format` alanı ve doğrulama
+- Akış nesnesindeki `format` (`"m3u8"`, `"hls"`, `"mpd"`, `"dash"`, `"mp4"`…) medya türünü belirler. Uzantısız HLS adresleri (`…/play?id=…`) bu ipucu olmadan ExoPlayer'da `3003 (container desteklenmiyor)` verir; Play `m3u8/hls` → HLS, `mpd/dash` → DASH olarak okur, bilinmeyen biçimde adresten çıkarır.
+- Eklentiye giden çağrı `PluginCallRules` ile denetlenir: `tmdbId` pozitif sayı; film → `movie`, sezon/bölüm yok; dizi → `tv`/`series`, geçerli sezon ve bölüm. Tutarsız çağrı eklentiye gönderilmez.
+- Eklenti içeriğin kendisini doğrulamaz; doğru kimlikle yanlış video dönebilir (Bogard, TMDB 120 için 33 dakikalık video). Bu yüzden oynatıcı süreyi TMDB süresiyle karşılaştırır (bkz. CLAUDE.md "İçerik doğrulama").

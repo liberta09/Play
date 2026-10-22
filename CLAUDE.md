@@ -124,6 +124,15 @@ Ayrıntı README "Torrent kaynakları (yerleşik motor)". Bağlayıcı kurallar:
 - Torrent satırında indirme simgesi yok (çevrimdışı indirme yalnızca doğrudan bağlantılarda); önerilen kaynakta doğrudan bağlantı torrentten önce gelir. Kullanıcı Eklentiler ekranında TorrServer uyumlu bir sunucu girerse magnet o sunucuya yönlenir (boşsa "yerleşik").
 - Release: `org.libtorrent4j.**` R8'de korunur (SWIG JNI). Yerel kütüphaneler sıkıştırılarak paketlenir (`useLegacyPackaging`). Tek evrensel APK (kullanıcı kararı 2026-10-19). Teşhis logu `TorrentDiag` (`PlayTorrent`) yalnızca debug'da yazar; tam adres/magnet/yerel belirteç loglanmaz.
 
+## İçerik doğrulama (bağlayıcı kural; Kullanıcı kararı, 2026-10-22)
+Bir kaynağın hangi içerik olduğu **doğrulanmadan oynatılmaz**; doğrulanamazsa kaynak listeye girmez ve "kaynak bulunamadı" denir (başka film oynatmaktan iyidir). Kurallar Android'den bağımsız `data/match/` altındadır, tek yerde, her eklenti türü için:
+- **CloudStream** (`CsMatchRules`): yerel + özgün + alternatif başlıkla arama; yılı farklı aday (|fark| > 1) asla eşleşmez; fazladan sözcüğü/alt başlığı/devam numarası olan aday yalnızca yıl birebirse; en yüksek puanlı aday, eşik altı eşleşme yok; `load()` sonrası ad/yıl/IMDb-TMDB kimliği istekle uyuşmuyorsa kaynak atılır; film isteğine çok bölümlü dizi, dizi isteğine tek parça film, başka sezonun bölümü verilmez (`EpisodePicker`).
+- **Her tür** (`ContentDurationCheck`, `SourceCoordinator.onDuration`): oynatıcı süreyi öğrenince film için TMDB süresinin %50'sinden kısa/%180'inden uzun, dizi bölümü için 3 kattan fazla uyumsuz kaynak elenir (kullanıcıya gösterilmeden sıradakine geçilir, `StreamVerdicts`'e yazılır); süre bilinmiyorsa (canlı) elenmez. Hepsi elenirse "Bu içerik için kaynak bulunamadı".
+- **Sahiplik** (`StreamOwnership`): `CompositeStreamProvider` her kaynağı içerik anahtarıyla damgalar; başka içeriğin kaynağı yedek listeye karışsa bile oynatılmaz.
+- **Nuvio JS** (`PluginCallRules`): eklentiye yalnızca tutarlı kimlik/tür/sezon/bölüm gider; çağrı günlüğe yazılır. Eklentinin `format` alanı medya türünü belirler.
+- Günlük etiketleri: `PlayCs`, `PlayPlugin`, `PlayPluginNet` (yalnızca sunucu, durum, content-type, uzunluk), `PlayAddon`, `PlayMatch` (süre kararı, kaynak geçişleri). Adres/çerez/token yazılmaz.
+Kanıt ve kök neden analizi: `docs/dogrulama-film/SONUC.md`.
+
 ## Kapsam dışı
 Aniyomi, ayrı Stremio ekosistemi, manga, IPTV, Telegram, tracker, profil/kilit, ayrı bir Android TV arayüzü (Compose for TV / Leanback ekranları; mevcut ekranlar kumandayla da kullanılır), torrent indirme (çevrimdışı saklama; torrent yalnızca izlenir, bkz. "Torrent — yerleşik motor"), toplu indirme (sezonu/diziyi tek dokunuşla indirme; bölüm başına indirme Faz 4/B'de vardır).
 

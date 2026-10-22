@@ -2,6 +2,18 @@
 
 ## Yayınlanmamış / Unreleased
 
+### Türkçe
+- **Yanlış film oynama düzeltmesi:** Bir kaynağın hangi içerik olduğu doğrulanmadan oynatılmaz. Video süresi içeriğin TMDB süresiyle bağdaşmıyorsa (ör. 3 saatlik film yerine 33 dakikalık dizi bölümü) kaynak kullanıcıya gösterilmeden atlanır; hiç doğrulanmış kaynak kalmazsa "kaynak bulunamadı" denir.
+- **CloudStream eşleştirmesi:** Başlığa ek olarak yıl, özgün/alternatif başlık ve yüklenen sayfanın adı/yılı/kimliği denetlenir; aynı adlı farklı yıllı filmler, devam filmleri ("Bölüm Üç", Part 2) ve başka sezonun bölümü artık karışmaz.
+- **Eklenti akış biçimi:** Adresi uzantısız HLS veren eklentiler (ör. Dragon, Imu) artık açılır (eklentinin `format` alanı okunur).
+- Kaynak değişince eski kaynağın altyazısı seçili kalmaz; kaynak değişiminde hata durumunda yedek kaynağa geçiş düzeltildi.
+
+### English
+- **Wrong-movie fix:** A source is never played before its content is verified. If the video length does not fit the TMDB runtime (e.g. a 33-minute episode instead of a 3-hour film) the source is skipped without being shown; if no verified source is left the "no sources" screen appears.
+- **CloudStream matching:** Year, original/alternative titles and the loaded page's name/year/ids are checked in addition to the title; same-named films of different years, sequels ("Part Three") and episodes of another season no longer get mixed up.
+- **Plugin stream format:** Plugins that return extension-less HLS URLs (e.g. Dragon, Imu) now open (the plugin's `format` field is honored).
+- A previous source's own subtitle no longer stays selected after a source switch; fallback to the next source after a switch was fixed.
+
 ## [1.1.5] — 2026-10-22
 
 ### Türkçe

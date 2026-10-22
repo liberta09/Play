@@ -143,3 +143,57 @@ CloudStream eklentileri — arama sonuçlarının ilk 5 ismi ve eşleşme:
 | SezonlukDizi | Yüzüklerin Efendisi: Kralın Dönüşü | 0 |  | yok | 0 |
 | TavsiyeFilmIzle | Yüzüklerin Efendisi: Kralın Dönüşü | 1 | Yüzüklerin Efendisi: Kralın Dönüşü Full Hd izle | bulundu | 0 |
 | SinemaCX | Yüzüklerin Efendisi: Kralın Dönüşü | 16 | Buddy, Moana, Hazine Avcısının Maceraları, Kötü Elmalar, Kayıp Balık Dori | yok | 0 |
+
+
+---
+
+## 2. Kök neden (kanıtlı)
+
+**Yanlış video Play'in çalıştırma ortamından değil, eklentinin/sitenin verisinden geliyor: Bogard (İzle Lan ailesi) `tmdbId` 120 için 33 dakikalık bir videonun listesini veriyor.** Bunu üç bağımsız yoldan doğruladım (adresler/belirteçler yazılmadı; yalnızca sunucu adı, durum, content-type, uzunluk ve SHA-256 özetleri):
+
+| Karşılaştırma | Node (gerçek ağ, düz JS) | Play (QuickJS `PluginRuntime`, cihaz) |
+|---|---|---|
+| `cdn.izlelan.com` yapılandırma | 200, application/json, 2125 bayt | 200, application/json, 2125 bayt |
+| Bogard oynatıcı sayfası (`streamcorecdn.com`) | 200, text/html, **238471** bayt | 200, text/html, **238471** bayt |
+| Eklentinin döndürdüğü akış adresinin parametreleri | `id=120`, `m=#fc613b(len6)`, `token=#b706af(len22)` | `id=120`, `m=#fc613b(len6)`, `token=#b706af(len22)` — **özetler bire bir aynı** |
+| Çalma listesinin süresi | **33,4 dk** (TMDB 121 için 31,2 dk) | ExoPlayer **33:25** |
+
+- Aynı sayfa, aynı sorgu, aynı akış parametresi: yani `PluginRuntime` (fetch, çerez, başlık, yönlendirme, atob/btoa, URL) bu vakada Node'dan **farklı sonuç vermiyor**. Eklenti hata verip "varsayılan akış" döndürmüyor; sitenin kendi `film/120` kaydı bu ortamda bir dizi bölümüne (31–52 dk) çıkıyor ve eklenti içeriği doğrulamıyor.
+- Aynı ailenin diğer kazıyıcıları (Dragon, Imu, Gorosei, Ace: Node'da; Enel: cihazda) 178 dk (kısa sürüm) ya da 228 dk (uzatılmış sürüm) süreli listeler veriyor: doğru film uzunluğu. Yalnızca Bogard yanlış.
+- **Karşılaştırılamayan:** "Nuvio uygulamasında doğru açılıyor" iddiasını doğrulayamadım — cihazda Nuvio yok; NuvioMobile kaynağını da karşılaştırmadım. Olası açıklama (kanıtsız): Nuvio'da başka bir kaynak ilk sırada olabilir ya da Bogard o ortamda farklı bir yanıt alıyor olabilir. Bunu bilmediğimi yazıyorum.
+- Eklentiye giden kimlik doğru: `getStreams("120","movie",null,null)`; `PluginCallRules` artık tutarsız kimlik/türü eklentiye hiç göndermiyor ve çağrıyı günlüğe yazıyor (`PlayPlugin: <ad>: istek tmdbId=… tür=… sezon=… bölüm=…`). Eklentiye dil parametresi gitmiyor (sözleşmede yok; TMDB çağrılarını eklenti kendisi yapıyor).
+
+### Kullanıcının "Dragon da yanlış film veriyor" bildirimi
+- Dragon'un tüm akışlarını cihazda tek tek denedim. **Yanlış film bulamadım.** Düzeltmeden önce Dragon akışlarının hepsi ExoPlayer'da `ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED (3003)` ile açılmıyordu (`sonra_dragon_akis*_kare.png`: açılmayınca sıradaki kaynak Gaban'a geçiliyor). Sebep: eklentiler `"format":"m3u8"` bildiriyor, adres uzantısız (`…/play?id=…`) ve Play `format` alanını okumuyordu → tür çıkarılamadı. Bu Play'e ait gerçek bir Nuvio farkıydı (a603691). Düzeltmeden sonra Dragon akışları açılıyor ve doğru filmi gösteriyor (`final_dragon_akis1_kare.png` Bag End'de Gandalf+Frodo; `final_dragon_akis4_kare.png` Orthanc'ta Gandalf+Saruman); süre kontrolü 228,3 / 228,3 / 178,4 dk → Ok.
+- Dragon'un 3. akışı bu denemede `ERROR_CODE_IO_UNSPECIFIED (2000)` verdi ve aynı eklentinin başka akışına geçildi (site/ağ kaynaklı, düzeltilmedi).
+
+### İçerik güvencesi (afbec78) yanlış videoyu neden elemedi?
+- Cihazdaki ilk APK (19:06, `main` 5fde44b) güvence öncesiydi: elemedi, çünkü kod yoktu.
+- afbec78 sonrası derleme (19:45) cihazda **Bogard'ı eledi**: `süre kontrolü kaynak=Bogard süre=33.4 dk beklenen=228 dk tür=Movie -> Mismatch` (sonraki denemede 31,2/236 ve 51,7/263 dk, hep Mismatch). Beklenen süre TMDB'nin Türkçe kaydındaki (uzatılmış) süredir (228/236/263 dk); ExoPlayer süresi 33:25. Karar günlüğü yoktu, ben ekledim (`PlayMatch`).
+- Ama Bogard'dan sonra seçilen kaynak (Dragon, 3003 hatası) **hata ekranı** gösterdi (`trace2_c_ilk_kare.png`): eski kaynaktan kalma "ilk kare" olayı 2 ms sonra yeni kaynağa yazılıyor, faz erken "Playing" oluyor, bu yüzden hata yedeğe düşmüyordu. Bu bir hataydı; 95d2bbc ile düzeltildi (olay `STALE_FRAME_GUARD_MS` süresince yok sayılır; birim testli) ve `ilk kare olayı yok sayıldı (eski kaynaktan kalma)` günlüğü cihazda görüldü.
+
+## 3. Düzeltmeler (genel güvence)
+
+1. **CloudStream eşleştirme** (`CsMatchRules`, Android'den bağımsız): yerel/özgün/alternatif başlıkla arama; yılı farklı aday asla (±1); alt başlıklı/numaralı aday yalnızca yıl birebirse; en yüksek puan; eşik altı yok; `load()` sonrası ad/yıl/kimlik doğrulaması; film isteğine çok bölümlü dizi, dizi isteğine tek parça film, başka sezonun bölümü verilmez. Cihaz kanıtı (Dune 2021): `Dune: Çöl Gezegeni – Bölüm Üç` (2026) ve `Dune` (1984) kaynakları `kaynak ATILDI … yıl farklı` ile atıldı.
+2. **Süre güvencesi, tüm eklenti türleri** (`ContentDurationCheck`): film süresi TMDB süresinin %50'sinden kısa/%180'inden uzunsa, dizi bölümünde 3 kattan fazla uyumsuzlukta kaynak elenir; süre bilinmiyorsa (canlı, belirsiz) elenmez. Elenen kaynak listeye girmez (`StreamVerdicts`), sıradakine geçilir; hepsi elenirse "Bu içerik için kaynak bulunamadı".
+3. **Sahiplik damgası** (`StreamOwnership`): birleşik sağlayıcıdan çıkan her kaynak içerik anahtarıyla damgalanır; başka içeriğin kaynağı (yedek listeye karışsa bile) oynatılmaz.
+4. **Nuvio JS çağrı doğrulaması** (`PluginCallRules`) ve günlükler (`PlayPlugin`, `PlayPluginNet`, `PlayAddon`, `PlayMatch`): yalnızca sunucu adı, durum, content-type, uzunluk, karma.
+5. **Yan hatalar** (kök nedenle birlikte bulundu): eklenti `format` alanı (3003), eski kaynağın altyazısı yeni kaynağa taşınıyordu, bayat ilk kare olayı.
+
+## 4. Doğrulama (düzeltmeden SONRA; cihaz APK'sı = `a603691` yayın imzalı yerel `assembleRelease`)
+
+| Film | Otomatik oynayan kaynak / süre kontrolü | İlk kare (yeni görüntü) | Doğru film mi? |
+|---|---|---|---|
+| Yüzük Kardeşliği | Ace, 228,2 dk / beklenen 228 → Ok (bir denemede Bogard 33,4 dk → Mismatch → elendi → Ace) | Frodo, Bag End, Türkçe altyazı | **EVET** (`sonra_yuzuk_kardesligi_c_ilk_kare.png`) |
+| İki Kule | Bogard 31,2 dk / 236 → **Mismatch**, elendi; Ace 235,5 dk → Ok | Gandalf (Balrog sahnesi) | **EVET** (`sonra_iki_kule_c_ilk_kare.png`) |
+| Kralın Dönüşü | Bogard 51,7 dk / 263 → **Mismatch**, elendi; Ace 263,2 dk → Ok | Rohan salonunda Merry ve Pippin masada | **EVET** (`sonra_kralin_donusu_c_ilk_kare.png`) |
+| Dune (2021) | Ace, 149,2 dk / 155 → Ok; eşleştirmede 1984 ve "Bölüm Üç" (2026) atıldı | ilk kare siyah (film siyahla açılıyor); 2:04'te kum rengi sahne; sonra Paul masada (`sonra_dune_h_video_kare_2.png`) | **EVET** (süre 2:29:09; ilk kare tek başına kanıt değildi, ilerletip baktım) |
+| Joker (2019) | Enel, 121,8 dk / 122 → Ok; bazı kaynaklar 3003/500 verdi, yedeğe düşüldü | Arthur, soyunma odasında makyaj aynasında | **EVET** (`sonra_joker_c_ilk_kare.png`) |
+
+Başka film oynayan yok. Uyarılar: (a) her ortamda Bogard her seferinde 33–52 dk'lık yanlış video üretiyor ve her seferinde elendi; kullanıcıya gösterilmeden önce ~2 sn ilk kare çiziliyor (süre, oynatıcı hazır olunca öğrenilir). (b) Eleme, süresi bilinmeyen kaynağı elemez; süresi doğru ama başka içerik olan bir kaynak bu güvenceyle yakalanamaz (eşleştirme/kimlik doğrulaması ayrı katman).
+
+## 5. Testler ve commit'ler
+- `.\gradlew testDebugUnitTest`: **852 test, 0 hata, 2 atlandı** (yeni: `ContentMatchTest`, `ContentDurationCheckTest`, `PluginCallRulesTest`, `PluginStreamFormatTest`, `SourceCoordinatorContentGuardTest`, TMDB başlık testleri).
+- Commit'ler (dal `fix-yanlis-film`): 48889c2 (taban rapor), dfdb93e (kurallar), 7a0953b (CloudStream), afbec78 (süre güvencesi), 95d2bbc (bayat ilk kare + günlükler), ceb7bc9 (altyazı), 72fbf7c (başlık parçaları), a603691 (`format`); bu belge ayrı commit.
+- Ortam notu: ağ/WebView çözücüleri bu LDPlayer'da bazen çöküyor ("No space left on device" cihaz günlüğünde); çok eklentili aramalar yavaşlayabiliyor.
+- Geçici JS dökümü yaması commit'e girmedi; eklenti kodu yalnızca yerel çözümleme için çekildi (depo adresi yazılmadı).
