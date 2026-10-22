@@ -71,7 +71,7 @@ data class UpdateResult(val updated: Int, val skipped: Int)
 /**
  * Eklenti depolarının tek kapısı (Faz 2). Depo satırı `addons` tablosunda ([AddonType.NUVIO_PLUGIN_REPO]), kazıyıcılar
  * `plugins` tablosunda, kodları uygulamaya özel dizinde ([PluginCodeStore]) durur. Hiçbir varsayılan depo yoktur; her şey
- * kullanıcının girdiği adresten gelir. Kazıyıcılar **kapalı** kurulur.
+ * kullanıcının girdiği adresten gelir. Yeni eklenen depolarda kazıyıcılar **açık** kurulur (Kullanıcı kararı 2026-10-23).
  */
 class PluginRepository(
     private val addonDao: AddonDao,
@@ -160,7 +160,7 @@ class PluginRepository(
     }
 
     /**
-     * [checkForUpdates] planını uygular. Güncellenen kazıyıcıların açık/kapalı durumu korunur; yeniler kapalı gelir;
+     * [checkForUpdates] planını uygular. Güncellenen kazıyıcıların açık/kapalı durumu korunur; yeniler açık gelir;
      * indirilemeyen dosyada eski kod kalır (atlanır). Depodan kalkanlar silinir.
      */
     suspend fun applyUpdate(plan: UpdatePlan): UpdateResult {
@@ -261,7 +261,7 @@ class PluginRepository(
                 repoId = repoId, pluginId = e.id, name = e.name, version = e.version, description = e.description,
                 filename = e.filename, scriptUrl = e.scriptUrl, supportedTypes = e.supportedTypes.joinToString(","),
                 contentLanguage = e.contentLanguage.joinToString(","), hasSettings = e.hasSettings,
-                sha256 = d.sha256, sizeBytes = d.size, enabled = false, installedAt = clock(),
+                sha256 = d.sha256, sizeBytes = d.size, enabled = RepoInstallPolicy.initialPluginEnabled(AddonType.NUVIO_PLUGIN_REPO), installedAt = clock(),
             ),
         )
         if (id == -1L) return // aynı kimlik zaten var (yinelenen giriş)

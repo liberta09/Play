@@ -10,6 +10,7 @@ import com.kaan.play.data.db.AddonEntity
 import com.kaan.play.data.db.AddonType
 import com.kaan.play.data.db.PluginDao
 import com.kaan.play.data.db.PluginEntity
+import com.kaan.play.data.plugin.RepoInstallPolicy
 import com.kaan.play.data.net.PlayJson
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -38,7 +39,7 @@ data class CsRepo(
     val pluginCount: Int,
 )
 
-/** Kurulu tek bir CS eklentisi. [enabled] varsayılan KAPALIDIR. */
+/** Kurulu tek bir CS eklentisi. Yeni depolarda [enabled] varsayılan olarak açıktır. */
 data class InstalledCsPlugin(
     val id: Long,
     val repoId: Long,
@@ -202,7 +203,7 @@ class CsRepository(
             hasSettings = false,
             sha256 = contents.sha256,
             sizeBytes = contents.sizeBytes,
-            enabled = false,
+            enabled = RepoInstallPolicy.initialPluginEnabled(AddonType.CLOUDSTREAM_REPO),
             installedAt = clock(),
         )
         val rowId = pluginDao.insert(pluginEntity)
@@ -337,7 +338,7 @@ class CsRepository(
                 hasSettings = false,
                 sha256 = contents.sha256,
                 sizeBytes = contents.sizeBytes,
-                enabled = false,
+                enabled = RepoInstallPolicy.initialPluginEnabled(AddonType.CLOUDSTREAM_REPO),
                 installedAt = clock(),
             )
             val rowId = pluginDao.insert(pluginEntity)
