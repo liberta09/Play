@@ -1,6 +1,7 @@
 package com.kaan.play.ui.player
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -113,6 +114,9 @@ class PlaybackController(
                 .build()
         }
 
+    val stallTracker = PlaybackStallTracker()
+    private var released = false
+
     var ui by mutableStateOf(PlayerUiState())
         private set
 
@@ -132,16 +136,20 @@ class PlaybackController(
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 ui = ui.copy(isPlaying = isPlaying)
+                stallTracker.onIsPlayingChanged(isPlaying)
             }
 
             override fun onPlaybackStateChanged(state: Int) {
-                ui = ui.copy(buffering = state == Player.STATE_BUFFERING, ended = state == Player.STATE_ENDED)
+                val buffering = state == Player.STATE_BUFFERING
+                ui = ui.copy(buffering = buffering, ended = state == Player.STATE_ENDED)
+                stallTracker.onPlaybackStateChanged(buffering = buffering, isReady = state == Player.STATE_READY)
                 if (state == Player.STATE_READY && !player.isCurrentMediaItemLive) {
                     val duration = player.duration
                     if (duration != C.TIME_UNSET && duration > 0) onDurationKnown?.invoke(duration)
                 }
                 // Görüntüsüz içerik (yalnızca ses) için ilk kare gelmez: hazır olunca açıldı sayılır.
                 if (state == Player.STATE_READY && player.currentTracks.groups.none { it.type == C.TRACK_TYPE_VIDEO && it.isSelected }) {
+                    stallTracker.onFirstFrameRendered()
                     onFirstFrame?.invoke()
                 }
             }
@@ -175,13 +183,25 @@ class PlaybackController(
             }
 
             override fun onRenderedFirstFrame() {
+                stallTracker.onFirstFrameRendered()
                 onFirstFrame?.invoke()
+            }
+
+            override fun onPositionDiscontinuity(
+                oldPosition: Player.PositionInfo,
+                newPosition: Player.PositionInfo,
+                reason: Int,
+            ) {
+                if (reason == Player.DISCONTINUITY_REASON_SEEK && player.playbackState == Player.STATE_READY && !player.isLoading) {
+                    stallTracker.onSeekEnded()
+                }
             }
         })
     }
 
     /** [startMs] konumundan oynatmaya başlar. Önceki hata temizlenir. */
     fun load(stream: PlayableStream, startMs: Long) {
+        stallTracker.reset(stream.source.addonName)
         headers = stream.headers
         torrent = TorrentLinks.isMagnet(stream.url)
         // Magnet: yerleşik motorun yerel adresi; tür içerikten çıkarılır (dosya adı üst bilgi gelince belli olur).
@@ -207,6 +227,7 @@ class PlaybackController(
 
     /** İndirilmiş kopyayı oynatır ([item] indirme isteğinden gelir; HLS/DASH'te indirilen kaliteyle sınırlıdır). */
     fun loadDownloaded(item: MediaItem, startMs: Long) {
+        stallTracker.reset("İndirilen")
         ui = ui.copy(error = null, ended = false, buffering = true)
         player.setMediaItem(item, startMs)
         player.prepare()
@@ -223,11 +244,15 @@ class PlaybackController(
     }
 
     fun seekBy(deltaMs: Long) {
+        stallTracker.onSeekStarted()
         val duration = player.duration.takeIf { it != C.TIME_UNSET } ?: Long.MAX_VALUE
         player.seekTo((player.currentPosition + deltaMs).coerceIn(0L, duration))
     }
 
-    fun seekTo(positionMs: Long) = player.seekTo(positionMs.coerceAtLeast(0L))
+    fun seekTo(positionMs: Long) {
+        stallTracker.onSeekStarted()
+        player.seekTo(positionMs.coerceAtLeast(0L))
+    }
 
     override fun positionMs(): Long = player.currentPosition
 
@@ -306,7 +331,13 @@ class PlaybackController(
             .build()
     }
 
-    fun release() = player.release()
+    fun release() {
+        if (released) return
+        released = true
+        val summary = stallTracker.finish()
+        Log.d("PlayMatch", summary)
+        player.release()
+    }
 
     companion object {
         const val DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
