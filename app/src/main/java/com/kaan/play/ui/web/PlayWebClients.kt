@@ -41,6 +41,11 @@ class PlayWebViewClient(
     private val hideRules: AdHideRules = AdHideRules.default,
 ) : WebViewClient() {
 
+    companion object {
+        /** Geçici A/B testi bayrağı: CSS element gizlemeyi açıp/kapatır. */
+        var enableCssElementHiding: Boolean = false
+    }
+
     override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
         val host = request.url.host
         if (!policy.isBlockedHost(host)) return null
@@ -83,7 +88,7 @@ class PlayWebViewClient(
      * Ağ isteği yapmaz, veri toplamaz, console.log yazmaz, tamamen try/catch içindedir.
      */
     private fun injectElementHiding(view: WebView, url: String?) {
-        if (!hideRules.isLoaded) return
+        if (!enableCssElementHiding || !hideRules.isLoaded) return
         val targetUrl = url ?: view.url ?: return
         val host = targetUrl.toHttpUrlOrNull()?.host ?: return
         val css = hideRules.buildCssForHost(host) ?: return
