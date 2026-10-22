@@ -75,7 +75,14 @@
         <activity
             android:name=".ui.web.WebActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|navigation|uiMode"
-            android:exported="false" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="play" android:host="web" />
+            </intent-filter>
+        </activity>
 
         <!-- Cloudflare Turnstile / interaktif bot doğrulama ekranı -->
         <activity

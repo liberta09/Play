@@ -99,8 +99,8 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
         super.onCreate(savedInstanceState)
         AdHostLoader.ensureLoaded(this)
         AdHideLoader.ensureLoaded(this)
-        val url = intent.getStringExtra(EXTRA_URL)
-        val name = intent.getStringExtra(EXTRA_NAME).orEmpty()
+        val url = intent.getStringExtra(EXTRA_URL) ?: intent.data?.getQueryParameter("url")
+        val name = intent.getStringExtra(EXTRA_NAME) ?: intent.data?.getQueryParameter("name").orEmpty()
         val policy = WebPolicy()
         // Yalnızca http/https ve engelli olmayan adres; aksi halde hiçbir şey açılmaz.
         if (url == null || !policy.allowsNavigation(url)) {

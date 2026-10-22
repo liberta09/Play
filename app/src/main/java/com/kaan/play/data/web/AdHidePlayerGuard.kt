@@ -8,7 +8,8 @@ package com.kaan.play.data.web
  * 1. Kural seviyesinde: Riskli ve korumalı seçicileri filtreler.
  * 2. CSS seviyesinde: Oynatıcı elemanları için `display: revert !important` kuralı ekler.
  * 3. Çalışma zamanı JS seviyesinde: onPageFinished + 1,5 sn sonra sayfadaki video/oynatıcı
- *    öğelerinin ve ata kutularının computed display durumunu denetler; gizlenmişse stili kaldırır.
+ *    öğelerinin ve ata kutularının computed display durumunu denetler; Play'in enjekte ettiği
+ *    stil nedeniyle gizlenmişse stili kaldırır.
  */
 object AdHidePlayerGuard {
 
@@ -44,8 +45,7 @@ object AdHidePlayerGuard {
      *
      * Sayfadaki herhangi bir `video`, oynatıcı `iframe` ya da bunların herhangi bir ata
      * kutusunun getComputedStyle ile display === 'none' olup olmadığını denetler.
-     * Eğer gizlenmişse Play'in enjekte ettiği <style id="__play_ad_hide__"> elemanını kaldırır
-     * ve 'REMOVED' döner.
+     * Eğer Play'in enjekte ettiği stil nedeniyle gizlenmişse stili kaldırır ve 'REMOVED' döner.
      */
     fun buildGuardScript(): String {
         return """
@@ -54,29 +54,36 @@ object AdHidePlayerGuard {
                     var styleEl = document.getElementById('__play_ad_hide__');
                     if (!styleEl) return 'NO_STYLE';
 
-                    var targets = [];
-                    var vids = document.querySelectorAll('video, iframe, .jwplayer, .plyr, [id*="player"], [class*="player"]');
-                    for (var i = 0; i < vids.length; i++) {
-                        targets.push(vids[i]);
-                    }
+                    var vids = document.querySelectorAll('video, iframe, .jwplayer, .plyr');
+                    if (!vids || vids.length === 0) return 'OK';
 
-                    var isHidden = function(el) {
-                        while (el && el !== document.body && el !== document.documentElement) {
+                    for (var i = 0; i < vids.length; i++) {
+                        var target = vids[i];
+                        var curr = target;
+                        var hiddenAncestor = null;
+
+                        while (curr && curr !== document.body && curr !== document.documentElement) {
                             try {
-                                var comp = window.getComputedStyle(el);
+                                var comp = window.getComputedStyle(curr);
                                 if (comp && comp.display === 'none') {
-                                    return true;
+                                    hiddenAncestor = curr;
+                                    break;
                                 }
                             } catch(e1) {}
-                            el = el.parentElement;
+                            curr = curr.parentElement;
                         }
-                        return false;
-                    };
 
-                    for (var k = 0; k < targets.length; k++) {
-                        if (isHidden(targets[k])) {
-                            styleEl.remove();
-                            return 'REMOVED';
+                        if (hiddenAncestor) {
+                            // Play'in stili devre dışı bırakıldığında eleman görünür hale geliyor mu test et
+                            styleEl.disabled = true;
+                            var compNow = window.getComputedStyle(hiddenAncestor);
+                            var causedByPlay = (compNow && compNow.display !== 'none');
+                            styleEl.disabled = false;
+
+                            if (causedByPlay) {
+                                styleEl.remove();
+                                return 'REMOVED';
+                            }
                         }
                     }
                     return 'OK';
