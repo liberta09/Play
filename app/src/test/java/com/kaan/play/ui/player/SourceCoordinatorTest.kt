@@ -520,4 +520,140 @@ class SourceCoordinatorTest {
         assertTrue(rig.loaded.isEmpty())
         assertEquals(SourcePhase.Failed, rig.coordinator.phase)
     }
+    @Test
+    fun fallbackWaitsForDubbedSourceWhenNextCandidateIsSubtitled() = runTest {
+        val dubA = stream(source1, "https://a/dub", dub = true)
+        val subB = stream(source1, "https://b/sub", dub = false)
+        val dubC = stream(source2, "https://c/dub", dub = true)
+
+        val rig = Rig(this, flow {
+            emit(found(source1, dubA, subB))
+            delay(1_500)
+            emit(found(source2, dubC))
+            delay(60_000)
+        }, preferDub = true, request = request)
+
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+
+        assertEquals(listOf("https://a/dub"), rig.loaded.map { it.first.url })
+
+        rig.coordinator.onFailure("playback-error")
+        runCurrent()
+
+        advanceTimeBy(1_600)
+        assertEquals(listOf("https://a/dub", "https://c/dub"), rig.loaded.map { it.first.url })
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun fallbackSwitchesToSubtitledWhenDubWaitTimesOut() = runTest {
+        val dubA = stream(source1, "https://a/dub", dub = true)
+        val subB = stream(source1, "https://b/sub", dub = false)
+
+        val rig = Rig(this, flow {
+            emit(found(source1, dubA, subB))
+            delay(60_000)
+        }, preferDub = true, request = request)
+
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+
+        assertEquals(listOf("https://a/dub"), rig.loaded.map { it.first.url })
+
+        rig.coordinator.onFailure("playback-error")
+        runCurrent()
+
+        // 3 sn sonra henüz 6 sn dolmadığı için altyazılıya geçmez
+        advanceTimeBy(3_000)
+        assertEquals(listOf("https://a/dub"), rig.loaded.map { it.first.url })
+        assertEquals(SourcePhase.Resolving, rig.coordinator.phase)
+
+        // 6 sn tamamlanınca altyazılı kaynak başlar
+        advanceTimeBy(3_100)
+        assertEquals(listOf("https://a/dub", "https://b/sub"), rig.loaded.map { it.first.url })
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun fallbackSwitchesToSubtitledImmediatelyWhenCollectionFinishes() = runTest {
+        val dubA = stream(source1, "https://a/dub", dub = true)
+        val subB = stream(source1, "https://b/sub", dub = false)
+
+        val rig = Rig(this, flow {
+            emit(found(source1, dubA, subB))
+            delay(500)
+        }, preferDub = true, request = request)
+
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+
+        assertEquals(listOf("https://a/dub"), rig.loaded.map { it.first.url })
+
+        rig.coordinator.onFailure("playback-error")
+        runCurrent()
+
+        assertEquals(SourcePhase.Resolving, rig.coordinator.phase)
+
+        // 500 ms sonra akış biter (finished = true) -> 6 sn beklemeden hemen altyazılı açılır
+        advanceTimeBy(600)
+        assertEquals(listOf("https://a/dub", "https://b/sub"), rig.loaded.map { it.first.url })
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun fallbackDoesNotWaitWhenPreferDubIsFalse() = runTest {
+        val dubA = stream(source1, "https://a/dub", dub = true)
+        val subB = stream(source1, "https://b/sub", dub = false)
+
+        val rig = Rig(this, flow {
+            emit(found(source1, dubA, subB))
+            delay(60_000)
+        }, preferDub = false, request = request)
+
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+
+        assertEquals(listOf("https://a/dub"), rig.loaded.map { it.first.url })
+
+        rig.coordinator.onFailure("playback-error")
+        runCurrent()
+
+        // preferDub kapalı olduğu için beklemeden hemen sıradaki aday başlar
+        assertEquals(listOf("https://a/dub", "https://b/sub"), rig.loaded.map { it.first.url })
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun fallbackDoesNotReselectTriedDubbedSource() = runTest {
+        val dubA = stream(source1, "https://a/dub", dub = true)
+        val subB = stream(source1, "https://b/sub", dub = false)
+        val dubA_repeat = stream(source2, "https://a/dub", dub = true)
+
+        val rig = Rig(this, flow {
+            emit(found(source1, dubA, subB))
+            delay(1_000)
+            // Başka bir eklenti aynı adresi veya daha önce denenmiş kaynağı tekrar döndü
+            emit(found(source2, dubA_repeat))
+            delay(60_000)
+        }, preferDub = true, request = request)
+
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+
+        assertEquals(listOf("https://a/dub"), rig.loaded.map { it.first.url })
+
+        rig.coordinator.onFailure("playback-error")
+        runCurrent()
+
+        // 1 sn sonra a/dub tekrar geldi ama attempted içinde olduğu için seçilmez
+        advanceTimeBy(1_500)
+        assertEquals(listOf("https://a/dub"), rig.loaded.map { it.first.url })
+        assertEquals(SourcePhase.Resolving, rig.coordinator.phase)
+
+        // 6 sn süre dolunca subB başlar (a/dub tekrar denenmez)
+        advanceTimeBy(5_000)
+        assertEquals(listOf("https://a/dub", "https://b/sub"), rig.loaded.map { it.first.url })
+        advanceUntilIdle()
+    }
 }
