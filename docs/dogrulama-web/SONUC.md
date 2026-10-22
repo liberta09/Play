@@ -5,3 +5,4 @@ d) EVET - Video imleçle başlatıldı, video akışı sorunsuz oynuyor, 232011 
 e) KISMEN - Video başlayınca otomatik tam ekran oldu (EVET), ancak tam ekranda imleç görünmüyor (HAYIR).
 f) HAYIR (Afiş yok) - Açılışta ve video açılırken reklam afişleri görünmüyor, afişler temizlendi.
 g) EVET - TV duzeninde (1920x1080) ana sayfa (08-tv-acilis), film sayfasi (09-tv-film-sayfasi) ve video acilisinda (10-tv-video-acilirken) reklam/bahis afisi yok.
+h) EVET - TV duzeninde video sorunsuz baslatildi ve tam ekranda oynatildi (13-tv-play-sonrasi-6sn, 14-tv-tam-ekran); reklam/bahis afisi yok, yeni pencere acilmadi, imlec tam ekranda gorunuyor.
