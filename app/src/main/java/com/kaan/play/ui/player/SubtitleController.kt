@@ -333,6 +333,11 @@ class SubtitleController(
             userChose = false
             autoRank = null
         }
+        // Eski akışın kendi altyazısı (ör. içeriğe uymadığı için elenen kaynağınki) yeni kaynağın videosunda kalmaz: senkron tutmaz.
+        if (current is SubtitleItem.External && current.track.kind == SubtitleKind.Source && current !in items && !userChose) {
+            apply(null)
+            autoRank = null
+        }
         autoSelect()
         maybeTranslate()
     }
