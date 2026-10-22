@@ -1,6 +1,6 @@
 # Play Web Reklam ve Izleyici Alan Adi Engelleme Listesi
 # Kaynaklar:
-# - EasyList: https://easylist.to/easylist/easylist.txt
+# - EasyList: https://easylist-downloads.adblockplus.org/easylist.txt
 # - EasyList Adservers: https://raw.githubusercontent.com/easylist/easylist/master/easylist/easylist_adservers.txt
 # - EasyList Turkish: https://easylist-downloads.adblockplus.org/turkish-filters.txt
 # - Turk-AdFilter: https://raw.githubusercontent.com/omerdduran/turk-adfilter/main/turk-adfilter.txt
@@ -4310,6 +4310,7 @@ arryslish.qpon
 arsenylasearch.com
 arsenyldioptrewino.qpon
 arshdlrwydrgp.site
+arsmvxmbqk.com
 arsoitesauba.shop
 arsonincreasingmedic.com
 arsonojuncoes.com
@@ -23319,6 +23320,7 @@ jduqbvpaaeyci.site
 jdvhjqphbpjjd.space
 jdvnpqubqzzae.site
 jdwqsewrbvnnt.website
+jdxdotoyuskmv.space
 jdxnelgnhtfyq.space
 jdzbabgbhq.com
 jdzpzbrxhzkqn.space
@@ -27262,6 +27264,7 @@ lvyvxkmvrjrul.online
 lw.musictarget.com
 lw1z4e5zuqhlfetegbmfgi.cfd
 lwahyysblqbez.site
+lwbsvclvgduzy.space
 lwdblrksolqvt.store
 lwdipkupxshsz.online
 lwfnfwgbkgryv.site
@@ -37766,6 +37769,7 @@ rjrflywubejow.website
 rjriaawxynuek.website
 rjsayvndhakyn.online
 rjsdiikketqvt.online
+rjsyuqyrazykm.website
 rjtzqgeltwaep.store
 rjuskpbpvyarm.site
 rjvgkmahuzded.site
@@ -38527,6 +38531,7 @@ rxb4kvggbtqrbt1kz236.cfd
 rxbctukdsacky.site
 rxbmckvoxesqa.online
 rxdqldqeltnsz.space
+rxdqwjvztsork.site
 rxeosevsso.com
 rxesfcmmlyqso.site
 rxfexvfreikpo.website
@@ -47907,6 +47912,7 @@ wharvetauteralvar.qpon
 whatagophers.cyou
 whatdcampman.cyou
 whatdmacduff.com
+whatfastfen.com
 whatisuptodaynow.com
 whatsupp25.biz
 whaudrurdoals.net
