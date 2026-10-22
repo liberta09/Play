@@ -62,6 +62,7 @@ import androidx.webkit.WebViewFeature
 import com.kaan.play.PlayApp
 import com.kaan.play.R
 import com.kaan.play.data.settings.ThemeMode
+import com.kaan.play.data.web.AdHideLoader
 import com.kaan.play.data.web.AdHostLoader
 import com.kaan.play.data.web.WebPolicy
 import com.kaan.play.ui.nav.PlayIcons
@@ -97,6 +98,7 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AdHostLoader.ensureLoaded(this)
+        AdHideLoader.ensureLoaded(this)
         val url = intent.getStringExtra(EXTRA_URL)
         val name = intent.getStringExtra(EXTRA_NAME).orEmpty()
         val policy = WebPolicy()

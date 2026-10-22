@@ -534,10 +534,10 @@ Bu proje **GNU General Public License v3.0 (GPL-3.0)** altında lisanslanmışt�
 - **NiceHttp** ([Blatzar/NiceHttp](https://github.com/Blatzar/NiceHttp)): GNU General Public License v3.0 (GPL-3.0) ile lisanslanmıştır.
 - **Nuvio**: Nuvio uygulamaları GPL-3.0'dır; Nuvio için hiçbir kod kopyalanmamış olup, eklenti sözleşmesi temiz oda yaklaşımıyla (QuickJS üzerinde) sıfırdan uygulanmıştır.
 - **TMDB**: Bu ürün TMDB API'sini kullanır ancak TMDB tarafından onaylanmamıştır veya sertifikalandırılmamıştır.
-- **EasyList & Türkçe Filtreler** ([easylist.to](https://easylist.to/)): GNU General Public License v3.0 (GPL-3.0) ve Creative Commons Attribution-ShareAlike 3.0 (CC BY-SA 3.0) ile lisanslanmıştır. Web görünümünde reklam ve izleyici alan adlarını engellemek için EasyList ve Türkçe eklerinden derlenen `adhosts.txt` kuralları kullanılır.
+- **EasyList & Türkçe Filtreler** ([easylist.to](https://easylist.to/)): GNU General Public License v3.0 (GPL-3.0) ve Creative Commons Attribution-ShareAlike 3.0 (CC BY-SA 3.0) ile lisanslanmıştır. Web görünümünde reklam ve izleyici alan adlarını engellemek için derlenen `adhosts.txt` kuralları ve sayfa içi afiş/reklam öğelerini gizlemek için `adhide.txt` element gizleme kuralları kullanılır.
 
-### Reklam Engelleme Listesini Yeniden Üretme
-`tools/generate_adhosts.py` betiği EasyList ve Türkçe filtre listelerinden en güncel alan adı engelleme kurallarını indirip `app/src/main/assets/adhosts.txt` dosyasını üretir:
+### Reklam Engelleme ve Element Gizleme Listelerini Yeniden Üretme
+`tools/generate_adhosts.py` betiği EasyList ve Türkçe filtre listelerinden alan adı engelleme kurallarını (`app/src/main/assets/adhosts.txt`) ve CSS element gizleme kurallarını (`app/src/main/assets/adhide.txt`) üretir:
 ```powershell
 python tools/generate_adhosts.py
 ```

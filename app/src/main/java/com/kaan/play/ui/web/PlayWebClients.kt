@@ -13,7 +13,10 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.kaan.play.data.web.AdHideRules
 import com.kaan.play.data.web.WebPolicy
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import org.json.JSONObject
 import java.io.ByteArrayInputStream
 
 private const val TAG = "PlayWeb"
@@ -35,6 +38,7 @@ interface WebPageListener {
 class PlayWebViewClient(
     private val policy: WebPolicy,
     private val listener: WebPageListener,
+    private val hideRules: AdHideRules = AdHideRules.default,
 ) : WebViewClient() {
 
     override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
@@ -62,9 +66,69 @@ class PlayWebViewClient(
         return false
     }
 
-    override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) = listener.onPageStarted()
+    override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
+        injectElementHiding(view, url)
+        listener.onPageStarted()
+    }
 
-    override fun onPageFinished(view: WebView, url: String?) = listener.onPageFinished()
+    override fun onPageFinished(view: WebView, url: String?) {
+        injectElementHiding(view, url)
+        listener.onPageFinished()
+    }
+
+    /**
+     * Sayfanın alan adına uyan element gizleme seçicilerini tek bir CSS olarak enjekte eder:
+     * `seçiciler { display:none !important; }` biçiminde <style> etiketi eklenir veya güncellenir.
+     * Hem ana çerçevede hem aynı kökenli iç çerçevelerde (iframe) çalışır.
+     * Ağ isteği yapmaz, veri toplamaz, console.log yazmaz, tamamen try/catch içindedir.
+     */
+    private fun injectElementHiding(view: WebView, url: String?) {
+        if (!hideRules.isLoaded) return
+        val targetUrl = url ?: view.url ?: return
+        val host = targetUrl.toHttpUrlOrNull()?.host ?: return
+        val css = hideRules.buildCssForHost(host) ?: return
+        val quotedCss = JSONObject.quote(css)
+        val script = """
+            (function() {
+                try {
+                    var css = $quotedCss;
+                    function applyStyle(doc) {
+                        try {
+                            if (!doc) return;
+                            var style = doc.getElementById('__play_ad_hide__');
+                            if (!style) {
+                                style = doc.createElement('style');
+                                style.id = '__play_ad_hide__';
+                                style.type = 'text/css';
+                                var target = doc.head || doc.documentElement || doc.body;
+                                if (target) {
+                                    target.appendChild(style);
+                                } else {
+                                    doc.addEventListener('DOMContentLoaded', function() {
+                                        try {
+                                            var t = doc.head || doc.documentElement || doc.body;
+                                            if (t && !doc.getElementById('__play_ad_hide__')) {
+                                                t.appendChild(style);
+                                            }
+                                        } catch(e1) {}
+                                    });
+                                }
+                            }
+                            if (style && style.textContent !== css) {
+                                style.textContent = css;
+                            }
+                        } catch(e2) {}
+                    }
+                    applyStyle(document);
+                    var frames = document.querySelectorAll('iframe');
+                    for (var i = 0; i < frames.length; i++) {
+                        try { applyStyle(frames[i].contentDocument); } catch(e3) {}
+                    }
+                } catch(e) {}
+            })();
+        """.trimIndent()
+        view.evaluateJavascript(script, null)
+    }
 
     override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) = listener.onHistoryChanged()
 
