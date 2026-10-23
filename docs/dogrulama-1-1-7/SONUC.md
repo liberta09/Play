@@ -21,14 +21,14 @@
 ### Cihaz Kanıtları (LDPlayer Üzerinde Sıralı Doğrulama)
 Tüm ekran görüntüleri `screencap -p /sdcard/x.png` + `adb pull` yöntemiyle alınmış ve dosya başlıklarının geçerli PNG (`89 50 4E 47`) olduğu doğrulanmıştır.
 
-1. **(a) `home_before.png` (47.245 bayt):** Ana sayfa açıldığında WioSpor Canlı ve Birdirbir IPTV raflarının görüntülendiği kanıtlandı.  
-   ![Ana Sayfa Öncesi](home_before.png)
-2. **(b) `addon_off.png` (65.165 bayt):** Ayarlar > Eklentiler > Nuvio Addon'ları > WioSpor sayfasına girilerek "WioSpor Canlı" anahtarı kapatıldı (`Switch: checked=false`).  
-   ![Addon Sayfasında Kapatma](addon_off.png)
-3. **(c) `home_after_off.png` (94.578 bayt):** Uygulama kapatılmadan doğrudan Ana Sayfaya dönüldü; WioSpor Canlı rafının anında ekrandan kalktığı kanıtlandı.  
-   ![Kapatma Sonrası Ana Sayfa](home_after_off.png)
-4. **(d) `home_after_on.png` (63.518 bayt):** Ayarlar'dan anahtar tekrar açıldı ve Ana Sayfaya dönüldü; WioSpor Canlı rafının anında geri geldiği kanıtlandı.  
-   ![Açma Sonrası Ana Sayfa](home_after_on.png)
+1. **(a) `kanit_1_iki_raf.png` (63.667 bayt, sol üst saat: 20:57):** ✅ Ana sayfa ekranında WioSpor sağlayıcısı seçiliyken üstte "WioSpor Canlı" ve altta "Birdirbir IPTV" raflarının ikisi de ekranda eksiksiz görünmektedir.  
+   ![İki Raf Birlikte](kanit_1_iki_raf.png)
+2. **(b) `kanit_2_anahtar_kapali.png` (65.249 bayt, sol üst saat: 20:58):** ✅ Uygulama kapatılmadan Ayarlar > Eklentiler > Nuvio Addon'ları > WioSpor sayfasına gidilmiş ve "WioSpor Canlı" anahtarı kapatılmış (`checked="false"`, sönük gri/solda), "Birdirbir IPTV" anahtarı ise açık (`checked="true"`, mor/sağda) bırakılmıştır.  
+   ![WioSpor Canlı Anahtarı Kapalı](kanit_2_anahtar_kapali.png)
+3. **(c) `kanit_3_ana_sayfa_kapali.png` (47.613 bayt, sol üst saat: 20:58):** ✅ Uygulama kapatılmadan ve önbellek temizlenmeden hemen Ana Sayfaya dönüldüğünde "WioSpor Canlı" rafının anında kalktığı, yalnızca açık bırakılan "Birdirbir IPTV" rafının kaldığı görülmektedir.  
+   ![Kapatma Sonrası Ana Sayfada Tek Raf](kanit_3_ana_sayfa_kapali.png)
+4. **(d) `kanit_4_ana_sayfa_acik.png` (63.825 bayt, sol üst saat: 20:59):** ✅ Ayarlar'a dönülüp "WioSpor Canlı" anahtarı tekrar açıldıktan sonra Ana Sayfaya dönüldüğünde "WioSpor Canlı" rafının anında geri geldiği ve her iki rafın yeniden görüntülendiği kanıtlanmıştır.  
+   ![Açma Sonrası Ana Sayfada İki Raf](kanit_4_ana_sayfa_acik.png)
 5. **(e) `category_open.png` (97.934 bayt):** Addon detay sayfasında katalog satırına dokunulduğunda açılan içerik/kanal ızgarası (`ProviderCategoryScreen`) kanıtlandı.  
    ![Katalog Kategorisi Açılışı](category_open.png)
 
@@ -70,7 +70,6 @@ Yeniden derlenen release APK (`Play-1.1.7.apk`) ile 4 film sırayla test edilmi�
 10-23 20:31:52.384 D PlayMatch: kaynak başlatılıyor: Dragon (s31.images5733.shop)
 10-23 20:31:53.358 D PlayMatch: ilk kare: Dragon (faz=Starting)
 10-23 20:31:53.390 D PlayMatch: süre kontrolü kaynak=Dragon (s31.images5733.shop) süre=228.3 dk beklenen=228 dk tür=Movie -> Ok
-// 90.0 saniye kesintisiz izlendi, sıfır takılma kaydedildi.
 ```
 
 **Dune (2021):**
@@ -80,7 +79,6 @@ Yeniden derlenen release APK (`Play-1.1.7.apk`) ile 4 film sırayla test edilmi�
 10-23 20:34:51.227 D PlayMatch: kaynak başlatılıyor: Dragon (dizisol.com)
 10-23 20:34:53.609 D PlayMatch: ilk kare: Dragon (faz=Starting)
 10-23 20:34:53.641 D PlayMatch: süre kontrolü kaynak=Dragon (dizisol.com) süre=155.4 dk beklenen=155 dk tür=Movie -> Ok
-// 90.0 saniye kesintisiz izlendi, sıfır takılma kaydedildi.
 ```
 
 **Joker (2019):**
@@ -88,7 +86,6 @@ Yeniden derlenen release APK (`Play-1.1.7.apk`) ile 4 film sırayla test edilmi�
 10-23 20:36:41.732 D PlayMatch: kaynak başlatılıyor: Garling (s24.imagecdn9065.shop)
 10-23 20:36:42.527 D PlayMatch: ilk kare: Garling (faz=Starting)
 10-23 20:36:42.558 D PlayMatch: süre kontrolü kaynak=Garling (s24.imagecdn9065.shop) süre=121.8 dk beklenen=122 dk tür=Movie -> Ok
-// 90.0 saniye kesintisiz izlendi, sıfır takılma kaydedildi.
 ```
 
 ---
