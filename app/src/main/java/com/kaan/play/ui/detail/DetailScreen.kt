@@ -157,17 +157,17 @@ internal fun DetailContent(
     episodes: Loadable<List<Episode>>,
     twoPane: Boolean,
     screenHeight: Dp,
+    isSeries: Boolean = detail.summary.type == MediaType.Tv,
     onToggleFavorite: () -> Unit,
     onSelectSeason: (Int) -> Unit,
     onRetryEpisodes: () -> Unit,
     onPlay: (Int?, Int?) -> Unit,
 ) {
     val media = detail.summary
-    val isSeries = media.type == MediaType.Tv
     // Kumanda: başlangıç odağı ana işte (film: Oynat, dizi: sezon seçici).
     val primaryFocus = rememberInitialFocus()
     val header: @Composable (Dp) -> Unit = { padding ->
-        HeaderBlock(detail, isFavorite, selectedSeason, primaryFocus, padding, onToggleFavorite, onSelectSeason, onPlay)
+        HeaderBlock(detail, isFavorite, selectedSeason, primaryFocus, padding, isSeries, onToggleFavorite, onSelectSeason, onPlay)
     }
 
     if (twoPane) {
@@ -219,6 +219,7 @@ private fun HeaderBlock(
     selectedSeason: Int?,
     primaryFocus: FocusRequester,
     horizontalPadding: Dp,
+    isSeries: Boolean = detail.summary.type == MediaType.Tv,
     onToggleFavorite: () -> Unit,
     onSelectSeason: (Int) -> Unit,
     onPlay: (Int?, Int?) -> Unit,
@@ -230,7 +231,7 @@ private fun HeaderBlock(
             Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (media.type == MediaType.Tv) {
+            if (isSeries) {
                 SeasonPicker(
                     seasons = detail.seasons,
                     selected = selectedSeason,

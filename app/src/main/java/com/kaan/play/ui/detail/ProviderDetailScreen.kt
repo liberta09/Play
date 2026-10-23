@@ -205,8 +205,8 @@ fun ProviderDetailScreen(
                     val resp = PlayJson.decodeFromString(StremioMetaDetailResponse.serializer(), jsonText)
                     val meta = resp.meta ?: return@withContext ProviderDetailUiState.Error(R.string.provider_error_meta_not_found)
 
-                    val isLive = meta.type.lowercase() in listOf("tv", "channel") || meta.videos.isEmpty()
-                    val isSeries = !isLive && meta.type.lowercase() == "series"
+                    val isLive = ProviderDetailRules.isLive(meta.type, meta.videos.size)
+                    val isSeries = ProviderDetailRules.isSeries(meta.type, meta.videos.size)
                     val episodes: List<ProviderEpisodeItem> = if (isSeries) {
                         meta.videos.map { v ->
                             ProviderEpisodeItem(
@@ -445,6 +445,7 @@ fun ProviderDetailScreen(
                     episodes = Loadable.Ready(currentEpisodes),
                     twoPane = layout.twoPane,
                     screenHeight = layout.heightDp.dp,
+                    isSeries = s.isSeries,
                     onToggleFavorite = { /* Favori */ },
                     onSelectSeason = { sNum -> selectedSeason = sNum },
                     onRetryEpisodes = { refreshKey++ },
