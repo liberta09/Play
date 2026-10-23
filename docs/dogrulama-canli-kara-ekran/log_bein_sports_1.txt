@@ -1,4 +1,4 @@
---------- beginning of main
+﻿--------- beginning of main
 10-23 23:01:21.271 10032 10032 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 524 342 
 10-23 23:01:21.271 10032 10032 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
 10-23 23:01:21.272 10032 10032 E cutils-trace: Error opening trace file: No such file or directory (2)
@@ -147,18 +147,18 @@
 10-23 23:01:23.847  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
 10-23 23:01:23.847  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
 10-23 23:01:23.847  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
-10-23 23:01:23.940  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (204.52.191.82)
+10-23 23:01:23.940  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (<sunucu>)
 10-23 23:01:23.945  1433 10065 I /system/bin/netd: gethostby*.getanswer: asked for "opensubtitles-v3.strem.io IN A", got type "RRSIG"
-10-23 23:01:24.119  9144  9240 D PlayProbe: kaynak yoklama: host=204.52.191.82 durum=456 type=text/html; charset=UTF-8 uzunluk=null
-10-23 23:01:24.123  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (204.52.191.82)
-10-23 23:01:24.128  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (204.52.191.82)
+10-23 23:01:24.119  9144  9240 D PlayProbe: kaynak yoklama: host=<sunucu> durum=456 type=text/html; charset=UTF-8 uzunluk=null
+10-23 23:01:24.123  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (<sunucu>)
+10-23 23:01:24.128  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (<sunucu>)
 10-23 23:01:24.207  9144  9144 D PlaySubs: kaynak=OpenSubtitles içerik=birdirbir_74fa9db65e773e309e0f sonuç=0 diller={}
-10-23 23:01:24.242  9144  9240 D PlayProbe: kaynak yoklama: host=204.52.191.82 durum=460 type=text/html; charset=UTF-8 uzunluk=null
-10-23 23:01:24.243  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (204.52.191.82)
-10-23 23:01:24.248  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (204.52.191.82)
-10-23 23:01:24.835  9144  9240 D PlayProbe: kaynak yoklama: host=204.52.191.82 durum=200 type=video/mp2t uzunluk=null
-10-23 23:01:25.012  9144  9144 D PlayStreamUrl: oynatılıyor http(s)://204.52.191.82/... mime=?
-10-23 23:01:25.012  9144  9144 D PlayTorrent: oynatıcıya veriliyor: kaynak=WioSpor http(s)://204.52.191.82/... torrent=false fileIdx=null başlıklar=[] mime=null
+10-23 23:01:24.242  9144  9240 D PlayProbe: kaynak yoklama: host=<sunucu> durum=460 type=text/html; charset=UTF-8 uzunluk=null
+10-23 23:01:24.243  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (<sunucu>)
+10-23 23:01:24.248  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (<sunucu>)
+10-23 23:01:24.835  9144  9240 D PlayProbe: kaynak yoklama: host=<sunucu> durum=200 type=video/mp2t uzunluk=null
+10-23 23:01:25.012  9144  9144 D PlayStreamUrl: oynatılıyor <sunucu> mime=?
+10-23 23:01:25.012  9144  9144 D PlayTorrent: oynatıcıya veriliyor: kaynak=WioSpor <sunucu> torrent=false fileIdx=null başlıklar=[] mime=null
 10-23 23:01:25.942  9144 10068 I OMXClient: IOmx service obtained
 10-23 23:01:25.942  1480  1480 I OMXMaster: makeComponentInstance(OMX.google.h264.decoder) in omx@1.0-service process
 10-23 23:01:25.943  1480  1480 D LDDec   : createSoftOMXComponent OMX.google.h264.decoder

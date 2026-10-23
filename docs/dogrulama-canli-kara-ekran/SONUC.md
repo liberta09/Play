@@ -9,8 +9,8 @@
 
 ## 1. Teşhis ve Kök Neden (Kanıtlı)
 
-1. WioSpor akış manifestinde en üstte yer alan gerçek adaptif HLS yayınları (`PatronHD`, `VİONTV` vb.) `BEIN SPORTS 1 • Auto` başlığıyla geldiği için (`resolution = null`), Play'in `SourceRanking` algoritması çözünürlüğü açıkça `1080p` yazan IPTV linkini (`204.52.191.82:80`) listenin en önüne almıştır.
-2. Bu IPTV sunucusu (`204.52.191.82:80`), doğrudan yetkisiz HTTP GET isteklerine gerçek yayın akışı yerine HTTP 206 ile tam **14.472.616 baytlık (14 MB)** ve sonlu süreli (**9 dakika 59 saniye / 10.0 dk**) sabit bir kara ekran / engel `.ts` video dosyası döndürmektedir.
+1. WioSpor akış manifestinde en üstte yer alan gerçek adaptif HLS yayınları (`PatronHD`, `VİONTV` vb.) `BEIN SPORTS 1 • Auto` başlığıyla geldiği için (`resolution = null`), Play'in `SourceRanking` algoritması çözünürlüğü açıkça `1080p` yazan IPTV linkini (`<sunucu>`) listenin en önüne almıştır.
+2. Bu IPTV sunucusu (`<sunucu>`), doğrudan yetkisiz HTTP GET isteklerine gerçek yayın akışı yerine HTTP 206 ile tam **14.472.616 baytlık (14 MB)** ve sonlu süreli (**9 dakika 59 saniye / 10.0 dk**) sabit bir kara ekran / engel `.ts` video dosyası döndürmektedir.
 3. Play canlı yayında dosya boyutu ve sonlu süre tutarsızlığını denetlemediği için bu 14 MB'lık dosyayı geçerli bir yayın saymış; üst çubuğa "14 MB" yazdırmış ve `OMX.google.h264.decoder` bu siyah videonun ilk karesini çizip `onRenderedFirstFrame` gönderince oynatıcı yayını açılmış kabul ederek kullanıcıyı 9:59 süreli kara ekranda bırakmıştır.
 
 ---
@@ -90,7 +90,7 @@ Tüm ekran görüntüleri Android `screencap` ile çekilmiş, `adb pull` ile al�
 
 ### Mor Spor 1
 ```
-D PlayTorrent: oynatıcıya veriliyor: kaynak=WioSpor http(s)://...
+D PlayTorrent: oynatıcıya veriliyor: kaynak=WioSpor <sunucu>
 I OMXClient: IOmx service obtained
 I OMXMaster: makeComponentInstance(OMX.google.h264.decoder) in omx@1.0-service process
 I OMXMaster: makeComponentInstance(OMX.google.aac.decoder) in omx@1.0-service process
@@ -99,7 +99,7 @@ D MediaCodec: [OMX.google.h264.decoder] setting dataspace on output surface to #
 
 ### beIN Sports 1 (Birdirbir IPTV)
 ```
-D PlayTorrent: oynatıcıya veriliyor: kaynak=WioSpor http(s)://204.52.191.82/...
+D PlayTorrent: oynatıcıya veriliyor: kaynak=WioSpor <sunucu>
 I OMXMaster: makeComponentInstance(OMX.google.h264.decoder) in omx@1.0-service process
 I OMXMaster: makeComponentInstance(OMX.google.aac.decoder) in omx@1.0-service process
 D MediaCodec: [OMX.google.h264.decoder] setting dataspace on output surface to #104
@@ -124,6 +124,28 @@ D PlayMatch: takılma-ayrıntı kaynak=Enel bitHızı=2.75 Mbps bantTahmini=1.49
 
 ---
 
-## 6. Sonuç
+## 6. Bölüm A — Kilit Simgesi Zamanlama ve Görünürlük Doğrulaması
 
-WioSpor canlı kanallarındaki kara ekran sorununun kök nedeni (IPTV sunucusunun 14 MB / 9:59 süreli sahte yer tutucu video döndürmesi ve `SourceRanking`'in çözünürlüğü belirsiz gerçek HLS akışlarını bu sahte linkin arkasına itmesi) tam olarak giderilmiştir. Canlı yayınlarda boyut gösterimi kaldırılmış, sahte sonlu süreli dosyaların elenmesi sağlanmış ve donanım çözücü yedeği devreye alınmıştır. Tüm canlı kanallar gerçek video kareleriyle oynatılmış, film regresyon testleri de başarıyla tamamlanmıştır.
+Kilit simgesinin film boyunca sürekli ekranda kalma sorunu giderildi; Android'den bağımsız `LockHintState` sınıfı ve 3000 ms zamanlama mantığı eklendi. LDPlayer 9'da Joker (2019) filmi üzerinde 4 aşamalı doğrulama başarıyla tamamlandı:
+
+1. **`kilit_1_hemen.png` (507.4 KB):**  
+   Oynatıcıda "Kilitle" düğmesine basıldığında kilit açma simgesinin sol orta kenarda hemen belirdiğini ve kontrollerin gizlendiğini gösteren ekran görüntüsü.
+   ![Kilit Hemen](kilit_1_hemen.png)
+
+2. **`kilit_2_5sn_sonra.png` (525.4 KB):**  
+   Kilitlendikten sonra 5 saniye beklendiğinde kilit açma simgesinin yumuşak geçişle kaybolduğunu ve ekranda yalnızca filmin kaldığını gösteren ekran görüntüsü.
+   ![Kilit 5 Saniye Sonra](kilit_2_5sn_sonra.png)
+
+3. **`kilit_3_dokununca.png` (595.8 KB):**  
+   Simge gizliyken ekrana bir kez dokunulduğunda kilit açma simgesinin 3 saniyeliğine geri geldiğini ve kilidin henüz açılmadığını gösteren ekran görüntüsü.
+   ![Kilit Dokununca](kilit_3_dokununca.png)
+
+4. **`kilit_4_acildi.png` (548.1 KB):**  
+   Görünür durumdaki kilit açma simgesine dokunulduğunda kilidin başarıyla açıldığını ve oynatıcı kontrollerinin (üst çubuk, oynat/duraklat, alt eylemler) geri geldiğini gösteren ekran görüntüsü.
+   ![Kilit Açıldı](kilit_4_acildi.png)
+
+---
+
+## 7. Sonuç
+
+WioSpor canlı kanallarındaki kara ekran sorununun kök nedeni (IPTV sunucusunun 14 MB / 9:59 süreli sahte yer tutucu video döndürmesi ve `SourceRanking`'in çözünürlüğü belirsiz gerçek HLS akışlarını bu sahte linkin arkasına itmesi) tam olarak giderilmiştir. Canlı yayınlarda boyut gösterimi kaldırılmış, sahte sonlu süreli dosyaların elenmesi sağlanmış ve donanım çözücü yedeği devreye alınmıştır. Bölüm A kapsamında kilit simgesinin otomatik kaybolması ve dokunma/kumanda kontrolleri uygulanmış, LDPlayer üzerinde tüm ekran görüntüleriyle kanıtlanmıştır. Tüm canlı kanallar gerçek video kareleriyle oynatılmış, film regresyon testleri de başarıyla tamamlanmıştır.
