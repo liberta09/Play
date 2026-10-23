@@ -697,6 +697,8 @@ private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier
         is SourceNotice.SwitchFailed -> R.string.player_switch_failed to notice.detail
         is SourceNotice.Skipped -> R.string.player_source_skipped to notice.detail
         SourceNotice.Mismatch -> R.string.player_source_mismatch to "content"
+        SourceNotice.StallSwitched -> R.string.player_stall_switched to null
+        SourceNotice.ManualSlow -> R.string.player_manual_slow to null
     }
     Column(
         modifier = modifier
@@ -708,7 +710,7 @@ private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier
         Text(stringResource(message), style = MaterialTheme.typography.bodyMedium, color = Color.White, textAlign = TextAlign.Center)
         if (PlayerNoticeLogic.shouldShowDetail(isDebug, detail)) {
             Text(
-                stringResource(R.string.player_error_detail, detail),
+                stringResource(R.string.player_error_detail, detail.orEmpty()),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.White.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center,

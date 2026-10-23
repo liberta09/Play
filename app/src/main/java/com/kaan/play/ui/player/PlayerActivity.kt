@@ -40,7 +40,9 @@ import com.kaan.play.data.subtitle.TrackLoader
 import com.kaan.play.ui.theme.PlayTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -105,10 +107,15 @@ class PlayerActivity : AppCompatActivity() {
         val offline = session.offline
         // Torrent motoru bu oynatıcı kapanana dek açık kalır (kapanınca geçici dosyalar silinir).
         container.torrentEngine.retain()
+        val bigBuffer = if (BuildConfig.DEBUG) {
+            PlayerNoticeLogic.testForceStall = intent.getBooleanExtra("test_force_stall", PlayerNoticeLogic.testForceStall)
+            intent.getBooleanExtra("test_big_buffer", PlayerNoticeLogic.testBigBuffer)
+        } else false
         controller = PlaybackController(
             this, container.httpClient,
             offlineCache = offline?.let { container.downloads.cache },
             torrentUrl = container.torrentServer::urlFor,
+            bigBuffer = bigBuffer,
         )
         controller.player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -210,9 +217,38 @@ class PlayerActivity : AppCompatActivity() {
                 },
             )
             coordinator = sources
-            controller.onFirstFrame = { sources.onFirstFrame() }
+            controller.onFirstFrame = {
+                sources.onFirstFrame()
+                if (BuildConfig.DEBUG && PlayerNoticeLogic.testForceStall) {
+                    PlayerNoticeLogic.testForceStall = false
+                    lifecycleScope.launch {
+                        delay(5_000L)
+                        if (!leaving && session.offline == null && coordinator?.phase == SourcePhase.Playing) {
+                            coordinator?.forceStallForTest(11_000L)
+                        }
+                    }
+                }
+            }
             controller.onDurationKnown = { sources.onDuration(it) }
             controller.onFailure = { detail -> leaving || sources.onFailure(detail) }
+            // Arabelleğe alma sırasında takılma analizi (500 ms aralıkla)
+            lifecycleScope.launch {
+                snapshotFlow { controller.ui.buffering }
+                    .collectLatest { buffering ->
+                        if (!buffering || leaving || session.offline != null) return@collectLatest
+                        while (isActive) {
+                            delay(500)
+                            val coord = coordinator ?: break
+                            val tracker = controller.stallTracker
+                            coord.checkStall(
+                                firstFrameRendered = tracker.firstFrameRendered,
+                                isSeeking = tracker.isSeeking,
+                                currentStallStartMs = tracker.currentStallStartMs,
+                                pastStalls = tracker.pastStalls,
+                            )
+                        }
+                    }
+            }
             // Torrent açılınca dosya boyutu panelde ve üst çubukta görünsün.
             container.torrentServer.onOpened = { magnet, size ->
                 runOnUiThread { sources.reportSize(magnet, size) }

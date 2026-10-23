@@ -79,6 +79,7 @@ data class RankContext(
     val preference: SourcePref? = null,
     /** Dosya boyutları (adres → bayt): eklentinin verdiğine ek olarak sonradan bulunanlar (HEAD, torrent üst bilgisi). */
     val sizes: Map<String, Long> = emptyMap(),
+    val isSlowHost: (String) -> Boolean = { false },
 )
 
 /**
@@ -114,6 +115,7 @@ object SourceRanking {
         val comparator = compareBy<PlayableStream>(
             { if (isTooHeavy(it, ctx)) 1 else 0 },
             { if (ctx.preferDub && !it.dubbed) 1 else 0 },
+            { if (ctx.isSlowHost(it.url)) 1 else 0 },
             { if (matchesPreference(it, ctx.preference)) 0 else 1 },
             { if (TorrentLinks.isMagnet(it.url)) 1 else 0 },
             { resolutionTier(it) },

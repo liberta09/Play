@@ -38,6 +38,15 @@ class PlaybackStallTracker(
         private set
 
     private var bufferingStartMs: Long? = null
+    private val _pastStalls = mutableListOf<StallInterval>()
+
+    val currentStallStartMs: Long?
+        get() = bufferingStartMs
+
+    val pastStalls: List<StallInterval>
+        get() = _pastStalls.toList()
+
+    fun now(): Long = clock()
     private var lastPlayStartMs: Long? = null
     private var isPlaying: Boolean = false
 
@@ -50,6 +59,7 @@ class PlaybackStallTracker(
         totalStallMs = 0L
         totalPlayMs = 0L
         bufferingStartMs = null
+        _pastStalls.clear()
         lastPlayStartMs = null
         isPlaying = false
     }
@@ -74,6 +84,8 @@ class PlaybackStallTracker(
             bufferingStartMs?.let { start ->
                 val duration = (now - start).coerceAtLeast(0L)
                 totalStallMs += duration
+                _pastStalls += StallInterval(start, now)
+                _pastStalls.removeAll { it.endMs < now - StallPolicy.STALL_WINDOW_MS }
             }
             isBuffering = false
             bufferingStartMs = null
@@ -84,20 +96,24 @@ class PlaybackStallTracker(
         isSeeking = false
     }
 
-    fun onPlaybackStateChanged(buffering: Boolean, isReady: Boolean) {
+    fun onPlaybackStateChanged(buffering: Boolean, isReady: Boolean): Boolean {
         val now = clock()
+        var stallStarted = false
         if (buffering) {
             // Yalnızca ilk kare geldikten sonra VE kullanıcı sarma yapmıyorken takılma sayılır
             if (firstFrameRendered && !isSeeking && !isBuffering) {
                 isBuffering = true
                 bufferingStartMs = now
                 stallCount++
+                stallStarted = true
             }
         } else {
             if (isBuffering) {
                 bufferingStartMs?.let { start ->
                     val duration = (now - start).coerceAtLeast(0L)
                     totalStallMs += duration
+                    _pastStalls += StallInterval(start, now)
+                    _pastStalls.removeAll { it.endMs < now - StallPolicy.STALL_WINDOW_MS }
                 }
                 isBuffering = false
                 bufferingStartMs = null
@@ -106,6 +122,7 @@ class PlaybackStallTracker(
                 isSeeking = false
             }
         }
+        return stallStarted
     }
 
     fun onIsPlayingChanged(playing: Boolean) {
@@ -127,7 +144,9 @@ class PlaybackStallTracker(
         val now = clock()
         if (isBuffering) {
             bufferingStartMs?.let { start ->
-                totalStallMs += (now - start).coerceAtLeast(0L)
+                val duration = (now - start).coerceAtLeast(0L)
+                totalStallMs += duration
+                _pastStalls += StallInterval(start, now)
             }
             isBuffering = false
             bufferingStartMs = null
@@ -143,5 +162,32 @@ class PlaybackStallTracker(
         val stallSec = String.format(Locale.ROOT, "%.1f", totalStallMs / 1000.0)
         val playMin = (totalPlayMs / 60_000L).coerceAtLeast(0L)
         return "takılma kaynak=$sourceName sayı=$stallCount toplam=$stallSec sn oynama=$playMin dk"
+    }
+
+    companion object {
+        /**
+         * Takılma anındaki veya oynatıcı kapanışındaki ayrıntı satırını biçimlendirir.
+         * Biçim: "takılma-ayrıntı kaynak=<ad> bitHızı=X Mbps bantTahmini=Y Mbps tampon=Z sn"
+         */
+        fun formatStallDetail(
+            sourceName: String,
+            videoBitrate: Int?,
+            bandwidthEstimate: Long?,
+            bufferedPositionMs: Long,
+            currentPositionMs: Long,
+        ): String {
+            val bitHizi = if (videoBitrate != null && videoBitrate > 0) {
+                String.format(Locale.ROOT, "%.2f Mbps", videoBitrate / 1_000_000.0)
+            } else {
+                "bilinmiyor"
+            }
+            val bantTahmini = if (bandwidthEstimate != null && bandwidthEstimate > 0L) {
+                String.format(Locale.ROOT, "%.2f Mbps", bandwidthEstimate / 1_000_000.0)
+            } else {
+                "bilinmiyor"
+            }
+            val tamponSec = String.format(Locale.ROOT, "%.1f sn", (bufferedPositionMs - currentPositionMs).coerceAtLeast(0L) / 1000.0)
+            return "takılma-ayrıntı kaynak=$sourceName bitHızı=$bitHizi bantTahmini=$bantTahmini tampon=$tamponSec"
+        }
     }
 }
