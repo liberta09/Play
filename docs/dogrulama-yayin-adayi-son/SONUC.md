@@ -77,14 +77,8 @@ Nuvio Plugin deposundan (43 kazıyıcı) sağlanan film kaynakları üzerinde ya
 `docs/` altındaki belgeler ve `README.md` taranarak üçüncü taraf eklenti/depo manifest URL'leri `<eklenti adresi>` yer tutucusu ile değiştirildi. Uygulama koduna, test sabitlerine ve sistem adreslerine dokunulmadı.
 
 ### Değiştirilen Dosyalar ve Değişiklik Sayıları
-1. **`README.md` (4 yer):**
-   - `https://altyazidb.online/manifest.json` (2 yer)
-   - `https://subpool-diavelin.vercel.app/abc123/manifest.json` (1 yer)
-   - `https://play-nuvio-zel-katalog-st-dyosu.ai.studio/manifest.json` (1 yer)
-2. **`docs/dogrulama-beta/SONUC.md` (2 yer):**
-   - `https://izlelan.com/manifest.json` (2 yer)
-3. **`docs/dogrulama-yayin-adayi-1-1-6/SONUC.md` (2 yer):**
-   - `https://raw.githubusercontent.com/Wiojelt/Nuvio-Addons/live/wiospor/manifest.json` (1 yer)
-   - `https://izlelan.com/manifest.json` (1 yer)
+1. **`README.md`:** 4 yer değiştirildi
+2. **`docs/dogrulama-beta/SONUC.md`:** 2 yer değiştirildi
+3. **`docs/dogrulama-yayin-adayi-1-1-6/SONUC.md`:** 2 yer değiştirildi
 
-**Toplam:** 3 dosyada 8 adet manifest URL'si temizlendi.
+**Toplam:** 3 dosyada 8 yer değiştirildi.

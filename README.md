@@ -271,7 +271,7 @@ Play'in altyazı sistemi addon tabanlıdır; tek istisna yerleşik çevrimiçi a
 | Addon | Adres | Diller | Notlar |
 |---|---|---|---|
 | **AltyaziDB Subtitles** | `<eklenti adresi>` | Türkçe | Yapılandırma gerekmez; `tt` ve `tmdb` öneki; doğrudan eklenebilir. Altyazı kaynağı: altyazidb.com. |
-| **SubPool by Diavelin** | `https://subpool-diavelin.vercel.app/configure` → kişisel URL | 105+ dil | Yapılandırma gerekir (özgür kaynaklar API anahtarsız; OpenSubtitles/SubDL isteğe bağlı API anahtarı); Türkçe için AltyazıDB ve AniSub dahil; ZIP/RAR açar, windows-1254 bozukluklarını düzeltir. Configure sayfasından kişisel manifest URL'si alınır. |
+| **SubPool by Diavelin** | `<eklenti adresi>` → kişisel URL | 105+ dil | Yapılandırma gerekir (özgür kaynaklar API anahtarsız; OpenSubtitles/SubDL isteğe bağlı API anahtarı); Türkçe için AltyazıDB ve AniSub dahil; ZIP/RAR açar, windows-1254 bozukluklarını düzeltir. Configure sayfasından kişisel manifest URL'si alınır. |
 | **Subtitle Translator** | `https://translatoraddon.duckdns.org/configure` → kişisel URL | Çok dilli (AI çeviri) | OpenSubtitles v3 (API anahtarsız); seçilen hedef dile otomatik AI çevirisi (OpenRouter veya Cursor; ücretli). Stremio ve NuvioTV uyumlu olduğu belirtilmiştir. |
 
 **Kurulum adımları (AltyaziDB örneği — yapılandırma gerektirmez):**
