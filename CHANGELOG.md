@@ -1,18 +1,22 @@
 # Changelog / Değişiklik günlüğü
 
-## Yayınlanmamış / Unreleased
+## [1.1.6] — 2026-10-23
 
 ### Türkçe
-- **Yanlış film oynama düzeltmesi:** Bir kaynağın hangi içerik olduğu doğrulanmadan oynatılmaz. Video süresi içeriğin TMDB süresiyle bağdaşmıyorsa (ör. 3 saatlik film yerine 33 dakikalık dizi bölümü) kaynak kullanıcıya gösterilmeden atlanır; hiç doğrulanmış kaynak kalmazsa "kaynak bulunamadı" denir.
-- **CloudStream eşleştirmesi:** Başlığa ek olarak yıl, özgün/alternatif başlık ve yüklenen sayfanın adı/yılı/kimliği denetlenir; aynı adlı farklı yıllı filmler, devam filmleri ("Bölüm Üç", Part 2) ve başka sezonun bölümü artık karışmaz.
-- **Eklenti akış biçimi:** Adresi uzantısız HLS veren eklentiler (ör. Dragon, Imu) artık açılır (eklentinin `format` alanı okunur).
-- Kaynak değişince eski kaynağın altyazısı seçili kalmaz; kaynak değişiminde hata durumunda yedek kaynağa geçiş düzeltildi.
+- **Yeni eklenti depolarında eklentiler açık gelir:** Eklenen yeni CloudStream ve Nuvio eklenti depolarındaki eklentiler varsayılan olarak açık duruma gelir.
+- **Türkçe dublaj açılış beklemesi 8 sn:** Türkçe dublaj önceliği seçildiğinde eklentilerin yanıt vermesi için açılış beklemesi 8 saniyeye çıkarıldı (dublajlı kaynak geldiğinde beklemeden anında başlar).
+- **Yedeğe geçişte dublaj bekleme:** Kaynak hatasında sonraki adaya geçilirken dublajlı kaynak için bekleme ve geçiş akışı iyileştirildi.
+- **CloudStream eklenti hatalarında anlaşılır mesaj ve kendini onarma:** Eklenti hatalarında anlaşılır mesaj gösterilir ve eklenti kendini onarır; release derlemelerinde teknik hata satırı gizlenir.
+- **İnce ilerleme çubuğu:** Oynatıcı arayüzünde daha zarif ve modern ince ilerleme çubuğu tasarımı.
+- **Yanlış/sahte kaynak eleme:** İçeriğin TMDB çalışma süresi ve meta verileriyle uyuşmayan sahte/yanlış video kaynakları elenir.
 
 ### English
-- **Wrong-movie fix:** A source is never played before its content is verified. If the video length does not fit the TMDB runtime (e.g. a 33-minute episode instead of a 3-hour film) the source is skipped without being shown; if no verified source is left the "no sources" screen appears.
-- **CloudStream matching:** Year, original/alternative titles and the loaded page's name/year/ids are checked in addition to the title; same-named films of different years, sequels ("Part Three") and episodes of another season no longer get mixed up.
-- **Plugin stream format:** Plugins that return extension-less HLS URLs (e.g. Dragon, Imu) now open (the plugin's `format` field is honored).
-- A previous source's own subtitle no longer stays selected after a source switch; fallback to the next source after a switch was fixed.
+- **Plugins enabled by default in new repositories:** Newly added CloudStream and Nuvio plugin repositories now have their plugins enabled by default.
+- **Turkish dub opening wait 8s:** Opening wait time increased to 8 seconds when Turkish dub is preferred to allow plugins to respond (starts immediately when a dubbed stream arrives).
+- **Dubbed source wait on fallback:** Improved dub waiting and candidate selection flow when falling back after a stream error.
+- **Clear CloudStream plugin error messages and self-healing:** Understandable error notices and automatic recovery on plugin failures; technical error details hidden in release builds.
+- **Thin progress bar:** Elegant, modern thin progress bar design in the video player.
+- **Elimination of wrong/fake sources:** Video sources that fail to match TMDB runtime or metadata are eliminated.
 
 ## [1.1.5] — 2026-10-22
 
