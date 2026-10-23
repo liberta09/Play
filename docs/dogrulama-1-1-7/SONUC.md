@@ -106,6 +106,6 @@ Yeniden derlenen release APK (`Play-1.1.7.apk`) ile 4 film sırayla test edilmi�
 - **Birim Testleri:** 957 test çalıştırıldı ve tamamı geçti (`957 passed`).
 - **Release APK:** `Play-1.1.7.apk` (`app/build/outputs/apk/release/Play-1.1.7.apk`)
 - **APK Boyutu:** 48.026.244 bayt (~45,80 MB)
-- **APK SHA-256:** `979c4dab3ff963a76f5f6f9e6579e7f3ffac9ece113d2080de6adb68b75d695c`
+- **APK SHA-256:** `c27d17b4aec79dcfd7eb11c8c58c118591d473e3cc2e78f0b522f3968e4ce503`
 - **İmza Sertifikası SHA-256:** `5c7cd2bd91946586d125e59a848544f7db10b42ab0c0d3d6dd30c5b8c4e9f44f`
 - **Ekran Görüntüleri:** Klasörde tam 8 adet görüntü yer almakta olup tümü < 600 KB sınırına uygundur.
