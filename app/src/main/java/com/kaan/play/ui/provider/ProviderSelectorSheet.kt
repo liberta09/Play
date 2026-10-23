@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -96,6 +97,7 @@ fun ProviderSelectorSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        sheetGesturesEnabled = false,
         containerColor = MaterialTheme.colorScheme.surface,
         dragHandle = if (inputMode == InputMode.Touch) {
             { BottomSheetDefaults.DragHandle() }
@@ -105,6 +107,7 @@ fun ProviderSelectorSheet(
     ) {
         Column(
             modifier = Modifier
+                .fillMaxHeight(0.92f)
                 .navigationBarsPadding()
                 .padding(bottom = 16.dp),
         ) {
@@ -223,7 +226,7 @@ fun ProviderSelectorSheet(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 260.dp, max = 460.dp),
+                        .weight(1f),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {

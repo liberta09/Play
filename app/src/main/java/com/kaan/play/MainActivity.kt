@@ -52,6 +52,9 @@ class MainActivity : AppCompatActivity() {
             if (intent.hasExtra("test_force_notice")) {
                 PlayerNoticeLogic.forceNoticeForTest = intent.getBooleanExtra("test_force_notice", false)
             }
+            if (intent.hasExtra("test_many_providers")) {
+                testManyProviders = intent.getBooleanExtra("test_many_providers", false)
+            }
         }
         if (BuildConfig.DEBUG) {
             // Duman testi: oynatıcıyı test videosuyla doğrudan aç (geçmişe yazılmaz). --es play_test_video <adres>
@@ -157,5 +160,8 @@ class MainActivity : AppCompatActivity() {
                 container.deepLinks.handle(uri.scheme, uri.host, repo, nuvio, nuvioPlugin)
             }
         }
+    }
+    companion object {
+        var testManyProviders: Boolean = false
     }
 }

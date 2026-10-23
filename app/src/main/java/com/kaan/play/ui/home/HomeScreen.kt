@@ -38,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import com.kaan.play.BuildConfig
+import com.kaan.play.MainActivity
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -183,7 +185,18 @@ fun HomeScreen(
 
         if (showProviderSelector) {
             ProviderSelectorSheet(
-                providers = allProviders,
+                providers = if (BuildConfig.DEBUG && MainActivity.testManyProviders) {
+                    allProviders + (1..60).map {
+                        ProviderItem(
+                            id = "cs:fake_$it",
+                            name = "Test Sağlayıcı #$it",
+                            subtitle = "CloudStream · Test Repo",
+                            kind = com.kaan.play.data.provider.ProviderKind.CloudStream,
+                        )
+                    }
+                } else {
+                    allProviders
+                },
                 selectedIds = selectedProviders,
                 // Uygulama kapsamında yazılır: seçici kapanırken ya da ekran değişirken yazma iptal olmasın.
                 onSelectSingle = { id ->
