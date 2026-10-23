@@ -43,7 +43,7 @@ data class AddonManifest(
 
     /** Film/dizi akışı sunuyor mu? Yalnızca altyazı veren addon'lar kaynak listesinde ve "kaynak var mı" denetiminde sayılmaz. */
     val providesStreams: Boolean
-        get() = servesPlayableType(STREAM)
+        get() = servesPlayableType(STREAM) || servesLiveType(STREAM)
 
     /** Katalog sunuyor mu? */
     val providesCatalogs: Boolean
@@ -64,12 +64,17 @@ data class AddonManifest(
     internal fun servesPlayableType(resource: String): Boolean =
         resources.filter { it.name == resource }.any { r -> (r.types ?: types).any { it in PLAYABLE_TYPES } }
 
+    /** [resource] kaynağı canlı TV/kanal için bildirilmiş mi? */
+    internal fun servesLiveType(resource: String): Boolean =
+        resources.filter { it.name == resource }.any { r -> (r.types ?: types).any { it in LIVE_TYPES } }
+
     companion object {
         const val STREAM = "stream"
         const val SUBTITLES = "subtitles"
         const val CATALOG = "catalog"
         const val META = "meta"
         private val PLAYABLE_TYPES = setOf("movie", "series")
+        private val LIVE_TYPES = setOf("tv", "channel")
     }
 }
 

@@ -1,0 +1,861 @@
+--------- beginning of main
+10-23 23:15:48.459 11558 11558 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 476 302 
+10-23 23:15:48.459 11558 11558 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-23 23:15:48.460 11558 11558 E cutils-trace: Error opening trace file: No such file or directory (2)
+10-23 23:15:48.467 11558 11558 V libnb   : enter native_bridge2_isCompatibleWith 3
+10-23 23:15:48.473 11558 11558 I libnb   : Found /system/lib64/libhoudini.so version 3
+10-23 23:15:48.485 11558 11558 I app_process: The ClassLoaderContext is a special shared library.
+10-23 23:15:48.486 11558 11558 W app_process: Could not create mount namespace.
+10-23 23:15:48.486 11558 11558 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+10-23 23:15:48.486 11558 11558 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+10-23 23:15:48.486 11558 11558 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+10-23 23:15:48.486 11558 11558 D nativebridge: call UnloadNativeBridge! state=2
+10-23 23:15:48.492 11558 11558 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-23 23:15:48.494 11558 11558 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=476.0, y[0]=302.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=5760963, downTime=5760963, deviceId=3, source=0x1002 }
+10-23 23:15:48.502 11558 11558 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=476.0, y[0]=302.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=5760963, downTime=5760963, deviceId=3, source=0x1002 }
+10-23 23:15:48.511  1440  2578 D audio_hw_hal: raw_start_output_stream, stream=0xf624c000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+10-23 23:15:48.512 11558 11558 D AndroidRuntime: Shutting down VM
+--------- beginning of system
+10-23 23:15:48.516  1595  4472 I ActivityManager: START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10187
+10-23 23:15:48.519 11569 11569 I ldinit  : type=1400 audit(0.0:2496): avc: denied { execute } for name="sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-23 23:15:48.519 11569 11569 I ldinit  : type=1400 audit(0.0:2497): avc: denied { read open } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-23 23:15:48.519 11569 11569 I ldinit  : type=1400 audit(0.0:2498): avc: denied { execute_no_trans } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-23 23:15:48.519 11569 11569 I sh      : type=1400 audit(0.0:2499): avc: denied { getattr } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-23 23:15:48.519 11569 11569 I sh      : type=1400 audit(0.0:2500): avc: denied { read } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-23 23:15:48.519 11569 11569 I sh      : type=1400 audit(0.0:2501): avc: denied { execute_no_trans } for path="/system/bin/am" dev="sda2" ino=1703 scontext=u:r:ldinit:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+10-23 23:15:48.519 11569 11569 I sh      : type=1400 audit(0.0:2502): avc: denied { execute } for name="sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-23 23:15:48.519 11569 11569 I sh      : type=1400 audit(0.0:2503): avc: denied { open } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-23 23:15:48.521  2290  2290 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:45 android.app.ActivityThread.handleReceiver:3424 
+10-23 23:15:48.522  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.android.ld.appstore -f 32 --es package com.kaan.play --es pos pc
+10-23 23:15:48.522  1460  1460 D ldinit  : result:
+10-23 23:15:48.526 11570 11570 I cmd     : type=1400 audit(0.0:2504): avc: denied { call } for scontext=u:r:ldinit:s0 tcontext=u:r:servicemanager:s0 tclass=binder permissive=1
+10-23 23:15:48.531  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+10-23 23:15:48.533  3673 10822 I AppStartReceiver: onReceive, action = com.ldmnq.APP_FOREGROUND, extras = Bundle[{package=com.kaan.play, pos=pc}]
+10-23 23:15:48.534  9144  9144 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@92e812e
+10-23 23:15:48.554  1460  1460 D ldinit  : Broadcast completed: result=0
+10-23 23:15:48.555  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.ldmnq.launcher3 -f 32 --es package com.kaan.play --es pos pc
+10-23 23:15:48.555  1460  1460 D ldinit  : result:
+10-23 23:15:48.561  9144  9144 I ExoPlayerImpl: Init 85e768c [AndroidXMedia3/1.11.1] [star2qltechn, SM-X710N, samsung, 28]
+10-23 23:15:48.562  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+10-23 23:15:48.562  2371 11036 D AppStartReceiver: action = com.ldmnq.APP_FOREGROUND, packageName = com.kaan.play, pos = pc
+10-23 23:15:48.564  9144  9144 D PlaySubs: videonun içindeki altyazılar: []
+10-23 23:15:48.564  9144  9144 D PlaySubs: seçim: kapalı
+10-23 23:15:48.565  1460  1460 D ldinit  : Broadcast completed: result=0
+10-23 23:15:48.571  2290  2290 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+10-23 23:15:48.614  9144  9150 I com.kaan.play: Compiler allocated 4MB to compile void android.widget.TextView.<init>(android.content.Context, android.util.AttributeSet, int, int)
+10-23 23:15:48.640  9144  9182 E EGL_emulation: tid 9182: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+10-23 23:15:48.640  9144  9182 W OpenGLRenderer: Failed to set EGL_SWAP_BEHAVIOR on surface 0x76387357f180, error=EGL_BAD_MATCH
+10-23 23:15:48.689  9144 10701 D PlayCs  : streams: 0 açık CS eklentisi
+10-23 23:15:48.706  9144  9144 D PlayPlugin: Ace: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:48.707  2290  2290 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+10-23 23:15:48.707  9144  9144 D PlayPlugin: Dragon: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:48.709  9144  9144 D PlayPlugin: Beckman: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:48.709  9144  9144 D PlayPlugin: Clover: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:48.710  9144  9144 D PlayPlugin: Doflamingo: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:48.716  9144  9144 D PlayPlugin: Enel: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:48.716  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:15:48.716  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:15:48.716  9144  9144 I System.out: 
+10-23 23:15:48.716  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:15:48.716  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:15:48.716  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:15:48.716  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:15:48.722  9144 10705 D PlayPlugin: [log] [Ace] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:48.722  9144 10705 D PlayPlugin: [log] [Ace] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:15:48.725  9144 10701 D PlayPlugin: [log] [Dragon] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: -, Bölüm: - 
+10-23 23:15:48.734  9144 10626 D PlayPlugin: [log] [Beckman] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:48.736  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:15:48.736  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:15:48.736  9144  9144 I System.out: 
+10-23 23:15:48.736  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:15:48.736  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:15:48.736  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:15:48.736  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:15:48.738  1595  1602 W System  : A resource failed to call close. 
+10-23 23:15:48.738  1595  1602 I chatty  : uid=1000(system) FinalizerDaemon identical 10 lines
+10-23 23:15:48.738  1595  1602 W System  : A resource failed to call close. 
+10-23 23:15:48.742  9144 10705 D PlayPlugin: [log] [Clover] Tarama Başlatıldı -> TMDB: 438631, Tür: movie 
+10-23 23:15:48.743  1595  1602 W System  : A resource failed to call close. 
+10-23 23:15:48.743  1595  1602 I chatty  : uid=1000(system) FinalizerDaemon identical 21 lines
+10-23 23:15:48.743  1595  1602 W System  : A resource failed to call close. 
+10-23 23:15:48.744  9144 10701 D PlayPlugin: [log] [Doflamingo] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:48.745  9144 10701 D PlayPlugin: [log] [Doflamingo] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:15:48.757  9144 10699 D PlayPlugin: [log] [Enel] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:48.757  9144 10699 D PlayPlugin: [log] [Enel] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:15:48.758  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:15:48.758  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:15:48.758  9144  9144 I System.out: 
+10-23 23:15:48.758  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:15:48.758  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:15:48.758  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:15:48.758  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:15:48.763  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:15:48.763  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:15:48.763  9144  9144 I System.out: 
+10-23 23:15:48.763  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:15:48.763  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:15:48.763  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:15:48.763  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:15:48.780  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:15:48.780  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:15:48.780  9144  9144 I System.out: 
+10-23 23:15:48.780  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:15:48.780  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:15:48.780  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:15:48.780  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:15:48.796  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:15:48.796  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:15:48.796  9144  9144 I System.out: 
+10-23 23:15:48.796  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:15:48.796  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:15:48.796  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:15:48.796  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:15:48.813  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:15:48.813  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:15:48.813  9144  9144 I System.out: 
+10-23 23:15:48.813  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:15:48.813  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:15:48.813  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:15:48.813  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:15:48.830  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:15:48.830  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:15:48.830  9144  9144 I System.out: 
+10-23 23:15:48.830  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:15:48.830  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:15:48.830  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:15:48.830  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:15:48.846  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:15:48.846  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:15:48.846  9144  9144 I System.out: 
+10-23 23:15:48.846  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:15:48.846  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:15:48.846  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:15:48.846  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:15:48.862  1433 11583 I /system/bin/netd: gethostby*.getanswer: asked for "opensubtitles-v3.strem.io IN A", got type "RRSIG"
+10-23 23:15:48.863  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:15:48.863  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:15:48.863  9144  9144 I System.out: 
+10-23 23:15:48.863  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:15:48.863  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:15:48.863  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:15:48.863  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:15:48.866  1433 11588 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 23:15:48.866  1433 11598 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 23:15:48.866  1433 11596 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 23:15:48.866  1433 11585 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 23:15:48.873  9144  9144 D PlaySubs: kaynak=AltyazıDB içerik=tt1160419 sonuç=5 diller={tr=5}
+10-23 23:15:48.874  9144  9144 D PlaySubs: seçim: Source AltyazıDB dil=tr
+10-23 23:15:48.883  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:15:48.883  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:15:48.883  9144  9144 I System.out: 
+10-23 23:15:48.883  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:15:48.883  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:15:48.883  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:15:48.883  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:15:48.897  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:15:48.897  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:15:48.897  9144  9144 I System.out: 
+10-23 23:15:48.897  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:15:48.897  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:15:48.897  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:15:48.897  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:15:49.007  9144 10699 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:49.008  9144 10699 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:49.008  9144 10699 D PlayPlugin: [log] [Clover] [Adım 1/4] Oynatıcı sayfasına bağlanılıyor: http(s)://japierdolevid.com/... 
+10-23 23:15:49.011  9144 10699 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:49.012  9144 10699 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:49.025  9144 10699 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:49.026  9144 10699 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:49.094  9144 10705 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:49.095  9144 10705 D PlayPlugin: [log] [Ace] [Adım 2/4] Kesin IMDb araması yapılıyor (tt1160419)... 
+10-23 23:15:49.095  9144 10625 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:49.101  9144 10625 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:49.106  9144 10701 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=125703 charset=UTF-8
+10-23 23:15:49.110  9144  9144 D PlaySubs: kaynak=OpenSubtitles içerik=tt1160419 sonuç=9 diller={tr=4, en=5}
+10-23 23:15:49.115  9144 10701 D PlayPlugin: [log] [Beckman] [Adım 1/3] Arama yapılıyor (Dune: Çöl Gezegeni, Dune, DUNE／デューン 砂の惑星, デューン) 
+10-23 23:15:49.168  9144 10699 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:49.169  9144 10699 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:49.169  9144 10699 D PlayPlugin: [log] [Dragon] [Adım 1/4] TMDB ID (438631) ile API sorgulanıyor... 
+10-23 23:15:49.247  9144  9144 D PlaySubs: yüklendi tür=Source kaynak=AltyazıDB dil=tr satır=1230 kodlama=UTF-8 önbellek=false
+10-23 23:15:49.265  9144 10701 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:49.266  9144 10699 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:49.266  9144 10699 D PlayPlugin: [log] [Enel] [Adım 2/4] Kaynakta kesin IMDb araması yapılıyor (tt1160419)... 
+10-23 23:15:49.390  9144 10699 D PlayPluginNet: dizisol.com GET -> 200 ctype=application/json len=5753 charset=UTF-8
+10-23 23:15:49.391  9144 10699 D PlayPlugin: [log] [Dragon]  İçerik Doğrulandı: "Dune" (2021) - Kayıt ID: 101158 
+10-23 23:15:49.392  9144 10699 D PlayPlugin: [log] [Dragon] [Adım 2/3] Toplam 6 potansiyel akış paralel çözümleniyor... 
+10-23 23:15:49.517  9144 10699 D PlayPluginNet: api.sonanime.com GET -> 200 ctype=application/json len=2 charset=UTF-8
+10-23 23:15:49.575  9144 10699 D PlayPluginNet: arc018.stream GET -> 200 ctype=text/html len=160891 charset=UTF-8
+10-23 23:15:49.587  9144 10699 D PlayPlugin: [log] [Ace]  İçerik bulundu (Film) 
+10-23 23:15:49.587  9144 10699 D PlayPlugin: [log] [Ace] [Adım 3/4] Oynatıcı sayfası taranıyor... 
+10-23 23:15:49.619  9144 10699 D PlayPluginNet: s12.dizisol.com GET -> 200 ctype=application/vnd.apple.mpegurl len=1422 charset=UTF-8
+10-23 23:15:49.648  9144 10699 D PlayPluginNet: selcukflix.app POST -> 200 ctype=application/json len=1575 charset=UTF-8
+10-23 23:15:49.650  9144 10699 D PlayPlugin: [log] [Enel] İçerik bulundu: "Dune" 
+10-23 23:15:49.650  9144 10699 D PlayPlugin: [log] [Enel] [Adım 3/4] İçerik detayları alınıyor (Film)... 
+10-23 23:15:49.657  9144 10705 D PlayPluginNet: api.sonanime.com GET -> 200 ctype=application/json len=2 charset=UTF-8
+10-23 23:15:49.708  9144 10705 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:49.708  9144 10705 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:49.708  9144 10705 D PlayPlugin: [log] [Doflamingo] [Adım 2/4] Kaynakta kesin IMDb araması yapılıyor (tt1160419)... 
+10-23 23:15:49.731  9144 10705 D PlayPluginNet: dizisol.com GET -> 200 ctype=application/vnd.apple.mpegurl len=3694 charset=UTF-8
+10-23 23:15:49.756  9144 10705 D PlayPluginNet: arc018.stream GET -> 200 ctype=text/html len=143265 charset=UTF-8
+10-23 23:15:49.876  9144 10705 D PlayPluginNet: api.sonanime.com GET -> 200 ctype=application/json len=2 charset=UTF-8
+10-23 23:15:49.887  9144 10699 D PlayPluginNet: arc018.stream POST -> 200 ctype=application/json len=304 charset=UTF-8
+10-23 23:15:49.887  9144 10699 D PlayPlugin: [log] [Ace] [Adım 4/4] Video akışı çözümleniyor (2 sunucu)... 
+10-23 23:15:49.997  9144  9244 D PlayPluginNet: asyawatch.com POST -> 200 ctype=application/json len=195 charset=UTF-8
+10-23 23:15:50.082  9144 10705 D PlayPluginNet: api.sonanime.com GET -> 200 ctype=application/json len=2 charset=UTF-8
+10-23 23:15:50.095  9144 10705 D PlayPluginNet: dizisol.com POST -> 502 ctype=application/json len=865 charset=UTF-8
+10-23 23:15:50.117  9144 10699 D PlayPluginNet: selcukflix.app GET -> 200 ctype=text/html len=279946 charset=UTF-8
+10-23 23:15:50.165  9144 10626 D PlayPluginNet: asyawatch.com POST -> 200 ctype=application/json len=195 charset=UTF-8
+10-23 23:15:50.166  9144 10626 D PlayPlugin: [warn] [Doflamingo] Kaynakta tt1160419 ile eşleşen içerik bulunamadı. 
+10-23 23:15:50.167  9144  9144 D PlayPlugin: Fujitora: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:50.176  9144 10626 D PlayPlugin: [log] [Fujitora] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:50.176  9144 10626 D PlayPlugin: [log] [Fujitora] [Adım 1/4] TMDB başlıkları sorgulanıyor (438631)... 
+10-23 23:15:50.231  9144 10699 D PlayPlugin: [log] [Enel] Oynatıcı kaynağı çözümleniyor... 
+10-23 23:15:50.245  9144 10699 D PlayPluginNet: kaembed.net GET -> 200 ctype=text/html len=43290 charset=UTF-8
+10-23 23:15:50.287  9144 10699 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=125703 charset=UTF-8
+10-23 23:15:50.399  9144 10699 D PlayPluginNet: s1.dizisol.com GET -> 500 ctype=application/json len=74 charset=UTF-8
+10-23 23:15:50.470  9144 10699 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:50.471  9144 10699 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:50.471  9144 10699 D PlayPlugin: [log] [Fujitora] İçerik animasyon/anime değil, atlandı. 
+10-23 23:15:50.472  9144  9144 D PlayPlugin: Gaban: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:50.480  9144  9244 D PlayPlugin: [log] [Gaban] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:50.480  9144  9244 D PlayPlugin: [log] [Gaban] [Adım 1/3] IMDb ID çözümleniyor (438631)... 
+10-23 23:15:50.541  9144 10699 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:50.545  9144 10699 D PlayPluginNet: qqqcdn.cloud GET -> 200 ctype=application/json len=1267 charset=UTF-8
+10-23 23:15:50.588  9144 10701 D PlayPluginNet: four.pichive.online GET -> 200 ctype=text/html len=281511 charset=UTF-8
+10-23 23:15:50.705  9144 10626 D PlayPluginNet: api.sonanime.com GET -> 200 ctype=application/json len=2 charset=UTF-8
+10-23 23:15:50.731  9144 10626 D PlayPluginNet: four.pichive.online GET -> 200 ctype=application/json len=2506 charset=UTF-8
+10-23 23:15:50.762  9144 10626 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:50.762  9144 10626 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:50.762  9144 10626 D PlayPlugin: [log] [Gaban] [Adım 2/3] API sorgulanıyor... 
+10-23 23:15:50.839  9144 10699 D PlayPluginNet: api.sonanime.com GET -> 200 ctype=application/json len=2 charset=UTF-8
+10-23 23:15:50.840  9144 10699 D PlayPlugin: [warn] [Beckman] SonAnime üzerinde içerik bulunamadı: 438631 
+10-23 23:15:50.845  9144  9144 D PlayPlugin: Garp: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:50.854  9144 10699 D PlayPlugin: [log] [Garp] Tarama Başlatıldı -> TMDB: 438631, Tür: movie 
+10-23 23:15:50.854  9144 10699 D PlayPlugin: [log] [Garp] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:15:50.855  9144  9244 D PlayPluginNet: japierdolevid.com GET -> 200 ctype=text/html len=19236 charset=UTF-8
+10-23 23:15:50.857  9144  9244 D PlayPlugin: [log] [Clover] [Adım 2/4] Güvenlik anahtarları çözümleniyor... 
+10-23 23:15:50.858  9144  9244 D PlayPlugin: [log] [Clover] [Adım 3/4] Sunucu zamanlama doğrulaması yapılıyor... 
+10-23 23:15:50.860  9144 10699 D PlayPluginNet: four.pichive.online GET -> 200 ctype=text/html len=7007 charset=UTF-8
+10-23 23:15:50.861  9144 10699 D PlayPlugin: [log] [Enel] [Adım 4/4] TAMAMLANDI: 1 adet akış hazırlandı (2.10s) [{"server":"Enel","kalite":"1080p • Dublaj / Altyazılı","title":"Dublaj / Altyazılı"}]
+10-23 23:15:50.863  9144  9144 D PlayPlugin: Enel: akış http(s)://four.pichive.online/...
+10-23 23:15:50.864  9144  9144 D PlayMatch: kaynak başlatılıyor: Enel (four.pichive.online)
+10-23 23:15:50.875  9144  9144 D PlayPlugin: Gorosei: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:50.883  9144 10626 D PlayPluginNet: prx-1316-ant.vmget.online GET -> 200 ctype=application/vnd.apple.mpegurl len=1171 charset=UTF-8
+10-23 23:15:50.884  9144 10626 D PlayPlugin: [log] [Ace] [Adım 4/4] TAMAMLANDI: 1 akış hazırlandı (2.16s) [{"title":"Orijinal","quality":"1080p • Orijinal","format":"m3u8"}]
+10-23 23:15:50.885  9144 10699 D PlayPlugin: [log] [Gorosei] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: undefined, Bölüm: undefined 
+10-23 23:15:50.885  9144  9144 D PlayPlugin: Ace: akış http(s)://prx-1316-ant.vmget.online/... s=1792786549 e=43200 v= srv=#0a4c49(len9) i=#f3e360(len3) sp=0 asn=47331
+10-23 23:15:50.886  9144  9144 D PlayPlugin: Hiriluk: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:50.895  9144 10701 D PlayPlugin: [log] [Hiriluk] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:50.895  9144 10701 D PlayPlugin: [log] [Hiriluk] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:15:50.897  1433 11623 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 23:15:50.907  9144 10701 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:50.952  9144 10701 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:51.079  9144 10701 D PlayPluginNet: streamdata.vaplayer.ru GET -> 200 ctype=application/json len=1754 charset=UTF-8
+10-23 23:15:51.080  9144 11103 D PlayPlugin: [log] [Gaban] [Adım 3/3] TAMAMLANDI: 1 akış hazırlandı (0.60s) [{"title":"Orijinal","quality":"1080p • Orijinal","format":"m3u8"}]
+10-23 23:15:51.081  9144  9144 D PlayPlugin: Gaban: akış http(s)://nicheauthorityengine.site/...
+10-23 23:15:51.081  9144  9144 D PlayPlugin: Imu: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:51.088  9144 11103 D PlayPlugin: [log] [Imu] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:51.120  9144 11103 D PlayProbe: kaynak yoklama: host=four.pichive.online durum=200 type=text/html;charset=UTF-8 uzunluk=null
+10-23 23:15:51.123  9144  9144 D PlayStreamUrl: oynatılıyor http(s)://four.pichive.online/... mime=application/x-mpegURL
+10-23 23:15:51.123  9144  9144 D PlayTorrent: oynatıcıya veriliyor: kaynak=Enel http(s)://four.pichive.online/... torrent=false fileIdx=null başlıklar=[Referer, Origin, User-Agent] mime=application/x-mpegURL
+10-23 23:15:51.127  9144  9144 D PlaySubs: seçim: kapalı
+10-23 23:15:51.153  9144 11103 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:51.161  9144 11103 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:51.161  9144 10704 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:51.162  9144 11103 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:51.162  9144 10704 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:51.162  9144 11103 D PlayPlugin: [log] [Gorosei] [Adım 1/3] Seed alınıyor (TMDB: 438631)... 
+10-23 23:15:51.162  9144 10704 D PlayPlugin: [log] [Hiriluk] [Adım 2/4] Kaynakta kesin IMDb araması yapılıyor (tt1160419) 
+10-23 23:15:51.188  9144 10701 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:51.189  9144 10701 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:51.189  9144 10701 D PlayPlugin: [log] [Garp] [Adım 2/4] Kesin IMDb araması yapılıyor (tt1160419)... 
+10-23 23:15:51.207  9144  9144 D PlaySubs: kaynak=AltyazıTR içerik=tt1160419 sonuç=0 diller={}
+10-23 23:15:51.396  9144 10701 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:51.397  9144 10701 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:51.397  9144 10701 D PlayPlugin: [log] [Imu] [Adım 2/3] Akış sunucusu kontrol ediliyor... 
+10-23 23:15:51.462  9144 10701 D PlayPluginNet: api.wecollege.net GET -> 200 ctype=application/json len=56 charset=UTF-8
+10-23 23:15:51.462  9144 10701 D PlayPlugin: [log] [Gorosei] [Adım 2/3] Kaynaklar sorgulanıyor... 
+10-23 23:15:51.593  1440  1568 D audio_hw_hal: log_func, out_standby
+10-23 23:15:51.593  1440  1568 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf624c000
+10-23 23:15:51.593  1440  1568 D audio_hw_hal: raw_close_output_stream, stream=0xf624c000,  success!
+10-23 23:15:51.616  9144 10701 D PlayPluginNet: api.wecollege.net GET -> 200 ctype=text/plain len=1482 charset=UTF-8
+10-23 23:15:51.619  9144 10626 D PlayPluginNet: api.wecollege.net GET -> 200 ctype=text/plain len=1327 charset=UTF-8
+10-23 23:15:51.634  9144 10626 D PlayPluginNet: api.wecollege.net GET -> 200 ctype=text/plain len=1319 charset=UTF-8
+10-23 23:15:51.647  9144 10626 D PlayPluginNet: ha.vixolity.com GET -> 200 ctype=application/x-mpegurl len=1186 charset=UTF-8
+10-23 23:15:51.648  9144 10626 D PlayPlugin: [log] [Imu] [Adım 3/3] Imu akışı hazır! (0.56s) {"dil":"Dublaj / Altyazılı"}
+10-23 23:15:51.649  9144  9144 D PlayPlugin: Imu: akış http(s)://ha.vixolity.com/...
+10-23 23:15:51.650  9144  9144 D PlayPlugin: Jinbe: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:51.662  9144 10626 D PlayPlugin: [log] [Jinbe] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:51.709  9144 10701 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:51.830  9144 10626 D PlayPluginNet: www.showbox.media GET -> 200 ctype=text/html len=232941 charset=UTF-8
+10-23 23:15:51.849  9144 10626 D PlayPlugin: [log] [Hiriluk]  İçerik eşleşti: "Dune" 
+10-23 23:15:51.979  9144 10626 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:51.980  9144 10626 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:51.980  9144 10626 D PlayPlugin: [log] [Jinbe] [Adım 1/4] Aktif sunucu havuzu alınıyor (http(s)://nxsha.space).../... 
+10-23 23:15:52.000  9144 11634 W PesReader: Unexpected start code prefix: 2162711
+10-23 23:15:52.131  9144 10626 D PlayPluginNet: api.wecollege.net GET -> 500 ctype=application/json len=270 charset=UTF-8
+10-23 23:15:52.161  9144 10626 D PlayPluginNet: www.showbox.media GET -> 200 ctype=text/html len=222558 charset=UTF-8
+10-23 23:15:52.174  9144 10626 D PlayPlugin: [log] [Hiriluk] [Adım 3/4] Paylaşım anahtarı alınıyor... 
+10-23 23:15:52.248  9144 10626 D PlayPluginNet: nxsha.space GET -> 200 ctype=application/json len=10892 charset=UTF-8
+10-23 23:15:52.253  9144 10626 D PlayPlugin: [log] [Jinbe] [Adım 2/4] 8 sunucu paralel taranıyor: [vixolity, k4khdhub, nitro, filmyfly, hdhub4u, rive-citadel, rive-primevids, bdxs]... 
+10-23 23:15:52.374  9144 10626 D PlayPluginNet: www.showbox.media GET -> 200 ctype=application/json len=86 charset=UTF-8
+10-23 23:15:52.375  9144 10626 D PlayPlugin: [log] [Hiriluk] [Adım 3/4] Film dosyası seçiliyor 
+10-23 23:15:52.376  1433 11641 I /system/bin/netd: gethostby*.getanswer: asked for "www.febbox.com IN A", got type "RRSIG"
+10-23 23:15:52.379  9144 11108 D PlayPluginNet: nxsha.space GET -> 200 ctype=application/json len=16546 charset=UTF-8
+10-23 23:15:52.414  9144 11108 D PlayPluginNet: nxsha.space GET -> 200 ctype=application/json len=13239 charset=UTF-8
+10-23 23:15:52.422  9144 10626 D PlayPluginNet: nxsha.space GET -> 200 ctype=application/json len=908 charset=UTF-8
+10-23 23:15:52.517  9144 11108 D PlayPluginNet: nxsha.space GET -> 200 ctype=application/json len=5580 charset=UTF-8
+10-23 23:15:52.556  9144 11636 W PesReader: Unexpected start code prefix: 2162711
+10-23 23:15:52.558  9144 11108 D PlayPluginNet: nxsha.space GET -> 200 ctype=application/json len=930 charset=UTF-8
+10-23 23:15:52.566  9144 11644 I OMXClient: IOmx service obtained
+10-23 23:15:52.566  1480  1480 I OMXMaster: makeComponentInstance(OMX.google.h264.decoder) in omx@1.0-service process
+10-23 23:15:52.567  1480  1480 D LDDec   : createSoftOMXComponent OMX.google.h264.decoder
+10-23 23:15:52.567  1480  1480 D LDDec   : LDDec init 0x0 1, 320
+10-23 23:15:52.567  9144 10626 D PlayPluginNet: nxsha.space GET -> 200 ctype=application/json len=183 charset=UTF-8
+10-23 23:15:52.568  9144 11643 D SurfaceUtils: connecting to surface 0x763873565010, reason connectToSurface
+10-23 23:15:52.568  9144 11643 I MediaCodec: [OMX.google.h264.decoder] setting surface generation to 9363467
+10-23 23:15:52.568  9144 11643 D SurfaceUtils: disconnecting from surface 0x763873565010, reason connectToSurface(reconnect)
+10-23 23:15:52.568  9144 11643 D SurfaceUtils: connecting to surface 0x763873565010, reason connectToSurface(reconnect)
+10-23 23:15:52.569  1480  1480 W OMXNodeInstance: [0xf562cae0:google.h264.decoder] component does not support metadata mode; using fallback
+10-23 23:15:52.569  9144 11644 E ACodec  : [OMX.google.h264.decoder] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+10-23 23:15:52.569  9144  9144 D PlaySubs: videonun içindeki altyazılar: [null]
+10-23 23:15:52.569  1480  1480 W OMXNodeInstance: [0xf562cae0:google.h264.decoder] component does not support metadata mode; using fallback
+10-23 23:15:52.569  1480  1480 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+10-23 23:15:52.570  1480  1480 E OMXNodeInstance: setConfig(0xf562cae0:google.h264.decoder, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+10-23 23:15:52.570  9144 11644 I ACodec  : codec does not support config priority (err -1010)
+10-23 23:15:52.570  1480  1480 E OMXNodeInstance: setConfig(0xf562cae0:google.h264.decoder, ConfigOperatingRate(0x6f800003)) ERROR: UnsupportedIndex(0x8000101a)
+10-23 23:15:52.570  9144 11644 I ACodec  : codec does not support config operating rate (err -1010)
+10-23 23:15:52.570  1480  1480 E OMXNodeInstance: getConfig(0xf562cae0:google.h264.decoder, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+10-23 23:15:52.570  1480  1480 E OMXNodeInstance: getConfig(0xf562cae0:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+10-23 23:15:52.575  1437  1437 W AshmemAllocator: ashmem_create_region(2315520) returning hidl_memory(0x76391702c100, 2315520)
+10-23 23:15:52.576  1480  1480 I le.h264.decoder: type=1400 audit(0.0:2525): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3078 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-23 23:15:52.578  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s expire 30 lines
+10-23 23:15:52.578  1437  1437 W AshmemAllocator: ashmem_create_region(2315520) returning hidl_memory(0x76391702c100, 2315520)
+10-23 23:15:52.580  1480 11645 D LDDec   : initDecoder OMX.google.h264.decoder init
+10-23 23:15:52.583  9144 11647 I OMXClient: IOmx service obtained
+10-23 23:15:52.583  1480  1480 I OMXMaster: makeComponentInstance(OMX.google.aac.decoder) in omx@1.0-service process
+10-23 23:15:52.583  1480 11645 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+10-23 23:15:52.584  1480  1480 E OMXNodeInstance: setConfig(0xf562cc00:google.aac.decoder, ConfigPriority(0x6f800002)) ERROR: Undefined(0x80001001)
+10-23 23:15:52.584  9144 11647 I ACodec  : codec does not support config priority (err -2147483648)
+10-23 23:15:52.584  1480  1480 E OMXNodeInstance: setConfig(0xf562cc00:google.aac.decoder, ConfigOperatingRate(0x6f800003)) ERROR: Undefined(0x80001001)
+10-23 23:15:52.584  9144 11647 I ACodec  : codec does not support config operating rate (err -2147483648)
+10-23 23:15:52.584  1480  1480 E OMXNodeInstance: getConfig(0xf562cc00:google.aac.decoder, ConfigAndroidVendorExtension(0x6f100004)) ERROR: Undefined(0x80001001)
+10-23 23:15:52.586  1437  1437 W AshmemAllocator: ashmem_create_region(8192) returning hidl_memory(0x76391702c100, 8192)
+10-23 23:15:52.586  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 2 lines
+10-23 23:15:52.586  1437  1437 W AshmemAllocator: ashmem_create_region(8192) returning hidl_memory(0x76391702c100, 8192)
+10-23 23:15:52.587  1437  1437 W AshmemAllocator: ashmem_create_region(32768) returning hidl_memory(0x76391702c100, 32768)
+10-23 23:15:52.587  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 2 lines
+10-23 23:15:52.587  1437  1437 W AshmemAllocator: ashmem_create_region(32768) returning hidl_memory(0x76391702c100, 32768)
+10-23 23:15:52.589  1480 11648 I SoftAAC2: Reconfiguring decoder: 0->48000 Hz, 0->2 channels
+10-23 23:15:52.589  1480  1782 E OMXNodeInstance: getConfig(0xf562cae0:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+10-23 23:15:52.590  1480  1480 E OMXNodeInstance: getConfig(0xf562cae0:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+10-23 23:15:52.590  1437  1437 W AshmemAllocator: ashmem_create_region(32768) returning hidl_memory(0x76391702c100, 32768)
+10-23 23:15:52.590  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 2 lines
+10-23 23:15:52.590  1437  1437 W AshmemAllocator: ashmem_create_region(32768) returning hidl_memory(0x76391702c100, 32768)
+10-23 23:15:52.593  9144 11643 D MediaCodec: [OMX.google.h264.decoder] setting dataspace on output surface to #104
+10-23 23:15:52.595  1461  3621 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000008) and output flags (00000002)
+10-23 23:15:52.595  1461  3621 D AudioFlinger: Client defaulted notificationFrames to 12000 for frameCount 24000
+10-23 23:15:52.602  1463  2599 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+10-23 23:15:52.614  9144 11643 I         : fastpipe: Connect success
+10-23 23:15:52.614  9144 11643 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=9144, tid=11643, this=0x7638734a3300
+10-23 23:15:52.615  9144 11643 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+10-23 23:15:52.617  9144 11108 D PlayPluginNet: japierdolevid.com POST -> 200 ctype=application/json len=51622 charset=UTF-8
+10-23 23:15:52.621  9144 10626 D PlayPlugin: [log] [Clover] [Adım 4/4] AES akış verileri çözümleniyor... 
+10-23 23:15:52.628  9144 11630 W PesReader: Unexpected start code prefix: 2162753
+10-23 23:15:52.629  9144 11643 D SoftwareRenderer: setting dataspace on output surface to #104
+10-23 23:15:52.630  9144 11108 D PlayPluginNet: www.febbox.com GET -> 200 ctype=application/json len=4710 charset=UTF-8
+10-23 23:15:52.630  9144  9144 D PlayMatch: ilk kare: Enel (faz=Starting)
+10-23 23:15:52.632  9144 11103 D PlayPlugin: [log] [Hiriluk] [Adım 4/4] Video oynatma bağlantıları çözümleniyor... 
+10-23 23:15:52.637  1440  2578 D audio_hw_hal: raw_start_output_stream, stream=0xf624c000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+10-23 23:15:52.637  1731  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-23 23:15:52.637  1731  2053 I chatty  : uid=1002(bluetooth) BluetoothAvrcpH identical 4 lines
+10-23 23:15:52.637  1731  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-23 23:15:52.658  9144 10626 D PlayPlugin: [log] [Clover] TAMAMLANDI: 1 akış hazırlandı (3.92s) [{"quality":"1080p • Dublaj / Altyazılı","title":"Dublaj / Altyazılı","format":"m3u8"}]
+10-23 23:15:52.667  9144  9144 D PlayMatch: süre kontrolü kaynak=Enel (four.pichive.online) süre=155.4 dk beklenen=155 dk tür=Movie -> Ok
+10-23 23:15:52.668  9144  9144 D PlayPlugin: Clover: akış http(s)://cdn2.blueflix.top/...
+10-23 23:15:52.672  9144  9144 D PlayPlugin: JoyBoy: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:52.680  9144 10626 D PlayPlugin: [log] [JoyBoy] Tarama Başlatıldı -> TMDB: 438631, Tür: movie 
+10-23 23:15:52.681  9144 10626 D PlayPlugin: [log] [JoyBoy] [Adım 1/4] IMDb ID doğrulanıyor (438631)... 
+10-23 23:15:52.687  1463  1685 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+10-23 23:15:52.738  1463  2599 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+10-23 23:15:52.746  9144 11103 D PlayPluginNet: nxsha.space GET -> 200 ctype=application/json len=3020 charset=UTF-8
+10-23 23:15:52.749  9144 11103 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:52.824  9144 11103 D PlayPluginNet: www.febbox.com POST -> 200 ctype=application/json len=32 charset=UTF-8
+10-23 23:15:52.825  9144 11103 D PlayPlugin: [warn] [Hiriluk] Oynatıcı kaynakları boş döndü. 
+10-23 23:15:52.827  9144  9144 D PlayPlugin: Kalgara: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:52.836  9144 11103 D PlayPlugin: [log] [Kalgara] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:52.836  9144 11103 D PlayPlugin: [log] [Kalgara] [Adım 1/4] TMDB bilgileri ve afiş hashleri alınıyor (438631)... 
+10-23 23:15:52.871  9144 11634 W PesReader: Unexpected start code prefix: 2162729
+10-23 23:15:53.066  9144 10625 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=182687 charset=UTF-8
+10-23 23:15:53.076  9144 11103 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:53.078  9144 11107 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:53.078  9144 11107 D PlayPlugin: [log] [JoyBoy] [Adım 2/4] Kaynak üzerinde saf IMDb ID ile aranıyor (tt1160419)... 
+10-23 23:15:53.152  9144 10701 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:53.154  9144 10701 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:53.154  9144 10701 D PlayPlugin: [log] [Kalgara] [Adım 2/4] Kaynak üzerinde afiş hash eşleştirmesi yapılıyor... 
+10-23 23:15:53.540  9144 11107 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=1399 charset=UTF-8
+10-23 23:15:53.550  9144 10701 D PlayPluginNet: moon.zenoak.top GET -> 200 ctype=application/vnd.apple.mpegurl len=238497 charset=UTF-8
+10-23 23:15:53.560  9144 10701 D PlayPlugin: [log] [Gorosei] [Adım 3/3] TAMAMLANDI: 1 HLS akışı hazırlandı (2.67s). Altyazı: 0 adet (Türkçe: Yok). [{"title":"Orijinal","quality":"4K • Orijinal","format":"m3u8"}]
+10-23 23:15:53.562  9144  9144 D PlayPlugin: Gorosei: akış http(s)://moon.zenoak.top/...
+10-23 23:15:53.563  9144  9144 D PlayPlugin: Katakuri: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:53.572  9144 10701 D PlayPlugin: [log] [Katakuri] Tarama Başlatıldı -> TMDB: 438631, Tür: movie 
+10-23 23:15:53.573  9144 10701 D PlayPlugin: [log] [Katakuri] [Adım 1/4] TMDB ve IMDb bilgileri çözümleniyor (438631)... 
+10-23 23:15:53.574  1433 11654 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 23:15:53.577  9144 10701 D PlayPluginNet: siyahfilmizle.vip POST -> 200 ctype=text/html len=1382 charset=UTF-8
+10-23 23:15:53.577  9144 10701 D PlayPlugin: [log] [Garp] Film bulundu: "tt1160419" 
+10-23 23:15:53.577  9144 10701 D PlayPlugin: [log] [Garp] [Adım 3/4] Video oynatıcı çözümleniyor... 
+10-23 23:15:53.701  9144 11103 D PlayPluginNet: www.hdfilmizle.best GET -> 200 ctype=text/html len=67885 charset=UTF-8
+10-23 23:15:53.705  9144 10701 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=182687 charset=UTF-8
+10-23 23:15:53.706  9144 11103 D PlayPlugin: [log] [JoyBoy] İçerik bulundu: "8.0 Dune: Çöl Gezegeni 2021 155 Dakika" 
+10-23 23:15:53.706  9144 11103 D PlayPlugin: [log] [JoyBoy] [Adım 3/4] Oynatıcı sayfası ve kimlik verileri alınıyor... 
+10-23 23:15:53.737  9144 10701 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=1369 charset=UTF-8
+10-23 23:15:53.844  9144 10701 D PlayPluginNet: www.hdfilmizle.best GET -> 200 ctype=text/html len=115210 charset=UTF-8
+10-23 23:15:53.853  9144 10701 D PlayPlugin: [log] [JoyBoy] [Adım 4/4] Video akış API'si çözümleniyor (Post ID: 5560)... 
+10-23 23:15:53.943  9144 10701 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=1453 charset=UTF-8
+10-23 23:15:54.008  9144 10701 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:54.008  9144 10701 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:54.008  9144 10701 D PlayPlugin: [log] [Katakuri] [Adım 2/4] Arama motoru oturumu açılıyor... 
+10-23 23:15:54.104  9144 10701 D PlayPluginNet: www.hdfilmizle.best POST -> 200 ctype=application/json len=12592 charset=UTF-8
+10-23 23:15:54.107  9144 10701 D PlayPlugin: [log] [JoyBoy] TAMAMLANDI: Tek akış (Dublaj / Altyazılı) ve 50 adet altyazı hazırlandı (1.43s) 
+10-23 23:15:54.109  9144  9144 D PlayPlugin: JoyBoy: akış http(s)://www.hdfilmizle.best/... lang=#7817bb(len2) e=#2865ff(len5) mr=0 _=1792786553
+10-23 23:15:54.112  9144  9144 D PlayPlugin: Kidd: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:54.123  9144 10701 D PlayPlugin: [log] [Kidd] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: -, Bölüm: - 
+10-23 23:15:54.123  9144 10701 D PlayPlugin: [log] [Kidd] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:15:54.153  9144 10701 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=117 charset=UTF-8
+10-23 23:15:54.185  9144 10701 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:54.337  9144  9244 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=156 charset=UTF-8
+10-23 23:15:54.399  9144  9244 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:54.400  9144  9244 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:54.400  9144  9244 D PlayPlugin: [log] [Kidd] [Adım 2/4] Doğrudan HTML araması yapılıyor (tt1160419)... 
+10-23 23:15:54.524  9144 10624 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=1447 charset=UTF-8
+10-23 23:15:54.629  9144 10624 D PlayPluginNet: filmmakinesi.to GET -> 200 ctype=text/html len=20829 charset=UTF-8
+10-23 23:15:54.631  9144 10624 D PlayPlugin: [log] [Kidd] İçerik bulundu: "tt1160419" 
+10-23 23:15:54.631  9144 10624 D PlayPlugin: [log] [Kidd] [Adım 3/4] Video oynatıcılar taranıyor... 
+10-23 23:15:54.693  9144 10624 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=161 charset=UTF-8
+10-23 23:15:54.730  9144 10624 D PlayPluginNet: filmmakinesi.to GET -> 200 ctype=text/html len=62827 charset=UTF-8
+10-23 23:15:54.735  9144 10624 D PlayPlugin: [warn] [Kidd] Geçerli video oynatıcı bağlantısı bulunamadı (fragman veya telifli). 
+10-23 23:15:54.736  9144  9144 D PlayPlugin: Kizaru: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:54.746  9144 10624 D PlayPlugin: [log] [Kizaru] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: -, Bölüm: - 
+10-23 23:15:54.818  9144 10624 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:54.878  9144 10626 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=1385 charset=UTF-8
+10-23 23:15:55.005  9144 10626 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:55.006  9144 10626 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:55.006  9144 10626 D PlayPlugin: [log] [Kizaru] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:15:55.006  9144 10626 D PlayPlugin: [log] [Kizaru] [Adım 2/4] Kesin IMDb araması yapılıyor (tt1160419)... 
+10-23 23:15:55.048  9144 10626 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=168 charset=UTF-8
+10-23 23:15:55.244  9144 10626 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=111 charset=UTF-8
+10-23 23:15:55.251  9144 10624 D PlayPluginNet: siyahfilmizle.vip GET -> 200 ctype=text/html len=86629 charset=UTF-8
+10-23 23:15:55.343  9144 10624 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1718 charset=UTF-8
+10-23 23:15:55.344  9144 10624 D PlayPlugin: [log] [Kizaru] [Doğrulama] İçerik bulundu 
+10-23 23:15:55.344  9144 10624 D PlayPlugin: [log] [Kizaru] [Adım 3/4] Oynatıcı sayfası yükleniyor... 
+10-23 23:15:55.419  9144 10624 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=78 charset=UTF-8
+10-23 23:15:55.427  9144 11634 W PesReader: Unexpected start code prefix: 2162745
+10-23 23:15:55.429  9144 10624 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=103019 charset=UTF-8
+10-23 23:15:55.438  9144 10624 D PlayPlugin: [warn] [Kizaru] Oynatıcı iframe adresi çıkarılamadı. 
+10-23 23:15:55.443  9144  9144 D PlayPlugin: Kuzan: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:55.451  9144 10625 D PlayPlugin: [log] [Kuzan] Tarama Başlatıldı -> TMDB: 438631, Tür: movie 
+10-23 23:15:55.451  9144 10625 D PlayPlugin: [log] [Kuzan] [Adım 1/4] IMDb ID doğrulanıyor (438631)... 
+10-23 23:15:55.510  9144 10624 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:55.613  9144 10699 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=840 charset=UTF-8
+10-23 23:15:55.643  9144 10624 D PlayPluginNet: www.youtube.com GET -> 200 ctype=text/html len=156520 charset=UTF-8
+10-23 23:15:55.653  9144 10699 D PlayPlugin: [warn] [Garp] Video akışı çözümlenemedi. 
+10-23 23:15:55.656  9144  9144 D PlayPlugin: Lili: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:55.664  9144 10699 D PlayPlugin: [log] [Lili] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:55.665  9144 10699 D PlayPlugin: [log] [Lili] [Adım 1/4] TMDB meta verileri ve poster/backdrop bilgisi alınıyor (438631)... 
+10-23 23:15:55.666  1433 11662 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 23:15:55.725  9144 10699 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:55.726  9144 10699 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:55.726  9144 10699 D PlayPlugin: [log] [Kuzan] [Adım 2/4] Kaynak üzerinde saf IMDb ID ile aranıyor (tt1160419)... 
+10-23 23:15:55.767  9144 10699 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=182687 charset=UTF-8
+10-23 23:15:55.801  9144 10699 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=101 charset=UTF-8
+10-23 23:15:55.985  9144 10699 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=469 charset=UTF-8
+10-23 23:15:55.991  9144 10699 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:55.992  9144 10699 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:55.992  9144 10699 D PlayPlugin: [log] [Lili] İçerik Animation/Animasyon türünde değil, atlanıyor. 
+10-23 23:15:55.995  9144  9144 D PlayPlugin: Mihawk: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:56.008  9144 10624 D PlayPlugin: [log] [Mihawk] Tarama Başlatıldı -> TMDB: 438631, Tür: movie 
+10-23 23:15:56.008  9144 10624 D PlayPlugin: [log] [Mihawk] [Adım 1/4] TMDB ve Oyuncu bilgileri çözümleniyor (438631)... 
+10-23 23:15:56.122  9144 10699 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=125703 charset=UTF-8
+10-23 23:15:56.167  9144 10699 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=106 charset=UTF-8
+10-23 23:15:56.303  9144 10705 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:56.304  9144 10705 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:56.304  9144 10705 D PlayPlugin: [log] [Mihawk] [Adım 2/4] Veritabanı taranıyor... 
+10-23 23:15:56.304  9144 10705 D PlayPlugin: [log] [Mihawk] Arama yapılıyor: "Dune Çöl Gezegeni"... 
+10-23 23:15:56.357  9144 10705 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=99 charset=UTF-8
+10-23 23:15:56.532  9144 10705 D PlayPluginNet: webdramaturkey2.com GET -> 200 ctype=application/json len=11 charset=UTF-8
+10-23 23:15:56.532  9144 10705 D PlayPlugin: [log] [Mihawk] Arama yapılıyor: "Çöl Gezegeni"... 
+10-23 23:15:56.557  9144 10705 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=1398 charset=UTF-8
+10-23 23:15:56.629  9144 10705 D PlayPluginNet: webdramaturkey2.com GET -> 200 ctype=application/json len=11 charset=UTF-8
+10-23 23:15:56.629  9144 10705 D PlayPlugin: [log] [Mihawk] Arama yapılıyor: "Dune"... 
+10-23 23:15:56.705  2290  2290 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+10-23 23:15:56.726  9144 10705 D PlayPluginNet: webdramaturkey2.com GET -> 200 ctype=application/json len=11 charset=UTF-8
+10-23 23:15:56.727  9144 10705 D PlayPlugin: [log] [Mihawk] Arama yapılıyor: "DUNE／デューン 砂の惑星"... 
+10-23 23:15:56.748  9144 10705 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=112 charset=UTF-8
+10-23 23:15:56.823  9144 10705 D PlayPluginNet: webdramaturkey2.com GET -> 200 ctype=application/json len=11 charset=UTF-8
+10-23 23:15:56.823  9144 10705 D PlayPlugin: [log] [Mihawk] Arama yapılıyor: "デューン"... 
+10-23 23:15:56.874  9144 11634 W PesReader: Unexpected start code prefix: 2162761
+10-23 23:15:56.919  9144 10699 D PlayPluginNet: webdramaturkey2.com GET -> 200 ctype=application/json len=11 charset=UTF-8
+10-23 23:15:56.920  9144 10699 D PlayPlugin: [log] [Mihawk] Arama yapılıyor: "デューン 砂の惑星"... 
+10-23 23:15:56.940  9144 10699 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=1386 charset=UTF-8
+10-23 23:15:57.013  9144 10699 D PlayPluginNet: webdramaturkey2.com GET -> 200 ctype=application/json len=11 charset=UTF-8
+10-23 23:15:57.013  9144 10699 D PlayPlugin: [log] [Mihawk] Arama yapılıyor: "DUNE デューン 砂の惑星"... 
+10-23 23:15:57.103  9144 10699 D PlayPluginNet: nxsha.space GET -> 200 ctype=application/json len=183 charset=UTF-8
+10-23 23:15:57.103  9144 10699 D PlayPlugin: [log] [Jinbe] [Adım 3/4] En yüksek kaliteler seçiliyor ve kopyalar ayıklanıyor... 
+10-23 23:15:57.110  9144 10699 D PlayPluginNet: webdramaturkey2.com GET -> 200 ctype=application/json len=11 charset=UTF-8
+10-23 23:15:57.111  9144 10699 D PlayPlugin: [log] [Mihawk] Arama yapılıyor: "デューン 砂の惑星PART1"... 
+10-23 23:15:57.136  9144 10699 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=100 charset=UTF-8
+10-23 23:15:57.168  9144 10699 D PlayPluginNet: filmizlehub.live GET -> 200 ctype=text/html len=45 charset=UTF-8
+10-23 23:15:57.169  9144 10699 D PlayPlugin: [warn] [Kuzan] "tt1160419" ile eşleşen film bulunamadı. 
+10-23 23:15:57.171  9144  9144 D PlayPlugin: Noland: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:57.184  9144 10699 D PlayPlugin: [log] [Noland] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: -, Bölüm: - 
+10-23 23:15:57.184  9144 10699 D PlayPlugin: [log] [Noland] [Adım 1/3] TMDB görsel bilgileri ve afiş hashleri hazırlanıyor (438631)... 
+10-23 23:15:57.205  9144 10699 D PlayPluginNet: webdramaturkey2.com GET -> 200 ctype=application/json len=11 charset=UTF-8
+10-23 23:15:57.206  9144 10699 D PlayPlugin: [log] [Mihawk] Arama yapılıyor: "Dune Part One"... 
+10-23 23:15:57.268  9144 10699 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=182687 charset=UTF-8
+10-23 23:15:57.301  9144 10699 D PlayPluginNet: webdramaturkey2.com GET -> 200 ctype=application/json len=11 charset=UTF-8
+10-23 23:15:57.301  9144 10699 D PlayPlugin: [log] [Mihawk] Arama yapılıyor: "Part One"... 
+10-23 23:15:57.313  9144 10699 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=126 charset=UTF-8
+10-23 23:15:57.343  9144 11634 W PesReader: Unexpected start code prefix: 2162777
+10-23 23:15:57.400  9144 10699 D PlayPluginNet: webdramaturkey2.com GET -> 200 ctype=application/json len=240 charset=UTF-8
+10-23 23:15:57.487  9144 10699 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:57.488  9144 10699 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:57.502  9144 10699 D PlayPlugin: [log] [Noland] [Adım 2/3] Katalogda aranıyor (Dune: Çöl Gezegeni, Dune, DUNE／デューン 砂の惑星)... [Hedef Hash Sayısı: 324] 
+10-23 23:15:57.509  9144 10699 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=153 charset=UTF-8
+10-23 23:15:57.530  9144 11103 D PlayPluginNet: webdramaturkey2.com GET -> 200 ctype=text/html len=147868 charset=UTF-8
+10-23 23:15:57.545  9144 11103 D PlayPlugin: [warn] [Mihawk] Eşleşen içerik bulunamadı veya doğrulama başarısız oldu (Oyuncu / Başlık eşleşmedi). 
+10-23 23:15:57.552  9144  9144 D PlayPlugin: Oden: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:57.567  9144 11103 D PlayPlugin: [log] [Oden] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:57.567  9144 11103 D PlayPlugin: [log] [Oden] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:15:57.637  9144 11108 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:57.687  9144 11103 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=117 charset=UTF-8
+10-23 23:15:57.844  9144 11103 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:57.846  9144 11103 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:57.847  9144 11103 D PlayPlugin: [log] [Oden] [Adım 2/4] Kaynakta kesin IMDb araması yapılıyor (tt1160419)... 
+10-23 23:15:57.851  9144 11108 D PlayPluginNet: dizi82.life GET -> 200 ctype=text/html len=66927 charset=UTF-8
+10-23 23:15:57.871  9144 11108 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=1572 charset=UTF-8
+10-23 23:15:57.874  9144 10701 D PlayPlugin: [log] [Noland] [Hash Eşleşmesi Doğrulandı!]: "Dune: Çöl Gezegeni" (Hash: 5196ceb0d119bc592114f8e11c73e400) 
+10-23 23:15:57.875  9144 10701 D PlayPlugin: [log] [Noland] [Adım 3/3] Oynatıcı sayfası açılıyor (http(s)://dizi82.life/... 
+10-23 23:15:58.048  9144 10625 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=162 charset=UTF-8
+10-23 23:15:58.131  9144 10625 D PlayPluginNet: dizi82.life GET -> 200 ctype=text/html len=80586 charset=UTF-8
+10-23 23:15:58.180  9144 11634 W PesReader: Unexpected start code prefix: 2162795
+10-23 23:15:58.215  9144 10625 D PlayPluginNet: dizibal.org GET -> 200 ctype=application/json len=85 charset=UTF-8
+10-23 23:15:58.219  9144 10625 D PlayPlugin: [warn] [Kalgara] Eşleşen içerik bulunamadı. 
+10-23 23:15:58.227  9144  9144 D PlayPlugin: Rayleigh: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:58.236  9144 11103 D PlayPlugin: [log] [Rayleigh] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:58.300  9144 11103 D PlayPluginNet: yabanci-dizi.now POST -> 200 ctype=application/json len=1682 charset=UTF-8
+10-23 23:15:58.302  9144 11103 D PlayPlugin: [log] [Oden] İçerik bulundu: "Dune" 
+10-23 23:15:58.302  9144 11103 D PlayPlugin: [log] [Oden] [Adım 3/4] İçerik detayları alınıyor (Film)... 
+10-23 23:15:58.710  9144 10625 D PlayPluginNet: dcdlc9f2bddfff97.xyz GET -> 200 ctype=text/html len=5837 charset=UTF-8
+10-23 23:15:58.880  9144 11103 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:58.882  9144 11103 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:58.882  9144 11103 D PlayPlugin: [log] [Rayleigh] [Adım 1/3] Metadata API sorgulanıyor... 
+10-23 23:15:58.917  9144 11103 D PlayPluginNet: pixel.hubcloud.ist GET -> 200 ctype=text/html len=18506 charset=UTF-8 redirect->cryptonewz.online
+10-23 23:15:59.071  9144 11103 D PlayPluginNet: one.makesomthingup.click GET -> 200 ctype=application/vnd.apple.mpegurl len=630 charset=UTF-8
+10-23 23:15:59.073  9144 11103 D PlayPlugin: [log] [Noland] [Adım 3/3] TAMAMLANDI: Akış başarıyla hazırlandı (1.89s) [{"server":"Noland","kalite":"1080p • Dublaj / Altyazılı","title":"Dublaj / Altyazılı"}]
+10-23 23:15:59.079  9144  9144 D PlayPlugin: Noland: akış http(s)://one.makesomthingup.click/...
+10-23 23:15:59.083  9144  9144 D PlayPlugin: Roger: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:59.100  9144 11103 D PlayPlugin: [log] [Roger] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:15:59.100  9144 11103 D PlayPlugin: [log] [Roger] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:15:59.101  1433 11677 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 23:15:59.166  9144 11103 D PlayPluginNet: vixsrc.to GET -> 200 ctype=application/json len=131 charset=UTF-8
+10-23 23:15:59.167  9144 11103 D PlayPlugin: [log] [Rayleigh] [Adım 2/3] Oynatıcı embed sayfası çözümleniyor... 
+10-23 23:15:59.194  9144 11103 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:15:59.322  9144 11103 D PlayPluginNet: vixsrc.to GET -> 200 ctype=text/html len=6592 charset=UTF-8
+10-23 23:15:59.323  9144 11634 W PesReader: Unexpected start code prefix: 2162811
+10-23 23:15:59.493  9144 11103 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:59.495  9144 10624 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:59.495  9144 10624 D PlayPlugin: [log] [Roger] [Adım 2/4] Kaynakta kesin IMDb araması yapılıyor (tt1160419)... 
+10-23 23:15:59.503  9144 10624 D PlayPluginNet: vixsrc.to GET -> 200 ctype=application/vnd.apple.mpegurl len=10329 charset=UTF-8
+10-23 23:15:59.504  9144 10624 D PlayPlugin: [log] [Rayleigh] [Adım 3/3] TAMAMLANDI: 1 stream hazırlandı (1.27s) [{"title":"Altyazılı","quality":"1080p","format":"m3u8"}]
+10-23 23:15:59.505  9144  9144 D PlayPlugin: Rayleigh: akış http(s)://vixsrc.to/... expires=1797970558 h=1
+10-23 23:15:59.506  9144  9144 D PlayPlugin: Rouge: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:15:59.517  9144 10701 D PlayPlugin: [log] [Rouge] Tarama Başlatıldı -> TMDB: 438631, Tür: Film 
+10-23 23:15:59.517  9144 10701 D PlayPlugin: [log] [Rouge] [Adım 1/4] TMDB meta verileri alınıyor (438631)... 
+10-23 23:15:59.597  9144 10701 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=125703 charset=UTF-8
+10-23 23:15:59.857  9144 10701 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:15:59.858  9144 10701 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:15:59.858  9144 10701 D PlayPlugin: [log] [Rouge] [Adım 2/4] Arama yapılıyor (Dune: Çöl Gezegeni | dune col gezegeni | Dune | DUNE／デューン 砂の惑星 | dune)... 
+10-23 23:15:59.871  9144 10701 D PlayPluginNet: roketdizi.life POST -> 200 ctype=application/json len=1689 charset=UTF-8
+10-23 23:15:59.872  9144 10701 D PlayPlugin: [log] [Roger] İçerik bulundu: "Dune" 
+10-23 23:15:59.872  9144 10701 D PlayPlugin: [log] [Roger] [Adım 3/4] İçerik detayları alınıyor (Film)... 
+10-23 23:16:00.001  1595  4472 W SchedPolicy: add_tid_to_cgroup failed to write '2371' (No space left on device); fd=24
+10-23 23:16:00.001  1595  4472 W SchedPolicy: add_tid_to_cgroup failed to write '2371' (No space left on device); fd=25
+10-23 23:16:00.212  9144 10701 D PlayPluginNet: roketdizi.life GET -> 200 ctype=text/html len=253814 charset=UTF-8
+10-23 23:16:00.268  9144 10701 D PlayPlugin: [log] [Roger] Oynatıcı kaynağı çözümleniyor... 
+10-23 23:16:00.397  9144 10701 D PlayPluginNet: www.dizidad.com GET -> 200 ctype=text/html len=41641 charset=UTF-8
+10-23 23:16:00.661  9144 10701 D PlayPluginNet: four.pichive.online GET -> 200 ctype=text/html len=281511 charset=UTF-8
+10-23 23:16:00.678  9144 10624 D PlayPluginNet: pixel.hubcloud.ist GET -> 200 ctype=text/html len=18506 charset=UTF-8 redirect->cryptonewz.online
+10-23 23:16:00.696  9144 10705 D PlayPluginNet: www.dizidad.com GET -> 200 ctype=text/html len=110820 charset=UTF-8
+10-23 23:16:00.802  9144 10705 D PlayPluginNet: four.pichive.online GET -> 200 ctype=application/json len=2506 charset=UTF-8
+10-23 23:16:00.921  9144 10705 D PlayPluginNet: four.pichive.online GET -> 200 ctype=text/html len=7007 charset=UTF-8
+10-23 23:16:00.923  9144 10705 D PlayPlugin: [log] [Roger] [Adım 4/4] TAMAMLANDI: 1 adet akış hazırlandı (1.82s) [{"server":"Roger","kalite":"1080p • Dublaj / Altyazılı","title":"Dublaj / Altyazılı"}]
+10-23 23:16:00.931  9144  9144 D PlayPlugin: Roger: akış http(s)://four.pichive.online/...
+10-23 23:16:00.933  9144  9144 D PlayPlugin: Ryuma: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:16:00.940  9144 10705 D PlayPlugin: [log] [Ryuma] Tarama Başlatıldı -> TMDB: 438631, Tür: movie 
+10-23 23:16:00.940  9144 10705 D PlayPlugin: [log] [Ryuma] [Adım 1/3] IMDb ID çözümleniyor (438631)... 
+10-23 23:16:00.984  9144 10705 D PlayPluginNet: www.dizidad.com GET -> 200 ctype=text/html len=111003 charset=UTF-8
+10-23 23:16:01.005  9144 10705 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:16:01.265  9144 10705 D PlayPluginNet: www.dizidad.com GET -> 200 ctype=text/html len=111430 charset=UTF-8
+10-23 23:16:01.272  9144 10705 D PlayPlugin: [log] [Rouge] [Doğrulama] %100 IMDb eşleşmesi sağlandı: tt1160419 === tt1160419 
+10-23 23:16:01.272  9144 10705 D PlayPlugin: [log] [Rouge] [Adım 3/4] Player akışı çözümleniyor... 
+10-23 23:16:01.328  9144 10705 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:16:01.329  9144 10705 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:16:01.329  9144 10705 D PlayPlugin: [log] [Ryuma] [Adım 2/3] Kaynakta kesin IMDb araması yapılıyor (tt1160419)... 
+10-23 23:16:01.495  9144 10705 D PlayPluginNet: www.dizidad.com GET -> 200 ctype=text/html len=111430 charset=UTF-8
+10-23 23:16:02.066  9144 10705 D PlayPluginNet: hdstreamable.com POST -> 200 ctype=text/html len=248 charset=UTF-8
+10-23 23:16:02.333  9144 10705 D PlayPluginNet: video.twimg.com GET -> 200 ctype=application/x-mpegurl len=573 charset=UTF-8
+10-23 23:16:02.335  9144 10699 D PlayPlugin: [warn] [Rouge] Player akışı veya M3U8 alınamadı. 
+10-23 23:16:02.338  9144  9144 D PlayPlugin: Sabo: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:16:02.347  9144 10699 D PlayPlugin: [log] [Sabo] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: undefined, Bölüm: undefined 
+10-23 23:16:02.348  1433 11686 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 23:16:02.408  9144 11108 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=125703 charset=UTF-8
+10-23 23:16:02.509  9144 11108 D PlayPluginNet: lovefilmizle.net POST -> 200 ctype=text/html len=1280 charset=UTF-8
+10-23 23:16:02.509  9144 11108 D PlayPlugin: [log] [Ryuma] Film bulundu: "tt1160419" 
+10-23 23:16:02.509  9144 11108 D PlayPlugin: [log] [Ryuma] [Adım 3/3] Video oynatıcı çözümleniyor... 
+10-23 23:16:02.685  9144 11108 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:16:02.686  9144 11108 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:16:02.686  9144 11108 D PlayPlugin: [log] [Sabo] İçerik Animation/Animasyon türünde değil, atlanıyor. 
+10-23 23:16:02.689  9144  9144 D PlayPlugin: Sakazuki: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:16:02.705  9144 11108 D PlayPlugin: [log] [Sakazuki] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: undefined, Bölüm: undefined 
+10-23 23:16:02.705  9144 11108 D PlayPlugin: [log] [Sakazuki] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:16:02.779  9144 11108 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:16:03.004  1731  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-23 23:16:03.004  1731  2053 I chatty  : uid=1002(bluetooth) BluetoothAvrcpH identical 4 lines
+10-23 23:16:03.004  1731  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-23 23:16:03.004  9144  9144 D PlayMatch: takılma-ayrıntı kaynak=Enel bitHızı=2.75 Mbps bantTahmini=1.49 Mbps tampon=0.1 sn
+10-23 23:16:03.066  9144 11108 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:16:03.067  9144 11108 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:16:03.199  9144 11108 D PlayPluginNet: lovefilmizle.net GET -> 200 ctype=text/html len=85341 charset=UTF-8
+10-23 23:16:03.204  9144 11108 D PlayPlugin: [warn] [Ryuma] Video oynatıcısı bulunamadı. 
+10-23 23:16:03.212  9144  9144 D PlayPlugin: Shanks: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:16:03.221  9144 10626 D PlayPlugin: [log] [Shanks] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: undefined, Bölüm: undefined 
+10-23 23:16:03.221  9144 10626 D PlayPlugin: [log] [Shanks] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:16:03.280  9144 10626 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:16:03.363  9144 10704 D PlayPluginNet: dizipal2143.com GET -> 200 ctype=text/html len=111714 charset=UTF-8
+10-23 23:16:03.366  1478  1495 E storaged: getDiskStats failed with result NOT_SUPPORTED and size 0
+10-23 23:16:03.371  9144 10704 D PlayPlugin: [log] [Sakazuki] [Adım 2/4] Kaynakta kesin IMDb araması yapılıyor (tt1160419)... 
+10-23 23:16:03.511  9144 10699 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:16:03.512  9144 10699 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:16:03.512  9144 10699 D PlayPlugin: [log] [Shanks] [Adım 2/4] Kesin ID araması yapılıyor (tt1160419)... 
+10-23 23:16:03.528  9144 10699 D PlayPluginNet: dizipal2143.com GET -> 200 ctype=application/json len=334 charset=UTF-8
+10-23 23:16:03.529  9144 10699 D PlayPlugin: [log] [Sakazuki] [Doğrulama] İçerik bulundu 
+10-23 23:16:03.529  9144 10699 D PlayPlugin: [log] [Sakazuki] [Adım 3/4] Oynatıcı oturumu açılıyor... 
+10-23 23:16:03.711  9144 10699 D PlayPluginNet: dizipal2143.com GET -> 200 ctype=text/html len=69844 charset=UTF-8
+10-23 23:16:03.719  9144  9144 D PlayPlugin: Shiki: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:16:03.731  9144 10705 D PlayPlugin: [log] [Shiki] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: undefined, Bölüm: undefined 
+10-23 23:16:03.732  9144 10705 D PlayPlugin: [log] [Shiki] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:16:03.759  9144 10705 D PlayPluginNet: filmekseni.vip GET -> 200 ctype=application/json len=451 charset=UTF-8
+10-23 23:16:03.760  9144 10705 D PlayPlugin: [log] [Shanks] [Doğrulama] İçerik bulundu: Dune: Çöl Gezegeni 
+10-23 23:16:03.760  9144 10705 D PlayPlugin: [log] [Shanks] [Adım 3/4] Oynatıcı sayfası yükleniyor... 
+10-23 23:16:03.794  9144 10705 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:16:03.837  9144 10705 D PlayPluginNet: dizipal2143.com POST -> 200 ctype=application/json len=286 charset=UTF-8
+10-23 23:16:03.838  9144 10705 D PlayPlugin: [log] [Sakazuki] Embed oynatıcı bulundu 
+10-23 23:16:04.050  9144 10705 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:16:04.051  9144 10705 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:16:04.051  9144 10705 D PlayPlugin: [log] [Shiki] [Adım 2/4] Kesin IMDb araması yapılıyor (tt1160419)... 
+10-23 23:16:04.143  9144 10705 D PlayPluginNet: filmekseni.vip GET -> 200 ctype=text/html len=112761 charset=UTF-8
+10-23 23:16:04.150  9144 11108 D PlayPlugin: [warn] [Shanks] Bu içerik/bölüm için henüz video oynatıcı bulunamadı. 
+10-23 23:16:04.152  9144  9144 D PlayPlugin: Smoker: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:16:04.167  9144 11107 D PlayPlugin: [log] [Smoker] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:16:04.168  9144 11107 D PlayPlugin: [log] [Smoker] [Adım 1/4] IMDb ID çözümleniyor (438631)... 
+10-23 23:16:04.391  9144 11103 D PlayPluginNet: www.hdfilmcehennemi2.biz GET -> 200 ctype=application/json len=467 charset=UTF-8
+10-23 23:16:04.391  9144 11103 D PlayPlugin: [log] [Shiki] İçerik bulundu: "Dune: Çöl Gezegeni" 
+10-23 23:16:04.391  9144 11103 D PlayPlugin: [log] [Shiki] [Adım 3/4] Film detayları alınıyor... 
+10-23 23:16:04.406  9144 11103 D PlayPluginNet: formationfeed.net GET -> 200 ctype=text/html len=34767 charset=UTF-8
+10-23 23:16:04.477  9144 11103 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:16:04.702  9144 11103 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:16:04.703  9144 11103 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:16:04.703  9144 11103 D PlayPlugin: [log] [Smoker] [Adım 2/4] Kaynakta kesin IMDb araması yapılıyor (tt1160419)... 
+10-23 23:16:04.871  9144 11103 D PlayPluginNet: www.hdfilmcehennemi2.biz GET -> 200 ctype=text/html len=222281 charset=UTF-8
+10-23 23:16:04.881  9144 11103 D PlayPlugin: [log] [Shiki] [Adım 4/4] Video oynatıcı çözümleniyor... 
+10-23 23:16:04.912  9144 11103 D PlayPluginNet: s5.superadjacentsoddenly.xyz GET -> 403 ctype=text/html len=513 charset=UTF-8
+10-23 23:16:04.913  9144 11103 D PlayPlugin: [log] [Sakazuki] [Adım 4/4] TAMAMLANDI: 1080p HLS akışı hazırlandı (2.21s) {"altyazılar":2,"dil":"Altyazılı"}
+10-23 23:16:04.917  9144  9144 D PlayPlugin: Sakazuki: akış http(s)://s5.superadjacentsoddenly.xyz/...
+10-23 23:16:04.919  9144  9144 D PlayPlugin: Teach: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:16:04.922  1731  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-23 23:16:04.923  1731  2053 I chatty  : uid=1002(bluetooth) BluetoothAvrcpH identical 4 lines
+10-23 23:16:04.923  1731  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-23 23:16:04.934  9144 11103 D PlayPlugin: [log] [Teach] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:16:04.935  9144 11103 D PlayPlugin: [log] [Teach] [Adım 1/4] TMDB bilgileri ve afiş hashleri alınıyor (438631)... 
+10-23 23:16:04.936  1433 11696 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 23:16:05.001  1595  2671 W SchedPolicy: add_tid_to_cgroup failed to write '2371' (No space left on device); fd=24
+10-23 23:16:05.002  1595  2671 W SchedPolicy: add_tid_to_cgroup failed to write '2371' (No space left on device); fd=25
+10-23 23:16:05.031  9144 11103 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=182687 charset=UTF-8
+10-23 23:16:05.086  9144 11108 D PlayPluginNet: dizipal1592.com GET -> 200 ctype=text/html len=89346 charset=UTF-8
+10-23 23:16:05.193  9144 11107 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:16:05.194  9144 11107 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:16:05.194  9144 11107 D PlayPlugin: [log] [Teach] [Adım 2/4] Kaynak üzerinde afiş hash eşleştirmesi yapılıyor... 
+10-23 23:16:05.197  9144 11107 D PlayPluginNet: vidload.top GET -> 200 ctype=text/html len=4805 charset=UTF-8
+10-23 23:16:05.325  9144 11107 D PlayPluginNet: dizipal1592.com GET -> 200 ctype=text/html len=191078 charset=UTF-8
+10-23 23:16:05.341  9144 11107 D PlayPlugin: [log] [Smoker] [Doğrulama] İçerik kesin doğrulandı (tt1160419) 
+10-23 23:16:05.341  9144 11107 D PlayPlugin: [log] [Smoker] [Adım 3/4] Şifreli oynatıcı çözümleniyor... 
+10-23 23:16:05.487  9144 11103 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=1469 charset=UTF-8
+10-23 23:16:05.637  9144 11103 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=1439 charset=UTF-8
+10-23 23:16:05.785  9144 11107 D PlayPlugin: [log] [Smoker] Oynatıcı adresi çözümlendi 
+10-23 23:16:05.797  9144 11107 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=1523 charset=UTF-8
+10-23 23:16:05.962  9144 11107 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=118 charset=UTF-8
+10-23 23:16:06.123  9144 11107 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=157 charset=UTF-8
+10-23 23:16:06.190  9144 11107 D PlayPluginNet: vlruxsxqwysfunjdsscfqhlpxwxnmaydxqrhkagxxlppwbuuml.haccodavayup.shop GET -> 200 ctype=application/vnd.apple.mpegurl len=882 charset=UTF-8
+10-23 23:16:06.191  9144 11107 D PlayPlugin: [log] [Shiki] TAMAMLANDI: 1080p HLS akışı hazırlandı (2.46s) [Dublaj / Altyazılı] {"dil":"Dublaj / Altyazılı","altyazılar":3}
+10-23 23:16:06.192  9144  9144 D PlayPlugin: Shiki: akış http(s)://vlruxsxqwysfunjdsscfqhlpxwxnmaydxqrhkagxxlppwbuuml.haccodavayup.shop/...
+10-23 23:16:06.194  9144  9144 D PlayPlugin: Toki: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:16:06.203  9144 10624 D PlayPlugin: [log] [Toki] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: undefined, Bölüm: undefined 
+10-23 23:16:06.281  9144 11108 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=1517 charset=UTF-8
+10-23 23:16:06.281  9144 11103 D PlayPluginNet: dplayer82.site GET -> 200 ctype=text/html len=361169 charset=UTF-8
+10-23 23:16:06.293  9144 10624 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=125703 charset=UTF-8
+10-23 23:16:06.436  9144 11103 D PlayPluginNet: dplayer82.site GET -> 200 ctype=application/json len=6223 charset=UTF-8
+10-23 23:16:06.463  9144 11103 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=162 charset=UTF-8
+10-23 23:16:06.523  9144 10624 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:16:06.523  9144 10624 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:16:06.655  9144  9144 D PlayPlugin: TurkDizi: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:16:06.663  9144 10624 D PlayPlugin: [log] [TurkDizi] Film İsteği: tmdbId=438631 
+10-23 23:16:06.693  9144 10624 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=1455 charset=UTF-8
+10-23 23:16:06.848  9144 10624 D PlayPluginNet: dplayer82.site GET -> 200 ctype=text/html len=4598 charset=UTF-8
+10-23 23:16:06.852  9144 10624 D PlayPlugin: [log] [Smoker] [Adım 4/4] TAMAMLANDI: 1080p HLS akışı hazırlandı (2.68s) {"altyazılar":0,"dil":"Orijinal"}
+10-23 23:16:06.855  9144  9144 D PlayPlugin: Smoker: akış http(s)://dplayer82.site/...
+10-23 23:16:06.857  9144  9144 D PlayPlugin: Urouge: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:16:06.865  9144 10624 D PlayPlugin: [log] [Urouge] Tarama Başlatıldı -> TMDB: 438631, Tür: movie, Sezon: 1, Bölüm: 1 
+10-23 23:16:06.865  9144 10624 D PlayPlugin: [log] [Urouge] [Adım 1/3] Metadata çözümleniyor (438631)... 
+10-23 23:16:07.029  9144 11107 D PlayPluginNet: youtube.izlelan.com GET -> 404 ctype=application/json len=75 charset=UTF-8
+10-23 23:16:07.092  9144 11107 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=169 charset=UTF-8
+10-23 23:16:07.206  9144 11107 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=125703 charset=UTF-8
+10-23 23:16:07.244  9144 10624 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:16:07.245  9144 10624 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:16:07.245  9144 10624 D PlayPlugin: [log] [Urouge] [Adım 2/3] Film API sorgulanıyor (tt1160419)... 
+10-23 23:16:07.279  9144 10624 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=112 charset=UTF-8
+10-23 23:16:07.533  9144 11107 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=79 charset=UTF-8
+10-23 23:16:07.774  9144 10624 D PlayPluginNet: diziroom.com GET -> 200 ctype=text/html len=184104 charset=UTF-8
+10-23 23:16:08.267  9144 10624 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=872 charset=UTF-8
+10-23 23:16:08.349  9144 10624 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=1675 charset=UTF-8
+10-23 23:16:08.484  9144 10624 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=102 charset=UTF-8
+10-23 23:16:08.568  9144  9144 D PlayPlugin: Xebec: istek tmdbId=438631 tür=movie sezon=null bölüm=null
+10-23 23:16:08.579  9144 10624 D PlayPlugin: [log] [Xebec] Tarama Başlatıldı -> TMDB: 438631, Tür: movie 
+10-23 23:16:08.579  9144 10624 D PlayPlugin: [log] [Xebec] [Adım 1/4] TMDB/IMDb bilgileri alınıyor (438631)... 
+10-23 23:16:08.580  1433 11706 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 23:16:08.705  9144 10624 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=500 charset=UTF-8
+10-23 23:16:08.725  9144 10624 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=134 charset=UTF-8
+10-23 23:16:08.847  9144 10624 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=107 charset=UTF-8
+10-23 23:16:08.874  9144 10624 D PlayPluginNet: diziroom.com GET -> 404 ctype=text/html len=52173 charset=UTF-8
+10-23 23:16:09.021  9144 10624 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=100 charset=UTF-8
+10-23 23:16:09.120  9144 10624 D PlayPluginNet: lmscript.xyz GET -> 200 ctype=application/json len=5094 charset=UTF-8
+10-23 23:16:09.121  9144 10624 D PlayPlugin: [log] [Urouge] [Adım 3/3] TAMAMLANDI: 1 akış hazırlandı (2.26s) [{"title":"Orijinal","quality":"1080p • Orijinal","format":"m3u8"}]
+10-23 23:16:09.123  9144  9144 D PlayPlugin: Urouge: akış http(s)://srv315.calation.cyou/...
+10-23 23:16:09.124  9144 10701 D PlayPluginNet: cdn.izlelan.com GET -> 200 ctype=application/json len=2125 charset=UTF-8
+10-23 23:16:09.124  9144 10701 D PlayPlugin: [log] [Config] Domainler basariyla cekildi: http(s)://cdn.izlelan.com/... 
+10-23 23:16:09.125  9144 10701 D PlayPlugin: [log] [Xebec] [Adım 2/4] Kesin IMDb araması yapılıyor (tt1160419)... 
+10-23 23:16:09.192  9144 11108 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=1468 charset=UTF-8
+10-23 23:16:09.332  9144 11108 D PlayPluginNet: www.fullhdfilmizlesene.now GET -> 200 ctype=application/json len=2 charset=UTF-8
+10-23 23:16:09.355  9144 11108 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=113 charset=UTF-8
+10-23 23:16:09.408  9144 11108 D PlayPluginNet: diziroom.com GET -> 200 ctype=text/html len=70530 charset=UTF-8
+10-23 23:16:09.426  9144 11108 D PlayPluginNet: www.fullhdfilmizlesene.now GET -> 404 ctype=text/html len=24811 charset=UTF-8
+10-23 23:16:09.428  9144 11108 D PlayPlugin: [warn] [Xebec] "tt1160419" ile eşleşen film bulunamadı. 
+10-23 23:16:09.488  9144 11107 D PlayPluginNet: turkdizi.ayruki.workers.dev GET -> 404 ctype=application/json len=75 charset=UTF-8
+10-23 23:16:09.498  9144 11108 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=1456 charset=UTF-8
+10-23 23:16:09.690  9144 11108 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=101 charset=UTF-8
+10-23 23:16:09.831  9144 11103 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=127 charset=UTF-8
+10-23 23:16:09.986  9144 10624 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=1403 charset=UTF-8
+10-23 23:16:10.011  9144 10624 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=154 charset=UTF-8
+10-23 23:16:10.158  9144 11103 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=118 charset=UTF-8
+10-23 23:16:10.341  9144 11103 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=1943 charset=UTF-8
+10-23 23:16:10.491  9144 11103 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=163 charset=UTF-8
+10-23 23:16:10.576  9144 11103 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=1403 charset=UTF-8
+10-23 23:16:10.649  9144 11103 D PlayPluginNet: ddizibox.com GET -> 200 ctype=application/json len=86 charset=UTF-8
+10-23 23:16:10.650  9144 11103 D PlayPlugin: [warn] [Teach] Eşleşen içerik bulunamadı. 
+10-23 23:16:11.150  9144 11103 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=38 charset=UTF-8
+10-23 23:16:11.704  9144 11103 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=38 charset=UTF-8
+10-23 23:16:12.279  9144 10624 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=1403 charset=UTF-8
+10-23 23:16:12.857  9144 10624 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=38 charset=UTF-8
+10-23 23:16:13.444  9144 11103 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=2370 charset=UTF-8
+10-23 23:16:13.976  9144 11103 D PlayPluginNet: diziroom.com GET -> 200 ctype=text/html len=78648 charset=UTF-8
+10-23 23:16:14.492  9144  9244 D PlayPluginNet: diziroom.com GET -> 200 ctype=text/html len=71297 charset=UTF-8
+10-23 23:16:14.608  1731  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-23 23:16:14.609  1731  2053 I chatty  : uid=1002(bluetooth) BluetoothAvrcpH identical 4 lines
+10-23 23:16:14.609  1731  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-23 23:16:14.609  9144  9144 D PlayMatch: takılma-ayrıntı kaynak=Enel bitHızı=2.75 Mbps bantTahmini=1.49 Mbps tampon=0.0 sn
+10-23 23:16:15.015  9144  9244 D PlayPluginNet: diziroom.com GET -> 200 ctype=text/html len=72827 charset=UTF-8
+10-23 23:16:15.563  9144 10624 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=38 charset=UTF-8
+10-23 23:16:16.146  9144 10624 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=38 charset=UTF-8
+10-23 23:16:16.576  9144 11103 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=38 charset=UTF-8
+10-23 23:16:17.174  9144 10699 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=38 charset=UTF-8
+10-23 23:16:17.622  1440  1568 D audio_hw_hal: log_func, out_standby
+10-23 23:16:17.622  1440  1568 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf624c000
+10-23 23:16:17.623  1440  1568 D audio_hw_hal: raw_close_output_stream, stream=0xf624c000,  success!
+10-23 23:16:17.722  9144 10624 D PlayPluginNet: diziroom.com GET -> 200 ctype=application/json len=2096 charset=UTF-8
+10-23 23:16:18.264  9144 10624 D PlayPluginNet: diziroom.com GET -> 200 ctype=text/html len=70726 charset=UTF-8
+10-23 23:16:18.738  9144 11103 D PlayPluginNet: diziroom.com GET -> 200 ctype=text/html len=69771 charset=UTF-8
+10-23 23:16:18.778  9144 11630 W PesReader: Unexpected start code prefix: 2162809
+10-23 23:16:19.245  9144 11103 D PlayPluginNet: diziroom.com GET -> 200 ctype=text/html len=71407 charset=UTF-8
+10-23 23:16:19.469  9144 11630 W PesReader: Unexpected start code prefix: 2162867
+10-23 23:16:19.716  9144 11580 D AudioTrack: correcting timestamp time for pause, currentTimeNanos: 5787149639341 < limitNs: 5792144827137 < mStartNs: 5792186827137
+10-23 23:16:19.716  1731  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-23 23:16:19.716  1731  2053 I chatty  : uid=1002(bluetooth) BluetoothAvrcpH identical 4 lines
+10-23 23:16:19.716  1731  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-23 23:16:19.716  1440  2578 D audio_hw_hal: raw_start_output_stream, stream=0xf624c000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+10-23 23:16:19.721  9144 11634 W PesReader: Unexpected start code prefix: 2162827
+10-23 23:16:19.742  9144 10624 D PlayPluginNet: diziroom.com GET -> 200 ctype=text/html len=72279 charset=UTF-8
+10-23 23:16:19.950  1463  1685 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+10-23 23:16:20.054  9144 11634 W PesReader: Unexpected start code prefix: 2162843
+10-23 23:16:20.250  9144 10625 D PlayPluginNet: diziroom.com GET -> 200 ctype=text/html len=72058 charset=UTF-8
+10-23 23:16:20.451  9144 11634 W PesReader: Unexpected start code prefix: 2162859
+10-23 23:16:20.722  9144 11103 D PlayPluginNet: diziroom.com GET -> 200 ctype=text/html len=68882 charset=UTF-8
+10-23 23:16:20.816  9144 11634 W PesReader: Unexpected start code prefix: 2162877
+10-23 23:16:21.145  9144 11634 W PesReader: Unexpected start code prefix: 2162893
+10-23 23:16:21.175  9144 11103 D PlayPluginNet: diziroom.com GET -> 200 ctype=text/html len=69637 charset=UTF-8
+10-23 23:16:21.527  9144 11634 W PesReader: Unexpected start code prefix: 2162909
+10-23 23:16:21.531  9144 11630 W PesReader: Unexpected start code prefix: 2162925
+10-23 23:16:21.882  9144 11634 W PesReader: Unexpected start code prefix: 2162925
+10-23 23:16:21.980  9144 11630 W PesReader: Unexpected start code prefix: 2162981
+10-23 23:16:23.076  9144 11634 W PesReader: Unexpected start code prefix: 2162943
+10-23 23:16:23.355  9144 11634 W PesReader: Unexpected start code prefix: 2162959
+10-23 23:16:24.241  9144 11634 W PesReader: Unexpected start code prefix: 2162975
+10-23 23:16:24.423  9144 11634 W PesReader: Unexpected start code prefix: 2162991
+10-23 23:16:24.635  9144 11630 W PesReader: Unexpected start code prefix: 2163039
+10-23 23:16:25.206  9144 11634 W PesReader: Unexpected start code prefix: 2163009
+10-23 23:16:25.641  9144 11634 W PesReader: Unexpected start code prefix: 2163025
+10-23 23:16:25.762  9144 11630 W PesReader: Unexpected start code prefix: 2163097
+10-23 23:16:27.172  9144 11634 W PesReader: Unexpected start code prefix: 2163041
+10-23 23:16:44.322  1452  1452 I health@2.0-serv: type=1400 audit(0.0:2526): avc: denied { read } for scontext=u:r:init:s0 tcontext=u:r:init:s0 tclass=netlink_kobject_uevent_socket permissive=1
+10-23 23:16:46.428  9144 11634 W PesReader: Unexpected start code prefix: 2163057
+10-23 23:16:46.860  9144 11634 W PesReader: Unexpected start code prefix: 2163073
+10-23 23:16:47.097  9144 11634 W PesReader: Unexpected start code prefix: 2163091
+10-23 23:16:47.266  9144 11630 W PesReader: Unexpected start code prefix: 2163153
+10-23 23:16:47.324  9144 11634 W PesReader: Unexpected start code prefix: 2163107
+10-23 23:16:47.414  9144 11634 W PesReader: Unexpected start code prefix: 2163123
+10-23 23:16:47.616  9144 11634 W PesReader: Unexpected start code prefix: 2163141
+10-23 23:16:47.701  9144 11634 W PesReader: Unexpected start code prefix: 2163157
+10-23 23:16:47.930  9144 11634 W PesReader: Unexpected start code prefix: 2163173
+10-23 23:16:48.027  9144 11634 W PesReader: Unexpected start code prefix: 2163189
+10-23 23:16:48.116  9144 11634 W PesReader: Unexpected start code prefix: 2163205
+10-23 23:16:48.197  9144 11634 W PesReader: Unexpected start code prefix: 2163223
+10-23 23:16:48.665 11721 11721 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 800 450 
+10-23 23:16:48.665 11721 11721 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-23 23:16:48.666 11721 11721 E cutils-trace: Error opening trace file: No such file or directory (2)
+10-23 23:16:48.675 11721 11721 V libnb   : enter native_bridge2_isCompatibleWith 3
+10-23 23:16:48.680 11721 11721 I libnb   : Found /system/lib64/libhoudini.so version 3
+10-23 23:16:48.689 11721 11721 I main    : type=1400 audit(0.0:2527): avc: denied { open } for path="/data/local/cfg-ineyg/app_xpt" dev="sdb2" ino=394179 scontext=u:r:shell:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+10-23 23:16:48.693 11721 11721 I app_process: The ClassLoaderContext is a special shared library.
+10-23 23:16:48.693 11721 11721 W app_process: Could not create mount namespace.
+10-23 23:16:48.693 11721 11721 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+10-23 23:16:48.694 11721 11721 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+10-23 23:16:48.694 11721 11721 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+10-23 23:16:48.694 11721 11721 D nativebridge: call UnloadNativeBridge! state=2
+10-23 23:16:48.702 11721 11721 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-23 23:16:48.704 11721 11721 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=800.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=5821172, downTime=5821172, deviceId=3, source=0x1002 }
+10-23 23:16:48.713 11721 11721 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=800.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=5821172, downTime=5821172, deviceId=3, source=0x1002 }
+10-23 23:16:48.721 11721 11721 D AndroidRuntime: Shutting down VM
+10-23 23:16:48.760  1595  1602 W System  : A resource failed to call close. 
+10-23 23:16:48.761  1595  1602 I chatty  : uid=1000(system) FinalizerDaemon identical 34 lines
+10-23 23:16:48.761  1595  1602 W System  : A resource failed to call close. 
+10-23 23:16:49.797 11732 11732 E cutils-trace: Error opening trace file: No such file or directory (2)
+10-23 23:16:49.797 11732 11732 D vndksupport: Loading /vendor/lib64/hw/android.hardware.graphics.mapper@2.0-impl.so from current namespace instead of sphal namespace.
+10-23 23:16:49.798 11732 11732 D vndksupport: Loading /vendor/lib64/hw/gralloc.default.so from current namespace instead of sphal namespace.
+10-23 23:16:49.802 11732 11732 I         : fastpipe: Connect success
+10-23 23:16:49.806 11732 11732 I         : fastpipe: Connect success
+10-23 23:16:49.806 11732 11732 D HostConnection: HostRPC::connect sucess: app=screencap, pid=11732, tid=11732, this=0x763893ee4540
+10-23 23:16:49.807 11732 11732 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:screencap
+10-23 23:16:50.033  1595  1609 I ActivityManager: Killing 8758:com.google.android.tts/u0a40 (adj 904): empty for 1819s
+10-23 23:16:50.034  1595  1612 W libprocessgroup: kill(-8758, 9) failed: No such process
+10-23 23:16:50.035  4156  4156 D MediaScannerReceiver: action: android.intent.action.MEDIA_SCANNER_SCAN_FILE path: /storage/emulated/0/regresyon_dune.png
+10-23 23:16:50.050  1434  1434 I Zygote  : Process 8758 exited due to signal (9)
+10-23 23:16:50.078  1595  1612 W libprocessgroup: kill(-8758, 9) failed: No such process
+10-23 23:16:50.078  1595  1612 I libprocessgroup: Successfully killed process cgroup uid 10040 pid 8758 in 44ms

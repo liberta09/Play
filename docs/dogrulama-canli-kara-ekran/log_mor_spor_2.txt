@@ -1,0 +1,357 @@
+--------- beginning of main
+10-23 22:59:56.400  1595  1602 I chatty  : uid=1000(system) FinalizerDaemon expire 29 lines
+10-23 22:59:56.400  1595  1602 W System  : A resource failed to call close. 
+10-23 22:59:57.467  9789  9789 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 940 342 
+10-23 22:59:57.467  9789  9789 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-23 22:59:57.468  9789  9789 E cutils-trace: Error opening trace file: No such file or directory (2)
+10-23 22:59:57.476  9789  9789 V libnb   : enter native_bridge2_isCompatibleWith 3
+10-23 22:59:57.482  9789  9789 I libnb   : Found /system/lib64/libhoudini.so version 3
+10-23 22:59:57.494  9789  9789 I app_process: The ClassLoaderContext is a special shared library.
+10-23 22:59:57.494  9789  9789 W app_process: Could not create mount namespace.
+10-23 22:59:57.494  9789  9789 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+10-23 22:59:57.494  9789  9789 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+10-23 22:59:57.494  9789  9789 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+10-23 22:59:57.494  9789  9789 D nativebridge: call UnloadNativeBridge! state=2
+10-23 22:59:57.501  9789  9789 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-23 22:59:57.502  9789  9789 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=940.0, y[0]=342.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=4809972, downTime=4809972, deviceId=3, source=0x1002 }
+10-23 22:59:57.514  9789  9789 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=940.0, y[0]=342.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=4809972, downTime=4809972, deviceId=3, source=0x1002 }
+10-23 22:59:57.521  9789  9789 D AndroidRuntime: Shutting down VM
+10-23 22:59:57.523  1440  2578 D audio_hw_hal: raw_start_output_stream, stream=0xf624c000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+10-23 22:59:59.667  9800  9800 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 646 248 
+10-23 22:59:59.667  9800  9800 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-23 22:59:59.668  9800  9800 E cutils-trace: Error opening trace file: No such file or directory (2)
+10-23 22:59:59.674  9800  9800 V libnb   : enter native_bridge2_isCompatibleWith 3
+10-23 22:59:59.680  9800  9800 I libnb   : Found /system/lib64/libhoudini.so version 3
+10-23 22:59:59.692  9800  9800 I app_process: The ClassLoaderContext is a special shared library.
+10-23 22:59:59.693  9800  9800 W app_process: Could not create mount namespace.
+10-23 22:59:59.693  9800  9800 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+10-23 22:59:59.693  9800  9800 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+10-23 22:59:59.693  9800  9800 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+10-23 22:59:59.693  9800  9800 D nativebridge: call UnloadNativeBridge! state=2
+10-23 22:59:59.699  9800  9800 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-23 22:59:59.700  9800  9800 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=646.0, y[0]=248.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=4812170, downTime=4812170, deviceId=3, source=0x1002 }
+10-23 22:59:59.708  9800  9800 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=646.0, y[0]=248.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=4812170, downTime=4812170, deviceId=3, source=0x1002 }
+10-23 22:59:59.716  9800  9800 D AndroidRuntime: Shutting down VM
+--------- beginning of system
+10-23 22:59:59.719  1595  1646 I ActivityManager: START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10187
+10-23 22:59:59.724  2290  2290 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:45 android.app.ActivityThread.handleReceiver:3424 
+10-23 22:59:59.725  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.android.ld.appstore -f 32 --es package com.kaan.play --es pos pc
+10-23 22:59:59.725  1460  1460 D ldinit  : result:
+10-23 22:59:59.732  1595  1595 I Binder:1595_3: type=1400 audit(0.0:2226): avc: denied { call } for scontext=u:r:system_server:s0 tcontext=u:r:ldinit:s0 tclass=binder permissive=1
+10-23 22:59:59.733  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+10-23 22:59:59.734  3673  9482 I AppStartReceiver: onReceive, action = com.ldmnq.APP_FOREGROUND, extras = Bundle[{package=com.kaan.play, pos=pc}]
+10-23 22:59:59.736  1460  1460 D ldinit  : Broadcast completed: result=0
+10-23 22:59:59.741  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.ldmnq.launcher3 -f 32 --es package com.kaan.play --es pos pc
+10-23 22:59:59.741  1460  1460 D ldinit  : result:
+10-23 22:59:59.749  9144  9144 I com.kaan.play: type=1400 audit(0.0:2227): avc: denied { read } for name="Applications" dev="sdcardfs" ino=1441794 scontext=u:r:untrusted_app:s0:c187,c256,c512,c768 tcontext=u:object_r:sdcardfs:s0 tclass=lnk_file permissive=1
+10-23 22:59:59.749  9144  9144 I com.kaan.play: type=1400 audit(0.0:2228): avc: denied { search } for name="/" dev="vboxsf" ino=1 scontext=u:r:untrusted_app:s0:c187,c256,c512,c768 tcontext=u:object_r:unlabeled:s0 tclass=dir permissive=1
+10-23 22:59:59.749  9144  9144 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@f9c55fa
+10-23 22:59:59.749  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+10-23 22:59:59.753  2371  6697 D AppStartReceiver: action = com.ldmnq.APP_FOREGROUND, packageName = com.kaan.play, pos = pc
+10-23 22:59:59.760  1460  1460 D ldinit  : Broadcast completed: result=0
+10-23 22:59:59.768  9144  9144 I ExoPlayerImpl: Init 40ab938 [AndroidXMedia3/1.11.1] [star2qltechn, SM-X710N, samsung, 28]
+10-23 22:59:59.775  9144  9144 D PlaySubs: videonun içindeki altyazılar: []
+10-23 22:59:59.775  9144  9144 D PlaySubs: seçim: kapalı
+10-23 22:59:59.783  2290  2290 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+10-23 22:59:59.816  9144  9150 I com.kaan.play: Compiler allocated 4MB to compile void android.widget.TextView.<init>(android.content.Context, android.util.AttributeSet, int, int)
+10-23 22:59:59.842  9144  9182 E EGL_emulation: tid 9182: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+10-23 22:59:59.842  9144  9182 W OpenGLRenderer: Failed to set EGL_SWAP_BEHAVIOR on surface 0x763874ace780, error=EGL_BAD_MATCH
+10-23 22:59:59.891  1595  1602 W System  : A resource failed to call close. 
+10-23 22:59:59.891  1595  1602 I chatty  : uid=1000(system) FinalizerDaemon identical 32 lines
+10-23 22:59:59.891  1595  1602 W System  : A resource failed to call close. 
+10-23 22:59:59.893  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 22:59:59.893  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 22:59:59.893  9144  9144 I System.out: 
+10-23 22:59:59.893  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 22:59:59.893  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 22:59:59.893  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 22:59:59.893  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 22:59:59.893  2290  2290 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+10-23 22:59:59.894  9144  9144 D PlayAddon: WioSpor: istek tür=tv kimlik=wiospor_mor_2
+10-23 22:59:59.898  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 22:59:59.899  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 22:59:59.899  9144  9144 I System.out: 
+10-23 22:59:59.899  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 22:59:59.899  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 22:59:59.899  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 22:59:59.899  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 22:59:59.922  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 22:59:59.922  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 22:59:59.922  9144  9144 I System.out: 
+10-23 22:59:59.922  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 22:59:59.922  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 22:59:59.922  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 22:59:59.922  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 22:59:59.930  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 22:59:59.930  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 22:59:59.930  9144  9144 I System.out: 
+10-23 22:59:59.930  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 22:59:59.930  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 22:59:59.930  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 22:59:59.930  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 22:59:59.946  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 22:59:59.946  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 22:59:59.946  9144  9144 I System.out: 
+10-23 22:59:59.946  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 22:59:59.946  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 22:59:59.946  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 22:59:59.946  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 22:59:59.963  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 22:59:59.963  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 22:59:59.963  9144  9144 I System.out: 
+10-23 22:59:59.963  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 22:59:59.963  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 22:59:59.963  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 22:59:59.963  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 22:59:59.979  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 22:59:59.979  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 22:59:59.979  9144  9144 I System.out: 
+10-23 22:59:59.979  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 22:59:59.979  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 22:59:59.979  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 22:59:59.979  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 22:59:59.987  1433  9819 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 22:59:59.993  1433  9820 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-23 22:59:59.996  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 22:59:59.996  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 22:59:59.996  9144  9144 I System.out: 
+10-23 22:59:59.996  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 22:59:59.996  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 22:59:59.996  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 22:59:59.996  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:00:00.001  1595  4472 W SchedPolicy: add_tid_to_cgroup failed to write '2371' (No space left on device); fd=24
+10-23 23:00:00.001  1595  4472 W SchedPolicy: add_tid_to_cgroup failed to write '2371' (No space left on device); fd=25
+10-23 23:00:00.002  1595  1608 E memtrack: Couldn't load memtrack module
+10-23 23:00:00.002  1595  1608 W android.os.Debug: failed to get memory consumption info: -1
+10-23 23:00:00.013  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:00:00.013  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:00:00.013  9144  9144 I System.out: 
+10-23 23:00:00.013  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:00:00.013  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:00:00.013  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:00:00.013  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:00:00.029  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:00:00.029  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:00:00.029  9144  9144 I System.out: 
+10-23 23:00:00.029  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:00:00.029  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:00:00.029  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:00:00.029  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:00:00.046  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:00:00.046  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:00:00.046  9144  9144 I System.out: 
+10-23 23:00:00.046  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:00:00.046  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:00:00.046  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:00:00.046  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:00:00.063  9144  9144 I System.out: FocusRelatedWarning: 
+10-23 23:00:00.063  9144  9144 I System.out:    FocusRequester is not initialized. Here are some possible fixes:
+10-23 23:00:00.063  9144  9144 I System.out: 
+10-23 23:00:00.063  9144  9144 I System.out:    1. Remember the FocusRequester: val focusRequester = remember { FocusRequester() }
+10-23 23:00:00.063  9144  9144 I System.out:    2. Did you forget to add a Modifier.focusRequester() ?
+10-23 23:00:00.063  9144  9144 I System.out:    3. Are you attempting to request focus during composition? Focus requests should be made in
+10-23 23:00:00.063  9144  9144 I System.out:    response to some event. Eg Modifier.clickable { focusRequester.requestFocus() }
+10-23 23:00:00.188  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.190  1433  9824 I /system/bin/netd: gethostby*.getanswer: asked for "2i4.d72577a9dd0ec71.cfd IN A", got type "RRSIG"
+10-23 23:00:00.207  9144  9154 W System  : A resource failed to call dispose. 
+10-23 23:00:00.236  1433  9825 I /system/bin/netd: gethostby*.getanswer: asked for "opensubtitles-v3.strem.io IN A", got type "RRSIG"
+10-23 23:00:00.380  9144  9144 D PlaySubs: kaynak=OpenSubtitles içerik=wiospor_mor_2 sonuç=0 diller={}
+10-23 23:00:00.387  9144  9235 D PlayProbe: kaynak yoklama: host=2i4.d72577a9dd0ec71.cfd durum=403 type=text/html uzunluk=null
+10-23 23:00:00.390  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.398  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.466  9144  9235 D PlayProbe: kaynak yoklama: host=2i4.d72577a9dd0ec71.cfd durum=403 type=text/html uzunluk=null
+10-23 23:00:00.467  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.479  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.550  9144  9235 D PlayProbe: kaynak yoklama: host=2i4.d72577a9dd0ec71.cfd durum=403 type=text/html uzunluk=null
+10-23 23:00:00.550  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.562  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.633  9144  9235 D PlayProbe: kaynak yoklama: host=2i4.d72577a9dd0ec71.cfd durum=403 type=text/html uzunluk=null
+10-23 23:00:00.634  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.643  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.712  9144  9235 D PlayProbe: kaynak yoklama: host=2i4.d72577a9dd0ec71.cfd durum=403 type=text/html uzunluk=null
+10-23 23:00:00.712  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.719  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.791  9144  9235 D PlayProbe: kaynak yoklama: host=2i4.d72577a9dd0ec71.cfd durum=403 type=text/html uzunluk=null
+10-23 23:00:00.792  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.801  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.871  9144  9235 D PlayProbe: kaynak yoklama: host=2i4.d72577a9dd0ec71.cfd durum=403 type=text/html uzunluk=null
+10-23 23:00:00.872  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (2i4.d72577a9dd0ec71.cfd)
+10-23 23:00:00.877  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (mahmutabi.qzz.io)
+10-23 23:00:00.878  1433  9826 I /system/bin/netd: gethostby*.getanswer: asked for "mahmutabi.qzz.io IN A", got type "RRSIG"
+10-23 23:00:01.381  9144  9235 D PlayProbe: kaynak yoklama: host=mahmutabi.qzz.io durum=404 type=null uzunluk=null
+10-23 23:00:01.382  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (mahmutabi.qzz.io)
+10-23 23:00:01.388  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (mahmutabi.qzz.io)
+10-23 23:00:01.711  9144  9235 D PlayProbe: kaynak yoklama: host=mahmutabi.qzz.io durum=404 type=null uzunluk=null
+10-23 23:00:01.712  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (mahmutabi.qzz.io)
+10-23 23:00:01.721  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (andro.evrenesoglu99.click)
+10-23 23:00:01.724  9144  9235 D PlayProbe: kaynak yoklama: host=andro.evrenesoglu99.click durum=ag_hatasi
+10-23 23:00:01.724  9144  9144 D PlayStreamUrl: oynatılıyor http(s)://andro.evrenesoglu99.click/... mime=application/x-mpegURL
+10-23 23:00:01.724  9144  9144 D PlayTorrent: oynatıcıya veriliyor: kaynak=WioSpor http(s)://andro.evrenesoglu99.click/... torrent=false fileIdx=null başlıklar=[User-Agent, Origin, Referer] mime=application/x-mpegURL
+10-23 23:00:02.811  1440  1568 D audio_hw_hal: log_func, out_standby
+10-23 23:00:02.811  1440  1568 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf624c000
+10-23 23:00:02.811  1440  1568 D audio_hw_hal: raw_close_output_stream, stream=0xf624c000,  success!
+10-23 23:00:03.355  1478  1495 E storaged: getDiskStats failed with result NOT_SUPPORTED and size 0
+10-23 23:00:04.745  9144  9818 E ExoPlayerImplInternal: Playback error
+10-23 23:00:04.745  9144  9818 E ExoPlayerImplInternal:   UnknownHostException (no network)
+10-23 23:00:04.748  9144  9144 E PlayTorrent: ExoPlayer hata: ERROR_CODE_IO_NETWORK_CONNECTION_FAILED (2001) → Network
+10-23 23:00:04.748  9144  9144 D PlayMatch: oynatıcı hatası: WioSpor (faz=Starting) ERROR_CODE_IO_NETWORK_CONNECTION_FAILED (2001)
+10-23 23:00:04.759  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (andro.evrenesoglu99.click)
+10-23 23:00:04.761  9144  9244 D PlayProbe: kaynak yoklama: host=andro.evrenesoglu99.click durum=ag_hatasi
+10-23 23:00:04.762  9144  9144 D PlayStreamUrl: oynatılıyor http(s)://andro.evrenesoglu99.click/... mime=application/x-mpegURL
+10-23 23:00:04.762  9144  9144 D PlayTorrent: oynatıcıya veriliyor: kaynak=WioSpor http(s)://andro.evrenesoglu99.click/... torrent=false fileIdx=null başlıklar=[User-Agent, Origin, Referer] mime=application/x-mpegURL
+10-23 23:00:05.001  1595  4472 W SchedPolicy: add_tid_to_cgroup failed to write '2371' (No space left on device); fd=24
+10-23 23:00:05.002  1595  4472 W SchedPolicy: add_tid_to_cgroup failed to write '2371' (No space left on device); fd=25
+10-23 23:00:06.246  2061  2061 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+10-23 23:00:07.782  9144  9818 E ExoPlayerImplInternal: Playback error
+10-23 23:00:07.782  9144  9818 E ExoPlayerImplInternal:   UnknownHostException (no network)
+10-23 23:00:07.783  9144  9144 E PlayTorrent: ExoPlayer hata: ERROR_CODE_IO_NETWORK_CONNECTION_FAILED (2001) → Network
+10-23 23:00:07.783  9144  9144 D PlayMatch: oynatıcı hatası: WioSpor (faz=Starting) ERROR_CODE_IO_NETWORK_CONNECTION_FAILED (2001)
+10-23 23:00:07.793  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (deathless.pantonum1.workers.dev)
+10-23 23:00:08.374  9144  9244 D PlayProbe: kaynak yoklama: host=deathless.pantonum1.workers.dev durum=200 type=application/vnd.apple.mpegurl uzunluk=null
+10-23 23:00:08.401  9144  9144 D PlayStreamUrl: oynatılıyor http(s)://deathless.pantonum1.workers.dev/... mime=application/x-mpegURL
+10-23 23:00:08.401  9144  9144 D PlayTorrent: oynatıcıya veriliyor: kaynak=WioSpor http(s)://deathless.pantonum1.workers.dev/... torrent=false fileIdx=null başlıklar=[User-Agent] mime=application/x-mpegURL
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal: Playback error
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:   androidx.media3.exoplayer.ExoPlaybackException: Source error
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:       at androidx.media3.exoplayer.ExoPlayerImplInternal.handleIoException(ExoPlayerImplInternal.java:1021)
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:       at androidx.media3.exoplayer.ExoPlayerImplInternal.handleMessage(ExoPlayerImplInternal.java:991)
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:       at android.os.Handler.dispatchMessage(Handler.java:102)
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:       at android.os.Looper.loop(Looper.java:193)
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:       at android.os.HandlerThread.run(HandlerThread.java:65)
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:   Caused by: androidx.media3.common.ParserException: Input does not start with the #EXTM3U header. {contentIsMalformed=true, dataType=4}
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:       at androidx.media3.exoplayer.hls.playlist.HlsPlaylistParser.parse(HlsPlaylistParser.java:349)
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:       at androidx.media3.exoplayer.hls.playlist.HlsPlaylistParser.parse(HlsPlaylistParser.java:77)
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:       at androidx.media3.exoplayer.upstream.ParsingLoadable.load(ParsingLoadable.java:225)
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:       at androidx.media3.exoplayer.upstream.Loader$LoadTask.run(Loader.java:453)
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:       at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:       at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+10-23 23:00:08.846  9144  9818 E ExoPlayerImplInternal:       at java.lang.Thread.run(Thread.java:764)
+10-23 23:00:08.848  9144  9144 E PlayTorrent: ExoPlayer hata: ERROR_CODE_PARSING_MANIFEST_MALFORMED (3002) → Format
+10-23 23:00:08.848  9144  9144 E PlayTorrent: androidx.media3.exoplayer.ExoPlaybackException: Source error
+10-23 23:00:08.848  9144  9144 E PlayTorrent: 	at androidx.media3.exoplayer.ExoPlayerImplInternal.handleIoException(ExoPlayerImplInternal.java:1021)
+10-23 23:00:08.848  9144  9144 E PlayTorrent: 	at androidx.media3.exoplayer.ExoPlayerImplInternal.handleMessage(ExoPlayerImplInternal.java:991)
+10-23 23:00:08.848  9144  9144 E PlayTorrent: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+10-23 23:00:08.848  9144  9144 E PlayTorrent: 	at android.os.Looper.loop(Looper.java:193)
+10-23 23:00:08.848  9144  9144 E PlayTorrent: 	at android.os.HandlerThread.run(HandlerThread.java:65)
+10-23 23:00:08.848  9144  9144 E PlayTorrent: Caused by: androidx.media3.common.ParserException: Input does not start with the #EXTM3U header. {contentIsMalformed=true, dataType=4}
+10-23 23:00:08.848  9144  9144 E PlayTorrent: 	at androidx.media3.exoplayer.hls.playlist.HlsPlaylistParser.parse(HlsPlaylistParser.java:349)
+10-23 23:00:08.848  9144  9144 E PlayTorrent: 	at androidx.media3.exoplayer.hls.playlist.HlsPlaylistParser.parse(HlsPlaylistParser.java:77)
+10-23 23:00:08.848  9144  9144 E PlayTorrent: 	at androidx.media3.exoplayer.upstream.ParsingLoadable.load(ParsingLoadable.java:225)
+10-23 23:00:08.848  9144  9144 E PlayTorrent: 	at androidx.media3.exoplayer.upstream.Loader$LoadTask.run(Loader.java:453)
+10-23 23:00:08.848  9144  9144 E PlayTorrent: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+10-23 23:00:08.848  9144  9144 E PlayTorrent: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+10-23 23:00:08.848  9144  9144 E PlayTorrent: 	at java.lang.Thread.run(Thread.java:764)
+10-23 23:00:08.848  9144  9144 D PlayMatch: oynatıcı hatası: WioSpor (faz=Starting) ERROR_CODE_PARSING_MANIFEST_MALFORMED (3002)
+10-23 23:00:08.855  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (flussonic.izone.az)
+10-23 23:00:10.858  9144  9144 D PlayStreamUrl: oynatılıyor http(s)://flussonic.izone.az/... mime=application/x-mpegURL
+10-23 23:00:10.859  9144  9144 D PlayTorrent: oynatıcıya veriliyor: kaynak=WioSpor http(s)://flussonic.izone.az/... torrent=false fileIdx=null başlıklar=[User-Agent] mime=application/x-mpegURL
+10-23 23:00:20.875  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (stream.mcquack.net)
+10-23 23:00:21.089  9144  9235 D PlayProbe: kaynak yoklama: host=stream.mcquack.net durum=403 type=text/html uzunluk=548
+10-23 23:00:21.090  9144  9144 D PlayMatch: kaynak yoklamada elendi (Http): WioSpor (stream.mcquack.net)
+10-23 23:00:21.106  9144  9144 D PlayMatch: kaynak başlatılıyor: WioSpor (mr8bv4kl1nq7sh9tw2xp5zj6g.medya.trt.com.tr)
+10-23 23:00:21.280  1595  1608 E memtrack: Couldn't load memtrack module
+10-23 23:00:21.280  1595  1608 W android.os.Debug: failed to get memory consumption info: -1
+10-23 23:00:21.280  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+10-23 23:00:21.828  9144  9235 D PlayProbe: kaynak yoklama: host=mr8bv4kl1nq7sh9tw2xp5zj6g.medya.trt.com.tr durum=200 type=application/x-mpegURL uzunluk=769
+10-23 23:00:21.829  9144  9144 D PlayStreamUrl: oynatılıyor http(s)://mr8bv4kl1nq7sh9tw2xp5zj6g.medya.trt.com.tr/... mime=application/x-mpegURL
+10-23 23:00:21.829  9144  9144 D PlayTorrent: oynatıcıya veriliyor: kaynak=WioSpor http(s)://mr8bv4kl1nq7sh9tw2xp5zj6g.medya.trt.com.tr/... torrent=false fileIdx=null başlıklar=[User-Agent] mime=application/x-mpegURL
+10-23 23:00:22.008  9144  9818 D MediaCodecInfo: NoSupport [sizeAndRate.support, 2560x1440@25.0] [OMX.google.h264.decoder, video/avc] [star2qltechn, SM-X710N, samsung, 28]
+10-23 23:00:22.008  9144  9818 D MediaCodecInfo: NoSupport [sizeAndRate.support, 2560x1440@25.0] [OMX.qcom.video.decoder.avc, video/avc] [star2qltechn, SM-X710N, samsung, 28]
+10-23 23:00:22.008  9144  9818 D MediaCodecInfo: NoSupport [sizeAndRate.support, 2560x1440@25.0] [OMX.google.h264.decoder, video/avc] [star2qltechn, SM-X710N, samsung, 28]
+10-23 23:00:22.008  9144  9818 D MediaCodecInfo: NoSupport [sizeAndRate.support, 2560x1440@25.0] [OMX.qcom.video.decoder.avc, video/avc] [star2qltechn, SM-X710N, samsung, 28]
+10-23 23:00:22.613  9144  9847 I OMXClient: IOmx service obtained
+10-23 23:00:22.613  1480  1555 I OMXMaster: makeComponentInstance(OMX.google.h264.decoder) in omx@1.0-service process
+10-23 23:00:22.614  1480  1555 D LDDec   : createSoftOMXComponent OMX.google.h264.decoder
+10-23 23:00:22.614  1480  1555 D LDDec   : LDDec init 0x0 1, 320
+10-23 23:00:22.614  9144  9846 D SurfaceUtils: connecting to surface 0x76388be7f010, reason connectToSurface
+10-23 23:00:22.615  9144  9846 I MediaCodec: [OMX.google.h264.decoder] setting surface generation to 9363461
+10-23 23:00:22.615  9144  9846 D SurfaceUtils: disconnecting from surface 0x76388be7f010, reason connectToSurface(reconnect)
+10-23 23:00:22.615  9144  9846 D SurfaceUtils: connecting to surface 0x76388be7f010, reason connectToSurface(reconnect)
+10-23 23:00:22.615  1480  1555 W OMXNodeInstance: [0xf4fae060:google.h264.decoder] component does not support metadata mode; using fallback
+10-23 23:00:22.615  9144  9847 E ACodec  : [OMX.google.h264.decoder] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+10-23 23:00:22.615  1480  1555 W OMXNodeInstance: [0xf4fae060:google.h264.decoder] component does not support metadata mode; using fallback
+10-23 23:00:22.616  1480  1555 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+10-23 23:00:22.616  1480  1555 E OMXNodeInstance: setConfig(0xf4fae060:google.h264.decoder, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+10-23 23:00:22.616  9144  9847 I ACodec  : codec does not support config priority (err -1010)
+10-23 23:00:22.616  1480  1555 E OMXNodeInstance: setConfig(0xf4fae060:google.h264.decoder, ConfigOperatingRate(0x6f800003)) ERROR: UnsupportedIndex(0x8000101a)
+10-23 23:00:22.616  9144  9847 I ACodec  : codec does not support config operating rate (err -1010)
+10-23 23:00:22.616  1480  1555 E OMXNodeInstance: getConfig(0xf4fae060:google.h264.decoder, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+10-23 23:00:22.616  1480  1555 E OMXNodeInstance: getConfig(0xf4fae060:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+10-23 23:00:22.623  1437  1437 W AshmemAllocator: ashmem_create_region(3110400) returning hidl_memory(0x76391702c100, 3110400)
+10-23 23:00:22.628  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 30 lines
+10-23 23:00:22.628  1437  1437 W AshmemAllocator: ashmem_create_region(3110400) returning hidl_memory(0x76391702c100, 3110400)
+10-23 23:00:22.628  1480  9848 D LDDec   : initDecoder OMX.google.h264.decoder init
+10-23 23:00:22.630  1480  9848 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+10-23 23:00:22.632  1480  1555 E OMXNodeInstance: getConfig(0xf4fae060:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+10-23 23:00:22.635  1480  1555 E OMXNodeInstance: getConfig(0xf4fae060:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+10-23 23:00:22.641  9144  9850 I OMXClient: IOmx service obtained
+10-23 23:00:22.641  1480  1555 I OMXMaster: makeComponentInstance(OMX.google.aac.decoder) in omx@1.0-service process
+10-23 23:00:22.642  1480  1480 E OMXNodeInstance: setConfig(0xf562cba0:google.aac.decoder, ConfigPriority(0x6f800002)) ERROR: Undefined(0x80001001)
+10-23 23:00:22.642  9144  9850 I ACodec  : codec does not support config priority (err -2147483648)
+10-23 23:00:22.642  1480  1555 E OMXNodeInstance: getConfig(0xf562cba0:google.aac.decoder, ConfigAndroidVendorExtension(0x6f100004)) ERROR: Undefined(0x80001001)
+10-23 23:00:22.643  1437  1437 W AshmemAllocator: ashmem_create_region(8192) returning hidl_memory(0x76391702c100, 8192)
+10-23 23:00:22.643  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 2 lines
+10-23 23:00:22.643  1437  1437 W AshmemAllocator: ashmem_create_region(8192) returning hidl_memory(0x76391702c100, 8192)
+10-23 23:00:22.644  1437  1437 W AshmemAllocator: ashmem_create_region(32768) returning hidl_memory(0x76391702c100, 32768)
+10-23 23:00:22.644  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 2 lines
+10-23 23:00:22.644  1437  1437 W AshmemAllocator: ashmem_create_region(32768) returning hidl_memory(0x76391702c100, 32768)
+10-23 23:00:22.647  1480  9851 I SoftAAC2: Reconfiguring decoder: 0->48000 Hz, 0->2 channels
+10-23 23:00:22.647  1437  1437 W AshmemAllocator: ashmem_create_region(32768) returning hidl_memory(0x76391702c100, 32768)
+10-23 23:00:22.648  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 2 lines
+10-23 23:00:22.648  1437  1437 W AshmemAllocator: ashmem_create_region(32768) returning hidl_memory(0x76391702c100, 32768)
+10-23 23:00:22.657  1480  1555 E OMXNodeInstance: setConfig(0xf562cba0:google.aac.decoder, ConfigOperatingRate(0x6f800003)) ERROR: Undefined(0x80001001)
+10-23 23:00:22.657  9144  9850 I ACodec  : codec does not support config operating rate (err -2147483648)
+10-23 23:00:22.657  1461  5526 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000008) and output flags (00000002)
+10-23 23:00:22.657  1461  5526 D AudioFlinger: Client defaulted notificationFrames to 12000 for frameCount 24000
+10-23 23:00:22.673  9144  9846 D MediaCodec: [OMX.google.h264.decoder] setting dataspace on output surface to #104
+10-23 23:00:22.677  1463  2025 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+10-23 23:00:22.685  9144  9846 I         : fastpipe: Connect success
+10-23 23:00:22.686  9144  9846 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=9144, tid=9846, this=0x763875016480
+10-23 23:00:22.687  9144  9846 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+10-23 23:00:22.704  9144  9846 D SoftwareRenderer: setting dataspace on output surface to #104
+10-23 23:00:22.705  9144  9144 D PlayMatch: ilk kare: WioSpor (faz=Starting)
+10-23 23:00:22.712  1440  2578 D audio_hw_hal: raw_start_output_stream, stream=0xf624c000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+10-23 23:00:22.712  1731  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-23 23:00:22.712  1731  2053 I chatty  : uid=1002(bluetooth) BluetoothAvrcpH identical 4 lines
+10-23 23:00:22.712  1731  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-23 23:00:22.763  1463  2025 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+10-23 23:00:22.773  1463  2025 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+10-23 23:00:22.870  9144  9845 W PesReader: Unexpected start code prefix: 3895263
+10-23 23:00:22.870  9144  9845 W PesReader: Unexpected start code prefix: 2846687
+10-23 23:00:23.349  9144  9845 W PesReader: Unexpected start code prefix: 3895295
+10-23 23:00:23.349  9144  9845 W PesReader: Unexpected start code prefix: 2846719
+10-23 23:00:23.852  9144  9845 W PesReader: Unexpected start code prefix: 3895329
+10-23 23:00:23.852  9144  9845 W PesReader: Unexpected start code prefix: 2846753
+10-23 23:00:24.374  9144  9845 W PesReader: Unexpected start code prefix: 3895361
+10-23 23:00:24.374  9144  9845 W PesReader: Unexpected start code prefix: 2846785
+10-23 23:00:26.759  2290  2290 I oid.coreservice: type=1400 audit(0.0:2229): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3078 ioctlcmd=6869 scontext=u:r:system_app:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-23 23:00:26.763  2290  2290 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+10-23 23:00:29.318  1595  1602 W System  : A resource failed to call close. 
+10-23 23:00:29.319  1595  1602 I chatty  : uid=1000(system) FinalizerDaemon identical 33 lines
+10-23 23:00:29.319  1595  1602 W System  : A resource failed to call close. 
+10-23 23:00:29.633  9144  9845 W PesReader: Unexpected start code prefix: 3895395
+10-23 23:00:29.633  9144  9845 W PesReader: Unexpected start code prefix: 2846819
+10-23 23:00:29.833  9854  9854 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 800 450 
+10-23 23:00:29.833  9854  9854 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-23 23:00:29.834  9854  9854 E cutils-trace: Error opening trace file: No such file or directory (2)
+10-23 23:00:29.844  9854  9854 V libnb   : enter native_bridge2_isCompatibleWith 3
+10-23 23:00:29.850  9854  9854 I libnb   : Found /system/lib64/libhoudini.so version 3
+10-23 23:00:29.869  9854  9854 I app_process: The ClassLoaderContext is a special shared library.
+10-23 23:00:29.869  9854  9854 W app_process: Could not create mount namespace.
+10-23 23:00:29.869  9854  9854 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+10-23 23:00:29.869  9854  9854 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+10-23 23:00:29.869  9854  9854 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+10-23 23:00:29.869  9854  9854 D nativebridge: call UnloadNativeBridge! state=2
+10-23 23:00:29.878  9854  9854 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-23 23:00:29.880  9854  9854 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=800.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=4842349, downTime=4842349, deviceId=3, source=0x1002 }
+10-23 23:00:29.896  9854  9854 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=800.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=4842349, downTime=4842349, deviceId=3, source=0x1002 }
+10-23 23:00:29.908  9854  9854 D AndroidRuntime: Shutting down VM
+10-23 23:00:30.085  9144  9845 W PesReader: Unexpected start code prefix: 3895427
+10-23 23:00:30.085  9144  9845 W PesReader: Unexpected start code prefix: 2846851
+10-23 23:00:30.989  9865  9865 E cutils-trace: Error opening trace file: No such file or directory (2)
+10-23 23:00:30.990  9865  9865 D vndksupport: Loading /vendor/lib64/hw/android.hardware.graphics.mapper@2.0-impl.so from current namespace instead of sphal namespace.
+10-23 23:00:30.990  9865  9865 D vndksupport: Loading /vendor/lib64/hw/gralloc.default.so from current namespace instead of sphal namespace.
+10-23 23:00:30.994  9865  9865 I         : fastpipe: Connect success
+10-23 23:00:30.997  9865  9865 I         : fastpipe: Connect success
+10-23 23:00:30.998  9865  9865 D HostConnection: HostRPC::connect sucess: app=screencap, pid=9865, tid=9865, this=0x763893ee4540
+10-23 23:00:30.999  9865  9865 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:screencap
+10-23 23:00:31.233  4156  4156 D MediaScannerReceiver: action: android.intent.action.MEDIA_SCANNER_SCAN_FILE path: /storage/emulated/0/mor_spor_2.png

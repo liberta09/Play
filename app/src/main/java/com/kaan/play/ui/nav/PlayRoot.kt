@@ -225,7 +225,7 @@ fun PlayRoot() {
     // atlanır. Aynı içerik yarım izlenmişse önce "devam / baştan" sorulur ([startAtMs] verilmişse sorulmaz).
     fun play(target: PlayTarget, startAtMs: Long? = null, autoResumed: Boolean = false, download: DownloadEntity? = null) {
         scope.launch {
-            if (download == null && !container.hasEnabledSources()) {
+            if (download == null && target.request.pluginId == null && !container.hasEnabledSources()) {
                 openAddons(startAdding = true)
                 return@launch
             }
