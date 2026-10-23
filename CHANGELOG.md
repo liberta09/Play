@@ -1,5 +1,17 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.1.8] — 2026-10-23
+
+### Türkçe
+- **Canlı kanallarda kara ekran düzeltildi:** Canlı TV yayınlarında eklentinin kendi kaynak sırasına uyuluyor ve IPTV sağlayıcılarının döndürdüğü sahte yer tutucu dosyalar atlanarak gerçek yayın akışı açılıyor.
+- **Canlı yayında boyut gizleme ve kanal uyarısı:** Canlı yayınlarda dosya boyutu gösterilmez; hiçbir yayın kaynağı açılmazsa kullanıcıya "Bu kanal şu an oynatılamıyor" bilgilendirme mesajı gösterilir.
+- **Oynatıcı kilit simgesi:** Ekran kilitlendiğinde kilit simgesi birkaç saniye sonra kendiliğinden gizlenir, ekrana dokunulduğunda veya kumanda tuşuna basıldığında yeniden belirir.
+
+### English
+- **Fixed black screen on live channels:** Follows original addon stream order for live TV and skips fake placeholder streams returned by IPTV providers to play the actual broadcast.
+- **Hidden file size and live channel notice:** File sizes are hidden during live streams; displays a clear "This channel is currently unavailable" notice if no streams can be opened.
+- **Player lock icon auto-hide:** When the player is locked, the lock icon automatically hides after a few seconds and reappears on tap or remote control input.
+
 ## [1.1.7] — 2026-10-23
 
 ### Türkçe
