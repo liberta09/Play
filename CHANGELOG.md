@@ -1,6 +1,6 @@
 # Changelog / Değişiklik günlüğü
 
-## [1.1.7] — 2026-10-24
+## [1.1.7] — 2026-10-23
 
 ### Türkçe
 - **Nuvio addon ayrıntı sayfası:** Yüklü bir Nuvio addon'unun sunduğu kataloglar, kaynak türleri ve içerik sayıları ayrıntı sayfasında görüntülenir; istenmeyen kataloglar tek dokunuşla kapatılarak ana sayfa ve arama listelerinden gizlenebilir.
