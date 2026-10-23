@@ -105,10 +105,14 @@ class PlayerActivity : AppCompatActivity() {
         val offline = session.offline
         // Torrent motoru bu oynatıcı kapanana dek açık kalır (kapanınca geçici dosyalar silinir).
         container.torrentEngine.retain()
+        val bigBuffer = if (BuildConfig.DEBUG) {
+            intent.getBooleanExtra("test_big_buffer", PlayerNoticeLogic.testBigBuffer)
+        } else false
         controller = PlaybackController(
             this, container.httpClient,
             offlineCache = offline?.let { container.downloads.cache },
             torrentUrl = container.torrentServer::urlFor,
+            bigBuffer = bigBuffer,
         )
         controller.player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {

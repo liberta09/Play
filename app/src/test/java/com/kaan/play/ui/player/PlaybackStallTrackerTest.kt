@@ -152,4 +152,65 @@ class PlaybackStallTrackerTest {
         assertEquals(0L, tracker.totalStallMs)
         assertFalse(tracker.firstFrameRendered)
     }
+
+    @Test
+    fun onPlaybackStateChanged_returnsTrueOnlyWhenStallStarts() {
+        tracker.reset("Enel")
+        // İlk kareden önce buffering true olsa da takılma başlamaz
+        assertFalse(tracker.onPlaybackStateChanged(buffering = true, isReady = false))
+        tracker.onPlaybackStateChanged(buffering = false, isReady = true)
+
+        tracker.onFirstFrameRendered()
+
+        // İlk kareden sonra ilk buffering: takılma başlar -> true
+        assertTrue(tracker.onPlaybackStateChanged(buffering = true, isReady = false))
+
+        // Halen buffering iken tekrar buffering gelirse yeni takılma başlamaz -> false
+        assertFalse(tracker.onPlaybackStateChanged(buffering = true, isReady = false))
+
+        // Ready olunca takılma biter -> false
+        assertFalse(tracker.onPlaybackStateChanged(buffering = false, isReady = true))
+
+        // Kullanıcı seek yaparken buffering -> false
+        tracker.onSeekStarted()
+        assertFalse(tracker.onPlaybackStateChanged(buffering = true, isReady = false))
+        tracker.onPlaybackStateChanged(buffering = false, isReady = true)
+        tracker.onSeekEnded()
+
+        // Seek bittikten sonra yeni buffering -> true
+        assertTrue(tracker.onPlaybackStateChanged(buffering = true, isReady = false))
+    }
+
+    @Test
+    fun formatStallDetail_formatsBitrateAndBandwidthAndBufferCorrectly() {
+        val detail = PlaybackStallTracker.formatStallDetail(
+            sourceName = "Enel",
+            videoBitrate = 2_450_000,
+            bandwidthEstimate = 8_200_000L,
+            bufferedPositionMs = 25_000L,
+            currentPositionMs = 23_000L,
+        )
+        assertEquals("takılma-ayrıntı kaynak=Enel bitHızı=2.45 Mbps bantTahmini=8.20 Mbps tampon=2.0 sn", detail)
+    }
+
+    @Test
+    fun formatStallDetail_handlesUnknownBitrateAndBandwidth() {
+        val detail = PlaybackStallTracker.formatStallDetail(
+            sourceName = "Dragon",
+            videoBitrate = null,
+            bandwidthEstimate = null,
+            bufferedPositionMs = 10_000L,
+            currentPositionMs = 10_000L,
+        )
+        assertEquals("takılma-ayrıntı kaynak=Dragon bitHızı=bilinmiyor bantTahmini=bilinmiyor tampon=0.0 sn", detail)
+
+        val detailNegative = PlaybackStallTracker.formatStallDetail(
+            sourceName = "Ace",
+            videoBitrate = -1,
+            bandwidthEstimate = 0L,
+            bufferedPositionMs = 5_000L,
+            currentPositionMs = 6_000L, // current > buffer
+        )
+        assertEquals("takılma-ayrıntı kaynak=Ace bitHızı=bilinmiyor bantTahmini=bilinmiyor tampon=0.0 sn", detailNegative)
+    }
 }

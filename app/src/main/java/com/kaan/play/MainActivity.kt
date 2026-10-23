@@ -52,6 +52,9 @@ class MainActivity : AppCompatActivity() {
             if (intent.hasExtra("test_force_notice")) {
                 PlayerNoticeLogic.forceNoticeForTest = intent.getBooleanExtra("test_force_notice", false)
             }
+            if (intent.hasExtra("test_big_buffer")) {
+                PlayerNoticeLogic.testBigBuffer = intent.getBooleanExtra("test_big_buffer", false)
+            }
         }
         if (BuildConfig.DEBUG) {
             // Duman testi: oynatıcıyı test videosuyla doğrudan aç (geçmişe yazılmaz). --es play_test_video <adres>

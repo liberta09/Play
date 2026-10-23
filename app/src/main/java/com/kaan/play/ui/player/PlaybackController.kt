@@ -7,6 +7,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.media3.common.C
+import androidx.media3.common.Format
+import androidx.media3.exoplayer.DefaultLoadControl
+import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
@@ -77,6 +80,7 @@ class PlaybackController(
     offlineCache: Cache? = null,
     /** `magnet:` kaynağın yerleşik torrent motorundaki yerel http adresi (magnet, dosya sırası). */
     private val torrentUrl: (String, Int?) -> String = { _, _ -> throw IllegalStateException("no torrent engine") },
+    bigBuffer: Boolean = false,
 ) : SubtitleHost {
 
     @Volatile private var headers: Map<String, String> = emptyMap()
@@ -95,24 +99,34 @@ class PlaybackController(
         spec.withAdditionalHeaders(merged)
     }
 
-    val player: ExoPlayer = ExoPlayer.Builder(context)
-        .setMediaSourceFactory(
-            DefaultMediaSourceFactory(
-                if (offlineCache != null) {
-                    // İndirilmiş kopya: yalnızca önbellekten okunur (üst akış yok); internet hiç kullanılmaz.
-                    CacheDataSource.Factory().setCache(offlineCache).setCacheWriteDataSinkFactory(null)
-                } else {
-                    DataSource.Factory { if (torrent) torrentSource.createDataSource() else onlineSource.createDataSource() }
-                },
-            ),
-        )
-        .build()
-        .also { exo ->
+    private val bandwidthMeter = DefaultBandwidthMeter.getSingletonInstance(context)
+
+    val player: ExoPlayer = run {
+        val builder = ExoPlayer.Builder(context)
+            .setMediaSourceFactory(
+                DefaultMediaSourceFactory(
+                    if (offlineCache != null) {
+                        // İndirilmiş kopya: yalnızca önbellekten okunur (üst akış yok); internet hiç kullanılmaz.
+                        CacheDataSource.Factory().setCache(offlineCache).setCacheWriteDataSinkFactory(null)
+                    } else {
+                        DataSource.Factory { if (torrent) torrentSource.createDataSource() else onlineSource.createDataSource() }
+                    },
+                ),
+            )
+            .setBandwidthMeter(bandwidthMeter)
+        if (bigBuffer) {
+            val loadControl = DefaultLoadControl.Builder()
+                .setBufferDurationsMs(30_000, 90_000, 2_500, 8_000)
+                .build()
+            builder.setLoadControl(loadControl)
+        }
+        builder.build().also { exo ->
             // Altyazı varsayılan olarak kapalıdır; seçilince açılır (videonun içindekiler Media3'le, diğerleri kendi katmanımızla).
             exo.trackSelectionParameters = exo.trackSelectionParameters.buildUpon()
                 .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
                 .build()
         }
+    }
 
     val stallTracker = PlaybackStallTracker()
     private var released = false
@@ -142,7 +156,8 @@ class PlaybackController(
             override fun onPlaybackStateChanged(state: Int) {
                 val buffering = state == Player.STATE_BUFFERING
                 ui = ui.copy(buffering = buffering, ended = state == Player.STATE_ENDED)
-                stallTracker.onPlaybackStateChanged(buffering = buffering, isReady = state == Player.STATE_READY)
+                val stallStarted = stallTracker.onPlaybackStateChanged(buffering = buffering, isReady = state == Player.STATE_READY)
+                if (stallStarted) logStallDetail()
                 if (state == Player.STATE_READY && !player.isCurrentMediaItemLive) {
                     val duration = player.duration
                     if (duration != C.TIME_UNSET && duration > 0) onDurationKnown?.invoke(duration)
@@ -331,11 +346,36 @@ class PlaybackController(
             .build()
     }
 
+    private fun currentVideoBitrate(): Int? {
+        val direct = player.videoFormat?.bitrate?.takeIf { it > 0 && it != Format.NO_VALUE }
+        if (direct != null) return direct
+        return player.currentTracks.groups
+            .firstOrNull { it.type == C.TRACK_TYPE_VIDEO && it.isSelected }
+            ?.mediaTrackGroup
+            ?.let { group ->
+                (0 until group.length)
+                    .map { group.getFormat(it).bitrate }
+                    .firstOrNull { it > 0 && it != Format.NO_VALUE }
+            }
+    }
+
+    private fun logStallDetail() {
+        val detail = PlaybackStallTracker.formatStallDetail(
+            sourceName = stallTracker.sourceName,
+            videoBitrate = currentVideoBitrate(),
+            bandwidthEstimate = bandwidthMeter.bitrateEstimate.takeIf { it > 0L },
+            bufferedPositionMs = player.bufferedPosition,
+            currentPositionMs = player.currentPosition,
+        )
+        Log.d("PlayMatch", detail)
+    }
+
     fun release() {
         if (released) return
         released = true
         val summary = stallTracker.finish()
         Log.d("PlayMatch", summary)
+        logStallDetail()
         player.release()
     }
 

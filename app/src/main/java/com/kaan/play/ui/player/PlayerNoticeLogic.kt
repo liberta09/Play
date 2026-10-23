@@ -19,6 +19,9 @@ object PlayerNoticeLogic {
     /** Test ve ekran görüntüsü doğrulaması için yapay bildirim gösterme bayrağı. */
     var forceNoticeForTest: Boolean = false
 
+    /** Arabellek deneyi için büyük tampon bayrağı (debug'da am start ile açılabilir). */
+    var testBigBuffer: Boolean = false
+
     /**
      * Hata bildirimindeki teknik ayrıntının arayüzde gösterilip gösterilmeyeceğini belirler.
      * [isDebug] true ise ve [detail] doluysa true döner; release ([isDebug]=false veya [simulateRelease]=true) modunda her zaman false döner.

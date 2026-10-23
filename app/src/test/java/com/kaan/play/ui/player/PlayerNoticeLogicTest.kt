@@ -11,6 +11,7 @@ class PlayerNoticeLogicTest {
     fun tearDown() {
         PlayerNoticeLogic.simulateRelease = false
         PlayerNoticeLogic.simulateSkipOnce = false
+        PlayerNoticeLogic.testBigBuffer = false
     }
 
     @Test
@@ -38,5 +39,12 @@ class PlayerNoticeLogicTest {
     fun shouldShowDetail_whenSimulateReleaseTrue_returnsFalseEvenInDebug() {
         PlayerNoticeLogic.simulateRelease = true
         assertFalse(PlayerNoticeLogic.shouldShowDetail(isDebug = true, detail = "ERROR_CODE_IO_BAD_HTTP_STATUS (2004)"))
+    }
+
+    @Test
+    fun testBigBuffer_defaultsToFalseAndCanBeToggled() {
+        assertFalse(PlayerNoticeLogic.testBigBuffer)
+        PlayerNoticeLogic.testBigBuffer = true
+        assertTrue(PlayerNoticeLogic.testBigBuffer)
     }
 }
