@@ -94,7 +94,7 @@ class SubtitleLoader(
         }
         // Altyazı siteleri (SubDL …) zip verir: içindeki .srt/.vtt/.ass çıkarılır, kodlama çıkarılan dosyadan bulunur.
         val bytes = if (SubtitleZip.isZip(downloaded)) {
-            SubtitleZip.extract(downloaded, maxBytes) ?: return@withContext Fetched.Err(SubtitleLoad.Reason.Invalid)
+            SubtitleZip.extract(downloaded, maxBytes, season = track.season, episode = track.episode) ?: return@withContext Fetched.Err(SubtitleLoad.Reason.Invalid)
         } else {
             downloaded
         }

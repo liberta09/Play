@@ -20,6 +20,8 @@ data class SubtitleTrack(
     val kind: SubtitleKind = SubtitleKind.Source,
     val label: String? = null,
     val headers: Map<String, String> = emptyMap(),
+    val season: Int? = null,
+    val episode: Int? = null,
 )
 
 /**

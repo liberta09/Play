@@ -239,6 +239,7 @@ fun SourcePanel(
         title = stringResource(R.string.panel_title_sources),
         onDismiss = onDismiss,
         onApply = {
+            onDismiss()
             val pick = staged
             if (coordinator != null && pick != null && pick.url != current?.url) coordinator.pick(pick)
             when (val c = subChoice) {
@@ -246,7 +247,6 @@ fun SourcePanel(
                 SubChoice.Off -> subtitles.choose(null)
                 is SubChoice.Item -> if (c.item != subtitles.selected) subtitles.choose(c.item)
             }
-            onDismiss()
         },
         header = {
             if (coordinator != null) {

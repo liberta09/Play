@@ -176,12 +176,13 @@ class SubtitleTimeline(cues: List<SubtitleCue>) {
     private val starts = LongArray(this.cues.size) { this.cues[it].startMs }
 
     /** En uzun satır süresi: geriye bakarken nerede duracağımızı sınırlar (üst üste binen satırlar için). */
-    private val longest: Long = this.cues.maxOfOrNull { it.endMs - it.startMs } ?: 0L
+    private val longest: Long = minOf(this.cues.maxOfOrNull { it.endMs - it.startMs } ?: 0L, MAX_REASONABLE_DURATION_MS)
 
     val size: Int get() = cues.size
 
     private companion object {
-        const val MAX_LOOKBACK = 256
+        const val MAX_LOOKBACK = 32
+        const val MAX_REASONABLE_DURATION_MS = 30_000L
     }
 
     /**

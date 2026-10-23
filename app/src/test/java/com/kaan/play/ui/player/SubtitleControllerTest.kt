@@ -85,6 +85,7 @@ class SubtitleControllerTest {
             provider = SubtitleProvider { incoming.receiveAsFlow() },
             preferredLanguage = { app },
             persist = scope.backgroundScope,
+            io = kotlinx.coroutines.test.StandardTestDispatcher(scope.testScheduler),
         ).also { it.attach { cues -> shown = cues } }
 
         fun addon(name: String, vararg subs: Pair<String, String?>) {
