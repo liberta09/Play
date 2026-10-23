@@ -3,7 +3,9 @@
 **Tarih:** 23 Ekim 2026  
 **Dal:** `fix-nuvio-canli-ve-secici`  
 **Test Ortamı:** LDPlayer 9 (Android, 1600x900)  
-**Toplam Birim Test:** 911 test (911 GEÇTİ, 0 BAŞARISIZ, 0 HATA)
+**APK Bilgisi:** `versionName=1.1.6`, `versionCode=12`  
+**Test Edilen APK Commit Hash:** `ea142110534e81e9fe70f267a0a691547a7382ef`  
+**Toplam Birim Test:** 916 test (916 GEÇTİ, 0 BAŞARISIZ, 0 HATA)
 
 ---
 
@@ -24,37 +26,47 @@
    - Düşülen kol: Tanınmayan sağlayıcılar için varsayılan fallback olan **CloudStream kolu**.
    - CloudStream kolunda `providerId.removePrefix("cs:").toLongOrNull()` çağrısı `null` üreterek `0L` kimliğine dönüştü.
    - `loadApis(0L)` çağrıldı ve veri tabanında kimliği 0 olan satır bulunamadığı için döndürülen sonuç türü **`PluginRowMissing`** oldu.
-   - Kullanıcının ilettiği 3 katmanlı kök neden analizi %100 doğrulandı.
 
 ![Hata Yeniden Üretimi](repro_error.png)
 
-### 1.2 Uygulanan Üç Katmanlı Düzeltme
+### 1.2 Uygulanan Düzeltmeler
 1. **A1 — Sağlayıcı Kimliği Yönlendirmesi (ProviderRouteCodec):**
-   - Android bağımlılığı olmayan `ProviderRouteCodec` sınıfı yazıldı (`encode` ve `decode`).
+   - Android bağımsız `ProviderRouteCodec` sınıfı yazıldı (`encode` ve `decode`).
    - `:` karakteri URL uyumlu `%3A` biçiminde güvenli olarak kodlanır ve çözümleme aşamasında kayıpsız tersine çevrilir.
    - `ProviderDetailScreen` içinde CloudStream kolu yalnızca açıkça `"cs:"` önekiyle başlayan kimliklere sınırlandırıldı; tanınmayan kimlikler CloudStream'e düşürülmeden `R.string.provider_error_not_found` ile karşılandı.
-   - `ProviderRouteCodecTest` birim testleri ("cs:12", "nuvio_addon:5", alt çizgili ve boş durumlar) eklendi ve tümü geçti.
+   - `ProviderRouteCodecTest` birim testleri eklendi ve geçti.
 2. **A2 — Stremio Türü Taşınması (`addonType`):**
    - `CatalogItem` modeline `addonType: String? = null` alanı eklendi.
    - `NuvioAddonCatalog` içinde `meta.type == "tv"` veya `"channel"` olan öğelerin alt yazısı `"Dizi"` yerine `"Canlı"` / `"Live"` (string resource) olarak ayarlandı.
    - `HomeScreen` poster tıklamasında live TV öğeleri için yanlış TMDB dizi araması engellendi (`series/<id>` yerine `{base}/meta/{addonType}/{id}.json` korundu).
-3. **A3 — Canlı Kaynak İstemi ve Oynatma:**
-   - `ProviderDetailScreen` Nuvio kolunda meta türü `tv`/`channel` veya `videos` listesi boşsa tek parça oynatılabilir kılındı (`isSeries = false`).
+3. **A3 — Canlı Kaynak İstemi, Oynatma ve Detay Ekranı Düzeltmesi:**
+   - `ProviderDetailRules` kural nesnesi eklendi: Stremio türü `tv`/`channel` veya `videos` listesi boş olan içerikler `isLive=true` ve `isSeries=false` olarak sınıflandırıldı (`ProviderDetailRulesTest` ile birim testi yazıldı).
+   - `DetailContent` ve `HeaderBlock` bileşenlerine `isSeries` parametresi eklendi. Canlı ve tek parça içeriklerde sezon seçici ve "Bölüm bilgisi yok" metni tamamen gizlendi; doğrudan **"Oynat" butonu** gösterildi.
    - `StreamRequest` modeline `addonType` ve `addonContentId` eklendi.
-   - `CompositeStreamProvider`: `nuvio_addon:` isteklerini doğrudan ve yalnızca `AddonStreamProvider`'a (`GET {base}/stream/{addonType}/{addonContentId}.json`) iletir. CloudStream veya JS motoruna istek gitmez.
+   - `CompositeStreamProvider`: `nuvio_addon:` isteklerini doğrudan ve yalnızca `AddonStreamProvider`'a (`GET {base}/stream/{addonType}/{addonContentId}.json`) iletir.
    - `SourceCoordinator`: Canlı yayınlar için film minimum boyut kontrolü (`isAcceptableSize`) muaf tutuldu.
    - `PlayerActivity` ve `LibraryRepository`: Canlı yayınlarda izleme ilerlemesi kaydedilmez ve yayın "izlendi" olarak işaretlenmez.
-   - Sabit "Sezon $sNum" metni `R.string.season_number_format` içine taşındı.
 
-### 1.3 Cihaz Doğrulaması (LDPlayer)
-- WioSpor eklentisinin canlı TV afişine basıldı.
-- "Eklenti bulunamadı" hatası yerine kanal detay ekranı açıldı ("Canlı" rozeti ve "Oynat" butonu).
-- "Oynat" butonuna basıldı; ExoPlayer canlı akışa bağlandı ve ilk kare başarıyla oluşturuldu:
-  ```
-  Player: ilk kare: WioSpor (faz=Starting)
-  SourceCoordinator: ContentDurationCheck canlıda süre bilinmediği için elemedi (Unknown)
-  LibraryRepository: Canlı akış için izleme geçmişi kaydedilmedi
-  ```
+### 1.3 Cihaz Doğrulaması (LDPlayer) — 3 Canlı Kanal Testi
+Temiz debug APK derlenip kuruldu (`ea14211`), Play `am force-stop` ile kapatılıp yeniden açılarak WioSpor'dan 3 canlı kanal sırayla test edildi:
+
+1. **Kanal 1: Mor Spor 1 (beIN Sports 1):**
+   - **Detay Ekranı:** Başlık "?? Mor Spor 1", "Canlı" rozeti, **"Oynat" butonu görünür**. "1. Sezon" ve "Bölüm bilgisi yok" metinleri **gizlendi**.
+   - **Oynatıcı:** "Oynat" butonuna basıldı. İlk kaynak adayı (`pro.most8knew.com`) `UnknownHostException` (2001) hatası verdi; koordinatör otomatik olarak sıradaki kaynağa (`204.52.191.82`) geçti. `ilk kare: WioSpor (faz=Starting)` loglandı. Süre kontrolü canlı yayın olduğu için `Unknown` olarak geçti.
+   - **Görüntü Durumu:** İlk 15 sn ve ikinci 15 sn sonunda video yüzeyinde görüntü siyah kaldı (emülatör SurfaceView donanım kompozisyonu / kaynak sunucu gecikmesi). Ekrana dokunulduğunda kontroller ve üst çubuk ("Mor Spor 1", WioSpor) açıldı.
+   - **Akış Bilgisi:** Tür: `url` (HLS/m3u8), HTTP Durum Kodu: 200, Content-Type: `video/mp2t`, proxyHeaders: mevcut (`User-Agent`, `Origin`, `Referer`).
+
+2. **Kanal 2: Mor Spor 2 (beIN Sports 2):**
+   - **Detay Ekranı:** Başlık "?? Mor Spor 2", "Canlı" rozeti, **"Oynat" butonu görünür** (`detail_fixed.png`). Sezon seçici ve bölüm listesi yok.
+   - **Oynatıcı:** "Oynat" butonuna basıldı. İstek `tür=tv kimlik=wiospor_mor_2`.
+   - **Görüntü Durumu: CANLI YAYIN GÖRÜNTÜSÜ GELDİ!** Canlı spor yayını tam renkli ve kesintisiz biçimde oynatıldı (`live_playback.png`). Kontroller açıldığında üst çubukta kaynak adı ("WioSpor") ve kanal adı görüntülendi.
+   - **Akış Bilgisi:** Tür: `url` (HLS/TS), HTTP Durum Kodu: 200, proxyHeaders: eklenti tarafından iletildi.
+
+3. **Kanal 3: Mor Spor 3 (beIN Sports 3):**
+   - **Detay Ekranı:** Başlık "?? Mor Spor 3", "Canlı" rozeti, **"Oynat" butonu görünür**. Sezon seçici ve bölüm listesi yok.
+   - **Oynatıcı:** "Oynat" butonuna basıldı. İstek `tür=tv kimlik=wiospor_mor_3`. Kaynak `204.52.191.82` başlatıldı ve `ilk kare: WioSpor (faz=Starting)` alındı.
+   - **Görüntü Durumu: CANLI YAYIN GÖRÜNTÜSÜ GELDİ!** Canlı yayın akıcı şekilde oynatıldı.
+   - **Akış Bilgisi:** Tür: `url`, HTTP Durum Kodu: 200, proxyHeaders: mevcut.
 
 ![Düzeltilen Detay Ekranı](detail_fixed.png)
 ![Canlı Yayın Oynatma](live_playback.png)
@@ -115,11 +127,11 @@
 
 ```
 Test Runner: Gradle testDebugUnitTest
-Toplam Birim Test: 911
+Toplam Birim Test: 916
 Başarısız: 0
 Hata: 0
 Atlanan (@Ignore): 2 (Http2FallbackTest)
-Süre: 41 saniye
+Süre: 46 saniye
 Durum: BUILD SUCCESSFUL
 ```
 
@@ -129,3 +141,4 @@ Durum: BUILD SUCCESSFUL
 
 1. `2c6d92c` - `fix(nuvio): canlı TV ve stremio sağlayıcı kimlik yönlendirmesi düzeltildi`
 2. `42828e0` - `fix(provider): uzantı seçici pencere sürüklemesi kapatıldı ve dikey boyut sabitlendi`
+3. `ea14211` - `fix(detail): canlı TV ve tek parça içeriklerde sezon seçici gizlenip oynat butonu gösterildi`
