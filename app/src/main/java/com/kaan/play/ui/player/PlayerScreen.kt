@@ -452,8 +452,9 @@ fun PlayerScreen(
         }
 
         if (showControls) {
+            val isLive = target.request.addonType in listOf("tv", "channel")
             val playing = coordinator?.current ?: offlineStream
-            val sizeText = playing?.let { SizeText.format(coordinator?.sizeOf(it) ?: it.sizeBytes, locale) }
+            val sizeText = if (isLive) null else playing?.let { SizeText.format(coordinator?.sizeOf(it) ?: it.sizeBytes, locale) }
             val dims = SizeText.dimensions(ui.videoWidth, ui.videoHeight)
             val dubTag = when {
                 embeddedDub -> stringResource(R.string.tag_dubbed_embedded)
@@ -540,7 +541,9 @@ fun PlayerScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
+                val isLive = target.request.addonType in listOf("tv", "channel")
                 val message = when {
+                    isLive && sourcesFailed -> R.string.live_channel_unavailable
                     sourcesFailed && coordinator?.streams.isNullOrEmpty() -> R.string.player_no_sources
                     sourcesFailed -> R.string.player_all_failed
                     canSwitchSource -> ui.error!!.messageRes()

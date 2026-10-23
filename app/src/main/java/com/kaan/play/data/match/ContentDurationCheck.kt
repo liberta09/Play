@@ -9,6 +9,7 @@ package com.kaan.play.data.match
  * - **Film:** süre TMDB süresinin %50'sinden kısa ya da %180'inden uzunsa [Result.Mismatch].
  * - **Dizi bölümü:** bölüm süreleri çok değişkendir; yalnızca belirgin uyumsuzlukta (3 kattan fazla uzun / 3 kattan fazla kısa).
  * - Video süresi bilinmiyorsa (canlı yayın, belirsiz) ya da beklenen süre bilinmiyorsa karar verilmez ([Result.Unknown]): kaynak ELENMEZ.
+ * - **Canlı Yayın:** Canlı TV yayınında sonlu ve kısa süre (<= 30 dk) bir sahte/engel video göstergesidir.
  */
 object ContentDurationCheck {
     enum class Result { Ok, Mismatch, Unknown }
@@ -19,6 +20,12 @@ object ContentDurationCheck {
     const val MOVIE_MIN_RATIO = 0.5
     const val MOVIE_MAX_RATIO = 1.8
     const val EPISODE_RATIO = 3.0
+
+    /** Canlı yayında (TV/kanal) sonlu ve kısa dosya süresi (<= 30 dk) sahte/engel/yer tutucu video kabul edilir. */
+    fun isFakeLiveStream(durationMs: Long, isLive: Boolean): Boolean {
+        if (!isLive) return false
+        return durationMs in 1L..(30 * 60 * 1000L)
+    }
 
     fun check(durationMs: Long, expectedMinutes: Int?, kind: ContentKind): Result {
         if (durationMs <= 0 || expectedMinutes == null || expectedMinutes <= 0) return Result.Unknown

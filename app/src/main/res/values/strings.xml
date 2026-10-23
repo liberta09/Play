@@ -88,6 +88,7 @@
     <string name="player_error_network">Couldn\'t reach this source. Check your connection.</string>
     <string name="player_error_unavailable">This source isn\'t available right now.</string>
     <string name="player_error_format">This source can\'t be played on this device.</string>
+    <string name="live_channel_unavailable">This channel is currently unavailable.</string>
     <string name="player_error_pick">Choose another source</string>
 
     <!-- Kaldığın yerden devam -->

@@ -174,6 +174,9 @@ class SourceCoordinator(
     private val probed = HashSet<String>()
     private val probeGate = Semaphore(PROBE_PARALLEL)
 
+    val isLive: Boolean
+        get() = request.addonType in listOf("tv", "channel")
+
     val ctx: RankContext
         get() = RankContext(
             maxHeight = maxHeight,
@@ -181,6 +184,7 @@ class SourceCoordinator(
             preference = preference,
             sizes = sizes,
             isSlowHost = { url -> SlowHostMemory.isSlow(url, clock()) },
+            isLive = isLive,
         )
 
     /** Önerilen sıra (başlangıç sırası). */
@@ -456,6 +460,22 @@ class SourceCoordinator(
         val stream = current ?: return
         if (phase != SourcePhase.Starting && phase != SourcePhase.Playing) return
         if (!durationChecked.add(stream.url)) return
+        if (isLive) {
+            if (ContentDurationCheck.isFakeLiveStream(durationMs, isLive)) {
+                Log.d(
+                    "PlayMatch",
+                    "canlı yayında sahte kaynak elendi: kaynak=${stream.source.addonName} (${StreamLog.hostOf(stream.url)}) süre=%.1f dk"
+                        .format(java.util.Locale.ROOT, durationMs / 60_000.0),
+                )
+                verdicts.reject(requestKey, stream.url)
+                streams = streams.filterNot { it.url == stream.url }
+                firstFrameJob?.cancel()
+                phase = SourcePhase.Starting
+                firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+                startFailed("fake-live-duration", mismatch = true)
+                return
+            }
+        }
         scope.launch {
             runtimeJob?.join()
             if (current?.url != stream.url || (phase != SourcePhase.Starting && phase != SourcePhase.Playing)) return@launch
@@ -531,6 +551,7 @@ class SourceCoordinator(
 
     /** Torrent üst bilgisinden ya da başka yerden bulunan dosya boyutu (adres → bayt). */
     fun reportSize(url: String, bytes: Long) {
+        if (isLive) return
         if (bytes <= 0 || sizes[url] == bytes) return
         sizes = sizes + (url to bytes)
         val isMovie = request.type == MediaType.Movie
@@ -557,6 +578,7 @@ class SourceCoordinator(
     }
 
     private fun probeSizes() {
+        if (isLive) return
         val targets = buildList {
             current?.let { add(it) }
             addAll(ranked())

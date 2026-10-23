@@ -77,6 +77,7 @@
     <string name="player_error_network">Bu kaynağa ulaşılamadı. Bağlantını kontrol et.</string>
     <string name="player_error_unavailable">Bu kaynak şu an kullanılamıyor.</string>
     <string name="player_error_format">Bu kaynak bu cihazda oynatılamıyor.</string>
+    <string name="live_channel_unavailable">Bu kanal şu an oynatılamıyor.</string>
     <string name="player_error_pick">Başka kaynak seç</string>
 
     <!-- Kaldığın yerden devam -->

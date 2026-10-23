@@ -80,6 +80,7 @@ data class RankContext(
     /** Dosya boyutları (adres → bayt): eklentinin verdiğine ek olarak sonradan bulunanlar (HEAD, torrent üst bilgisi). */
     val sizes: Map<String, Long> = emptyMap(),
     val isSlowHost: (String) -> Boolean = { false },
+    val isLive: Boolean = false,
 )
 
 /**
@@ -89,6 +90,8 @@ data class RankContext(
  * 2) Türkçe dublaj önceliği açıkken dublajlılar altyazılıların önüne; 3) kullanıcının önceki seçimi kendi grubunda öne;
  * 4) doğrudan HTTP/HLS torrentten önce; 5) 1080p'ye kadar en yüksek çözünürlük (sonra 1080p üstü, sonra bilinmeyen);
  * 6) aynı çözünürlükte küçük dosya (daha çabuk açılır; boyutu bilinmeyen sonda).
+ *
+ * **Canlı TV yayını:** ([isLive]): eklentinin doğal katalog akış sırası korunur, çözünürlük katmanıyla çalışan HLS akışları arkaya atılmaz.
  */
 object SourceRanking {
 
@@ -112,16 +115,25 @@ object SourceRanking {
         pref != null && stream.source.addonId == pref.addonId
 
     fun recommended(streams: List<PlayableStream>, ctx: RankContext): List<PlayableStream> {
-        val comparator = compareBy<PlayableStream>(
-            { if (isTooHeavy(it, ctx)) 1 else 0 },
-            { if (ctx.preferDub && !it.dubbed) 1 else 0 },
-            { if (ctx.isSlowHost(it.url)) 1 else 0 },
-            { if (matchesPreference(it, ctx.preference)) 0 else 1 },
-            { if (TorrentLinks.isMagnet(it.url)) 1 else 0 },
-            { resolutionTier(it) },
-            { -(it.resolution ?: 0) },
-            { sizeOf(it, ctx.sizes) ?: Long.MAX_VALUE },
-        )
+        val comparator = if (ctx.isLive) {
+            compareBy<PlayableStream>(
+                { if (isTooHeavy(it, ctx)) 1 else 0 },
+                { if (ctx.isSlowHost(it.url)) 1 else 0 },
+                { if (matchesPreference(it, ctx.preference)) 0 else 1 },
+                { if (TorrentLinks.isMagnet(it.url)) 1 else 0 },
+            )
+        } else {
+            compareBy<PlayableStream>(
+                { if (isTooHeavy(it, ctx)) 1 else 0 },
+                { if (ctx.preferDub && !it.dubbed) 1 else 0 },
+                { if (ctx.isSlowHost(it.url)) 1 else 0 },
+                { if (matchesPreference(it, ctx.preference)) 0 else 1 },
+                { if (TorrentLinks.isMagnet(it.url)) 1 else 0 },
+                { resolutionTier(it) },
+                { -(it.resolution ?: 0) },
+                { sizeOf(it, ctx.sizes) ?: Long.MAX_VALUE },
+            )
+        }
         return streams.distinctBy { it.url }.sortedWith(comparator)
     }
 

@@ -293,7 +293,7 @@ fun SourcePanel(
                             selected = staged?.url == s.url,
                             playing = current?.url == s.url,
                             embeddedDub = embeddedDub,
-                            sizeText = SizeText.format(SourceRanking.sizeOf(s, ctx.sizes), locale),
+                            sizeText = if (ctx.isLive) null else SizeText.format(SourceRanking.sizeOf(s, ctx.sizes), locale),
                             onClick = { staged = s },
                             modifier = if (staged?.url == s.url) Modifier.focusRequester(focus) else Modifier,
                         )

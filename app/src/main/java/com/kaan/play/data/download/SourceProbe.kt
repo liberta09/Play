@@ -1,4 +1,5 @@
 package com.kaan.play.data.download
+import com.kaan.play.ui.player.PlaybackController
 
 import android.util.Log
 import com.kaan.play.data.net.await
