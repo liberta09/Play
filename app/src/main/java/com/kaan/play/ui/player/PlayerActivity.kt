@@ -236,7 +236,7 @@ class PlayerActivity : AppCompatActivity() {
 
         setContent {
             PlayTheme(darkTheme = true) {
-                val isSeries = session.target.request.type == MediaType.Tv
+                val isSeries = AutoNextRules.canShowNextEpisodeButton(session.target.request.type, session.target.request.season, session.target.request.episode, session.target.request.addonType, 1L)
                 PlayerScreen(
                     controller = controller,
                     subtitles = subtitles,

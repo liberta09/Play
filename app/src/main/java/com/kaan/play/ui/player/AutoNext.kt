@@ -58,6 +58,24 @@ object AutoNextRules {
 
     fun leftCardWindow(positionMs: Long, durationMs: Long): Boolean =
         remaining(positionMs, durationMs) > WINDOW_MS + SEEK_BACK_MARGIN_MS
+    /**
+     * Oynatıcı alt çubuğundaki "Sonraki bölüm" düğmesinin görünüp görünmeyeceğini belirler.
+     * Yalnızca dizi bölümlerinde (sezon ve bölüm numarası olan, canlı tv/channel olmayan ve
+     * süresi bilinen pozitif akışlar) görünür. Canlı yayında ve filmlerde gizlenir.
+     */
+    fun canShowNextEpisodeButton(
+        type: MediaType?,
+        season: Int?,
+        episode: Int?,
+        addonType: String? = null,
+        durationMs: Long = 1L,
+    ): Boolean {
+        if (addonType?.lowercase() in listOf("tv", "channel")) return false
+        if (type != MediaType.Tv) return false
+        if (season == null || episode == null) return false
+        if (durationMs <= 0L) return false
+        return true
+    }
 
     /**
      * Sonraki bölüm için deneme sırası. Önce kullanıcının izlediği eklentinin kaynakları (aynı sunucu, aynı tür, en yakın kalite
@@ -204,7 +222,7 @@ class AutoNextController(
     private var lastTickMs = -1L
 
     private val isSeries: Boolean
-        get() = target.request.type == MediaType.Tv && target.request.season != null && target.request.episode != null
+        get() = AutoNextRules.canShowNextEpisodeButton(target.request.type, target.request.season, target.request.episode, target.request.addonType, 1L)
 
     /** Ayarı okur ve sonraki bölümü arar. Bir kez çağrılır. */
     fun start() {

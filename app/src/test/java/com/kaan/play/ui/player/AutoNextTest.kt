@@ -141,6 +141,28 @@ class AutoNextRulesTest {
     fun collectOfNothingIsEmpty() = runTest {
         assertTrue(AutoNextRules.collect(flow { }, preferredAddonId = 1).isEmpty())
     }
+
+    @Test
+    fun canShowNextEpisodeButtonRules() {
+        // Normal dizi bölümü: görünür
+        assertTrue(AutoNextRules.canShowNextEpisodeButton(MediaType.Tv, 1, 2, addonType = null, durationMs = 1_200_000L))
+        assertTrue(AutoNextRules.canShowNextEpisodeButton(MediaType.Tv, 1, 2, addonType = "series", durationMs = 1_200_000L))
+
+        // Canlı tv/channel türleri: gizlenir
+        assertFalse(AutoNextRules.canShowNextEpisodeButton(MediaType.Tv, 1, 2, addonType = "tv", durationMs = 1_200_000L))
+        assertFalse(AutoNextRules.canShowNextEpisodeButton(MediaType.Tv, 1, 2, addonType = "channel", durationMs = 1_200_000L))
+
+        // Film türü: gizlenir
+        assertFalse(AutoNextRules.canShowNextEpisodeButton(MediaType.Movie, 1, 2, addonType = null, durationMs = 1_200_000L))
+
+        // Sezon ya da bölüm numarası eksik: gizlenir
+        assertFalse(AutoNextRules.canShowNextEpisodeButton(MediaType.Tv, null, 2, addonType = null, durationMs = 1_200_000L))
+        assertFalse(AutoNextRules.canShowNextEpisodeButton(MediaType.Tv, 1, null, addonType = null, durationMs = 1_200_000L))
+
+        // Süre bilinmiyor ya da sıfır (canlı akış): gizlenir
+        assertFalse(AutoNextRules.canShowNextEpisodeButton(MediaType.Tv, 1, 2, addonType = null, durationMs = 0L))
+        assertFalse(AutoNextRules.canShowNextEpisodeButton(MediaType.Tv, 1, 2, addonType = null, durationMs = -1L))
+    }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -422,6 +444,18 @@ class AutoNextControllerTest {
         runCurrent()
 
         assertEquals(1, rig.noNextCalls)
+        assertTrue(rig.advanced.isEmpty())
+    }
+
+    @Test
+    fun liveTargetNeverArmsOrShowsCard() = runTest {
+        val liveTarget = PlayTarget(StreamRequest(10, "tt10", MediaType.Tv, addonType = "tv"), "Canli", null)
+        val rig = Rig(this, liveTarget, enabled = true)
+        assertEquals(0, rig.lookupCalls)
+        rig.tick(10_000)
+        assertEquals(AutoNextPhase.Hidden, rig.controller.phase)
+        assertEquals(0, rig.prepareCalls)
+        assertFalse(rig.controller.onEnded())
         assertTrue(rig.advanced.isEmpty())
     }
 }

@@ -469,7 +469,8 @@ fun PlayerScreen(
                 if (canSync) add(BarAction(PlayIcons.SubtitleSync, stringResource(R.string.player_btn_sync)) { showSync = true })
                 add(BarAction(PlayIcons.SwitchSource, stringResource(R.string.player_btn_source), ::openPanel))
                 add(BarAction(PlayIcons.Tracks, stringResource(R.string.player_btn_tracks)) { showTracks = true; bump() })
-                if (onNextEpisode != null) {
+                val canShowNext = onNextEpisode != null && AutoNextRules.canShowNextEpisodeButton(target.request.type, target.request.season, target.request.episode, target.request.addonType, duration)
+                if (canShowNext) {
                     add(BarAction(PlayIcons.NextEpisode, stringResource(R.string.player_btn_next_episode)) {
                         onNextEpisode()
                         bump()
