@@ -296,6 +296,7 @@ class SourceCoordinator(
 
         probeJob = scope.launch {
             val isMovie = request.type == MediaType.Movie
+            val isLive = request.addonType in listOf("tv", "channel")
             val result = try {
                 withTimeoutOrNull(PLAY_PROBE_TIMEOUT_MS) {
                     probe(stream)
@@ -319,7 +320,7 @@ class SourceCoordinator(
                     }
                     is Probe.Ok -> {
                         result.lengthBytes?.let { len ->
-                            if (!SourceMediaRules.isAcceptableSize(len, isMovie)) {
+                            if (!isLive && !SourceMediaRules.isAcceptableSize(len, isMovie)) {
                                 Log.d(TAG, "kaynak yoklamada elendi (boyut yetersiz: $len bayt): ${stream.source.addonName}")
                                 eliminate = true
                             } else {
@@ -428,9 +429,10 @@ class SourceCoordinator(
     private fun acceptable(stream: PlayableStream): Boolean {
         val size = SourceRanking.sizeOf(stream, sizes)
         val isMovie = request.type == MediaType.Movie
+        val isLive = request.addonType in listOf("tv", "channel")
         return StreamOwnership.belongs(stream, request) &&
             !verdicts.isRejected(requestKey, stream.url) &&
-            SourceMediaRules.isAcceptableSize(size, isMovie)
+            (isLive || SourceMediaRules.isAcceptableSize(size, isMovie))
     }
 
     /**
@@ -519,7 +521,8 @@ class SourceCoordinator(
         if (bytes <= 0 || sizes[url] == bytes) return
         sizes = sizes + (url to bytes)
         val isMovie = request.type == MediaType.Movie
-        if (!SourceMediaRules.isAcceptableSize(bytes, isMovie)) {
+        val isLive = request.addonType in listOf("tv", "channel")
+        if (!isLive && !SourceMediaRules.isAcceptableSize(bytes, isMovie)) {
             Log.d(TAG, "kaynak boyutu çok küçük (sahte kaynak): $url (${bytes}B)")
             verdicts.reject(requestKey, url)
             streams = streams.filterNot { it.url == url }

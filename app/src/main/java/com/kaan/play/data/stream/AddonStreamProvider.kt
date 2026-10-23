@@ -26,21 +26,24 @@ class AddonStreamProvider(
 
     override fun streams(request: StreamRequest): Flow<StreamResult> = channelFlow {
         val contentId = request.contentId ?: return@channelFlow
-        val type = request.type.addonType
+        val type = request.addonType ?: request.type.addonType
         val limit = timeout()
-        for (addon in askable(type, contentId)) {
+        val targetAddonId = if (request.pluginId?.startsWith("nuvio_addon:") == true) request.pluginId.removePrefix("nuvio_addon:").toLongOrNull() else null
+        for (addon in askable(type, contentId, targetAddonId)) {
             launch { send(query(addon, type, contentId, limit)) }
         }
     }
 
     override suspend fun sources(request: StreamRequest): List<StreamSource> {
         val contentId = request.contentId ?: return emptyList()
-        return askable(request.type.addonType, contentId).map { StreamSource(it.id, it.manifest.name) }
+        val type = request.addonType ?: request.type.addonType
+        val targetAddonId = if (request.pluginId?.startsWith("nuvio_addon:") == true) request.pluginId.removePrefix("nuvio_addon:").toLongOrNull() else null
+        return askable(type, contentId, targetAddonId).map { StreamSource(it.id, it.manifest.name) }
     }
 
     /** Manifest'e uyan (tür / `idPrefixes`) aktif addon'lar; diğerlerine istek gitmez. */
-    private suspend fun askable(type: String, contentId: String): List<Addon> =
-        addons().filter { it.manifest.supportsStream(type, contentId) }
+    private suspend fun askable(type: String, contentId: String, targetAddonId: Long? = null): List<Addon> =
+        addons().filter { targetAddonId == null || it.id == targetAddonId }.filter { it.manifest.supportsStream(type, contentId) }
 
     private suspend fun query(addon: Addon, type: String, contentId: String, limit: Duration): StreamResult {
         val source = StreamSource(addon.id, addon.manifest.name)

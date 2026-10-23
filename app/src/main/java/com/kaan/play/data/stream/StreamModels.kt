@@ -22,6 +22,8 @@ data class StreamRequest(
     val contentUrl: String? = null,
     val title: String? = null,
     val year: Int? = null,
+    val addonType: String? = null,
+    val addonContentId: String? = null,
 ) {
     /**
      * Addon'a giden kimlik: film `tt123`, dizi `tt123:sezon:bölüm`.
@@ -29,6 +31,7 @@ data class StreamRequest(
      */
     val contentId: String?
         get() {
+            if (!addonContentId.isNullOrBlank()) return addonContentId
             val imdb = imdbId ?: return null
             return when (type) {
                 MediaType.Movie -> imdb

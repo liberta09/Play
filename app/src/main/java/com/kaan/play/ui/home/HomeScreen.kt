@@ -1069,14 +1069,24 @@ internal suspend fun resolveAndOpenPoster(
         val addonRowId = item.providerId.removePrefix("nuvio_addon:").toLongOrNull() ?: 0L
         val addon = withContext(Dispatchers.IO) { addons.byId(addonRowId) }
         val hasMeta = addon?.manifest?.resources?.any { it.name == com.kaan.play.data.addon.AddonManifest.META } == true
-        if (hasMeta) {
-            val typeStr = when (item.mediaType) {
+        val isLive = item.addonType in listOf("tv", "channel")
+        if (hasMeta || isLive) {
+            val typeStr = item.addonType ?: when (item.mediaType) {
                 MediaType.Tv -> "series"
                 MediaType.Movie -> "movie"
             }
             onOpenProviderDetail(item.providerId, "$typeStr/${item.id}")
             return
         }
+    }
+
+    // Canlı kanalda (tv/channel) TMDB başlık araması yapılmaz; yanlış içerik açar
+    if (item.addonType in listOf("tv", "channel")) {
+        if (item.providerId.startsWith("nuvio_addon:") && onOpenProviderDetail != null) {
+            val typeStr = item.addonType ?: "tv"
+            onOpenProviderDetail(item.providerId, "$typeStr/${item.id}")
+        }
+        return
     }
 
     // 4. O da yoksa başlıkla ara

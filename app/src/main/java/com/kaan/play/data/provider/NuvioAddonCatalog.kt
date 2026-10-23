@@ -55,17 +55,19 @@ class NuvioAddonCatalog(
                             id = meta.id,
                             title = meta.name,
                             subtitle = when (meta.type.lowercase()) {
-                                "series", "tv" -> "Dizi"
+                                "series" -> "Dizi"
+                                "tv", "channel" -> if (java.util.Locale.getDefault().language == "tr") "Canlı" else "Live"
                                 else -> null
                             },
                             posterUrl = meta.poster,
                             posterHeaders = null,
                             mediaType = when (meta.type.lowercase()) {
-                                "series", "tv" -> MediaType.Tv
+                                "series", "tv", "channel" -> MediaType.Tv
                                 else -> MediaType.Movie
                             },
                             providerId = providerId,
                             rawUrl = null,
+                            addonType = meta.type.lowercase(),
                         )
                     }
 
@@ -109,17 +111,19 @@ class NuvioAddonCatalog(
                     id = meta.id,
                     title = meta.name,
                     subtitle = when (meta.type.lowercase()) {
-                        "series", "tv" -> "Dizi"
+                        "series" -> "Dizi"
+                        "tv", "channel" -> if (java.util.Locale.getDefault().language == "tr") "Canlı" else "Live"
                         else -> null
                     },
                     posterUrl = meta.poster,
                     posterHeaders = null,
                     mediaType = when (meta.type.lowercase()) {
-                        "series", "tv" -> MediaType.Tv
+                        "series", "tv", "channel" -> MediaType.Tv
                         else -> MediaType.Movie
                     },
                     providerId = providerId,
                     rawUrl = null,
+                    addonType = meta.type.lowercase(),
                 )
             }
         } catch (_: Throwable) {

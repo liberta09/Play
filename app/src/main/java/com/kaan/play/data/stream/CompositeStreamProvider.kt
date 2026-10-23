@@ -23,10 +23,10 @@ class CompositeStreamProvider(
     constructor(vararg providers: StreamProvider) : this(providers.toList())
 
     override fun streams(request: StreamRequest): Flow<StreamResult> = channelFlow {
-        val targetProvider = if (request.pluginId != null && request.pluginId.startsWith("cs:")) {
-            providers.filterIsInstance<com.kaan.play.data.cloudstream.CsStreamProvider>()
-        } else {
-            providers
+        val targetProvider = when {
+            request.pluginId?.startsWith("cs:") == true -> providers.filterIsInstance<com.kaan.play.data.cloudstream.CsStreamProvider>()
+            request.pluginId?.startsWith("nuvio_addon:") == true -> providers.filterIsInstance<AddonStreamProvider>()
+            else -> providers
         }
         val key = StreamOwnership.keyOf(request)
         for (provider in targetProvider) {
@@ -45,10 +45,10 @@ class CompositeStreamProvider(
     }
 
     override suspend fun sources(request: StreamRequest): List<StreamSource> = coroutineScope {
-        val targetProvider = if (request.pluginId != null && request.pluginId.startsWith("cs:")) {
-            providers.filterIsInstance<com.kaan.play.data.cloudstream.CsStreamProvider>()
-        } else {
-            providers
+        val targetProvider = when {
+            request.pluginId?.startsWith("cs:") == true -> providers.filterIsInstance<com.kaan.play.data.cloudstream.CsStreamProvider>()
+            request.pluginId?.startsWith("nuvio_addon:") == true -> providers.filterIsInstance<AddonStreamProvider>()
+            else -> providers
         }
         targetProvider.map { async { it.sources(request) } }.awaitAll().flatten()
     }

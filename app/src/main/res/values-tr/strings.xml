@@ -12,6 +12,8 @@
 
     <string name="type_movie">Film</string>
     <string name="type_series">Dizi</string>
+    <string name="tag_live">Canlı</string>
+    <string name="season_number_format">Sezon %1$d</string>
 
     <!-- Ana sayfa -->
     <string name="home_empty_message">Henüz hiçbir eklenti yok.</string>

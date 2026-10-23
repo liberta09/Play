@@ -58,6 +58,7 @@ data class CatalogItem(
     val mediaType: MediaType = MediaType.Movie,
     val providerId: String,
     val rawUrl: String? = null,
+    val addonType: String? = null,
 )
 
 /**

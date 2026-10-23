@@ -18,6 +18,8 @@
 
     <string name="type_movie">Movie</string>
     <string name="type_series">Series</string>
+    <string name="tag_live">Live</string>
+    <string name="season_number_format">Season %1$d</string>
 
     <!-- Ana sayfa -->
     <string name="home_empty_message">No addons yet.</string>

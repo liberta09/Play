@@ -60,6 +60,7 @@ class LibraryRepository(
      * Aynı içerik/bölüm satırı yenilenir. Konum süreyi aşmaz. @return kaydedildi mi.
      */
     suspend fun saveProgress(target: PlayTarget, positionMs: Long, durationMs: Long): Boolean {
+        if (target.request.addonType in listOf("tv", "channel")) return false
         if (!WatchRules.shouldRecord(positionMs, durationMs)) return false
         val r = target.request
         val season = r.season ?: 0

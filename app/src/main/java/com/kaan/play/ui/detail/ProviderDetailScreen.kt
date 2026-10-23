@@ -114,6 +114,8 @@ private sealed interface ProviderDetailUiState {
         val episodes: List<ProviderEpisodeItem>,
         val movieDataUrl: String?,
         val syntheticId: Int,
+        val addonType: String? = null,
+        val addonContentId: String? = null,
     ) : ProviderDetailUiState
 }
 
@@ -131,6 +133,7 @@ fun ProviderDetailScreen(
 ) {
     val container = rememberContainer()
     val layout = rememberPlayLayout()
+    val context = androidx.compose.ui.platform.LocalContext.current.applicationContext
 
     var state by remember(providerId, url) { mutableStateOf<ProviderDetailUiState>(ProviderDetailUiState.Loading) }
     var selectedSeason by remember(providerId, url) { mutableStateOf<Int?>(null) }
@@ -149,6 +152,42 @@ fun ProviderDetailScreen(
                     val addon = container.addons.byId(addonRowId)
                         ?: return@withContext ProviderDetailUiState.Error(R.string.provider_error_not_found)
 
+                    val hasMeta = addon.manifest.resources.any { it.name == com.kaan.play.data.addon.AddonManifest.META }
+                    val pathParts = if (url.contains('/')) url.split('/', limit = 2) else listOf("movie", url)
+                    val parsedType = pathParts.getOrNull(0) ?: "movie"
+                    val parsedId = pathParts.getOrNull(1) ?: url
+                    val isLiveType = parsedType.lowercase() in listOf("tv", "channel")
+
+                    if (!hasMeta && isLiveType) {
+                        val summary = MediaSummary(
+                            id = syntheticId,
+                            type = MediaType.Movie,
+                            title = parsedId,
+                            overview = "",
+                            posterPath = null,
+                            backdropPath = null,
+                            year = null,
+                            rating = null,
+                        )
+                        val detail = MediaDetail(
+                            summary = summary,
+                            imdbId = if (parsedId.startsWith("tt")) parsedId else null,
+                            tagline = "",
+                            genres = emptyList(),
+                            runtimeMinutes = null,
+                            seasons = emptyList(),
+                        )
+                        return@withContext ProviderDetailUiState.Ready(
+                            detail = detail,
+                            isSeries = false,
+                            episodes = emptyList(),
+                            movieDataUrl = parsedId,
+                            syntheticId = syntheticId,
+                            addonType = parsedType.lowercase(),
+                            addonContentId = parsedId,
+                        )
+                    }
+
                     val metaUrl = when {
                         url.startsWith("http://") || url.startsWith("https://") -> url
                         url.contains('/') -> "${addon.baseUrl}/meta/$url.json"
@@ -166,7 +205,8 @@ fun ProviderDetailScreen(
                     val resp = PlayJson.decodeFromString(StremioMetaDetailResponse.serializer(), jsonText)
                     val meta = resp.meta ?: return@withContext ProviderDetailUiState.Error(R.string.provider_error_meta_not_found)
 
-                    val isSeries = meta.type.lowercase() in listOf("series", "tv")
+                    val isLive = meta.type.lowercase() in listOf("tv", "channel") || meta.videos.isEmpty()
+                    val isSeries = !isLive && meta.type.lowercase() == "series"
                     val episodes: List<ProviderEpisodeItem> = if (isSeries) {
                         meta.videos.map { v ->
                             ProviderEpisodeItem(
@@ -191,7 +231,7 @@ fun ProviderDetailScreen(
                     val seasonInfos = seasonNums.map { sNum ->
                         SeasonInfo(
                             number = sNum,
-                            name = "Sezon $sNum",
+                            name = context.getString(R.string.season_number_format, sNum),
                             episodeCount = episodes.count { (it.season ?: 1) == sNum },
                             posterPath = null,
                         )
@@ -222,14 +262,23 @@ fun ProviderDetailScreen(
                         selectedSeason = seasonNums.first()
                     }
 
+                    val resolvedAddonType = when {
+                        isLive -> if (meta.type.lowercase() in listOf("tv", "channel")) meta.type.lowercase() else parsedType.lowercase()
+                        isSeries -> "series"
+                        else -> "movie"
+                    }
+                    val resolvedContentId = meta.id.ifBlank { parsedId }
+
                     ProviderDetailUiState.Ready(
                         detail = detail,
                         isSeries = isSeries,
                         episodes = episodes,
                         movieDataUrl = meta.id,
                         syntheticId = syntheticId,
+                        addonType = resolvedAddonType,
+                        addonContentId = resolvedContentId,
                     )
-                } else {
+                } else if (providerId.startsWith("cs:")) {
                     val pluginRowId = providerId.removePrefix("cs:").toLongOrNull() ?: 0L
                     val result = container.csRepos.loadApis(pluginRowId)
                     val apis = result.apisOrEmpty()
@@ -290,7 +339,7 @@ fun ProviderDetailScreen(
                     val seasonInfos = seasonNums.map { sNum ->
                         SeasonInfo(
                             number = sNum,
-                            name = "Sezon $sNum",
+                            name = context.getString(R.string.season_number_format, sNum),
                             episodeCount = episodes.count { (it.season ?: 1) == sNum },
                             posterPath = null,
                         )
@@ -336,6 +385,8 @@ fun ProviderDetailScreen(
                         movieDataUrl = movieDataUrl,
                         syntheticId = syntheticId,
                     )
+                } else {
+                    ProviderDetailUiState.Error(R.string.provider_error_not_found)
                 }
             } catch (t: Throwable) {
                 Log.e("ProviderDetail", "Error in ProviderDetailScreen", t)
@@ -412,14 +463,16 @@ fun ProviderDetailScreen(
                             request = StreamRequest(
                                 tmdbId = s.detail.summary.id,
                                 imdbId = s.detail.imdbId,
-                                type = if (s.isSeries) MediaType.Tv else MediaType.Movie,
-                                season = season ?: selectedSeason,
-                                episode = episode,
+                                type = if (s.isSeries || s.addonType in listOf("tv", "channel")) MediaType.Tv else s.detail.summary.type,
+                                season = if (s.isSeries) (season ?: selectedSeason) else null,
+                                episode = if (s.isSeries) episode else null,
                                 pluginId = providerId,
                                 dataUrl = dataUrl,
                                 contentUrl = url,
                                 title = s.detail.summary.title,
                                 year = s.detail.summary.year,
+                                addonType = s.addonType,
+                                addonContentId = s.addonContentId ?: if (!s.isSeries) (s.movieDataUrl ?: dataUrl) else null,
                             ),
                             title = s.detail.summary.title,
                             posterPath = s.detail.summary.posterPath,
