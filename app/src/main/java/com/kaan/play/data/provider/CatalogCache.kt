@@ -29,4 +29,9 @@ class CatalogCache(
     fun clear(key: String? = null) {
         if (key != null) cache.remove(key) else cache.clear()
     }
+
+    fun removeForAddon(addonId: Long) {
+        val target = "nuvio_addon:$addonId"
+        cache.keys.removeIf { it.contains(target) }
+    }
 }

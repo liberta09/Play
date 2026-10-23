@@ -157,6 +157,8 @@ class UpdateApkRulesTest {
         assertEquals(h, UpdateApkRules.parseSha256(text, "Play-1.0.3-arm64-v8a.apk"))
         assertEquals(k.lowercase(), UpdateApkRules.parseSha256(text, "Play-1.0.3-x86_64.apk")) // boşluk biçimi, büyük harf
         assertNull(UpdateApkRules.parseSha256(text, "Play-1.0.3-armeabi-v7a.apk"))
+        // BOM dayanıklılığı testi (\uFEFF)
+        assertEquals(h, UpdateApkRules.parseSha256("\uFEFF$text", "Play-1.0.3-arm64-v8a.apk"))
     }
 
     @Test

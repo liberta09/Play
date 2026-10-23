@@ -205,7 +205,12 @@ class AppContainer(context: Context) {
     }
 
     val settings: SettingsRepository by lazy {
-        SettingsRepository(PreferenceDataStoreFactory.create { appContext.preferencesDataStoreFile("settings") })
+        SettingsRepository(PreferenceDataStoreFactory.create { appContext.preferencesDataStoreFile("settings") }).apply {
+            onCatalogVisibilityChanged = { addonId ->
+                catalogRepository.cache.removeForAddon(addonId)
+                catalogRepository.cache.clear()
+            }
+        }
     }
 
     /** Elle seçilen kaynak (film/dizi başına): sonraki açılışta ve dizinin sonraki bölümünde önce denenir. Ayarlarla aynı DataStore. */

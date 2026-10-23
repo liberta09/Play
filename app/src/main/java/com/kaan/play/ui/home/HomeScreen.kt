@@ -58,6 +58,7 @@ import com.kaan.play.data.cloudstream.cloudflare.CloudflareSolver
 import com.kaan.play.data.library.ContinueItem
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.provider.ProviderRules
+import com.kaan.play.data.addon.CatalogVisibility
 import com.kaan.play.ui.cloudflare.CloudflareVerifyActivity
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.i18n.AppLanguage
@@ -510,23 +511,30 @@ private fun LazyProviderSection(
     val disabledCatalogs by container.settings.disabledCatalogs.collectAsStateWithLifecycle(initialValue = emptySet())
     var state by remember(provider.id, disabledCatalogs) {
         val cached = container.catalogRepository.cache.get(provider.id)
+        val visible = cached?.let { CatalogVisibility.filterRows(it, disabledCatalogs) }
         mutableStateOf<ProviderSectionUiState>(
             when {
-                cached == null -> ProviderSectionUiState.Loading
-                cached.isEmpty() -> ProviderSectionUiState.Hidden
-                else -> ProviderSectionUiState.Ready(cached)
+                visible == null -> ProviderSectionUiState.Loading
+                visible.isEmpty() -> ProviderSectionUiState.Hidden
+                else -> ProviderSectionUiState.Ready(visible)
             }
         )
     }
 
     LaunchedEffect(provider.id, disabledCatalogs) {
-        if (state is ProviderSectionUiState.Ready) return@LaunchedEffect
+        val cached = container.catalogRepository.cache.get(provider.id)
+        val visible = cached?.let { CatalogVisibility.filterRows(it, disabledCatalogs) }
+        if (visible != null) {
+            state = if (visible.isNotEmpty()) ProviderSectionUiState.Ready(visible) else ProviderSectionUiState.Hidden
+            return@LaunchedEffect
+        }
         loadSemaphore.withPermit {
             try {
                 val result = container.catalogRepository.loadCatalog(setOf(provider.id))
                 // Sunucu kapalı / hata / boş: bölüm sessizce gizlenir (ProviderRules.homeSectionRows).
                 val valid = ProviderRules.homeSectionRows(result)
-                state = if (valid.isNotEmpty()) ProviderSectionUiState.Ready(valid) else ProviderSectionUiState.Hidden
+                val filtered = CatalogVisibility.filterRows(valid, disabledCatalogs)
+                state = if (filtered.isNotEmpty()) ProviderSectionUiState.Ready(filtered) else ProviderSectionUiState.Hidden
             } catch (_: Throwable) {
                 state = ProviderSectionUiState.Hidden
             }
@@ -534,8 +542,10 @@ private fun LazyProviderSection(
     }
 
     // Görünen raf adlarını ana sayfaya bildir (aynı adlı TMDB raflarını gizlemek için).
-    LaunchedEffect(state) {
-        onShownTitles((state as? ProviderSectionUiState.Ready)?.rows?.map { it.title }.orEmpty())
+    LaunchedEffect(state, disabledCatalogs) {
+        val rows = (state as? ProviderSectionUiState.Ready)?.rows
+        val visible = rows?.let { CatalogVisibility.filterRows(it, disabledCatalogs) }
+        onShownTitles(visible?.map { it.title }.orEmpty())
     }
 
     when (val current = state) {
@@ -572,11 +582,16 @@ private fun LazyProviderSection(
             // Sessizce gizlenir (ekran hata kartlarıyla dolmasın)
         }
         is ProviderSectionUiState.Ready -> {
+            val visibleRows = remember(current.rows, disabledCatalogs) {
+                CatalogVisibility.filterRows(current.rows, disabledCatalogs)
+            }
+            if (visibleRows.isEmpty()) return
+
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(24.dp),
             ) {
-                current.rows.forEach { row ->
+                visibleRows.forEach { row ->
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -862,10 +877,35 @@ private fun ProviderCatalogView(
             }
         }
         is CatalogUiState.Success -> {
-            val rows = current.rows
-            val listState = rememberLazyListState()
+            val rows = remember(current.rows, disabledCatalogs) {
+                CatalogVisibility.filterRows(current.rows, disabledCatalogs)
+            }
+            if (rows.isEmpty()) {
+                Column(
+                    modifier = modifier
+                        .fillMaxSize()
+                        .statusBarsPadding()
+                        .padding(32.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = stringResource(R.string.provider_catalog_empty),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                    )
+                    Button(
+                        onClick = { refreshKey++ },
+                        modifier = Modifier.focusRing(MaterialTheme.shapes.medium),
+                    ) {
+                        Text(stringResource(R.string.provider_catalog_retry))
+                    }
+                }
+            } else {
+                val listState = rememberLazyListState()
 
-            LazyColumn(
+                LazyColumn(
                 state = listState,
                 modifier = modifier
                     .fillMaxSize()
@@ -949,6 +989,7 @@ private fun ProviderCatalogView(
                         }
                     }
                 }
+            }
             }
         }
     }

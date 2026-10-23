@@ -151,4 +151,31 @@ class CatalogDetailAndVisibilityTest {
         }
         assertTrue("Zaman aşımı yakalanmalı ve uygulama çökmemeli", timedOut)
     }
+    @Test
+    fun whenCacheIsPopulatedAndCatalogIsDisabledRowsAreFilteredAndEmptyHidesSection() = runTest {
+        val cache = CatalogCache()
+        val row1 = CatalogRow(id = "tv:canli", title = "Canlı", providerId = "nuvio_addon:10", providerName = "WioSpor", items = emptyList())
+        val row2 = CatalogRow(id = "tv:spor", title = "Spor", providerId = "nuvio_addon:10", providerName = "WioSpor", items = emptyList())
+        cache.put("nuvio_addon:10", listOf(row1, row2))
+
+        // Önbellek doluyken:
+        val cached = cache.get("nuvio_addon:10")
+        org.junit.Assert.assertNotNull(cached)
+        assertEquals(2, cached!!.size)
+
+        // 1. tv:spor kapatıldığında filtrelenmiş satırlar yalnızca tv:canli içerir
+        var disabled = setOf(CatalogVisibility.key(10L, "tv", "spor"))
+        val visible1 = CatalogVisibility.filterRows(cached, disabled)
+        assertEquals(1, visible1.size)
+        assertEquals("tv:canli", visible1.first().id)
+
+        // 2. Her iki katalog kapatıldığında boş döner (raf gizlenir)
+        disabled = setOf(CatalogVisibility.key(10L, "tv", "spor"), CatalogVisibility.key(10L, "tv", "canli"))
+        val visible2 = CatalogVisibility.filterRows(cached, disabled)
+        assertTrue(visible2.isEmpty())
+
+        // 3. removeForAddon çağrılınca önbellek temizlenir
+        cache.removeForAddon(10L)
+        org.junit.Assert.assertNull(cache.get("nuvio_addon:10"))
+    }
 }

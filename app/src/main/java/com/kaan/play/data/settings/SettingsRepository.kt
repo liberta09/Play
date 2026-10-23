@@ -170,6 +170,9 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         }
     }
 
+    /** Katalog görünürlüğü değiştiğinde tetiklenir (önbellek temizliği için). */
+    var onCatalogVisibilityChanged: ((addonId: Long) -> Unit)? = null
+
     /** Kullanıcının kapattığı Nuvio addon katalog anahtarları (`addonId:type:catalogId`). */
     val disabledCatalogs: Flow<Set<String>> = store.data.map { prefs ->
         prefs[DISABLED_CATALOGS] ?: emptySet()
@@ -186,6 +189,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
                 prefs[DISABLED_CATALOGS] = next
             }
         }
+        onCatalogVisibilityChanged?.invoke(addonId)
     }
 
     suspend fun clearCatalogVisibilityForAddon(addonId: Long) {
@@ -198,6 +202,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
                 prefs[DISABLED_CATALOGS] = next
             }
         }
+        onCatalogVisibilityChanged?.invoke(addonId)
     }
 
     companion object {
