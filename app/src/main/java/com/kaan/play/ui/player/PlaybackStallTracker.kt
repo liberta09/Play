@@ -38,6 +38,15 @@ class PlaybackStallTracker(
         private set
 
     private var bufferingStartMs: Long? = null
+    private val _pastStalls = mutableListOf<StallInterval>()
+
+    val currentStallStartMs: Long?
+        get() = bufferingStartMs
+
+    val pastStalls: List<StallInterval>
+        get() = _pastStalls.toList()
+
+    fun now(): Long = clock()
     private var lastPlayStartMs: Long? = null
     private var isPlaying: Boolean = false
 
@@ -50,6 +59,7 @@ class PlaybackStallTracker(
         totalStallMs = 0L
         totalPlayMs = 0L
         bufferingStartMs = null
+        _pastStalls.clear()
         lastPlayStartMs = null
         isPlaying = false
     }
@@ -74,6 +84,8 @@ class PlaybackStallTracker(
             bufferingStartMs?.let { start ->
                 val duration = (now - start).coerceAtLeast(0L)
                 totalStallMs += duration
+                _pastStalls += StallInterval(start, now)
+                _pastStalls.removeAll { it.endMs < now - StallPolicy.STALL_WINDOW_MS }
             }
             isBuffering = false
             bufferingStartMs = null
@@ -100,6 +112,8 @@ class PlaybackStallTracker(
                 bufferingStartMs?.let { start ->
                     val duration = (now - start).coerceAtLeast(0L)
                     totalStallMs += duration
+                    _pastStalls += StallInterval(start, now)
+                    _pastStalls.removeAll { it.endMs < now - StallPolicy.STALL_WINDOW_MS }
                 }
                 isBuffering = false
                 bufferingStartMs = null
@@ -130,7 +144,9 @@ class PlaybackStallTracker(
         val now = clock()
         if (isBuffering) {
             bufferingStartMs?.let { start ->
-                totalStallMs += (now - start).coerceAtLeast(0L)
+                val duration = (now - start).coerceAtLeast(0L)
+                totalStallMs += duration
+                _pastStalls += StallInterval(start, now)
             }
             isBuffering = false
             bufferingStartMs = null

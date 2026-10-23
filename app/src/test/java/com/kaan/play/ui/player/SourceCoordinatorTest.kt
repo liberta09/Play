@@ -5,6 +5,7 @@ import com.kaan.play.data.download.SourceKind
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.stream.FailureReason
 import com.kaan.play.data.stream.PlayableStream
+import com.kaan.play.data.stream.SlowHostMemory
 import com.kaan.play.data.stream.StartPolicy
 import com.kaan.play.data.stream.SourcePref
 import com.kaan.play.data.stream.StreamRequest
@@ -24,10 +25,18 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SourceCoordinatorTest {
+
+    @Before
+    @After
+    fun resetSlowHosts() {
+        SlowHostMemory.clear()
+    }
 
     private val source1 = StreamSource(1, "Sahte A")
     private val source2 = StreamSource(2, "Sahte B")
@@ -66,7 +75,7 @@ class SourceCoordinatorTest {
             autoSource = autoSource,
             load = { s, p -> loaded += s to p },
             position = { positionMs },
-            clock = { scope.currentTime },
+            clock = { scope.testScheduler.currentTime },
             sourceProbe = sourceProbe,
         )
         val lastUrl get() = loaded.lastOrNull()?.first?.url
@@ -682,5 +691,113 @@ class SourceCoordinatorTest {
         advanceTimeBy(5_000)
         assertEquals(listOf("https://a/dub", "https://b/sub"), rig.loaded.map { it.first.url })
         advanceUntilIdle()
+    }
+
+    @Test
+    fun stallSwitchesToCandidateAtSamePositionAndShowsNotice() = runTest {
+        val dubA = stream(source1, "https://a/dub", dub = true)
+        val dubB = stream(source2, "https://b/dub", dub = true)
+
+        val rig = Rig(this, flow {
+            emit(found(source1, dubA))
+            emit(found(source2, dubB))
+        }, preferDub = true, request = request)
+
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+
+        assertEquals("https://a/dub", rig.lastUrl)
+        rig.coordinator.onFirstFrame()
+        assertEquals(SourcePhase.Playing, rig.coordinator.phase)
+
+        // Oynatma 42. saniyeye geldi
+        rig.positionMs = 42_000L
+
+        // Takılma tetikle (10 sn kesintisiz)
+        val stallStart = currentTime
+        advanceTimeBy(10_000L)
+
+        rig.coordinator.checkStall(
+            firstFrameRendered = true,
+            isSeeking = false,
+            currentStallStartMs = stallStart,
+            pastStalls = emptyList(),
+        )
+        runCurrent()
+
+        // Bildirim gösterildi
+        assertEquals(SourceNotice.StallSwitched, rig.coordinator.notice)
+        // Yeni kaynağa aynı saniyeden (42_000 ms) geçildi
+        assertEquals("https://b/dub", rig.lastUrl)
+        assertEquals(42_000L, rig.loaded.last().second)
+        // Eski kaynak yavaş işaretlendi
+        assertTrue(SlowHostMemory.isSlow(dubA.url, currentTime))
+    }
+
+    @Test
+    fun stallRevertsToPreviousSourceIfNewSourceFails() = runTest {
+        val dubA = stream(source1, "https://a/dub", dub = true)
+        val dubB = stream(source2, "https://b/dub", dub = true)
+
+        val rig = Rig(this, flow {
+            emit(found(source1, dubA))
+            emit(found(source2, dubB))
+        }, preferDub = true, request = request)
+
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+        rig.coordinator.onFirstFrame()
+        rig.positionMs = 30_000L
+
+        // Takılma ile dubB'ye geç
+        val stallStart = currentTime
+        advanceTimeBy(10_000L)
+        rig.coordinator.checkStall(
+            firstFrameRendered = true,
+            isSeeking = false,
+            currentStallStartMs = stallStart,
+            pastStalls = emptyList(),
+        )
+        runCurrent()
+        assertEquals("https://b/dub", rig.lastUrl)
+
+        // dubB açılamadı (hata verdi) -> önceki kaynağa (dubA) kaldığı saniyeden geri dönmeli
+        rig.coordinator.onFailure("timeout")
+        runCurrent()
+        assertEquals("https://a/dub", rig.lastUrl)
+        assertEquals(30_000L, rig.loaded.last().second)
+    }
+
+    @Test
+    fun stallOnManualSourceShowsManualSlowNoticeWithoutSwitching() = runTest {
+        val dubA = stream(source1, "https://a/dub", dub = true)
+        val dubB = stream(source2, "https://b/dub", dub = true)
+
+        val rig = Rig(this, flow {
+            emit(found(source1, dubA))
+            emit(found(source2, dubB))
+        }, preferDub = true, request = request)
+
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+        // Kullanıcı elle dubA seçti
+        rig.coordinator.pick(dubA)
+        advanceTimeBy(350)
+        rig.coordinator.onFirstFrame()
+        assertEquals(SourcePhase.Playing, rig.coordinator.phase)
+
+        val stallStart = currentTime
+        advanceTimeBy(10_000L)
+        rig.coordinator.checkStall(
+            firstFrameRendered = true,
+            isSeeking = false,
+            currentStallStartMs = stallStart,
+            pastStalls = emptyList(),
+        )
+        runCurrent()
+
+        // Elle seçim olduğu için otomatik geçiş yapılmaz, ManualSlow bildirimi verilir
+        assertEquals(SourceNotice.ManualSlow, rig.coordinator.notice)
+        assertEquals("https://a/dub", rig.lastUrl)
     }
 }

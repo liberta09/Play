@@ -10,6 +10,7 @@ import com.kaan.play.data.match.ContentDurationCheck
 import com.kaan.play.data.match.ContentKind
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.stream.PlayableStream
+import com.kaan.play.data.stream.SlowHostMemory
 import com.kaan.play.data.stream.RankContext
 import com.kaan.play.data.stream.SourceRanking
 import com.kaan.play.data.stream.SourcePref
@@ -61,6 +62,12 @@ sealed interface SourceNotice {
 
     /** Kaynağın videosu istenen içerikle bağdaşmıyordu (süre uyuşmuyor): atlandı, sıradakine geçildi / önceki kaynağa dönüldü. */
     data object Mismatch : SourceNotice
+
+    /** Kaynak takıldığı için otomatik olarak başka kaynağa geçildi. */
+    data object StallSwitched : SourceNotice
+
+    /** Kullanıcının elle seçtiği kaynak yavaşladı (otomatik değiştirilmez). */
+    data object ManualSlow : SourceNotice
 }
 
 /**
@@ -168,7 +175,13 @@ class SourceCoordinator(
     private val probeGate = Semaphore(PROBE_PARALLEL)
 
     val ctx: RankContext
-        get() = RankContext(maxHeight = maxHeight, preferDub = preferDub, preference = preference, sizes = sizes)
+        get() = RankContext(
+            maxHeight = maxHeight,
+            preferDub = preferDub,
+            preference = preference,
+            sizes = sizes,
+            isSlowHost = { url -> SlowHostMemory.isSlow(url, clock()) },
+        )
 
     /** Önerilen sıra (başlangıç sırası). */
     fun ranked(): List<PlayableStream> = SourceRanking.recommended(streams, ctx)
@@ -553,6 +566,77 @@ class SourceCoordinator(
                 if (bytes != null) reportSize(stream.url, bytes)
             }
         }
+    }
+
+    /**
+     * Oynatıcı takılma yaşadığında çağrılır; [StallPolicy] kurallarına göre geçiş yapar ya da elle seçimde bildirim çıkarır.
+     */
+    fun checkStall(
+        firstFrameRendered: Boolean,
+        isSeeking: Boolean,
+        currentStallStartMs: Long?,
+        pastStalls: List<StallInterval>,
+    ) {
+        if (phase != SourcePhase.Playing) return
+        val currentStream = current ?: return
+        val candidates = ranked().filter { acceptable(it) && it.url != currentStream.url && it.url !in attempted }
+        val decision = StallPolicy.evaluate(
+            nowMs = clock(),
+            firstFrameRendered = firstFrameRendered,
+            isSeeking = isSeeking,
+            currentStallStartMs = currentStallStartMs,
+            pastStalls = pastStalls,
+            currentIsDubbed = currentStream.dubbed,
+            isManual = userPicked,
+            candidates = candidates,
+        )
+        when (decision) {
+            StallDecision.None -> Unit
+            StallDecision.NotifyManualSlow -> {
+                if (notice != SourceNotice.ManualSlow) {
+                    notice = SourceNotice.ManualSlow
+                }
+            }
+            is StallDecision.Switch -> applyStallSwitch(currentStream, decision.candidate, decision.reason)
+        }
+    }
+
+    /**
+     * Test ve doğrulama için sentetik takılma geçişi tetikler (yalnızca debug).
+     */
+    fun forceStallForTest(durationMs: Long = 11_000L) {
+        val currentStream = current ?: return
+        val now = clock()
+        val candidates = ranked().filter { acceptable(it) && it.url != currentStream.url && it.url !in attempted }
+        val decision = StallPolicy.evaluate(
+            nowMs = now,
+            firstFrameRendered = true,
+            isSeeking = false,
+            currentStallStartMs = now - durationMs,
+            pastStalls = emptyList(),
+            currentIsDubbed = currentStream.dubbed,
+            isManual = userPicked,
+            candidates = candidates,
+        )
+        if (decision is StallDecision.Switch) {
+            applyStallSwitch(currentStream, decision.candidate, decision.reason)
+        }
+    }
+
+    private fun applyStallSwitch(old: PlayableStream, newStream: PlayableStream, reason: SwitchReason) {
+        SlowHostMemory.markSlow(old.url, clock())
+        Log.d(
+            TAG,
+            "takılma geçişi eski=${old.source.addonName} yeni=${newStream.source.addonName} neden=${reason.logValue}",
+        )
+        notice = SourceNotice.StallSwitched
+        val pos = position().takeIf { it > 0 } ?: lastStartMs
+        revertTo = old
+        revertPositionMs = pos
+        lastStartMs = pos
+        switching = true
+        firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+        begin(newStream, pos)
     }
 
     companion object {
