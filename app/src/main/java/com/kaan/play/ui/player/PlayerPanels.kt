@@ -392,7 +392,8 @@ fun SourcePanel(
                                     if (item.track.kind == SubtitleKind.Translated) {
                                         stringResource(R.string.subtitle_auto_translated, group.name)
                                     } else {
-                                        stringResource(R.string.dot_join, group.name, item.track.label ?: item.track.origin)
+                                        val displayOrigin = item.track.label?.let { "${item.track.origin} ($it)" } ?: item.track.origin
+                                        stringResource(R.string.dot_join, group.name, displayOrigin)
                                     }
                             }
                             Text(label, style = MaterialTheme.typography.bodyLarge, maxLines = 2, overflow = TextOverflow.Ellipsis)

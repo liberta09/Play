@@ -149,4 +149,48 @@ class AddonManifestParserTest {
         val m = AddonManifestParser.parse("""{"id":"a","name":"B","types":["series"],"resources":["stream"]}""")
         assertTrue(m.supportsStream("series", "tt1:1:1"))
     }
+
+    @Test
+    fun acceptsMultiCatalogManifestWithDifferentTypes() {
+        val json = """
+        {
+            "id": "org.wiospor",
+            "name": "WioSpor",
+            "types": ["tv", "channel", "movie"],
+            "resources": ["stream", "catalog"],
+            "catalogs": [
+                {"type": "tv", "id": "canli-tv", "name": "Canlı Kanallar"},
+                {"type": "tv", "id": "spor", "name": "Spor Kanalları"},
+                {"type": "movie", "id": "filmler"}
+            ]
+        }
+        """.trimIndent()
+        val m = AddonManifestParser.parse(json)
+        assertEquals(3, m.catalogs.size)
+        assertEquals("canli-tv", m.catalogs[0].id)
+        assertEquals("Canlı Kanallar", m.catalogs[0].name)
+        assertEquals("tv", m.catalogs[0].type)
+        assertEquals("spor", m.catalogs[1].id)
+        assertEquals("filmler", m.catalogs[2].id)
+        assertEquals("movie", m.catalogs[2].type)
+        assertNull(m.catalogs[2].name)
+        assertTrue(m.providesCatalogs)
+        assertTrue(m.providesStreams)
+    }
+
+    @Test
+    fun parsesAddonWithoutCatalogsCorrectly() {
+        val json = """
+        {
+            "id": "org.stream.only",
+            "name": "Stream Only",
+            "types": ["movie", "series"],
+            "resources": ["stream"]
+        }
+        """.trimIndent()
+        val m = AddonManifestParser.parse(json)
+        assertTrue(m.catalogs.isEmpty())
+        assertFalse(m.providesCatalogs)
+        assertTrue(m.providesStreams)
+    }
 }

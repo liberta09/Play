@@ -31,8 +31,8 @@ android {
         applicationId = "com.kaan.play"
         minSdk = 24
         targetSdk = 37
-        versionCode = 12
-        versionName = "1.1.6"
+        versionCode = 13
+        versionName = "1.1.7"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -58,6 +58,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            if (signingConfigs.getByName("release").storeFile != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
         release {
             // Şifreler yoksa (ör. başka makine) imzasız derlenir; derleme kırılmaz.
             if (signingConfigs.getByName("release").storeFile != null) {

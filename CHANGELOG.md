@@ -1,5 +1,15 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.1.7] — 2026-10-24
+
+### Türkçe
+- **Nuvio addon ayrıntı sayfası:** Yüklü bir Nuvio addon'unun sunduğu kataloglar, kaynak türleri ve içerik sayıları ayrıntı sayfasında görüntülenir; istenmeyen kataloglar tek dokunuşla kapatılarak ana sayfa ve arama listelerinden gizlenebilir.
+- **Mükerrer altyazıların tekilleştirilmesi:** Aynı adres ve içeriğe sahip mükerrer altyazılar listeden temizlendi; aynı eklenti ve dildeki farklı altyazılar ayırt edici etiketlerle (dosya/sürüm veya numara) netleştirildi.
+
+### English
+- **Nuvio addon detail page:** View catalogs, resource types, and item counts provided by installed Nuvio addons; toggle off individual catalogs to hide them from home shelves and provider lists.
+- **Subtitle deduplication:** Identical subtitle streams are collapsed into a single entry; multiple distinct subtitles for the same provider and language are clearly labeled with distinguishing badges (version or sequential numbers).
+
 ## [1.1.6] — 2026-10-23
 
 ### Türkçe

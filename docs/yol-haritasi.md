@@ -65,3 +65,4 @@ Değişmez kurallar: main'e birleştirme ve release yalnızca kullanıcı onayı
 - 2026-10-21: Yeni bölüm için hem rozet hem "Yeni bölümler" rafı. Ödeme sitesi kullanıcı araştırınca seçilecek.
 - 2026-10-21: Watch List, Play'e karıştırılmaz; ayrı bir oluşum olarak kalır.
 - 2026-10-21: Gelir için bağış/destekçi modeli ile başlanır; hesap + bulut sonraya. Çalışma sistemi (yukarıdaki 7 adım) ve bu dosya oluşturuldu.
+- 2026-10-23: Kullanıcı kararı 2026-10-23: addon sayfası (Nuvio addon ayrıntı sayfası, katalog aç/kapat ve içerik sayısı) ve altyazı listesi tekrar düzeltmesi (mükerrer altyazıları tekilleştirme, kaynak yanına ayırt edici ekleme) 1.1.7 için onaylandı.

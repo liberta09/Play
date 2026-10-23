@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun NuvioReposScreen(
     onBack: () -> Unit,
+    onOpenAddon: (Long) -> Unit = {},
     container: AppContainer,
 ) {
     val addons by container.addons.addons.collectAsStateWithLifecycle(initialValue = null)
@@ -57,6 +58,7 @@ fun NuvioReposScreen(
                             addon = addon,
                             onToggle = { scope.launch { container.addons.setEnabled(addon.id, it) } },
                             onRemove = { toRemove = addon },
+                            onClick = { onOpenAddon(addon.id) },
                         )
                     }
                 }

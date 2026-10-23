@@ -507,7 +507,8 @@ private fun LazyProviderSection(
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
 
-    var state by remember(provider.id) {
+    val disabledCatalogs by container.settings.disabledCatalogs.collectAsStateWithLifecycle(initialValue = emptySet())
+    var state by remember(provider.id, disabledCatalogs) {
         val cached = container.catalogRepository.cache.get(provider.id)
         mutableStateOf<ProviderSectionUiState>(
             when {
@@ -518,7 +519,7 @@ private fun LazyProviderSection(
         )
     }
 
-    LaunchedEffect(provider.id) {
+    LaunchedEffect(provider.id, disabledCatalogs) {
         if (state is ProviderSectionUiState.Ready) return@LaunchedEffect
         loadSemaphore.withPermit {
             try {
@@ -718,7 +719,8 @@ private fun ProviderCatalogView(
         }
     }
 
-    LaunchedEffect(selectedIds, refreshKey) {
+    val disabledCatalogs by container.settings.disabledCatalogs.collectAsStateWithLifecycle(initialValue = emptySet())
+    LaunchedEffect(selectedIds, refreshKey, disabledCatalogs) {
         state = CatalogUiState.Loading
         val result = container.catalogRepository.loadCatalog(selectedIds, forceRefresh = refreshKey > 0)
         state = when (result) {

@@ -25,10 +25,92 @@ data class SubtitleGroup(val language: String?, val name: String, val items: Lis
 
 object SubtitleSelection {
 
+    const val MAX_PER_ADDON_LANGUAGE = 5
+
+    /** URL normalizasyonu (boşluklar, fragment ve gereksiz / temizliği). */
+    fun normalizeUrl(url: String): String {
+        val trimmed = url.trim()
+        val noFrag = trimmed.substringBefore('#')
+        return if (!noFrag.contains('?') && noFrag.endsWith('/')) noFrag.dropLast(1) else noFrag
+    }
+
+    /** Altyazı dosya/sürüm etiketini temizler ve en çok 24 karaktere kırpar. */
+    fun cleanLabel(raw: String?): String? {
+        if (raw.isNullOrBlank()) return null
+        var cleaned = raw.trim()
+        for (ext in listOf(".srt", ".vtt", ".sub", ".ass", ".ssa")) {
+            if (cleaned.endsWith(ext, ignoreCase = true)) {
+                cleaned = cleaned.dropLast(ext.length).trim()
+            }
+        }
+        return if (cleaned.length > 24) cleaned.take(24).trimEnd() + "…" else cleaned
+    }
+
     /** Aynı adres tekrarlarını ayıklar (ilk görülen kalır); videonun içindekiler adresi olmadığı için elenmez. */
     fun dedupe(items: List<SubtitleItem>): List<SubtitleItem> {
         val seen = HashSet<String>()
-        return items.filter { it !is SubtitleItem.External || seen.add(it.track.url) }
+        return items.filter { it !is SubtitleItem.External || seen.add(normalizeUrl(it.track.url)) }
+    }
+
+    /**
+     * (a) Gerçekten aynı içerik/adres olanları tek satıra indirir.
+     * (b) Aynı addon + aynı dilde en çok [maxPerAddonLang] (varsayılan 5) satır gösterir (fazlası listeye girmez).
+     * (c) Aynı addon + aynı dilde birden fazla FARKLI altyazı kalırsa satırları ayırt edilebilir yapar:
+     *     kaynak adı yanında kısa bir ayırt edici (dosya/sürüm adı varsa kırpılmış hâli, yoksa "1", "2", "3" sırası).
+     */
+    fun dedupeAndDisambiguate(
+        items: List<SubtitleItem>,
+        maxPerAddonLang: Int = MAX_PER_ADDON_LANGUAGE,
+    ): List<SubtitleItem> {
+        val deduped = dedupe(items)
+        val result = mutableListOf<SubtitleItem>()
+
+        // Dile göre grupla
+        val byLang = deduped.groupBy { it.language }
+        for ((_, langItems) in byLang) {
+            val embedded = langItems.filterIsInstance<SubtitleItem.Embedded>()
+            val external = langItems.filterIsInstance<SubtitleItem.External>()
+
+            // Harici altyazıları kaynak/addon (origin) bazında sınırla ve ayırt edici etiket ver
+            val byOrigin = external.groupBy { it.track.origin }
+            val disambiguatedExternal = mutableListOf<SubtitleItem.External>()
+
+            for ((_, originItems) in byOrigin) {
+                val kept = originItems.take(maxPerAddonLang)
+                if (kept.size <= 1) {
+                    disambiguatedExternal.addAll(kept)
+                } else {
+                    // Birden fazla parça var: ayırt edici ekle
+                    val cleanedLabels = kept.map { cleanLabel(it.track.label) }
+                    val allDistinct = cleanedLabels.all { !it.isNullOrBlank() } && cleanedLabels.distinct().size == kept.size
+
+                    kept.forEachIndexed { index, item ->
+                        val badge = if (allDistinct) {
+                            cleanedLabels[index]
+                        } else {
+                            (index + 1).toString()
+                        }
+                        val updatedTrack = item.track.copy(label = badge)
+                        disambiguatedExternal.add(SubtitleItem.External(updatedTrack))
+                    }
+                }
+            }
+
+            // Orijinal öncelik sırasını koru (video içi > akış > dosya > addon > çevrimiçi)
+            val keptUrls = disambiguatedExternal.associateBy { normalizeUrl(it.track.url) }
+            for (item in langItems) {
+                when (item) {
+                    is SubtitleItem.Embedded -> result.add(item)
+                    is SubtitleItem.External -> {
+                        keptUrls[normalizeUrl(item.track.url)]?.let {
+                            result.add(it)
+                        }
+                    }
+                }
+            }
+        }
+
+        return result
     }
 
     /**
@@ -42,7 +124,8 @@ object SubtitleSelection {
         nameOf: (String) -> String,
         unknownName: String,
     ): List<SubtitleGroup> {
-        val byLanguage = dedupe(items).groupBy { it.language }
+        val processed = dedupeAndDisambiguate(items)
+        val byLanguage = processed.groupBy { it.language }
         val known = byLanguage.keys.filterNotNull()
         val ordered = preferred.filter { it in known } +
             known.filter { it !in preferred }.sortedBy { nameOf(it).lowercase() }

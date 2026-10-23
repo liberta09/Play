@@ -221,7 +221,11 @@ private fun rowLabels(group: SubtitleGroup): List<String> {
     val bases = group.items.map {
         when (it) {
             is SubtitleItem.External ->
-                if (it.track.kind == SubtitleKind.Translated) stringResource(R.string.subtitle_auto_translated, group.name) else it.track.origin
+                if (it.track.kind == SubtitleKind.Translated) {
+                    stringResource(R.string.subtitle_auto_translated, group.name)
+                } else {
+                    it.track.label?.let { lbl -> "${it.track.origin} ($lbl)" } ?: it.track.origin
+                }
             is SubtitleItem.Embedded -> it.label?.let { label -> stringResource(joined, embedded, label) } ?: embedded
         }
     }

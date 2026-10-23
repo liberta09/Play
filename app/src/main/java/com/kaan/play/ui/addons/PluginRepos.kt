@@ -83,7 +83,7 @@ private fun ThirdPartyNote() {
  * Satırlar ve veri kaynakları o ekranlarınkiyle aynıdır; boş bölüm gösterilmez.
  */
 @Composable
-fun RepositoriesScreen(onBack: () -> Unit) {
+fun RepositoriesScreen(onBack: () -> Unit, onOpenAddon: (Long) -> Unit = {}) {
     val container = rememberContainer()
     val vm = containerViewModel { RepositoriesViewModel(it.plugins) }
     val csVm = containerViewModel { CsReposViewModel(it.csRepos) }
@@ -134,6 +134,7 @@ fun RepositoriesScreen(onBack: () -> Unit) {
                                 addon = addon,
                                 onToggle = { scope.launch { container.addons.setEnabled(addon.id, it) } },
                                 onRemove = { addonToRemove = addon },
+                                onClick = { onOpenAddon(addon.id) },
                             )
                         }
                     }
@@ -252,7 +253,7 @@ private fun RepoRow(repo: PluginRepo, busy: Boolean, enabled: Boolean, onCheck: 
  * Depo eklentileri **varsayılan kapalıdır**; kullanıcı bilinçle açar. Depoyu silmek "Kurulu tüm depolar"dandır.
  */
 @Composable
-fun InstalledAddonsScreen(onBack: () -> Unit, onOpenPlugin: (Long) -> Unit) {
+fun InstalledAddonsScreen(onBack: () -> Unit, onOpenPlugin: (Long) -> Unit, onOpenAddon: (Long) -> Unit = {}) {
     val vm = containerViewModel { InstalledAddonsViewModel(it.addons, it.plugins, it.csRepos) }
     val addons by vm.addons.collectAsStateWithLifecycle()
     val groups by vm.groups.collectAsStateWithLifecycle()
@@ -302,7 +303,7 @@ fun InstalledAddonsScreen(onBack: () -> Unit, onOpenPlugin: (Long) -> Unit) {
                     modifier = Modifier.padding(bottom = 8.dp),
                 ) }
                 items(addonList, key = { "a-${it.id}" }) { addon ->
-                    AddonRow(addon = addon, onToggle = { vm.setEnabled(addon, it) }, onRemove = { toRemove = addon })
+                    AddonRow(addon = addon, onToggle = { vm.setEnabled(addon, it) }, onRemove = { toRemove = addon }, onClick = { onOpenAddon(addon.id) })
                 }
                 groupList.forEach { group ->
                     item(key = "g-${group.repo.id}") {

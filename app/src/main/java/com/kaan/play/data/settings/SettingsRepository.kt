@@ -170,6 +170,36 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         }
     }
 
+    /** Kullanıcının kapattığı Nuvio addon katalog anahtarları (`addonId:type:catalogId`). */
+    val disabledCatalogs: Flow<Set<String>> = store.data.map { prefs ->
+        prefs[DISABLED_CATALOGS] ?: emptySet()
+    }.distinctUntilChanged()
+
+    suspend fun setCatalogEnabled(addonId: Long, type: String, catalogId: String, enabled: Boolean) {
+        val key = com.kaan.play.data.addon.CatalogVisibility.key(addonId, type, catalogId)
+        store.edit { prefs ->
+            val current = prefs[DISABLED_CATALOGS] ?: emptySet()
+            val next = com.kaan.play.data.addon.CatalogVisibility.updateDisabled(current, key, enabled)
+            if (next.isEmpty()) {
+                prefs.remove(DISABLED_CATALOGS)
+            } else {
+                prefs[DISABLED_CATALOGS] = next
+            }
+        }
+    }
+
+    suspend fun clearCatalogVisibilityForAddon(addonId: Long) {
+        store.edit { prefs ->
+            val current = prefs[DISABLED_CATALOGS] ?: emptySet()
+            val next = com.kaan.play.data.addon.CatalogVisibility.cleanForAddon(current, addonId)
+            if (next.isEmpty()) {
+                prefs.remove(DISABLED_CATALOGS)
+            } else {
+                prefs[DISABLED_CATALOGS] = next
+            }
+        }
+    }
+
     companion object {
         val DEFAULT_THEME = ThemeMode.Dark
         const val DEFAULT_TIMEOUT_SECONDS = 15
@@ -206,5 +236,6 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         /** Play Özel Kataloglar addon'unun ilk kurulumda eklendiğini gösteren ayrı bayrak (kullanıcı kararı, 2026-10-21). */
         val DEFAULT_CATALOG_ADDON_SEEDED = booleanPreferencesKey("default_catalog_addon_seeded")
         val SEEN_ANNOUNCEMENT_IDS = stringSetPreferencesKey("seen_announcement_ids")
+        private val DISABLED_CATALOGS = stringSetPreferencesKey("disabled_catalogs")
     }
 }

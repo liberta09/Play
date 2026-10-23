@@ -66,7 +66,7 @@ class AddonSubtitleProvider(
         const val MAX_BYTES = 5L * 1024 * 1024
 
         /** Dil başına en çok bu kadar sonuç (Altyazı menüsü taşmasın: addon başına dil başına en çok 10 sonuç). */
-        const val MAX_PER_LANGUAGE = 10
+        const val MAX_PER_LANGUAGE = 5
 
         /** Bir addon'dan en çok bu kadar parça alınır (tüm diller toplamı güvenlik sınırı). */
         const val MAX_PER_ADDON = 100
@@ -90,7 +90,13 @@ class AddonSubtitleProvider(
                         ?.takeIf { it.startsWith("http://", true) || it.startsWith("https://", true) }
                         ?: return@mapNotNull null
                     val lang = (obj["lang"] as? JsonPrimitive)?.contentOrNull
-                    SubtitleTrack(url, SubtitleLanguages.normalize(lang), origin)
+                    val rawLabel = (obj["file"] as? JsonPrimitive)?.contentOrNull?.trim()
+                        ?: (obj["filename"] as? JsonPrimitive)?.contentOrNull?.trim()
+                        ?: (obj["label"] as? JsonPrimitive)?.contentOrNull?.trim()
+                        ?: (obj["release"] as? JsonPrimitive)?.contentOrNull?.trim()
+                        ?: (obj["title"] as? JsonPrimitive)?.contentOrNull?.trim()
+                    val label = SubtitleSelection.cleanLabel(rawLabel)
+                    SubtitleTrack(url, SubtitleLanguages.normalize(lang), origin, label = label)
                 }
                 .distinctBy { it.url }
                 .filter { track ->

@@ -171,4 +171,63 @@ class SubtitleSelectionTest {
         repeat(10) { v = SubtitleOffset.step(v, SubtitleOffset.FINE_MS) }
         assertEquals(1_000L, v)
     }
+
+    @Test
+    fun cleanLabelCleansExtensionAndLimitsLength() {
+        assertEquals("Release", SubtitleSelection.cleanLabel("Release.srt"))
+        assertEquals("Release", SubtitleSelection.cleanLabel("Release.vtt"))
+        assertEquals("Release", SubtitleSelection.cleanLabel("Release.sub"))
+        assertEquals("Release", SubtitleSelection.cleanLabel("Release.ass"))
+        assertEquals(null, SubtitleSelection.cleanLabel(null))
+        assertEquals(null, SubtitleSelection.cleanLabel("   "))
+        assertEquals("A".repeat(24) + "…", SubtitleSelection.cleanLabel("A".repeat(30)))
+    }
+
+    @Test
+    fun dedupeAndDisambiguateCapsAtMaxPerAddonLanguage() {
+        val tracks = (1..10).map { i ->
+            SubtitleItem.External(SubtitleTrack("https://s/tr$i.srt", "tr", "AddonX", label = "Sub$i"))
+        }
+        val result = SubtitleSelection.dedupeAndDisambiguate(tracks, maxPerAddonLang = 5)
+        assertEquals(5, result.size)
+        assertEquals(listOf("Sub1", "Sub2", "Sub3", "Sub4", "Sub5"), result.map { (it as SubtitleItem.External).track.label })
+    }
+
+    @Test
+    fun dedupeAndDisambiguatePreservesLabelsWhenDistinct() {
+        val tracks = listOf(
+            SubtitleItem.External(SubtitleTrack("https://s/tr1.srt", "tr", "AddonX", label = "BluRay")),
+            SubtitleItem.External(SubtitleTrack("https://s/tr2.srt", "tr", "AddonX", label = "WEB-DL")),
+        )
+        val result = SubtitleSelection.dedupeAndDisambiguate(tracks)
+        assertEquals(2, result.size)
+        assertEquals(listOf("BluRay", "WEB-DL"), result.map { (it as SubtitleItem.External).track.label })
+    }
+
+    @Test
+    fun dedupeAndDisambiguateAssignsSequentialNumbersWhenLabelsAbsentOrNotDistinct() {
+        val tracks = listOf(
+            SubtitleItem.External(SubtitleTrack("https://s/tr1.srt", "tr", "AddonX", label = null)),
+            SubtitleItem.External(SubtitleTrack("https://s/tr2.srt", "tr", "AddonX", label = null)),
+            SubtitleItem.External(SubtitleTrack("https://s/tr3.srt", "tr", "AddonX", label = null)),
+        )
+        val result = SubtitleSelection.dedupeAndDisambiguate(tracks)
+        assertEquals(3, result.size)
+        assertEquals(listOf("1", "2", "3"), result.map { (it as SubtitleItem.External).track.label })
+    }
+
+    @Test
+    fun dedupeAndDisambiguatePreservesPriorityOrder() {
+        val embedded = SubtitleItem.Embedded(0, "tr")
+        val stream = SubtitleItem.External(SubtitleTrack("https://s/stream.srt", "tr", "Akış"))
+        val addon1 = SubtitleItem.External(SubtitleTrack("https://s/ad1.srt", "tr", "Addon1"))
+        val addon2 = SubtitleItem.External(SubtitleTrack("https://s/ad2.srt", "tr", "Addon2"))
+        val items = listOf(embedded, stream, addon1, addon2)
+        val result = SubtitleSelection.dedupeAndDisambiguate(items)
+        assertEquals(4, result.size)
+        assertEquals(embedded, result[0])
+        assertEquals(stream, result[1])
+        assertEquals(addon1, result[2])
+        assertEquals(addon2, result[3])
+    }
 }

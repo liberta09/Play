@@ -367,7 +367,12 @@ internal fun EmptyMessage(text: String) {
 }
 
 @Composable
-internal fun AddonRow(addon: Addon, onToggle: (Boolean) -> Unit, onRemove: () -> Unit) {
+internal fun AddonRow(
+    addon: Addon,
+    onToggle: (Boolean) -> Unit,
+    onRemove: () -> Unit,
+    onClick: (() -> Unit)? = null,
+) {
     val name = addon.manifest.name
     val host = remember(addon.sourceUrl) { addon.sourceUrl.toHttpUrlOrNull()?.host ?: addon.sourceUrl }
     val toggleLabel = stringResource(R.string.addons_enabled_toggle, name)
@@ -379,10 +384,15 @@ internal fun AddonRow(addon: Addon, onToggle: (Boolean) -> Unit, onRemove: () ->
     val detail = if (typeLabel != null) "$typeLabel • $host" else host
 
     Surface(
+        onClick = onClick ?: {},
+        enabled = onClick != null,
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .then(if (onClick != null) Modifier.focusRing(RoundedCornerShape(14.dp)) else Modifier),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
@@ -391,11 +401,19 @@ internal fun AddonRow(addon: Addon, onToggle: (Boolean) -> Unit, onRemove: () ->
             Column(modifier = Modifier.weight(1f).alpha(if (addon.enabled) 1f else 0.5f)) {
                 Text(text = name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(
-                    text = stringResource(R.string.addons_row_info, addon.manifest.version ?: "–", detail),
+                    text = stringResource(R.string.addons_row_info, addon.manifest.version ?: "—", detail),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                )
+            }
+            if (onClick != null) {
+                Icon(
+                    PlayIcons.Forward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(end = 8.dp),
                 )
             }
             Switch(

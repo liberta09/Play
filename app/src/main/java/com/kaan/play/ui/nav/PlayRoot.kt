@@ -80,6 +80,7 @@ import com.kaan.play.ui.player.PlaySession
 import com.kaan.play.ui.player.formatTime
 import com.kaan.play.ui.addons.AddonsScreen
 import com.kaan.play.ui.addons.CsReposScreen
+import com.kaan.play.ui.addons.AddonDetailScreen
 import com.kaan.play.ui.addons.InstalledAddonsScreen
 import com.kaan.play.ui.addons.NuvioPluginsScreen
 import com.kaan.play.ui.addons.NuvioReposScreen
@@ -110,6 +111,7 @@ private const val CS_REPOS_ROUTE = "settings/addons/csrepos"
 private const val NUVIO_REPOS_ROUTE = "settings/addons/nuviorepos"
 private const val NUVIO_PLUGINS_ROUTE = "settings/addons/nuvioplugins"
 private const val PLUGIN_ROUTE = "settings/addons/plugin/{id}"
+private const val ADDON_DETAIL_ROUTE = "settings/addons/detail/{id}"
 private const val PLAYER_SETTINGS_ROUTE = "settings/player"
 private const val ABOUT_ROUTE = "settings/about"
 private const val DETAIL_ROUTE = "detail/{type}/{id}"
@@ -527,9 +529,24 @@ fun PlayRoot() {
                     )
                 }
             }
-            composable(ADDONS_REPOS_ROUTE) { ReadableWidth { RepositoriesScreen(onBack = { navController.popBackStack() }) } }
+            composable(ADDONS_REPOS_ROUTE) {
+                ReadableWidth {
+                    RepositoriesScreen(
+                        onBack = { navController.popBackStack() },
+                        onOpenAddon = { navController.navigate("settings/addons/detail/$it") },
+                    )
+                }
+            }
             composable(CS_REPOS_ROUTE) { ReadableWidth { CsReposScreen(onBack = { navController.popBackStack() }, container = rememberContainer()) } }
-            composable(NUVIO_REPOS_ROUTE) { ReadableWidth { NuvioReposScreen(onBack = { navController.popBackStack() }, container = rememberContainer()) } }
+            composable(NUVIO_REPOS_ROUTE) {
+                ReadableWidth {
+                    NuvioReposScreen(
+                        onBack = { navController.popBackStack() },
+                        onOpenAddon = { navController.navigate("settings/addons/detail/$it") },
+                        container = rememberContainer(),
+                    )
+                }
+            }
             composable(NUVIO_PLUGINS_ROUTE) {
                 ReadableWidth {
                     NuvioPluginsScreen(
@@ -544,6 +561,22 @@ fun PlayRoot() {
                     InstalledAddonsScreen(
                         onBack = { navController.popBackStack() },
                         onOpenPlugin = { navController.navigate("settings/addons/plugin/$it") },
+                        onOpenAddon = { navController.navigate("settings/addons/detail/$it") },
+                    )
+                }
+            }
+            composable(ADDON_DETAIL_ROUTE, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                val id = entry.arguments?.getLong("id") ?: return@composable
+                ReadableWidth {
+                    AddonDetailScreen(
+                        addonId = id,
+                        onBack = { navController.popBackStack() },
+                        onOpenDetail = ::openDetail,
+                        onOpenProviderDetail = ::openProviderDetail,
+                        onOpenSearch = { query ->
+                            navController.navigate("search?q=${Uri.encode(query)}") { launchSingleTop = true }
+                        },
+                        container = rememberContainer(),
                     )
                 }
             }

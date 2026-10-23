@@ -201,9 +201,21 @@
     <string name="addons_add_cs_hint" translatable="false">https://.../manifest.json or .cs3</string>
     <string name="addons_add_nuvio_repo_hint" translatable="false">https://.../manifest.json</string>
     <string name="addons_add_nuvio_plugin_hint" translatable="false">https://.../scrapers.json</string>
-    <string name="nuvio_repos_title">Nuvio Repositories</string>
-    <string name="nuvio_repos_subtitle">Add Nuvio addon repository</string>
-    <string name="nuvio_repos_empty">No Nuvio repositories added yet.</string>
+    <string name="nuvio_repos_title">Nuvio Addons</string>
+    <string name="nuvio_repos_subtitle">Manage Nuvio addons</string>
+    <string name="nuvio_repos_empty">No Nuvio addons added yet.</string>
+    <string name="addon_detail_title">Addon Details</string>
+    <string name="addon_catalogs_title">Catalogs</string>
+    <string name="addon_no_catalogs">This addon does not provide catalogs</string>
+    <string name="addon_items_count">%1$d items</string>
+    <string name="addon_items_unknown" translatable="false">—</string>
+    <string name="addon_badge_movie">Movies</string>
+    <string name="addon_badge_series">Series</string>
+    <string name="addon_badge_live_tv">Live TV</string>
+    <string name="addon_badge_catalog">Catalog</string>
+    <string name="addon_badge_stream">Streams</string>
+    <string name="addon_badge_subtitles">Subtitles</string>
+    <string name="addon_badge_meta">Metadata</string>
     <string name="nuvio_plugins_title">Nuvio Plugins</string>
     <string name="nuvio_plugins_subtitle">Add Nuvio JavaScript plugin repository</string>
     <string name="nuvio_plugins_empty">No Nuvio plugins added yet.</string>

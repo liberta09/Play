@@ -260,7 +260,11 @@ class AppContainer(context: Context) {
     }
 
     val addons: AddonRepository by lazy {
-        AddonRepository(database.addonDao(), OkHttpManifestFetcher(httpClient))
+        AddonRepository(
+            dao = database.addonDao(),
+            fetcher = OkHttpManifestFetcher(httpClient),
+            onAddonRemoved = { settings.clearCatalogVisibilityForAddon(it) },
+        )
     }
 
     /**
@@ -326,6 +330,7 @@ class AppContainer(context: Context) {
             csRepository = csRepos,
             csRuntime = csRuntime,
             httpClient = httpClient,
+            getDisabledCatalogs = { settings.disabledCatalogs.first() },
         )
     }
 

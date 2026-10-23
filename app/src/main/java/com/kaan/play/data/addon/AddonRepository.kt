@@ -25,6 +25,7 @@ class AddonRepository(
     private val dao: AddonDao,
     private val fetcher: ManifestFetcher,
     private val clock: () -> Long = System::currentTimeMillis,
+    private val onAddonRemoved: (suspend (Long) -> Unit)? = null,
 ) {
 
     /** Yalnızca Nuvio addon satırları: diğer türlerin (Faz 2/3) depo kayıtları farklı biçimdedir. */
@@ -79,7 +80,10 @@ class AddonRepository(
     suspend fun setEnabled(id: Long, enabled: Boolean) = dao.setEnabled(id, enabled)
     suspend fun setAllEnabled(enabled: Boolean) = dao.setAllEnabledOfType(AddonType.NUVIO_ADDON, enabled)
 
-    suspend fun remove(id: Long) = dao.delete(id)
+    suspend fun remove(id: Long) {
+        dao.delete(id)
+        onAddonRemoved?.invoke(id)
+    }
 
     suspend fun byId(id: Long): Addon? = dao.byId(id)?.toAddon()
 

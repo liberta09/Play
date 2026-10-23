@@ -325,7 +325,7 @@ class SubtitleController(
         // Çevrimiçi sonuçlarda sağlayıcı sırası sabit: önce SubDL, sonra OpenSubtitles (cevap geliş sırası değil).
         val onlineOrdered = online.sortedBy { onlineRank(it.origin) }
         val all = embedded + (streamTracks + localTracks + fromAddons + onlineOrdered + translatedTracks).map(SubtitleItem::External)
-        items = SubtitleSelection.dedupe(all)
+        items = SubtitleSelection.dedupeAndDisambiguate(all)
         // Açık videonun-içi parça artık yoksa (kaynak değişti), seçim düşer ve otomatik seçim yeniden değerlendirilir.
         val current = selected
         if (current is SubtitleItem.Embedded && current !in items) {

@@ -181,9 +181,21 @@
     <string name="addons_add_cs_hint" translatable="false">https://.../manifest.json veya .cs3</string>
     <string name="addons_add_nuvio_repo_hint" translatable="false">https://.../manifest.json</string>
     <string name="addons_add_nuvio_plugin_hint" translatable="false">https://.../scrapers.json</string>
-    <string name="nuvio_repos_title">Nuvio Depoları</string>
-    <string name="nuvio_repos_subtitle">Nuvio addon deposu ekle</string>
-    <string name="nuvio_repos_empty">Henüz Nuvio deposu eklenmedi.</string>
+    <string name="nuvio_repos_title">"Nuvio Addon'ları"</string>
+    <string name="nuvio_repos_subtitle">"Nuvio addon'larını yönet"</string>
+    <string name="nuvio_repos_empty">"Henüz Nuvio addon'u eklenmedi."</string>
+    <string name="addon_detail_title">Addon Ayrıntısı</string>
+    <string name="addon_catalogs_title">Kataloglar</string>
+    <string name="addon_no_catalogs">Bu addon katalog sunmuyor</string>
+    <string name="addon_items_count">%1$d içerik</string>
+    <string name="addon_items_unknown" translatable="false">—</string>
+    <string name="addon_badge_movie">Film</string>
+    <string name="addon_badge_series">Dizi</string>
+    <string name="addon_badge_live_tv">Canlı TV</string>
+    <string name="addon_badge_catalog">Katalog</string>
+    <string name="addon_badge_stream">Kaynak</string>
+    <string name="addon_badge_subtitles">Altyazı</string>
+    <string name="addon_badge_meta">Ayrıntı</string>
     <string name="nuvio_plugins_title">Nuvio Pluginler</string>
     <string name="nuvio_plugins_subtitle">Nuvio JavaScript plugin deposu ekle</string>
     <string name="nuvio_plugins_empty">Henüz Nuvio plugini eklenmedi.</string>

@@ -181,12 +181,14 @@ class AddonSubtitleProviderTest {
     @Test
     fun parseCapsTracksPerAddonPerLanguage() {
         val body = """{"subtitles":[""" +
-            (1..30).joinToString(",") { """{"url":"https://s/tr$it.srt","lang":"tur"}""" } + "," +
-            (1..30).joinToString(",") { """{"url":"https://s/en$it.srt","lang":"eng"}""" } + "]}"
+            (1..30).joinToString(",") { """{"url":"https://s/tr$it.srt","lang":"tur","title":"Turkish Release $it"}""" } + "," +
+            (1..30).joinToString(",") { """{"url":"https://s/en$it.srt","lang":"eng","file":"english_sub_$it.vtt"}""" } + "]}"
         val parsed = AddonSubtitleProvider.parse("X", body)!!
-        assertEquals(20, parsed.size)
+        assertEquals(10, parsed.size)
         assertEquals(AddonSubtitleProvider.MAX_PER_LANGUAGE, parsed.count { it.language == "tr" })
         assertEquals(AddonSubtitleProvider.MAX_PER_LANGUAGE, parsed.count { it.language == "en" })
+        assertEquals("Turkish Release 1", parsed.first { it.language == "tr" }.label)
+        assertEquals("english_sub_1", parsed.first { it.language == "en" }.label)
         assertNull(AddonSubtitleProvider.parse("X", "[]"))
     }
 

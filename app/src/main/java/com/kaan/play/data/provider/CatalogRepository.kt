@@ -30,11 +30,12 @@ sealed interface CatalogResult {
  */
 class CatalogRepository(
     private val addonDao: AddonDao,
-    private val pluginDao: PluginDao,
-    private val csRepository: CsRepository,
-    private val csRuntime: CsRuntime,
+    private val pluginDao: PluginDao? = null,
+    private val csRepository: CsRepository? = null,
+    private val csRuntime: CsRuntime? = null,
     private val httpClient: OkHttpClient,
     val cache: CatalogCache = CatalogCache(),
+    private val getDisabledCatalogs: (suspend () -> Set<String>)? = null,
 ) {
     /**
      * Seçili sağlayıcıların katalog satırlarını sırayla çeker.
@@ -53,10 +54,12 @@ class CatalogRepository(
             return@withContext CatalogResult.NoCatalogProvided
         }
 
+        val disabled = getDisabledCatalogs?.invoke() ?: emptySet()
         val cacheKey = validIds.sorted().joinToString(",")
         if (!forceRefresh) {
             cache.get(cacheKey)?.let { cachedRows ->
-                return@withContext if (cachedRows.isEmpty()) CatalogResult.Empty else CatalogResult.Success(cachedRows)
+                val visible = com.kaan.play.data.addon.CatalogVisibility.filterRows(cachedRows, disabled)
+                return@withContext if (visible.isEmpty()) CatalogResult.Empty else CatalogResult.Success(visible)
             }
         }
 
@@ -70,10 +73,12 @@ class CatalogRepository(
         for (id in validIds) {
             when {
                 id.startsWith("cs:") -> {
+                    if (pluginDao == null || csRepository == null || csRuntime == null) continue
                     val pluginRowId = id.removePrefix("cs:").toLongOrNull() ?: continue
                     val plugin = pluginDao.byId(pluginRowId) ?: continue
                     hasAtLeastOneProvider = true
                     val providerStarted = System.currentTimeMillis()
+                    if (csRepository == null || csRuntime == null) continue
                     try {
                         val catalog = CsCatalog(pluginRowId, plugin.name, csRepository, csRuntime)
                         val rows = catalog.rows().first()
@@ -129,7 +134,8 @@ class CatalogRepository(
 
         if (allRows.isNotEmpty()) {
             cache.put(cacheKey, allRows)
-            CatalogResult.Success(allRows)
+            val visible = com.kaan.play.data.addon.CatalogVisibility.filterRows(allRows, disabled)
+            if (visible.isNotEmpty()) CatalogResult.Success(visible) else CatalogResult.Empty
         } else if (hasBotBlocked && allRows.isEmpty()) {
             CatalogResult.Error(
                 isBotBlocked = true,
@@ -151,9 +157,22 @@ class CatalogRepository(
         rowId: String,
         page: Int,
     ): List<CatalogItem> = withContext(Dispatchers.IO) {
+        val disabled = getDisabledCatalogs?.invoke() ?: emptySet()
+        if (providerId.startsWith("nuvio_addon:")) {
+            val addonRowId = providerId.removePrefix("nuvio_addon:")
+            val colonIdx = rowId.indexOf(':')
+            if (colonIdx > 0) {
+                val type = rowId.substring(0, colonIdx)
+                val catId = rowId.substring(colonIdx + 1)
+                if (!com.kaan.play.data.addon.CatalogVisibility.isVisible(addonRowId, type, catId, disabled)) {
+                    return@withContext emptyList()
+                }
+            }
+        }
         try {
             when {
                 providerId.startsWith("cs:") -> {
+                    if (pluginDao == null || csRepository == null || csRuntime == null) return@withContext emptyList()
                     val pluginRowId = providerId.removePrefix("cs:").toLongOrNull() ?: return@withContext emptyList()
                     val plugin = pluginDao.byId(pluginRowId) ?: return@withContext emptyList()
                     val catalog = CsCatalog(pluginRowId, plugin.name, csRepository, csRuntime)
