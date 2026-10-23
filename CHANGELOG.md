@@ -10,6 +10,11 @@
 - **İnce ilerleme çubuğu:** Oynatıcı arayüzünde daha zarif ve modern ince ilerleme çubuğu tasarımı.
 - **Yanlış/sahte kaynak eleme:** İçeriğin TMDB çalışma süresi ve meta verileriyle uyuşmayan sahte/yanlış video kaynakları elenir.
 
+- **Canlı TV kanalları:** Nuvio eklentilerindeki canlı televizyon kanalları sorunsuz açılıyor ve doğrudan oynatılabiliyor; canlı yayınlarda sonraki bölüm butonu gizleniyor.
+- **Sağlayıcı seçici kaydırma:** Çok sayıda eklenti kuruluyken açılan sağlayıcı seçici penceresi en alta inildiğinde akıcı biçimde yukarı kaydırılabiliyor.
+- **Takılmada otomatik kaynak geçişi:** İzlenen kaynak yavaşlayıp takıldığında uygulama yayını kesmeden aynı saniyeden otomatik olarak başka bir kaynağa geçiyor.
+- **Yavaş kaynakların geriye düşmesi:** Takılan ve yavaşlayan sunucular oturum boyunca listede geriye alınarak hızlı kaynaklar önceliklendiriliyor.
+- **Sade hata bildirimleri:** Oynatıcı hata bildirimlerindeki kafa karıştırıcı teknik satırlar gizlendi, kullanıcı dostu sade mesajlar sağlandı.
 ### English
 - **Plugins enabled by default in new repositories:** Newly added CloudStream and Nuvio plugin repositories now have their plugins enabled by default.
 - **Turkish dub opening wait 8s:** Opening wait time increased to 8 seconds when Turkish dub is preferred to allow plugins to respond (starts immediately when a dubbed stream arrives).
@@ -18,6 +23,11 @@
 - **Thin progress bar:** Elegant, modern thin progress bar design in the video player.
 - **Elimination of wrong/fake sources:** Video sources that fail to match TMDB runtime or metadata are eliminated.
 
+- **Live TV channels:** Live TV channels from Nuvio addons open reliably and play directly; next episode buttons are hidden during live streams.
+- **Provider picker scrolling:** Smooth scrolling in the provider selector sheet even with large lists of installed extensions.
+- **Automatic stream switching on stalls:** If a video source becomes slow or stalls, the app automatically switches to another source from the exact same second.
+- **Deprioritizing slow servers:** Servers that stall are deprioritized for the remainder of the session, favoring faster alternatives.
+- **Cleaner error notices:** Technical error lines are hidden from player error notices in favor of clean, user-friendly messages.
 ## [1.1.5] — 2026-10-22
 
 ### Türkçe
