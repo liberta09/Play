@@ -15,6 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.data.settings.ThemeMode
 import com.kaan.play.data.plugin.DeepLink
 import com.kaan.play.data.subtitle.DebugEndpoints
+import com.kaan.play.ui.player.PlayerNoticeLogic
 import com.kaan.play.data.update.UpdateNotifications
 import com.kaan.play.ui.components.SplashOverlay
 import com.kaan.play.ui.nav.PlayRoot
@@ -40,7 +41,18 @@ class MainActivity : AppCompatActivity() {
         val debugAnnounce = if (BuildConfig.DEBUG) intent.getStringExtra("play_announcements_endpoint") else null
         container.announcementChecker.checkOnce(container.appScope, container.updateChecker, debugAnnounce)
         // Yalnızca debug derlemede, sahte altyazı servisiyle denemek için: --es play_subs_endpoint http://host:port (SubDL + OpenSubtitles).
-        if (BuildConfig.DEBUG) intent.getStringExtra("play_subs_endpoint")?.let { DebugEndpoints.subsBase = it.trimEnd('/') }
+        if (BuildConfig.DEBUG) {
+            intent.getStringExtra("play_subs_endpoint")?.let { DebugEndpoints.subsBase = it.trimEnd('/') }
+            if (intent.hasExtra("simulate_release")) {
+                PlayerNoticeLogic.simulateRelease = intent.getBooleanExtra("simulate_release", false)
+            }
+            if (intent.hasExtra("test_simulate_skip")) {
+                PlayerNoticeLogic.simulateSkipOnce = intent.getBooleanExtra("test_simulate_skip", false)
+            }
+            if (intent.hasExtra("test_force_notice")) {
+                PlayerNoticeLogic.forceNoticeForTest = intent.getBooleanExtra("test_force_notice", false)
+            }
+        }
         if (BuildConfig.DEBUG) {
             // Duman testi: oynatıcıyı test videosuyla doğrudan aç (geçmişe yazılmaz). --es play_test_video <adres>
             intent.getStringExtra("play_test_video")?.let { url ->

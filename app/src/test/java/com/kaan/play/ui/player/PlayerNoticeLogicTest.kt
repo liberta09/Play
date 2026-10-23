@@ -1,10 +1,17 @@
 package com.kaan.play.ui.player
 
+import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PlayerNoticeLogicTest {
+
+    @After
+    fun tearDown() {
+        PlayerNoticeLogic.simulateRelease = false
+        PlayerNoticeLogic.simulateSkipOnce = false
+    }
 
     @Test
     fun shouldShowDetail_whenDebugTrueAndDetailPresent_returnsTrue() {
@@ -25,5 +32,11 @@ class PlayerNoticeLogicTest {
         assertFalse(PlayerNoticeLogic.shouldShowDetail(isDebug = true, detail = null))
         assertFalse(PlayerNoticeLogic.shouldShowDetail(isDebug = true, detail = ""))
         assertFalse(PlayerNoticeLogic.shouldShowDetail(isDebug = true, detail = "   "))
+    }
+
+    @Test
+    fun shouldShowDetail_whenSimulateReleaseTrue_returnsFalseEvenInDebug() {
+        PlayerNoticeLogic.simulateRelease = true
+        assertFalse(PlayerNoticeLogic.shouldShowDetail(isDebug = true, detail = "ERROR_CODE_IO_BAD_HTTP_STATUS (2004)"))
     }
 }

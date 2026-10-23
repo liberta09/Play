@@ -1,6 +1,7 @@
 package com.kaan.play.ui.player
 
 import android.media.AudioManager
+import com.kaan.play.BuildConfig
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
@@ -319,6 +320,11 @@ class PlayerActivity : AppCompatActivity() {
      * kaynağa geçilirken eski torrent oturumu kapatılır; altyazı hafızası ve ses seçimi korunur (dublajlı kaynakta otomatik altyazı yok).
      */
     private fun loadStream(stream: PlayableStream, startMs: Long) {
+        if (BuildConfig.DEBUG && PlayerNoticeLogic.simulateSkipOnce) {
+            PlayerNoticeLogic.simulateSkipOnce = false
+            coordinator?.onFailure("TEST_SIMULATED_ERROR (500)")
+            return
+        }
         val previous = currentStream
         if (previous != null && previous.url != stream.url && TorrentLinks.isMagnet(previous.url)) {
             appContainer.torrentEngine.closeActive()

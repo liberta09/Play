@@ -559,7 +559,10 @@ fun PlayerScreen(
             }
         }
 
-        coordinator?.notice?.let { notice ->
+        val activeNotice = coordinator?.notice ?: if (BuildConfig.DEBUG && PlayerNoticeLogic.forceNoticeForTest) {
+            SourceNotice.Skipped("TEST_SIMULATED_ERROR (500)")
+        } else null
+        activeNotice?.let { notice ->
             SourceNoticePill(notice, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 84.dp))
         }
 

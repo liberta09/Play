@@ -10,12 +10,21 @@ package com.kaan.play.ui.player
  */
 object PlayerNoticeLogic {
 
+    /** Test ve doğrulama için release modunu simüle etme bayrağı (yalnızca debug'da am start ile açılabilir). */
+    var simulateRelease: Boolean = false
+
+    /** Test için yapay hata üretme bayrağı (ilk kaynakta tek seferlik hata tetikler). */
+    var simulateSkipOnce: Boolean = false
+
+    /** Test ve ekran görüntüsü doğrulaması için yapay bildirim gösterme bayrağı. */
+    var forceNoticeForTest: Boolean = false
+
     /**
      * Hata bildirimindeki teknik ayrıntının arayüzde gösterilip gösterilmeyeceğini belirler.
-     * [isDebug] true ise ve [detail] doluysa true döner; release ([isDebug]=false) modunda her zaman false döner.
+     * [isDebug] true ise ve [detail] doluysa true döner; release ([isDebug]=false veya [simulateRelease]=true) modunda her zaman false döner.
      */
     fun shouldShowDetail(isDebug: Boolean, detail: String? = null): Boolean {
-        if (!isDebug) return false
+        if (!isDebug || simulateRelease) return false
         return !detail.isNullOrBlank()
     }
 }
