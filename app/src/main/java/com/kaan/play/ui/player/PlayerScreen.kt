@@ -10,6 +10,9 @@ import android.view.ViewGroup
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -163,6 +166,16 @@ fun PlayerScreen(
     var showAppearance by remember { mutableStateOf(false) }
     var showSync by remember { mutableStateOf(false) }
     var locked by remember { mutableStateOf(false) }
+    val lockHint = remember { LockHintState() }
+    var lockHintVisible by remember { mutableStateOf(false) }
+    var unlockFocused by remember { mutableStateOf(false) }
+    var lockHintTrigger by remember { mutableIntStateOf(0) }
+
+    fun showUnlockHint() {
+        lockHint.show(SystemClock.uptimeMillis())
+        lockHintVisible = true
+        lockHintTrigger++
+    }
     var resizeToast by remember { mutableStateOf<ResizeMode?>(null) }
     var lastSeekKeyAt by remember { mutableLongStateOf(0L) }
     var position by remember { mutableLongStateOf(0L) }
@@ -275,14 +288,40 @@ fun PlayerScreen(
             resizeToast = null
         }
     }
-    LaunchedEffect(locked) { if (locked) controlsVisible = false else reveal() }
+    LaunchedEffect(locked) {
+        if (locked) {
+            controlsVisible = false
+            showUnlockHint()
+        } else {
+            lockHint.hide()
+            lockHintVisible = false
+            reveal()
+        }
+    }
+    LaunchedEffect(locked, lockHintTrigger) {
+        if (locked) {
+            val remaining = lockHint.remainingMs(SystemClock.uptimeMillis())
+            if (remaining > 0L) {
+                lockHintVisible = true
+                delay(remaining)
+            }
+            lockHintVisible = false
+            unlockFocused = false
+        } else {
+            lockHint.hide()
+            lockHintVisible = false
+            unlockFocused = false
+        }
+    }
     LaunchedEffect(cardActive) { if (!cardActive) cardFocused = false }
     LaunchedEffect(dubVisible) { if (!dubVisible) dubFocused = false }
-    // Odak: kilitliyken açma simgesinde; hata/kaynak yokken hata düğmesinde; sonraki bölüm kartında; kontroller açıkken ilerleme
+    // Odak: kilitliyken ve simge görünürken açma simgesinde; kilitli ve simge gizliyken kök yüzeyde;
+    // hata/kaynak yokken hata düğmesinde; sonraki bölüm kartında; kontroller açıkken ilerleme
     // çubuğunda; gizliyken kök yüzeyde (yön tuşları orada yakalanır).
-    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, dubVisible, keyboard) {
+    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, dubVisible, keyboard) {
         when {
-            locked -> unlockFocus.requestWhenAttached()
+            locked && lockHintVisible -> unlockFocus.requestWhenAttached()
+            locked -> runCatching { rootFocus.requestFocus() }
             ui.error != null || sourcesFailed -> runCatching { playFocus.requestFocus() }
             cardActive -> cardFocus.requestWhenAttached()
             dubVisible && keyboard -> dubFocus.requestWhenAttached()
@@ -327,10 +366,16 @@ fun PlayerScreen(
                 ) return@onPreviewKeyEvent true
                 if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                 if (locked) {
-                    // Kilitliyken yalnızca açma düğmesi (Tamam) ve ses tuşları çalışır; sarma/oynat-duraklat yok.
+                    if (event.key in UNLOCK_TRIGGER_KEYS) {
+                        if (lockHintVisible && unlockFocused && event.key in UNLOCK_ENTER_KEYS) {
+                            locked = false
+                        } else {
+                            showUnlockHint()
+                            runCatching { unlockFocus.requestFocus() }
+                        }
+                        return@onPreviewKeyEvent true
+                    }
                     return@onPreviewKeyEvent when (event.key) {
-                        Key.DirectionCenter, Key.Enter, Key.NumPadEnter,
-                        Key.DirectionUp, Key.DirectionDown, Key.DirectionLeft, Key.DirectionRight,
                         Key.VolumeUp, Key.VolumeDown, Key.VolumeMute -> false
                         else -> true
                     }
@@ -373,9 +418,13 @@ fun PlayerScreen(
             }
             // Açık focusable(): clickable dokunmatik modda odak almaz; gizli kontrollerde tuşlar buraya gelmeli.
             .focusable()
-            .clickable(enabled = !locked, interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                controlsVisible = !controlsVisible
-                bump()
+            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                if (locked) {
+                    showUnlockHint()
+                } else {
+                    controlsVisible = !controlsVisible
+                    bump()
+                }
             }
             // clickable'dan sonra: eşik aşılınca olayı tüketir, dokunuş tıklama sayılmaz. Kilitliyken jest yok.
             .levelGestures(effectiveLevels, zones, levelIndicator),
@@ -582,13 +631,20 @@ fun PlayerScreen(
             )
         }
 
-        // Kilitliyken yalnızca açma simgesi görünür.
-        if (locked) {
+        // Kilitliyken açma simgesi geçici olarak (3 sn) görünür; dokununca veya kumanda tuşuyla yeniden belirir.
+        AnimatedVisibility(
+            visible = locked && lockHintVisible,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.CenterStart).padding(start = 24.dp),
+        ) {
             IconButton(
                 onClick = { locked = false },
-                modifier = Modifier.align(Alignment.CenterStart).padding(start = 24.dp)
+                modifier = Modifier
                     .background(Color.Black.copy(alpha = 0.6f), CircleShape)
-                    .focusRequester(unlockFocus),
+                    .focusRing(CircleShape)
+                    .focusRequester(unlockFocus)
+                    .onFocusChanged { unlockFocused = it.isFocused },
             ) {
                 Icon(PlayIcons.Unlock, contentDescription = stringResource(R.string.player_btn_unlock), tint = Color.White)
             }
@@ -662,6 +718,12 @@ private fun displayName(context: Context, uri: Uri): String {
 
 /** Kart açıkken kartın düğmelerine bırakılan tuşlar (kök yakalayıcı bunları sarma/oynat için kullanmaz). */
 private val CARD_KEYS = setOf(
+    Key.DirectionCenter, Key.Enter, Key.NumPadEnter,
+    Key.DirectionLeft, Key.DirectionRight, Key.DirectionUp, Key.DirectionDown,
+)
+
+private val UNLOCK_ENTER_KEYS = setOf(Key.DirectionCenter, Key.Enter, Key.NumPadEnter)
+private val UNLOCK_TRIGGER_KEYS = setOf(
     Key.DirectionCenter, Key.Enter, Key.NumPadEnter,
     Key.DirectionLeft, Key.DirectionRight, Key.DirectionUp, Key.DirectionDown,
 )
