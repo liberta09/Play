@@ -49,7 +49,7 @@ adb shell am start -n com.kaan.play/.MainActivity --ez test_force_stall true
 
 ## 3. Canlı TV Doğrulaması (WioSpor)
 
-WioSpor manifest adresi (`https://raw.githubusercontent.com/Wiojelt/Nuvio-Addons/live/wiospor/manifest.json`) `play://add?nuvio=...` onay penceresi üzerinden eklendi.
+WioSpor manifest adresi (`<eklenti adresi>`) `play://add?nuvio=...` onay penceresi üzerinden eklendi.
 
 ### 3.1 Canlı Kanalların Oynatılması
 - **Kanal: Mor Spor 2**
@@ -79,7 +79,7 @@ WioSpor manifest adresi (`https://raw.githubusercontent.com/Wiojelt/Nuvio-Addons
 
 ## 4. Film Oynatma Doğrulaması (İzlelan Eklentileri)
 
-Nuvio Plugin deposu (`https://izlelan.com/manifest.json`) onay penceresi üzerinden kuruldu (43 kazıyıcı aktif).
+Nuvio Plugin deposu (`<eklenti adresi>`) onay penceresi üzerinden kuruldu (43 kazıyıcı aktif).
 
 ### 4.1 Test Sonuçları Tablosu
 

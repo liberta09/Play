@@ -270,18 +270,18 @@ Play'in altyazı sistemi addon tabanlıdır; tek istisna yerleşik çevrimiçi a
 
 | Addon | Adres | Diller | Notlar |
 |---|---|---|---|
-| **AltyaziDB Subtitles** | `https://altyazidb.online/manifest.json` | Türkçe | Yapılandırma gerekmez; `tt` ve `tmdb` öneki; doğrudan eklenebilir. Altyazı kaynağı: altyazidb.com. |
+| **AltyaziDB Subtitles** | `<eklenti adresi>` | Türkçe | Yapılandırma gerekmez; `tt` ve `tmdb` öneki; doğrudan eklenebilir. Altyazı kaynağı: altyazidb.com. |
 | **SubPool by Diavelin** | `https://subpool-diavelin.vercel.app/configure` → kişisel URL | 105+ dil | Yapılandırma gerekir (özgür kaynaklar API anahtarsız; OpenSubtitles/SubDL isteğe bağlı API anahtarı); Türkçe için AltyazıDB ve AniSub dahil; ZIP/RAR açar, windows-1254 bozukluklarını düzeltir. Configure sayfasından kişisel manifest URL'si alınır. |
 | **Subtitle Translator** | `https://translatoraddon.duckdns.org/configure` → kişisel URL | Çok dilli (AI çeviri) | OpenSubtitles v3 (API anahtarsız); seçilen hedef dile otomatik AI çevirisi (OpenRouter veya Cursor; ücretli). Stremio ve NuvioTV uyumlu olduğu belirtilmiştir. |
 
 **Kurulum adımları (AltyaziDB örneği — yapılandırma gerektirmez):**
 1. Play > Eklentiler > Eklenti ekle
-2. `https://altyazidb.online/manifest.json` yapıştır
+2. `<eklenti adresi>` yapıştır
 3. "Eklenti eklendi (addon)" onayı çıkar
 4. Oynatıcı > altyazı menüsü'nde Türkçe parçalar otomatik listelenir; Play `tur` kodunu tanır ve uygulama dili Türkçeyse otomatik seçilir
 
 **Notlar:**
-- SubPool ve Translator Addon için configure sayfasından alınan kişisel manifest URL'sini (örn. `https://subpool-diavelin.vercel.app/abc123/manifest.json`) Play'e ekle.
+- SubPool ve Translator Addon için configure sayfasından alınan kişisel manifest URL'sini (örn. `<eklenti adresi>`) Play'e ekle.
 - `?` parametreli adresler Play tarafından reddedilir (bkz. Tasarım notları); configure sayfasının parametresiz bir URL ürettiği doğrulandı.
 - Altyazı addon'ları Play'in kaynak listesinde görünmez; yalnızca oynatıcının altyazı menüsünde parça olarak çıkar.
 - Tüm yanıt formatları `{"subtitles":[{"id","url","lang"}]}` olarak doğrulandı (`AddonSubtitleProvider.parse` ile uyumlu).
@@ -413,7 +413,7 @@ Ana sayfa, seçilen eklentinin/sağlayıcının kendi kataloğuyla beslenir. "T�
   - **Afiş CDN Koruması:** Eklentilerin sunduğu afiş adresleri (Cloudflare, Macellan CDN vb.) standart Android / OkHttp `User-Agent` başlıklarını HTTP 403 Forbidden ile reddettiğinden, `PlayApp` Coil `SingletonImageLoader.Factory`'sine masaüstü tarayıcı `User-Agent` (`Mozilla/5.0...`) enjekte edilmiştir. Tüm afişler temiz bir şekilde yüklenir.
   - **Afişe Dokunma:** Sağlayıcı afişine basıldığında içerik adı TMDB ile aranır (`searchMulti`). Eşleşme bulunursa doğrudan zengin TMDB Detay ekranı açılır; eşleşme bulunamazsa başlık doldurulmuş şekilde Ara ekranına geçilir.
 
-- **Varsayılan katalog: Play Özel Kataloglar (kullanıcı kararı 2026-10-21):** ilk kurulumda (ve altyazı addon'larını önceden almış kullanıcılarda bir kez) `https://play-nuvio-zel-katalog-st-dyosu.ai.studio/manifest.json` AÇIK eklenir (`DefaultCatalogAddons`; manifest sabit yazılır, açılışta ağa çıkılmaz; ayrı DataStore bayrağı `default_catalog_addon_seeded`). Silinirse geri gelmez, aynı adres varsa eklenmez. Yalnızca katalog verir (10 raf); akış ve altyazı listelerine girmez. Rafları TMDB raflarının üstünde çıkar; aynı adlı TMDB rafı (Türkçede "Popüler filmler/diziler") addon rafı görünürken gizlenir, addon rafı yüklenemezse TMDB rafı kalır. Sunucu kapalıysa raflar sessizce gizlenir (`ProviderRules.homeSectionRows`). Testler: `DefaultCatalogAddonsTest`, `ProviderRulesTest`, `ProviderCatalogTest.playCatalogsServerDownHidesSectionSilently`.
+- **Varsayılan katalog: Play Özel Kataloglar (kullanıcı kararı 2026-10-21):** ilk kurulumda (ve altyazı addon'larını önceden almış kullanıcılarda bir kez) `<eklenti adresi>` AÇIK eklenir (`DefaultCatalogAddons`; manifest sabit yazılır, açılışta ağa çıkılmaz; ayrı DataStore bayrağı `default_catalog_addon_seeded`). Silinirse geri gelmez, aynı adres varsa eklenmez. Yalnızca katalog verir (10 raf); akış ve altyazı listelerine girmez. Rafları TMDB raflarının üstünde çıkar; aynı adlı TMDB rafı (Türkçede "Popüler filmler/diziler") addon rafı görünürken gizlenir, addon rafı yüklenemezse TMDB rafı kalır. Sunucu kapalıysa raflar sessizce gizlenir (`ProviderRules.homeSectionRows`). Testler: `DefaultCatalogAddonsTest`, `ProviderRulesTest`, `ProviderCatalogTest.playCatalogsServerDownHidesSectionSilently`.
 
 - **Eklenti Türleri ve Davranışları:**
   - **CloudStream (.cs3) Eklentileri (`CsCatalog`):** `com.lagradost.cloudstream3` kabuğunda `MainAPI.mainPage: List<MainPageData>`, `getMainPage(page, request)`, `HomePageResponse`, `newHomePageResponse` sınıfları gerçek CloudStream ikili ABI'siyle birebir eşleştirilmiştir. `CsRuntime.mainPage` her ana sayfa bölümü için bağımsız 10 sn `withTimeout` uygular; hata alan bölüm boş geçilir, uygulama asla çökmez.

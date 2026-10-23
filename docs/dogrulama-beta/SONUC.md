@@ -16,8 +16,8 @@
 ## Detaylı Test Sonuçları ve Kanıtlar
 
 ### T1: Yeni Depo Açık Gelir
-- **İşlem**: `play://add?nuvio=https://izlelan.com/manifest.json` deep link ile çağrıldı.
-- **Onay Penceresi**: "Bağlantıdan eklensin mi?" başlığı, `https://izlelan.com/manifest.json` adresi ve `[Nuvio Deposu Ekle]` tür önerisi görüntülendi.
+- **İşlem**: `play://add?nuvio=<eklenti adresi>` deep link ile çağrıldı.
+- **Onay Penceresi**: "Bağlantıdan eklensin mi?" başlığı, `<eklenti adresi>` adresi ve `[Nuvio Deposu Ekle]` tür önerisi görüntülendi.
 - **Mevcut Durum**: Depo cihazda zaten ekli olduğundan ve kurallar gereği depoyu silme işlemi yapılmadığından durum: **DOĞRULANAMADI: depo zaten ekli**.
 - **Yüklü Eklentiler**: `izlelan` deposunda 43 eklenti mevcut, 43'ü de açık (`enabled = 1`), 0 kapalı.
 - **Kanıt**: `docs/dogrulama-beta/t1_yuklu_eklentiler.png` (92.5 KB).
