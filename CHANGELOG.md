@@ -1,5 +1,15 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.1.9] — 2026-10-24
+
+### Türkçe
+- **Altyazı seçerken donma düzeltildi:** Altyazı indirme, zip açma, ayrıştırma ve zaman çizgisi indeksleme işlemleri tamamen arka plana taşındı; panelde "Uygula" seçildiğinde pencere anında kapanarak arayüzün kilitlenmesi (ANR) engellendi.
+- **Altyazı paketlerinde doğru bölüm seçimi:** Çok dosyalı sezon paketlerinde bölüm numarası (`S01E21` / `1x21` / `E21` / `21`) akıllı şekilde taranarak izlenen bölüme ait doğru dosya otomatik olarak seçiliyor.
+
+### English
+- **Fixed freeze when selecting subtitles:** Subtitle downloading, zip extraction, parsing, and timeline indexing now run completely in the background; the panel closes immediately upon clicking "Apply", preventing UI freezes (ANRs).
+- **Correct episode selection in subtitle packs:** Multi-file season archives are intelligently matched against the episode number (`S01E21` / `1x21` / `E21` / `21`) to automatically select the matching episode subtitle.
+
 ## [1.1.8] — 2026-10-23
 
 ### Türkçe
