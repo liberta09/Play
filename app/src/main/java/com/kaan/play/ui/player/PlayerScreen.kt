@@ -20,6 +20,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Surface
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -89,6 +92,8 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.kaan.play.R
+import androidx.compose.ui.text.font.FontWeight
+import com.kaan.play.data.player.PlaybackSpeeds
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.settings.ResizeMode
 import com.kaan.play.data.settings.SubtitleStyle
@@ -325,7 +330,7 @@ fun PlayerScreen(
             ui.error != null || sourcesFailed -> runCatching { playFocus.requestFocus() }
             cardActive -> cardFocus.requestWhenAttached()
             dubVisible && keyboard -> dubFocus.requestWhenAttached()
-            controlsVisible -> barFocus.requestWhenAttached()
+            controlsVisible && keyboard -> barFocus.requestWhenAttached()
             else -> runCatching { rootFocus.requestFocus() }
         }
     }
@@ -510,6 +515,7 @@ fun PlayerScreen(
                 playing?.dubbed == true -> stringResource(R.string.tag_dubbed)
                 else -> null
             }
+            val speedBadge = PlaybackSpeeds.badgeLabel(ui.speed)
             val infoLine = listOfNotNull(playing?.source?.addonName, dims, sizeText, dubTag)
                 .reduceOrNull { acc, part -> stringResource(R.string.dot_join, acc, part) }
             val canSync = subtitles.selected is SubtitleItem.External && subtitles.status == SubtitleStatus.Idle
@@ -529,6 +535,7 @@ fun PlayerScreen(
             }
             Controls(
                 infoLine = infoLine,
+                speedBadge = speedBadge,
                 title = titleOf(target),
                 isPlaying = ui.isPlaying,
                 // Hata, kaynak yok ya da kaynaklar aranırken yalnızca üst çubuk (geri) görünür; oynat/sar/alt düğmeler anlamsızdır.
@@ -899,6 +906,7 @@ private fun DubSuggestionCard(
 @Composable
 private fun Controls(
     infoLine: String?,
+    speedBadge: String? = null,
     title: String,
     isPlaying: Boolean,
     minimal: Boolean,
@@ -936,14 +944,35 @@ private fun Controls(
                 Icon(PlayIcons.Back, contentDescription = stringResource(R.string.common_back), tint = tint)
             }
             Column(Modifier.weight(1f).padding(horizontal = 8.dp)) {
-                if (infoLine != null) {
-                    Text(
-                        text = infoLine,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = tint,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                if (infoLine != null || speedBadge != null) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (infoLine != null) {
+                            Text(
+                                text = infoLine,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = tint,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false),
+                            )
+                        }
+                        if (speedBadge != null) {
+                            if (infoLine != null) Spacer(Modifier.width(8.dp))
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)),
+                            ) {
+                                Text(
+                                    text = speedBadge,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                )
+                            }
+                        }
+                    }
                 }
                 Text(
                     text = title,
@@ -1066,6 +1095,8 @@ private fun ProgressBar(
 ) {
     var dragging by remember { mutableStateOf(false) }
     var dragFraction by remember { mutableStateOf(0f) }
+    var isFocused by remember { mutableStateOf(false) }
+    val keyboard = LocalInputModeManager.current.inputMode == InputMode.Keyboard
     val fraction = if (duration > 0) (position.toFloat() / duration).coerceIn(0f, 1f) else 0f
     val shown = if (dragging) dragFraction else fraction
 
@@ -1075,8 +1106,10 @@ private fun ProgressBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .onFocusChanged { onFocusChange(it.hasFocus) }
-            .focusRing(RoundedCornerShape(24.dp))
+            .onFocusChanged {
+                isFocused = it.hasFocus
+                onFocusChange(it.hasFocus)
+            }
             .padding(horizontal = 12.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -1133,7 +1166,8 @@ private fun ProgressBar(
                     .height(16.dp)
             ) {
                 val trackStroke = 4.dp.toPx()
-                val thumbRadius = 6.dp.toPx()
+                val thumbHighlighted = isFocused && keyboard
+                val thumbRadius = (if (thumbHighlighted) 8.4.dp else 6.dp).toPx()
                 val cy = size.height / 2f
                 val startX = thumbRadius
                 val endX = size.width - thumbRadius

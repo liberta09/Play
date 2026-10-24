@@ -13,6 +13,7 @@ import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
+import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
@@ -48,6 +49,8 @@ data class PlayerUiState(
     /** Çalan videonun çözünürlüğü (bilinmiyorsa 0). */
     val videoWidth: Int = 0,
     val videoHeight: Int = 0,
+    /** Oynatma hızı (varsayılan 1×; oturumluk). */
+    val speed: Float = 1.0f,
 )
 
 /** Videonun içindeki (Media3'ün okuduğu) altyazı parçası; [index] parça listesindeki sıradır. */
@@ -131,6 +134,13 @@ class PlaybackController(
         }
     }
 
+    var speed: Float
+        get() = player.playbackParameters.speed
+        set(value) {
+            player.playbackParameters = PlaybackParameters(value, 1f)
+            ui = ui.copy(speed = value)
+        }
+
     val stallTracker = PlaybackStallTracker()
     private var released = false
 
@@ -151,6 +161,10 @@ class PlaybackController(
 
     init {
         player.addListener(object : Player.Listener {
+            override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
+                ui = ui.copy(speed = playbackParameters.speed)
+            }
+
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 ui = ui.copy(isPlaying = isPlaying)
                 stallTracker.onIsPlayingChanged(isPlaying)

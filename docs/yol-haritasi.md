@@ -67,3 +67,4 @@ Değişmez kurallar: main'e birleştirme ve release yalnızca kullanıcı onayı
 - 2026-10-21: Gelir için bağış/destekçi modeli ile başlanır; hesap + bulut sonraya. Çalışma sistemi (yukarıdaki 7 adım) ve bu dosya oluşturuldu.
 - 2026-10-23: Kullanıcı kararı 2026-10-23: addon sayfası (Nuvio addon ayrıntı sayfası, katalog aç/kapat ve içerik sayısı) ve altyazı listesi tekrar düzeltmesi (mükerrer altyazıları tekilleştirme, kaynak yanına ayırt edici ekleme) 1.1.7 için onaylandı.
 - 2026-10-25: Çok sağlayıcı ve torrent kaynaklarında donma/ANR sorunu giderildi (SourceRanking decorate-sort, StreamLog.hostOf koruması, SourceCoordinator önbellek & conflate); 1.1.10 normal sürümü yayınlandı.
+- 2026-10-25: Kullanıcı kararı 2026-10-25: oynatma hızı (Parçalar paneli, oturumluk, 0.75×–2×, üst çubuk rozeti) ve zaman çizelgesinde odak çerçevesi yok, odakta tutamaç büyür (1.4 kat) kuralları uygulandı (1.1.11).

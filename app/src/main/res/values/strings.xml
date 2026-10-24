@@ -462,6 +462,9 @@
     <string name="tracks_video">Video</string>
     <string name="tracks_auto">Auto</string>
     <string name="tracks_none">No options</string>
+    <string name="player_speed">Speed</string>
+    <string name="player_speed_normal">Normal</string>
+    <string name="player_speed_normal_with_ratio">Normal (1×)</string>
     <string name="settings_auto_source">Pick the source automatically</string>
     <string name="settings_prefer_dub">Prefer Turkish dubbing</string>
     <string name="settings_auto_translate_subs">Auto-translate English if no Turkish</string>

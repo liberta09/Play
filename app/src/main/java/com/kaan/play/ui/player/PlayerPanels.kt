@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kaan.play.R
+import com.kaan.play.data.player.PlaybackSpeeds
 import com.kaan.play.data.stream.AudioFilter
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.SizeText
@@ -509,9 +510,11 @@ fun TracksPanel(
     val video = remember(tracksVersion) { controller.videoOptions() }
     val audio = remember(tracksVersion) { controller.audioTracks() }
     val pinned = remember(tracksVersion) { controller.videoPinned() }
-    // Bekleyen seçimler: video null = Otomatik; ses = parça sırası.
+    val currentSpeed = controller.speed
+    // Bekleyen seçimler: video null = Otomatik; ses = parça sırası; hız = float.
     var stagedVideo by remember { mutableStateOf(if (pinned) video.firstOrNull { it.selected } else null) }
     var stagedAudio by remember { mutableStateOf(audio.firstOrNull { it.selected }?.index) }
+    var stagedSpeed by remember { mutableStateOf(currentSpeed) }
     val focus = rememberInitialFocus()
 
     PanelFrame(
@@ -522,6 +525,9 @@ fun TracksPanel(
             if (stagedVideo != currentPinned) controller.selectVideo(stagedVideo)
             val chosen = stagedAudio
             if (chosen != null && chosen != audio.firstOrNull { it.selected }?.index) onAudioChosen(chosen)
+            if (stagedSpeed != currentSpeed) {
+                controller.speed = stagedSpeed
+            }
             onDismiss()
         },
     ) {
@@ -567,6 +573,21 @@ fun TracksPanel(
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
+                }
+            }
+        }
+        PanelColumn(stringResource(R.string.player_speed), Modifier.weight(1f)) {
+            items(PlaybackSpeeds.ALL, key = { "speed-$it" }) { sp ->
+                val label = if (sp == PlaybackSpeeds.DEFAULT) {
+                    stringResource(R.string.player_speed_normal_with_ratio)
+                } else {
+                    PlaybackSpeeds.format(sp)
+                }
+                OptionRow(
+                    selected = stagedSpeed == sp,
+                    onClick = { stagedSpeed = sp },
+                ) {
+                    Text(label, style = MaterialTheme.typography.bodyLarge)
                 }
             }
         }

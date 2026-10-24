@@ -444,6 +444,9 @@
     <string name="tracks_video">Video</string>
     <string name="tracks_auto">Otomatik</string>
     <string name="tracks_none">Seçenek yok</string>
+    <string name="player_speed">Hız</string>
+    <string name="player_speed_normal">Normal</string>
+    <string name="player_speed_normal_with_ratio">Normal (1×)</string>
     <string name="settings_auto_source">Kaynağı otomatik seç</string>
     <string name="settings_prefer_dub">Türkçe dublajı öncele</string>
     <string name="settings_auto_translate_subs">Türkçe yoksa İngilizceyi otomatik çevir</string>
