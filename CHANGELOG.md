@@ -1,5 +1,15 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.1.10] — 2026-10-25
+
+### Türkçe
+- **Çok sağlayıcılı aramalarda kilitlenme (ANR) düzeltildi:** Çok sayıda eklenti veya torrent kaynağı etkinken ana iş parçacığında meydana gelen sıralama yükü giderildi; magnet adreslerinde OkHttp istisna maliyeti engellendi ve akıllı sıralama önbelleği ile liste hesaplamaları hızlandırıldı.
+- **Akıcı kaynak başlatma:** Ağır sıralama işlemleri arka plana taşınarak "Kaynaklar yükleniyor…" ekranındaki takılmalar ve çöp toplayıcı baskısı sonlandırıldı.
+
+### English
+- **Fixed freeze (ANR) when resolving multiple providers:** Eliminated main thread sorting overhead when multiple plugins or torrent sources are active; prevented OkHttp exception overhead on magnet links and accelerated ranking computations with a precomputed sorting key cache.
+- **Smooth playback start:** Heavy ranking operations moved to background threads, ending UI freezes and garbage collection pressure on the "Loading sources…" screen.
+
 ## [1.1.9] — 2026-10-24
 
 ### Türkçe
