@@ -1,2 +1,3 @@
 Bölüm 1 (Düzeltme): StreamLog.hostOf okhttp istisna engeli, SourceRanking decorate-sort-undecorate, SourceCoordinator sıralama önbelleği + 200ms conflate tamamlandı; 981 birim testinin tamamı geçti (3000 kaynak 45 ms, 25 senaryo birebir eşit).
 Bölüm 2 (Kurulum): Release APK derlendi (SHA-256 = 5c7cd2bd91946586d125e59a848544f7db10b42ab0c0d3d6dd30c5b8c4e9f44f), LDPlayer'daki mevcut sertifika ile eşleşti, adb push + pm install -r -t ile başarıyla kuruldu (Success).
+Bölüm 3 (Cihaz Doğrulama): Tüm sağlayıcılar açıkken film (Örümcek-Adam: Yepyeni Bir Gün, ilk kare 1.74s) ve dizi (Criminal Minds S01E21, ilk kare 2.42s) ANR olmadan oynatıldı; debug yük testinde (test_many_providers 60 ek sağlayıcı) akıcı liste kaydırma ve sıfır ANR doğrulandı.

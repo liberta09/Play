@@ -58,6 +58,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            if (signingConfigs.getByName("release").storeFile != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
         release {
             // Şifreler yoksa (ör. başka makine) imzasız derlenir; derleme kırılmaz.
             if (signingConfigs.getByName("release").storeFile != null) {
