@@ -32,7 +32,7 @@ data class SourcesState(
 
     operator fun plus(result: StreamResult): SourcesState = when (result) {
         is StreamResult.Found -> copy(
-            streams = (streams + result.streams).ranked(),
+            streams = (streams + result.streams).distinctBy { it.url }.ranked(),
             answered = answered + result.source.addonId,
         )
         is StreamResult.Failed -> copy(failed = failed + result.source, answered = answered + result.source.addonId)

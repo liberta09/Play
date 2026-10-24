@@ -44,7 +44,29 @@ object StreamLog {
     }
 
     /** Yalnızca ana makine adı (günlük için); adres değilse "?". */
-    fun hostOf(url: String): String = url.toHttpUrlOrNull()?.host ?: "?"
+    private val hostCache = object : java.util.LinkedHashMap<String, String>(128, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, String>?): Boolean {
+            return size > 512
+        }
+    }
+    private val hostLock = Any()
+
+    fun hostOf(url: String): String {
+        val trimmed = url.trim()
+        if (trimmed.isEmpty()) return "?"
+        if (!trimmed.startsWith("http://", ignoreCase = true) && !trimmed.startsWith("https://", ignoreCase = true)) {
+            return "?"
+        }
+        synchronized(hostLock) {
+            val cached = hostCache[trimmed]
+            if (cached != null) return cached
+        }
+        val host = trimmed.toHttpUrlOrNull()?.host ?: "?"
+        synchronized(hostLock) {
+            hostCache[trimmed] = host
+        }
+        return host
+    }
 
     private fun sha6(value: String): String =
         MessageDigest.getInstance("SHA-256").digest(value.toByteArray()).take(3).joinToString("") { "%02x".format(it) }

@@ -114,37 +114,122 @@ object SourceRanking {
     fun matchesPreference(stream: PlayableStream, pref: SourcePref?): Boolean =
         pref != null && stream.source.addonId == pref.addonId
 
+    private data class DecoratedRecommended(
+        val stream: PlayableStream,
+        val tooHeavy: Int,
+        val notDubbed: Int,
+        val slowHost: Int,
+        val notPreferred: Int,
+        val isMagnet: Int,
+        val resTier: Int,
+        val negRes: Int,
+        val sortSize: Long,
+    )
+
+    private data class DecoratedSize(
+        val stream: PlayableStream,
+        val size: Long,
+        val res: Int,
+    )
+
+    private data class DecoratedResolution(
+        val stream: PlayableStream,
+        val res: Int,
+        val size: Long,
+    )
+
     fun recommended(streams: List<PlayableStream>, ctx: RankContext): List<PlayableStream> {
-        val comparator = if (ctx.isLive) {
-            compareBy<PlayableStream>(
-                { if (isTooHeavy(it, ctx)) 1 else 0 },
-                { if (ctx.isSlowHost(it.url)) 1 else 0 },
-                { if (matchesPreference(it, ctx.preference)) 0 else 1 },
-                { if (TorrentLinks.isMagnet(it.url)) 1 else 0 },
-            )
-        } else {
-            compareBy<PlayableStream>(
-                { if (isTooHeavy(it, ctx)) 1 else 0 },
-                { if (ctx.preferDub && !it.dubbed) 1 else 0 },
-                { if (ctx.isSlowHost(it.url)) 1 else 0 },
-                { if (matchesPreference(it, ctx.preference)) 0 else 1 },
-                { if (TorrentLinks.isMagnet(it.url)) 1 else 0 },
-                { resolutionTier(it) },
-                { -(it.resolution ?: 0) },
-                { sizeOf(it, ctx.sizes) ?: Long.MAX_VALUE },
-            )
+        val distinct = streams.distinctBy { it.url }
+        if (distinct.size <= 1) return distinct
+
+        // Host başına isSlowHost sonucunu tek seferde önbellekle
+        val slowHostCache = HashMap<String, Boolean>()
+        fun checkSlow(url: String): Int {
+            val host = StreamLog.hostOf(url)
+            if (host == "?") return 0
+            val isSlow = slowHostCache.getOrPut(host) { ctx.isSlowHost(url) }
+            return if (isSlow) 1 else 0
         }
-        return streams.distinctBy { it.url }.sortedWith(comparator)
+
+        if (ctx.isLive) {
+            val decorated = distinct.map { s ->
+                DecoratedRecommended(
+                    stream = s,
+                    tooHeavy = if (isTooHeavy(s, ctx)) 1 else 0,
+                    notDubbed = 0,
+                    slowHost = checkSlow(s.url),
+                    notPreferred = if (matchesPreference(s, ctx.preference)) 0 else 1,
+                    isMagnet = if (TorrentLinks.isMagnet(s.url)) 1 else 0,
+                    resTier = 0,
+                    negRes = 0,
+                    sortSize = 0L,
+                )
+            }
+            return decorated.sortedWith(
+                compareBy(
+                    { it.tooHeavy },
+                    { it.slowHost },
+                    { it.notPreferred },
+                    { it.isMagnet },
+                )
+            ).map { it.stream }
+        } else {
+            val decorated = distinct.map { s ->
+                DecoratedRecommended(
+                    stream = s,
+                    tooHeavy = if (isTooHeavy(s, ctx)) 1 else 0,
+                    notDubbed = if (ctx.preferDub && !s.dubbed) 1 else 0,
+                    slowHost = checkSlow(s.url),
+                    notPreferred = if (matchesPreference(s, ctx.preference)) 0 else 1,
+                    isMagnet = if (TorrentLinks.isMagnet(s.url)) 1 else 0,
+                    resTier = resolutionTier(s),
+                    negRes = -(s.resolution ?: 0),
+                    sortSize = sizeOf(s, ctx.sizes) ?: Long.MAX_VALUE,
+                )
+            }
+            return decorated.sortedWith(
+                compareBy(
+                    { it.tooHeavy },
+                    { it.notDubbed },
+                    { it.slowHost },
+                    { it.notPreferred },
+                    { it.isMagnet },
+                    { it.resTier },
+                    { it.negRes },
+                    { it.sortSize },
+                )
+            ).map { it.stream }
+        }
     }
 
     fun sorted(streams: List<PlayableStream>, sort: SourceSort, ctx: RankContext): List<PlayableStream> = when (sort) {
         SourceSort.Recommended -> recommended(streams, ctx)
-        SourceSort.SizeDesc -> streams.distinctBy { it.url }.sortedWith(
-            compareByDescending<PlayableStream> { sizeOf(it, ctx.sizes) ?: -1L }.thenByDescending { it.resolution ?: 0 },
-        )
-        SourceSort.ResolutionDesc -> streams.distinctBy { it.url }.sortedWith(
-            compareByDescending<PlayableStream> { it.resolution ?: 0 }.thenByDescending { sizeOf(it, ctx.sizes) ?: -1L },
-        )
+        SourceSort.SizeDesc -> {
+            val distinct = streams.distinctBy { it.url }
+            if (distinct.size <= 1) distinct
+            else distinct.map { s ->
+                DecoratedSize(
+                    stream = s,
+                    size = sizeOf(s, ctx.sizes) ?: -1L,
+                    res = s.resolution ?: 0,
+                )
+            }.sortedWith(
+                compareByDescending<DecoratedSize> { it.size }.thenByDescending { it.res }
+            ).map { it.stream }
+        }
+        SourceSort.ResolutionDesc -> {
+            val distinct = streams.distinctBy { it.url }
+            if (distinct.size <= 1) distinct
+            else distinct.map { s ->
+                DecoratedResolution(
+                    stream = s,
+                    res = s.resolution ?: 0,
+                    size = sizeOf(s, ctx.sizes) ?: -1L,
+                )
+            }.sortedWith(
+                compareByDescending<DecoratedResolution> { it.res }.thenByDescending { it.size }
+            ).map { it.stream }
+        }
     }
 
     fun filtered(streams: List<PlayableStream>, filter: AudioFilter): List<PlayableStream> = when (filter) {

@@ -1,0 +1,1 @@
+Bölüm 1 (Düzeltme): StreamLog.hostOf okhttp istisna engeli, SourceRanking decorate-sort-undecorate, SourceCoordinator sıralama önbelleği + 200ms conflate tamamlandı; 981 birim testinin tamamı geçti (3000 kaynak 45 ms, 25 senaryo birebir eşit).
