@@ -205,6 +205,7 @@ class SourceCoordinator(
             isLive = isLive,
         )
 
+    @Volatile
     private var rankedCache: List<PlayableStream>? = null
     internal var rankComputationCount = 0
 
@@ -315,9 +316,12 @@ class SourceCoordinator(
         if (!autoSource) return false
         if (!preferDub) return true
         if (stream.dubbed) return true
-        if (preference != null && stream.source.addonId == preference?.addonId) return true
+        if (matchesPreference(stream, preference)) return true
         return false
     }
+
+    private fun matchesPreference(stream: PlayableStream, pref: SourcePref?): Boolean =
+        pref != null && stream.source.addonId == pref.addonId
 
     private fun handleStreamResult(acc: List<PlayableStream>) {
         if (acc.isEmpty()) {
@@ -342,14 +346,16 @@ class SourceCoordinator(
             onChange()
         } else {
             if (pendingOnChangeJob == null || !pendingOnChangeJob!!.isActive) {
-                pendingOnChangeJob = scope.launch(rankingDispatcher) {
+                pendingOnChangeJob = scope.launch {
                     delay(BATCH_WINDOW_MS)
                     pendingOnChangeJob = null
                     lastOnChangeClock = clock()
-                    if (rankedCache == null) {
-                        val computed = withContext(rankingDispatcher) {
-                            SourceRanking.recommended(streams, ctx)
-                        }
+                    val currentStreams = streams
+                    val currentCtx = ctx
+                    val computed = withContext(rankingDispatcher) {
+                        SourceRanking.recommended(currentStreams, currentCtx)
+                    }
+                    if (rankedCache == null && streams === currentStreams) {
                         rankComputationCount++
                         rankedCache = computed
                     }
