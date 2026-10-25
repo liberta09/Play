@@ -1,5 +1,13 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.1.12] — 2026-10-25
+
+### Türkçe
+- **Açılır-kapanır yan menü (TV ve geniş ekran):** Televizyon ve geniş ekranlarda yan menü artık kapalıyken dar bir simge şeridi; kumandayla sola gelince açılıyor, içeriğe daha çok yer kalıyor.
+
+### English
+- **Collapsible side navigation rail (TV and wide screens):** On TVs and wide screens, the side navigation rail is now a compact icon strip when idle and expands smoothly when focused via remote control, leaving more space for content.
+
 ## [1.1.11] — 2026-10-25
 
 ### Türkçe

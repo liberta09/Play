@@ -1,0 +1,1 @@
+- **Açılır-kapanır yan menü (TV ve geniş ekran):** Televizyon ve geniş ekranlarda yan menü artık kapalıyken dar bir simge şeridi; kumandayla sola gelince açılıyor, içeriğe daha çok yer kalıyor.
