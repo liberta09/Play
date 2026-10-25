@@ -28,3 +28,16 @@
 2. **`menu_acik.png` (✅):** D-pad ile sola gidilerek menüye odaklanıldığında menünün 184 dp'ye açılarak yazıların belirdiği ve içerik afişlerinin sıkışmadan menünün altında kaldığı (overlay) doğrulanmıştır.
 3. **`menu_kapandi.png` (✅):** D-pad ile "Ara" sekmesine inilip seçildikten sonra sağa basılarak arama alanına geçildiğinde menünün tekrar 72 dp dar şeride kapandığı doğrulanmıştır.
 4. **`dokunmatik.png` (✅):** Dokunmatik tıklama ile Kütüphane simgesine basıldığında menü açılmadan doğrudan Kütüphane sekmesine geçildiği ve Kütüphane simgesinin vurgulandığı doğrulanmıştır.
+
+
+---
+
+## 3. Sürüm ve Yayın Doğrulaması (1.1.12)
+- **Sürüm:** 1.1.12 (versionCode 18)
+- **Birim Testleri:** 987 geçti, 0 başarısız, 2 atlandı.
+- **Sertifika SHA-256:** 5c7cd2bd91946586d125e59a848544f7db10b42ab0c0d3d6dd30c5b8c4e9f44f (apksigner ile doğrulandı).
+- **APK SHA-256:** 79047b1b885f7c479cf1768b1d8fa499f96d268b46dd7772496aea7eed3bfbb8
+- **Play-1.1.12-SHA256.txt:** BOM içermez, ilk 3 bayt: [55, 57, 48] ('7', '9', '0').
+- **GitHub Release:** https://github.com/liberta09/Play/releases/tag/v1.1.12
+- **En Son Etiket:** 1.1.12
+- **REST İndirme Doğrulaması:** GitHub Release REST API üzerinden indirilen Play-1.1.12.apk dosyasının SHA-256 değeri (79047b1b885f7c479cf1768b1d8fa499f96d268b46dd7772496aea7eed3bfbb8), Play-1.1.12-SHA256.txt ile tam olarak eşleşmiştir.
