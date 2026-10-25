@@ -1,5 +1,15 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.1.14] — 2026-10-25
+
+### Türkçe
+- **Android TV Box Çökme, Bellek ve İleri Sarma (Seek) İyileştirmeleri:** Android TV Box cihazlarda yaşanan kapanma/çökme sorunları giderildi, largeHeap ve RAM sınırları (DefaultLoadControl 16MB) optimize edildi. EGL surface çökmelerini önlemek için TextureView yüzeyine geçildi. Bozuk/sahte başlıklı TS segmentlerinin (PesReader: Unexpected start code prefix) ayıklanması ve ileri sarma (seek) takılmalarını otomatik kurtaran bekçi mekanizması eklendi.
+- **Güvenli Kara Kutu & Çökme Raporlama (CrashReporter):** Kritik arka plan ve ana iş parçacığı çökmelerini loglayan ve Telegram üzerinden anlık ileten güvenli hata izleme sistemi entegre edildi.
+
+### English
+- **Android TV Box Stability, Memory and Seek Improvements:** Fixed crash and force-close issues on Android TV Boxes with largeHeap and memory boundaries (DefaultLoadControl 16MB). Replaced surface with TextureView to eliminate EGL driver crashes. Added TsSniffingDataSource to bypass corrupt TS packet headers and seek stall auto-recovery watchdogs.
+- **Secure Blackbox & Crash Telemetry (CrashReporter):** Integrated a secure crash reporting system logging uncaught background/foreground exceptions and notifying via Telegram.
+
 ## [1.1.13] — 2026-10-25
 
 ### Türkçe

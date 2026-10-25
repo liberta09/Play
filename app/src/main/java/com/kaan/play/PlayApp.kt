@@ -22,7 +22,6 @@ class PlayApp : Application(), SingletonImageLoader.Factory {
         appContext = applicationContext
         // [ADIM 2] Küresel Çökme Kalkanı (UncaughtExceptionHandler + CrashReporter)
         CrashReporter.init(this)
-        CrashReporter.sendCrashReport("Test Çökmesi - Sistem Çalışıyor")
         container = AppContainer(this)
         // Reklam ve izleyici alan adı engelleme listesi arka planda yüklenir (AdDomains.all ile birleşir).
         AdHostLoader.ensureLoaded(this)
