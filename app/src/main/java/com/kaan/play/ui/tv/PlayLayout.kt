@@ -30,6 +30,10 @@ data class PlayLayout(val widthDp: Int, val heightDp: Int) {
         const val RAIL_MIN_WIDTH = 600
         const val RAIL_MIN_HEIGHT = 480
 
+        /** Yan menü (NavigationRail) kapalı ve açık genişlikleri. */
+        const val RAIL_COLLAPSED_WIDTH_DP = 72
+        const val RAIL_EXPANDED_WIDTH_DP = 184
+
         /** Ayarlar/Eklentiler gibi metin ağırlıklı ekranların okunur en büyük genişliği. */
         const val READABLE_WIDTH_DP = 720
 

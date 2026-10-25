@@ -1,5 +1,14 @@
 package com.kaan.play.ui.nav
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.platform.LocalInputModeManager
+import com.kaan.play.ui.tv.focusMemory
+import com.kaan.play.ui.tv.rememberFocusMemory
 import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -385,90 +394,25 @@ fun PlayRoot() {
             }
         },
     ) { padding ->
-        Row(Modifier.padding(padding)) {
-        if (showNav && layout.useRail) CappedFontScale {
-            Row(modifier = Modifier.fillMaxHeight()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(184.dp)
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(horizontal = 12.dp),
-                ) {
-                    // Logo
-                    Row(
-                        modifier = Modifier.padding(start = 8.dp, top = 24.dp, bottom = 28.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            imageVector = PlayIcons.PlayTriangle,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(28.dp),
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = "Play",
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 22.sp,
-                            ),
-                            color = MaterialTheme.colorScheme.onBackground,
-                        )
-                    }
+        val railCollapsedWidth = PlayLayout.RAIL_COLLAPSED_WIDTH_DP.dp
+        val railExpandedWidth = PlayLayout.RAIL_EXPANDED_WIDTH_DP.dp
 
-                    // Menü öğeleri
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Tab.entries.forEach { tab ->
-                            val isSelected = selected(tab)
-                            val shape = MaterialTheme.shapes.medium
-                            Surface(
-                                onClick = { openTab(tab) },
-                                shape = shape,
-                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-                                border = if (isSelected) BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary) else null,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .focusRing(shape),
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 14.dp, vertical = 12.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Icon(
-                                        imageVector = tab.icon,
-                                        contentDescription = stringResource(tab.label),
-                                        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(24.dp),
-                                    )
-                                    Spacer(modifier = Modifier.width(14.dp))
-                                    Text(
-                                        text = stringResource(tab.label),
-                                        style = MaterialTheme.typography.bodyMedium.copy(
-                                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                                        ),
-                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-                VerticalDivider(
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
-                    modifier = Modifier.fillMaxHeight(),
-                )
-            }
-        }
-        NavHost(
-            navController = navController,
-            startDestination = Tab.Home.route,
-            modifier = Modifier.weight(1f),
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
         ) {
+            // İçerik alanı: menü açılırken sıkışmasın diye her zaman dar şeride göre yerleşir
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = if (showNav && layout.useRail) railCollapsedWidth else 0.dp),
+            ) {
+                NavHost(
+                    navController = navController,
+                    startDestination = Tab.Home.route,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
             composable(Tab.Home.route) {
                 HomeScreen(
                     onOpenDetail = ::openDetail,
@@ -625,7 +569,127 @@ fun PlayRoot() {
                 )
             }
         }
+            }
 
+            // Yan menü (Geniş ekran / TV): içeriğin üstüne biner (overlay)
+            if (showNav && layout.useRail) CappedFontScale {
+                val inputModeManager = LocalInputModeManager.current
+                val keyboard = inputModeManager.inputMode == InputMode.Keyboard
+                var isMenuFocused by remember { mutableStateOf(false) }
+                val isExpanded = isMenuFocused && keyboard
+
+                val currentWidth by animateDpAsState(
+                    targetValue = if (isExpanded) railExpandedWidth else railCollapsedWidth,
+                    animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
+                    label = "railWidth",
+                )
+
+                val railFocusMemory = rememberFocusMemory()
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(currentWidth)
+                        .background(MaterialTheme.colorScheme.surface)
+                        .onFocusChanged { isMenuFocused = it.hasFocus },
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(horizontal = 8.dp),
+                    ) {
+                        // Logo
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    start = if (isExpanded) 8.dp else 0.dp,
+                                    top = 24.dp,
+                                    bottom = 28.dp,
+                                ),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = if (isExpanded) Arrangement.Start else Arrangement.Center,
+                        ) {
+                            Icon(
+                                imageVector = PlayIcons.PlayTriangle,
+                                contentDescription = "Play",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(28.dp),
+                            )
+                            if (isExpanded) {
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Text(
+                                    text = "Play",
+                                    style = MaterialTheme.typography.titleLarge.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 22.sp,
+                                    ),
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                )
+                            }
+                        }
+
+                        // Menü öğeleri
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Tab.entries.forEach { tab ->
+                                val isSelected = selected(tab)
+                                val shape = MaterialTheme.shapes.medium
+                                Surface(
+                                    onClick = { openTab(tab) },
+                                    shape = shape,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+                                    border = if (isSelected) BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary) else null,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .focusMemory(railFocusMemory, tab.name, isDefault = isSelected)
+                                        .focusRing(shape),
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(
+                                                start = if (isExpanded) 14.dp else 16.dp,
+                                                end = if (isExpanded) 14.dp else 16.dp,
+                                                top = 12.dp,
+                                                bottom = 12.dp,
+                                            ),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = if (isExpanded) Arrangement.Start else Arrangement.Center,
+                                    ) {
+                                        Icon(
+                                            imageVector = tab.icon,
+                                            contentDescription = stringResource(tab.label),
+                                            tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(24.dp),
+                                        )
+                                        if (isExpanded) {
+                                            Spacer(modifier = Modifier.width(14.dp))
+                                            Text(
+                                                text = stringResource(tab.label),
+                                                style = MaterialTheme.typography.bodyMedium.copy(
+                                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                                                ),
+                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Clip,
+                                                softWrap = false,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    VerticalDivider(
+                        color = Color(0xFF1E3A5F),
+                        thickness = 1.dp,
+                        modifier = Modifier.fillMaxHeight(),
+                    )
+                }
+            }
         }
     }
 

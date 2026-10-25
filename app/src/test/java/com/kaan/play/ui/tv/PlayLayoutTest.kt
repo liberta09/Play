@@ -1,5 +1,6 @@
 package com.kaan.play.ui.tv
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -29,6 +30,12 @@ class PlayLayoutTest {
             assertTrue("$it rail", it.useRail)
             assertTrue("$it twoPane", it.twoPane)
         }
+    }
+
+    @Test
+    fun railDimensions() {
+        assertEquals(72, PlayLayout.RAIL_COLLAPSED_WIDTH_DP)
+        assertEquals(184, PlayLayout.RAIL_EXPANDED_WIDTH_DP)
     }
 
     @Test
