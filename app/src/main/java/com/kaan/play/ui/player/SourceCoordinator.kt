@@ -461,7 +461,9 @@ class SourceCoordinator(
         val timeout = if (TorrentLinks.isMagnet(stream.url)) TORRENT_FIRST_FRAME_TIMEOUT_MS else FIRST_FRAME_TIMEOUT_MS
         firstFrameJob = scope.launch {
             delay(timeout)
-            startFailed("timeout")
+            if (phase == SourcePhase.Starting) {
+                startFailed("timeout")
+            }
         }
     }
 
@@ -495,6 +497,10 @@ class SourceCoordinator(
     }
 
     private fun startFailed(detail: String, mismatch: Boolean = false) {
+        if (phase == SourcePhase.Playing) {
+            Log.d(TAG, "startFailed yok sayıldı (zaten Playing durumunda): $detail")
+            return
+        }
         val failed = current
         val previous = revertTo
         if (previous != null) {

@@ -4,6 +4,8 @@ import com.kaan.play.data.addon.Addon
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import kotlin.time.Duration
@@ -29,8 +31,18 @@ class AddonStreamProvider(
         val type = request.addonType ?: request.type.addonType
         val limit = timeout()
         val targetAddonId = if (request.pluginId?.startsWith("nuvio_addon:") == true) request.pluginId.removePrefix("nuvio_addon:").toLongOrNull() else null
+        val gate = Semaphore(4)
         for (addon in askable(type, contentId, targetAddonId)) {
-            launch { send(query(addon, type, contentId, limit)) }
+            launch {
+                gate.withPermit {
+                    try {
+                        send(query(addon, type, contentId, limit))
+                    } catch (t: Throwable) {
+                        android.util.Log.e("PlayAddon", "${addon.manifest.name} çağrı hatası: ${t.message}", t)
+                        send(StreamResult.Failed(StreamSource(addon.id, addon.manifest.name), FailureReason.Network))
+                    }
+                }
+            }
         }
     }
 

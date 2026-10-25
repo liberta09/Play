@@ -356,6 +356,10 @@ class PlayerActivity : AppCompatActivity() {
      * kaynağa geçilirken eski torrent oturumu kapatılır; altyazı hafızası ve ses seçimi korunur (dublajlı kaynakta otomatik altyazı yok).
      */
     private fun loadStream(stream: PlayableStream, startMs: Long) {
+        if (android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) {
+            runOnUiThread { loadStream(stream, startMs) }
+            return
+        }
         if (BuildConfig.DEBUG && PlayerNoticeLogic.simulateSkipOnce) {
             PlayerNoticeLogic.simulateSkipOnce = false
             coordinator?.onFailure("TEST_SIMULATED_ERROR (500)")

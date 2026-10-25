@@ -28,6 +28,12 @@ import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.hls.DefaultHlsExtractorFactory
+import androidx.media3.exoplayer.hls.HlsMediaSource
+import androidx.media3.extractor.ts.DefaultTsPayloadReaderFactory
+import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
+import android.os.Handler
+import android.os.Looper
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.StreamLog
 import com.kaan.play.data.stream.TorrentLinks
@@ -81,7 +87,7 @@ data class VideoOption(val group: Int, val track: Int, val width: Int, val heigh
 class PlaybackController(
     context: Context,
     client: OkHttpClient,
-    offlineCache: Cache? = null,
+    private val offlineCache: Cache? = null,
     /** `magnet:` kaynağın yerleşik torrent motorundaki yerel http adresi (magnet, dosya sırası). */
     private val torrentUrl: (String, Int?) -> String = { _, _ -> throw IllegalStateException("no torrent engine") },
     bigBuffer: Boolean = false,
@@ -93,8 +99,18 @@ class PlaybackController(
     // Yerel torrent sunucusu üst bilgi ve ilk parçalar gelene dek yanıtı bekletir: okuma zaman aşımı uzun tutulur.
     private val torrentSource = OkHttpDataSource.Factory(client.newBuilder().readTimeout(TORRENT_READ_TIMEOUT_S, TimeUnit.SECONDS).build())
         .setUserAgent(DEFAULT_USER_AGENT)
+
+    private val onlineClient = client.newBuilder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .followRedirects(true)
+        .followSslRedirects(true)
+        .build()
+
     private val onlineSource = ResolvingDataSource.Factory(
-        OkHttpDataSource.Factory(client).setUserAgent(DEFAULT_USER_AGENT)
+        DataSource.Factory {
+            TsSniffingDataSource(OkHttpDataSource.Factory(onlineClient).setUserAgent(DEFAULT_USER_AGENT).createDataSource())
+        }
     ) { spec ->
         val merged = buildMap {
             put("User-Agent", headers["User-Agent"] ?: DEFAULT_USER_AGENT)
@@ -108,7 +124,17 @@ class PlaybackController(
     val player: ExoPlayer = run {
         val renderersFactory = DefaultRenderersFactory(context)
             .setEnableDecoderFallback(true)
+
+        // [ADIM 4] TV Box RAM sınırı (DefaultLoadControl)
+        val loadControl = DefaultLoadControl.Builder()
+            .setTargetBufferBytes(16 * 1024 * 1024)
+            .setPrioritizeTimeOverSizeThresholds(false)
+            .setBufferDurationsMs(15000, 30000, 2500, 5000)
+            .setBackBuffer(0, false)
+            .build()
+
         val builder = ExoPlayer.Builder(context, renderersFactory)
+            .setLoadControl(loadControl)
             .setMediaSourceFactory(
                 DefaultMediaSourceFactory(
                     if (offlineCache != null) {
@@ -117,15 +143,9 @@ class PlaybackController(
                     } else {
                         DataSource.Factory { if (torrent) torrentSource.createDataSource() else onlineSource.createDataSource() }
                     },
-                ),
+                ).setLoadErrorHandlingPolicy(DefaultLoadErrorHandlingPolicy(5)),
             )
             .setBandwidthMeter(bandwidthMeter)
-        if (bigBuffer) {
-            val loadControl = DefaultLoadControl.Builder()
-                .setBufferDurationsMs(30_000, 90_000, 2_500, 8_000)
-                .build()
-            builder.setLoadControl(loadControl)
-        }
         builder.build().also { exo ->
             // Altyazı varsayılan olarak kapalıdır; seçilince açılır (videonun içindekiler Media3'le, diğerleri kendi katmanımızla).
             exo.trackSelectionParameters = exo.trackSelectionParameters.buildUpon()
@@ -143,6 +163,32 @@ class PlaybackController(
 
     val stallTracker = PlaybackStallTracker()
     private var released = false
+
+    // [ADIM 5] Seek Watchdog ve Otomatik Kurtarma (Auto-Recovery)
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var seekWatchdogRunnable: Runnable? = null
+    private var isSeeking = false
+    private var recoveryAttempts = 0
+
+    private fun startSeekWatchdog() {
+        cancelSeekWatchdog()
+        val r = Runnable {
+            if (!released && player.playbackState == Player.STATE_BUFFERING) {
+                val currentPos = player.currentPosition
+                Log.w("PlayMatch", "Seek sonrası 8 saniye tamponlama aşıldı: akış otomatik kurtarılıyor pos=$currentPos")
+                player.seekTo(currentPos)
+                player.prepare()
+                player.play()
+            }
+        }
+        seekWatchdogRunnable = r
+        mainHandler.postDelayed(r, 8_000L)
+    }
+
+    private fun cancelSeekWatchdog() {
+        seekWatchdogRunnable?.let { mainHandler.removeCallbacks(it) }
+        seekWatchdogRunnable = null
+    }
 
     var ui by mutableStateOf(PlayerUiState())
         private set
@@ -175,10 +221,20 @@ class PlaybackController(
                 ui = ui.copy(buffering = buffering, ended = state == Player.STATE_ENDED)
                 val stallStarted = stallTracker.onPlaybackStateChanged(buffering = buffering, isReady = state == Player.STATE_READY)
                 if (stallStarted) logStallDetail()
-                if (state == Player.STATE_READY && !player.isCurrentMediaItemLive) {
-                    val duration = player.duration
-                    if (duration != C.TIME_UNSET && duration > 0) onDurationKnown?.invoke(duration)
+
+                if (state == Player.STATE_READY) {
+                    cancelSeekWatchdog()
+                    isSeeking = false
+                    recoveryAttempts = 0
+                    stallTracker.onSeekEnded()
+                    if (!player.isCurrentMediaItemLive) {
+                        val duration = player.duration
+                        if (duration != C.TIME_UNSET && duration > 0) onDurationKnown?.invoke(duration)
+                    }
+                } else if (state == Player.STATE_BUFFERING && isSeeking) {
+                    startSeekWatchdog()
                 }
+
                 // Görüntüsüz içerik (yalnızca ses) için ilk kare gelmez: hazır olunca açıldı sayılır.
                 if (state == Player.STATE_READY && player.currentTracks.groups.none { it.type == C.TRACK_TYPE_VIDEO && it.isSelected }) {
                     stallTracker.onFirstFrameRendered()
@@ -187,23 +243,44 @@ class PlaybackController(
             }
 
             override fun onPlayerError(error: PlaybackException) {
-                val http = generateSequence<Throwable>(error) { it.cause }
-                    .filterIsInstance<HttpDataSource.InvalidResponseCodeException>().firstOrNull()
-                TorrentDiag.e(
-                    "ExoPlayer hata: ${error.errorCodeName} (${error.errorCode}) → ${errorOf(error)}" +
-                        (http?.let { " http=${it.responseCode} ctype=${it.headerFields["Content-Type"]}" } ?: ""),
-                    error,
-                )
-                // Eklentinin verdiği başlıklar (Referer / tarayıcı User-Agent) bazı CDN'lerde tam tersine reddedilir
-                // (ör. 428/429). Başlıklı istek 4xx alırsa aynı konumdan bir kez başlıksız denenir.
-                if (retryWithoutHeaders(http?.responseCode, headersSent = headers.isNotEmpty())) {
-                    TorrentDiag.d("başlıklı istek ${http?.responseCode} aldı: başlıksız yeniden deneniyor")
-                    headers = emptyMap()
-                    player.prepare()
-                    return
+                try {
+                    // [ADIM 5] Hata anında otomatik kurtarma (BehindLiveWindow veya HttpDataSource)
+                    val isBehindLive = generateSequence<Throwable>(error) { it.cause }
+                        .any { it is androidx.media3.exoplayer.source.BehindLiveWindowException }
+                    val isHttpError = generateSequence<Throwable>(error) { it.cause }
+                        .any { it is HttpDataSource.HttpDataSourceException }
+
+                    if ((isBehindLive || isHttpError) && recoveryAttempts < 3 && !released) {
+                        recoveryAttempts++
+                        val currentPos = player.currentPosition
+                        Log.w("PlayMatch", "Ağ veya HLS canlı pencere hatası yakalandı (${error.errorCodeName}): akış tazeleniyor pos=$currentPos deneme=$recoveryAttempts")
+                        player.seekTo(currentPos)
+                        player.prepare()
+                        player.play()
+                        return
+                    }
+
+                    val http = generateSequence<Throwable>(error) { it.cause }
+                        .filterIsInstance<HttpDataSource.InvalidResponseCodeException>().firstOrNull()
+                    TorrentDiag.e(
+                        "ExoPlayer hata: ${error.errorCodeName} (${error.errorCode}) → ${errorOf(error)}" +
+                            (http?.let { " http=${it.responseCode} ctype=${it.headerFields["Content-Type"]}" } ?: ""),
+                        error,
+                    )
+                    // Eklentinin verdiği başlıklar (Referer / tarayıcı User-Agent) bazı CDN'lerde tam tersine reddedilir
+                    // (ör. 428/429). Başlıklı istek 4xx alırsa aynı konumdan bir kez başlıksız denenir.
+                    if (retryWithoutHeaders(http?.responseCode, headersSent = headers.isNotEmpty())) {
+                        TorrentDiag.d("başlıklı istek ${http?.responseCode} aldı: başlıksız yeniden deneniyor")
+                        headers = emptyMap()
+                        player.prepare()
+                        return
+                    }
+                    if (onFailure?.invoke(failureDetail(error, http?.responseCode)) == true) return
+                    ui = ui.copy(error = errorOf(error), buffering = false)
+                } catch (t: Throwable) {
+                    android.util.Log.e("PlaybackController", "onPlayerError içinde hata yakalandı: ${t.message}", t)
+                    ui = ui.copy(error = errorOf(error), buffering = false)
                 }
-                if (onFailure?.invoke(failureDetail(error, http?.responseCode)) == true) return
-                ui = ui.copy(error = errorOf(error), buffering = false)
             }
 
             override fun onTracksChanged(tracks: Tracks) {
@@ -224,8 +301,13 @@ class PlaybackController(
                 newPosition: Player.PositionInfo,
                 reason: Int,
             ) {
-                if (reason == Player.DISCONTINUITY_REASON_SEEK && player.playbackState == Player.STATE_READY && !player.isLoading) {
-                    stallTracker.onSeekEnded()
+                if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+                    if (player.playbackState == Player.STATE_READY && !player.isLoading) {
+                        stallTracker.onSeekEnded()
+                        cancelSeekWatchdog()
+                    } else {
+                        startSeekWatchdog()
+                    }
                 }
             }
         })
@@ -252,7 +334,23 @@ class PlaybackController(
             .build()
 
         ui = ui.copy(error = null, ended = false, buffering = true)
-        player.setMediaItem(item, startMs)
+        val isHls = mime == MimeTypes.APPLICATION_M3U8 || stream.url.lowercase(Locale.ROOT).contains(".m3u8")
+        if (isHls && offlineCache == null && !torrent) {
+            val hlsExtractorFactory = DefaultHlsExtractorFactory(
+                DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES or
+                    DefaultTsPayloadReaderFactory.FLAG_DETECT_ACCESS_UNITS or
+                    DefaultTsPayloadReaderFactory.FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS,
+                true,
+            )
+            val dataSourceFactory = DataSource.Factory { onlineSource.createDataSource() }
+            val hlsSource = HlsMediaSource.Factory(dataSourceFactory)
+                .setExtractorFactory(hlsExtractorFactory)
+                .setLoadErrorHandlingPolicy(DefaultLoadErrorHandlingPolicy(5))
+                .createMediaSource(item)
+            player.setMediaSource(hlsSource, startMs)
+        } else {
+            player.setMediaItem(item, startMs)
+        }
         player.prepare()
         player.playWhenReady = true
     }
@@ -277,12 +375,16 @@ class PlaybackController(
 
     fun seekBy(deltaMs: Long) {
         stallTracker.onSeekStarted()
+        isSeeking = true
+        startSeekWatchdog()
         val duration = player.duration.takeIf { it != C.TIME_UNSET } ?: Long.MAX_VALUE
         player.seekTo((player.currentPosition + deltaMs).coerceIn(0L, duration))
     }
 
     fun seekTo(positionMs: Long) {
         stallTracker.onSeekStarted()
+        isSeeking = true
+        startSeekWatchdog()
         player.seekTo(positionMs.coerceAtLeast(0L))
     }
 
@@ -390,10 +492,17 @@ class PlaybackController(
     fun release() {
         if (released) return
         released = true
+        cancelSeekWatchdog()
         val summary = stallTracker.finish()
         Log.d("PlayMatch", summary)
         logStallDetail()
-        player.release()
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            player.release()
+        } else {
+            Handler(Looper.getMainLooper()).post {
+                player.release()
+            }
+        }
     }
 
     companion object {
@@ -442,5 +551,75 @@ class PlaybackController(
 
             else -> PlaybackError.Format
         }
+    }
+}
+
+/**
+ * TS segmentlerinin başında bulunan sahte resim (PNG/JPG) ve çöp başlıkları 0x47 (TS sync byte) baytına kadar kırpar.
+ */
+@OptIn(UnstableApi::class)
+private class TsSniffingDataSource(private val upstream: DataSource) : DataSource {
+    private var isTsSegment = false
+    private var headerSkipped = false
+
+    override fun addTransferListener(transferListener: androidx.media3.datasource.TransferListener) {
+        upstream.addTransferListener(transferListener)
+    }
+
+    override fun open(dataSpec: androidx.media3.datasource.DataSpec): Long {
+        val path = dataSpec.uri.path?.lowercase(Locale.ROOT) ?: ""
+        val query = dataSpec.uri.query?.lowercase(Locale.ROOT) ?: ""
+        isTsSegment = path.endsWith(".ts") || path.endsWith(".image") || path.contains("/hls") ||
+            path.contains("/segment") || query.contains(".ts") || query.contains("format=ts")
+        headerSkipped = false
+        return upstream.open(dataSpec)
+    }
+
+    override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
+        if (!isTsSegment || headerSkipped || length <= 0) {
+            return upstream.read(buffer, offset, length)
+        }
+        val temp = ByteArray(minOf(length, 4096))
+        val readBytes = upstream.read(temp, 0, temp.size)
+        if (readBytes <= 0) return readBytes
+
+        if (temp[0] == 0x47.toByte()) {
+            headerSkipped = true
+            System.arraycopy(temp, 0, buffer, offset, readBytes)
+            return readBytes
+        }
+
+        var syncIdx = -1
+        for (i in 0 until readBytes) {
+            if (temp[i] == 0x47.toByte()) {
+                if (i + 188 < readBytes) {
+                    if (temp[i + 188] == 0x47.toByte()) {
+                        syncIdx = i
+                        break
+                    }
+                } else {
+                    syncIdx = i
+                    break
+                }
+            }
+        }
+
+        headerSkipped = true
+        return if (syncIdx >= 0) {
+            val validLen = readBytes - syncIdx
+            System.arraycopy(temp, syncIdx, buffer, offset, validLen)
+            validLen
+        } else {
+            System.arraycopy(temp, 0, buffer, offset, readBytes)
+            readBytes
+        }
+    }
+
+    override fun getUri(): android.net.Uri? = upstream.uri
+
+    override fun getResponseHeaders(): Map<String, List<String>> = upstream.responseHeaders
+
+    override fun close() {
+        upstream.close()
     }
 }

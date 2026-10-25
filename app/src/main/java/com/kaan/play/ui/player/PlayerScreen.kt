@@ -448,14 +448,11 @@ fun PlayerScreen(
             }
             AndroidView(
                 factory = { ctx ->
-                    PlayerView(ctx).apply {
-                        useController = false
+                    val view = android.view.LayoutInflater.from(ctx).inflate(R.layout.view_player, null, false) as PlayerView
+                    view.apply {
                         player = controller.player
-                        setShutterBackgroundColor(AndroidColor.BLACK)
-                        // Odak ve tuşlar Compose katmanında; görünüm odak çalmasın.
                         isFocusable = false
                         descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-                        // Harici altyazı satırlarını (kaydırmayla birlikte) kendimiz veririz; videonun içindekileri Media3 çizer.
                         subtitles.attach { cues -> subtitleView?.setCues(SubtitleCues.toCues(cues)) }
                     }
                 },
@@ -468,7 +465,10 @@ fun PlayerScreen(
                     }
                     view.subtitleView?.let { SubtitleStyling.apply(it, subtitleStyle) }
                 },
-                onRelease = { subtitles.attach(null) },
+                onRelease = { view ->
+                    subtitles.attach(null)
+                    view.player = null
+                },
                 modifier = viewModifier,
             )
         }

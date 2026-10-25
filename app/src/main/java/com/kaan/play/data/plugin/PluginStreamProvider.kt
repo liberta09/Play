@@ -56,7 +56,16 @@ class PluginStreamProvider(
         val limit = timeout()
         val gate = Semaphore(maxParallel)
         for (plugin in chosen) {
-            launch { gate.withPermit { send(query(plugin, request, limit)) } }
+            launch {
+                gate.withPermit {
+                    try {
+                        send(query(plugin, request, limit))
+                    } catch (t: Throwable) {
+                        Log.e(TAG, "${plugin.name} eklenti hatası: ${t.message}", t)
+                        send(StreamResult.Failed(plugin.toSource(), FailureReason.Network))
+                    }
+                }
+            }
         }
     }
 

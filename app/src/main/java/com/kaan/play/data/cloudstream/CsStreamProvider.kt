@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 
 /**
  * CloudStream eklentilerini [StreamProvider] arayüzüne bağlar.
@@ -70,9 +72,11 @@ class CsStreamProvider(
         Log.d(TAG, "streams: ${plugins.size} açık CS eklentisi")
         if (plugins.isEmpty()) return@channelFlow
 
+        val gate = Semaphore(4)
         for (plugin in plugins) {
             launch {
-                val source = StreamSource(addonId = plugin.id, addonName = plugin.name)
+                gate.withPermit {
+                    val source = StreamSource(addonId = plugin.id, addonName = plugin.name)
                 try {
                     val apis = repository.loadApis(plugin.id).apisOrEmpty()
                     Log.d(TAG, "${plugin.name}: ${apis.size} MainAPI yüklendi")
@@ -92,6 +96,7 @@ class CsStreamProvider(
                 } catch (t: Throwable) {
                     Log.d(TAG, "${plugin.name}: streams hata ${t.javaClass.simpleName}: ${t.message}")
                     send(StreamResult.Failed(source, FailureReason.Network))
+                    }
                 }
             }
         }

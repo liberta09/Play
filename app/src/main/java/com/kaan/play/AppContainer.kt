@@ -389,6 +389,7 @@ class AppContainer(context: Context) {
                     runner = { code, request, scraperId, timeoutMs, saved -> pluginRuntime.run(code, request, scraperId, timeoutMs, saved) },
                     settings = pluginSettings::get,
                     timeout = sourceTimeout,
+                    maxParallel = 4,
                 ),
                 CsStreamProvider(
                     repository = csRepos,
