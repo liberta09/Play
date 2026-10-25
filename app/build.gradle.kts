@@ -23,6 +23,13 @@ val subdlApiKey: String = localProps.getProperty("SUBDL_API_KEY")
     ?: System.getenv("SUBDL_API_KEY")
     ?: ""
 
+val telegramBotToken: String = localProps.getProperty("TELEGRAM_BOT_TOKEN")
+    ?: System.getenv("TELEGRAM_BOT_TOKEN")
+    ?: ""
+val telegramChatId: String = localProps.getProperty("TELEGRAM_CHAT_ID")
+    ?: System.getenv("TELEGRAM_CHAT_ID")
+    ?: ""
+
 android {
     namespace = "com.kaan.play"
     compileSdk = 37
@@ -41,6 +48,8 @@ android {
 
         buildConfigField("String", "TMDB_API_KEY", "\"$tmdbApiKey\"")
         buildConfigField("String", "SUBDL_API_KEY", "\"$subdlApiKey\"")
+        buildConfigField("String", "TELEGRAM_BOT_TOKEN", "\"$telegramBotToken\"")
+        buildConfigField("String", "TELEGRAM_CHAT_ID", "\"$telegramChatId\"")
     }
 
     // Yayın imzası: keystore yolu repoda, şifreler yalnızca local.properties'te (ya da ortam değişkeninde).

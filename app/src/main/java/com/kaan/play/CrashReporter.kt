@@ -17,7 +17,6 @@ import kotlin.concurrent.thread
 
 object CrashReporter {
     const val TAG = "CrashReporter"
-    const val TELEGRAM_BOT_TOKEN = "8722594690:AAHiX-jUeeCjPUxl5hVRXOaotFKPLqhVRx4"
 
     private val httpClient by lazy {
         OkHttpClient.Builder()
@@ -68,7 +67,7 @@ object CrashReporter {
             Log.e(TAG, "last_crash.txt yazılamadı: ${t.message}")
         }
 
-        // 2) Telegram bildirimi gönder (arka planda, getUpdates ile chat.id çekerek)
+        // 2) Telegram bildirimi gönder (arka planda, BuildConfig üzerinden)
         sendTelegramReportAsync(thread.name, throwable.message ?: "Unknown", stackTrace)
 
         if (!isMain && isBgTarget) {
@@ -79,30 +78,40 @@ object CrashReporter {
     }
 
     private fun sendTelegramReportAsync(threadName: String, message: String, stackTrace: String) {
+        val botToken = BuildConfig.TELEGRAM_BOT_TOKEN
+        val targetChatId = BuildConfig.TELEGRAM_CHAT_ID
+        if (botToken.isBlank()) {
+            Log.d(TAG, "TELEGRAM_BOT_TOKEN tanımlı değil, Telegram bildirimi atlanıyor.")
+            return
+        }
+
         thread(start = true, name = "CrashReporter-Telegram") {
             try {
-                // Dinamik getUpdates ile ilk chat.id bul
-                val getUpdatesUrl = "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getUpdates"
-                val getReq = Request.Builder().url(getUpdatesUrl).build()
-                val getResp = httpClient.newCall(getReq).execute()
-                val bodyStr = getResp.body.string()
-                val json = JSONObject(bodyStr)
-                if (!json.optBoolean("ok", false)) return@thread
-                val results = json.optJSONArray("result") ?: return@thread
-                if (results.length() == 0) return@thread
+                val chatId = if (targetChatId.isNotBlank()) {
+                    targetChatId
+                } else {
+                    // Dinamik getUpdates ile ilk chat.id bul
+                    val getUpdatesUrl = "https://api.telegram.org/bot$botToken/getUpdates"
+                    val getReq = Request.Builder().url(getUpdatesUrl).build()
+                    val getResp = httpClient.newCall(getReq).execute()
+                    val bodyStr = getResp.body.string()
+                    val json = JSONObject(bodyStr)
+                    if (!json.optBoolean("ok", false)) return@thread
+                    val results = json.optJSONArray("result") ?: return@thread
+                    if (results.length() == 0) return@thread
 
-                var chatId: Long? = null
-                for (i in results.length() - 1 downTo 0) {
-                    val item = results.optJSONObject(i) ?: continue
-                    val msg = item.optJSONObject("message") ?: item.optJSONObject("channel_post")
-                    val chat = msg?.optJSONObject("chat")
-                    if (chat != null && chat.has("id")) {
-                        chatId = chat.getLong("id")
-                        break
+                    var foundId: String? = null
+                    for (i in results.length() - 1 downTo 0) {
+                        val item = results.optJSONObject(i) ?: continue
+                        val msg = item.optJSONObject("message") ?: item.optJSONObject("channel_post")
+                        val chat = msg?.optJSONObject("chat")
+                        if (chat != null && chat.has("id")) {
+                            foundId = chat.get("id").toString()
+                            break
+                        }
                     }
+                    foundId ?: return@thread
                 }
-
-                if (chatId == null) return@thread
 
                 val text = buildString {
                     append("🚨 *Play TV Box Çökme Raporu*\n")
@@ -118,7 +127,7 @@ object CrashReporter {
                     put("parse_mode", "Markdown")
                 }
                 val postReq = Request.Builder()
-                    .url("https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage")
+                    .url("https://api.telegram.org/bot$botToken/sendMessage")
                     .post(postJson.toString().toRequestBody("application/json; charset=utf-8".toMediaType()))
                     .build()
                 httpClient.newCall(postReq).execute().close()
