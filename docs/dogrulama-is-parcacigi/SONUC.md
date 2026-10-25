@@ -56,3 +56,12 @@
 - `adb logcat -d | grep -E "FATAL EXCEPTION|wrong thread|ANR in com.kaan.play"`: **BO?** (0 e?le?me).
 - `adb shell dumpsys activity anr`: `com.kaan.play` i?in hi?bir ANR kayd? yok.
 - Uygulama PID'si test boyunca `4947` olarak sabit kald?, ??kme veya yeniden ba?lama ya?anmad?.
+## 8. 1.1.13 S?r?m Yay?n? ve Do?rulama
+- **Release Adresi:** https://github.com/liberta09/Play/releases/tag/v1.1.13
+- **Tag:** `v1.1.13`
+- **Latest Tag Do?rulamas?:** `gh api repos/liberta09/Play/releases/latest --jq .tag_name` -> `v1.1.13` (Ba?ar?l?)
+- **APK Dosyas?:** `Play-1.1.13.apk` (48.034.640 bayt)
+- **APK SHA-256 ?zeti:** `6b49b9b064eb10ac7c6671622069195332a3e871dac5e828954f96578263d2c9`
+- **?mza Sertifikas? SHA-256:** `5c7cd2bd91946586d125e59a848544f7db10b42ab0c0d3d6dd30c5b8c4e9f44f` (Do?ruland?)
+- **?zet Dosyas?:** `Play-1.1.13-SHA256.txt` (BOM yok, ilk 3 bayt: `0x36 0x62 0x34`)
+- **REST ?ndirme ve Hash Kar??la?t?rmas?:** GitHub releases ?zerinden `Play-1.1.13.apk` REST ile indirildi, SHA-256 ?zeti hesapland? ve yerel derleme ?zetiyle birebir e?le?ti?i teyit edildi.
