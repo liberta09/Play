@@ -8,6 +8,7 @@
 
     <string name="tab_home">Home</string>
     <string name="tab_search">Search</string>
+    <string name="tab_tv">TV</string>
     <string name="tab_library">Library</string>
     <string name="tab_settings">Settings</string>
 
@@ -51,6 +52,11 @@
     <string name="detail_writer">Writer</string>
     <string name="detail_creator">Creator</string>
     <string name="detail_cast">Cast</string>
+    <string name="detail_trailer_title">Trailer</string>
+    <string name="detail_trailer_play">Play trailer in the app</string>
+    <string name="detail_trailer_close">Close</string>
+    <string name="detail_similar_movies">Related movies</string>
+    <string name="detail_similar_series">Related series</string>
     <string name="detail_favorite_add">Add to favorites</string>
     <string name="detail_favorite_remove">Remove from favorites</string>
     <string name="detail_season">Season %1$d</string>
@@ -89,6 +95,22 @@
     <string name="player_error_unavailable">This source isn\'t available right now.</string>
     <string name="player_error_format">This source can\'t be played on this device.</string>
     <string name="live_channel_unavailable">This channel is currently unavailable.</string>
+    <string name="tv_title">Live TV</string>
+    <string name="tv_empty">No live channels were found in your enabled addons.</string>
+    <string name="tv_refresh">Refresh</string>
+    <string name="tv_loading">Loading live channels…</string>
+    <string name="tv_channel_subtitle">Live channel · %1$s</string>
+    <string name="tv_live_badge">LIVE</string>
+    <string name="tv_search_hint">Search channels</string>
+    <string name="tv_results_count">%1$d live channels</string>
+    <string name="tv_filter_all">All (%1$d)</string>
+    <string name="tv_filter_nuvio">Nuvio (%1$d)</string>
+    <string name="tv_filter_cloudstream">CloudStream (%1$d)</string>
+    <string name="tv_no_results">No channels match “%1$s”.</string>
+    <string name="tv_filtered_empty">No channels found for the selected source.</string>
+    <string name="tv_load_error">Live channels could not be loaded. Check your connection and try again.</string>
+    <string name="tv_source_options">Choose a stream source</string>
+    <string name="tv_sources_count">%1$d sources</string>
     <string name="player_error_pick">Choose another source</string>
 
     <!-- Kaldığın yerden devam -->
@@ -110,6 +132,13 @@
     <!-- Ayarlar -->
     <string name="settings_theme">Theme</string>
     <string name="settings_language">Language</string>
+    <string name="settings_poster_url">Poster URL</string>
+    <string name="settings_poster_url_value">Custom poster template</string>
+    <string name="settings_poster_url_default">Addon / TMDB posters</string>
+    <string name="settings_poster_url_title">Custom poster URL template</string>
+    <string name="settings_poster_url_hint">https://…/{imdb_id}.jpg</string>
+    <string name="settings_poster_url_help">Use {imdb_id}; leave empty to use the addon or TMDB poster.</string>
+    <string name="common_save">Save</string>
     <string name="settings_about">About</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>

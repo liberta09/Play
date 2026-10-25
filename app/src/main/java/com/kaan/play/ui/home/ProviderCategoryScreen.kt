@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import com.kaan.play.R
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.provider.CatalogRow
+import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.ui.components.PosterCard
 import com.kaan.play.ui.components.ScreenHeader
 import com.kaan.play.ui.nav.PlayIcons
@@ -120,6 +121,9 @@ fun ProviderCategoryScreen(
                     title = item.title,
                     subtitle = item.subtitle,
                     imageUrl = item.posterUrl,
+                    posterId = PosterUrlTemplate.findImdbId(item.id, item.rawUrl, item.posterUrl),
+                    tmdbId = item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(item.id, item.rawUrl, item.posterUrl),
+                    mediaType = item.mediaType,
                     onClick = {
                         if (!item.rawUrl.isNullOrBlank() && item.providerId.startsWith("cs:")) {
                             onOpenProviderDetail(item.providerId, item.rawUrl)

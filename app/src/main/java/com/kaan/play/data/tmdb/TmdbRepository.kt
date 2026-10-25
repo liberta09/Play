@@ -106,7 +106,20 @@ class TmdbRepository(
         } else {
             primary
         }
-        return merged.toDetail(type, language())
+        val keywordIds = merged.keywords?.all().orEmpty().map { it.id }.filter { it > 0 }.distinct()
+        val discovered = if (keywordIds.isNotEmpty()) {
+            bestEffort {
+                service.discoverRelated(
+                    type = type.tmdbPath,
+                    language = lang(),
+                    keywordIds = keywordIds,
+                    genreIds = merged.genres.map { it.id },
+                ).toPage(defaultType = type).items
+            }.orEmpty()
+        } else {
+            emptyList()
+        }
+        return merged.toDetail(type, language(), discovered)
     }
 
     suspend fun season(tvId: Int, season: Int): SeasonDetail {
@@ -158,10 +171,15 @@ private fun ItemDto.toSummary(defaultType: MediaType?): MediaSummary? {
         year = yearOf(releaseDate ?: firstAirDate),
         rating = voteAverage?.takeIf { it > 0.0 },
         genreIds = genreIds,
+        popularity = popularity?.takeIf { it > 0.0 },
     )
 }
 
-private fun DetailDto.toDetail(type: MediaType, language: UiLanguage): MediaDetail = MediaDetail(
+private fun DetailDto.toDetail(
+    type: MediaType,
+    language: UiLanguage,
+    discovered: List<MediaSummary>,
+): MediaDetail = MediaDetail(
     summary = MediaSummary(
         id = id,
         type = type,
@@ -171,6 +189,7 @@ private fun DetailDto.toDetail(type: MediaType, language: UiLanguage): MediaDeta
         backdropPath = backdropPath,
         year = yearOf(releaseDate ?: firstAirDate),
         rating = voteAverage?.takeIf { it > 0.0 },
+        genreIds = genres.map { it.id }.filter { it > 0 },
     ),
     imdbId = (externalIds?.imdbId ?: imdbId)?.takeIf { it.startsWith("tt") },
     tagline = tagline.orEmpty(),
@@ -197,6 +216,21 @@ private fun DetailDto.toDetail(type: MediaType, language: UiLanguage): MediaDeta
         .map { CastMember(it.id, it.name.orEmpty(), it.character.orEmpty().trim(), it.profilePath) },
     originalTitle = (originalTitle ?: originalName)?.takeIf { it.isNotBlank() },
     alternativeTitles = alternativeTitleList(),
+    similar = RelatedMediaRanking.rank(
+        type = type,
+        sourceId = id,
+        sourceTitle = (title ?: name).orEmpty(),
+        sourceOverview = overview.orEmpty(),
+        sourceGenreIds = genres.map { it.id }.filter { it > 0 },
+        discovered = discovered,
+        recommendations = recommendations?.results.orEmpty().mapNotNull { it.toSummary(type) },
+        similar = similar?.results.orEmpty().mapNotNull { it.toSummary(type) },
+    ),
+    trailerKey = videos?.results.orEmpty()
+        .filter { it.site.equals("YouTube", ignoreCase = true) && !it.key.isNullOrBlank() }
+        .sortedWith(compareByDescending<VideoDto> { it.type.equals("Trailer", ignoreCase = true) }
+            .thenByDescending { it.official == true })
+        .firstOrNull()?.key,
 )
 
 /** Alternatif başlıklar: önce Türkiye/ABD/Birleşik Krallık kayıtları, sonra diğerleri; boşlar atılır, yinelenenler [com.kaan.play.data.match.ContentIdentity] eler. */
@@ -259,6 +293,7 @@ private fun DetailDto.fillFrom(en: DetailDto): DetailDto = copy(
     name = name.takeUnless { it.isNullOrBlank() } ?: en.name,
     overview = overview.takeUnless { it.isNullOrBlank() } ?: en.overview,
     tagline = tagline.takeUnless { it.isNullOrBlank() } ?: en.tagline,
+    keywords = keywords?.takeIf { it.all().isNotEmpty() } ?: en.keywords,
 )
 
 private fun SeasonDetailDto.fillFrom(en: SeasonDetailDto): SeasonDetailDto {

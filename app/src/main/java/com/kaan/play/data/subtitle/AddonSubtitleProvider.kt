@@ -1,6 +1,7 @@
 package com.kaan.play.data.subtitle
 
 import com.kaan.play.data.addon.Addon
+import com.kaan.play.data.addon.AddonUrl
 import com.kaan.play.data.net.PlayJson
 import com.kaan.play.data.stream.AddonFetchFailure
 import com.kaan.play.data.stream.FailureReason
@@ -14,7 +15,6 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -51,7 +51,7 @@ class AddonSubtitleProvider(
 
     private suspend fun query(addon: Addon, type: String, contentId: String, limit: Duration): SubtitleResult {
         val source = StreamSource(addon.id, addon.manifest.name)
-        val url = "${addon.baseUrl}/subtitles/$type/$contentId.json".toHttpUrlOrNull()
+        val url = AddonUrl.endpoint(addon.sourceUrl, "subtitles", type, "$contentId.json")
             ?: return SubtitleResult.Failed(source, FailureReason.Network)
         return try {
             val tracks = parse(source.addonName, fetchAddonText(client, url, limit, maxBytes))

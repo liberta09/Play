@@ -38,8 +38,8 @@ android {
         applicationId = "com.kaan.play"
         minSdk = 24
         targetSdk = 37
-        versionCode = 20
-        versionName = "1.1.14"
+        versionCode = 21
+        versionName = "1.1.15"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -127,6 +127,7 @@ configurations.all {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation("androidx.fragment:fragment-ktx:1.8.5")
     implementation(libs.androidx.webkit)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)

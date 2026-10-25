@@ -54,6 +54,7 @@ import com.kaan.play.data.library.WatchRules
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.ui.components.PosterCard
+import com.kaan.play.ui.components.resolvePosterImageUrl
 import com.kaan.play.ui.containerViewModel
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.tv.focusMemory
@@ -112,6 +113,8 @@ fun LibraryScreen(
                     title = fav.title,
                     subtitle = stringResource(if (fav.type == MediaType.Movie) R.string.type_movie else R.string.type_series),
                     imageUrl = TmdbImages.url(fav.posterPath, TmdbImages.Size.Poster),
+                    tmdbId = fav.tmdbId,
+                    mediaType = fav.type,
                     onClick = { onOpenDetail(fav.type, fav.tmdbId) },
                     modifier = Modifier.focusMemory(focus, "fav-${fav.type}-${fav.tmdbId}", isDefault = fav == favs.first()),
                     overlay = {
@@ -300,7 +303,7 @@ private fun HistoryRow(entry: WatchHistoryEntity, onClick: () -> Unit, onRemove:
                     .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainer),
             ) {
-                TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster)?.let {
+                resolvePosterImageUrl(TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster), null, entry.tmdbId, entry.type)?.let {
                     AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                 }
             }
@@ -390,7 +393,7 @@ private fun DownloadRow(
                     .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainer),
             ) {
-                TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster)?.let {
+                resolvePosterImageUrl(TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster), null, entry.tmdbId, entry.type)?.let {
                     AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                 }
             }

@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kaan.play.R
+import com.kaan.play.data.addon.AddonUrl
 import com.kaan.play.data.cloudstream.CsApiResult
 import com.kaan.play.data.model.Episode
 import com.kaan.play.data.model.MediaDetail
@@ -190,8 +191,17 @@ fun ProviderDetailScreen(
 
                     val metaUrl = when {
                         url.startsWith("http://") || url.startsWith("https://") -> url
-                        url.contains('/') -> "${addon.baseUrl}/meta/$url.json"
-                        else -> "${addon.baseUrl}/meta/movie/$url.json"
+                        else -> {
+                            val metaPath = if (url.contains('/')) {
+                                url.split('/').mapIndexed { index, segment ->
+                                    if (index == url.split('/').lastIndex) "$segment.json" else segment
+                                }
+                            } else {
+                                listOf("movie", "$url.json")
+                            }
+                            AddonUrl.endpoint(addon.sourceUrl, "meta", *metaPath.toTypedArray())?.toString()
+                                ?: return@withContext ProviderDetailUiState.Error(R.string.provider_error_invalid_meta_url)
+                        }
                     }
                     val httpUrl = metaUrl.toHttpUrlOrNull()
                         ?: return@withContext ProviderDetailUiState.Error(R.string.provider_error_invalid_meta_url)

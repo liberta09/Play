@@ -102,6 +102,7 @@ class AppContainer(context: Context) {
         .readTimeout(20, TimeUnit.SECONDS)
         .followRedirects(true)
         // Güvenlik denetimi (ilk sırada): engellenen istek IOException ile reddedilir, uygulamayı çökertmez.
+        .addInterceptor(com.lagradost.cloudstream3.SafePluginInterceptor())
         .addInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
         .addInterceptor { chain ->
             val req = chain.request()

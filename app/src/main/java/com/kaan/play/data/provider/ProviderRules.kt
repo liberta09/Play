@@ -144,8 +144,14 @@ object ProviderRules {
      * sunucu kapalıysa ya da yanıt vermezse bölüm sessizce gizlenir (boş liste).
      */
     fun homeSectionRows(result: CatalogResult): List<CatalogRow> = when (result) {
-        is CatalogResult.Success -> result.rows.filter { it.items.isNotEmpty() }
+        is CatalogResult.Success -> withoutLiveRows(result.rows)
         else -> emptyList()
+    }
+
+    /** Canlı tv/channel içerikleri yalnızca özel TV sekmesinde gösterilir. */
+    fun withoutLiveRows(rows: List<CatalogRow>): List<CatalogRow> = rows.mapNotNull { row ->
+        val items = row.items.filterNot { it.addonType == "tv" || it.addonType == "channel" }
+        row.takeIf { items.isNotEmpty() }?.copy(items = items)
     }
 
     /**

@@ -15,6 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -889,5 +890,73 @@ class SourceCoordinatorTest {
             customRankingDispatcher.close()
             rankingExecutor.shutdown()
         }
+    }
+
+    @Test
+    fun firstRenderedFrameCancelsBackgroundDiscoveryAndPanelCanRestartIt() = runTest {
+        val a = stream(source1, "https://a/1")
+        var runs = 0
+        var cancellations = 0
+        val results = flow {
+            runs++
+            emit(found(source1, a))
+            if (runs == 1) {
+                try {
+                    awaitCancellation()
+                } finally {
+                    cancellations++
+                }
+            }
+        }
+        val rig = Rig(this, results, preferDub = false, request = request)
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+        assertEquals(SourcePhase.Starting, rig.coordinator.phase)
+        assertTrue(rig.coordinator.loading)
+        assertEquals(1, runs)
+
+        rig.coordinator.onFirstFrame()
+        runCurrent()
+        assertEquals(SourcePhase.Playing, rig.coordinator.phase)
+        assertTrue("late dub/source results remain available during the grace window", rig.coordinator.loading)
+        advanceTimeBy(PLAYBACK_DISCOVERY_GRACE_MS)
+        runCurrent()
+        assertFalse(rig.coordinator.loading)
+        assertEquals(1, cancellations)
+
+        // Source panel is an explicit user request and may resume discovery while playback continues.
+        rig.coordinator.ensureSources()
+        runCurrent()
+        assertEquals(2, runs)
+        assertFalse(rig.coordinator.loading)
+    }
+
+    @Test
+    fun lateProviderResultsDoNotProbeAlternativeSizesDuringPlayback() = runTest {
+        val initial = stream(source1, "https://a/initial.mp4", dub = true, size = null)
+        val late = stream(source2, "https://b/late.mp4", dub = true, size = null)
+        var sizeProbeCalls = 0
+        val rig = Rig(
+            this,
+            flow {
+                delay(100)
+                emit(found(source2, late))
+                delay(60_000)
+            },
+            preferDub = true,
+            request = request,
+            probe = { sizeProbeCalls++; null },
+        )
+
+        rig.coordinator.start(initial, emptyList(), 0)
+        runCurrent()
+        assertEquals(SourcePhase.Starting, rig.coordinator.phase)
+        rig.coordinator.onFirstFrame()
+        advanceTimeBy(100)
+        runCurrent()
+
+        assertEquals(SourcePhase.Playing, rig.coordinator.phase)
+        assertEquals("Late source should still be listed", listOf(late), rig.coordinator.streams)
+        assertEquals("Background HEAD probes must not compete with video traffic", 0, sizeProbeCalls)
     }
 }

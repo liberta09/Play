@@ -14,6 +14,7 @@ import com.kaan.play.data.match.Verdict
 import com.kaan.play.data.model.MediaType
 import com.lagradost.cloudstream3.AnimeLoadResponse
 import com.lagradost.cloudstream3.AnimeSearchResponse
+import com.lagradost.cloudstream3.LiveSearchResponse
 import com.lagradost.cloudstream3.LiveStreamLoadResponse
 import com.lagradost.cloudstream3.LoadResponse
 import com.lagradost.cloudstream3.MainAPI
@@ -30,6 +31,9 @@ import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.StreamRequest
 import com.kaan.play.data.stream.StreamSource
 import com.kaan.play.data.stream.StreamSubtitle
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withTimeout
 
 /**
@@ -174,13 +178,6 @@ class CsRuntime {
         timeoutMs: Long,
     ): List<PlayableStream> {
         val extApis = com.lagradost.cloudstream3.utils.extractorApis
-        extApis.removeAll {
-            it.mainUrl.contains("hotlinger", ignoreCase = true) ||
-            it.mainUrl.contains("pichive", ignoreCase = true) ||
-            it.mainUrl.contains("dplayer", ignoreCase = true) ||
-            it.mainUrl.contains("japierdolevid", ignoreCase = true) ||
-            it.mainUrl.contains("bysejikuar", ignoreCase = true)
-        }
         val customExts = listOf(
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("Pichive", "https://four.pichive.online"),
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("Pichive", "https://pichive.online"),
@@ -192,8 +189,17 @@ class CsRuntime {
             com.kaan.play.data.cloudstream.extractors.JapierdoleExtractor("Japierdole", "https://japierdolevid.com"),
             com.kaan.play.data.cloudstream.extractors.ByseJikuar(),
         )
-        for (ext in customExts) {
-            extApis.add(0, ext)
+        synchronized(extApis) {
+            extApis.removeAll {
+                it.mainUrl.contains("hotlinger", ignoreCase = true) ||
+                    it.mainUrl.contains("pichive", ignoreCase = true) ||
+                    it.mainUrl.contains("dplayer", ignoreCase = true) ||
+                    it.mainUrl.contains("japierdolevid", ignoreCase = true) ||
+                    it.mainUrl.contains("bysejikuar", ignoreCase = true)
+            }
+            customExts.asReversed().forEach { ext ->
+                if (extApis.none { it.mainUrl.equals(ext.mainUrl, ignoreCase = true) }) extApis.add(0, ext)
+            }
         }
 
         val links = mutableListOf<ExtractorLink>()
@@ -209,6 +215,8 @@ class CsRuntime {
                         links += link
                     },
                 )
+            } catch (cancel: CancellationException) {
+                throw cancel
             } catch (t: Throwable) {
                 Log.d(TAG, "${api.name}: loadLinks hata ${t.javaClass.simpleName}: ${t.message}", t)
             }
@@ -246,6 +254,42 @@ class CsRuntime {
         }
     }
 
+    /** TV kataloğundaki search URL’sini API.load ile canlı dataUrl’ye çözer; eski eklentiler için raw URL yedeği vardır. */
+    suspend fun loadLiveLinks(
+        api: MainAPI,
+        catalogUrl: String,
+        source: StreamSource,
+        timeoutMs: Long,
+    ): List<PlayableStream> {
+        val response = try {
+            withTimeout(timeoutMs) { api.load(catalogUrl) }
+        } catch (cancel: CancellationException) {
+            throw cancel
+        } catch (t: Throwable) {
+            Log.d(TAG, "${api.name}: live load hata ${t.javaClass.simpleName}: ${t.message}")
+            null
+        }
+        val resolvedData = when (response) {
+            is LiveStreamLoadResponse -> response.dataUrl
+            // Bazı eklentiler canlı kanalı yanlışlıkla MovieSearchResponse/MovieLoadResponse olarak beyan ediyor.
+            is MovieLoadResponse -> response.dataUrl
+            else -> null
+        }?.takeIf(String::isNotBlank)
+        val candidates = listOfNotNull(resolvedData, catalogUrl.takeIf(String::isNotBlank)).distinct()
+        for (data in candidates) {
+            val streams = try {
+                loadLinksDirect(api, data, source, timeoutMs)
+            } catch (cancel: CancellationException) {
+                throw cancel
+            } catch (t: Throwable) {
+                Log.d(TAG, "${api.name}: live link adayı başarısız (${t.javaClass.simpleName})")
+                emptyList()
+            }
+            if (streams.isNotEmpty()) return streams
+        }
+        return emptyList()
+    }
+
 
     private suspend fun search(api: MainAPI, query: String, timeoutMs: Long): List<SearchResponse>? {
         val results = withTimeout(timeoutMs) {
@@ -264,7 +308,7 @@ class CsRuntime {
      */
     private fun resolveData(resp: LoadResponse, request: StreamRequest): String? = when (resp) {
         is MovieLoadResponse -> if (request.type == MediaType.Tv) null else resp.dataUrl
-        is LiveStreamLoadResponse -> if (request.type == MediaType.Tv) null else resp.dataUrl
+        is LiveStreamLoadResponse -> if (request.addonType?.lowercase() in setOf("tv", "channel")) resp.dataUrl else null
         is TvSeriesLoadResponse -> pickEpisode(resp.episodes, request)
         is AnimeLoadResponse -> pickEpisode(resp.episodes.values.flatten(), request)
         else -> null
@@ -296,9 +340,12 @@ class CsRuntime {
         api: MainAPI,
         page: Int = 1,
         timeoutMs: Long = 6_000L,
+        maxSectionsPerApi: Int = Int.MAX_VALUE,
+        sectionNameFilter: ((String) -> Boolean)? = null,
     ): List<CsCatalogSection> {
         val sectionsResult = runCatching { api.mainPage }
         val sections = sectionsResult.getOrNull()
+        val selectedSections = sections?.filter { sectionNameFilter?.invoke(it.name) != false }
         val results = mutableListOf<CsCatalogSection>()
 
         if (sectionsResult.isFailure) {
@@ -311,8 +358,8 @@ class CsRuntime {
         }
 
         val mainPageStarted = System.currentTimeMillis()
-        if (!sections.isNullOrEmpty()) {
-            for (section in sections) {
+        if (!selectedSections.isNullOrEmpty()) {
+            for (section in selectedSections.take(maxSectionsPerApi.coerceAtLeast(0))) {
                 // Eklenti mainUrl'den farklı (güncel) bir alan adına gidebilir: engeli o istekten öğren.
                 val cf = com.kaan.play.data.cloudstream.cloudflare.CloudflareSolver
                 if (cf.wasBlocked(api.mainUrl) || cf.unresolvedSince(mainPageStarted) != null) {
@@ -355,6 +402,7 @@ class CsRuntime {
                         }
                     }
                 } catch (t: Throwable) {
+                    currentCoroutineContext().ensureActive()
                     Log.d(TAG, "[DEBUG_MAINPAGE] ${api.name}/${section.name}: istisna -> ${t.javaClass.name}: ${t.message} (${System.currentTimeMillis() - started} ms)")
                     if (t.cause != null) {
                         Log.d(TAG, "[DEBUG_MAINPAGE] ${api.name}/${section.name}: kök neden -> ${t.cause?.javaClass?.name}: ${t.cause?.message}")
@@ -388,6 +436,7 @@ class CsRuntime {
                     }
                 }
             } catch (t: Throwable) {
+                currentCoroutineContext().ensureActive()
                 Log.d(TAG, "[DEBUG_MAINPAGE] ${api.name}: hasMainPage istisna -> ${t.javaClass.name}: ${t.message} (${System.currentTimeMillis() - started} ms)")
             }
         } else {
@@ -397,14 +446,44 @@ class CsRuntime {
         return results
     }
 
+    /** Ana sayfa kataloğu olmayan Live API'ler için kısa arama yedeği. Yalnız Live türündeki sonuçlar döner. */
+    suspend fun liveSearch(
+        apis: List<MainAPI>,
+        queries: List<String> = listOf("live", "tv", "canlı"),
+        timeoutMs: Long = 1_000L,
+        isLiveCandidate: (SearchResponse) -> Boolean = { it is LiveSearchResponse || it.type == TvType.Live },
+    ): List<CsCatalogSection> {
+        val sections = mutableListOf<CsCatalogSection>()
+        for (api in apis) {
+            val found = LinkedHashMap<String, SearchResponse>()
+            for (query in queries) {
+                val results: List<SearchResponse> = try {
+                    withTimeout(timeoutMs) { api.search(query) }.orEmpty()
+                } catch (t: Throwable) {
+                    currentCoroutineContext().ensureActive()
+                    Log.d(TAG, "${api.name}: live search '$query' başarısız: ${t.javaClass.simpleName}")
+                    emptyList()
+                }
+                results.filter(isLiveCandidate)
+                    .forEach { found.putIfAbsent(it.url.ifBlank { it.name }, it) }
+                if (found.isNotEmpty()) break
+            }
+            if (found.isNotEmpty()) {
+                sections += CsCatalogSection(title = "Canlı Kanallar", items = found.values.toList())
+            }
+        }
+        return sections
+    }
+
     suspend fun mainPage(
         apis: List<MainAPI>,
         page: Int = 1,
         timeoutMs: Long = 27_000L,
+        maxSectionsPerApi: Int = Int.MAX_VALUE,
     ): List<CsCatalogSection> {
         val results = mutableListOf<CsCatalogSection>()
         for (api in apis) {
-            results += mainPage(api, page, timeoutMs)
+            results += mainPage(api, page, timeoutMs, maxSectionsPerApi)
         }
         return results
     }

@@ -35,11 +35,21 @@ import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
 import android.os.Handler
 import android.os.Looper
 import com.kaan.play.data.stream.PlayableStream
+import androidx.media3.exoplayer.analytics.AnalyticsListener
+import com.kaan.play.data.stream.StreamPlaybackCookieJar
+import com.kaan.play.data.stream.StreamSessionCookies
 import com.kaan.play.data.stream.StreamLog
 import com.kaan.play.data.stream.TorrentLinks
 import okhttp3.OkHttpClient
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+
+private class PlaybackHttpSession(
+    headers: Map<String, String>,
+    val cookieJar: StreamPlaybackCookieJar,
+) {
+    @Volatile var headers: Map<String, String> = headers
+}
 
 /** Oynatma hatasının kullanıcıya gösterilen üç sınıfı. */
 enum class PlaybackError { Network, Unavailable, Format }
@@ -86,35 +96,62 @@ data class VideoOption(val group: Int, val track: Int, val width: Int, val heigh
 @OptIn(UnstableApi::class)
 class PlaybackController(
     context: Context,
-    client: OkHttpClient,
+    private val client: OkHttpClient,
     private val offlineCache: Cache? = null,
     /** `magnet:` kaynağın yerleşik torrent motorundaki yerel http adresi (magnet, dosya sırası). */
     private val torrentUrl: (String, Int?) -> String = { _, _ -> throw IllegalStateException("no torrent engine") },
     bigBuffer: Boolean = false,
 ) : SubtitleHost {
 
-    @Volatile private var headers: Map<String, String> = emptyMap()
     @Volatile private var torrent = false
+    @Volatile private var activeHttpSession = PlaybackHttpSession(emptyMap(), StreamPlaybackCookieJar())
+    private var headers: Map<String, String>
+        get() = activeHttpSession.headers
+        set(value) { activeHttpSession.headers = value }
+
+    // Surface/TextureView hazırlık durumu (ilk açılışta yüzey hazır olmadan ExoPlayer yüklenmesini engeller)
+    @Volatile var isSurfaceReady: Boolean = false
+        private set
+    private var pendingLoad: (() -> Unit)? = null
+
+    fun onSurfaceReady() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            Handler(Looper.getMainLooper()).post { onSurfaceReady() }
+            return
+        }
+        Log.d("PlaybackController", "Video yüzeyi (TextureView) hazır bildirildi.")
+        isSurfaceReady = true
+        val pending = pendingLoad
+        pendingLoad = null
+        pending?.invoke()
+    }
+
+    fun onSurfaceDestroyed() {
+        isSurfaceReady = false
+    }
 
     // Yerel torrent sunucusu üst bilgi ve ilk parçalar gelene dek yanıtı bekletir: okuma zaman aşımı uzun tutulur.
     private val torrentSource = OkHttpDataSource.Factory(client.newBuilder().readTimeout(TORRENT_READ_TIMEOUT_S, TimeUnit.SECONDS).build())
         .setUserAgent(DEFAULT_USER_AGENT)
 
-    private val onlineClient = client.newBuilder()
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(15, TimeUnit.SECONDS)
-        .followRedirects(true)
-        .followSslRedirects(true)
-        .build()
+    @Volatile private var onlineSource = createOnlineSource(activeHttpSession)
 
-    private val onlineSource = ResolvingDataSource.Factory(
+    private fun createOnlineSource(session: PlaybackHttpSession): ResolvingDataSource.Factory = ResolvingDataSource.Factory(
         DataSource.Factory {
-            TsSniffingDataSource(OkHttpDataSource.Factory(onlineClient).setUserAgent(DEFAULT_USER_AGENT).createDataSource())
+            val okHttpClient = client.newBuilder()
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(15, TimeUnit.SECONDS)
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .cookieJar(session.cookieJar)
+                .build()
+            TsSniffingDataSource(OkHttpDataSource.Factory(okHttpClient).setUserAgent(DEFAULT_USER_AGENT).createDataSource())
         }
     ) { spec ->
+        val streamHeaders = session.headers
         val merged = buildMap {
-            put("User-Agent", headers["User-Agent"] ?: DEFAULT_USER_AGENT)
-            putAll(headers)
+            put("User-Agent", streamHeaders["User-Agent"] ?: DEFAULT_USER_AGENT)
+            putAll(streamHeaders)
         }
         spec.withAdditionalHeaders(merged)
     }
@@ -147,6 +184,13 @@ class PlaybackController(
             )
             .setBandwidthMeter(bandwidthMeter)
         builder.build().also { exo ->
+            exo.addAnalyticsListener(object : AnalyticsListener {
+                override fun onDroppedVideoFrames(eventTime: AnalyticsListener.EventTime, droppedFrames: Int, elapsedMs: Long) {
+                    if (droppedFrames >= 3) {
+                        Log.d("PlayMatch", "kare düşmesi: dropped=$droppedFrames elapsed=${elapsedMs}ms pos=${eventTime.currentPlaybackPositionMs}ms")
+                    }
+                }
+            })
             // Altyazı varsayılan olarak kapalıdır; seçilince açılır (videonun içindekiler Media3'le, diğerleri kendi katmanımızla).
             exo.trackSelectionParameters = exo.trackSelectionParameters.buildUpon()
                 .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
@@ -315,7 +359,25 @@ class PlaybackController(
 
     /** [startMs] konumundan oynatmaya başlar. Önceki hata temizlenir. */
     fun load(stream: PlayableStream, startMs: Long) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            Handler(Looper.getMainLooper()).post { load(stream, startMs) }
+            return
+        }
+        if (!isSurfaceReady) {
+            Log.d("PlaybackController", "Yüzey henüz hazır değil, oynatma yüzey hazır olana kadar bekletiliyor.")
+            pendingLoad = { load(stream, startMs) }
+            return
+        }
         stallTracker.reset(stream.source.addonName)
+        activeHttpSession.cookieJar.clear()
+        activeHttpSession = PlaybackHttpSession(
+            stream.headers,
+            StreamPlaybackCookieJar().apply {
+                val cookies = StreamSessionCookies.forPlayback(stream.source.addonId, stream.url)
+                if (cookies.isNotEmpty()) replace(cookies)
+            }
+        )
+        onlineSource = createOnlineSource(activeHttpSession)
         headers = stream.headers
         torrent = TorrentLinks.isMagnet(stream.url)
         // Magnet: yerleşik motorun yerel adresi; tür içerikten çıkarılır (dosya adı üst bilgi gelince belli olur).
@@ -357,6 +419,19 @@ class PlaybackController(
 
     /** İndirilmiş kopyayı oynatır ([item] indirme isteğinden gelir; HLS/DASH'te indirilen kaliteyle sınırlıdır). */
     fun loadDownloaded(item: MediaItem, startMs: Long) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            Handler(Looper.getMainLooper()).post { loadDownloaded(item, startMs) }
+            return
+        }
+        if (!isSurfaceReady) {
+            pendingLoad = { loadDownloaded(item, startMs) }
+            return
+        }
+        player.stop()
+        player.clearMediaItems()
+        activeHttpSession.cookieJar.clear()
+        activeHttpSession = PlaybackHttpSession(emptyMap(), StreamPlaybackCookieJar())
+        onlineSource = createOnlineSource(activeHttpSession)
         stallTracker.reset("İndirilen")
         ui = ui.copy(error = null, ended = false, buffering = true)
         player.setMediaItem(item, startMs)
@@ -493,6 +568,8 @@ class PlaybackController(
         if (released) return
         released = true
         cancelSeekWatchdog()
+        pendingLoad = null
+        activeHttpSession.cookieJar.clear()
         val summary = stallTracker.finish()
         Log.d("PlayMatch", summary)
         logStallDetail()

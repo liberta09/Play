@@ -31,11 +31,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withTimeoutOrNull
+
+internal const val PLAYBACK_DISCOVERY_GRACE_MS = 10_000L
 
 /** Oynatıcının kaynak durumu. */
 enum class SourcePhase {
@@ -177,6 +180,8 @@ class SourceCoordinator(
     private var lastStartMs = 0L
     private var activeDubWaitMs: Long = StartPolicy.DUB_WAIT_MS
     private var fallbackDubWaitJob: Job? = null
+    private var playbackPriorityCancelledDiscovery = false
+    private var discoveryStopJob: Job? = null
 
     /**
      * Oynarken kaynak değiştirilince (içerik reddi, elle seçim) eski kaynaktan kalan "ilk kare" olayı birkaç ms sonra yeni kaynağa yazılırdı:
@@ -275,8 +280,11 @@ class SourceCoordinator(
 
     /** Kaynak listesini (henüz başlamadıysa) arka planda yüklemeye başlar; panel açılınca da çağrılır. */
     fun ensureSources() {
-        if (collectJob != null) return
+        if (collectJob?.isActive == true || finished) return
         loading = true
+        asked = emptyList()
+        answered = emptySet()
+        failedSources = emptyList()
         collectJob = scope.launch {
             asked = try {
                 askedFor(request)
@@ -286,9 +294,23 @@ class SourceCoordinator(
                 emptyList()
             }
             streamsFor(request)
-                .onCompletion {
+                .catch { t ->
+                    Log.w(TAG, "streamsFor hatası: ${t.message}", t)
+                }
+                .onCompletion { cause ->
                     loading = false
+                    if (cause is CancellationException && playbackPriorityCancelledDiscovery) {
+                        playbackPriorityCancelledDiscovery = false
+                        finished = false
+                        collectJob = null
+                        discoveryStopJob = null
+                        pendingOnChangeJob?.cancel()
+                        pendingOnChangeJob = null
+                        return@onCompletion
+                    }
                     finished = true
+                    discoveryStopJob?.cancel()
+                    discoveryStopJob = null
                     pendingOnChangeJob?.cancel()
                     pendingOnChangeJob = null
                     onChange()
@@ -480,6 +502,7 @@ class SourceCoordinator(
         phase = SourcePhase.Playing
         switching = false
         revertTo = null
+        stopSourceDiscoveryForPlayback()
         onChange()
     }
 
@@ -487,6 +510,19 @@ class SourceCoordinator(
      * Oynatıcı hata verdi. İlk kare gelmeden önceyse sıradaki kaynağa geçilir / önceki kaynağa dönülür ve true döner (hata ekranı
      * gösterilmez); oynarken gelen hata arayüze bırakılır (false).
      */
+    private fun stopSourceDiscoveryForPlayback() {
+        val job = collectJob ?: return
+        if (!job.isActive) return
+        discoveryStopJob?.cancel()
+        discoveryStopJob = scope.launch {
+            delay(PLAYBACK_DISCOVERY_GRACE_MS)
+            if (phase != SourcePhase.Playing || collectJob !== job || !job.isActive) return@launch
+            playbackPriorityCancelledDiscovery = true
+            Log.d(TAG, "kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden ${PLAYBACK_DISCOVERY_GRACE_MS}ms sonra)")
+            job.cancel()
+        }
+    }
+
     fun onFailure(detail: String): Boolean {
         Log.d(TAG, "oynatıcı hatası: ${current?.source?.addonName} (faz=$phase) $detail")
         if (phase != SourcePhase.Starting) return false
@@ -497,6 +533,7 @@ class SourceCoordinator(
     }
 
     private fun startFailed(detail: String, mismatch: Boolean = false) {
+        discoveryStopJob?.cancel()
         if (phase == SourcePhase.Playing) {
             Log.d(TAG, "startFailed yok sayıldı (zaten Playing durumunda): $detail")
             return
@@ -615,6 +652,7 @@ class SourceCoordinator(
         userPicked = true
         dubSuggestion = null
         notice = null
+        discoveryStopJob?.cancel()
         fallbackDubWaitJob?.cancel()
         activeDubWaitMs = StartPolicy.DUB_WAIT_MS
         scope.launch {
@@ -680,7 +718,7 @@ class SourceCoordinator(
     }
 
     private fun probeSizes() {
-        if (isLive) return
+        if (isLive || phase != SourcePhase.Resolving) return
         val targets = buildList {
             current?.let { add(it) }
             addAll(ranked())

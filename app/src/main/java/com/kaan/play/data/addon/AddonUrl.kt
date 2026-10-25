@@ -9,8 +9,7 @@ object AddonUrl {
     /**
      * Kullanıcının girdiği metni kanonik manifest adresine çevirir:
      * şema yoksa `https://` eklenir; yol bir `.json` dosyasıyla bitmiyorsa `manifest.json` eklenir; `#` kısmı atılır.
-     * Yalnızca http/https kabul edilir. `?` parametreli adresler reddedilir: akış adresleri
-     * taban yola eklenerek kurulduğu için sorgu dizesi korunamaz.
+     * Yalnızca http/https kabul edilir. Sorgu parametreleri (token/auth gibi) manifest ve kaynak isteklerinde korunur.
      */
     fun normalize(input: String): String {
         val raw = input.trim()
@@ -23,7 +22,7 @@ object AddonUrl {
             else -> "https://$raw"
         }
         val url = withScheme.toHttpUrlOrNull() ?: throw invalid()
-        if (url.query != null) throw invalid()
+        if (url.scheme != "http" && url.scheme != "https") throw invalid()
 
         val segments = url.pathSegments.toMutableList()
         if (segments.last().isEmpty()) segments.removeAt(segments.lastIndex)
@@ -40,13 +39,27 @@ object AddonUrl {
             .toString()
     }
 
-    /** `https://host/yol/manifest.json` -> `https://host/yol` (sonda eğik çizgi yok). */
-    fun baseOf(manifestUrl: String): String =
-        if (manifestUrl.endsWith("/$MANIFEST", ignoreCase = true)) {
-            manifestUrl.removeSuffix("/$MANIFEST")
-        } else {
-            manifestUrl.substringBeforeLast('/')
-        }
+    /** Stremio endpoint'ini manifest'in aynı yoluna ve query token'larına göre üretir. */
+    fun endpoint(manifestUrl: String, vararg routeSegments: String): okhttp3.HttpUrl? {
+        val url = manifestUrl.toHttpUrlOrNull() ?: return null
+        val segments = url.pathSegments.filter { it.isNotEmpty() }.toMutableList()
+        if (segments.lastOrNull()?.endsWith(".json", ignoreCase = true) == true) segments.removeAt(segments.lastIndex)
+        return url.newBuilder()
+            .encodedPath("/")
+            .apply {
+                segments.forEach(::addPathSegment)
+                routeSegments.forEach(::addPathSegment)
+            }
+            .build()
+    }
+
+    /** `https://host/yol/manifest.json?token=x` -> `https://host/yol?token=x`. */
+    fun baseOf(manifestUrl: String): String {
+        val url = manifestUrl.toHttpUrlOrNull() ?: return manifestUrl.substringBeforeLast('/')
+        val segments = url.pathSegments.filter { it.isNotEmpty() }.toMutableList()
+        if (segments.lastOrNull()?.endsWith(".json", ignoreCase = true) == true) segments.removeAt(segments.lastIndex)
+        return url.newBuilder().encodedPath("/").apply { segments.forEach(::addPathSegment) }.build().toString().trimEnd('/')
+    }
 
     private fun invalid() = AddonException(AddonException.Kind.InvalidUrl)
 }

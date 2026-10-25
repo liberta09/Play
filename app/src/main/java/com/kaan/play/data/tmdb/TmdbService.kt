@@ -11,6 +11,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 /**
  * TMDB v3 için ince HTTP katmanı. Yalnızca DTO döndürür; eşleme ve dil yedeği [TmdbRepository]'dedir.
@@ -57,9 +58,30 @@ internal class TmdbService(
         val rating = if (type == "tv") "content_ratings" else "release_dates"
         return get(
             "$type/$id", DetailDto.serializer(), language,
-            "append_to_response" to "external_ids,credits,images,alternative_titles,$rating",
+            "append_to_response" to "external_ids,credits,images,alternative_titles,similar,recommendations,keywords,videos,$rating",
             "include_image_language" to imageLanguages,
         )
+    }
+
+    /** Aynı tür içinde tema anahtar kelimelerinden aday bulur; TMDB pipe ile OR eşleşmesi uygular. */
+    suspend fun discoverRelated(
+        type: String,
+        language: String,
+        keywordIds: List<Int>,
+        genreIds: List<Int>,
+    ): ListDto {
+        val params = buildList {
+            add("include_adult" to "false")
+            add("sort_by" to "popularity.desc")
+            add("page" to "1")
+            keywordIds.filter { it > 0 }.distinct().take(5).takeIf { it.isNotEmpty() }?.let {
+                add("with_keywords" to it.joinToString("|"))
+            }
+            genreIds.filter { it > 0 }.distinct().take(4).takeIf { it.isNotEmpty() }?.let {
+                add("with_genres" to it.joinToString("|"))
+            }
+        }
+        return get("discover/$type", ListDto.serializer(), language, *params.toTypedArray())
     }
 
     suspend fun season(tvId: Int, season: Int, language: String): SeasonDetailDto =
@@ -82,7 +104,9 @@ internal class TmdbService(
 
         return withContext(Dispatchers.IO) {
             try {
-                client.newCall(Request.Builder().url(url).get().build()).await().use { response ->
+                val call = client.newCall(Request.Builder().url(url).get().build())
+                if (path.startsWith("discover/")) call.timeout().timeout(RELATED_DISCOVERY_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                call.await().use { response ->
                     if (!response.isSuccessful) {
                         throw TmdbException(kindFor(response.code), response.code, path)
                     }
@@ -105,5 +129,6 @@ internal class TmdbService(
 
     companion object {
         const val DEFAULT_BASE_URL = "https://api.themoviedb.org/3/"
+        private const val RELATED_DISCOVERY_TIMEOUT_SECONDS = 4L
     }
 }

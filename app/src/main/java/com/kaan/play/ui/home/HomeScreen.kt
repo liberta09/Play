@@ -61,6 +61,7 @@ import com.kaan.play.data.provider.ProviderRules
 import com.kaan.play.data.addon.CatalogVisibility
 import com.kaan.play.ui.cloudflare.CloudflareVerifyActivity
 import com.kaan.play.data.tmdb.TmdbImages
+import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.i18n.AppLanguage
 import com.kaan.play.ui.components.Button
 import com.kaan.play.ui.components.ErrorMessage
@@ -354,6 +355,8 @@ private fun HomeContent(
                                     title = media.title,
                                     subtitle = media.year?.toString(),
                                     imageUrl = media.posterUrl(),
+                                    tmdbId = media.id,
+                                    mediaType = media.type,
                                     onClick = { onOpenDetail(media.type, media.id) },
                                     modifier = Modifier
                                         .width(cardWidth)
@@ -453,6 +456,8 @@ private fun ContinueCard(item: ContinueItem, width: Dp, modifier: Modifier = Mod
         title = entry.title,
         subtitle = subtitle,
         imageUrl = TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster),
+        tmdbId = entry.tmdbId,
+        mediaType = entry.type,
         onClick = onClick,
         modifier = modifier.width(width),
         progress = progress,
@@ -511,7 +516,7 @@ private fun LazyProviderSection(
     val disabledCatalogs by container.settings.disabledCatalogs.collectAsStateWithLifecycle(initialValue = emptySet())
     var state by remember(provider.id, disabledCatalogs) {
         val cached = container.catalogRepository.cache.get(provider.id)
-        val visible = cached?.let { CatalogVisibility.filterRows(it, disabledCatalogs) }
+        val visible = cached?.let { ProviderRules.withoutLiveRows(CatalogVisibility.filterRows(it, disabledCatalogs)) }
         mutableStateOf<ProviderSectionUiState>(
             when {
                 visible == null -> ProviderSectionUiState.Loading
@@ -523,7 +528,7 @@ private fun LazyProviderSection(
 
     LaunchedEffect(provider.id, disabledCatalogs) {
         val cached = container.catalogRepository.cache.get(provider.id)
-        val visible = cached?.let { CatalogVisibility.filterRows(it, disabledCatalogs) }
+        val visible = cached?.let { ProviderRules.withoutLiveRows(CatalogVisibility.filterRows(it, disabledCatalogs)) }
         if (visible != null) {
             state = if (visible.isNotEmpty()) ProviderSectionUiState.Ready(visible) else ProviderSectionUiState.Hidden
             return@LaunchedEffect
@@ -533,7 +538,7 @@ private fun LazyProviderSection(
                 val result = container.catalogRepository.loadCatalog(setOf(provider.id))
                 // Sunucu kapalı / hata / boş: bölüm sessizce gizlenir (ProviderRules.homeSectionRows).
                 val valid = ProviderRules.homeSectionRows(result)
-                val filtered = CatalogVisibility.filterRows(valid, disabledCatalogs)
+                val filtered = ProviderRules.withoutLiveRows(CatalogVisibility.filterRows(valid, disabledCatalogs))
                 state = if (filtered.isNotEmpty()) ProviderSectionUiState.Ready(filtered) else ProviderSectionUiState.Hidden
             } catch (_: Throwable) {
                 state = ProviderSectionUiState.Hidden
@@ -657,6 +662,9 @@ private fun LazyProviderSection(
                                     title = item.title,
                                     subtitle = item.subtitle,
                                     imageUrl = item.posterUrl,
+                                    posterId = PosterUrlTemplate.findImdbId(item.id, item.rawUrl, item.posterUrl),
+                                    tmdbId = item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(item.id, item.rawUrl, item.posterUrl),
+                                    mediaType = item.mediaType,
                                     onClick = {
                                         if (!item.rawUrl.isNullOrBlank() && item.providerId.startsWith("cs:")) {
                                             onOpenProviderDetail(item.providerId, item.rawUrl)
@@ -739,7 +747,7 @@ private fun ProviderCatalogView(
         state = CatalogUiState.Loading
         val result = container.catalogRepository.loadCatalog(selectedIds, forceRefresh = refreshKey > 0)
         state = when (result) {
-            is CatalogResult.Success -> CatalogUiState.Success(result.rows)
+            is CatalogResult.Success -> CatalogUiState.Success(ProviderRules.withoutLiveRows(result.rows))
             is CatalogResult.NoCatalogProvided -> CatalogUiState.NoCatalogProvided
             is CatalogResult.Empty -> CatalogUiState.Empty
             is CatalogResult.Error -> CatalogUiState.Error(
@@ -966,6 +974,9 @@ private fun ProviderCatalogView(
                                     title = item.title,
                                     subtitle = item.subtitle,
                                     imageUrl = item.posterUrl,
+                                    posterId = PosterUrlTemplate.findImdbId(item.id, item.rawUrl, item.posterUrl),
+                                    tmdbId = item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(item.id, item.rawUrl, item.posterUrl),
+                                    mediaType = item.mediaType,
                                     onClick = {
                                         if (!item.rawUrl.isNullOrBlank() && item.providerId.startsWith("cs:")) {
                                             onOpenProviderDetail(item.providerId, item.rawUrl)
@@ -1215,4 +1226,3 @@ private fun ProviderPillButton(
         )
     }
 }
-

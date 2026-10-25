@@ -2,6 +2,7 @@
 <resources>
     <string name="tab_home">Ana sayfa</string>
     <string name="tab_search">Ara</string>
+    <string name="tab_tv">TV</string>
     <string name="tab_library">Kütüphane</string>
     <string name="tab_settings">Ayarlar</string>
 
@@ -44,6 +45,11 @@
     <string name="detail_writer">Yazar</string>
     <string name="detail_creator">Yaratıcı</string>
     <string name="detail_cast">Oyuncular</string>
+    <string name="detail_trailer_title">Fragman</string>
+    <string name="detail_trailer_play">Fragmanı uygulama içinde oynat</string>
+    <string name="detail_trailer_close">Kapat</string>
+    <string name="detail_similar_movies">Benzer filmler</string>
+    <string name="detail_similar_series">Benzer diziler</string>
     <string name="detail_favorite_add">Favorilere ekle</string>
     <string name="detail_favorite_remove">Favorilerden çıkar</string>
     <string name="detail_season">%1$d. Sezon</string>
@@ -78,6 +84,22 @@
     <string name="player_error_unavailable">Bu kaynak şu an kullanılamıyor.</string>
     <string name="player_error_format">Bu kaynak bu cihazda oynatılamıyor.</string>
     <string name="live_channel_unavailable">Bu kanal şu an oynatılamıyor.</string>
+    <string name="tv_title">Canlı TV</string>
+    <string name="tv_empty">Etkin eklentilerinizde canlı kanal bulunamadı.</string>
+    <string name="tv_refresh">Yenile</string>
+    <string name="tv_loading">Canlı kanallar yükleniyor…</string>
+    <string name="tv_channel_subtitle">Canlı kanal · %1$s</string>
+    <string name="tv_live_badge">CANLI</string>
+    <string name="tv_search_hint">Kanal ara</string>
+    <string name="tv_results_count">%1$d canlı kanal</string>
+    <string name="tv_filter_all">Tümü (%1$d)</string>
+    <string name="tv_filter_nuvio">Nuvio (%1$d)</string>
+    <string name="tv_filter_cloudstream">CloudStream (%1$d)</string>
+    <string name="tv_no_results">“%1$s” ile eşleşen kanal bulunamadı.</string>
+    <string name="tv_filtered_empty">Seçilen kaynakta kanal bulunamadı.</string>
+    <string name="tv_load_error">Canlı kanallar yüklenemedi. Bağlantınızı kontrol edip yeniden deneyin.</string>
+    <string name="tv_source_options">Yayın kaynağını seç</string>
+    <string name="tv_sources_count">%1$d kaynak</string>
     <string name="player_error_pick">Başka kaynak seç</string>
 
     <!-- Kaldığın yerden devam -->
@@ -97,6 +119,13 @@
     <!-- Ayarlar -->
     <string name="settings_theme">Tema</string>
     <string name="settings_language">Dil</string>
+    <string name="settings_poster_url">Poster URL</string>
+    <string name="settings_poster_url_value">Özel poster şablonu</string>
+    <string name="settings_poster_url_default">Eklenti / TMDB posterleri</string>
+    <string name="settings_poster_url_title">Özel poster URL şablonu</string>
+    <string name="settings_poster_url_hint">https://…/{imdb_id}.jpg</string>
+    <string name="settings_poster_url_help">{imdb_id} kullanın; boş bırakırsanız eklenti veya TMDB posteri kullanılır.</string>
+    <string name="common_save">Kaydet</string>
     <string name="settings_about">Hakkında</string>
     <string name="theme_dark">Koyu</string>
     <string name="theme_light">Açık</string>

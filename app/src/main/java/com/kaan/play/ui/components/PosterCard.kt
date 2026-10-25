@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.produceState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,7 +34,14 @@ import coil3.compose.AsyncImage
 import com.kaan.play.R
 import com.kaan.play.data.model.MediaSummary
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.data.tmdb.TmdbImages
+import com.kaan.play.ui.rememberContainer
+import java.util.concurrent.ConcurrentHashMap
+
+private data class CachedImdbId(val value: String?, val checkedAtMs: Long)
+private val tmdbImdbCache = ConcurrentHashMap<String, CachedImdbId>()
+private const val EMPTY_IMDB_CACHE_TTL_MS = 2 * 60 * 1_000L
 
 /**
  * Play'in kart biçimi: ince çerçeveli 2:3 afiş (12dp köşe), altında başlık ve soluk alt satır.
@@ -47,8 +56,14 @@ fun PosterCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     progress: Float? = null,
+    /** Addon öğelerindeki IMDb kimliği; özel poster şablonu bununla doldurulur. */
+    posterId: String? = null,
+    /** TMDB kartlarında IMDb eşleştirmesi için isteğe bağlı kimlik. */
+    tmdbId: Int? = null,
+    mediaType: MediaType? = null,
     overlay: @Composable BoxScope.() -> Unit = {},
 ) {
+    val resolvedImageUrl = resolvePosterImageUrl(imageUrl, posterId, tmdbId, mediaType)
     val shape = MaterialTheme.shapes.medium
     // Odak halkası yalnızca afişte (kart yazısını ezmez): tıklama göstergesi dalga olarak kalır, halka afişe çizilir.
     val interaction = remember { MutableInteractionSource() }
@@ -67,9 +82,9 @@ fun PosterCard(
                     shape = shape,
                 ),
         ) {
-            if (imageUrl != null) {
+            if (resolvedImageUrl != null) {
                 AsyncImage(
-                    model = imageUrl,
+                    model = resolvedImageUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
@@ -105,6 +120,45 @@ fun PosterCard(
             )
         }
     }
+}
+
+/** Özel poster şablonunu çözer; TMDB → IMDb eşleştirmesi bellekte önbelleğe alınır. */
+@Composable
+fun resolvePosterImageUrl(
+    fallbackUrl: String?,
+    posterId: String?,
+    tmdbId: Int?,
+    mediaType: MediaType?,
+): String? {
+    val container = rememberContainer()
+    val posterTemplate by container.settings.posterUrlTemplate.collectAsStateWithLifecycle(initialValue = PosterUrlTemplate.DEFAULT)
+    val direct = PosterUrlTemplate.build(
+        posterTemplate,
+        PosterUrlTemplate.findImdbId(posterId, fallbackUrl),
+    )
+    val customPoster by produceState<String?>(null, direct, posterTemplate, tmdbId, mediaType) {
+        if (direct != null) {
+            value = direct
+            return@produceState
+        } else if (tmdbId != null && mediaType != null && posterTemplate.isNotBlank()) {
+            val cacheKey = "${mediaType.name}:$tmdbId"
+            val cached = tmdbImdbCache[cacheKey]
+            val now = System.currentTimeMillis()
+            val imdbId = when {
+                !cached?.value.isNullOrBlank() -> cached.value
+                cached != null && now - cached.checkedAtMs < EMPTY_IMDB_CACHE_TTL_MS -> null
+                else -> {
+                    val resolved = runCatching { container.tmdb.detail(mediaType, tmdbId).imdbId }
+                        .getOrNull()
+                        ?.let(PosterUrlTemplate::findImdbId)
+                    tmdbImdbCache[cacheKey] = CachedImdbId(resolved, System.currentTimeMillis())
+                    resolved
+                }
+            }
+            value = PosterUrlTemplate.build(posterTemplate, imdbId)
+        }
+    }
+    return direct ?: customPoster ?: fallbackUrl
 }
 
 /** Kart için "2019 · Dizi" gibi soluk satır. Yıl yoksa yalnızca tür. */

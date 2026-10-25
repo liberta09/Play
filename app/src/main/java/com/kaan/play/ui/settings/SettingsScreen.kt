@@ -17,8 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.BuildConfig
 import com.kaan.play.R
 import com.kaan.play.data.settings.ThemeMode
+import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.i18n.AppLanguage
 import com.kaan.play.i18n.LanguageChoice
 import com.kaan.play.ui.components.ChoiceDialog
@@ -48,7 +53,7 @@ import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.rememberFocusMemory
 import kotlinx.coroutines.launch
 
-private enum class OpenDialog { Theme, Language }
+private enum class OpenDialog { Theme, Language, Poster }
 
 /**
  * Ayarlar: tam beş kalem (Eklentiler, Oynatıcı, Tema, Dil, Hakkında), kart düzeninde
@@ -61,8 +66,10 @@ fun SettingsScreen(onOpenAddons: () -> Unit, onOpenPlayer: () -> Unit, onOpenAbo
     val addonCount by container.installedSourcesCount
         .collectAsStateWithLifecycle(initialValue = null)
     val theme by container.settings.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.Dark)
+    val posterTemplate by container.settings.posterUrlTemplate.collectAsStateWithLifecycle(initialValue = PosterUrlTemplate.DEFAULT)
     var language by remember { mutableStateOf(AppLanguage.choice()) }
     var dialog by remember { mutableStateOf<OpenDialog?>(null) }
+    var posterDraft by remember { mutableStateOf(PosterUrlTemplate.DEFAULT) }
     val focus = rememberFocusMemory()
 
     Column(
@@ -110,6 +117,20 @@ fun SettingsScreen(onOpenAddons: () -> Unit, onOpenPlayer: () -> Unit, onOpenAbo
             onClick = { dialog = OpenDialog.Language },
         )
         com.kaan.play.ui.components.PlayCardRow(
+            title = stringResource(R.string.settings_poster_url),
+            value = stringResource(
+                if (posterTemplate.isBlank()) R.string.settings_poster_url_default
+                else R.string.settings_poster_url_value,
+            ),
+            icon = PlayIcons.Library,
+            iconTint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.focusMemory(focus, "poster-url"),
+            onClick = {
+                posterDraft = posterTemplate
+                dialog = OpenDialog.Poster
+            },
+        )
+        com.kaan.play.ui.components.PlayCardRow(
             title = stringResource(R.string.settings_about),
             value = BuildConfig.VERSION_NAME,
             icon = PlayIcons.InfoCircle,
@@ -139,6 +160,29 @@ fun SettingsScreen(onOpenAddons: () -> Unit, onOpenPlayer: () -> Unit, onOpenAbo
                 AppLanguage.apply(it)
             },
             onDismiss = { dialog = null },
+        )
+        OpenDialog.Poster -> AlertDialog(
+            onDismissRequest = { dialog = null },
+            title = { Text(stringResource(R.string.settings_poster_url_title)) },
+            text = {
+                OutlinedTextField(
+                    value = posterDraft,
+                    onValueChange = { posterDraft = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.settings_poster_url)) },
+                    placeholder = { Text(stringResource(R.string.settings_poster_url_hint)) },
+                    supportingText = { Text(stringResource(R.string.settings_poster_url_help)) },
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    scope.launch { container.settings.setPosterUrlTemplate(posterDraft) }
+                    dialog = null
+                }) { Text(stringResource(R.string.common_save)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { dialog = null }) { Text(stringResource(R.string.common_cancel)) }
+            },
         )
         null -> Unit
     }

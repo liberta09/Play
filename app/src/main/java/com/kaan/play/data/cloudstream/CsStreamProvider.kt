@@ -46,16 +46,23 @@ class CsStreamProvider(
                     val apis = repository.loadApis(plugin.id).apisOrEmpty()
                     val streams = mutableListOf<PlayableStream>()
                     for (api in apis) {
-                        val links = runtime.loadLinksDirect(
+                        val links = runtime.loadLiveLinks(
                             api = api,
-                            data = request.dataUrl,
+                            catalogUrl = request.dataUrl,
                             source = source,
                             timeoutMs = timeoutMs,
                         )
                         streams += links
                         if (streams.isNotEmpty()) break
                     }
-                    send(StreamResult.Found(source, streams))
+                    if (streams.isEmpty()) {
+                        Log.w(TAG, "${plugin.name}: canlı kanal için akış bulunamadı (${request.dataUrl})")
+                        send(StreamResult.Failed(source, FailureReason.Network))
+                    } else {
+                        send(StreamResult.Found(source, streams))
+                    }
+                } catch (cancel: kotlinx.coroutines.CancellationException) {
+                    throw cancel
                 } catch (t: Throwable) {
                     Log.d(TAG, "${plugin.name}: direct loadLinks error: ${t.message}")
                     send(StreamResult.Failed(source, FailureReason.Network))

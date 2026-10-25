@@ -68,6 +68,8 @@ fun CategoryScreen(row: HomeRow, onBack: () -> Unit, onOpenDetail: (MediaType, I
                                 title = media.title,
                                 subtitle = media.year?.toString(),
                                 imageUrl = media.posterUrl(),
+                                tmdbId = media.id,
+                                mediaType = media.type,
                                 onClick = { onOpenDetail(media.type, media.id) },
                                 modifier = Modifier.focusMemory(focus, "${media.type}-${media.id}", isDefault = media == state.items.first()),
                             )

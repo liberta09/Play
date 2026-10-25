@@ -5,6 +5,11 @@ import android.graphics.Color as AndroidColor
 import com.kaan.play.BuildConfig
 import android.net.Uri
 import android.os.SystemClock
+import android.graphics.SurfaceTexture
+import android.view.TextureView
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.runtime.mutableLongStateOf
 import android.provider.OpenableColumns
 import android.view.ViewGroup
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -190,6 +195,12 @@ fun PlayerScreen(
     var noticeFocused by remember { mutableStateOf(false) }
     val zones = remember { GestureZones() }
     val levelIndicator = remember { LevelIndicatorState() }
+    val seekIndicator = remember { SeekIndicatorState() }
+    var suppressTapUntil by remember { mutableLongStateOf(0L) }
+    fun tapWasSuppressed(): Boolean = SystemClock.uptimeMillis() < suppressTapUntil
+    val seekGestureState: (Boolean) -> Unit = { active ->
+        if (!active) suppressTapUntil = SystemClock.uptimeMillis() + 500L
+    }
     val rootFocus = remember { FocusRequester() }
     val playFocus = remember { FocusRequester() }
     val noticeFocus = remember { FocusRequester() }
@@ -234,6 +245,12 @@ fun PlayerScreen(
         controller.seekBy(deltaMs)
         position = controller.positionMs()
         reveal()
+    }
+    fun seekFromGesture(deltaMs: Long) {
+        controller.seekBy(deltaMs)
+        position = controller.positionMs()
+        controlsVisible = false
+        resumeNotice = false
     }
     fun seekByKey(direction: Int, repeat: Int) {
         val step = SeekAcceleration.stepMs(repeat)
@@ -454,6 +471,32 @@ fun PlayerScreen(
                         isFocusable = false
                         descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
                         subtitles.attach { cues -> subtitleView?.setCues(SubtitleCues.toCues(cues)) }
+
+                        val textureView = videoSurfaceView as? TextureView
+                        if (textureView != null) {
+                            if (textureView.isAvailable) {
+                                controller.onSurfaceReady()
+                            }
+                            val existingListener = textureView.surfaceTextureListener
+                            textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+                                override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
+                                    existingListener?.onSurfaceTextureAvailable(surface, width, height)
+                                    controller.onSurfaceReady()
+                                }
+                                override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
+                                    existingListener?.onSurfaceTextureSizeChanged(surface, width, height)
+                                }
+                                override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
+                                    controller.onSurfaceDestroyed()
+                                    return existingListener?.onSurfaceTextureDestroyed(surface) ?: true
+                                }
+                                override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
+                                    existingListener?.onSurfaceTextureUpdated(surface)
+                                }
+                            }
+                        } else {
+                            controller.onSurfaceReady()
+                        }
                     }
                 },
                 // Ayar değişince anında uygulanır; oynatma kesilmez.
@@ -466,10 +509,40 @@ fun PlayerScreen(
                     view.subtitleView?.let { SubtitleStyling.apply(it, subtitleStyle) }
                 },
                 onRelease = { view ->
+                    controller.onSurfaceDestroyed()
                     subtitles.attach(null)
                     view.player = null
                 },
                 modifier = viewModifier,
+            )
+            // Video dokunmatik hareket katmanı: çift tık 10sn geri/ileri, yatay sürükleme 5sn sarma
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(locked, zones) {
+                        detectTapGestures(
+                            onTap = { offset ->
+                                if (!zones.contains(offset) && !tapWasSuppressed()) {
+                                    if (locked) showUnlockHint()
+                                    else {
+                                        controlsVisible = !controlsVisible
+                                        bump()
+                                    }
+                                }
+                            },
+                            onDoubleTap = { offset ->
+                                if (!locked && !zones.contains(offset)) {
+                                    suppressTapUntil = SystemClock.uptimeMillis() + 500L
+                                    val delta = if (offset.x < size.width / 2f) -10_000L else 10_000L
+                                    seekIndicator.start()
+                                    seekFromGesture(delta)
+                                    seekIndicator.add(delta)
+                                    seekIndicator.finish()
+                                }
+                            },
+                        )
+                    }
+                    .horizontalSeekGesture(!locked, zones, ::seekFromGesture, seekIndicator, seekGestureState),
             )
         }
 
@@ -494,6 +567,7 @@ fun PlayerScreen(
         }
 
         LevelIndicator(levelIndicator)
+        SeekIndicator(seekIndicator)
 
         if (resolving && ui.error == null) {
             Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {

@@ -49,6 +49,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -67,6 +68,7 @@ import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.model.SeasonInfo
 import com.kaan.play.data.stream.PlayTarget
 import com.kaan.play.data.stream.StreamRequest
+import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.i18n.AppLanguage
 import com.kaan.play.ui.components.AgeChip
@@ -77,11 +79,13 @@ import com.kaan.play.ui.components.IconButton
 import com.kaan.play.ui.components.Loadable
 import com.kaan.play.ui.components.OutlinedButton
 import com.kaan.play.ui.components.OutlinedIconButton
+import com.kaan.play.ui.components.PosterCard
 import com.kaan.play.ui.components.RatingBadge
 import com.kaan.play.ui.components.StatusBarScrim
 import com.kaan.play.ui.components.TextButton
 import com.kaan.play.ui.components.TitleOrLogo
 import com.kaan.play.ui.containerViewModel
+import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.rememberInitialFocus
@@ -94,7 +98,14 @@ private val Gutter = 20.dp
  * [onPlay]: kaynak isteğiyle çağrılır (film: sezon/bölüm yok; dizi: seçilen bölüm).
  */
 @Composable
-fun DetailScreen(type: MediaType, id: Int, onBack: () -> Unit, onPlay: (PlayTarget) -> Unit) {
+fun DetailScreen(
+    type: MediaType,
+    id: Int,
+    onBack: () -> Unit,
+    onOpenSimilar: (MediaType, Int) -> Unit = { _, _ -> },
+    onOpenActor: (String) -> Unit = {},
+    onPlay: (PlayTarget) -> Unit,
+) {
     val vm = containerViewModel(key = "detail-${type.tmdbPath}-$id-${AppLanguage.effective().iso}") {
         DetailViewModel(it.tmdb, it.library, type, id)
     }
@@ -118,6 +129,8 @@ fun DetailScreen(type: MediaType, id: Int, onBack: () -> Unit, onPlay: (PlayTarg
                 onToggleFavorite = vm::toggleFavorite,
                 onSelectSeason = vm::selectSeason,
                 onRetryEpisodes = vm::retryEpisodes,
+                onOpenSimilar = onOpenSimilar,
+                onOpenActor = onOpenActor,
                 onPlay = { s, e ->
                     val media = d.value.summary
                     onPlay(PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath))
@@ -161,9 +174,15 @@ internal fun DetailContent(
     onToggleFavorite: () -> Unit,
     onSelectSeason: (Int) -> Unit,
     onRetryEpisodes: () -> Unit,
+    onOpenSimilar: (MediaType, Int) -> Unit = { _, _ -> },
+    onOpenActor: (String) -> Unit = {},
     onPlay: (Int?, Int?) -> Unit,
 ) {
     val media = detail.summary
+    val posterTemplate by rememberContainer().settings.posterUrlTemplate.collectAsStateWithLifecycle(initialValue = PosterUrlTemplate.DEFAULT)
+    val preferredPoster = PosterUrlTemplate.build(posterTemplate, detail.imdbId)
+        ?: media.backdropPath
+        ?: media.posterPath
     // Kumanda: başlangıç odağı ana işte (film: Oynat, dizi: sezon seçici).
     val primaryFocus = rememberInitialFocus()
     val header: @Composable (Dp) -> Unit = { padding ->
@@ -173,7 +192,7 @@ internal fun DetailContent(
     if (twoPane) {
         // Geniş/yatay ekran: tam ekran arka plan sağda görünür, bilgiler solda koyu geçişin üstünde akar.
         BoxWithConstraints(Modifier.fillMaxSize()) {
-            WideBackdrop(media.backdropPath ?: media.posterPath)
+            WideBackdrop(preferredPoster)
             LazyColumn(
                 modifier = Modifier.fillMaxHeight().width(minOf(maxWidth * 0.62f, 680.dp)),
                 contentPadding = PaddingValues(start = 24.dp, end = 16.dp, top = 56.dp, bottom = 24.dp),
@@ -181,7 +200,9 @@ internal fun DetailContent(
             ) {
                 item { Box(Modifier.statusBarsPadding()) { header(0.dp) } }
                 item { BodyBlock(detail, horizontalPadding = 0.dp) }
-                castSection(detail.cast, horizontalPadding = 0.dp)
+                trailerSection(detail.trailerKey)
+                similarSection(detail.similar, detail.summary.type, 0.dp, onOpenSimilar)
+                castSection(detail.cast, horizontalPadding = 0.dp, onOpenActor = onOpenActor)
                 if (isSeries) episodeSection(episodes, selectedSeason, 8.dp, onRetryEpisodes, onPlay)
             }
         }
@@ -196,7 +217,7 @@ internal fun DetailContent(
             item {
                 val background = MaterialTheme.colorScheme.background
                 Box(Modifier.fillMaxWidth().heightIn(min = headerHeight)) {
-                    TmdbImages.url(media.backdropPath ?: media.posterPath, TmdbImages.Size.BackdropLarge)?.let {
+                    TmdbImages.url(preferredPoster, TmdbImages.Size.BackdropLarge)?.let {
                         AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.matchParentSize())
                     }
                     // Alt kenar sayfa rengine erir: başlık okunur, kapak "kesilmiş" görünmez.
@@ -205,7 +226,9 @@ internal fun DetailContent(
                 }
             }
             item { BodyBlock(detail, horizontalPadding = Gutter) }
-            castSection(detail.cast, horizontalPadding = Gutter)
+            trailerSection(detail.trailerKey)
+            similarSection(detail.similar, detail.summary.type, Gutter, onOpenSimilar)
+            castSection(detail.cast, horizontalPadding = Gutter, onOpenActor = onOpenActor)
             if (isSeries) episodeSection(episodes, selectedSeason, Gutter, onRetryEpisodes, onPlay)
         }
     }
@@ -315,7 +338,77 @@ private fun Overview(text: String) {
     }
 }
 
-private fun LazyListScope.castSection(cast: List<CastMember>, horizontalPadding: Dp) {
+private fun LazyListScope.trailerSection(key: String?) {
+    if (key.isNullOrBlank() || youtubeTrailerEmbedHtml(key) == null) return
+    item(key = "trailer") {
+        val context = LocalContext.current
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(stringResource(R.string.detail_trailer_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = Gutter))
+            Surface(
+                onClick = {
+                    YouTubeTrailerActivity.createIntent(context, key)?.let(context::startActivity)
+                },
+                modifier = Modifier.padding(horizontal = Gutter).fillMaxWidth().aspectRatio(16f / 9f),
+                shape = RoundedCornerShape(14.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+            ) {
+                Box(Modifier.fillMaxSize()) {
+                    AsyncImage(
+                        model = "https://img.youtube.com/vi/$key/hqdefault.jpg",
+                        contentDescription = stringResource(R.string.detail_trailer_play),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                    Surface(
+                        shape = CircleShape,
+                        color = Color.Black.copy(alpha = 0.68f),
+                        modifier = Modifier.align(Alignment.Center).size(56.dp),
+                    ) {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Icon(PlayIcons.PlayTriangle, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun LazyListScope.similarSection(
+    items: List<com.kaan.play.data.model.MediaSummary>,
+    mediaType: MediaType,
+    horizontalPadding: Dp,
+    onOpen: (MediaType, Int) -> Unit,
+) {
+    if (items.isEmpty()) return
+    item(key = "similar") {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(
+                stringResource(if (mediaType == MediaType.Tv) R.string.detail_similar_series else R.string.detail_similar_movies),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(horizontal = horizontalPadding),
+            )
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = horizontalPadding),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items(items, key = { "similar-${it.type}-${it.id}" }) { media ->
+                    PosterCard(
+                        title = media.title,
+                        subtitle = media.year?.toString(),
+                        imageUrl = TmdbImages.url(media.posterPath, TmdbImages.Size.Poster),
+                        tmdbId = media.id,
+                        mediaType = media.type,
+                        onClick = { onOpen(media.type, media.id) },
+                        modifier = Modifier.width(118.dp),
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun LazyListScope.castSection(cast: List<CastMember>, horizontalPadding: Dp, onOpenActor: (String) -> Unit = {}) {
     if (cast.isEmpty()) return
     item(key = "cast") {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -324,7 +417,7 @@ private fun LazyListScope.castSection(cast: List<CastMember>, horizontalPadding:
                 contentPadding = PaddingValues(start = (horizontalPadding - 10.dp).coerceAtLeast(0.dp), end = horizontalPadding),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(cast, key = { it.id }) { CastItem(it) }
+                items(cast, key = { it.id }) { CastItem(it, onOpenActor) }
             }
         }
     }
@@ -332,7 +425,7 @@ private fun LazyListScope.castSection(cast: List<CastMember>, horizontalPadding:
 
 /** Yuvarlak fotoğraf + ad + rol. Dokunulacak bir işi yok ama kumandayla odaklanır (listeyi kaydırabilmek için). */
 @Composable
-private fun CastItem(member: CastMember) {
+private fun CastItem(member: CastMember, onOpenActor: (String) -> Unit = {}) {
     val shape = RoundedCornerShape(12.dp)
     Column(
         modifier = Modifier

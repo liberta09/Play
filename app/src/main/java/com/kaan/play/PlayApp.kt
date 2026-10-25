@@ -1,11 +1,19 @@
 package com.kaan.play
 
+import android.app.Activity
 import android.app.Application
+import android.os.Bundle
+import android.util.Log
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
+import coil3.disk.DiskCache
+import coil3.disk.directory
+import coil3.memory.MemoryCache
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import com.kaan.play.data.web.AdHostLoader
+import okio.Path.Companion.toOkioPath
+import java.util.concurrent.ConcurrentHashMap
 
 class PlayApp : Application(), SingletonImageLoader.Factory {
 
@@ -16,6 +24,8 @@ class PlayApp : Application(), SingletonImageLoader.Factory {
         lateinit var appContext: android.content.Context
             private set
     }
+
+    private val wrappedLifecycleCallbacks = ConcurrentHashMap<ActivityLifecycleCallbacks, ActivityLifecycleCallbacks>()
 
     override fun onCreate() {
         super.onCreate()
@@ -33,8 +43,86 @@ class PlayApp : Application(), SingletonImageLoader.Factory {
         container.seedDefaultAddons()
     }
 
+    override fun registerActivityLifecycleCallbacks(callback: ActivityLifecycleCallbacks) {
+        val safeCallback = object : ActivityLifecycleCallbacks {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                try {
+                    callback.onActivityCreated(activity, savedInstanceState)
+                } catch (t: Throwable) {
+                    Log.e("PlayApp", "ActivityLifecycleCallbacks.onActivityCreated hatası engellendi [${t.javaClass.simpleName}]: ${t.message}")
+                }
+            }
+
+            override fun onActivityStarted(activity: Activity) {
+                try {
+                    callback.onActivityStarted(activity)
+                } catch (t: Throwable) {
+                    Log.e("PlayApp", "ActivityLifecycleCallbacks.onActivityStarted hatası engellendi [${t.javaClass.simpleName}]: ${t.message}")
+                }
+            }
+
+            override fun onActivityResumed(activity: Activity) {
+                try {
+                    callback.onActivityResumed(activity)
+                } catch (t: Throwable) {
+                    Log.e("PlayApp", "ActivityLifecycleCallbacks.onActivityResumed hatası engellendi [${t.javaClass.simpleName}]: ${t.message}")
+                }
+            }
+
+            override fun onActivityPaused(activity: Activity) {
+                try {
+                    callback.onActivityPaused(activity)
+                } catch (t: Throwable) {
+                    Log.e("PlayApp", "ActivityLifecycleCallbacks.onActivityPaused hatası engellendi [${t.javaClass.simpleName}]: ${t.message}")
+                }
+            }
+
+            override fun onActivityStopped(activity: Activity) {
+                try {
+                    callback.onActivityStopped(activity)
+                } catch (t: Throwable) {
+                    Log.e("PlayApp", "ActivityLifecycleCallbacks.onActivityStopped hatası engellendi [${t.javaClass.simpleName}]: ${t.message}")
+                }
+            }
+
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+                try {
+                    callback.onActivitySaveInstanceState(activity, outState)
+                } catch (t: Throwable) {
+                    Log.e("PlayApp", "ActivityLifecycleCallbacks.onActivitySaveInstanceState hatası engellendi [${t.javaClass.simpleName}]: ${t.message}")
+                }
+            }
+
+            override fun onActivityDestroyed(activity: Activity) {
+                try {
+                    callback.onActivityDestroyed(activity)
+                } catch (t: Throwable) {
+                    Log.e("PlayApp", "ActivityLifecycleCallbacks.onActivityDestroyed hatası engellendi [${t.javaClass.simpleName}]: ${t.message}")
+                }
+            }
+        }
+        wrappedLifecycleCallbacks[callback] = safeCallback
+        super.registerActivityLifecycleCallbacks(safeCallback)
+    }
+
+    override fun unregisterActivityLifecycleCallbacks(callback: ActivityLifecycleCallbacks) {
+        val safeCallback = wrappedLifecycleCallbacks.remove(callback) ?: callback
+        super.unregisterActivityLifecycleCallbacks(safeCallback)
+    }
+
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(context)
+            .memoryCache {
+                MemoryCache.Builder()
+                    .maxSizePercent(context, 0.20)
+                    .build()
+            }
+            .diskCache {
+                DiskCache.Builder()
+                    .directory(context.cacheDir.resolve("poster-cache").toOkioPath())
+                    .maxSizeBytes(128L * 1024 * 1024)
+                    .build()
+            }
             .components {
                 add(
                     OkHttpNetworkFetcherFactory(

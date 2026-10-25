@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.kaan.play.data.stream.TorrentLinks
+import com.kaan.play.data.tmdb.PosterUrlTemplate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -20,6 +21,28 @@ enum class ResizeMode { Fit, Fill, Stretch, Ratio16x9, Ratio4x3 }
 
 /** DataStore'daki uygulama ayarları. Bozuk/bilinmeyen değerler varsayılana düşer. */
 class SettingsRepository(val store: DataStore<Preferences>) {
+
+    /** IMDb kimliği içeren özel poster adresi. Boş değer özel posterleri kapatır. */
+    val posterUrlTemplate: Flow<String> = store.data.map { prefs ->
+        val value = prefs[POSTER_URL_TEMPLATE]
+        when {
+            value == null -> PosterUrlTemplate.DEFAULT
+            value.isBlank() -> ""
+            PosterUrlTemplate.isValid(value) -> value
+            else -> PosterUrlTemplate.DEFAULT
+        }
+    }.distinctUntilChanged()
+
+    suspend fun setPosterUrlTemplate(template: String) {
+        val value = template.trim()
+        store.edit { prefs ->
+            when {
+                value.isBlank() -> prefs[POSTER_URL_TEMPLATE] = ""
+                PosterUrlTemplate.isValid(value) -> prefs[POSTER_URL_TEMPLATE] = value
+                else -> prefs[POSTER_URL_TEMPLATE] = PosterUrlTemplate.DEFAULT
+            }
+        }
+    }
 
     val themeMode: Flow<ThemeMode> = store.data.map { prefs ->
         ThemeMode.entries.firstOrNull { it.name == prefs[THEME] } ?: DEFAULT_THEME
@@ -221,6 +244,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         val SUBTITLE_LANGUAGES = listOf("tr", "en")
 
         private val THEME = stringPreferencesKey("theme_mode")
+        private val POSTER_URL_TEMPLATE = stringPreferencesKey("poster_url_template")
         private val TIMEOUT = intPreferencesKey("source_timeout_seconds")
         private val ALWAYS_RESUME = booleanPreferencesKey("always_resume")
         private val TORRENT_SERVER = stringPreferencesKey("torrent_server")

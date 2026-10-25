@@ -81,6 +81,7 @@ import com.kaan.play.data.download.toTarget
 import com.kaan.play.data.library.ContinueItem
 import com.kaan.play.data.library.WatchRules
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.provider.CatalogItem
 import com.kaan.play.data.stream.PlayTarget
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.StreamRequest
@@ -106,6 +107,7 @@ import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.search.SearchScreen
 import com.kaan.play.data.db.WatchHistoryEntity
 import com.kaan.play.ui.library.LibraryScreen
+import com.kaan.play.ui.tv.TvScreen
 import com.kaan.play.ui.settings.AboutScreen
 import com.kaan.play.ui.settings.PlayerSettingsScreen
 import com.kaan.play.ui.settings.SettingsScreen
@@ -159,6 +161,7 @@ private fun CappedFontScale(content: @Composable () -> Unit) {
 enum class Tab(val route: String, @StringRes val label: Int, val icon: ImageVector) {
     Home("home", R.string.tab_home, PlayIcons.Home),
     Search("search", R.string.tab_search, PlayIcons.Search),
+    Tv("tv", R.string.tab_tv, PlayIcons.Tv),
     Library("library", R.string.tab_library, PlayIcons.Folder),
     Settings("settings", R.string.tab_settings, PlayIcons.Gear),
 }
@@ -268,6 +271,25 @@ fun PlayRoot() {
 
     // Kütüphane > İndirilenler: internetsiz oynar; kaldığı yerden devam ve geçmiş çevrimiçi oynatmayla ortaktır.
     fun playDownload(download: DownloadEntity) = play(download.toTarget(), download = download)
+
+    /** TV katalog öğesi TMDB içeriği değildir; addonContentId ile doğrudan canlı akış aranır. */
+    fun playLiveChannel(item: CatalogItem) {
+        val target = PlayTarget(
+            request = StreamRequest(
+                tmdbId = 0,
+                imdbId = null,
+                type = MediaType.Tv,
+                pluginId = item.providerId,
+                addonType = item.addonType?.takeIf { it == "tv" || it == "channel" } ?: "tv",
+                addonContentId = item.rawUrl ?: item.id,
+                dataUrl = item.rawUrl?.takeIf { item.providerId.startsWith("cs:") },
+                title = item.title,
+            ),
+            title = item.title,
+            posterPath = null,
+        )
+        play(target)
+    }
 
     // Geçmiş/"devam et" kaydından oynatma. IMDb kimliği için TMDB'ye bir kez sorulur; olmazsa detay açılır.
     fun playEntry(entry: WatchHistoryEntity, season: Int?, episode: Int?, startAt: Long) {
@@ -428,6 +450,10 @@ fun PlayRoot() {
                 )
             }
 
+            composable(Tab.Tv.route) {
+                ReadableWidth { TvScreen(onPlay = ::playLiveChannel) }
+            }
+
             composable(
                 route = CATEGORY_ROUTE,
                 arguments = listOf(navArgument("row") { type = NavType.StringType }),
@@ -543,6 +569,8 @@ fun PlayRoot() {
                     type = type,
                     id = id,
                     onBack = { navController.popBackStack() },
+                    onOpenSimilar = ::openDetail,
+                    onOpenActor = { name -> navController.navigate("search?q=${Uri.encode(name)}") },
                     onPlay = { target -> play(target) },
                 )
             }

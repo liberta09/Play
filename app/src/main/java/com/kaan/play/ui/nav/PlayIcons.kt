@@ -34,6 +34,22 @@ object PlayIcons {
         }
     }
 
+    val Tv: ImageVector by lazy {
+        icon("Tv") {
+            line {
+                moveTo(4f, 6f); horizontalLineTo(20f)
+                arcToRelative(1.5f, 1.5f, 0f, false, true, 1.5f, 1.5f)
+                verticalLineTo(17f)
+                arcToRelative(1.5f, 1.5f, 0f, false, true, -1.5f, 1.5f)
+                horizontalLineTo(4f)
+                arcToRelative(1.5f, 1.5f, 0f, false, true, -1.5f, -1.5f)
+                verticalLineTo(7.5f)
+                arcToRelative(1.5f, 1.5f, 0f, false, true, 1.5f, -1.5f)
+                moveTo(8f, 3.5f); lineTo(12f, 6f); lineTo(16f, 3.5f)
+            }
+        }
+    }
+
     val Search: ImageVector by lazy {
         icon("Search") {
             line {
@@ -769,4 +785,3 @@ object PlayIcons {
         }.build()
     }
 }
-
