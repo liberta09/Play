@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import kotlin.time.Duration
@@ -31,7 +32,7 @@ class AddonStreamProvider(
         val type = request.addonType ?: request.type.addonType
         val limit = timeout()
         val targetAddonId = if (request.pluginId?.startsWith("nuvio_addon:") == true) request.pluginId.removePrefix("nuvio_addon:").toLongOrNull() else null
-        val gate = Semaphore(4)
+        val gate = Semaphore(6)
         for (addon in askable(type, contentId, targetAddonId)) {
             launch {
                 gate.withPermit {

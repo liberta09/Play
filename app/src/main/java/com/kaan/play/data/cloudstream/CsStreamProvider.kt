@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * CloudStream eklentilerini [StreamProvider] arayüzüne bağlar.
@@ -72,30 +73,32 @@ class CsStreamProvider(
         Log.d(TAG, "streams: ${plugins.size} açık CS eklentisi")
         if (plugins.isEmpty()) return@channelFlow
 
-        val gate = Semaphore(4)
+        val gate = Semaphore(6)
         for (plugin in plugins) {
             launch {
                 gate.withPermit {
                     val source = StreamSource(addonId = plugin.id, addonName = plugin.name)
-                try {
-                    val apis = repository.loadApis(plugin.id).apisOrEmpty()
-                    Log.d(TAG, "${plugin.name}: ${apis.size} MainAPI yüklendi")
-                    val streams: List<PlayableStream> = if (apis.isEmpty()) {
-                        emptyList()
-                    } else {
-                        runtime.streams(
-                            apis = apis,
-                            request = request,
-                            identity = identity,
-                            pluginRowId = plugin.id,
-                            pluginName = plugin.name,
-                            timeoutMs = timeoutMs,
-                        )
-                    }
-                    send(StreamResult.Found(source, streams))
-                } catch (t: Throwable) {
-                    Log.d(TAG, "${plugin.name}: streams hata ${t.javaClass.simpleName}: ${t.message}")
-                    send(StreamResult.Failed(source, FailureReason.Network))
+                    try {
+                        val streams: List<PlayableStream> = withTimeoutOrNull(8000L) {
+                            val apis = repository.loadApis(plugin.id).apisOrEmpty()
+                            Log.d(TAG, "${plugin.name}: ${apis.size} MainAPI yüklendi")
+                            if (apis.isEmpty()) {
+                                emptyList()
+                            } else {
+                                runtime.streams(
+                                    apis = apis,
+                                    request = request,
+                                    identity = identity,
+                                    pluginRowId = plugin.id,
+                                    pluginName = plugin.name,
+                                    timeoutMs = 8000L,
+                                )
+                            }
+                        } ?: emptyList()
+                        send(StreamResult.Found(source, streams))
+                    } catch (t: Throwable) {
+                        Log.d(TAG, "${plugin.name}: streams hata ${t.javaClass.simpleName}: ${t.message}")
+                        send(StreamResult.Failed(source, FailureReason.Network))
                     }
                 }
             }

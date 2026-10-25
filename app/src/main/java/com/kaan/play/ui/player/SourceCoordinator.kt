@@ -779,8 +779,8 @@ class SourceCoordinator(
         const val BATCH_WINDOW_MS = 200L
         const val FALLBACK_DUB_WAIT_MS = 6_000L
         const val PROBE_LIMIT = 24
-        const val PROBE_PARALLEL = 4
-        const val PROBE_TIMEOUT_MS = 6_000L
+        const val PROBE_PARALLEL = 6
+        const val PROBE_TIMEOUT_MS = 8_000L
     }
 }
 
