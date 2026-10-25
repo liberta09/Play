@@ -1,0 +1,2 @@
+- **Oynatma hızı seçeneği eklendi:** Oynatıcıdaki Parçalar paneline ses perdesi korumalı hız seçimi (0.75×, Normal, 1.25×, 1.5×, 1.75×, 2×) eklendi; hız değiştiğinde üst bilgi çubuğunda rozet gösterilir ve hız oturumluk uygulanır.
+- **Zaman çizelgesindeki çerçeve kaldırıldı:** Oynatıcı açıldığında zaman çizelgesinin etrafında beliren camgöbeği odak çerçevesi kaldırıldı; D-pad ile odaklandığında yalnızca kaydırma tutamacı belirginleşecek şekilde arayüz sadeleştirildi.
