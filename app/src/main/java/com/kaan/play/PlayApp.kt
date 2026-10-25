@@ -20,33 +20,8 @@ class PlayApp : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
-        // [ADIM 2] Küresel Çökme Kalkanı (UncaughtExceptionHandler)
-        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
-        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            val isMain = android.os.Looper.myLooper() == android.os.Looper.getMainLooper() || thread == android.os.Looper.getMainLooper().thread
-            val tName = thread.name
-            val isBgTarget = !isMain ||
-                tName.contains("PlayPlugin", ignoreCase = true) ||
-                tName.contains("PlayCs", ignoreCase = true) ||
-                tName.contains("PlayAddon", ignoreCase = true) ||
-                tName.contains("OkHttp", ignoreCase = true) ||
-                tName.contains("DefaultDispatcher", ignoreCase = true) ||
-                tName.contains("ExoPlayer", ignoreCase = true)
-
-            if (!isMain && isBgTarget) {
-                android.util.Log.e("PlayCrashGuard", "Arka plan çökmesi engellendi [thread=${thread.name}]: ${throwable.message}", throwable)
-            } else {
-                try {
-                    val crashFile = java.io.File(filesDir, "last_crash.txt")
-                    val writer = java.io.StringWriter()
-                    throwable.printStackTrace(java.io.PrintWriter(writer))
-                    crashFile.writeText("Thread: ${thread.name}\nTime: ${System.currentTimeMillis()}\nMessage: ${throwable.message}\nStack:\n$writer")
-                } catch (t: Throwable) {
-                    android.util.Log.e("PlayCrashGuard", "last_crash.txt yazılamadı: ${t.message}")
-                }
-                defaultHandler?.uncaughtException(thread, throwable)
-            }
-        }
+        // [ADIM 2] Küresel Çökme Kalkanı (UncaughtExceptionHandler + CrashReporter)
+        CrashReporter.init(this)
         container = AppContainer(this)
         // Reklam ve izleyici alan adı engelleme listesi arka planda yüklenir (AdDomains.all ile birleşir).
         AdHostLoader.ensureLoaded(this)
