@@ -33,6 +33,11 @@ object CrashReporter {
         }
     }
 
+    fun sendCrashReport(message: String) {
+        val threadName = Thread.currentThread().name
+        sendTelegramReportAsync(threadName, message, "Manuel test tetiklendi: $message")
+    }
+
     fun handleUncaughtException(
         context: Context,
         thread: Thread,
