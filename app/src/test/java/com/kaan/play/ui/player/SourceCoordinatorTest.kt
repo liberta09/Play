@@ -15,6 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.TestScope
@@ -827,5 +828,66 @@ class SourceCoordinatorTest {
             "200 sonuçta sıralama sayacı (${rig.coordinator.rankComputationCount}) 10'dan küçük olmalı",
             rig.coordinator.rankComputationCount < 10,
         )
+    }
+
+    @Test
+    fun loadIsAlwaysCalledOnScopeDispatcherNeverOnRankingDispatcher() = runTest {
+        val testMainThread = Thread.currentThread()
+        val rankingThreadRef = java.util.concurrent.atomic.AtomicReference<Thread>()
+        val rankingExecutor = java.util.concurrent.Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "ranking-test-worker-thread").also { rankingThreadRef.set(it) }
+        }
+        val customRankingDispatcher = rankingExecutor.asCoroutineDispatcher()
+
+        val loadThreads = java.util.Collections.synchronizedList(mutableListOf<Thread>())
+        val loadedStreams = java.util.Collections.synchronizedList(mutableListOf<PlayableStream>())
+
+        val streams = (1..200).map { i ->
+            stream(source1, "https://example.com/stream_$i.mp4", dub = false, res = 720, size = 1_000_000_000L + i)
+        }
+
+        try {
+            val coordinator = SourceCoordinator(
+                scope = this,
+                request = request,
+                streamsFor = {
+                    flow {
+                        for (s in streams) {
+                            emit(found(source1, s))
+                        }
+                        delay(60_000)
+                    }
+                },
+                preferenceFor = { null },
+                remember = { _, _ -> },
+                sizeProbe = { null },
+                preferDub = false,
+                autoSource = true,
+                load = { s, p ->
+                    loadThreads.add(Thread.currentThread())
+                    loadedStreams.add(s)
+                },
+                position = { 0L },
+                clock = { testScheduler.currentTime },
+                sourceProbe = null,
+                rankingDispatcher = customRankingDispatcher,
+            )
+
+            coordinator.start(null, emptyList(), 0)
+            advanceUntilIdle()
+
+            assertTrue("En az bir kaynak yuklenmeli", loadedStreams.isNotEmpty())
+            assertTrue("Load en az bir kez cagirilmali", loadThreads.isNotEmpty())
+
+            for (thread in loadThreads) {
+                val isRankingThread = (rankingThreadRef.get() != null && thread == rankingThreadRef.get()) ||
+                    thread.name.contains("ranking-test-worker-thread")
+                assertFalse("load asla rankingDispatcher threadinde cagrilmamali", isRankingThread)
+                assertEquals("load her zaman scope threadinde cagrilmali", testMainThread, thread)
+            }
+        } finally {
+            customRankingDispatcher.close()
+            rankingExecutor.shutdown()
+        }
     }
 }

@@ -1,5 +1,13 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.1.13] — 2026-10-25
+
+### Türkçe
+- **Film başladıktan sonra yaşanan kasma, donma ve uygulamanın kapanması düzeltildi:** Oynatıcı kaynak seçim döngüsündeki iş parçacığı senkronizasyonu düzeltilerek ExoPlayer ve arayüz durum güncellemelerinin ana iş parçacığında çalışması sağlandı; film başladıktan sonraki kasma, donma, çökme ve geri dönünce programın yeniden başlaması giderildi.
+
+### English
+- **Fixed stuttering, freezing, and app crashes after playback starts:** Resolved thread dispatching in the source coordinator so playback initialization and UI state updates reliably run on the main dispatcher, eliminating stuttering, ANRs, crashes, and unexpected player resets.
+
 ## [1.1.12] — 2026-10-25
 
 ### Türkçe
