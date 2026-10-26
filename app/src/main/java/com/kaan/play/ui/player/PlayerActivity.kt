@@ -293,7 +293,11 @@ class PlayerActivity : AppCompatActivity() {
                 )
             }
         }
-        enterImmersive()
+        try {
+            enterImmersive()
+        } catch (t: Throwable) {
+            android.util.Log.w("PlayerActivity", "enterImmersive onCreate hatası: ${t.message}")
+        }
 
         // Oynatma sürerken konumu düzenli kaydet; sadece ekran görünürken çalışır.
         lifecycleScope.launch {
@@ -324,7 +328,11 @@ class PlayerActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         // Dönüşte (ör. başka uygulamadan) kontroller açık gelir; oynatma kullanıcıya bırakılır.
-        enterImmersive()
+        try {
+            enterImmersive()
+        } catch (t: Throwable) {
+            android.util.Log.w("PlayerActivity", "enterImmersive onStart hatası: ${t.message}")
+        }
     }
 
     override fun onStop() {
@@ -596,7 +604,6 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun enterImmersive() {
         try {
-            WindowCompat.setDecorFitsSystemWindows(window, false)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 window.attributes = window.attributes.apply {
                     layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
@@ -605,6 +612,7 @@ class PlayerActivity : AppCompatActivity() {
             val decor = window.peekDecorView() ?: window.decorView
             decor?.post {
                 try {
+                    WindowCompat.setDecorFitsSystemWindows(window, false)
                     WindowInsetsControllerCompat(window, decor).apply {
                         hide(WindowInsetsCompat.Type.systemBars())
                         systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
