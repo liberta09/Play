@@ -257,6 +257,13 @@ class CsRepository(
             Log.w(TAG, formatCsLog(failure))
             return failure
         }
+        if (row.pluginId.contains("traktsync", ignoreCase = true) ||
+            row.name.contains("traktsync", ignoreCase = true) ||
+            row.pluginId.contains("pltmustafa", ignoreCase = true)
+        ) {
+            Log.w(TAG, "Trakt eklentisi yuklenmedi (devre disi): ${row.pluginId}")
+            return CsApiResult.LoadFailed("TraktSyncDisabled", row.pluginId)
+        }
         val dexFile = store.dexFile(pluginRowId)
         if (!dexFile.exists()) {
             if (allowRedownload) {

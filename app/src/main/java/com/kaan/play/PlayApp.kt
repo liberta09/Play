@@ -13,6 +13,7 @@ import coil3.memory.MemoryCache
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import com.kaan.play.data.web.AdHostLoader
 import okio.Path.Companion.toOkioPath
+import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
 class PlayApp : Application(), SingletonImageLoader.Factory {
@@ -30,8 +31,17 @@ class PlayApp : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
+        // Cihaz hafızasındaki eski TraktSync kalıntılarını (.cs3, .dex, .manifest) açılışta derhal temizle
+        purgeOldTraktFiles(this)
         // [ADIM 2] Küresel Çökme Kalkanı (UncaughtExceptionHandler + CrashReporter)
         CrashReporter.init(this)
+        try {
+            com.lagradost.cloudstream3.utils.DataStore.init(this)
+            com.lagradost.cloudstream3.DataStore.init(this)
+            com.lagradost.cloudstream3.CloudStreamApp.context = this
+            com.lagradost.cloudstream3.AcraApplication.context = this
+        } catch (_: Throwable) {
+        }
         try {
             container = AppContainer(this)
             // Reklam ve izleyici alan adı engelleme listesi arka planda yüklenir (AdDomains.all ile birleşir).
@@ -144,5 +154,43 @@ class PlayApp : Application(), SingletonImageLoader.Factory {
                 )
             }
             .build()
+    }
+
+    private fun purgeOldTraktFiles(context: android.content.Context) {
+        try {
+            val candidateDirs = listOf(
+                context.filesDir,
+                File(context.filesDir, "cloudstream"),
+                File(context.filesDir, "plugins"),
+                File(context.filesDir, "dex"),
+                context.cacheDir,
+                File(context.cacheDir, "cloudstream"),
+                File(context.cacheDir, "plugins")
+            )
+            for (dir in candidateDirs) {
+                if (!dir.exists() || !dir.isDirectory) continue
+                dir.listFiles()?.forEach { file ->
+                    val nameLower = file.name.lowercase()
+                    val isTraktName = nameLower.contains("trakt") || nameLower.contains("pltmustafa")
+                    val isTraktManifest = file.name.endsWith(".manifest") && try {
+                        val c = file.readText().lowercase()
+                        c.contains("traktsync") || c.contains("pltmustafa")
+                    } catch (_: Throwable) {
+                        false
+                    }
+
+                    if (isTraktName || isTraktManifest) {
+                        if (file.name.endsWith(".manifest")) {
+                            val id = file.name.removeSuffix(".manifest")
+                            File(file.parentFile, "$id.dex").delete()
+                        }
+                        file.deleteRecursively()
+                        Log.i("PlayApp", "Eski Trakt dosyası cihazdan temizlendi: ${file.name}")
+                    }
+                }
+            }
+        } catch (t: Throwable) {
+            Log.w("PlayApp", "purgeOldTraktFiles hatası: ${t.message}")
+        }
     }
 }

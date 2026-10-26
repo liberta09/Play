@@ -142,6 +142,14 @@ object CsRepoManifestParser {
         val rawUrl = obj.str("url") ?: return null
         val url = resolveUrl(rawUrl, base) ?: return null
 
+        if (internalName.contains("traktsync", ignoreCase = true) ||
+            name.contains("traktsync", ignoreCase = true) ||
+            url.contains("traktsync", ignoreCase = true) ||
+            internalName.contains("pltmustafa", ignoreCase = true)
+        ) {
+            return null
+        }
+
         return CsPluginEntry(
             name = name,
             internalName = internalName,

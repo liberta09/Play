@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.selection.selectable
@@ -304,7 +305,10 @@ fun SourcePanel(
                 if (coordinator.loading) {
                     item(key = "loading") { SoftText(stringResource(R.string.sources_checking_more) + if (pending.isNotEmpty()) " (${pending.joinToString { it.addonName }})" else "") }
                 }
-                items(coordinator.failedSources, key = { "f-${it.addonId}" }) { SoftText(stringResource(R.string.sources_failed, it.addonName)) }
+                val uniqueFailed = coordinator.failedSources.distinctBy { it.addonId }
+                itemsIndexed(uniqueFailed, key = { index, item -> "f-${item.addonId}_$index" }) { _, it ->
+                    SoftText(stringResource(R.string.sources_failed, it.addonName))
+                }
                 if (!coordinator.loading && shown.isEmpty()) item(key = "empty") { SoftText(stringResource(R.string.sources_empty)) }
             }
         }

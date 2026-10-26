@@ -94,3 +94,12 @@
 -dontwarn com.fleeksoft.ksoup.**
 -dontwarn dev.whyoleg.cryptography.**
 
+
+# ── CloudStream DataStore & Trakt Güvenlik Kuralları ──────────────────────────
+-keep class com.lagradost.cloudstream3.utils.DataStore { *; }
+-keep class com.lagradost.cloudstream3.utils.DataStore$* { *; }
+-keep class com.lagradost.cloudstream3.utils.DataStoreHelperKt { *; }
+-keep class com.lagradost.cloudstream3.DataStore { *; }
+-keep class com.lagradost.cloudstream3.DataStore$* { *; }
+-dontwarn com.pltmustafa.traktsync.**
+-dontwarn com.pltmustafa.**

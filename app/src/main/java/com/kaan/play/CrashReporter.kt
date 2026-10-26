@@ -232,6 +232,7 @@ object CrashReporter {
 
                 val text = buildString {
                     append("🚨 *Play TV Box Çökme Raporu*\n")
+                    append("• *Sürüm:* `").append(BuildConfig.VERSION_NAME).append(" (").append(BuildConfig.VERSION_CODE).append(")`\n")
                     append("• *Thread:* `").append(threadName).append("`\n")
                     append("• *Cihaz:* ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL).append(" (Android ").append(Build.VERSION.RELEASE).append(")\n")
                     append("• *Hata:* ").append(message.take(150)).append("\n\n")

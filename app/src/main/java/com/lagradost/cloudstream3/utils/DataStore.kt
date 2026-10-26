@@ -25,29 +25,31 @@ data class Editor(
     val editor: SharedPreferences.Editor
 ) {
     fun <T> setKeyRaw(path: String, value: T) {
-        when (value) {
-            null -> editor.remove(path)
-            is Boolean -> editor.putBoolean(path, value)
-            is Int -> editor.putInt(path, value)
-            is Long -> editor.putLong(path, value)
-            is Float -> editor.putFloat(path, value)
-            is String -> editor.putString(path, value)
-            is Set<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                editor.putStringSet(path, value.filterIsInstance<String>().toSet())
-            }
-            else -> {
-                try {
-                    editor.putString(path, DataStore.mapper.writeValueAsString(value))
-                } catch (_: Throwable) {
-                    editor.putString(path, value.toString())
+        try {
+            when (value) {
+                null -> editor.remove(path)
+                is Boolean -> editor.putBoolean(path, value)
+                is Int -> editor.putInt(path, value)
+                is Long -> editor.putLong(path, value)
+                is Float -> editor.putFloat(path, value)
+                is String -> editor.putString(path, value)
+                is Set<*> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    editor.putStringSet(path, value.filterIsInstance<String>().toSet())
+                }
+                else -> {
+                    try {
+                        editor.putString(path, DataStore.mapper.writeValueAsString(value))
+                    } catch (_: Throwable) {
+                        editor.putString(path, value.toString())
+                    }
                 }
             }
-        }
+        } catch (_: Throwable) {}
     }
 
     fun apply() {
-        editor.apply()
+        try { editor.apply() } catch (_: Throwable) {}
     }
 }
 
@@ -77,6 +79,7 @@ object DataStore {
             ?: appContextRef?.get()
             ?: AcraApplication.context
             ?: CloudStreamApp.context
+            ?: runCatching { com.kaan.play.PlayApp.appContext }.getOrNull()
     }
 
     @JvmStatic
@@ -120,28 +123,30 @@ object DataStore {
 
     @JvmStatic
     fun <T> setKey(key: String, value: T) {
-        val prefs = getPreferences() ?: return
-        val p = prefs.edit()
-        when (value) {
-            null -> p.remove(key)
-            is String -> p.putString(key, value)
-            is Int -> p.putInt(key, value)
-            is Long -> p.putLong(key, value)
-            is Float -> p.putFloat(key, value)
-            is Boolean -> p.putBoolean(key, value)
-            is Set<*> -> {
-                @Suppress("UNCHECKED_CAST")
-                p.putStringSet(key, value.filterIsInstance<String>().toSet())
-            }
-            else -> {
-                try {
-                    p.putString(key, mapper.writeValueAsString(value))
-                } catch (_: Throwable) {
-                    p.putString(key, value.toString())
+        try {
+            val prefs = getPreferences() ?: return
+            val p = prefs.edit()
+            when (value) {
+                null -> p.remove(key)
+                is String -> p.putString(key, value)
+                is Int -> p.putInt(key, value)
+                is Long -> p.putLong(key, value)
+                is Float -> p.putFloat(key, value)
+                is Boolean -> p.putBoolean(key, value)
+                is Set<*> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    p.putStringSet(key, value.filterIsInstance<String>().toSet())
+                }
+                else -> {
+                    try {
+                        p.putString(key, mapper.writeValueAsString(value))
+                    } catch (_: Throwable) {
+                        p.putString(key, value.toString())
+                    }
                 }
             }
-        }
-        p.apply()
+            p.apply()
+        } catch (_: Throwable) {}
     }
 
     @JvmStatic
@@ -194,7 +199,9 @@ object DataStore {
 
     @JvmStatic
     fun removeKey(key: String) {
-        getPreferences()?.edit()?.remove(key)?.apply()
+        try {
+            getPreferences()?.edit()?.remove(key)?.apply()
+        } catch (_: Throwable) {}
     }
 
     @JvmStatic
@@ -204,26 +211,30 @@ object DataStore {
 
     @JvmStatic
     fun removeKeys(folder: String): Int {
-        val prefs = getPreferences() ?: return 0
-        val fixedFolder = folder.trimEnd('/') + "/"
-        val keysToRemove = prefs.all.keys.filter { it.startsWith(fixedFolder) }
-        val edit = prefs.edit()
-        keysToRemove.forEach { edit.remove(it) }
-        edit.apply()
-        return keysToRemove.size
+        return try {
+            val prefs = getPreferences() ?: return 0
+            val fixedFolder = folder.trimEnd('/') + "/"
+            val keysToRemove = prefs.all.keys.filter { it.startsWith(fixedFolder) }
+            val edit = prefs.edit()
+            keysToRemove.forEach { edit.remove(it) }
+            edit.apply()
+            keysToRemove.size
+        } catch (_: Throwable) { 0 }
     }
 
     @JvmStatic
-    fun containsKey(key: String): Boolean = getPreferences()?.contains(key) ?: false
+    fun containsKey(key: String): Boolean = try { getPreferences()?.contains(key) ?: false } catch (_: Throwable) { false }
 
     @JvmStatic
     fun containsKey(folder: String, path: String): Boolean = containsKey(getFolderName(folder, path))
 
     @JvmStatic
     fun getKeys(folder: String): List<String> {
-        val prefs = getPreferences() ?: return emptyList()
-        val fixedFolder = folder.trimEnd('/') + "/"
-        return prefs.all.keys.filter { it.startsWith(fixedFolder) }
+        return try {
+            val prefs = getPreferences() ?: return emptyList()
+            val fixedFolder = folder.trimEnd('/') + "/"
+            prefs.all.keys.filter { it.startsWith(fixedFolder) }
+        } catch (_: Throwable) { emptyList() }
     }
 
     fun Context.getKeys(folder: String): List<String> = DataStore.getKeys(folder)

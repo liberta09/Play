@@ -36,6 +36,17 @@ class CsDexLoader(private val context: Context) : PluginDexLoader {
     private val loadLock = Mutex()
 
     override suspend fun loadPlugin(dexFile: File, className: String, pluginId: String): CsApiResult = loadLock.withLock {
+        val isTrakt = pluginId.contains("traktsync", ignoreCase = true) ||
+            className.contains("traktsync", ignoreCase = true) ||
+            className.contains("com.pltmustafa", ignoreCase = true) ||
+            className.contains("TraktAuthManager", ignoreCase = true) ||
+            className.contains("WatchlistSyncService", ignoreCase = true)
+        if (isTrakt) {
+            Log.w(TAG, "TraktSync eklentisi kara listede (engellendi): $pluginId ($className)")
+            runCatching { dexFile.delete() }
+            return@withLock CsApiResult.LoadFailed("TraktSyncDisabled", pluginId)
+        }
+
         if (!dexFile.exists()) {
             val failure = CsApiResult.DexFileMissing(pluginId)
             Log.w(TAG, formatCsLog(failure))

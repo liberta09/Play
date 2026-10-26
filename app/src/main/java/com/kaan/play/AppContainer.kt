@@ -285,6 +285,25 @@ class AppContainer(context: Context) {
     fun seedDefaultAddons(): Job = appScope.launch {
         DefaultSubtitleAddons.seedIfNeeded(database.addonDao(), settings.store)
         DefaultCatalogAddons.seedIfNeeded(database.addonDao(), settings.store)
+        cleanupTraktPlugins()
+    }
+
+    private suspend fun cleanupTraktPlugins() {
+        try {
+            val allPlugins = database.pluginDao().observeAll().first()
+            for (p in allPlugins) {
+                if (p.pluginId.contains("traktsync", ignoreCase = true) ||
+                    p.name.contains("traktsync", ignoreCase = true) ||
+                    p.pluginId.contains("pltmustafa", ignoreCase = true)
+                ) {
+                    database.pluginDao().delete(p.id)
+                    csDexStore.delete(p.id)
+                    Log.i("PlayApp", "TraktSync veritabanından ve diskten silindi: ${p.pluginId}")
+                }
+            }
+        } catch (t: Throwable) {
+            Log.w("PlayApp", "TraktSync kalıntı temizleme hatası: ${t.message}")
+        }
     }
 
     /** Eklenti ayarları (`onSettings` ile bildirilen değerler), eklenti başına; ayrı bir DataStore dosyasında. */

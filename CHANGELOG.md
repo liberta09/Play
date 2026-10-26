@@ -1,5 +1,17 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.1.18] — 2026-10-26
+
+### Türkçe
+- **DataStore ve TraktSync Çökme Kalkanı:** Cihazda kalan eski eklenti kalıntıları otomatik temizlendi, `com.pltmustafa.traktsync` eklentisi kara listeye alındı ve `DataStore` uyumluluk katmanı güçlendirildi.
+- **Oynatıcı Kaynak Listesi Mükerrer Key Hatası Giderildi:** Negatif ID'li CloudStream sağlayıcılarında yaşanan mükerrer anahtar (`Key "f--210" was already used`) çökmesi LazyColumn `itemsIndexed` ve tekil anahtar mimarisi ile çözüldü.
+- **Hata Raporlama ve Kararlılık:** Telegram `CrashReporter` loglarına sürüm bilgisi (`1.1.18 (24)`) eklendi.
+
+### English
+- **DataStore & TraktSync Crash Shield:** Automatically purge legacy plugin leftovers on launch, blacklist `com.pltmustafa.traktsync`, and reinforce the `DataStore` compatibility layer.
+- **Player Sources Duplicate Key Fix:** Resolved duplicate key (`Key "f--210" was already used`) crash in LazyColumn with unique indexed keys.
+- **Crash Telemetry & Stability:** Added version info (`1.1.18 (24)`) to Telegram `CrashReporter` telemetry logs.
+
 ## [1.1.14] — 2026-10-25
 
 ### Türkçe

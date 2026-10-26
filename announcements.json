@@ -1,6 +1,14 @@
 {
   "announcements": [
     {
+      "id": "2026-10-26-play-1118",
+      "title": "🎉 Play 1.1.18 yayında!",
+      "message": "DataStore/Trakt koruma kalkanı ve oynatıcı kaynak listesi kararlılık düzeltmeleri yapıldı. 🍿🎬",
+      "link": "https://github.com/liberta09/Play/releases/tag/v1.1.18",
+      "minVersion": "1.1.18",
+      "until": "2026-12-31"
+    },
+    {
       "id": "2026-10-22-play-115",
       "title": "🎉 Play 1.1.5 yayında!",
       "message": "Web görünümünde kumanda imleci, ekran klavyesi, otomatik tam ekran ve güçlendirilmiş reklam engeli eklendi. 🍿🎬",

@@ -323,7 +323,9 @@ class SourceCoordinator(
                             handleStreamResult(acc)
                         }
                         is StreamResult.Failed -> {
-                            failedSources = failedSources + result.source
+                            if (failedSources.none { it.addonId == result.source.addonId }) {
+                                failedSources = failedSources + result.source
+                            }
                             onChange()
                         }
                     }
