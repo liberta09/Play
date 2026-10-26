@@ -30,6 +30,11 @@
 # yeniden adlandırırsa eklenti NoClassDefFoundError/NoSuchMethodError verir. Kökler, gerçek
 # eklentilerin dex başvurularının release APK ile karşılaştırılmasından çıkarıldı (README, Faz 3).
 -keep class com.lagradost.** { *; }
+-keep interface com.lagradost.** { *; }
+-keep class com.lagradost.cloudstream3.** { *; }
+-keep interface com.lagradost.cloudstream3.** { *; }
+-keep class com.lagradost.api.** { *; }
+-keep interface com.lagradost.api.** { *; }
 -keep class com.lagradost.cloudstream3.CloudStreamApp { *; }
 -keep class com.lagradost.cloudstream3.CloudStreamApp$Companion { *; }
 -keepclassmembers class com.lagradost.** { *; }
@@ -39,6 +44,7 @@
 -keep class kotlin.** { *; }
 -keep class kotlinx.coroutines.** { *; }
 -keep class com.fasterxml.jackson.** { *; }
+-keep interface com.fasterxml.jackson.** { *; }
 -keep class org.jsoup.** { *; }
 -keep class okhttp3.** { *; }
 -keep class okio.** { *; }

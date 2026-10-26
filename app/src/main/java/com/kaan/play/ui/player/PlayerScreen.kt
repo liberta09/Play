@@ -465,53 +465,82 @@ fun PlayerScreen(
             }
             AndroidView(
                 factory = { ctx ->
-                    val view = android.view.LayoutInflater.from(ctx).inflate(R.layout.view_player, null, false) as PlayerView
+                    val view = try {
+                        android.view.LayoutInflater.from(ctx).inflate(R.layout.view_player, null, false) as PlayerView
+                    } catch (t: Throwable) {
+                        PlayerView(ctx).apply {
+                            useController = false
+                            setShutterBackgroundColor(android.graphics.Color.BLACK)
+                        }
+                    }
                     view.apply {
                         player = controller.player
                         isFocusable = false
                         descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-                        subtitles.attach { cues -> subtitleView?.setCues(SubtitleCues.toCues(cues)) }
 
-                        val textureView = videoSurfaceView as? TextureView
-                        if (textureView != null) {
-                            if (textureView.isAvailable) {
-                                controller.onSurfaceReady()
-                            }
-                            val existingListener = textureView.surfaceTextureListener
-                            textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-                                override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-                                    existingListener?.onSurfaceTextureAvailable(surface, width, height)
+                        // View ağacı eklendiğinde child görünümlere eriş
+                        post {
+                            try {
+                                subtitles.attach { cues ->
+                                    try {
+                                        subtitleView?.setCues(SubtitleCues.toCues(cues))
+                                    } catch (t: Throwable) {
+                                        android.util.Log.w("PlayerScreen", "subtitleView.setCues hatası: ${t.message}")
+                                    }
+                                }
+
+                                val textureView = videoSurfaceView as? TextureView
+                                if (textureView != null) {
+                                    if (textureView.isAvailable) {
+                                        controller.onSurfaceReady()
+                                    }
+                                    val existingListener = textureView.surfaceTextureListener
+                                    textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+                                        override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
+                                            existingListener?.onSurfaceTextureAvailable(surface, width, height)
+                                            controller.onSurfaceReady()
+                                        }
+                                        override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
+                                            existingListener?.onSurfaceTextureSizeChanged(surface, width, height)
+                                        }
+                                        override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
+                                            controller.onSurfaceDestroyed()
+                                            return existingListener?.onSurfaceTextureDestroyed(surface) ?: true
+                                        }
+                                        override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
+                                            existingListener?.onSurfaceTextureUpdated(surface)
+                                        }
+                                    }
+                                } else {
                                     controller.onSurfaceReady()
                                 }
-                                override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
-                                    existingListener?.onSurfaceTextureSizeChanged(surface, width, height)
-                                }
-                                override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-                                    controller.onSurfaceDestroyed()
-                                    return existingListener?.onSurfaceTextureDestroyed(surface) ?: true
-                                }
-                                override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
-                                    existingListener?.onSurfaceTextureUpdated(surface)
-                                }
+                            } catch (t: Throwable) {
+                                android.util.Log.w("PlayerScreen", "PlayerView post-attach hatası: ${t.message}")
                             }
-                        } else {
-                            controller.onSurfaceReady()
                         }
                     }
                 },
                 // Ayar değişince anında uygulanır; oynatma kesilmez.
                 update = { view ->
-                    view.resizeMode = when (resize) {
-                        ResizeMode.Fit -> AspectRatioFrameLayout.RESIZE_MODE_FIT
-                        ResizeMode.Fill -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-                        else -> AspectRatioFrameLayout.RESIZE_MODE_FILL
+                    try {
+                        view.resizeMode = when (resize) {
+                            ResizeMode.Fit -> AspectRatioFrameLayout.RESIZE_MODE_FIT
+                            ResizeMode.Fill -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                            else -> AspectRatioFrameLayout.RESIZE_MODE_FILL
+                        }
+                        view.subtitleView?.let { SubtitleStyling.apply(it, subtitleStyle) }
+                    } catch (t: Throwable) {
+                        android.util.Log.w("PlayerScreen", "PlayerView update hatası: ${t.message}")
                     }
-                    view.subtitleView?.let { SubtitleStyling.apply(it, subtitleStyle) }
                 },
                 onRelease = { view ->
-                    controller.onSurfaceDestroyed()
-                    subtitles.attach(null)
-                    view.player = null
+                    try {
+                        controller.onSurfaceDestroyed()
+                        subtitles.attach(null)
+                        view.player = null
+                    } catch (t: Throwable) {
+                        android.util.Log.w("PlayerScreen", "PlayerView onRelease hatası: ${t.message}")
+                    }
                 },
                 modifier = viewModifier,
             )

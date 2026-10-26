@@ -51,6 +51,8 @@ private class PlaybackHttpSession(
     @Volatile var headers: Map<String, String> = headers
 }
 
+private const val TAG = "PlaybackController"
+
 /** Oynatma hatasının kullanıcıya gösterilen üç sınıfı. */
 enum class PlaybackError { Network, Unavailable, Format }
 
@@ -382,6 +384,23 @@ class PlaybackController(
         torrent = TorrentLinks.isMagnet(stream.url)
         // Magnet: yerleşik motorun yerel adresi; tür içerikten çıkarılır (dosya adı üst bilgi gelince belli olur).
         val uri = if (torrent) torrentUrl(stream.url, stream.torrentFileIdx) else stream.url
+        if (uri.isNullOrBlank()) {
+            android.util.Log.e(TAG, "Oynatılacak URI boş veya null!")
+            ui = ui.copy(error = PlaybackError.Unavailable, buffering = false)
+            return
+        }
+
+        val parsedUri = try {
+            android.net.Uri.parse(uri)
+        } catch (t: Throwable) {
+            android.util.Log.e(TAG, "Uri.parse hatası: ${t.message}")
+            null
+        }
+
+        if (parsedUri == null) {
+            ui = ui.copy(error = PlaybackError.Unavailable, buffering = false)
+            return
+        }
 
         val mime = if (torrent) null else stream.mimeType ?: streamMimeType(stream.url)
         StreamLog.opening(stream.url, mime)
@@ -391,7 +410,7 @@ class PlaybackController(
                 "fileIdx=${stream.torrentFileIdx} başlıklar=${stream.headers.keys} mime=$mime",
         )
         val item = MediaItem.Builder()
-            .setUri(uri)
+            .setUri(parsedUri)
             .apply { mime?.let(::setMimeType) }
             .build()
 

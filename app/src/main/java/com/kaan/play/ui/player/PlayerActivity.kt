@@ -88,8 +88,11 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val parsed = PlaySession.from(intent)
-        if (parsed == null) {
+        val incomingIntent = intent ?: run {
+            finish()
+            return
+        }
+        val parsed = parseSessionSafely(incomingIntent) ?: run {
             finish()
             return
         }
@@ -102,7 +105,6 @@ class PlayerActivity : AppCompatActivity() {
         if (DeviceLevels.supportsTouch(this)) {
             levels = DeviceLevels(window, getSystemService(AUDIO_SERVICE) as AudioManager, contentResolver)
         }
-        enterImmersive()
 
         val offline = session.offline
         // Torrent motoru bu oynatıcı kapanana dek açık kalır (kapanınca geçici dosyalar silinir).
@@ -291,6 +293,7 @@ class PlayerActivity : AppCompatActivity() {
                 )
             }
         }
+        enterImmersive()
 
         // Oynatma sürerken konumu düzenli kaydet; sadece ekran görünürken çalışır.
         lifecycleScope.launch {
@@ -559,16 +562,59 @@ class PlayerActivity : AppCompatActivity() {
         container.appScope.launch { container.library.saveProgress(session.target, position, duration) }
     }
 
-    private fun enterImmersive() {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            window.attributes = window.attributes.apply {
-                layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val parsed = parseSessionSafely(intent) ?: run {
+            finish()
+            return
+        }
+        session = parsed
+        if (::controller.isInitialized) {
+            val stream = parsed.stream
+            if (stream != null && !stream.url.isNullOrBlank()) {
+                loadStream(stream, parsed.startPositionMs)
+            } else if (parsed.autoSource) {
+                coordinator?.start(
+                    initial = null,
+                    fallbacks = parsed.fallbacks,
+                    startMs = parsed.startPositionMs,
+                )
             }
         }
-        WindowInsetsControllerCompat(window, window.decorView).apply {
-            hide(WindowInsetsCompat.Type.systemBars())
-            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    }
+
+    private fun parseSessionSafely(intent: android.content.Intent?): PlaySession? {
+        if (intent == null) return null
+        return try {
+            PlaySession.from(intent)
+        } catch (t: Throwable) {
+            android.util.Log.e("PlayerActivity", "Intent veya Uri çözümlenemedi: ${t.message}", t)
+            null
+        }
+    }
+
+    private fun enterImmersive() {
+        try {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                window.attributes = window.attributes.apply {
+                    layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                }
+            }
+            val decor = window.peekDecorView() ?: window.decorView
+            decor?.post {
+                try {
+                    WindowInsetsControllerCompat(window, decor).apply {
+                        hide(WindowInsetsCompat.Type.systemBars())
+                        systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    }
+                } catch (t: Throwable) {
+                    android.util.Log.w("PlayerActivity", "enterImmersive post hatası: ${t.message}")
+                }
+            }
+        } catch (t: Throwable) {
+            android.util.Log.w("PlayerActivity", "enterImmersive hatası: ${t.message}")
         }
     }
 

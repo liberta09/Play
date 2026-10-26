@@ -32,15 +32,19 @@ class PlayApp : Application(), SingletonImageLoader.Factory {
         appContext = applicationContext
         // [ADIM 2] Küresel Çökme Kalkanı (UncaughtExceptionHandler + CrashReporter)
         CrashReporter.init(this)
-        container = AppContainer(this)
-        // Reklam ve izleyici alan adı engelleme listesi arka planda yüklenir (AdDomains.all ile birleşir).
-        AdHostLoader.ensureLoaded(this)
-        // Element gizleme kuralları arka planda yüklenir (Dispatchers.IO).
-        com.kaan.play.data.web.AdHideLoader.ensureLoaded(this)
-        // İndirme yöneticisi açılışta kurulur: yarım kalan indirmeler (uygulama öldürüldükten sonra) kendiliğinden devam eder.
-        container.downloads
-        // Varsayılan altyazı ve katalog addon'ları ilk açılışta bir kez tohumlanır (kullanıcı kararları 2026-10-20/21; ağa çıkmaz).
-        container.seedDefaultAddons()
+        try {
+            container = AppContainer(this)
+            // Reklam ve izleyici alan adı engelleme listesi arka planda yüklenir (AdDomains.all ile birleşir).
+            AdHostLoader.ensureLoaded(this)
+            // Element gizleme kuralları arka planda yüklenir (Dispatchers.IO).
+            com.kaan.play.data.web.AdHideLoader.ensureLoaded(this)
+            // İndirme yöneticisi açılışta kurulur: yarım kalan indirmeler (uygulama öldürüldükten sonra) kendiliğinden devam eder.
+            container.downloads
+            // Varsayılan altyazı ve katalog addon'ları ilk açılışta bir kez tohumlanır (kullanıcı kararları 2026-10-20/21; ağa çıkmaz).
+            container.seedDefaultAddons()
+        } catch (t: Throwable) {
+            Log.e("PlayApp", "PlayApp.onCreate başlatma hatası: ${t.message}", t)
+        }
     }
 
     override fun registerActivityLifecycleCallbacks(callback: ActivityLifecycleCallbacks) {

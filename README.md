@@ -17,7 +17,7 @@
 <br/>
 
 <p align="center">
-  <a href="https://github.com/liberta09/Play/releases/download/v1.1.5/Play-1.1.5.apk"><img src="https://img.shields.io/badge/APK%20%C4%B0ND%C4%B0R-Play%20(son%20s%C3%BCr%C3%BCm)-2DD4BF?style=for-the-badge&logo=android&logoColor=0B0C10&labelColor=0B0C10&color=2DD4BF" alt="APK İndir" height="52" /></a>
+  <a href="https://github.com/liberta09/Play/releases/latest"><img src="https://img.shields.io/badge/APK%20%C4%B0ND%C4%B0R-Play%20(son%20s%C3%BCr%C3%BCm)-2DD4BF?style=for-the-badge&logo=android&logoColor=0B0C10&labelColor=0B0C10&color=2DD4BF" alt="APK İndir" height="52" /></a>
   &nbsp;
   <a href="https://t.me/+o-RFlV4U3UY5NGU8"><img src="https://img.shields.io/badge/TELEGRAM-Kanala%20Kat%C4%B1l-229ED9?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0B0C10" alt="Telegram Kanalına Katıl" height="52" /></a>
 </p>

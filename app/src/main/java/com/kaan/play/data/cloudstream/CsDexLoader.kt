@@ -62,10 +62,25 @@ class CsDexLoader(private val context: Context) : PluginDexLoader {
                         try {
                             plugin.load(context)
                         } catch (_: NoSuchMethodError) {
-                            plugin.load()
+                            try {
+                                plugin.load()
+                            } catch (t: Throwable) {
+                                Log.w(TAG, "plugin.load() hatasi [${pluginId}]: ${t.javaClass.simpleName}: ${t.message}")
+                            }
+                        } catch (t: Throwable) {
+                            Log.w(TAG, "plugin.load(context) hatasi [${pluginId}]: ${t.javaClass.simpleName}: ${t.message}")
+                            try {
+                                plugin.load()
+                            } catch (t2: Throwable) {
+                                Log.w(TAG, "plugin.load() fallback hatasi [${pluginId}]: ${t2.javaClass.simpleName}: ${t2.message}")
+                            }
                         }
                     } else {
-                        plugin.load()
+                        try {
+                            plugin.load()
+                        } catch (t: Throwable) {
+                            Log.w(TAG, "plugin.load() hatasi [${pluginId}]: ${t.javaClass.simpleName}: ${t.message}")
+                        }
                     }
                     APIHolder.allProviders.drop(beforeCount).distinctBy { it.name }
                 }

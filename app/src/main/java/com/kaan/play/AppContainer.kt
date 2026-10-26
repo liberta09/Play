@@ -161,11 +161,16 @@ class AppContainer(context: Context) {
 
     init {
         // CloudStream eklentileri app.get()/post() ve depolama için ilklendirilir
-        com.lagradost.cloudstream3.initApp(httpClient)
-        com.lagradost.cloudstream3.DataStore.init(appContext)
-        com.lagradost.cloudstream3.AcraApplication.context = appContext
-        com.lagradost.cloudstream3.CloudStreamApp.context = appContext
-        com.lagradost.cloudstream3.CommonActivity.context = appContext
+        try {
+            com.lagradost.cloudstream3.initApp(httpClient)
+            com.lagradost.cloudstream3.utils.DataStore.init(appContext)
+            com.lagradost.cloudstream3.DataStore.init(appContext)
+            com.lagradost.cloudstream3.AcraApplication.context = appContext
+            com.lagradost.cloudstream3.CloudStreamApp.context = appContext
+            com.lagradost.cloudstream3.CommonActivity.context = appContext
+        } catch (t: Throwable) {
+            android.util.Log.e("AppContainer", "CloudStream init hatasi: ${t.message}", t)
+        }
 
         // Pichive / Hotlinger / DPlayer çıkarıcılarını ekle (önceden tanımlı eski versiyonları temizleyip en başa ekle)
         val extApis = com.lagradost.cloudstream3.utils.extractorApis

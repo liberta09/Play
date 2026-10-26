@@ -95,11 +95,51 @@ object CrashReporter {
         // 2) Telegram bildirimi gönder (arka planda, BuildConfig üzerinden, dedup korumalı)
         sendTelegramReportAsync(thread.name, errMsg, stackTrace, context.applicationContext)
 
-        if (!isMain && isBgTarget) {
-            Log.e(TAG, "Arka plan çökmesi engellendi [thread=${thread.name}]: $errMsg", throwable)
-        } else {
-            defaultHandler?.uncaughtException(thread, throwable)
+        // 3) Dış eklenti ve arka plan coroutine kalkanı:
+        val isPluginTrace = stackTrace.contains("com.pltmustafa", ignoreCase = true) ||
+            stackTrace.contains("com.comix", ignoreCase = true) ||
+            stackTrace.contains("traktsync", ignoreCase = true) ||
+            stackTrace.contains("WatchlistSyncService", ignoreCase = true) ||
+            stackTrace.contains("com.lagradost.cloudstream3.plugins", ignoreCase = true) ||
+            (stackTrace.contains("com.lagradost.", ignoreCase = true) && !stackTrace.contains("com.kaan.play", ignoreCase = true))
+
+        val isLinkageError = throwable is LinkageError ||
+            throwable is NoClassDefFoundError ||
+            throwable is ClassNotFoundException ||
+            throwable is NoSuchMethodError ||
+            throwable is NoSuchFieldError
+
+        if (!isMain && (isBgTarget || isPluginTrace || isLinkageError)) {
+            Log.e(TAG, "Arka plan eklenti/coroutine çökmesi engellendi [thread=${thread.name}]: $errMsg", throwable)
+            return
         }
+
+        if (isMain && (isPluginTrace || isLinkageError)) {
+            Log.e(TAG, "Ana iş parçacığında dış eklenti Linkage/NoClassDefFoundError engellendi, UI döngüsü korunuyor: $errMsg", throwable)
+            while (true) {
+                try {
+                    Looper.loop()
+                } catch (t: Throwable) {
+                    val sWriter = StringWriter()
+                    t.printStackTrace(PrintWriter(sWriter))
+                    val sTrace = sWriter.toString()
+                    val isNestedPlugin = sTrace.contains("com.pltmustafa", ignoreCase = true) ||
+                        sTrace.contains("com.comix", ignoreCase = true) ||
+                        sTrace.contains("traktsync", ignoreCase = true) ||
+                        sTrace.contains("com.lagradost.", ignoreCase = true) ||
+                        t is LinkageError || t is NoClassDefFoundError
+                    if (isNestedPlugin) {
+                        Log.e(TAG, "İç içe eklenti çökmesi engellendi: ${t.message}")
+                    } else {
+                        defaultHandler?.uncaughtException(Thread.currentThread(), t)
+                        break
+                    }
+                }
+            }
+            return
+        }
+
+        defaultHandler?.uncaughtException(thread, throwable)
     }
 
     private fun checkAndSendPendingReport(appContext: Context) {
