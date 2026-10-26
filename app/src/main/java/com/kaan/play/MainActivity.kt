@@ -86,6 +86,7 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             handleLink(intent)
             handleUpdateIntent(intent)
+            handlePlayIntent(intent)
         }
 
         setContent {
@@ -121,6 +122,7 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         handleLink(intent)
         handleUpdateIntent(intent)
+        handlePlayIntent(intent)
         if (BuildConfig.DEBUG) {
             intent.getStringExtra("select_provider")?.let { raw ->
                 val ids = raw.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
@@ -142,6 +144,37 @@ class MainActivity : AppCompatActivity() {
      * "Güncelleme indirildi" bildirimine dokunuldu: doğrulanmış APK hazırsa kurulum ekranı açılır
      * (bkz. [com.kaan.play.data.update.UpdateFlow.restoreReady]).
      */
+    private fun handlePlayIntent(intent: Intent?) {
+        val tmdbId = intent?.getIntExtra("play_tmdb_id", 0) ?: 0
+        if (tmdbId > 0) {
+            val typeStr = intent?.getStringExtra("play_type") ?: "movie"
+            val type = if (typeStr == "tv") com.kaan.play.data.model.MediaType.Tv else com.kaan.play.data.model.MediaType.Movie
+            val season = intent?.getIntExtra("play_season", -1)?.takeIf { it >= 0 }
+            val episode = intent?.getIntExtra("play_episode", -1)?.takeIf { it >= 0 }
+            val title = intent?.getStringExtra("play_title") ?: "Title"
+            val imdbId = intent?.getStringExtra("play_imdb_id")
+            val target = com.kaan.play.data.stream.PlayTarget(
+                request = com.kaan.play.data.stream.StreamRequest(
+                    tmdbId = tmdbId,
+                    imdbId = imdbId,
+                    type = type,
+                    season = season,
+                    episode = episode,
+                    title = title,
+                ),
+                title = title,
+                posterPath = null,
+            )
+            val session = com.kaan.play.ui.player.PlaySession(
+                target = target,
+                stream = null,
+                startPositionMs = 0L,
+                autoResumed = false,
+            )
+            startActivity(session.toIntent(this))
+        }
+    }
+
     private fun handleUpdateIntent(intent: Intent?) {
         if (intent?.action != UpdateNotifications.ACTION_INSTALL) return
         val info = UpdateNotifications.decode(intent.getStringExtra(UpdateNotifications.EXTRA_INFO)) ?: return

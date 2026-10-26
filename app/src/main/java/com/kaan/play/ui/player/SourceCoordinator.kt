@@ -450,14 +450,19 @@ class SourceCoordinator(
             if (result != null) {
                 when (result) {
                     is Probe.Rejected -> {
-                        if (result.reason == Probe.Reason.NotMedia || result.reason == Probe.Reason.Http) {
+                        // NotMedia (HTML hata sayfası / JSON) elenmeli; ancak HLS/DASH manifestleri ya da akış bağlantıları
+                        // (ör. iframe/embed veya Range reddedenler) erken elenmemeli, doğrudan oynatıcıya devredilmelidir.
+                        val isManifest = SourceMediaRules.isStreamingManifest(stream.url, stream.mimeType)
+                        if (result.reason == Probe.Reason.NotMedia && !isManifest) {
                             Log.d(TAG, "kaynak yoklamada elendi (${result.reason}): ${stream.source.addonName} (${StreamLog.hostOf(stream.url)})")
                             eliminate = true
+                        } else {
+                            Log.d(TAG, "kaynak yoklama uyarısı (${result.reason}), oynatıcıya devrediliyor: ${stream.source.addonName}")
                         }
                     }
                     is Probe.Ok -> {
                         result.lengthBytes?.let { len ->
-                            if (!isLive && !SourceMediaRules.isAcceptableSize(len, isMovie)) {
+                            if (!isLive && !SourceMediaRules.isAcceptableSize(len, isMovie, stream.url, stream.mimeType)) {
                                 Log.d(TAG, "kaynak yoklamada elendi (boyut yetersiz: $len bayt): ${stream.source.addonName}")
                                 eliminate = true
                             } else {
@@ -590,7 +595,7 @@ class SourceCoordinator(
         val isLive = request.addonType in listOf("tv", "channel")
         return StreamOwnership.belongs(stream, request) &&
             !verdicts.isRejected(requestKey, stream.url) &&
-            (isLive || SourceMediaRules.isAcceptableSize(size, isMovie))
+            (isLive || SourceMediaRules.isAcceptableSize(size, isMovie, stream.url, stream.mimeType))
     }
 
     /**
@@ -698,7 +703,8 @@ class SourceCoordinator(
         sizes = sizes + (url to bytes)
         val isMovie = request.type == MediaType.Movie
         val isLive = request.addonType in listOf("tv", "channel")
-        if (!isLive && !SourceMediaRules.isAcceptableSize(bytes, isMovie)) {
+        val mimeType = streams.firstOrNull { it.url == url }?.mimeType
+        if (!isLive && !SourceMediaRules.isAcceptableSize(bytes, isMovie, url, mimeType)) {
             Log.d(TAG, "kaynak boyutu çok küçük (sahte kaynak): $url (${bytes}B)")
             verdicts.reject(requestKey, url)
             streams = streams.filterNot { it.url == url }
@@ -811,7 +817,7 @@ class SourceCoordinator(
         private const val TAG = "PlayMatch"
         /** Kaynak değişiminden sonra bu süre içinde gelen ilk kare olayı eski kaynağa aittir. */
         const val STALE_FRAME_GUARD_MS = 300L
-        const val PLAY_PROBE_TIMEOUT_MS = 2_000L
+        const val PLAY_PROBE_TIMEOUT_MS = 5_000L
         const val FIRST_FRAME_TIMEOUT_MS = 10_000L
 
         /** Torrentte üst bilgi ve ilk parçalar için eş bulmak gerekir: 10 sn çoğu zaman yetmez. */

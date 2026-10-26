@@ -1,5 +1,19 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.1.19] — 2026-10-27
+
+### Türkçe
+- **HDFilmCehennemi ve DiziBOX "Hiçbir kaynak açılamadı" Düzeltmesi:** Harici eklentilerde HLS master manifestlerinin (.txt, /hls/) sahte kaynak filtresine takılması giderildi, mime türü tespiti güçlendirildi ve Molystream/Vidmoly çıkarıcı desteği entegre edildi.
+- **Türkçe Dublaj ve Altyazı Önceliklendirme:** Türkçe Dublaj -> Türkçe Altyazı öncelik sıralaması ve orijinal başlık / IMDb ID yedek arama mekanizması iyileştirildi.
+- **Açılış ve Veri Koruması (Trakt / DataStore):** Eski eklenti kalıntılarından kaynaklanan açılış çökmeleri için otomatik temizleme ve koruma sağlandı.
+- **Mükerrer Anahtar (LazyColumn Key) Düzeltmesi:** Oynatıcı kaynak listesindeki negatif ID'lerden kaynaklanan mükerrer anahtar hatası çözüldü.
+
+### English
+- **HDFilmCehennemi & DiziBOX "No source found" Resolution:** Fixed HLS master manifests (.txt, /hls/) being falsely rejected by size validation, improved mime type inference, and added native Molystream/Vidmoly extractors.
+- **Turkish Audio & Subtitle Prioritization:** Refined Turkish Dubbed -> Subtitled ranking rules with robust original title and IMDb ID fallback query chains.
+- **Cold-Start Hardening (Trakt / DataStore):** Automated purging and defensive shielding against legacy plugin leftovers.
+- **Duplicate LazyColumn Key Fix:** Resolved duplicate key crashes in player source selection panels.
+
 ## [1.1.18] — 2026-10-26
 
 ### Türkçe

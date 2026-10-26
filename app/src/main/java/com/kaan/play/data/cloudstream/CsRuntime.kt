@@ -126,7 +126,23 @@ class CsRuntime {
     private suspend fun findMatch(api: MainAPI, identity: ContentIdentity, timeoutMs: Long): MatchCandidate? {
         val collected = LinkedHashMap<String, MatchCandidate>()
         var lastRejections: List<String> = emptyList()
-        for (query in identity.searchQueries()) {
+        val queries = buildList {
+            addAll(identity.searchQueries(max = 5))
+            identity.imdbId?.takeIf { it.startsWith("tt") }?.let { if (it !in this) add(it) }
+            identity.year?.let { y ->
+                val primaryTitle = identity.titles.firstOrNull()?.trim().orEmpty()
+                if (primaryTitle.isNotBlank()) {
+                    val ty = "$primaryTitle $y"
+                    if (ty !in this) add(ty)
+                }
+                val origTitle = identity.titles.drop(1).firstOrNull()?.trim().orEmpty()
+                if (origTitle.isNotBlank() && origTitle != primaryTitle) {
+                    val oy = "$origTitle $y"
+                    if (oy !in this) add(oy)
+                }
+            }
+        }.distinct()
+        for (query in queries) {
             var results = search(api, query, timeoutMs) ?: continue
             if (results.isEmpty()) {
                 val plain = TitleText.plainQuery(query)
@@ -179,6 +195,9 @@ class CsRuntime {
     ): List<PlayableStream> {
         val extApis = com.lagradost.cloudstream3.utils.extractorApis
         val customExts = listOf(
+            com.kaan.play.data.cloudstream.extractors.Molystream(),
+            com.kaan.play.data.cloudstream.extractors.DbxMolystream(),
+            com.kaan.play.data.cloudstream.extractors.MolyTo(),
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("Pichive", "https://four.pichive.online"),
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("Pichive", "https://pichive.online"),
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("Hotlinger", "https://sn.hotlinger.com"),
@@ -191,7 +210,9 @@ class CsRuntime {
         )
         synchronized(extApis) {
             extApis.removeAll {
-                it.mainUrl.contains("hotlinger", ignoreCase = true) ||
+                it.mainUrl.contains("molystream", ignoreCase = true) ||
+                    it.mainUrl.contains("moly.to", ignoreCase = true) ||
+                    it.mainUrl.contains("hotlinger", ignoreCase = true) ||
                     it.mainUrl.contains("pichive", ignoreCase = true) ||
                     it.mainUrl.contains("dplayer", ignoreCase = true) ||
                     it.mainUrl.contains("japierdolevid", ignoreCase = true) ||

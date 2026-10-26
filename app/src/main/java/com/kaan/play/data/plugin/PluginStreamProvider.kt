@@ -107,11 +107,52 @@ class PluginStreamProvider(
         val script = code(plugin.id) ?: return StreamResult.Failed(source, FailureReason.InvalidResponse)
         val outcome = runner.run(script, pluginRequest, plugin.pluginId, limit.inWholeMilliseconds, saved)
         if (outcome is PluginOutcome.Success) {
-            // Tanı: hangi akış geldi (adres yok; ana makine + yol biçimi + parametre özetleri).
-            outcome.streams.take(3).forEach { Log.d(TAG, "${plugin.name}: akış ${StreamLog.fingerprint(it.url)}") }
+            val resolvedStreams = mutableListOf<PluginStream>()
+            for (stream in outcome.streams) {
+                var extractedAny = false
+                val isEmbed = stream.url.contains("/embed/", ignoreCase = true) ||
+                    stream.url.contains("molystream", ignoreCase = true) ||
+                    stream.url.contains("vidmoly", ignoreCase = true)
+                if (isEmbed) {
+                    try {
+                        com.lagradost.cloudstream3.utils.loadExtractor(
+                            url = stream.url,
+                            referer = stream.headers["Referer"] ?: stream.url,
+                            subtitleCallback = {},
+                            callback = { link ->
+                                extractedAny = true
+                                resolvedStreams.add(
+                                    PluginStream(
+                                        url = link.url,
+                                        name = stream.name ?: link.name,
+                                        title = stream.title,
+                                        quality = stream.quality ?: "${link.quality}p",
+                                        size = stream.size,
+                                        language = stream.language,
+                                        headers = buildMap {
+                                            putAll(stream.headers)
+                                            if (link.referer.isNotEmpty()) put("Referer", link.referer)
+                                            putAll(link.headers)
+                                        },
+                                        subtitles = stream.subtitles,
+                                        fileIdx = stream.fileIdx,
+                                        format = if (link.type == com.lagradost.cloudstream3.utils.ExtractorLinkType.M3U8) "hls" else stream.format,
+                                    )
+                                )
+                            }
+                        )
+                    } catch (t: Throwable) {
+                        Log.d(TAG, "${plugin.name}: loadExtractor hata ${t.message}")
+                    }
+                }
+                if (!extractedAny) {
+                    resolvedStreams.add(stream)
+                }
+            }
+            resolvedStreams.take(3).forEach { Log.d(TAG, "${plugin.name}: akış ${StreamLog.fingerprint(it.url)}") }
+            if (resolvedStreams.isNotEmpty()) cache.put(key, resolvedStreams)
+            return found(source, resolvedStreams)
         }
-        // Yalnızca dolu başarılı sonuçlar saklanır: boş/hatalı sonuç (geçici site sorunu) yeniden denenebilsin.
-        if (outcome is PluginOutcome.Success && outcome.streams.isNotEmpty()) cache.put(key, outcome.streams)
         return outcome.toStreamResult(source)
     }
 

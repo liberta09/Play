@@ -58,8 +58,13 @@ class SourceProbe(
         }
         val http = client.newBuilder().callTimeout(timeoutMs, TimeUnit.MILLISECONDS).build()
         val request = Request.Builder().url(httpUrl).get().apply {
+            val hasUa = headers.keys.any { it.equals("User-Agent", ignoreCase = true) }
+            if (!hasUa) header("User-Agent", PlaybackController.DEFAULT_USER_AGENT)
             headers.forEach { (k, v) -> header(k, v) }
-            if (headers.keys.none { it.equals("Range", ignoreCase = true) }) header("Range", "bytes=0-${RANGE_END}")
+            val isStreaming = com.kaan.play.data.stream.SourceMediaRules.isStreamingManifest(url)
+            if (!isStreaming && headers.keys.none { it.equals("Range", ignoreCase = true) }) {
+                header("Range", "bytes=0-${RANGE_END}")
+            }
         }.build()
         try {
             http.newCall(request).await().use { response ->
@@ -107,11 +112,11 @@ class SourceProbe(
             val text = head.trimStart('﻿', ' ', '\t', '\r', '\n')
             val type = contentType?.substringBefore(';')?.trim()?.lowercase(Locale.ROOT).orEmpty()
 
-            if (text.startsWith("#EXTM3U")) {
+            if (text.startsWith("#EXTM3U") || type == "application/vnd.apple.mpegurl" || type == "application/x-mpegurl") {
                 // Korumalı (FairPlay/Widevine/SAMPLE-AES) HLS çevrimdışı çalışmaz; düz AES-128 sorun değildir.
                 return if (isProtectedHls(text)) Probe.Rejected(Probe.Reason.Drm) else Probe.Ok(SourceKind.Hls, null)
             }
-            if (text.startsWith("<") && "<MPD" in text) {
+            if ((text.startsWith("<") && "<MPD" in text) || type == "application/dash+xml") {
                 return if (isProtectedDash(text)) Probe.Rejected(Probe.Reason.Drm) else Probe.Ok(SourceKind.Dash, null)
             }
             // HTML hata sayfası, JSON, düz metin, torrent: indirilecek bir video değil.

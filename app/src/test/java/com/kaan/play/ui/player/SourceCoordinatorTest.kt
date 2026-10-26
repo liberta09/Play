@@ -497,13 +497,13 @@ class SourceCoordinatorTest {
             preferDub = false,
             request = request,
             sourceProbe = { s ->
-                delay(5_000) // 2s zaman aşımını aşıyor
+                delay(10_000) // 5s zaman aşımını aşıyor
                 Probe.Ok(SourceKind.Progressive, s.sizeBytes)
             },
         )
         rig.coordinator.start(null, emptyList(), 0)
         runCurrent()
-        advanceTimeBy(2_100) // 2s probe zaman aşımı
+        advanceTimeBy(5_100) // 5s probe zaman aşımı
 
         // Zaman aşımı durumunda kaynak elenmez ve oynatılmaya başlanır
         assertEquals(listOf(slowStream.url), rig.loaded.map { it.first.url })

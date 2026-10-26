@@ -177,9 +177,10 @@ class AppContainer(context: Context) {
         extApis.removeAll {
             it.mainUrl.contains("hotlinger", ignoreCase = true) ||
             it.mainUrl.contains("pichive", ignoreCase = true) ||
-            it.mainUrl.contains("dplayer", ignoreCase = true)
+            it.mainUrl.contains("dplayer", ignoreCase = true) ||
+            it.mainUrl.contains("molystream", ignoreCase = true)
         }
-        val pichiveExts = listOf(
+        val customExts = listOf(
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("Pichive", "https://four.pichive.online"),
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("Pichive", "https://pichive.online"),
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("Hotlinger", "https://sn.hotlinger.com"),
@@ -187,8 +188,11 @@ class AppContainer(context: Context) {
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("DPlayer", "https://four.dplayer82.site"),
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("DPlayer", "https://sn.dplayer82.site"),
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("DPlayer", "https://dplayer82.site"),
+            com.kaan.play.data.cloudstream.extractors.Molystream(),
+            com.kaan.play.data.cloudstream.extractors.DbxMolystream(),
+            com.kaan.play.data.cloudstream.extractors.MolyTo(),
         )
-        for (ext in pichiveExts) {
+        for (ext in customExts) {
             extApis.add(0, ext)
         }
     }
@@ -420,7 +424,23 @@ class AppContainer(context: Context) {
                     repository = csRepos,
                     runtime = csRuntime,
                     identityResolver = { req ->
-                        runCatching { tmdb.detail(req.type, req.tmdbId).toContentIdentity(req.season, req.episode) }.getOrNull()
+                        val fromTmdb = runCatching { tmdb.detail(req.type, req.tmdbId).toContentIdentity(req.season, req.episode) }.getOrNull()
+                        fromTmdb ?: run {
+                            val title = req.title?.trim()
+                            if (!title.isNullOrBlank()) {
+                                com.kaan.play.data.match.ContentIdentity.of(
+                                    kind = if (req.type == com.kaan.play.data.model.MediaType.Tv) com.kaan.play.data.match.ContentKind.Tv else com.kaan.play.data.match.ContentKind.Movie,
+                                    title = title,
+                                    originalTitle = null,
+                                    alternatives = emptyList(),
+                                    year = req.year,
+                                    tmdbId = req.tmdbId.takeIf { it > 0 },
+                                    imdbId = req.imdbId,
+                                    season = req.season,
+                                    episode = req.episode,
+                                )
+                            } else null
+                        }
                     },
                     timeoutMs = 30_000L,
                 ),

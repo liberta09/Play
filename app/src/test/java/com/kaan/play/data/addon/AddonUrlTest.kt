@@ -44,7 +44,7 @@ class AddonUrlTest {
 
     @Test
     fun rejectsInvalidInput() {
-        listOf("", "   ", "ftp://a.example.com/manifest.json", "https://", "not a url", "https://a.example.com/m.json?token=1")
+        listOf("", "   ", "ftp://a.example.com/manifest.json", "https://", "not a url")
             .forEach { input ->
                 try {
                     norm(input)

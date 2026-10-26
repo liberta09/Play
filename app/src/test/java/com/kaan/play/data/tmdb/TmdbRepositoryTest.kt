@@ -146,7 +146,7 @@ class TmdbRepositoryTest {
         assertEquals(148, d.runtimeMinutes)
         assertEquals(listOf("Bilim Kurgu", "Aksiyon"), d.genres)
         assertEquals("Başlangıç", d.summary.title)
-        assertEquals("external_ids,credits,images,alternative_titles,release_dates", seen.single().queryParameter("append_to_response"))
+        assertEquals("external_ids,credits,images,alternative_titles,similar,recommendations,keywords,videos,release_dates", seen.single().queryParameter("append_to_response"))
         assertEquals("tr,en,null", seen.single().queryParameter("include_image_language"))
         assertEquals(1, seen.size) // Özet dolu: yedek isteği yok.
     }
@@ -392,7 +392,7 @@ class TmdbRepositoryTest {
 
         assertEquals("18+", d.certification)
         assertEquals(listOf("Yaratıcı A", "Yaratıcı B"), d.creators)
-        assertEquals("external_ids,credits,images,alternative_titles,content_ratings", seen.single().queryParameter("append_to_response"))
+        assertEquals("external_ids,credits,images,alternative_titles,similar,recommendations,keywords,videos,content_ratings", seen.single().queryParameter("append_to_response"))
     }
 
     @Test

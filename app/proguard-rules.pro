@@ -58,9 +58,13 @@
 -dontwarn com.fasterxml.jackson.**
 -dontwarn java.beans.**
 
-# ── QuickJS (JNI sembolleri) ────────────────────────────────────────────────────
+# ── QuickJS (JNI sembolleri) & Plugin Runtime ──────────────────────────────────
+-keep class com.dokar.quickjs.** { *; }
+-dontwarn com.dokar.quickjs.**
 -keep class app.cash.quickjs.** { *; }
 -dontwarn app.cash.quickjs.**
+-keep class com.kaan.play.data.plugin.** { *; }
+-dontwarn com.kaan.play.data.plugin.**
 
 # ── Kotlin coroutines ───────────────────────────────────────────────────────────
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}

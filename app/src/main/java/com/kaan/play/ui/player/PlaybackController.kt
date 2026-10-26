@@ -415,7 +415,7 @@ class PlaybackController(
             .build()
 
         ui = ui.copy(error = null, ended = false, buffering = true)
-        val isHls = mime == MimeTypes.APPLICATION_M3U8 || stream.url.lowercase(Locale.ROOT).contains(".m3u8")
+        val isHls = mime == MimeTypes.APPLICATION_M3U8 || stream.url.lowercase(Locale.ROOT).contains(".m3u8") || stream.url.lowercase(Locale.ROOT).contains("/hls/")
         if (isHls && offlineCache == null && !torrent) {
             val hlsExtractorFactory = DefaultHlsExtractorFactory(
                 DefaultTsPayloadReaderFactory.FLAG_ALLOW_NON_IDR_KEYFRAMES or
@@ -613,7 +613,7 @@ class PlaybackController(
         internal fun streamMimeType(url: String): String? {
             val lower = url.lowercase(Locale.ROOT)
             return when {
-                ".m3u8" in lower -> MimeTypes.APPLICATION_M3U8
+                ".m3u8" in lower || "/hls/" in lower || "/txt/" in lower || lower.endsWith(".txt") -> MimeTypes.APPLICATION_M3U8
                 ".mpd" in lower -> MimeTypes.APPLICATION_MPD
                 else -> fileMimeType(lower)
             }

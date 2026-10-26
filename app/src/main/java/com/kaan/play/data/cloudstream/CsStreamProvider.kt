@@ -86,7 +86,7 @@ class CsStreamProvider(
                 gate.withPermit {
                     val source = StreamSource(addonId = plugin.id, addonName = plugin.name)
                     try {
-                        val streams: List<PlayableStream> = withTimeoutOrNull(8000L) {
+                        val streams: List<PlayableStream> = withTimeoutOrNull(timeoutMs) {
                             val apis = repository.loadApis(plugin.id).apisOrEmpty()
                             Log.d(TAG, "${plugin.name}: ${apis.size} MainAPI yüklendi")
                             if (apis.isEmpty()) {
@@ -98,11 +98,15 @@ class CsStreamProvider(
                                     identity = identity,
                                     pluginRowId = plugin.id,
                                     pluginName = plugin.name,
-                                    timeoutMs = 8000L,
+                                    timeoutMs = timeoutMs,
                                 )
                             }
                         } ?: emptyList()
-                        send(StreamResult.Found(source, streams))
+                        if (streams.isNotEmpty()) {
+                            send(StreamResult.Found(source, streams))
+                        } else {
+                            send(StreamResult.Failed(source, FailureReason.Network))
+                        }
                     } catch (t: Throwable) {
                         Log.d(TAG, "${plugin.name}: streams hata ${t.javaClass.simpleName}: ${t.message}")
                         send(StreamResult.Failed(source, FailureReason.Network))
