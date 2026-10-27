@@ -283,7 +283,8 @@ class AppContainer(context: Context) {
     }
 
     val internetSpeedTest: InternetSpeedTest by lazy {
-        InternetSpeedTest(httpClient)
+        // Sade istemci: ortak httpClient'ın ağ koruması/site interceptor'ları ölçümü etkilemesin.
+        InternetSpeedTest()
     }
 
     val repoManagerCatalog: com.kaan.play.data.plugin.RepoManagerCatalog by lazy {

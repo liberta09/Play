@@ -544,4 +544,7 @@
     <string name="provider_error_unexpected">Unexpected error</string>
     <string name="settings_speed_test">Internet speed test</string>
     <string name="settings_speed_test_summary">Measure your current download speed</string>
+    <string name="speed_test_failed">The test couldn\'t finish: %1$s</string>
+    <string name="speed_test_error_unreachable">Couldn\'t reach the server</string>
+    <string name="speed_test_error_timeout">Timed out</string>
 </resources>

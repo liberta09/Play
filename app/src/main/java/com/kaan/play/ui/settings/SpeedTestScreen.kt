@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kaan.play.R
 import com.kaan.play.data.speedtest.InternetSpeedResult
+import com.kaan.play.data.speedtest.SpeedTestError
+import com.kaan.play.data.speedtest.SpeedTestOutcome
 import com.kaan.play.ui.components.ScreenHeader
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.rememberContainer
@@ -48,7 +50,7 @@ fun SpeedTestScreen(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     var running by remember { mutableStateOf(false) }
     var result by remember { mutableStateOf<InternetSpeedResult?>(null) }
-    var failed by remember { mutableStateOf(false) }
+    var failed by remember { mutableStateOf<SpeedTestError?>(null) }
 
     Column(
         modifier = Modifier
@@ -71,9 +73,15 @@ fun SpeedTestScreen(onBack: () -> Unit) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (failed) {
+        failed?.let { error ->
+            val reason = stringResource(
+                when (error) {
+                    SpeedTestError.Unreachable -> R.string.speed_test_error_unreachable
+                    SpeedTestError.Timeout -> R.string.speed_test_error_timeout
+                },
+            )
             Text(
-                text = "Test tamamlanamadı. Bağlantınızı kontrol edip tekrar deneyin.",
+                text = stringResource(R.string.speed_test_failed, reason),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 16.dp),
@@ -90,13 +98,12 @@ fun SpeedTestScreen(onBack: () -> Unit) {
                 if (!running) {
                     scope.launch {
                         running = true
-                        failed = false
+                        failed = null
                         val res = container.internetSpeedTest.runTest()
                         running = false
-                        if (res == null) {
-                            failed = true
-                        } else {
-                            result = res
+                        when (res) {
+                            is SpeedTestOutcome.Failure -> failed = res.error
+                            is SpeedTestOutcome.Success -> result = res.result
                         }
                     }
                 }

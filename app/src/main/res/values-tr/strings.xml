@@ -526,4 +526,7 @@
     <string name="provider_error_unexpected">Beklenmeyen hata</string>
     <string name="settings_speed_test">İnternet hız testi</string>
     <string name="settings_speed_test_summary">Anlık indirme hızını ölç</string>
+    <string name="speed_test_failed">Test tamamlanamadı: %1$s</string>
+    <string name="speed_test_error_unreachable">Sunucuya ulaşılamadı</string>
+    <string name="speed_test_error_timeout">Zaman aşımı</string>
 </resources>
