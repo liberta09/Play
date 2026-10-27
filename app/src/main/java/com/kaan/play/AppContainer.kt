@@ -11,6 +11,10 @@ import com.kaan.play.data.addon.AddonRepository
 import com.kaan.play.data.addon.DefaultCatalogAddons
 import com.kaan.play.data.addon.DefaultSubtitleAddons
 import com.kaan.play.data.addon.OkHttpManifestFetcher
+import com.kaan.play.data.sync.LocalProfileRepository
+import com.kaan.play.data.sync.LocalSyncBackup
+import com.kaan.play.data.sync.SupabaseCloudSync
+import com.kaan.play.data.speedtest.InternetSpeedTest
 import com.kaan.play.data.db.PlayDatabase
 import com.kaan.play.data.download.DownloadCenter
 import com.kaan.play.data.download.DownloadFiles
@@ -210,6 +214,7 @@ class AppContainer(context: Context) {
                 PlayDatabase.MIGRATION_2_3,
                 PlayDatabase.MIGRATION_3_4,
                 PlayDatabase.MIGRATION_4_5,
+                PlayDatabase.MIGRATION_5_6,
             )
             .build()
     }
@@ -232,8 +237,46 @@ class AppContainer(context: Context) {
     /** Medya içeriği yoklaması: indirme öncesi ve oynatma öncesi (HTML/sahte kaynak engeli). */
     val sourceProbe: SourceProbe by lazy { SourceProbe(httpClient) }
 
+    val localProfile: LocalProfileRepository by lazy {
+        LocalProfileRepository(
+            PreferenceDataStoreFactory.create { appContext.preferencesDataStoreFile("profile_sync") }
+        )
+    }
+
+    val localSyncBackup: LocalSyncBackup by lazy {
+        LocalSyncBackup(
+            history = database.watchHistoryDao(),
+            favorites = database.favoriteDao(),
+            profile = localProfile,
+        )
+    }
+
+    val cloudSync: SupabaseCloudSync by lazy {
+        SupabaseCloudSync(
+            appContext = appContext,
+            profiles = localProfile,
+            backups = localSyncBackup,
+            historyDao = database.watchHistoryDao(),
+            favoriteDao = database.favoriteDao(),
+            projectUrl = BuildConfig.SUPABASE_URL,
+            publishableKey = BuildConfig.SUPABASE_PUBLISHABLE_KEY,
+        )
+    }
+
+    val internetSpeedTest: InternetSpeedTest by lazy {
+        InternetSpeedTest(httpClient)
+    }
+
+    val repoManagerCatalog: com.kaan.play.data.plugin.RepoManagerCatalog by lazy {
+        com.kaan.play.data.plugin.RepoManagerCatalog(com.kaan.play.data.addon.OkHttpManifestFetcher(httpClient))
+    }
+
+    val catalogInstallCoordinator: com.kaan.play.data.plugin.CatalogInstallCoordinator by lazy {
+        com.kaan.play.data.plugin.CatalogInstallCoordinator(appScope, sourceInstaller)
+    }
+
     val library: LibraryRepository by lazy {
-        LibraryRepository(database.watchHistoryDao(), database.favoriteDao())
+        LibraryRepository(database.watchHistoryDao(), database.favoriteDao(), localProfile)
     }
 
     /** Etkinliklerden bağımsız işler için (ör. oynatıcı kapanırken konum kaydı tamamlansın). */

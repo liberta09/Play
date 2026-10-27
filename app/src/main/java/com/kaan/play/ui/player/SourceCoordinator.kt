@@ -196,6 +196,8 @@ class SourceCoordinator(
     private val queue = ArrayDeque<PlayableStream>()
     private val probed = HashSet<String>()
     private val probeGate = Semaphore(PROBE_PARALLEL)
+    private var sizeProbeJob: Job? = null
+    private val pendingSizeProbes = LinkedHashMap<String, PlayableStream>()
 
     val isLive: Boolean
         get() = request.addonType in listOf("tv", "channel")
@@ -230,6 +232,13 @@ class SourceCoordinator(
 
     fun sizeOf(stream: PlayableStream): Long? = SourceRanking.sizeOf(stream, sizes)
 
+    fun cancelSizeProbes() {
+        sizeProbeJob?.cancel()
+        sizeProbeJob = null
+        pendingSizeProbes.clear()
+    }
+
+
     // ---- başlatma ----
 
     /**
@@ -237,6 +246,7 @@ class SourceCoordinator(
      * ([autoSource]) kaynaklar aranıp uygun ilki seçilir. [startMs]: kaldığı konum.
      */
     fun start(initial: PlayableStream?, fallbacks: List<PlayableStream>, startMs: Long) {
+        cancelSizeProbes()
         lastStartMs = startMs
         queue.clear()
         queue.addAll(fallbacks.filter(::acceptable))
@@ -426,7 +436,9 @@ class SourceCoordinator(
         Log.d(TAG, "kaynak başlatılıyor: ${stream.source.addonName} (${StreamLog.hostOf(stream.url)})")
 
         val probe = sourceProbe
-        if (probe == null || TorrentLinks.isMagnet(stream.url)) {
+        val isManifest = SourceMediaRules.isStreamingManifest(stream.url, stream.mimeType) ||
+            stream.url.lowercase(java.util.Locale.ROOT).contains(".m3u8")
+        if (probe == null || TorrentLinks.isMagnet(stream.url) || isManifest) {
             startPlayback(stream, startMs)
             return
         }
@@ -506,6 +518,7 @@ class SourceCoordinator(
         if (phase != SourcePhase.Starting) return
         firstFrameJob?.cancel()
         probeJob?.cancel()
+        cancelSizeProbes()
         phase = SourcePhase.Playing
         switching = false
         revertTo = null
@@ -726,17 +739,30 @@ class SourceCoordinator(
     }
 
     private fun probeSizes() {
-        if (isLive || phase != SourcePhase.Resolving) return
+        if (isLive || phase != SourcePhase.Resolving) {
+            cancelSizeProbes()
+            return
+        }
         val targets = buildList {
             current?.let { add(it) }
             addAll(ranked())
         }.distinctBy { it.url }.take(PROBE_LIMIT)
         for (stream in targets) {
-            if (SourceRanking.sizeOf(stream, sizes) != null || !probed.add(stream.url)) continue
+            if (SourceRanking.sizeOf(stream, sizes) != null || probed.contains(stream.url)) continue
             if (!SizeProbing.isProbeable(stream.url, stream.mimeType)) continue
-            scope.launch {
-                val bytes = probeGate.withPermit { withTimeoutOrNull(PROBE_TIMEOUT_MS) { sizeProbe(stream) } }
-                if (bytes != null) reportSize(stream.url, bytes)
+            probed.add(stream.url)
+            pendingSizeProbes[stream.url] = stream
+        }
+        if (sizeProbeJob?.isActive != true && pendingSizeProbes.isNotEmpty()) {
+            sizeProbeJob = scope.launch {
+                val toProbe = pendingSizeProbes.values.toList()
+                pendingSizeProbes.clear()
+                for (stream in toProbe) {
+                    launch {
+                        val bytes = probeGate.withPermit { withTimeoutOrNull(PROBE_TIMEOUT_MS) { sizeProbe(stream) } }
+                        if (bytes != null) reportSize(stream.url, bytes)
+                    }
+                }
             }
         }
     }
@@ -817,13 +843,13 @@ class SourceCoordinator(
         private const val TAG = "PlayMatch"
         /** Kaynak değişiminden sonra bu süre içinde gelen ilk kare olayı eski kaynağa aittir. */
         const val STALE_FRAME_GUARD_MS = 300L
-        const val PLAY_PROBE_TIMEOUT_MS = 5_000L
+        const val PLAY_PROBE_TIMEOUT_MS = 1_500L
         const val FIRST_FRAME_TIMEOUT_MS = 10_000L
 
         /** Torrentte üst bilgi ve ilk parçalar için eş bulmak gerekir: 10 sn çoğu zaman yetmez. */
         const val TORRENT_FIRST_FRAME_TIMEOUT_MS = 40_000L
         const val BATCH_WINDOW_MS = 200L
-        const val FALLBACK_DUB_WAIT_MS = 6_000L
+        const val FALLBACK_DUB_WAIT_MS = 3_500L
         const val PROBE_LIMIT = 24
         const val PROBE_PARALLEL = 6
         const val PROBE_TIMEOUT_MS = 8_000L

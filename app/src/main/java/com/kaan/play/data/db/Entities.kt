@@ -80,14 +80,16 @@ data class PluginEntity(
 @Entity(
     tableName = "watch_history",
     indices = [
-        Index(value = ["tmdbId", "type", "season", "episode"], unique = true),
-        Index("lastWatchedAt"),
+        Index(value = ["userId", "profileId", "tmdbId", "type", "season", "episode"], unique = true),
+        Index(value = ["userId", "profileId", "lastWatchedAt"]),
     ],
 )
 data class WatchHistoryEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val tmdbId: Int,
     val type: MediaType,
+    val userId: String = "legacy-user",
+    val profileId: String = "legacy-profile",
     val season: Int = 0,
     val episode: Int = 0,
     val positionMs: Long,
@@ -164,10 +166,15 @@ data class DownloadEntity(
     val subtitlesJson: String = "[]",
 )
 
-@Entity(tableName = "favorites", primaryKeys = ["tmdbId", "type"])
+@Entity(
+    tableName = "favorites",
+    primaryKeys = ["userId", "profileId", "tmdbId", "type"],
+)
 data class FavoriteEntity(
     val tmdbId: Int,
     val type: MediaType,
+    val userId: String = "legacy-user",
+    val profileId: String = "legacy-profile",
     val title: String,
     val posterPath: String?,
     val addedAt: Long,

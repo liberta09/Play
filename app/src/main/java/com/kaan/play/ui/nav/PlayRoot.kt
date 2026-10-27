@@ -111,10 +111,21 @@ import com.kaan.play.ui.tv.TvScreen
 import com.kaan.play.ui.settings.AboutScreen
 import com.kaan.play.ui.settings.PlayerSettingsScreen
 import com.kaan.play.ui.settings.SettingsScreen
+import com.kaan.play.ui.settings.SpeedTestScreen
+import com.kaan.play.ui.settings.ProfileScreen
+import com.kaan.play.ui.settings.SyncScreen
+import com.kaan.play.ui.settings.ProfileChooserScreen
+import com.kaan.play.ui.settings.ProfileSetupScreen
+import com.kaan.play.ui.addons.RepoManagerCatalogScreen
+import com.kaan.play.data.sync.LocalProfileSummary
 import kotlinx.coroutines.flow.first
 import com.kaan.play.ui.sources.SourcesSheet
 import kotlinx.coroutines.launch
 
+private const val SPEED_TEST_ROUTE = "settings/speed-test"
+private const val PROFILE_ROUTE = "settings/profile"
+private const val SYNC_ROUTE = "settings/sync"
+private const val REPO_MANAGER_CATALOG_ROUTE = "settings/addons/catalog"
 private const val ADDONS_ROUTE = "settings/addons?add={add}"
 private const val ADDONS_REPOS_ROUTE = "settings/addons/repos"
 private const val ADDONS_INSTALLED_ROUTE = "settings/addons/installed"
@@ -173,6 +184,76 @@ fun PlayRoot() {
     val scope = rememberCoroutineScope()
     val backStack by navController.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
+
+    val profiles by container.localProfile.profiles.collectAsStateWithLifecycle(initialValue = emptyList())
+    val activeProfile by container.localProfile.activeProfile.collectAsStateWithLifecycle(initialValue = null)
+    val rememberLastProfile by container.settings.rememberLastProfile.collectAsStateWithLifecycle(initialValue = true)
+    var profileGate by remember { mutableStateOf(false) }
+    var initialGateChecked by remember { mutableStateOf(false) }
+    var showProfileSetup by remember { mutableStateOf(false) }
+    var managingProfiles by remember { mutableStateOf(false) }
+
+    LaunchedEffect(profiles, rememberLastProfile) {
+        if (!initialGateChecked && profiles.isNotEmpty()) {
+            if (!rememberLastProfile || activeProfile == null) {
+                profileGate = true
+            }
+            initialGateChecked = true
+        } else if (!initialGateChecked && profiles.isEmpty()) {
+            profileGate = true
+            initialGateChecked = true
+        }
+    }
+
+    if (showProfileSetup) {
+        ProfileSetupScreen(
+            onCreate = { name, avatar, isChild, pin ->
+                scope.launch {
+                    container.localProfile.createProfile(name, avatar, isChild, pin)
+                    showProfileSetup = false
+                    profileGate = false
+                }
+            },
+            onCancel = {
+                if (profiles.isNotEmpty()) {
+                    showProfileSetup = false
+                }
+            }
+        )
+        return
+    }
+
+    if (profileGate) {
+        ProfileChooserScreen(
+            profiles = profiles,
+            onSelect = { profile ->
+                scope.launch {
+                    container.localProfile.selectProfile(profile.id)
+                    profileGate = false
+                }
+            },
+            isAdmin = true,
+            managingProfiles = managingProfiles,
+            onToggleManage = { managingProfiles = !managingProfiles },
+            onCreateProfile = { showProfileSetup = true },
+            onToggleHidden = { profile ->
+                scope.launch {
+                    container.localProfile.setHidden(profile.id, !profile.isHidden)
+                }
+            },
+            onDeleteProfile = { profile ->
+                scope.launch {
+                    container.localProfile.deleteProfile(profile.id)
+                }
+            },
+            onEditProfile = { profile, name, avatar, isChild, pin ->
+                scope.launch {
+                    container.localProfile.updateProfile(profile.id, name, avatar, isChild, pin)
+                }
+            }
+        )
+        return
+    }
 
     fun openTab(tab: Tab) {
         if (tab == Tab.Home) {
@@ -478,6 +559,9 @@ fun PlayRoot() {
                     SettingsScreen(
                         onOpenAddons = { navController.navigate(addonsRoute(false)) },
                         onOpenPlayer = { navController.navigate(PLAYER_SETTINGS_ROUTE) },
+                        onOpenSpeedTest = { navController.navigate(SPEED_TEST_ROUTE) },
+                        onOpenProfile = { profileGate = true },
+                        onOpenSync = { navController.navigate(SYNC_ROUTE) },
                         onOpenAbout = { navController.navigate(ABOUT_ROUTE) },
                     )
                 }
@@ -496,6 +580,7 @@ fun PlayRoot() {
                         onOpenCsRepos = { navController.navigate(CS_REPOS_ROUTE) },
                         onOpenNuvioRepos = { navController.navigate(NUVIO_REPOS_ROUTE) },
                         onOpenNuvioPlugins = { navController.navigate(NUVIO_PLUGINS_ROUTE) },
+                        onOpenCatalog = { navController.navigate(REPO_MANAGER_CATALOG_ROUTE) },
                     )
                 }
             }
@@ -556,6 +641,29 @@ fun PlayRoot() {
                 }
             }
             composable(ABOUT_ROUTE) { ReadableWidth { AboutScreen(onBack = { navController.popBackStack() }) } }
+            composable(SPEED_TEST_ROUTE) {
+                ReadableWidth {
+                    SpeedTestScreen(onBack = { navController.popBackStack() })
+                }
+            }
+            composable(PROFILE_ROUTE) {
+                ReadableWidth {
+                    ProfileScreen(onBack = { navController.popBackStack() })
+                }
+            }
+            composable(SYNC_ROUTE) {
+                ReadableWidth {
+                    SyncScreen(onBack = { navController.popBackStack() })
+                }
+            }
+            composable(REPO_MANAGER_CATALOG_ROUTE) {
+                ReadableWidth {
+                    RepoManagerCatalogScreen(
+                        onBack = { navController.popBackStack() },
+                        container = container,
+                    )
+                }
+            }
             composable(
                 route = DETAIL_ROUTE,
                 arguments = listOf(

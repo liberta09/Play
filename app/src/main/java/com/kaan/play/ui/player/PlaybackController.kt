@@ -366,9 +366,7 @@ class PlaybackController(
             return
         }
         if (!isSurfaceReady) {
-            Log.d("PlaybackController", "Yüzey henüz hazır değil, oynatma yüzey hazır olana kadar bekletiliyor.")
-            pendingLoad = { load(stream, startMs) }
-            return
+            Log.d("PlaybackController", "Yüzey henüz hazır değil; erken arabelleğe alma (optimistic buffering) ile ExoPlayer hazırlanıyor.")
         }
         stallTracker.reset(stream.source.addonName)
         activeHttpSession.cookieJar.clear()
@@ -443,8 +441,7 @@ class PlaybackController(
             return
         }
         if (!isSurfaceReady) {
-            pendingLoad = { loadDownloaded(item, startMs) }
-            return
+            Log.d("PlaybackController", "Yüzey henüz hazır değil; indirilen içerik erken hazırlanıyor.")
         }
         player.stop()
         player.clearMediaItems()

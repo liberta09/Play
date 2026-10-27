@@ -112,12 +112,12 @@ class SourceCoordinatorTest {
     }
 
     @Test
-    fun openingDubWaitPrefersDubbedArrivingAtFiveSeconds() = runTest {
+    fun openingDubWaitPrefersDubbedArrivingAtTwoSeconds() = runTest {
         val sub = stream(source1, "https://a/sub")
         val dub = stream(source2, "https://b/dub", dub = true, res = 720)
         val rig = Rig(this, flow {
             emit(found(source1, sub))
-            delay(5_000)
+            delay(2_000)
             emit(found(source2, dub))
             delay(60_000)
         }, preferDub = true, request = request)
@@ -127,12 +127,12 @@ class SourceCoordinatorTest {
         assertEquals(SourcePhase.Resolving, rig.coordinator.phase)
         assertTrue(rig.loaded.isEmpty())
 
-        // 3.5 sn'de (eski 3 sn beklemesi aşılmışken) henüz altyazılı başlamamalı, 8 sn beklenmeli
-        advanceTimeBy(3_500)
-        assertTrue("3.5 sn'de altyazılı başlamamalı, dublaj beklenmeli", rig.loaded.isEmpty())
+        // 1.5 sn'de henüz altyazılı başlamamalı, dublaj beklenmeli
+        advanceTimeBy(1_500)
+        assertTrue("1.5 sn'de altyazılı başlamamalı, dublaj beklenmeli", rig.loaded.isEmpty())
 
-        // 5 sn'de dublajlı kaynak gelince dublajlı başlamalı
-        advanceTimeBy(1_600)
+        // 2 sn'de dublajlı kaynak gelince dublajlı başlamalı
+        advanceTimeBy(600)
         assertEquals(listOf("https://b/dub"), rig.loaded.map { it.first.url })
         assertEquals(SourcePhase.Starting, rig.coordinator.phase)
     }

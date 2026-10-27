@@ -542,4 +542,6 @@
     <string name="provider_error_meta_not_found">Meta information not found</string>
     <string name="provider_error_content_load_failed">Content could not be loaded</string>
     <string name="provider_error_unexpected">Unexpected error</string>
+    <string name="settings_speed_test">Internet speed test</string>
+    <string name="settings_speed_test_summary">Measure your current download speed</string>
 </resources>

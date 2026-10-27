@@ -267,6 +267,6 @@ class StartPolicy(private val preferDub: Boolean, private val dubWaitMs: Long = 
     }
 
     companion object {
-        const val DUB_WAIT_MS = 8_000L
+        const val DUB_WAIT_MS = 3_500L
     }
 }

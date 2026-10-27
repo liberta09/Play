@@ -524,4 +524,6 @@
     <string name="provider_error_meta_not_found">Meta bilgisi bulunamadı</string>
     <string name="provider_error_content_load_failed">İçerik yüklenemedi</string>
     <string name="provider_error_unexpected">Beklenmeyen hata</string>
+    <string name="settings_speed_test">İnternet hız testi</string>
+    <string name="settings_speed_test_summary">Anlık indirme hızını ölç</string>
 </resources>

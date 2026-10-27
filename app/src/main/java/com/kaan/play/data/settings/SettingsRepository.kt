@@ -72,6 +72,13 @@ class SettingsRepository(val store: DataStore<Preferences>) {
     /** Açıkken yarım kalan içerik soru sorulmadan kaldığı yerden başlar. Varsayılan açık. */
     val alwaysResume: Flow<Boolean> = store.data.map { it[ALWAYS_RESUME] ?: DEFAULT_ALWAYS_RESUME }
 
+    val rememberLastProfile: Flow<Boolean> =
+        store.data.map { it[REMEMBER_LAST_PROFILE] ?: DEFAULT_REMEMBER_LAST_PROFILE }.distinctUntilChanged()
+
+    suspend fun setRememberLastProfile(remember: Boolean) {
+        store.edit { it[REMEMBER_LAST_PROFILE] = remember }
+    }
+
     /** Açıkken film/bölüm açılınca kaynak listesi beklenmez: uygun ilk kaynakla oynatma başlar. Varsayılan açık. */
     val autoSource: Flow<Boolean> = store.data.map { it[AUTO_SOURCE] ?: DEFAULT_AUTO_SOURCE }.distinctUntilChanged()
 
@@ -232,6 +239,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         val DEFAULT_THEME = ThemeMode.Dark
         const val DEFAULT_TIMEOUT_SECONDS = 15
         const val DEFAULT_ALWAYS_RESUME = true
+        const val DEFAULT_REMEMBER_LAST_PROFILE = true
         const val DEFAULT_DOWNLOAD_WIFI_ONLY = true
         const val DEFAULT_AUTO_NEXT = true
         const val DEFAULT_AUTO_TRANSLATE_SUBS = true
@@ -247,6 +255,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val POSTER_URL_TEMPLATE = stringPreferencesKey("poster_url_template")
         private val TIMEOUT = intPreferencesKey("source_timeout_seconds")
         private val ALWAYS_RESUME = booleanPreferencesKey("always_resume")
+        private val REMEMBER_LAST_PROFILE = booleanPreferencesKey("remember_last_profile")
         private val TORRENT_SERVER = stringPreferencesKey("torrent_server")
         private val DOWNLOAD_WIFI_ONLY = booleanPreferencesKey("download_wifi_only")
         private val AUTO_NEXT = booleanPreferencesKey("auto_next")

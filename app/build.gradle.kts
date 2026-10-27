@@ -30,6 +30,14 @@ val telegramChatId: String = localProps.getProperty("TELEGRAM_CHAT_ID")
     ?: System.getenv("TELEGRAM_CHAT_ID")
     ?: ""
 
+val supabaseUrl: String = (localProps.getProperty("SUPABASE_URL")
+    ?: System.getenv("SUPABASE_URL")
+    ?: "").trim()
+
+val supabasePublishableKey: String = (localProps.getProperty("SUPABASE_PUBLISHABLE_KEY")
+    ?: System.getenv("SUPABASE_PUBLISHABLE_KEY")
+    ?: "").trim()
+
 android {
     namespace = "com.kaan.play"
     compileSdk = 37
@@ -38,8 +46,8 @@ android {
         applicationId = "com.kaan.play"
         minSdk = 24
         targetSdk = 37
-        versionCode = 25
-        versionName = "1.1.19"
+        versionCode = 26
+        versionName = "1.1.20"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -50,6 +58,8 @@ android {
         buildConfigField("String", "SUBDL_API_KEY", "\"$subdlApiKey\"")
         buildConfigField("String", "TELEGRAM_BOT_TOKEN", "\"$telegramBotToken\"")
         buildConfigField("String", "TELEGRAM_CHAT_ID", "\"$telegramChatId\"")
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"$supabasePublishableKey\"")
     }
 
     // Yayın imzası: keystore yolu repoda, şifreler yalnızca local.properties'te (ya da ortam değişkeninde).

@@ -96,6 +96,7 @@ fun AddonsScreen(
     onOpenCsRepos: () -> Unit,
     onOpenNuvioRepos: () -> Unit,
     onOpenNuvioPlugins: () -> Unit,
+    onOpenCatalog: () -> Unit = {},
 ) {
     val vm = containerViewModel { AddonsViewModel(it.sourceInstaller, it.addons, it.pendingAddonUrl) }
     val dialog by vm.dialog.collectAsStateWithLifecycle()
@@ -185,6 +186,16 @@ fun AddonsScreen(
                     iconTint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.focusMemory(focus, "installed"),
                     onClick = onOpenInstalled,
+                )
+            }
+            item {
+                com.kaan.play.ui.components.PlayCardRow(
+                    title = "Depo Kataloğu",
+                    subtitle = "Topluluk depolarını keşfet ve tek tıkla yükle",
+                    icon = PlayIcons.Library,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.focusMemory(focus, "catalog"),
+                    onClick = onOpenCatalog,
                 )
             }
             item {
