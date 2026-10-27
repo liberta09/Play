@@ -26,6 +26,7 @@ import com.kaan.play.ui.update.UpdateDialog
 import com.kaan.play.ui.announcement.AnnouncementDialog
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 // AppCompatActivity: uygulama başına dil (AppCompatDelegate.setApplicationLocales) için gerekli.
@@ -40,7 +41,19 @@ class MainActivity : AppCompatActivity() {
         val debugEndpoint = if (BuildConfig.DEBUG) intent.getStringExtra("play_update_endpoint") else null
         container.updateChecker.checkOnce(container.appScope, debugEndpoint)
         val debugAnnounce = if (BuildConfig.DEBUG) intent.getStringExtra("play_announcements_endpoint") else null
-        container.announcementChecker.checkOnce(container.appScope, container.updateChecker, debugAnnounce)
+        container.announcementChecker.checkOnce(container.appScope, container.updateChecker, debugAnnounce)
+
+        // SubtitleDao / CursorWindow koruma ve onbellek budama kalkani
+        container.appScope.launch(Dispatchers.IO) {
+            try {
+                container.subtitleMemory.pruneAll()
+            } catch (t: Throwable) {
+                android.util.Log.e("MainActivity", "Altyazi onbellek kontrol hatasi: ${t.message}", t)
+                if (t.javaClass.name.contains("CursorWindow") || t is android.database.sqlite.SQLiteException) {
+                    runCatching { container.database.subtitleDao().clearAll() }
+                }
+            }
+        }
         // Yalnızca debug derlemede, sahte altyazı servisiyle denemek için: --es play_subs_endpoint http://host:port (SubDL + OpenSubtitles).
         if (BuildConfig.DEBUG) {
             intent.getStringExtra("play_subs_endpoint")?.let { DebugEndpoints.subsBase = it.trimEnd('/') }

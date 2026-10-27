@@ -7,6 +7,8 @@ import android.util.Log
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kaan.play.data.addon.AddonRepository
 import com.kaan.play.data.addon.DefaultCatalogAddons
 import com.kaan.play.data.addon.DefaultSubtitleAddons
@@ -216,6 +218,23 @@ class AppContainer(context: Context) {
                 PlayDatabase.MIGRATION_4_5,
                 PlayDatabase.MIGRATION_5_6,
             )
+            .addCallback(object : RoomDatabase.Callback() {
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    super.onOpen(db)
+                    try {
+                        db.execSQL("DELETE FROM subtitle_offset WHERE rowid NOT IN (SELECT rowid FROM subtitle_offset ORDER BY updatedAt DESC LIMIT 500)")
+                        db.execSQL("DELETE FROM subtitle_language WHERE rowid NOT IN (SELECT rowid FROM subtitle_language ORDER BY updatedAt DESC LIMIT 500)")
+                    } catch (t: Throwable) {
+                        Log.e("PlayDatabase", "Subtitle onOpen budama hatasi: ${t.message}", t)
+                        if (t.javaClass.name.contains("CursorWindow") || t is android.database.sqlite.SQLiteException) {
+                            runCatching {
+                                db.execSQL("DELETE FROM subtitle_offset")
+                                db.execSQL("DELETE FROM subtitle_language")
+                            }
+                        }
+                    }
+                }
+            })
             .build()
     }
 

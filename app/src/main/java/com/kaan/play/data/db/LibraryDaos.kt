@@ -102,13 +102,13 @@ interface WatchHistoryDao {
 @Dao
 interface SubtitleDao {
 
-    @Query("SELECT language FROM subtitle_language WHERE contentKey = :contentKey")
+    @Query("SELECT language FROM subtitle_language WHERE contentKey = :contentKey LIMIT 1")
     suspend fun language(contentKey: String): String?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun putLanguage(entity: SubtitleLanguageEntity)
 
-    @Query("SELECT offsetMs FROM subtitle_offset WHERE contentKey = :contentKey AND subtitleKey = :subtitleKey")
+    @Query("SELECT offsetMs FROM subtitle_offset WHERE contentKey = :contentKey AND subtitleKey = :subtitleKey LIMIT 1")
     suspend fun offset(contentKey: String, subtitleKey: String): Long?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -123,6 +123,29 @@ interface SubtitleDao {
             "(SELECT rowid FROM subtitle_offset ORDER BY updatedAt DESC LIMIT :keep)",
     )
     suspend fun pruneOffsets(keep: Int)
+
+    /** Tablo sınırsız büyümesin: en yeni [keep] dil tercihi kalır. */
+    @Query(
+        "DELETE FROM subtitle_language WHERE rowid NOT IN " +
+            "(SELECT rowid FROM subtitle_language ORDER BY updatedAt DESC LIMIT :keep)",
+    )
+    suspend fun pruneLanguages(keep: Int)
+
+    @Query("DELETE FROM subtitle_offset")
+    suspend fun clearOffsets()
+
+    @Query("DELETE FROM subtitle_language")
+    suspend fun clearLanguages()
+
+    @androidx.room.Transaction
+    suspend fun clearAll() {
+        clearOffsets()
+        clearLanguages()
+    }
+
+    suspend fun deleteAll() {
+        clearAll()
+    }
 }
 
 @Dao

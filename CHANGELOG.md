@@ -7,14 +7,18 @@
 - **Supabase Bulut Hesabı ve Senkronizasyon (Cloud Sync):** E-posta ile giriş yaparak tüm izleme geçmişi ve favorilerin cihazlar arasında otomatik ve çift yönlü senkronizasyonu sağlandı.
 - **İnternet Hız Testi (Speed Test):** Ayarlar ekranına anlık indirme hızını (Mbps) hassas ve hızlı ölçen entegre hız testi aracı eklendi.
 - **Android TV Box Window / DecorView Zırhlaması:** Özel Android TV Box ROM'larında onCreate esnasında oluşan Window couldn't find content container view ve getChildAt (NullPointerException) açılış çökmeleri enableEdgeToEdge, WindowCompat ve WindowInsetsController erişimleri zırhlanarak çözüldü.
-- **CrashReporter (Blackbox) Rapor Formatı Güçlendirildi:** Telegram hata bildirimlerine sürüm (1.1.20 (26)) ve cihaz donanım bilgisi eklendi; stack trace kesilirken en kritik kısım olan Caused by: / [Root Cause] kök hata satırlarının kaybolması engellendi.
+- **CrashReporter (Blackbox) Rapor Formatı Güçlendirildi:** Telegram hata bildirimlerine sürüm (1.1.20 (26)) ve cihaz donanım bilgisi eklendi; stack trace kesilirken en kritik kısım olan Caused by: / [Root Cause] kök hata satırlarının kaybolması engellendi.
+- **SubtitleDao CursorWindow (2MB) Zırhlaması ve Otomatik Budama:** Vestel Android TV ve düşük bellekli cihazlarda altyazı tablolarının CursorWindow limitini aşmasını önlemek için SubtitleDao sorgularına LIMIT 1 eklendi, otomatik budama ve CursorWindow/SQLiteException anında tabloyu otomatik sıfırlayan koruma kalkanı getirildi.
+- **Doğrudan APK İndirme Bağlantısı:** "Son sürümü indir" ve güncelleme pencerelerinin GitHub web sayfası yerine doğrudan APK indirme bağlantısını (`/releases/download/.../Play-1.1.20.apk`) açması sağlandı.
 
 ### English
 - **Multi-Profile Management:** Enabled full multi-profile support (custom names, avatars, color palettes) with per-profile watch history and favorites isolation (Room Migration 5->6). Added a "Remember last profile" toggle for instant startup.
 - **Supabase Cloud Sync:** Integrated email-based cloud synchronization for seamless two-way backup and sync of watch history and bookmarks across all devices.
 - **Integrated Speed Test:** Added a network download speed test tool in settings for real-time bandwidth diagnostic.
 - **Android TV Box Window / DecorView Hardening:** Armored enableEdgeToEdge, WindowCompat, and WindowInsetsController against Window couldn't find content container view and getChildAt crashes on non-standard AOSP TV Box firmware.
-- **CrashReporter Telemetry Enhancement:** Included detailed version (1.1.20 (26)) and device hardware details in Telegram crash reports; preserved root cause (Caused by:) exception frames during stack trace truncation.
+- **CrashReporter Telemetry Enhancement:** Included detailed version (1.1.20 (26)) and device hardware details in Telegram crash reports; preserved root cause (Caused by:) exception frames during stack trace truncation.
+- **SubtitleDao CursorWindow (2MB) Armor & Auto-Pruning:** Mitigated CursorWindowAllocationException crashes on Vestel Android TVs and low-memory devices via query LIMITs, automatic DB pruning, and fallback cache resets.
+- **Direct APK Download URLs:** Ensured in-app update checks and "Download latest" actions directly open the binary APK download stream instead of the GitHub web release page.
 
 ## [1.1.19] — 2026-10-27
 

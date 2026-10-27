@@ -18,37 +18,37 @@ import kotlinx.coroutines.flow.map
 class LibraryRepository(
     private val history: WatchHistoryDao,
     private val favorites: FavoriteDao,
-    private val profile: LocalProfileRepository,
+    private val profile: LocalProfileRepository? = null,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
-    private val userFlow: Flow<String> = profile.userId.map { it.ifEmpty { "legacy-user" } }
-    private val profileFlow: Flow<String> = profile.id.map { it.ifEmpty { "legacy-profile" } }
+    private val userFlow: Flow<String> = profile?.userId?.map { it.ifEmpty { "legacy-user" } } ?: kotlinx.coroutines.flow.flowOf("legacy-user")
+    private val profileFlow: Flow<String> = profile?.id?.map { it.ifEmpty { "legacy-profile" } } ?: kotlinx.coroutines.flow.flowOf("legacy-profile")
 
     private suspend fun scope(): Pair<String, String> {
-        val u = profile.userId.first().ifEmpty { "legacy-user" }
-        val p = profile.id.first().ifEmpty { "legacy-profile" }
+        val u = profile?.userId?.first()?.ifEmpty { "legacy-user" } ?: "legacy-user"
+        val p = profile?.id?.first()?.ifEmpty { "legacy-profile" } ?: "legacy-profile"
         return Pair(u, p)
     }
 
     /** Her içeriğin (film/dizi) en son kaydı, yeniden eskiye. */
-    val latestPerContent: Flow<List<WatchHistoryEntity>> = profile.activeProfile.flatMapLatest { p ->
-        val u = p?.id?.let { profile.userId.first().ifEmpty { "legacy-user" } } ?: "legacy-user"
+    val latestPerContent: Flow<List<WatchHistoryEntity>> = profile?.activeProfile?.flatMapLatest { p ->
+        val u = p?.id?.let { profile?.userId?.first()?.ifEmpty { "legacy-user" } } ?: "legacy-user"
         val profId = p?.id ?: "legacy-profile"
         history.observeLatestPerContent(u, profId)
-    }
+    } ?: history.observeLatestPerContent("legacy-user", "legacy-profile")
 
     /** Geçmiş ekranı: her kayıt ayrı (film, dizide her bölüm), son izlenen üstte. */
-    val watchHistory: Flow<List<WatchHistoryEntity>> = profile.activeProfile.flatMapLatest { p ->
-        val u = p?.id?.let { profile.userId.first().ifEmpty { "legacy-user" } } ?: "legacy-user"
+    val watchHistory: Flow<List<WatchHistoryEntity>> = profile?.activeProfile?.flatMapLatest { p ->
+        val u = p?.id?.let { profile?.userId?.first()?.ifEmpty { "legacy-user" } } ?: "legacy-user"
         val profId = p?.id ?: "legacy-profile"
         history.observeHistory(u, profId)
-    }
+    } ?: history.observeHistory("legacy-user", "legacy-profile")
 
-    val allFavorites: Flow<List<FavoriteEntity>> = profile.activeProfile.flatMapLatest { p ->
-        val u = p?.id?.let { profile.userId.first().ifEmpty { "legacy-user" } } ?: "legacy-user"
+    val allFavorites: Flow<List<FavoriteEntity>> = profile?.activeProfile?.flatMapLatest { p ->
+        val u = p?.id?.let { profile?.userId?.first()?.ifEmpty { "legacy-user" } } ?: "legacy-user"
         val profId = p?.id ?: "legacy-profile"
         favorites.observeAll(u, profId)
-    }
+    } ?: favorites.observeAll("legacy-user", "legacy-profile")
 
     suspend fun removeFavorite(type: MediaType, tmdbId: Int) {
         val (u, p) = scope()
@@ -65,11 +65,12 @@ class LibraryRepository(
         history.clear(u, p)
     }
 
-    fun isFavorite(type: MediaType, tmdbId: Int): Flow<Boolean> = profile.activeProfile.flatMapLatest { p ->
-        val u = p?.id?.let { profile.userId.first().ifEmpty { "legacy-user" } } ?: "legacy-user"
-        val profId = p?.id ?: "legacy-profile"
-        favorites.observeIsFavorite(u, profId, tmdbId, type)
-    }
+    fun isFavorite(type: MediaType, tmdbId: Int): Flow<Boolean> =
+        profile?.activeProfile?.flatMapLatest { p ->
+            val u = p?.id?.let { profile?.userId?.first()?.ifEmpty { "legacy-user" } } ?: "legacy-user"
+            val profId = p?.id ?: "legacy-profile"
+            favorites.observeIsFavorite(u, profId, tmdbId, type)
+        } ?: favorites.observeIsFavorite("legacy-user", "legacy-profile", tmdbId, type)
 
     suspend fun setFavorite(media: MediaSummary, favorite: Boolean) {
         val (u, p) = scope()

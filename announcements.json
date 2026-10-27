@@ -12,7 +12,7 @@
       "id": "2026-10-27-play-1119",
       "title": "🎉 Play 1.1.19 yayında!",
       "message": "HDFilmCehennemi ve DiziBOX kaynak optimizasyonları ve oynatma iyileştirmeleri yapıldı. 🍿🎬",
-      "link": "https://github.com/liberta09/Play/releases/tag/v1.1.19",
+      "link": "https://github.com/liberta09/Play/releases/download/v1.1.19/Play-1.1.19.apk",
       "minVersion": "1.1.19",
       "until": "2026-12-31"
     },
@@ -20,7 +20,7 @@
       "id": "2026-10-26-play-1118",
       "title": "🎉 Play 1.1.18 yayında!",
       "message": "DataStore/Trakt koruma kalkanı ve oynatıcı kaynak listesi kararlılık düzeltmeleri yapıldı. 🍿🎬",
-      "link": "https://github.com/liberta09/Play/releases/tag/v1.1.18",
+      "link": "https://github.com/liberta09/Play/releases/download/v1.1.18/Play-1.1.18.apk",
       "minVersion": "1.1.18",
       "until": "2026-12-31"
     },

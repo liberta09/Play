@@ -29,8 +29,9 @@ private class FakeHistoryDao : WatchHistoryDao {
     val rows = MutableStateFlow<List<WatchHistoryEntity>>(emptyList())
     private var nextId = 1L
 
-    override fun observeLatestPerContent(): Flow<List<WatchHistoryEntity>> = rows.map { list ->
-        list.filter { h -> h.lastWatchedAt == list.filter { it.tmdbId == h.tmdbId && it.type == h.type }.maxOf { it.lastWatchedAt } }
+    override fun observeLatestPerContent(userId: String, profileId: String): Flow<List<WatchHistoryEntity>> = rows.map { list ->
+        list.filter { it.userId == userId && it.profileId == profileId }
+            .filter { h -> h.lastWatchedAt == list.filter { it.userId == userId && it.profileId == profileId && it.tmdbId == h.tmdbId && it.type == h.type }.maxOf { it.lastWatchedAt } }
             .filter { it.durationMs > 0 }
             .sortedByDescending { it.lastWatchedAt }
             .take(30)
@@ -39,38 +40,79 @@ private class FakeHistoryDao : WatchHistoryDao {
     override suspend fun upsert(entity: WatchHistoryEntity) {
         val kept = rows.value.filterNot {
             it.id == entity.id && entity.id != 0L ||
-                (it.tmdbId == entity.tmdbId && it.type == entity.type && it.season == entity.season && it.episode == entity.episode)
+                (it.userId == entity.userId && it.profileId == entity.profileId && it.tmdbId == entity.tmdbId && it.type == entity.type && it.season == entity.season && it.episode == entity.episode)
         }
         rows.value = kept + entity.copy(id = if (entity.id != 0L) entity.id else nextId++)
     }
 
-    override fun observeHistory(): Flow<List<WatchHistoryEntity>> = rows.map { list ->
-        list.sortedWith(compareByDescending<WatchHistoryEntity> { it.lastWatchedAt }.thenByDescending { it.id }).take(200)
+    override fun observeHistory(userId: String, profileId: String): Flow<List<WatchHistoryEntity>> = rows.map { list ->
+        list.filter { it.userId == userId && it.profileId == profileId }
+            .sortedWith(compareByDescending<WatchHistoryEntity> { it.lastWatchedAt }.thenByDescending { it.id }).take(200)
     }
 
-    override suspend fun delete(id: Long) {
-        rows.value = rows.value.filterNot { it.id == id }
+    override suspend fun all(userId: String, profileId: String): List<WatchHistoryEntity> =
+        rows.value.filter { it.userId == userId && it.profileId == profileId }
+            .sortedWith(compareByDescending<WatchHistoryEntity> { it.lastWatchedAt }.thenByDescending { it.id })
+
+    override suspend fun delete(userId: String, profileId: String, id: Long) {
+        rows.value = rows.value.filterNot { it.id == id && it.userId == userId && it.profileId == profileId }
     }
 
-    override suspend fun clear() {
-        rows.value = emptyList()
+    override suspend fun deleteForMedia(userId: String, profileId: String, tmdbId: Int, type: String) {
+        rows.value = rows.value.filterNot { it.userId == userId && it.profileId == profileId && it.tmdbId == tmdbId && it.type.name.equals(type, ignoreCase = true) }
     }
 
-    override suspend fun find(tmdbId: Int, type: MediaType, season: Int, episode: Int) =
-        rows.value.firstOrNull { it.tmdbId == tmdbId && it.type == type && it.season == season && it.episode == episode }
+    override suspend fun clear(userId: String, profileId: String) {
+        rows.value = rows.value.filterNot { it.userId == userId && it.profileId == profileId }
+    }
+
+    override suspend fun find(userId: String, profileId: String, tmdbId: Int, type: MediaType, season: Int, episode: Int) =
+        rows.value.firstOrNull { it.userId == userId && it.profileId == profileId && it.tmdbId == tmdbId && it.type == type && it.season == season && it.episode == episode }
+
+    override suspend fun adoptLegacy(userId: String, profileId: String) {
+        rows.value = rows.value.map {
+            if (it.userId == "legacy-user") it.copy(userId = userId, profileId = profileId) else it
+        }
+    }
+
+    override suspend fun markFinished(userId: String, profileId: String, id: Long, lastWatchedAt: Long) {
+        rows.value = rows.value.map {
+            if (it.id == id && it.userId == userId && it.profileId == profileId && it.durationMs > 0) {
+                it.copy(positionMs = it.durationMs, lastWatchedAt = lastWatchedAt)
+            } else it
+        }
+    }
 }
 
 /** Room'un REPLACE davranışını taklit eden bellek içi favori DAO'su. */
 private class FakeFavorites : FavoriteDao {
     val rows = MutableStateFlow<List<FavoriteEntity>>(emptyList())
-    override fun observeAll(): Flow<List<FavoriteEntity>> = rows.map { it.sortedByDescending { f -> f.addedAt } }
-    override fun observeIsFavorite(tmdbId: Int, type: MediaType): Flow<Boolean> =
-        rows.map { list -> list.any { it.tmdbId == tmdbId && it.type == type } }
+
+    override fun observeAll(userId: String, profileId: String): Flow<List<FavoriteEntity>> =
+        rows.map { list -> list.filter { it.userId == userId && it.profileId == profileId }.sortedByDescending { f -> f.addedAt } }
+
+    override suspend fun all(userId: String, profileId: String): List<FavoriteEntity> =
+        rows.value.filter { it.userId == userId && it.profileId == profileId }.sortedByDescending { f -> f.addedAt }
+
+    override fun observeIsFavorite(userId: String, profileId: String, tmdbId: Int, type: MediaType): Flow<Boolean> =
+        rows.map { list -> list.any { it.userId == userId && it.profileId == profileId && it.tmdbId == tmdbId && it.type == type } }
+
     override suspend fun add(entity: FavoriteEntity) {
-        rows.value = rows.value.filterNot { it.tmdbId == entity.tmdbId && it.type == entity.type } + entity
+        rows.value = rows.value.filterNot { it.userId == entity.userId && it.profileId == entity.profileId && it.tmdbId == entity.tmdbId && it.type == entity.type } + entity
     }
-    override suspend fun remove(tmdbId: Int, type: MediaType) {
-        rows.value = rows.value.filterNot { it.tmdbId == tmdbId && it.type == type }
+
+    override suspend fun remove(userId: String, profileId: String, tmdbId: Int, type: MediaType) {
+        rows.value = rows.value.filterNot { it.userId == userId && it.profileId == profileId && it.tmdbId == tmdbId && it.type == type }
+    }
+
+    override suspend fun adoptLegacy(userId: String, profileId: String) {
+        rows.value = rows.value.map {
+            if (it.userId == "legacy-user") it.copy(userId = userId, profileId = profileId) else it
+        }
+    }
+
+    override suspend fun clear(userId: String, profileId: String) {
+        rows.value = rows.value.filterNot { it.userId == userId && it.profileId == profileId }
     }
 }
 
@@ -404,4 +446,4 @@ class LibraryManagementTest {
         assertEquals(1, retrieved?.season)
         assertEquals(3, retrieved?.episode)
     }
-}
+}
