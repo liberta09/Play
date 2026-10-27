@@ -533,4 +533,50 @@
     <string name="download_pick_checking">İndirilebilir kaynaklar denetleniyor…</string>
     <string name="download_pick_empty_episode">Bu bölüm için indirilebilir kaynak bulunamadı</string>
     <string name="download_pick_empty_movie">Bu film için indirilebilir kaynak bulunamadı</string>
+    <string name="wifi_sync_title">Wi-Fi senkronizasyonu · Yerel</string>
+    <string name="wifi_sync_description">Profil, geçmiş, eklenti depoları ve eklenti durumları eşitlenir</string>
+    <string name="wifi_sync_code">Kod: %1$s</string>
+    <string name="wifi_sync_code_hint">Bu kodu diğer cihazda yaz. 3 dakika geçerlidir.</string>
+    <string name="wifi_sync_peer_code">Cihaz kodu</string>
+    <string name="wifi_sync_connect">Bağlan</string>
+    <string name="wifi_sync_debug_address">Cihaz adresi (debug)</string>
+    <string name="wifi_sync_new_code">Yeni kod</string>
+    <string name="wifi_sync_expired">Kod artık geçerli değil.</string>
+    <string name="wifi_sync_searching">Cihaz aranıyor…</string>
+    <string name="wifi_sync_connecting">Bağlanılıyor…</string>
+    <string name="wifi_sync_syncing">Eşitleniyor…</string>
+    <string name="wifi_sync_result">Eşitlendi: %1$s, %2$s, %3$s, %4$s</string>
+    <plurals name="wifi_sync_profiles">
+        <item quantity="one">%d profil</item>
+        <item quantity="other">%d profil</item>
+    </plurals>
+    <plurals name="wifi_sync_history">
+        <item quantity="one">%d geçmiş</item>
+        <item quantity="other">%d geçmiş</item>
+    </plurals>
+    <plurals name="wifi_sync_addons">
+        <item quantity="one">%d addon</item>
+        <item quantity="other">%d addon</item>
+    </plurals>
+    <plurals name="wifi_sync_repos">
+        <item quantity="one">%d depo</item>
+        <item quantity="other">%d depo</item>
+    </plurals>
+    <string name="wifi_sync_error_not_found">Cihaz bulunamadı; iki cihaz aynı Wi-Fi\'de mi?</string>
+    <string name="wifi_sync_error_wrong_code">Kod yanlış.</string>
+    <string name="wifi_sync_error_invalid_code">6 haneli kodu yaz.</string>
+    <string name="wifi_sync_error_unreachable">Cihaza bağlanılamadı.</string>
+    <string name="wifi_sync_error_locked">Çok fazla yanlış deneme. Yeni kod gerekiyor.</string>
+    <string name="wifi_sync_error_port">Eşitleme bu cihazda başlatılamadı.</string>
+    <string name="wifi_sync_error_failed">Eşitleme başarısız oldu.</string>
+    <string name="wifi_sync_error_permission">Yerel ağ izni gerekiyor.</string>
+    <string name="wifi_sync_add_title">Şunlar eklensin mi?</string>
+    <string name="wifi_sync_add_all">Hepsini ekle</string>
+    <string name="wifi_sync_add_selected">Seçilenleri ekle</string>
+    <string name="wifi_sync_add_skip">Şimdi değil</string>
+    <string name="wifi_sync_installing">Ekleniyor…</string>
+    <plurals name="wifi_sync_install_failed">
+        <item quantity="one">%d kaynak eklenemedi.</item>
+        <item quantity="other">%d kaynak eklenemedi.</item>
+    </plurals>
 </resources>

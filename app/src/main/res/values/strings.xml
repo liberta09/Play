@@ -551,4 +551,50 @@
     <string name="download_pick_checking">Checking which sources can be downloaded…</string>
     <string name="download_pick_empty_episode">No downloadable source found for this episode</string>
     <string name="download_pick_empty_movie">No downloadable source found for this movie</string>
+    <string name="wifi_sync_title">Wi-Fi sync · Local</string>
+    <string name="wifi_sync_description">Profiles, history, addon repositories and addon states are synced</string>
+    <string name="wifi_sync_code">Code: %1$s</string>
+    <string name="wifi_sync_code_hint">Enter this code on the other device. It\'s valid for 3 minutes.</string>
+    <string name="wifi_sync_peer_code">Device code</string>
+    <string name="wifi_sync_connect">Connect</string>
+    <string name="wifi_sync_debug_address">Device address (debug)</string>
+    <string name="wifi_sync_new_code">New code</string>
+    <string name="wifi_sync_expired">The code is no longer valid.</string>
+    <string name="wifi_sync_searching">Looking for the device…</string>
+    <string name="wifi_sync_connecting">Connecting…</string>
+    <string name="wifi_sync_syncing">Syncing…</string>
+    <string name="wifi_sync_result">Synced: %1$s, %2$s, %3$s, %4$s</string>
+    <plurals name="wifi_sync_profiles">
+        <item quantity="one">%d profile</item>
+        <item quantity="other">%d profiles</item>
+    </plurals>
+    <plurals name="wifi_sync_history">
+        <item quantity="one">%d history item</item>
+        <item quantity="other">%d history items</item>
+    </plurals>
+    <plurals name="wifi_sync_addons">
+        <item quantity="one">%d addon</item>
+        <item quantity="other">%d addons</item>
+    </plurals>
+    <plurals name="wifi_sync_repos">
+        <item quantity="one">%d repository</item>
+        <item quantity="other">%d repositories</item>
+    </plurals>
+    <string name="wifi_sync_error_not_found">Device not found. Are both devices on the same Wi-Fi?</string>
+    <string name="wifi_sync_error_wrong_code">Wrong code.</string>
+    <string name="wifi_sync_error_invalid_code">Enter the 6-digit code.</string>
+    <string name="wifi_sync_error_unreachable">Couldn\'t connect to the device.</string>
+    <string name="wifi_sync_error_locked">Too many wrong attempts. A new code is needed.</string>
+    <string name="wifi_sync_error_port">Sync couldn\'t start on this device.</string>
+    <string name="wifi_sync_error_failed">Sync failed.</string>
+    <string name="wifi_sync_error_permission">Local network access is needed.</string>
+    <string name="wifi_sync_add_title">Add these?</string>
+    <string name="wifi_sync_add_all">Add all</string>
+    <string name="wifi_sync_add_selected">Add selected</string>
+    <string name="wifi_sync_add_skip">Not now</string>
+    <string name="wifi_sync_installing">Adding…</string>
+    <plurals name="wifi_sync_install_failed">
+        <item quantity="one">%d source couldn\'t be added.</item>
+        <item quantity="other">%d sources couldn\'t be added.</item>
+    </plurals>
 </resources>

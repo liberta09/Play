@@ -449,6 +449,30 @@ class AppContainer(context: Context) {
     }
 
     /**
+     * Wi-Fi senkronizasyonu (aynı ağdaki iki cihaz). Tembel: uygulama açılışında hiçbir sunucu başlamaz; yalnızca
+     * kart açılınca [com.kaan.play.data.sync.local.LocalSyncController.open] çağrılır.
+     */
+    val localSync: com.kaan.play.data.sync.local.LocalSyncController by lazy {
+        com.kaan.play.data.sync.local.LocalSyncController(
+            data = com.kaan.play.data.sync.local.LocalSyncData(
+                profiles = localProfile,
+                backups = localSyncBackup,
+                history = database.watchHistoryDao(),
+                favorites = database.favoriteDao(),
+                addonDao = database.addonDao(),
+                pluginDao = database.pluginDao(),
+                pluginSettings = pluginSettings,
+                settings = settings,
+                installer = sourceInstaller,
+                webSites = webSites,
+                deviceName = Build.MODEL,
+            ),
+            nsd = com.kaan.play.data.sync.local.LocalSyncNsd(appContext),
+            scope = appScope,
+        )
+    }
+
+    /**
      * Kaynaklar tek birleşik sağlayıcıdan gelir: aktif addon'lar ([AddonStreamProvider]),
      * açık Nuvio JS eklentileri ([PluginStreamProvider]) ve açık CS .cs3 eklentileri ([CsStreamProvider]).
      * Zaman aşımı Ayarlar'daki ortak kaynak zaman aşımıdır; her istekte yeniden okunur.
