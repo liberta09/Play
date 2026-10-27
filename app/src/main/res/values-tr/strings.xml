@@ -529,4 +529,8 @@
     <string name="speed_test_failed">Test tamamlanamadı: %1$s</string>
     <string name="speed_test_error_unreachable">Sunucuya ulaşılamadı</string>
     <string name="speed_test_error_timeout">Zaman aşımı</string>
+    <string name="download_pick_title">İndirilecek kaynağı seç</string>
+    <string name="download_pick_checking">İndirilebilir kaynaklar denetleniyor…</string>
+    <string name="download_pick_empty_episode">Bu bölüm için indirilebilir kaynak bulunamadı</string>
+    <string name="download_pick_empty_movie">Bu film için indirilebilir kaynak bulunamadı</string>
 </resources>

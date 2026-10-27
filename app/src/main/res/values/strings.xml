@@ -547,4 +547,8 @@
     <string name="speed_test_failed">The test couldn\'t finish: %1$s</string>
     <string name="speed_test_error_unreachable">Couldn\'t reach the server</string>
     <string name="speed_test_error_timeout">Timed out</string>
+    <string name="download_pick_title">Choose a source to download</string>
+    <string name="download_pick_checking">Checking which sources can be downloaded…</string>
+    <string name="download_pick_empty_episode">No downloadable source found for this episode</string>
+    <string name="download_pick_empty_movie">No downloadable source found for this movie</string>
 </resources>

@@ -36,6 +36,17 @@ object DownloadRules {
         else -> DownloadBadge.Active
     }
 
+    /**
+     * Detay'daki (film/bölüm) indir düğmesinin durumu: kaynak adresine bakılmaz, içeriğin indirme satırı belirler
+     * (aynı film/bölüm tek indirme olur).
+     */
+    fun contentBadge(entry: DownloadEntity?): DownloadBadge = when (entry?.status) {
+        null -> DownloadBadge.None
+        DownloadStatus.Completed -> DownloadBadge.Done
+        DownloadStatus.Failed -> DownloadBadge.Failed
+        else -> DownloadBadge.Active
+    }
+
     /** Kütüphane satırına dokunmanın (ve oynat/duraklat düğmesinin) yaptığı iş. */
     enum class RowAction { Play, Pause, Resume }
 
