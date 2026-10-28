@@ -57,6 +57,15 @@ class MainActivity : AppCompatActivity() {
         // Yalnızca debug derlemede, sahte altyazı servisiyle denemek için: --es play_subs_endpoint http://host:port (SubDL + OpenSubtitles).
         if (BuildConfig.DEBUG) {
             intent.getStringExtra("play_subs_endpoint")?.let { DebugEndpoints.subsBase = it.trimEnd('/') }
+            // Sahte TheIntroDB sunucusu: --es play_introdb_endpoint http://127.0.0.1:port/v4/media (adb reverse ile). Yerel adres
+            // PlayNetworkGuard'da engelli olduğundan yalnızca bu port (yalnızca debug derlemede) açılır.
+            intent.getStringExtra("play_introdb_endpoint")?.let { raw ->
+                DebugEndpoints.introDbBase = raw
+                val uri = android.net.Uri.parse(raw)
+                if (uri.host == "127.0.0.1" || uri.host == "localhost") {
+                    com.kaan.play.data.cloudstream.PlayNetworkGuard.allowLoopbackPort(uri.port)
+                }
+            }
             if (intent.hasExtra("simulate_release")) {
                 PlayerNoticeLogic.simulateRelease = intent.getBooleanExtra("simulate_release", false)
             }

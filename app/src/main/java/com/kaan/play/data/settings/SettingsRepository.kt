@@ -118,6 +118,37 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         prefs[AUTO_NEXT_SECONDS]?.takeIf { it in AUTO_NEXT_OPTIONS } ?: DEFAULT_AUTO_NEXT_SECONDS
     }.distinctUntilChanged()
 
+    /** Atlama düğmeleri varsayılan açık; otomatik atlama isteğe bağlı ve varsayılan kapalı; dört tür ayrı ayrı. */
+    val skipPlayback: Flow<SkipPlaybackSettings> = store.data.map { prefs ->
+        val defaults = SkipPlaybackSettings.Default
+        val enabled = prefs[SKIP_ENABLED_CATEGORIES]?.mapNotNull { value ->
+            SkipCategory.entries.firstOrNull { it.name == value }
+        }?.toSet() ?: defaults.enabledCategories
+        SkipPlaybackSettings(
+            showButtons = prefs[SKIP_BUTTONS_ENABLED] ?: defaults.showButtons,
+            autoSkip = prefs[SKIP_AUTO_ENABLED] ?: defaults.autoSkip,
+            enabledCategories = enabled,
+        )
+    }.distinctUntilChanged()
+
+    suspend fun setSkipButtonsEnabled(enabled: Boolean) {
+        store.edit { it[SKIP_BUTTONS_ENABLED] = enabled }
+    }
+
+    suspend fun setAutoSkipEnabled(enabled: Boolean) {
+        store.edit { it[SKIP_AUTO_ENABLED] = enabled }
+    }
+
+    suspend fun setSkipCategoryEnabled(category: SkipCategory, enabled: Boolean) {
+        store.edit { prefs ->
+            val current = prefs[SKIP_ENABLED_CATEGORIES]?.mapNotNull { value ->
+                SkipCategory.entries.firstOrNull { it.name == value }
+            }?.toSet() ?: SkipPlaybackSettings.Default.enabledCategories
+            val next = if (enabled) current + category else current - category
+            prefs[SKIP_ENABLED_CATEGORIES] = next.mapTo(mutableSetOf()) { it.name }
+        }
+    }
+
     suspend fun setAutoNext(enabled: Boolean) {
         store.edit { it[AUTO_NEXT] = enabled }
     }
@@ -264,6 +295,9 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val PREFER_DUB = booleanPreferencesKey("prefer_dub")
         private val RESIZE_MODE = stringPreferencesKey("resize_mode")
         private val AUTO_NEXT_SECONDS = intPreferencesKey("auto_next_seconds")
+        private val SKIP_BUTTONS_ENABLED = booleanPreferencesKey("skip_buttons_enabled")
+        private val SKIP_AUTO_ENABLED = booleanPreferencesKey("skip_auto_enabled")
+        private val SKIP_ENABLED_CATEGORIES = stringSetPreferencesKey("skip_enabled_categories")
         private val SUB_SIZE = stringPreferencesKey("subtitle_size")
         private val SUB_BOLD = booleanPreferencesKey("subtitle_bold")
         private val SUB_ITALIC = booleanPreferencesKey("subtitle_italic")

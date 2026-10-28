@@ -253,6 +253,24 @@ class AppContainer(context: Context) {
     /** Doğrudan HTTP kaynakların dosya boyutu (HEAD ile; hata sessizce geçilir). */
     val sizeProbe: SizeProbe by lazy { SizeProbe(httpClient) }
 
+    /**
+     * TheIntroDB intro/özet/jenerik/önizleme zamanları (yalnızca TMDB/IMDb kimliği, sezon/bölüm, süre gider; bellekte önbellek).
+     * Ortak [httpClient] yerine sade istemci: çerez, site yönlendirmeleri ve eklenti başlıkları bu isteğe karışmaz;
+     * PlayNetworkGuard yönlendirmeler dahil her adımda yerel/özel adresleri engeller.
+     */
+    val skipSegmentProvider: com.kaan.play.data.skip.SkipSegmentProvider by lazy {
+        val client = OkHttpClient.Builder()
+            .connectTimeout(7, TimeUnit.SECONDS)
+            .readTimeout(7, TimeUnit.SECONDS)
+            .addInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
+            .addNetworkInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
+            .build()
+        val introDb = com.kaan.play.data.skip.IntroDbRepository(client, json) {
+            com.kaan.play.data.subtitle.DebugEndpoints.introDbBase ?: com.kaan.play.data.skip.IntroDbRepository.DEFAULT_ENDPOINT
+        }
+        com.kaan.play.data.skip.CombinedSkipSegmentProvider(listOf(introDb))
+    }
+
     /** Medya içeriği yoklaması: indirme öncesi ve oynatma öncesi (HTML/sahte kaynak engeli). */
     val sourceProbe: SourceProbe by lazy { SourceProbe(httpClient) }
 
