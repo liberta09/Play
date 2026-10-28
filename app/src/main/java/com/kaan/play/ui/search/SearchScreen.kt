@@ -3,6 +3,8 @@ package com.kaan.play.ui.search
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -41,6 +43,7 @@ import com.kaan.play.R
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.i18n.AppLanguage
 import com.kaan.play.ui.components.CenteredLoading
+import com.kaan.play.ui.components.FilterPill
 import com.kaan.play.ui.components.ErrorMessage
 import com.kaan.play.ui.components.PosterCard
 import com.kaan.play.ui.components.cardSubtitle
@@ -50,7 +53,8 @@ import com.kaan.play.ui.nav.PlayIcons
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 
-/** Ara: tek büyük arama kutusu ve altında sonuç ızgarası. Filtre/çip yok (kural 5). */
+/** Ara: büyük arama kutusu, altında tür çipleri (Tümü / Filmler / Diziler; Kullanıcı kararı 2026-10-28) ve sonuç ızgarası. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SearchScreen(
     initialQuery: String? = null,
@@ -102,6 +106,22 @@ fun SearchScreen(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp).focusRequester(fieldFocus).dpadLeavesTextField(field),
         )
 
+        // Tür çipleri: büyük yazıda ya da dar ekranda tek satıra sığmazsa sarar. Çipten çipe Sağ/Sol, kutudan Aşağı çiplere,
+        // çiplerden Aşağı ızgaraya gider.
+        FlowRow(
+            modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, bottom = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            SearchFilter.entries.forEach { filter ->
+                FilterPill(
+                    text = stringResource(filter.labelRes()),
+                    selected = state.filter == filter,
+                    onClick = { vm.onFilterChange(filter) },
+                )
+            }
+        }
+
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when {
                 state.loading -> CenteredLoading()
@@ -151,4 +171,10 @@ private fun Hint(text: String) {
             textAlign = TextAlign.Center,
         )
     }
+}
+
+private fun SearchFilter.labelRes(): Int = when (this) {
+    SearchFilter.All -> R.string.search_filter_all
+    SearchFilter.Movies -> R.string.search_filter_movies
+    SearchFilter.Series -> R.string.search_filter_series
 }

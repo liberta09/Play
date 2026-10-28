@@ -580,4 +580,7 @@
         <item quantity="other">%d kaynak eklenemedi.</item>
     </plurals>
     <string name="cloud_sync_scope">Profiller, izleme geçmişi, favoriler ve eklentiler (depolar, açık/kapalı durumları, ayarlar) bu hesapla eşitlenir. Eklenti dosyaları kopyalanmaz; her cihaz kendisi indirir.</string>
+    <string name="search_filter_all">Tümü</string>
+    <string name="search_filter_movies">Filmler</string>
+    <string name="search_filter_series">Diziler</string>
 </resources>
