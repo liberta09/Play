@@ -613,4 +613,19 @@
     <string name="search_filter_all">All</string>
     <string name="search_filter_movies">Movies</string>
     <string name="search_filter_series">Series</string>
+    <!-- Repository catalog (Settings > Addons > Repository catalog) -->
+    <string name="repo_catalog_title">Repository catalog</string>
+    <string name="repo_catalog_subtitle">Discover community repositories and install in one tap</string>
+    <string name="repo_catalog_search_hint">Search repositories or categories…</string>
+    <string name="repo_catalog_empty">No repositories found</string>
+    <string name="repo_catalog_no_results">No results found</string>
+    <string name="repo_catalog_load_failed">Could not load the catalog</string>
+    <string name="repo_catalog_error_generic">Something went wrong</string>
+    <string name="repo_catalog_install">Install</string>
+    <string name="repo_catalog_installed">Installed</string>
+    <string name="repo_catalog_install_success">Repository added</string>
+    <string name="repo_catalog_install_failure">Error: %1$s</string>
+    <string name="repo_catalog_type_cloudstream" translatable="false">CloudStream</string>
+    <string name="repo_catalog_type_nuvio_repo">Nuvio repo</string>
+    <string name="repo_catalog_type_nuvio_plugin">Nuvio plugin</string>
 </resources>

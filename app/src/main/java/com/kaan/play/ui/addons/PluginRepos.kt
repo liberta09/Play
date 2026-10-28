@@ -51,6 +51,9 @@ import com.kaan.play.ui.containerViewModel
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.tv.focusRing
+import com.kaan.play.ui.tv.rememberRowControls
+import com.kaan.play.ui.tv.rowControl
+import com.kaan.play.ui.tv.rowControlsHost
 import kotlinx.coroutines.launch
 
 /** "Kurulu tüm depolar"da bölüm başlığı (Nuvio / CloudStream). Odak almaz; uzun metinde alt satıra geçer. */
@@ -390,6 +393,7 @@ internal fun PluginRow(plugin: InstalledPlugin, onToggle: (Boolean) -> Unit, onO
     val series = stringResource(R.string.type_series)
     val types = plugin.supportedTypes.joinToString(", ") { if (it == "movie") movie else series }
     val detail = plugin.contentLanguage.takeIf { it.isNotEmpty() }?.joinToString(", ") { it.uppercase() } ?: types
+    val controls = rememberRowControls(1)
 
     androidx.compose.material3.Surface(
         onClick = onOpen,
@@ -397,7 +401,8 @@ internal fun PluginRow(plugin: InstalledPlugin, onToggle: (Boolean) -> Unit, onO
         shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+            .then(if (plugin.hasSettings) Modifier.rowControlsHost(controls).focusRing(androidx.compose.foundation.shape.RoundedCornerShape(14.dp)) else Modifier),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
@@ -428,7 +433,7 @@ internal fun PluginRow(plugin: InstalledPlugin, onToggle: (Boolean) -> Unit, onO
                     checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                     checkedTrackColor = MaterialTheme.colorScheme.primary,
                 ),
-                modifier = Modifier.focusRing(CircleShape).semantics { contentDescription = toggleLabel },
+                modifier = Modifier.rowControl(controls, 0, plugin.hasSettings).focusRing(CircleShape).semantics { contentDescription = toggleLabel },
             )
         }
     }

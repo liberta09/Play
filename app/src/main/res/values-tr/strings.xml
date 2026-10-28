@@ -595,4 +595,18 @@
     <string name="search_filter_all">Tümü</string>
     <string name="search_filter_movies">Filmler</string>
     <string name="search_filter_series">Diziler</string>
+    <!-- Depo kataloğu (Ayarlar > Eklentiler > Depo Kataloğu) -->
+    <string name="repo_catalog_title">Depo Kataloğu</string>
+    <string name="repo_catalog_subtitle">Topluluk depolarını keşfet ve tek tıkla yükle</string>
+    <string name="repo_catalog_search_hint">Depo veya kategori ara…</string>
+    <string name="repo_catalog_empty">Depo bulunamadı</string>
+    <string name="repo_catalog_no_results">Sonuç bulunamadı</string>
+    <string name="repo_catalog_load_failed">Katalog yüklenemedi</string>
+    <string name="repo_catalog_error_generic">Bir hata oluştu</string>
+    <string name="repo_catalog_install">Yükle</string>
+    <string name="repo_catalog_installed">Yüklü</string>
+    <string name="repo_catalog_install_success">Depo eklendi</string>
+    <string name="repo_catalog_install_failure">Hata: %1$s</string>
+    <string name="repo_catalog_type_nuvio_repo">Nuvio deposu</string>
+    <string name="repo_catalog_type_nuvio_plugin">Nuvio eklentisi</string>
 </resources>
