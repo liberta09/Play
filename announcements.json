@@ -1,6 +1,13 @@
 {
   "announcements": [
     {
+      "id": "2026-10-28-play-120",
+      "title": "🎉 Play 1.2.0 yayında!",
+      "message": "✨ Yenilikler:\n✅ Wi-Fi senkronizasyonu: aynı ağdaki iki cihaz arasında profil, izleme geçmişi, favori ve eklentiler eşitlenir\n✅ Bulut hesabı artık eklentilerinizi de eşitliyor\n✅ İntro, özet ve jenerik atlama (verisi olan bölümlerde)\n✅ Arama ekranında Tümü / Filmler / Diziler filtresi\n✅ Detay ekranında bölüm indirme düğmeleri\n✅ Kumanda ile Depo Kataloğu ve Eklentiler sayfalarında rahat gezinme\n✅ Hız testi ve büyük yazı boyutunda TV sekmesi düzeltmeleri 🍿🎬",
+      "link": "https://github.com/liberta09/Play/releases/download/v1.2.0/Play-1.2.0.apk",
+      "until": "2026-12-31"
+    },
+    {
       "id": "2026-10-28-play-1120",
       "title": "🎉 Play 1.1.20 yayında!",
       "message": "Çoklu Profil yönetimi, Supabase Bulut Senkronizasyonu, internet hız testi ve TV Box açılış zırhlaması eklendi. 🍿🎬",
