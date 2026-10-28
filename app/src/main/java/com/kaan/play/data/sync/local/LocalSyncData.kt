@@ -70,14 +70,9 @@ class LocalSyncData(
                     )
                 },
             )
-            p.id to LocalSyncMerge.encodeBackup(backup)
+            p.id to backup
         }
-        return LocalProfileTransfer(
-            profiles = all.map(LocalSyncMerge::forTransfer),
-            backups = libs,
-            sources = sources(),
-            deviceName = deviceName,
-        )
+        return LocalSyncMerge.snapshot(all, libs, sources(), deviceName)
     }
 
     /** Tüm kaynaklar: Nuvio addon'ları (altyazı addon'ları dahil), Nuvio eklenti depoları, CloudStream depoları, web siteleri. */

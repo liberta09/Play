@@ -40,6 +40,42 @@ object LocalSyncMerge {
     /** Aktarım için: PIN ve bulut kodu çıkarılır. */
     fun forTransfer(profile: LocalProfileSummary): LocalProfileSummary = profile.copy(pinHash = null, syncCode = null)
 
+    /**
+     * Bir cihazın anlık görüntüsü (Wi-Fi ve bulut aynı yükü kullanır). PIN ve kod hiçbir zaman girmez; kaynaklarda
+     * yalnızca adresler ve durumlar vardır (eklenti JS/DEX dosyaları taşınmaz, karşı cihaz kendisi indirir).
+     */
+    fun snapshot(
+        profiles: List<LocalProfileSummary>,
+        libraries: Map<String, LocalProfileBackup>,
+        sources: List<SourceTransferItem>,
+        deviceName: String,
+    ): LocalProfileTransfer = LocalProfileTransfer(
+        profiles = profiles.map(::forTransfer),
+        backups = libraries.mapValues { encodeBackup(it.value) },
+        sources = sources,
+        deviceName = deviceName,
+    )
+
+    /**
+     * Buluta yazılacak yük: bu cihazın birleştirmeden sonraki görüntüsü + henüz onaylanmamış (karşıdan gelen) kaynaklar.
+     * Böylece onay bekleyen kaynak buluttan silinmez; öteki cihazlar onu görmeye devam eder.
+     */
+    fun withPending(local: LocalProfileTransfer, pending: List<SourceTransferItem>): LocalProfileTransfer {
+        val known = local.sources.mapTo(HashSet()) { urlKey(it.sourceUrl) }
+        return local.copy(sources = local.sources + pending.filter { urlKey(it.sourceUrl) !in known })
+    }
+
+    /**
+     * Bulut: iki tarafta da olan kaynakların durumunda "daha yeni kazanır". [remoteUpdatedAt] buluttaki kaydın
+     * `updated_at`'i, [localStamp] bu cihazın buluta son yazdığında sunucunun verdiği `updated_at` (yerel durumun
+     * bilinen son eşitlenme anı). Bulut kaydı damgasızsa yerel korunur; bu cihaz hiç yazmamışsa damgalı bulut kazanır.
+     */
+    fun remoteIsNewer(remoteUpdatedAt: String?, localStamp: String?): Boolean {
+        val remote = remoteUpdatedAt?.let(CloudStamp::parseMicros) ?: return false
+        val local = localStamp?.let(CloudStamp::parseMicros) ?: return true
+        return remote > local
+    }
+
     fun plan(local: LocalProfileTransfer, remote: LocalProfileTransfer, remoteIsAuthority: Boolean): LocalSyncPlan {
         val profiles = mergeProfiles(local.profiles, remote.profiles, remoteIsAuthority)
         val libraries = profiles.associate { p ->

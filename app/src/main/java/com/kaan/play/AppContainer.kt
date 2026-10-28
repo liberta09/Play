@@ -277,8 +277,29 @@ class AppContainer(context: Context) {
             backups = localSyncBackup,
             historyDao = database.watchHistoryDao(),
             favoriteDao = database.favoriteDao(),
+            data = localSyncData,
             projectUrl = BuildConfig.SUPABASE_URL,
             publishableKey = BuildConfig.SUPABASE_PUBLISHABLE_KEY,
+        )
+    }
+
+    /**
+     * Bulut ve Wi-Fi senkronizasyonunun ortak veri bağlantısı: anlık görüntü (profiller PIN'siz, geçmiş, favoriler,
+     * kaynaklar + durumları) ve onaylanan kaynağın [SourceInstaller] ile kurulması. Eklenti dosyaları taşınmaz.
+     */
+    val localSyncData: com.kaan.play.data.sync.local.LocalSyncData by lazy {
+        com.kaan.play.data.sync.local.LocalSyncData(
+            profiles = localProfile,
+            backups = localSyncBackup,
+            history = database.watchHistoryDao(),
+            favorites = database.favoriteDao(),
+            addonDao = database.addonDao(),
+            pluginDao = database.pluginDao(),
+            pluginSettings = pluginSettings,
+            settings = settings,
+            installer = sourceInstaller,
+            webSites = webSites,
+            deviceName = Build.MODEL,
         )
     }
 
@@ -454,19 +475,7 @@ class AppContainer(context: Context) {
      */
     val localSync: com.kaan.play.data.sync.local.LocalSyncController by lazy {
         com.kaan.play.data.sync.local.LocalSyncController(
-            data = com.kaan.play.data.sync.local.LocalSyncData(
-                profiles = localProfile,
-                backups = localSyncBackup,
-                history = database.watchHistoryDao(),
-                favorites = database.favoriteDao(),
-                addonDao = database.addonDao(),
-                pluginDao = database.pluginDao(),
-                pluginSettings = pluginSettings,
-                settings = settings,
-                installer = sourceInstaller,
-                webSites = webSites,
-                deviceName = Build.MODEL,
-            ),
+            data = localSyncData,
             nsd = com.kaan.play.data.sync.local.LocalSyncNsd(appContext),
             scope = appScope,
         )
