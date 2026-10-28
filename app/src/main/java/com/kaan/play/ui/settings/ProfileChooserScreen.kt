@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -51,6 +53,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,6 +64,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kaan.play.R
 import com.kaan.play.data.sync.CloudRegistrationResult
 import com.kaan.play.data.sync.LocalProfileSummary
 import com.kaan.play.ui.nav.PlayIcons
@@ -183,7 +188,10 @@ fun ProfileChooserScreen(
             }
 
             ProfileChooserTab.Account -> {
-                AccountAccessPanel()
+                // Eklenti onay listesi uzayabilir: sekme içeriği kayar.
+                Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                    AccountAccessPanel()
+                }
             }
         }
     }
@@ -370,6 +378,9 @@ fun AccountAccessPanel() {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
     val account by container.cloudSync.account.collectAsStateWithLifecycle()
+    val pendingSources by container.cloudSync.pendingSources.collectAsStateWithLifecycle()
+    val installingSources by container.cloudSync.installingSources.collectAsStateWithLifecycle()
+    var installFailed by remember { mutableStateOf(0) }
 
     var email by remember { mutableStateOf(com.kaan.play.MainActivity.testSyncEmail ?: "") }
     var password by remember { mutableStateOf(com.kaan.play.MainActivity.testSyncPassword ?: "") }
@@ -398,7 +409,7 @@ fun AccountAccessPanel() {
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Text(
-                    text = "İzleme geçmişi ve favorileriniz bu hesapla bulutta senkronize edilir.",
+                    text = stringResource(R.string.cloud_sync_scope),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -444,6 +455,22 @@ fun AccountAccessPanel() {
                     ) {
                         Text("Çıkış Yap")
                     }
+                }
+
+                // Bulutta olup bu cihazda olmayan kaynaklar: Wi-Fi kartındaki aynı onay bileşeni.
+                if (pendingSources.isNotEmpty()) {
+                    PendingSourcesList(
+                        pending = pendingSources,
+                        installing = installingSources,
+                        onConfirm = { items -> scope.launch { installFailed = container.cloudSync.confirmSources(items) } },
+                        onSkip = container.cloudSync::dismissPendingSources,
+                    )
+                }
+                if (installFailed > 0) {
+                    Text(
+                        pluralStringResource(R.plurals.wifi_sync_install_failed, installFailed, installFailed),
+                        color = MaterialTheme.colorScheme.error,
+                    )
                 }
             } else {
                 Text(

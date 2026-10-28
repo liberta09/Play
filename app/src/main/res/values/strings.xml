@@ -597,4 +597,5 @@
         <item quantity="one">%d source couldn\'t be added.</item>
         <item quantity="other">%d sources couldn\'t be added.</item>
     </plurals>
+    <string name="cloud_sync_scope">Profiles, watch history, favorites and addons (repositories, on/off states, settings) are synced with this account. Addon files aren\'t copied; each device downloads them itself.</string>
 </resources>

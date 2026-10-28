@@ -579,4 +579,5 @@
         <item quantity="one">%d kaynak eklenemedi.</item>
         <item quantity="other">%d kaynak eklenemedi.</item>
     </plurals>
+    <string name="cloud_sync_scope">Profiller, izleme geçmişi, favoriler ve eklentiler (depolar, açık/kapalı durumları, ayarlar) bu hesapla eşitlenir. Eklenti dosyaları kopyalanmaz; her cihaz kendisi indirir.</string>
 </resources>
