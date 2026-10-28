@@ -27,6 +27,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.CornerRadius
@@ -175,6 +176,30 @@ fun rememberInitialFocus(enabled: Boolean = true): FocusRequester {
     }
     return requester
 }
+
+/**
+ * Tıklanabilir bir satırın (odak hedefi) içindeki denetimlere (anahtar, sil düğmesi) kumandayla geçiş. Satır odaktayken
+ * yön tuşları kendi çocuklarına inmez; bu zincir satır → denetimler (SAĞ) ve geri (SOL) geçişini açıkça bağlar.
+ * Kullanım: satıra [rowControlsHost], i. denetime [rowControl].
+ */
+class RowControls internal constructor(count: Int) {
+    internal val row = FocusRequester()
+    internal val items = List(count) { FocusRequester() }
+}
+
+@Composable
+fun rememberRowControls(count: Int): RowControls = remember(count) { RowControls(count) }
+
+/** Satır (tıklanabilir odak hedefi) için: SAĞ → ilk denetim. */
+fun Modifier.rowControlsHost(controls: RowControls): Modifier =
+    focusRequester(controls.row).focusProperties { right = controls.items.first() }
+
+/** [index]. denetim için: SOL → önceki denetim ya da satır ([hosted]), SAĞ → sonraki denetim. */
+fun Modifier.rowControl(controls: RowControls, index: Int, hosted: Boolean = true): Modifier =
+    focusRequester(controls.items[index]).focusProperties {
+        if (hosted) left = if (index == 0) controls.row else controls.items[index - 1]
+        right = if (index < controls.items.lastIndex) controls.items[index + 1] else FocusRequester.Default
+    }
 
 /**
  * Metin alanı değeri + imleç konumu. `OutlinedTextField(value: String)` imleci dışarı vermez; bu sınıf Compose'un kendi

@@ -165,6 +165,7 @@ fun SettingsScreen(
             modifier = Modifier.focusMemory(focus, "sync"),
             onClick = onOpenSync,
         )
+        WifiSyncCard()
         PlayCardRow(
             title = stringResource(R.string.settings_about),
             value = BuildConfig.VERSION_NAME,

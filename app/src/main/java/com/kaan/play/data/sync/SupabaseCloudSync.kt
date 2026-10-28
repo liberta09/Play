@@ -7,6 +7,8 @@ import android.security.keystore.KeyProperties
 import android.util.Base64
 import com.kaan.play.data.db.FavoriteDao
 import com.kaan.play.data.db.WatchHistoryDao
+import com.kaan.play.data.sync.local.LocalSyncData
+import com.kaan.play.data.sync.local.LocalSyncMerge
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,6 +44,8 @@ class SupabaseCloudSync(
     private val backups: LocalSyncBackup,
     private val historyDao: WatchHistoryDao,
     private val favoriteDao: FavoriteDao,
+    /** Wi-Fi senkronizasyonuyla ortak dışa aktarma/kurma (profiller, geçmiş, favoriler, kaynaklar ve durumları). */
+    private val data: LocalSyncData,
     private val projectUrl: String = "",
     private val publishableKey: String = "",
 ) {
@@ -59,6 +63,14 @@ class SupabaseCloudSync(
 
     private val _account = MutableStateFlow<CloudAccountState?>(sessionStore.load()?.let { toAccount(it) })
     val account: StateFlow<CloudAccountState?> = _account.asStateFlow()
+
+    private val _pending = MutableStateFlow<List<SourceTransferItem>>(emptyList())
+
+    /** Bulutta olup bu cihazda olmayan kaynaklar: kendiliğinden kurulmaz, "Şunlar eklensin mi?" ile sorulur. */
+    val pendingSources: StateFlow<List<SourceTransferItem>> = _pending.asStateFlow()
+
+    private val _installing = MutableStateFlow(false)
+    val installingSources: StateFlow<Boolean> = _installing.asStateFlow()
 
     private val baseUrl: String
         get() = projectUrl.trimEnd('/')
@@ -131,6 +143,7 @@ class SupabaseCloudSync(
                 }
                 sessionStore.clear()
                 syncMetadata.edit().clear().apply()
+                _pending.value = emptyList()
                 _account.value = null
             }
         }
@@ -147,16 +160,14 @@ class SupabaseCloudSync(
             // 1. Uzak durumu oku
             val remote = fetchRemoteSnapshot(session)
 
-            // 2. Birleştir
-            val transfer = exportCloudTransfer(session.userId)
+            // 2. Birleştir (Wi-Fi ile aynı kurallar; ortak kaynaklarda daha yeni olan kazanır)
+            val pending = if (remote != null) mergeRemoteSnapshot(remote) else emptyList()
+
+            // 3. Birleşmiş görüntüyü + onay bekleyen kaynakları yaz; sunucunun damgası yerel damga olur
+            val transfer = LocalSyncMerge.withPending(data.export(), pending)
             val transferJson = json.encodeToString(LocalProfileTransfer.serializer(), transfer)
-
-            if (remote != null) {
-                mergeRemoteSnapshot(session.userId, remote)
-            }
-
-            // 3. Uzak veritabanına yaz
-            saveRemoteTransfer(session, transferJson, remote)
+            val stamp = saveRemoteTransfer(session, transferJson, remote)
+            if (stamp != null) syncMetadata.edit().putString(KEY_LOCAL_STAMP, stamp).apply()
         }
         }
     }
@@ -184,7 +195,7 @@ class SupabaseCloudSync(
         session: CloudSession,
         transferJson: String,
         currentRemote: RemoteCloudSnapshot?,
-    ) {
+    ): String? {
         val nowUtc = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }.format(Date())
@@ -200,39 +211,51 @@ class SupabaseCloudSync(
             .url("$baseUrl/rest/v1/play_cloud_state")
             .header("apikey", publishableKey)
             .header("Authorization", "Bearer ${session.accessToken}")
-            .header("Prefer", "resolution=merge-duplicates")
+            .header("Prefer", "resolution=merge-duplicates,return=representation")
             .post(bodyObj.toString().toRequestBody(JSON_MEDIA_TYPE))
             .build()
 
-        execute(req) { "" }
-    }
-
-    private suspend fun mergeRemoteSnapshot(userId: String, remote: RemoteCloudSnapshot) {
-        if (remote.transferJson.isBlank()) return
-        val remoteTransfer = runCatching {
-            json.decodeFromString(LocalProfileTransfer.serializer(), remote.transferJson)
-        }.getOrNull() ?: return
-
-        // Profilleri birleştir
-        val localProfiles = profiles.allProfiles()
-        val profileMap = localProfiles.associateBy { it.id }.toMutableMap()
-        for (rp in remoteTransfer.profiles) {
-            val local = profileMap[rp.id]
-            if (local == null) {
-                profileMap[rp.id] = rp
-            }
-        }
-        profiles.resetProfilesForCloudImport(profileMap.values.toList())
-
-        // Geçmiş ve favorileri profil bazında birleştir
-        for ((pId, bkp) in remoteTransfer.backups) {
-            val bkpJson = bkp
-            backups.mergeJsonFor(userId, pId, bkpJson)
+        // Tetikleyici `updated_at`'i sunucu saatiyle yazar; yerel damga olarak o değer saklanır.
+        return execute(req) { bodyStr ->
+            runCatching {
+                json.parseToJsonElement(bodyStr).jsonArray.firstOrNull()?.jsonObject?.get("updated_at")?.jsonPrimitive?.content
+            }.getOrNull()
         }
     }
 
-    private suspend fun exportCloudTransfer(userId: String): LocalProfileTransfer =
-        profiles.exportTransfer()
+    /**
+     * Bulut görüntüsünü [LocalSyncMerge] kurallarıyla birleştirir ve yazar (profiller PIN'siz gelir, yerel PIN kalır;
+     * geçmişte en yeni `lastWatchedAt`; favoriler birleşim). İki tarafta da olan kaynakların açık/kapalı, ayar ve
+     * katalog durumlarında bulut kaydı yerel damgadan yeniyse bulut, değilse (ya da damgasızsa) yerel korunur.
+     * Bu cihazda olmayan kaynaklar döner (onay bekler).
+     */
+    private suspend fun mergeRemoteSnapshot(remote: RemoteCloudSnapshot): List<SourceTransferItem> {
+        if (remote.transferJson.isBlank()) return emptyList()
+        val remoteTransfer = runCatching { LocalSyncMerge.decodeTransfer(remote.transferJson) }.getOrNull() ?: return emptyList()
+        val remoteNewer = LocalSyncMerge.remoteIsNewer(remote.updatedAt, syncMetadata.getString(KEY_LOCAL_STAMP, null))
+        val plan = LocalSyncMerge.plan(data.export(), remoteTransfer, remoteIsAuthority = remoteNewer)
+        data.apply(plan)
+        if (remoteTransfer.profiles.isNotEmpty()) profiles.completeProfileSetup()
+        _pending.value = plan.missingSources
+        return plan.missingSources
+    }
+
+    /** "Şunlar eklensin mi?": yalnızca onaylananlar bu cihazda [LocalSyncData.install] ile kurulur. Kurulamayan sayısı döner. */
+    suspend fun confirmSources(items: List<SourceTransferItem>): Int {
+        _installing.value = true
+        var failed = 0
+        try {
+            for (item in items) if (!data.install(item)) failed++
+        } finally {
+            _installing.value = false
+            _pending.value = emptyList()
+        }
+        return failed
+    }
+
+    fun dismissPendingSources() {
+        _pending.value = emptyList()
+    }
 
     private suspend fun refresh(session: CloudSession): CloudSession? {
         val body = buildJsonObject {
@@ -370,5 +393,8 @@ class SupabaseCloudSync(
 
     companion object {
         private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
+
+        /** Bu cihazın buluta son yazdığında sunucunun döndürdüğü `updated_at` (yerel durumun damgası). */
+        private const val KEY_LOCAL_STAMP = "local_sources_stamp"
     }
 }

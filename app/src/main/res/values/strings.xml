@@ -351,6 +351,7 @@
     <string name="web_refresh">Refresh</string>
     <string name="web_load_failed">The page couldn\'t be opened. Check your connection and refresh.</string>
     <string name="about_web_blocking">Website view blocks known ads and pop-ups; it may not catch every ad.</string>
+    <string name="about_introdb_privacy">Skip buttons ask TheIntroDB for intro and credits times; only the TMDB ID, season/episode and video length are sent, and TheIntroDB sees your IP address and which title you are watching.</string>
 
     <!-- Faz 4/B: indirme -->
     <string name="download_channel_name">Downloads</string>
@@ -431,6 +432,17 @@
     <string name="settings_auto_next">Autoplay next episode</string>
     <string name="settings_auto_next_countdown">Countdown</string>
     <string name="settings_auto_next_seconds">%1$d s</string>
+    <string name="settings_skip_buttons">Show skip buttons</string>
+    <string name="settings_auto_skip_segments">Automatically skip segments</string>
+    <string name="settings_skip_segment_types">Skippable segment types</string>
+    <string name="settings_skip_intro">Intro</string>
+    <string name="settings_skip_recap">Recap</string>
+    <string name="settings_skip_credits">Credits</string>
+    <string name="settings_skip_preview">Preview</string>
+    <string name="player_skip_intro">Skip intro</string>
+    <string name="player_skip_recap">Skip recap</string>
+    <string name="player_skip_credits">Skip credits</string>
+    <string name="player_skip_preview">Skip preview</string>
 
     <!-- Güncelleme indirmesi: bildirimler -->
     <string name="update_channel_name">App updates</string>
@@ -544,4 +556,76 @@
     <string name="provider_error_unexpected">Unexpected error</string>
     <string name="settings_speed_test">Internet speed test</string>
     <string name="settings_speed_test_summary">Measure your current download speed</string>
+    <string name="speed_test_failed">The test couldn\'t finish: %1$s</string>
+    <string name="speed_test_error_unreachable">Couldn\'t reach the server</string>
+    <string name="speed_test_error_timeout">Timed out</string>
+    <string name="download_pick_title">Choose a source to download</string>
+    <string name="download_pick_checking">Checking which sources can be downloaded…</string>
+    <string name="download_pick_empty_episode">No downloadable source found for this episode</string>
+    <string name="download_pick_empty_movie">No downloadable source found for this movie</string>
+    <string name="wifi_sync_title">Wi-Fi sync · Local</string>
+    <string name="wifi_sync_description">Profiles, history, addon repositories and addon states are synced</string>
+    <string name="wifi_sync_code">Code: %1$s</string>
+    <string name="wifi_sync_code_hint">On the other device, enter this code in the \'Other device\'s code\' box. It\'s valid for 3 minutes.</string>
+    <string name="wifi_sync_peer_code">Other device\'s code</string>
+    <string name="wifi_sync_connect">Connect</string>
+    <string name="wifi_sync_debug_address">Device address (debug)</string>
+    <string name="wifi_sync_new_code">New code</string>
+    <string name="wifi_sync_expired">The code is no longer valid.</string>
+    <string name="wifi_sync_searching">Looking for the device…</string>
+    <string name="wifi_sync_connecting">Connecting…</string>
+    <string name="wifi_sync_syncing">Syncing…</string>
+    <string name="wifi_sync_result">Synced: %1$s, %2$s, %3$s, %4$s</string>
+    <plurals name="wifi_sync_profiles">
+        <item quantity="one">%d profile</item>
+        <item quantity="other">%d profiles</item>
+    </plurals>
+    <plurals name="wifi_sync_history">
+        <item quantity="one">%d history item</item>
+        <item quantity="other">%d history items</item>
+    </plurals>
+    <plurals name="wifi_sync_addons">
+        <item quantity="one">%d addon</item>
+        <item quantity="other">%d addons</item>
+    </plurals>
+    <plurals name="wifi_sync_repos">
+        <item quantity="one">%d repository</item>
+        <item quantity="other">%d repositories</item>
+    </plurals>
+    <string name="wifi_sync_error_not_found">Device not found. Are both devices on the same Wi-Fi?</string>
+    <string name="wifi_sync_error_wrong_code">Wrong code.</string>
+    <string name="wifi_sync_error_invalid_code">Enter the 6-digit code.</string>
+    <string name="wifi_sync_error_unreachable">Couldn\'t connect to the device.</string>
+    <string name="wifi_sync_error_locked">Too many wrong attempts. A new code is needed.</string>
+    <string name="wifi_sync_error_port">Sync couldn\'t start on this device.</string>
+    <string name="wifi_sync_error_failed">Sync failed.</string>
+    <string name="wifi_sync_error_permission">Local network access is needed.</string>
+    <string name="wifi_sync_add_title">Add these?</string>
+    <string name="wifi_sync_add_all">Add all</string>
+    <string name="wifi_sync_add_selected">Add selected</string>
+    <string name="wifi_sync_add_skip">Not now</string>
+    <string name="wifi_sync_installing">Adding…</string>
+    <plurals name="wifi_sync_install_failed">
+        <item quantity="one">%d source couldn\'t be added.</item>
+        <item quantity="other">%d sources couldn\'t be added.</item>
+    </plurals>
+    <string name="cloud_sync_scope">Profiles, watch history, favorites and addons (repositories, on/off states, settings) are synced with this account. Addon files aren\'t copied; each device downloads them itself.</string>
+    <string name="search_filter_all">All</string>
+    <string name="search_filter_movies">Movies</string>
+    <string name="search_filter_series">Series</string>
+    <!-- Repository catalog (Settings > Addons > Repository catalog) -->
+    <string name="repo_catalog_title">Repository catalog</string>
+    <string name="repo_catalog_subtitle">Discover community repositories and install in one tap</string>
+    <string name="repo_catalog_search_hint">Search repositories or categories…</string>
+    <string name="repo_catalog_empty">No repositories found</string>
+    <string name="repo_catalog_no_results">No results found</string>
+    <string name="repo_catalog_load_failed">Could not load the catalog</string>
+    <string name="repo_catalog_error_generic">Something went wrong</string>
+    <string name="repo_catalog_install">Install</string>
+    <string name="repo_catalog_installed">Installed</string>
+    <string name="repo_catalog_install_success">Repository added</string>
+    <string name="repo_catalog_install_failure">Error: %1$s</string>
+    <string name="repo_catalog_type_cloudstream" translatable="false">CloudStream</string>
+    <string name="repo_catalog_type_nuvio_repo">Nuvio repo</string>
+    <string name="repo_catalog_type_nuvio_plugin">Nuvio plugin</string>
 </resources>

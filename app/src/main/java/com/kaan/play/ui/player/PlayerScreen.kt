@@ -101,6 +101,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.kaan.play.data.player.PlaybackSpeeds
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.settings.ResizeMode
+import com.kaan.play.data.settings.SkipPlaybackSettings
 import com.kaan.play.data.settings.SubtitleStyle
 import com.kaan.play.data.stream.PlayTarget
 import com.kaan.play.data.stream.PlayableStream
@@ -128,6 +129,7 @@ private const val SEEK_HOLD_MS = 1_200L
 private const val NOTICE_MS = 4_000L
 private const val SOURCE_NOTICE_MS = 5_000L
 private const val RESIZE_LABEL_MS = 1_500L
+private const val SKIP_INITIAL_VISIBILITY_MS = 20_000L
 
 /**
  * Tam ekran oynatıcı. Üst çubuk: geri, çalan kaynağın adı · çözünürlüğü · dosya boyutu, altında film adı. Ortada 10 sn geri / oynat-duraklat /
@@ -160,6 +162,8 @@ fun PlayerScreen(
     embeddedDub: Boolean = false,
     /** Kullanıcı sesi Parçalar panelinden seçti. */
     onAudioChosen: (Int) -> Unit = {},
+    /** İntro/özet/jenerik/önizleme atlama düğmeleri; null: yok. */
+    skips: SkipController? = null,
     onBack: () -> Unit,
 ) {
     val container = rememberContainer()
@@ -238,6 +242,15 @@ fun PlayerScreen(
     // Senkron paneli açıkken kontroller gizlenir: altyazı (altta) ilerleme çubuğunun altında kalmasın.
     // Kaynaklar aranırken ve hiçbiri açılmadığında geri düğmesi ve kontroller görünür kalır.
     val showControls = !locked && ((controlsVisible && !showSync) || ui.error != null || resolving || sourcesFailed)
+    // Atlama düğmeleri (sağ altta): segmentin ilk 20 sn'sinde kontroller gizliyken de, sonra kontroller açılınca görünür.
+    val skipSettings = skips?.settings ?: SkipPlaybackSettings.Default
+    val skipPosition = skips?.positionMs ?: 0L
+    val shownSkipSegments = if (skips != null && skipSettings.showButtons) {
+        skips.active.filter { skipSettings.isEnabled(it.category) && (showControls || skipPosition - it.startMs < SKIP_INITIAL_VISIBILITY_MS) }
+    } else emptyList()
+    val skipVisible = shownSkipSegments.isNotEmpty() && !cardActive && !locked && ui.error == null
+    val skipFocus = remember { FocusRequester() }
+    var skipFocused by remember { mutableStateOf(false) }
 
     fun bump() { interaction++ }
     fun reveal() { controlsVisible = true; bump() }
@@ -337,16 +350,19 @@ fun PlayerScreen(
     }
     LaunchedEffect(cardActive) { if (!cardActive) cardFocused = false }
     LaunchedEffect(dubVisible) { if (!dubVisible) dubFocused = false }
+    LaunchedEffect(skipVisible) { if (!skipVisible) skipFocused = false }
     // Odak: kilitliyken ve simge görünürken açma simgesinde; kilitli ve simge gizliyken kök yüzeyde;
     // hata/kaynak yokken hata düğmesinde; sonraki bölüm kartında; kontroller açıkken ilerleme
     // çubuğunda; gizliyken kök yüzeyde (yön tuşları orada yakalanır).
-    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, dubVisible, keyboard) {
+    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, dubVisible, skipVisible, keyboard) {
         when {
             locked && lockHintVisible -> unlockFocus.requestWhenAttached()
             locked -> runCatching { rootFocus.requestFocus() }
             ui.error != null || sourcesFailed -> runCatching { playFocus.requestFocus() }
             cardActive -> cardFocus.requestWhenAttached()
             dubVisible && keyboard -> dubFocus.requestWhenAttached()
+            // Atlama düğmesi görünürken kumandada odak ondadır: Tamam = atla.
+            skipVisible && keyboard -> skipFocus.requestWhenAttached()
             controlsVisible && keyboard -> barFocus.requestWhenAttached()
             else -> runCatching { rootFocus.requestFocus() }
         }
@@ -376,6 +392,8 @@ fun PlayerScreen(
                             locked -> locked = false
                             dubVisible -> coordinator?.dismissDubSuggestion()
                             cardActive -> onAutoNextCancel()
+                            // Atlama düğmesi odaktayken Geri düğmeyi kapatır, oynatıcıdan çıkarmaz.
+                            skipVisible && skipFocused -> skips?.dismiss(shownSkipSegments)
                             else -> onBack()
                         }
                     }
@@ -424,6 +442,7 @@ fun PlayerScreen(
                     }
                 }
                 if (dubVisible && dubFocused && event.key in CARD_KEYS) return@onPreviewKeyEvent false
+                if (skipVisible && skipFocused && event.key in CARD_KEYS) return@onPreviewKeyEvent false
                 val repeat = event.nativeKeyEvent.repeatCount
                 // Sarma sürerken (basılı tutma) kontroller açılsa da Sol/Sağ sarmaya devam eder, odağı gezdirmez.
                 val seeking = SystemClock.uptimeMillis() - lastSeekKeyAt < SEEK_HOLD_MS
@@ -662,7 +681,7 @@ fun PlayerScreen(
 
         if (resumeNotice && ui.error == null && !locked) {
             ResumeNotice(
-                onRestart = { controller.seekTo(0L); position = 0L; resumeNotice = false; bump() },
+                onRestart = { skips?.restartFromBeginning(); controller.seekTo(0L); position = 0L; resumeNotice = false; bump() },
                 focus = noticeFocus,
                 upFocus = playFocus,
                 onFocusChange = { noticeFocused = it },
@@ -680,6 +699,25 @@ fun PlayerScreen(
                     .gestureZone(zones, "next")
                     .onFocusChanged { cardFocused = it.hasFocus },
             )
+        }
+
+        AnimatedVisibility(
+            visible = skipVisible,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(end = 24.dp, bottom = 156.dp)
+                .gestureZone(zones, "skip")
+                .onFocusChanged { skipFocused = it.hasFocus },
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.End) {
+                shownSkipSegments.forEachIndexed { index, segment ->
+                    SkipSegmentButton(
+                        segment = segment,
+                        onClick = { skips?.skip(segment); bump() },
+                        modifier = if (index == 0) Modifier.focusRequester(skipFocus) else Modifier,
+                    )
+                }
+            }
         }
 
         if (coordinator != null && dubVisible) {
@@ -978,6 +1016,28 @@ private fun NextEpisodeCard(
                 }
             }
         }
+    }
+}
+
+/** Doğrulanmış intro/özet/jenerik/önizleme aralığını tek dokunuşla (kumandada Tamam) atlar. */
+@Composable
+private fun SkipSegmentButton(
+    segment: SkipSegment,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val label = stringResource(
+        when (segment.kind) {
+            SkipSegmentKind.Recap -> R.string.player_skip_recap
+            SkipSegmentKind.Intro -> R.string.player_skip_intro
+            SkipSegmentKind.Outro -> R.string.player_skip_credits
+            SkipSegmentKind.Preview -> R.string.player_skip_preview
+        },
+    )
+    Button(onClick = onClick, modifier = modifier) {
+        Icon(PlayIcons.SeekForward, contentDescription = null, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(label)
     }
 }
 

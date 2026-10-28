@@ -1,0 +1,4 @@
+10-28 01:33:13.444 D/PlayMatch( 5944): kaynak başlatılıyor: Enel (<sunucu>)
+10-28 01:33:14.568 D/PlayMatch( 5944): ilk kare: Enel (faz=Starting)
+10-28 01:33:14.581 D/PlayMatch( 5944): süre kontrolü kaynak=Enel (<sunucu>) süre=145.0 dk beklenen=145 dk tür=Movie -> Ok
+10-28 01:33:24.569 D/PlayMatch( 5944): kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)

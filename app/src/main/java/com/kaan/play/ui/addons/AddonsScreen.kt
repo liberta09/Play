@@ -80,6 +80,9 @@ import com.kaan.play.ui.tv.dpadLeavesTextField
 import com.kaan.play.ui.tv.rememberCursorField
 import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.rememberFocusMemory
+import com.kaan.play.ui.tv.rememberRowControls
+import com.kaan.play.ui.tv.rowControl
+import com.kaan.play.ui.tv.rowControlsHost
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
@@ -190,8 +193,8 @@ fun AddonsScreen(
             }
             item {
                 com.kaan.play.ui.components.PlayCardRow(
-                    title = "Depo Kataloğu",
-                    subtitle = "Topluluk depolarını keşfet ve tek tıkla yükle",
+                    title = stringResource(R.string.repo_catalog_title),
+                    subtitle = stringResource(R.string.repo_catalog_subtitle),
                     icon = PlayIcons.Library,
                     iconTint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.focusMemory(focus, "catalog"),
@@ -393,6 +396,7 @@ internal fun AddonRow(
         else -> null
     }
     val detail = if (typeLabel != null) "$typeLabel • $host" else host
+    val controls = rememberRowControls(2)
 
     Surface(
         onClick = onClick ?: {},
@@ -403,7 +407,7 @@ internal fun AddonRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .then(if (onClick != null) Modifier.focusRing(RoundedCornerShape(14.dp)) else Modifier),
+            .then(if (onClick != null) Modifier.rowControlsHost(controls).focusRing(RoundedCornerShape(14.dp)) else Modifier),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
@@ -434,9 +438,9 @@ internal fun AddonRow(
                     checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                     checkedTrackColor = MaterialTheme.colorScheme.primary,
                 ),
-                modifier = Modifier.focusRing(CircleShape).semantics { contentDescription = toggleLabel },
+                modifier = Modifier.rowControl(controls, 0, onClick != null).focusRing(CircleShape).semantics { contentDescription = toggleLabel },
             )
-            IconButton(onClick = onRemove) {
+            IconButton(onClick = onRemove, modifier = Modifier.rowControl(controls, 1, onClick != null)) {
                 Icon(
                     PlayIcons.Trash,
                     contentDescription = stringResource(R.string.addons_remove),

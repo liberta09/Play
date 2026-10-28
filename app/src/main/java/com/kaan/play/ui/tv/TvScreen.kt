@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
@@ -183,21 +184,26 @@ fun TvScreen(onPlay: (CatalogItem) -> Unit) {
             keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
         )
 
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        // Çipler kendi genişliğini alır ve satır yana kayar; etiket tek satırdır. (Eskiden dar ekran/büyük yazıda etiket harf
+        // harf sarıp satırı ekran boyu uzatıyor, `weight(1f)` ızgaraya sıfır yükseklik kalıyordu.)
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             FilterChip(
                 selected = sourceFilter == ChannelSourceFilter.All,
                 onClick = { sourceFilter = ChannelSourceFilter.All },
-                label = { Text(stringResource(R.string.tv_filter_all, allChannels.size)) },
+                label = { Text(stringResource(R.string.tv_filter_all, allChannels.size), maxLines = 1, softWrap = false) },
             )
             FilterChip(
                 selected = sourceFilter == ChannelSourceFilter.Nuvio,
                 onClick = { sourceFilter = ChannelSourceFilter.Nuvio },
-                label = { Text(stringResource(R.string.tv_filter_nuvio, nuvioCount)) },
+                label = { Text(stringResource(R.string.tv_filter_nuvio, nuvioCount), maxLines = 1, softWrap = false) },
             )
             FilterChip(
                 selected = sourceFilter == ChannelSourceFilter.CloudStream,
                 onClick = { sourceFilter = ChannelSourceFilter.CloudStream },
-                label = { Text(stringResource(R.string.tv_filter_cloudstream, cloudStreamCount)) },
+                label = { Text(stringResource(R.string.tv_filter_cloudstream, cloudStreamCount), maxLines = 1, softWrap = false) },
             )
         }
 

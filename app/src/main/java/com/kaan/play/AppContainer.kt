@@ -253,6 +253,24 @@ class AppContainer(context: Context) {
     /** Doğrudan HTTP kaynakların dosya boyutu (HEAD ile; hata sessizce geçilir). */
     val sizeProbe: SizeProbe by lazy { SizeProbe(httpClient) }
 
+    /**
+     * TheIntroDB intro/özet/jenerik/önizleme zamanları (yalnızca TMDB/IMDb kimliği, sezon/bölüm, süre gider; bellekte önbellek).
+     * Ortak [httpClient] yerine sade istemci: çerez, site yönlendirmeleri ve eklenti başlıkları bu isteğe karışmaz;
+     * PlayNetworkGuard yönlendirmeler dahil her adımda yerel/özel adresleri engeller.
+     */
+    val skipSegmentProvider: com.kaan.play.data.skip.SkipSegmentProvider by lazy {
+        val client = OkHttpClient.Builder()
+            .connectTimeout(7, TimeUnit.SECONDS)
+            .readTimeout(7, TimeUnit.SECONDS)
+            .addInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
+            .addNetworkInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
+            .build()
+        val introDb = com.kaan.play.data.skip.IntroDbRepository(client, json) {
+            com.kaan.play.data.subtitle.DebugEndpoints.introDbBase ?: com.kaan.play.data.skip.IntroDbRepository.DEFAULT_ENDPOINT
+        }
+        com.kaan.play.data.skip.CombinedSkipSegmentProvider(listOf(introDb))
+    }
+
     /** Medya içeriği yoklaması: indirme öncesi ve oynatma öncesi (HTML/sahte kaynak engeli). */
     val sourceProbe: SourceProbe by lazy { SourceProbe(httpClient) }
 
@@ -277,13 +295,35 @@ class AppContainer(context: Context) {
             backups = localSyncBackup,
             historyDao = database.watchHistoryDao(),
             favoriteDao = database.favoriteDao(),
+            data = localSyncData,
             projectUrl = BuildConfig.SUPABASE_URL,
             publishableKey = BuildConfig.SUPABASE_PUBLISHABLE_KEY,
         )
     }
 
+    /**
+     * Bulut ve Wi-Fi senkronizasyonunun ortak veri bağlantısı: anlık görüntü (profiller PIN'siz, geçmiş, favoriler,
+     * kaynaklar + durumları) ve onaylanan kaynağın [SourceInstaller] ile kurulması. Eklenti dosyaları taşınmaz.
+     */
+    val localSyncData: com.kaan.play.data.sync.local.LocalSyncData by lazy {
+        com.kaan.play.data.sync.local.LocalSyncData(
+            profiles = localProfile,
+            backups = localSyncBackup,
+            history = database.watchHistoryDao(),
+            favorites = database.favoriteDao(),
+            addonDao = database.addonDao(),
+            pluginDao = database.pluginDao(),
+            pluginSettings = pluginSettings,
+            settings = settings,
+            installer = sourceInstaller,
+            webSites = webSites,
+            deviceName = Build.MODEL,
+        )
+    }
+
     val internetSpeedTest: InternetSpeedTest by lazy {
-        InternetSpeedTest(httpClient)
+        // Sade istemci: ortak httpClient'ın ağ koruması/site interceptor'ları ölçümü etkilemesin.
+        InternetSpeedTest()
     }
 
     val repoManagerCatalog: com.kaan.play.data.plugin.RepoManagerCatalog by lazy {
@@ -445,6 +485,18 @@ class AppContainer(context: Context) {
     /** Kullanıcının eklediği web siteleri (reklamsız web görünümü). */
     val webSites: WebSiteRepository by lazy {
         WebSiteRepository(database.addonDao(), AndroidWebDataCleaner(appContext))
+    }
+
+    /**
+     * Wi-Fi senkronizasyonu (aynı ağdaki iki cihaz). Tembel: uygulama açılışında hiçbir sunucu başlamaz; yalnızca
+     * kart açılınca [com.kaan.play.data.sync.local.LocalSyncController.open] çağrılır.
+     */
+    val localSync: com.kaan.play.data.sync.local.LocalSyncController by lazy {
+        com.kaan.play.data.sync.local.LocalSyncController(
+            data = localSyncData,
+            nsd = com.kaan.play.data.sync.local.LocalSyncNsd(appContext),
+            scope = appScope,
+        )
     }
 
     /**

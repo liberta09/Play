@@ -1,0 +1,4 @@
+10-28 01:40:17.261 D/PlayMatch( 5944): kaynak başlatılıyor: Gaban (<sunucu>)
+10-28 01:40:18.405 D/PlayMatch( 5944): ilk kare: Gaban (faz=Starting)
+10-28 01:40:18.407 D/PlayMatch( 5944): süre kontrolü kaynak=Gaban (<sunucu>) süre=42.8 dk beklenen=43 dk tür=Tv -> Ok
+10-28 01:40:28.405 D/PlayMatch( 5944): kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)

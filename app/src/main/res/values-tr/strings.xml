@@ -333,6 +333,7 @@
     <string name="web_refresh">Yenile</string>
     <string name="web_load_failed">Sayfa açılamadı. Bağlantını kontrol edip yenile.</string>
     <string name="about_web_blocking">Web görünümü bilinen reklamları ve açılır pencereleri engeller; her reklamı yakalamayabilir.</string>
+    <string name="about_introdb_privacy">Atlama düğmeleri intro ve jenerik zamanlarını TheIntroDB\'den sorar; yalnızca TMDB kimliği, sezon/bölüm ve video süresi gider, TheIntroDB IP adresini ve izlenen içeriğin kimliğini görür.</string>
 
     <!-- Faz 4/B: indirme -->
     <string name="download_channel_name">İndirmeler</string>
@@ -413,6 +414,17 @@
     <string name="settings_auto_next">Sonraki bölümü otomatik oynat</string>
     <string name="settings_auto_next_countdown">Geri sayım</string>
     <string name="settings_auto_next_seconds">%1$d sn</string>
+    <string name="settings_skip_buttons">Atlama butonlarını göster</string>
+    <string name="settings_auto_skip_segments">Atlama bölümlerini otomatik geç</string>
+    <string name="settings_skip_segment_types">Atlanabilir bölüm türleri</string>
+    <string name="settings_skip_intro">İntro</string>
+    <string name="settings_skip_recap">Özet</string>
+    <string name="settings_skip_credits">Jenerik</string>
+    <string name="settings_skip_preview">Önizleme</string>
+    <string name="player_skip_intro">İntroyu geç</string>
+    <string name="player_skip_recap">Özeti geç</string>
+    <string name="player_skip_credits">Jeneriği geç</string>
+    <string name="player_skip_preview">Önizlemeyi geç</string>
 
     <!-- Güncelleme indirmesi: bildirimler -->
     <string name="update_channel_name">Uygulama güncellemeleri</string>
@@ -526,4 +538,75 @@
     <string name="provider_error_unexpected">Beklenmeyen hata</string>
     <string name="settings_speed_test">İnternet hız testi</string>
     <string name="settings_speed_test_summary">Anlık indirme hızını ölç</string>
+    <string name="speed_test_failed">Test tamamlanamadı: %1$s</string>
+    <string name="speed_test_error_unreachable">Sunucuya ulaşılamadı</string>
+    <string name="speed_test_error_timeout">Zaman aşımı</string>
+    <string name="download_pick_title">İndirilecek kaynağı seç</string>
+    <string name="download_pick_checking">İndirilebilir kaynaklar denetleniyor…</string>
+    <string name="download_pick_empty_episode">Bu bölüm için indirilebilir kaynak bulunamadı</string>
+    <string name="download_pick_empty_movie">Bu film için indirilebilir kaynak bulunamadı</string>
+    <string name="wifi_sync_title">Wi-Fi senkronizasyonu · Yerel</string>
+    <string name="wifi_sync_description">Profil, geçmiş, eklenti depoları ve eklenti durumları eşitlenir</string>
+    <string name="wifi_sync_code">Kod: %1$s</string>
+    <string name="wifi_sync_code_hint">Diğer cihazda \'Diğer cihazın kodu\' kutusuna bu kodu yaz. 3 dakika geçerlidir.</string>
+    <string name="wifi_sync_peer_code">Diğer cihazın kodu</string>
+    <string name="wifi_sync_connect">Bağlan</string>
+    <string name="wifi_sync_debug_address">Cihaz adresi (debug)</string>
+    <string name="wifi_sync_new_code">Yeni kod</string>
+    <string name="wifi_sync_expired">Kod artık geçerli değil.</string>
+    <string name="wifi_sync_searching">Cihaz aranıyor…</string>
+    <string name="wifi_sync_connecting">Bağlanılıyor…</string>
+    <string name="wifi_sync_syncing">Eşitleniyor…</string>
+    <string name="wifi_sync_result">Eşitlendi: %1$s, %2$s, %3$s, %4$s</string>
+    <plurals name="wifi_sync_profiles">
+        <item quantity="one">%d profil</item>
+        <item quantity="other">%d profil</item>
+    </plurals>
+    <plurals name="wifi_sync_history">
+        <item quantity="one">%d geçmiş</item>
+        <item quantity="other">%d geçmiş</item>
+    </plurals>
+    <plurals name="wifi_sync_addons">
+        <item quantity="one">%d addon</item>
+        <item quantity="other">%d addon</item>
+    </plurals>
+    <plurals name="wifi_sync_repos">
+        <item quantity="one">%d depo</item>
+        <item quantity="other">%d depo</item>
+    </plurals>
+    <string name="wifi_sync_error_not_found">Cihaz bulunamadı; iki cihaz aynı Wi-Fi\'de mi?</string>
+    <string name="wifi_sync_error_wrong_code">Kod yanlış.</string>
+    <string name="wifi_sync_error_invalid_code">6 haneli kodu yaz.</string>
+    <string name="wifi_sync_error_unreachable">Cihaza bağlanılamadı.</string>
+    <string name="wifi_sync_error_locked">Çok fazla yanlış deneme. Yeni kod gerekiyor.</string>
+    <string name="wifi_sync_error_port">Eşitleme bu cihazda başlatılamadı.</string>
+    <string name="wifi_sync_error_failed">Eşitleme başarısız oldu.</string>
+    <string name="wifi_sync_error_permission">Yerel ağ izni gerekiyor.</string>
+    <string name="wifi_sync_add_title">Şunlar eklensin mi?</string>
+    <string name="wifi_sync_add_all">Hepsini ekle</string>
+    <string name="wifi_sync_add_selected">Seçilenleri ekle</string>
+    <string name="wifi_sync_add_skip">Şimdi değil</string>
+    <string name="wifi_sync_installing">Ekleniyor…</string>
+    <plurals name="wifi_sync_install_failed">
+        <item quantity="one">%d kaynak eklenemedi.</item>
+        <item quantity="other">%d kaynak eklenemedi.</item>
+    </plurals>
+    <string name="cloud_sync_scope">Profiller, izleme geçmişi, favoriler ve eklentiler (depolar, açık/kapalı durumları, ayarlar) bu hesapla eşitlenir. Eklenti dosyaları kopyalanmaz; her cihaz kendisi indirir.</string>
+    <string name="search_filter_all">Tümü</string>
+    <string name="search_filter_movies">Filmler</string>
+    <string name="search_filter_series">Diziler</string>
+    <!-- Depo kataloğu (Ayarlar > Eklentiler > Depo Kataloğu) -->
+    <string name="repo_catalog_title">Depo Kataloğu</string>
+    <string name="repo_catalog_subtitle">Topluluk depolarını keşfet ve tek tıkla yükle</string>
+    <string name="repo_catalog_search_hint">Depo veya kategori ara…</string>
+    <string name="repo_catalog_empty">Depo bulunamadı</string>
+    <string name="repo_catalog_no_results">Sonuç bulunamadı</string>
+    <string name="repo_catalog_load_failed">Katalog yüklenemedi</string>
+    <string name="repo_catalog_error_generic">Bir hata oluştu</string>
+    <string name="repo_catalog_install">Yükle</string>
+    <string name="repo_catalog_installed">Yüklü</string>
+    <string name="repo_catalog_install_success">Depo eklendi</string>
+    <string name="repo_catalog_install_failure">Hata: %1$s</string>
+    <string name="repo_catalog_type_nuvio_repo">Nuvio deposu</string>
+    <string name="repo_catalog_type_nuvio_plugin">Nuvio eklentisi</string>
 </resources>

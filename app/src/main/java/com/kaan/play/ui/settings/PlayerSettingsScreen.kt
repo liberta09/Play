@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.R
 import com.kaan.play.data.settings.SettingsRepository
+import com.kaan.play.data.settings.SkipCategory
+import com.kaan.play.data.settings.SkipPlaybackSettings
 import com.kaan.play.data.settings.SubtitleStyle
 import com.kaan.play.data.subtitle.SubtitleLanguages
 import com.kaan.play.i18n.AppLanguage
@@ -63,6 +65,7 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_NEXT)
     val autoNextSeconds by container.settings.autoNextSeconds
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_NEXT_SECONDS)
+    val skipSettings by container.settings.skipPlayback.collectAsStateWithLifecycle(initialValue = SkipPlaybackSettings.Default)
     var pickLanguage by remember { mutableStateOf(false) }
     var pickCountdown by remember { mutableStateOf(false) }
     val uiLanguage = AppLanguage.effective().iso
@@ -106,6 +109,25 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
                     value = stringResource(R.string.settings_auto_next_seconds, autoNextSeconds),
                     onClick = { pickCountdown = true },
                 )
+            }
+            // İntro/özet/jenerik/önizleme atlama (TheIntroDB + chapter): düğmeler açık, otomatik atlama kapalı gelir.
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+            SwitchRow(stringResource(R.string.settings_skip_buttons), skipSettings.showButtons) {
+                scope.launch { container.settings.setSkipButtonsEnabled(it) }
+            }
+            SwitchRow(stringResource(R.string.settings_auto_skip_segments), skipSettings.autoSkip) {
+                scope.launch { container.settings.setAutoSkipEnabled(it) }
+            }
+            Text(stringResource(R.string.settings_skip_segment_types), style = MaterialTheme.typography.titleMedium)
+            listOf(
+                SkipCategory.Intro to R.string.settings_skip_intro,
+                SkipCategory.Recap to R.string.settings_skip_recap,
+                SkipCategory.Credits to R.string.settings_skip_credits,
+                SkipCategory.Preview to R.string.settings_skip_preview,
+            ).forEach { (category, label) ->
+                SwitchRow(stringResource(label), skipSettings.isEnabled(category)) { enabled ->
+                    scope.launch { container.settings.setSkipCategoryEnabled(category, enabled) }
+                }
             }
             // İndirmeler (Faz 4/B): Ayarlar'a yeni ana kalem eklenmez, bu ayar Oynatıcı'nın içindedir.
             SwitchRow(stringResource(R.string.settings_download_wifi_only), downloadWifiOnly) {

@@ -335,6 +335,22 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
         }
     }
 
+    /** Wi-Fi senkronizasyonu: profil listesini değiştirir, etkin profil (varsa) değişmez. */
+    suspend fun replaceProfilesKeepingActive(newProfiles: List<LocalProfileSummary>) {
+        store.edit { prefs ->
+            prefs[PROFILES] = encodeProfiles(newProfiles)
+            val active = newProfiles.firstOrNull { it.id == prefs[ID] }
+            if (active != null) {
+                prefs[NAME] = active.name
+            } else {
+                newProfiles.firstOrNull()?.let {
+                    prefs[ID] = it.id
+                    prefs[NAME] = it.name
+                }
+            }
+        }
+    }
+
     private fun decodeProfiles(raw: String): List<LocalProfileSummary> {
         if (raw.isBlank()) return emptyList()
         return runCatching {

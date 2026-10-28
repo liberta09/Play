@@ -80,11 +80,14 @@ class TmdbRepository(
     /** `tr,en,null`: arayüz dili, İngilizce, dilsiz logolar (sırayla tercih edilir, bkz. [pickLogo]). */
     private fun imageLanguages(): String = imageLanguagesFor(language())
 
-    /** Boş sorgu ağa gitmeden boş sonuç verir. Kişi sonuçları ayıklanır. */
-    suspend fun search(query: String, page: Int = 1): Page<MediaSummary> {
+    /**
+     * Boş sorgu ağa gitmeden boş sonuç verir. [type] null ise `search/multi` (kişi sonuçları ayıklanır); verilirse
+     * TMDB'nin `search/movie` / `search/tv` uç noktası çağrılır (sonuçlar istemcide süzülmez, sayfalama bozulmaz).
+     */
+    suspend fun search(query: String, page: Int = 1, type: MediaType? = null): Page<MediaSummary> {
         val q = query.trim()
         if (q.isEmpty()) return Page(emptyList(), 1, 1)
-        return service.search(q, lang(), page).toPage()
+        return service.search(q, lang(), page, type?.tmdbPath ?: "multi").toPage(defaultType = type)
     }
 
     /** IMDb kimliğine göre TMDB'de ara. Bulunursa (MediaType, tmdbId), yoksa null döner. */

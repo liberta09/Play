@@ -1,6 +1,8 @@
 package com.kaan.play.ui.components
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +31,24 @@ private fun onFilled(): Color = MaterialTheme.colorScheme.onBackground
 @Composable
 fun Button(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable RowScope.() -> Unit) =
     M3Button(onClick = onClick, modifier = modifier.focusRing(CircleShape, onFilled()), enabled = enabled, content = content)
+
+/** Özel köşe/iç boşluklu düğme: halka düğmenin kendi biçimini izler. */
+@Composable
+fun Button(
+    onClick: () -> Unit,
+    shape: Shape,
+    contentPadding: PaddingValues,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit,
+) = M3Button(
+    onClick = onClick,
+    modifier = modifier.focusRing(shape, onFilled()),
+    enabled = enabled,
+    shape = shape,
+    contentPadding = contentPadding,
+    content = content,
+)
 
 @Composable
 fun OutlinedButton(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable RowScope.() -> Unit) =
