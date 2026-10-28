@@ -55,3 +55,26 @@ Deneme sonunda ayarlar varsayılana alındı (otomatik geç kapalı, dört tür 
 2. Ana sayfadaki "İzlemeye devam et" sırası bir oynatmadan hemen sonra bazen az önce izleneni göstermedi (geçmişte doğru, en üstte); birkaç dakika sonra geri geldi (`gozlem-ana-sayfa-devam-listesi.png`).
 3. Dil English iken profil seçme ekranı, "Profil seçimi / Son profili hatırla" satırları ve hız testi ekranı Türkçe kalıyor (koda gömülü metin).
 4. Blue Bloods S1B1 için "Dragon" kaynağı 22:24 süreli, başka bir yapıma benzeyen bir video açtı (bölüm süresi ~43 dk; dizi için 3 kat toleransın içinde kaldığı için elenmedi).
+
+## Gerçek sunucu (2026-10-28, LDPlayer, dal ozellik/eksikler-4)
+
+Gerçek uç nokta (`play_introdb_endpoint` verilmedi). Bilgisayardan doğrudan sorgu:
+
+| İçerik | HTTP | Ham gövde |
+|---|---|---|
+| Criminal Minds S1B1 (tmdb 4057, duration_ms=2502125) | 200 | `{"tvdb_id":75710,"type":"tv","season":1,"episode":1,"credits":[{"start_ms":2469000,"end_ms":null}]}` |
+| Breaking Bad S1B1 (tmdb 1396) | 200 | `{"tvdb_id":81189,"type":"tv","season":1,"episode":1,"intro":[{"start_ms":228583,"end_ms":246569}],"credits":[{"start_ms":3431000,"end_ms":null}]}` |
+| Film (tmdb 475557) | 404 | `{"error":"no submissions for this media","code":"no_submissions"}` |
+
+`duration_ms` yanıtı değiştirmiyor (100 / 2760000 / 2999999 / yok → aynı gövde). `okhttp/4.12.0` User-Agent engellenmiyor (HTTP 200).
+**Criminal Minds S1B1'de sunucuda intro yok, yalnızca jenerik var → "İntroyu geç" çıkmaması DOĞRUDUR**; beklenen düğme "Jeneriği geç" (2469 sn'den sonra).
+
+Cihaz zinciri (geçici `PlaySkip` debug günlüğü; adres/kimlik yok, sonra geri alındı):
+- S1B1: `süre bilindi 2502125 → istek (tmdb=true imdb=true tur=Tv s=1 b=1) → http=200 → ayrıştırma [Credits:2469000-2502125] → gelen=1 → tick segments=1 active=1 gösterilen=1 düğmeler=true` → ekranda "Jeneriği geç" (`gercek-sunucu-criminal-minds-jenerik-dugme.png`).
+- S1B2: `http=200 → [Recap:1000-60000, Intro:380000-410000, Credits:2632000-2662952] → gelen=3 → segments=3 → active=1` → "Özeti geç", sonra "İntroyu geç" (`gercek-sunucu-intro-dugme.png`).
+- Düğmeye basınca konum: önce 6:42 (`gercek-sunucu-intro-once-konum-6-42.png`), sonra 6:58 (`gercek-sunucu-intro-sonra-konum-6-58.png`); intro sonu 410 sn = 6:50, yani segment sonuna atlandı.
+- Aynı senaryo **release (R8) derlemede** de çalışıyor: `gercek-sunucu-release-intro-dugme.png` (S1B2, 6:16'dan sonra "İntroyu geç").
+
+Sonuç: zincirde kopuk halka yok; debug ve release derlemede (LDPlayer 1600x900, uygulama 1.1.20) gerçek sunucu verisiyle düğme çıkıyor ve atlıyor. Kodda değişiklik yapılmadı.
+
+**Beklenen davranış:** TheIntroDB'de verisi olmayan bölümlerde düğme çıkmaz. Örnek: Criminal Minds S1B1'de sunucuda yalnızca jenerik var (intro yok, bu yüzden "İntroyu geç" çıkmaz, "Jeneriği geç" çıkar); S1B2'de recap + intro + jenerik var ve üçü de çıkar. Sunucuda hiç kayıt yoksa (ör. tmdb 475557 filmi: 404 `no_submissions`) hiçbir düğme çıkmaz; düğme zorla gösterilmez.
