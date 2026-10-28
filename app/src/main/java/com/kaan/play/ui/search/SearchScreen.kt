@@ -24,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import com.kaan.play.ui.tv.dpadLeavesTextField
 import com.kaan.play.ui.tv.rememberCursorField
@@ -75,6 +77,8 @@ fun SearchScreen(
     val focus = rememberFocusMemory(enabled = startedWithResults)
 
     val field = rememberCursorField(state.query, vm::onQueryChange)
+    // Kutudan Aşağı: çiplere (seçili çipe). Odak araması yoksa ızgaradaki en yakın karta atlardı.
+    val chipFocus = remember { FocusRequester() }
 
     Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
         OutlinedTextField(
@@ -103,7 +107,9 @@ fun SearchScreen(
             // Kumanda/klavye ile odaklanınca klavye kendiliğinden açılmaz; Tamam/dokunma açar. Ara: sonucu gösterir, klavyeyi kapatır.
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, showKeyboardOnFocus = false),
             keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp).focusRequester(fieldFocus).dpadLeavesTextField(field),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp).focusRequester(fieldFocus)
+                .focusProperties { down = chipFocus }
+                .dpadLeavesTextField(field),
         )
 
         // Tür çipleri: büyük yazıda ya da dar ekranda tek satıra sığmazsa sarar. Çipten çipe Sağ/Sol, kutudan Aşağı çiplere,
@@ -118,6 +124,7 @@ fun SearchScreen(
                     text = stringResource(filter.labelRes()),
                     selected = state.filter == filter,
                     onClick = { vm.onFilterChange(filter) },
+                    modifier = if (state.filter == filter) Modifier.focusRequester(chipFocus) else Modifier,
                 )
             }
         }
