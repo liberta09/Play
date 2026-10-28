@@ -52,8 +52,9 @@ Android:
 - `LocalSyncData.kt:45` dışa aktarma (profiller, geçmiş, favoriler, tüm kaynaklar: Nuvio addon'ları dahil altyazı addon'ları, Nuvio depoları, CloudStream depoları, web siteleri; eklenti açık/kapalı + `hasSettings` değerleri + katalog anahtarları), `:114` onaylanan kaynağı `SourceInstaller`/`WebSiteRepository` ile kurup durumları gönderenle aynı yapma (dosya kopyalanmaz).
 - `LocalSyncNsd.kt:27` MulticastLock, `:43` NSD `_playsync._tcp`.
 - `AppContainer.kt:455` tembel `localSync`: **uygulama açılışında hiçbir sunucu başlamaz** (PlayApp/MainActivity/PlayRoot'a dokunulmadı).
-- Kart `ui/settings/WifiSyncCard.kt:73`: "Wi-Fi senkronizasyonu · Yerel", açıklama, "Kod: 123456", "Cihaz kodu", "Bağlan" (`:206` `maxLines = 1, softWrap = false`, düğme kendi genişliğini alır), ilerleme ve "Eşitlendi: 2 profil, 37 geçmiş, 6 addon, 4 depo", "Şunlar eklensin mi?" (adresler görünür, "Hepsini ekle" + tek tek seçim). Android 17+ `ACCESS_LOCAL_NETWORK` çalışma anında `:107` (manifest `AndroidManifest.xml:21`). Elle adres yalnızca debug `:103`. Yerleşim: `ProfileChooserScreen.kt:179`, `SettingsScreen.kt:168`.
+- Kart `ui/settings/WifiSyncCard.kt:73`: "Wi-Fi senkronizasyonu · Yerel", açıklama, "Kod: 123456", "Diğer cihazın kodu", "Bağlan" (`:206` `maxLines = 1, softWrap = false`, düğme kendi genişliğini alır), ilerleme ve "Eşitlendi: 2 profil, 37 geçmiş, 6 addon, 4 depo", "Şunlar eklensin mi?" (adresler görünür, "Hepsini ekle" + tek tek seçim). Android 17+ `ACCESS_LOCAL_NETWORK` çalışma anında `:107` (manifest `AndroidManifest.xml:21`). Elle adres yalnızca debug `:103`. Yerleşim: `ProfileChooserScreen.kt:179`, `SettingsScreen.kt:168`.
 - `@Preview`: dar telefon (320 dp), büyük yazı (fontScale 2), TV (960×540 dp), İngilizce büyük yazı — `WifiSyncCard.kt:370`. **Not:** bu ortamda Android Studio yok; önizlemeler derleniyor ama görsel olarak çizdirilemedi. "Bağlan"ın tek satır kalması yapı gereği (`softWrap = false`, ağırlık kod kutusunda) sağlanıyor; cihazda/Studio'da göz kontrolü kullanıcıda.
+- **Cihazda görüldü (LDPlayer, 1600×900, Türkçe; 2026-10-28 09:23; commit `ece2f99`):** `adb install -r -t` → Success, `lastUpdateTime=2026-10-28 09:22:43`. Profil seçme ekranında kart açıldı: başlık "Wi-Fi senkronizasyonu · Yerel" koyu zeminde açık renkle okunuyor (önceden içerik rengi koyuya düşüyordu; artık tema `onSurface`), "Kod: 416697", yönerge "Diğer cihazda 'Diğer cihazın kodu' kutusuna bu kodu yaz. 3 dakika geçerlidir.", kutu etiketi "Diğer cihazın kodu", "Bağlan" tek satır. Görüntü: `cihaz-wifi-karti.png`. İki cihazlı eşitleme denemesi hâlâ kullanıcıda.
 
 Testler: `LocalSyncCoreTest` (kod, deneme sınırı, ağ, HKDF/AES-GCM/kanıt), `LocalSyncMergeTest`, `LocalSyncIntegrationTest` (127.0.0.1 gerçek soket: şifreli el sıkışma, yanlış kodda 401, 5. yanlışta sunucu kapanıyor ve doğru kod da artık işe yaramıyor, yeniden oynatma 401, çift yönlü birleştirme sonunda aynı veri, PIN ağdan geçmiyor, özel olmayan adres reddi, UDP bulma).
 
@@ -70,4 +71,4 @@ Bilinen sınırlar: iki tarafta da olan kaynakların açık/kapalı ve ayar fark
 
 Cihaz testi (2–4) kullanıcıda.
 
-Dal: `ozellik/eksikler-4` · son commit: `4b2bcd7` (bu dosya ondan sonraki commit'le eklendi)
+Dal: `ozellik/eksikler-4` · son kod commit'i: `ece2f99` (bu SONUC.md güncellemesi ondan sonraki tek belge commit'idir)
