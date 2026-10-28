@@ -333,6 +333,7 @@
     <string name="web_refresh">Yenile</string>
     <string name="web_load_failed">Sayfa açılamadı. Bağlantını kontrol edip yenile.</string>
     <string name="about_web_blocking">Web görünümü bilinen reklamları ve açılır pencereleri engeller; her reklamı yakalamayabilir.</string>
+    <string name="about_introdb_privacy">Atlama düğmeleri intro ve jenerik zamanlarını TheIntroDB\'den sorar; yalnızca TMDB kimliği, sezon/bölüm ve video süresi gider, TheIntroDB IP adresini ve izlenen içeriğin kimliğini görür.</string>
 
     <!-- Faz 4/B: indirme -->
     <string name="download_channel_name">İndirmeler</string>

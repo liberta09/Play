@@ -23,7 +23,7 @@ Uzun vadeli plan, çalışma sistemi (şartname → onay → yapım → doğrula
 2. **Sade görünüm:** ekranda aynı anda en fazla bir vurgu rengi ve iki yazı boyutu/ağırlığı kullanılır.
 3. **Teknik ayrıntı yok:** codec, HDR, ses kanalı vb. arayüzde gösterilmez; kaynak satırında yalnızca eklenti adı, kalite, boyut, ses dili ve "altyazılı" bilgisi (10. adımda dil/altyazı eklendi).
 4. **Ayarlar ≤ 5 kalem:** her kalem tek satırda anlaşılır olmalı.
-5. **Yeni özellik testi:** eklemeden önce "bu olmadan uygulama çalışır mı?" diye sorulur; çalışıyorsa eklenmez. (Bilinçli istisna, Kullanıcı kararı 2026-10-28: Ara ekranındaki tür çipleri Tümü / Filmler / Diziler; eskiden "Ara'da filtre/çip yok" kuralı vardı, bu kararla değişti.)
+5. **Yeni özellik testi:** eklemeden önce "bu olmadan uygulama çalışır mı?" diye sorulur; çalışıyorsa eklenmez. (Bilinçli istisna, Kullanıcı kararı 2026-10-28: Ara ekranındaki tür çipleri Tümü / Filmler / Diziler; eskiden "Ara'da filtre/çip yok" kuralı vardı, bu kararla değişti. Bilinçli istisna, Kullanıcı kararı 2026-10-28: intro/özet/jenerik/önizleme atlama; kullanıcı bu özelliği açıkça istedi, aşağıdaki "İntro/özet/jenerik atlama" bölümüne bak.)
 6. **İki dilde taşmasın:** her ekran Türkçe ve İngilizce metinle taşmadan görünür; uzun Türkçe metinlerle (ve büyük yazı boyutuyla) test edilir.
 
 ## Kapsam
@@ -79,6 +79,19 @@ Ayrıntı ve cihaz denemesi README "Otomatik sonraki bölüm". Bağlayıcı kura
 - **Geçiş:** sonraki bölüm yeni bir `PlayerActivity` olarak açılır (animasyonsuz), eskisi kapanır; böylece altyazı, başlık, geçmiş sıfırdan o bölüm için kurulur. Biten bölüm "izlendi" yazılır (konum = süre); sonraki bölümde kayıtlı konum varsa ve "kaldığım yerden devam" açıksa oradan başlar. Altyazı dili/görünümü aynı hafızadan gelir (dil dizide bölümler arası ortak, varsayılan Türkçe → İngilizce). Önceki torrent oturumu `TorrentEngine.closeActive` ile kapatılır.
 - **Ayar:** Ayarlar > Oynatıcı içinde "Sonraki bölümü otomatik oynat" (varsayılan açık) + geri sayım 5/10/15 sn (yalnızca anahtar açıkken görünür); Ayarlar'a yeni ana kalem eklenmez.
 - **Kumanda:** kart açılınca odak "Şimdi oynat"ta; Tamam = Şimdi oynat, Geri = İptal (oynatıcıyı kapatmaz). Dokunmatik moddayken kumanda tuşuna basılırsa (odak henüz kartta değilken) Tamam yine ana düğmeye basar. Kart açıkken yön tuşları sarmaz, kartın düğmelerine gider.
+
+## İntro/özet/jenerik atlama — TheIntroDB (Kullanıcı kararı 2026-10-28; bağlayıcı)
+Ortak geliştiricinin 1.1.47 sürümündeki TheIntroDB v4 özelliğinden uyarlandı (tam sürüm: atlama düğmeleri + isteğe bağlı otomatik atlama + dört tür anahtarı). Kod: `data/skip/IntroDbRepository.kt`, `ui/player/SkipSegment.kt` (modla aynı), `ui/player/SkipController.kt` (modun PlayerActivity'deki mantığı ayrı sınıfta), `data/settings/SkipPlaybackSettings.kt`. Kanıt: `docs/dogrulama-atla/SONUC.md`.
+- **Uç nokta:** `GET https://api.theintrodb.org/v4/media?tmdb_id=…` (TMDB yoksa geçerli `imdb_id=tt…`) `&duration_ms=…`, dizide `&season=&episode=`. Salt-okunur, anahtarsız.
+- **Gönderilen yalnızca:** TMDB kimliği (yoksa IMDb), dizide sezon/bölüm, bilinen video süresi. **Gönderilmez:** akış adresi, başlıklar, çerez, profil, hesap, API anahtarı. Adres/kimlik loglanmaz (hiçbir etikette).
+- **Gizlilik notu:** TheIntroDB isteği IP'yi ve izlenen içeriğin TMDB kimliğini görür (Hakkında ve README'de yazar).
+- **Ağ:** ortak `httpClient` değil, sade istemci (`AppContainer.skipSegmentProvider`): çerez/site yönlendirmesi/eklenti başlığı yok; `PlayNetworkGuard` uygulama + ağ interceptor'ı (yönlendirmeler dahil yerel/özel adres engeli). 7 sn toplam zaman aşımı; 404/204 ve bozuk yanıt boş sonuç olarak bellekte önbelleğe girer (128 kayıt), ağ hatası sessizce boş döner.
+- **Oynatıcı:** sorgu süre öğrenilince (hazır olunca, canlı değilken) asenkron yapılır, oynatmayı **asla beklemez**; kaynak değişince eski sonuç atılır. Chapter işaretleri aynı türde geçerliyse önceliklidir, dış zaman eksik türleri tamamlar; makullük sınırları `SkipSegmentDetector`'da. Canlı TV (`addonType` tv/channel) ve süresi bilinmeyen içerikte istek yok, düğme yok. Devam konumundan başlarken bitmiş intro gösterilmez (10 sn tolerans).
+- **Düğme:** sağ altta, segmentin ilk 20 sn'sinde kontroller gizliyken de, sonra kontroller açılınca görünür. Kumandada görünürken odak düğmededir (odak halkası), Tamam = atla, Geri düğmeyi kapatır (oynatıcıdan çıkmaz). Atlanan segment o kaynak için kapanır.
+- **Otomatik atlama** (varsayılan kapalı): bir segmenti oturum başına en çok bir kez geçer; geri sarınca döngü yok. Açık uçlu jenerik (`end_ms: null`) videonun sonuna sarar; sonraki bölüme geçişi mevcut otomatik sonraki bölüm akışı devralır (AutoNext'e dokunulmadı).
+- **Ayarlar > Oynatıcı:** "Atlama butonlarını göster" (açık), "Atlama bölümlerini otomatik geç" (kapalı), "Atlanabilir bölüm türleri" başlığı altında İntro/Özet/Jenerik/Önizleme anahtarları. Ayarlar'a yeni ana kalem eklenmez.
+- **Debug:** `--es play_introdb_endpoint http://127.0.0.1:port/v4/media` (`DebugEndpoints.introDbBase`; `adb reverse` ile, yalnızca o loopback portu `PlayNetworkGuard`'da açılır). Yayın derlemesinde yok sayılır.
+- **Alınmayanlar:** OCR jenerik algısı (`CreditsRollDetector`, ML Kit metin tanıma), kare yakalama, `prepareManualNext`, modun diğer değişiklikleri.
 
 ## Oynatıcı: hızlı başlangıç ve paneller (kullanıcının isteğiyle; 2026-10-14; sürüm 1.0.4'te kaldı, yayınlanmadı)
 Ayrıntı, test sonuçları ve bilinen sınırlar README "Oynatıcı: hızlı başlangıç…". Bağlayıcı kurallar:
