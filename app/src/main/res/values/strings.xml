@@ -554,8 +554,8 @@
     <string name="wifi_sync_title">Wi-Fi sync · Local</string>
     <string name="wifi_sync_description">Profiles, history, addon repositories and addon states are synced</string>
     <string name="wifi_sync_code">Code: %1$s</string>
-    <string name="wifi_sync_code_hint">Enter this code on the other device. It\'s valid for 3 minutes.</string>
-    <string name="wifi_sync_peer_code">Device code</string>
+    <string name="wifi_sync_code_hint">On the other device, enter this code in the \'Other device\'s code\' box. It\'s valid for 3 minutes.</string>
+    <string name="wifi_sync_peer_code">Other device\'s code</string>
     <string name="wifi_sync_connect">Connect</string>
     <string name="wifi_sync_debug_address">Device address (debug)</string>
     <string name="wifi_sync_new_code">New code</string>

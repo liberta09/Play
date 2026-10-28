@@ -157,9 +157,16 @@ internal fun WifiSyncCardContent(
                     Text(
                         text = stringResource(R.string.wifi_sync_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        // Yarı saydam zeminde içerik rengi temadan çıkarılamıyor (koyu kalıyordu): açıkça ana yazı rengi.
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f),
                     )
-                    Icon(if (expanded) PlayIcons.ChevronDown else PlayIcons.ChevronRight, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Icon(
+                        if (expanded) PlayIcons.ChevronDown else PlayIcons.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp),
+                    )
                 }
             }
             if (!expanded) {

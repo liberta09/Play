@@ -536,8 +536,8 @@
     <string name="wifi_sync_title">Wi-Fi senkronizasyonu · Yerel</string>
     <string name="wifi_sync_description">Profil, geçmiş, eklenti depoları ve eklenti durumları eşitlenir</string>
     <string name="wifi_sync_code">Kod: %1$s</string>
-    <string name="wifi_sync_code_hint">Bu kodu diğer cihazda yaz. 3 dakika geçerlidir.</string>
-    <string name="wifi_sync_peer_code">Cihaz kodu</string>
+    <string name="wifi_sync_code_hint">Diğer cihazda \'Diğer cihazın kodu\' kutusuna bu kodu yaz. 3 dakika geçerlidir.</string>
+    <string name="wifi_sync_peer_code">Diğer cihazın kodu</string>
     <string name="wifi_sync_connect">Bağlan</string>
     <string name="wifi_sync_debug_address">Cihaz adresi (debug)</string>
     <string name="wifi_sync_new_code">Yeni kod</string>
