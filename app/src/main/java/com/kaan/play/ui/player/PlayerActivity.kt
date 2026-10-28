@@ -86,6 +86,9 @@ class PlayerActivity : AppCompatActivity() {
     /** Dikey kaydırmayla ses/parlaklık; dokunmatik olmayan cihazlarda (TV/kumanda) null. */
     private var levels: DeviceLevels? = null
 
+    /** İntro/özet/jenerik/önizleme atlama düğmeleri ve isteğe bağlı otomatik atlama (TheIntroDB + chapter işaretleri). */
+    private lateinit var skips: SkipController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val incomingIntent = intent ?: run {
@@ -123,6 +126,15 @@ class PlayerActivity : AppCompatActivity() {
             torrentUrl = container.torrentServer::urlFor,
             bigBuffer = bigBuffer,
         )
+        skips = SkipController(
+            scope = lifecycleScope,
+            request = { session.target.request },
+            provider = container.skipSegmentProvider,
+            settings = container.settings.skipPlayback,
+            seekTo = controller::seekTo,
+            startPositionMs = session.startPositionMs,
+        )
+        skips.attach(controller.player)
         controller.player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (!isPlaying) saveProgress() // duraklatma
@@ -293,6 +305,7 @@ class PlayerActivity : AppCompatActivity() {
                     offlineStream = if (offline != null) session.stream else null,
                     embeddedDub = embeddedDub,
                     onAudioChosen = ::onAudioChosen,
+                    skips = skips,
                     onBack = ::finish,
                 )
             }
@@ -321,6 +334,7 @@ class PlayerActivity : AppCompatActivity() {
                         playing = controller.ui.isPlaying,
                         ended = controller.ui.ended,
                     )
+                    skips.tick(controller.positionMs(), controller.ui.isPlaying)
                 }
             }
         }
@@ -385,6 +399,7 @@ class PlayerActivity : AppCompatActivity() {
             appContainer.torrentEngine.closeActive()
         }
         currentStream = stream
+        skips.onSourceChanged(startMs)
         embeddedDub = false
         // Dublajlı kaynakta Türkçe altyazı gereksiz: otomatik seçim kapanır (kullanıcının elle seçtiğine dokunulmaz).
         if (stream.dubbed) subtitles.suppressAuto() else subtitles.resumeAuto()

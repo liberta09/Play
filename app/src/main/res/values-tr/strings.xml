@@ -413,6 +413,17 @@
     <string name="settings_auto_next">Sonraki bölümü otomatik oynat</string>
     <string name="settings_auto_next_countdown">Geri sayım</string>
     <string name="settings_auto_next_seconds">%1$d sn</string>
+    <string name="settings_skip_buttons">Atlama butonlarını göster</string>
+    <string name="settings_auto_skip_segments">Atlama bölümlerini otomatik geç</string>
+    <string name="settings_skip_segment_types">Atlanabilir bölüm türleri</string>
+    <string name="settings_skip_intro">İntro</string>
+    <string name="settings_skip_recap">Özet</string>
+    <string name="settings_skip_credits">Jenerik</string>
+    <string name="settings_skip_preview">Önizleme</string>
+    <string name="player_skip_intro">İntroyu geç</string>
+    <string name="player_skip_recap">Özeti geç</string>
+    <string name="player_skip_credits">Jeneriği geç</string>
+    <string name="player_skip_preview">Önizlemeyi geç</string>
 
     <!-- Güncelleme indirmesi: bildirimler -->
     <string name="update_channel_name">Uygulama güncellemeleri</string>
