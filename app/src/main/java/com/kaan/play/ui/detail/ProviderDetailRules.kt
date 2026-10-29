@@ -6,7 +6,7 @@ package com.kaan.play.ui.detail
  */
 object ProviderDetailRules {
     /**
-     * Stremio türü "tv" veya "channel" olan, ya da meta içinde bölüm listesi (videos)
+     * Addon meta türü "tv" veya "channel" olan, ya da meta içinde bölüm listesi (videos)
      * boş olan içerikler canlı veya tek parça oynatılabilir sayılır.
      */
     fun isLive(type: String?, videosCount: Int): Boolean {

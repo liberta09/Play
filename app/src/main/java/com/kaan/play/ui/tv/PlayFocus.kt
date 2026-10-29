@@ -110,7 +110,7 @@ private class RingNode(
 /**
  * TV Kumandası için Merkezi Premium Odak Motoru:
  * - Pürüzsüz Scale (Öne Çıkma): Odaklanan öğe spring animasyonuyla öne çıkar (1.08f) ve [zIndex] ile diğer öğelerin üzerinde durur.
- * - Neon Ambient Glow (Parlama): Odaklanan öğenin arkasında ve çevresinde Nuvio Cyan (#00E5FF) tonlarında yumuşak neon ışığı ve donanımsal derinlik gölgesi yayılır (elevation = 24.dp).
+ * - Neon Ambient Glow (Parlama): Odaklanan öğenin arkasında ve çevresinde elektrik camgöbeği (#00E5FF) tonlarında yumuşak neon ışığı ve donanımsal derinlik gölgesi yayılır (elevation = 24.dp).
  * - Sert çizgiler (border/stroke) KESİNLİKLE YOKTUR.
  */
 @Composable

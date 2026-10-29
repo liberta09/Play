@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 
-/** Netflix / Disney+ tarzı yüksek kaliteli, modern avatar kataloğu. */
+/** Özgün çizim avatar kataloğu. */
 val profileAvatarOptions: List<String> = listOf(
     "space_astro",
     "scifi_cyber",
