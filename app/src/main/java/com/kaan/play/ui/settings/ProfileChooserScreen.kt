@@ -27,18 +27,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,7 +64,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.R
 import com.kaan.play.data.sync.CloudRegistrationResult
 import com.kaan.play.data.sync.LocalProfileSummary
+import com.kaan.play.ui.components.Button
+import com.kaan.play.ui.components.OutlinedButton
+import com.kaan.play.ui.components.TextButton
 import com.kaan.play.ui.nav.PlayIcons
+import com.kaan.play.ui.tv.focusMemory
+import com.kaan.play.ui.tv.focusRing
+import com.kaan.play.ui.tv.rememberFocusMemory
+import androidx.compose.ui.graphics.Brush
 import com.kaan.play.ui.rememberContainer
 import kotlinx.coroutines.launch
 
@@ -96,10 +100,13 @@ fun ProfileChooserScreen(
     var pinError by remember { mutableStateOf(false) }
 
     var editDialogTarget by remember { mutableStateOf<LocalProfileSummary?>(null) }
+    // Kumanda: ilk profil başlangıç odağı; sekme/profil listesi değişince odak yeniden verilir.
+    val focus = rememberFocusMemory(forceOnTouch = true, resetKey = "${selectedTab}:${profiles.firstOrNull()?.id}")
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Brush.verticalGradient(listOf(Color(0xFF3A1027), Color(0xFF190B14), Color(0xFF050505))))
             .statusBarsPadding()
             .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -113,11 +120,13 @@ fun ProfileChooserScreen(
             Tab(
                 selected = selectedTab == ProfileChooserTab.Profiles,
                 onClick = { selectedTab = ProfileChooserTab.Profiles },
+                modifier = Modifier.focusMemory(focus, "tab-profiles").focusRing(RoundedCornerShape(8.dp)),
                 text = { Text("Profiller") },
             )
             Tab(
                 selected = selectedTab == ProfileChooserTab.Account,
                 onClick = { selectedTab = ProfileChooserTab.Account },
+                modifier = Modifier.focusMemory(focus, "tab-account").focusRing(RoundedCornerShape(8.dp)),
                 text = { Text("Bulut Hesabı") },
             )
         }
@@ -167,6 +176,7 @@ fun ProfileChooserScreen(
                     items(profiles) { profile ->
                         ProfileChoice(
                             profile = profile,
+                            modifier = Modifier.focusMemory(focus, "profile-${profile.id}", isDefault = profile == profiles.first()),
                             onClick = {
                                 if (managingProfiles) {
                                     editDialogTarget = profile
@@ -322,7 +332,7 @@ fun ProfileChoice(
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().focusRing(RoundedCornerShape(16.dp), scale = 1.04f),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
