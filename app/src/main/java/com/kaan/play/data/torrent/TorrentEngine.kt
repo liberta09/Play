@@ -55,16 +55,7 @@ class TorrentEngine(private val dir: File) {
 
     /** Kaynak listesinde torrent görünce oturumu önceden başlatır (DHT ısınsın, açılış hızlansın). */
     fun warmUp() {
-        if (!isSupported) return
-        background.execute {
-            try {
-                synchronized(lock) { ensureSession() }
-            } catch (t: Throwable) {
-                isSupported = false
-                TorrentDiag.e("libtorrent warmUp hatası (devre dışı bırakıldı): ${t.message}", t)
-                Log.w(TAG, "libtorrent warmUp failed, disabling torrent engine", t)
-            }
-        }
+        background.execute { runCatching { synchronized(lock) { ensureSession() } } }
     }
 
     /**
@@ -72,80 +63,64 @@ class TorrentEngine(private val dir: File) {
      * başka bir torrent açıksa o kapatılıp dosyaları silinir. Engelleyicidir: arka plan iş parçacığında çağrılır.
      */
     fun open(magnet: String, fileHint: Int?): Opened {
-        if (!isSupported) {
-            throw TorrentException(TorrentException.Reason.Engine, "libtorrent is not supported on this device")
-        }
         val hash = TorrentLinks.hexHashOf(magnet) ?: throw TorrentException(TorrentException.Reason.BadLink, "bad magnet")
         TorrentDiag.d("motor open: hash=$hash fileHint=$fileHint")
         synchronized(lock) {
-            try {
-                active?.let { if (it.hash == hash && it.fileHint == fileHint && it.handle.isValid) return it }
-                val s = ensureSession()
-                active?.let { removeLocked(s, it) }
+            active?.let { if (it.hash == hash && it.fileHint == fileHint && it.handle.isValid) return it }
+            val s = ensureSession()
+            active?.let { removeLocked(s, it) }
 
-                val sha1 = Sha1Hash.parseHex(hash)
-                var handle = s.find(sha1)
-                if (handle == null || !handle.isValid) {
-                    // Dosyalar varsayılan olarak indirilmez: üst bilgi gelince yalnızca seçilen dosya açılır.
-                    s.download(magnet, dir, TorrentFlags.DEFAULT_DONT_DOWNLOAD)
-                    handle = waitFor(METADATA_TIMEOUT_MS) { s.find(sha1)?.takeIf { it.isValid } }
-                        ?: throw TorrentException(TorrentException.Reason.Engine, "torrent not added")
-                    PUBLIC_TRACKERS.forEach { runCatching { handle.addTracker(AnnounceEntry(it)) } }
-                }
-                val h = handle
-                waitFor(METADATA_TIMEOUT_MS) { h.takeIf { it.isValid && it.status().hasMetadata() } }
-                    ?: run {
-                        s.remove(h, SessionHandle.DELETE_FILES)
-                        throw TorrentException(TorrentException.Reason.NoMetadata, "no metadata")
-                    }
-
-                val info = h.torrentFile()
-                val files = info.files()
-                val entries = (0 until files.numFiles()).map {
-                    TorrentRules.FileEntry(files.fileName(it), files.fileSize(it), files.padFileAt(it))
-                }
-                val index = TorrentRules.pickFile(entries, fileHint) ?: run {
-                    s.remove(h, SessionHandle.DELETE_FILES)
-                    throw TorrentException(TorrentException.Reason.NoFile, "no playable file")
-                }
-                val size = files.fileSize(index)
-                if (dir.usableSpace in 1 until size + SPACE_MARGIN) {
-                    s.remove(h, SessionHandle.DELETE_FILES)
-                    throw TorrentException(TorrentException.Reason.NoSpace, "not enough space")
-                }
-
-                h.prioritizeFiles(Array(files.numFiles()) { if (it == index) Priority.DEFAULT else Priority.IGNORE })
-                h.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
-                val offset = files.fileOffset(index)
-                val pieceLength = info.pieceLength()
-                // MKV/MP4 dizini çoğu zaman dosyanın sonundadır: baş ve son parçalar önce gelsin.
-                val first = TorrentRules.pieceAt(offset, 0, pieceLength)
-                val last = TorrentRules.pieceAt(offset, size - 1, pieceLength)
-                listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEach { h.piecePriority(it, Priority.TOP_PRIORITY) }
-
-                TorrentDiag.d("torrent açıldı: hash=$hash dosya[$index]=${files.fileName(index)} boyut=$size parça=$pieceLength (dosya sayısı ${files.numFiles()}, ipucu=$fileHint)")
-                return Opened(hash, fileHint, h, files.fileName(index), size, offset, pieceLength, File(h.savePath(), files.filePath(index)))
-                    .also { active = it }
-            } catch (te: TorrentException) {
-                throw te
-            } catch (t: Throwable) {
-                isSupported = false
-                TorrentDiag.e("libtorrent open hatası (devre dışı bırakıldı): ${t.message}", t)
-                Log.w(TAG, "libtorrent open failed, disabling torrent engine", t)
-                throw TorrentException(TorrentException.Reason.Engine, "engine unavailable: ${t.message}")
+            val sha1 = Sha1Hash.parseHex(hash)
+            var handle = s.find(sha1)
+            if (handle == null || !handle.isValid) {
+                // Dosyalar varsayılan olarak indirilmez: üst bilgi gelince yalnızca seçilen dosya açılır.
+                s.download(magnet, dir, TorrentFlags.DEFAULT_DONT_DOWNLOAD)
+                handle = waitFor(METADATA_TIMEOUT_MS) { s.find(sha1)?.takeIf { it.isValid } }
+                    ?: throw TorrentException(TorrentException.Reason.Engine, "torrent not added")
+                PUBLIC_TRACKERS.forEach { runCatching { handle.addTracker(AnnounceEntry(it)) } }
             }
+            val h = handle
+            waitFor(METADATA_TIMEOUT_MS) { h.takeIf { it.isValid && it.status().hasMetadata() } }
+                ?: run {
+                    s.remove(h, SessionHandle.DELETE_FILES)
+                    throw TorrentException(TorrentException.Reason.NoMetadata, "no metadata")
+                }
+
+            val info = h.torrentFile()
+            val files = info.files()
+            val entries = (0 until files.numFiles()).map {
+                TorrentRules.FileEntry(files.fileName(it), files.fileSize(it), files.padFileAt(it))
+            }
+            val index = TorrentRules.pickFile(entries, fileHint) ?: run {
+                s.remove(h, SessionHandle.DELETE_FILES)
+                throw TorrentException(TorrentException.Reason.NoFile, "no playable file")
+            }
+            val size = files.fileSize(index)
+            if (dir.usableSpace in 1 until size + SPACE_MARGIN) {
+                s.remove(h, SessionHandle.DELETE_FILES)
+                throw TorrentException(TorrentException.Reason.NoSpace, "not enough space")
+            }
+
+            h.prioritizeFiles(Array(files.numFiles()) { if (it == index) Priority.DEFAULT else Priority.IGNORE })
+            h.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
+            val offset = files.fileOffset(index)
+            val pieceLength = info.pieceLength()
+            // MKV/MP4 dizini çoğu zaman dosyanın sonundadır: baş ve son parçalar önce gelsin.
+            val first = TorrentRules.pieceAt(offset, 0, pieceLength)
+            val last = TorrentRules.pieceAt(offset, size - 1, pieceLength)
+            listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEach { h.piecePriority(it, Priority.TOP_PRIORITY) }
+
+            TorrentDiag.d("torrent açıldı: hash=$hash dosya[$index]=${files.fileName(index)} boyut=$size parça=$pieceLength (dosya sayısı ${files.numFiles()}, ipucu=$fileHint)")
+            return Opened(hash, fileHint, h, files.fileName(index), size, offset, pieceLength, File(h.savePath(), files.filePath(index)))
+                .also { active = it }
         }
     }
 
     /** Yeni bir okuma (HTTP isteği) [position]'dan başlıyor: eski süre sınırları kalkar, bu konumun önü öne alınır. */
     fun seek(file: Opened, position: Long) {
-        try {
-            if (!file.handle.isValid) return
-            file.handle.clearPieceDeadlines()
-            file.windowStart = -1
-        } catch (t: Throwable) {
-            Log.w(TAG, "torrent seek hatası: ${t.message}", t)
-        }
+        if (!file.handle.isValid) return
+        file.handle.clearPieceDeadlines()
+        file.windowStart = -1
     }
 
     /**
@@ -201,17 +176,13 @@ class TorrentEngine(private val dir: File) {
     fun release() {
         if (users.decrementAndGet() > 0) return
         background.execute {
-            try {
-                synchronized(lock) {
-                    if (users.get() > 0) return@synchronized
-                    val s = session ?: return@synchronized
-                    active?.let { removeLocked(s, it) }
-                    runCatching { s.stop() }
-                    session = null
-                    dir.deleteRecursively()
-                }
-            } catch (t: Throwable) {
-                Log.w(TAG, "torrent release hatası: ${t.message}", t)
+            synchronized(lock) {
+                if (users.get() > 0) return@synchronized
+                val s = session ?: return@synchronized
+                active?.let { removeLocked(s, it) }
+                runCatching { s.stop() }
+                session = null
+                dir.deleteRecursively()
             }
         }
     }
@@ -223,14 +194,10 @@ class TorrentEngine(private val dir: File) {
     fun closeActive() {
         val closing = active ?: return
         background.execute {
-            try {
-                synchronized(lock) {
-                    val s = session ?: return@synchronized
-                    // Arada yeni bir torrent açıldıysa (aynı anda başlayan bölüm) ona dokunulmaz.
-                    if (active === closing) removeLocked(s, closing)
-                }
-            } catch (t: Throwable) {
-                Log.w(TAG, "torrent closeActive hatası: ${t.message}", t)
+            synchronized(lock) {
+                val s = session ?: return@synchronized
+                // Arada yeni bir torrent açıldıysa (aynı anda başlayan bölüm) ona dokunulmaz.
+                if (active === closing) removeLocked(s, closing)
             }
         }
     }
@@ -241,22 +208,15 @@ class TorrentEngine(private val dir: File) {
     }
 
     private fun ensureSession(): SessionManager {
-        if (!isSupported) {
-            throw TorrentException(TorrentException.Reason.Engine, "libtorrent is not supported on this device")
-        }
         session?.let { return it }
         // Önceki oturumdan (ör. uygulama öldürüldüyse) kalanlar silinir.
-        try {
-            dir.deleteRecursively()
-            dir.mkdirs()
-        } catch (t: Throwable) {
-            Log.w(TAG, "torrent dizini hazırlanamadı: ${t.message}", t)
-        }
+        dir.deleteRecursively()
+        dir.mkdirs()
+        val settings = SettingsPack()
+            .connectionsLimit(CONNECTIONS)
+            .activeDownloads(2)
+        val params = SessionParams(settings).apply { setPosixDiskIO() }
         return try {
-            val settings = SettingsPack()
-                .connectionsLimit(CONNECTIONS)
-                .activeDownloads(2)
-            val params = SessionParams(settings).apply { setPosixDiskIO() }
             TorrentDiag.d("libtorrent oturumu başlıyor (ABI=${android.os.Build.SUPPORTED_ABIS.joinToString()}, dizin=$dir)")
             SessionManager(false).also {
                 it.addListener(object : AlertListener {
@@ -271,12 +231,11 @@ class TorrentEngine(private val dir: File) {
                 session = it
                 TorrentDiag.d("libtorrent oturumu başladı")
             }
-        } catch (t: Throwable) {
-            // Yerel kütüphane bu işlemcide yoksa (UnsatisfiedLinkError: aligned_alloc) ya da başlatılamazsa.
-            isSupported = false
-            TorrentDiag.e("libtorrent oturumu başlatılamadı (devre dışı bırakıldı)", t)
-            Log.w(TAG, "libtorrent session failed, disabling torrent engine", t)
-            throw TorrentException(TorrentException.Reason.Engine, "engine unavailable: ${t.message}")
+        } catch (e: Throwable) {
+            // Yerel kütüphane bu işlemcide yoksa (UnsatisfiedLinkError) ya da başlatılamazsa.
+            TorrentDiag.e("libtorrent oturumu başlatılamadı", e)
+            Log.w(TAG, "libtorrent session failed", e)
+            throw TorrentException(TorrentException.Reason.Engine, "engine unavailable")
         }
     }
 
@@ -289,12 +248,8 @@ class TorrentEngine(private val dir: File) {
         return probe()
     }
 
-    companion object {
-        private const val TAG = "PlayTorrent"
-
-        /** libtorrent4j yerel kütüphanesinin (özellikle Android 7 ve eski mimarilerde) yüklenebilirliği. */
-        @Volatile var isSupported: Boolean = true
-            private set
+    private companion object {
+        const val TAG = "PlayTorrent"
 
         /** Teşhis logunda atlanan, çok sık gelen alert türleri. */
         val NOISY_ALERTS = listOf("BLOCK_", "PIECE_FINISHED", "STATS", "STATE_UPDATE", "SESSION_STATS", "PEER_", "INCOMING_", "DHT_", "UNWANTED_BLOCK", "LOG", "PICKER_LOG")

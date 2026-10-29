@@ -152,57 +152,6 @@ class TmdbRepositoryTest {
     }
 
     @Test
-    fun movieRelatedUsesKeywordDiscoveryAndDropsPopularButUnrelatedTitle() = runTest {
-        fixtures["movie/100|tr-TR"] = """
-            {"id":100,"title":"Rüya Hırsızı","overview":"Bir hırsız rüya zihin plan.",
-             "genres":[{"id":878,"name":"Bilim Kurgu"},{"id":28,"name":"Aksiyon"}],
-             "keywords":{"keywords":[{"id":501,"name":"dream"},{"id":502,"name":"heist"}]},
-             "recommendations":{"results":[
-               {"id":101,"title":"Aynı tema","overview":"Hırsız rüya zihin plan.","genre_ids":[878,28],"vote_average":7.0,"popularity":10},
-               {"id":102,"title":"Alakasız ve popüler","overview":"Bir köy sanatçısı ailesiyle yeni bir şehre taşınır.","genre_ids":[28],"vote_average":9.8,"popularity":900}
-             ]},
-             "similar":{"results":[{"id":100,"title":"Kaynağın kendisi","overview":"Hırsız rüya zihin plan.","genre_ids":[878,28]}]}}
-        """
-        fixtures["discover/movie|tr-TR"] = """
-            {"results":[
-              {"id":103,"title":"Anahtar kelime eşleşmesi","overview":"Rüya dünyasında bir plan.","genre_ids":[878,28],"popularity":5},
-              {"id":104,"media_type":"tv","name":"Başka tür","overview":"Rüya plan.","genre_ids":[878,28]}
-            ]}
-        """
-
-        val detail = repo().detail(MediaType.Movie, 100)
-
-        assertEquals(listOf(878, 28), detail.summary.genreIds)
-        assertEquals(listOf(101, 103), detail.similar.map { it.id })
-        assertEquals(10.0, detail.similar.first().popularity!!, 0.001) // Yüksek popülerliğe rağmen alakasız içerik elenir.
-        val discover = seen.single { it.encodedPath.endsWith("/discover/movie") }
-        assertEquals("501|502", discover.queryParameter("with_keywords"))
-        assertEquals("878|28", discover.queryParameter("with_genres"))
-        assertEquals("false", discover.queryParameter("include_adult"))
-        assertEquals(
-            "external_ids,credits,images,alternative_titles,similar,recommendations,keywords,videos,release_dates",
-            seen.first().queryParameter("append_to_response"),
-        )
-    }
-
-    @Test
-    fun tvRelatedReadsTheResultsKeywordShape() = runTest {
-        fixtures["tv/200|tr-TR"] = """
-            {"id":200,"name":"Zaman Dizisi","overview":"zaman yolculuğu aile sırrı",
-             "genres":[{"id":10765,"name":"Bilim Kurgu"}],
-             "keywords":{"results":[{"id":601,"name":"time travel"}]}}
-        """
-        fixtures["discover/tv|tr-TR"] = """
-            {"results":[{"id":201,"name":"Benzer tema","overview":"zaman yolculuğu aile sırrı","genre_ids":[10765]}]}
-        """
-
-        val detail = repo().detail(MediaType.Tv, 200)
-
-        assertEquals(listOf(201), detail.similar.map { it.id })
-        assertEquals("601", seen.single { it.encodedPath.endsWith("/discover/tv") }.queryParameter("with_keywords"))
-    }
-
-    @Test
     fun detailCarriesOriginalAndAlternativeTitlesForMatching() = runTest {
         fixtures["movie/120|tr-TR"] = """
             {"id":120,"title":"Yüzüklerin Efendisi: Yüzük Kardeşliği","original_title":"The Lord of the Rings: The Fellowship of the Ring",

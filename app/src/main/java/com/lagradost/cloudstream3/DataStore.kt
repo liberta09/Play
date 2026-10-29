@@ -4,55 +4,74 @@ import android.content.Context
 import android.content.SharedPreferences
 
 /**
- * CloudStream DataStore. Eklentiler kalıcı ayarlarını kaydetmek için bu sınıfı kullanabilir.
- * Play bu depoyu paylaşımlı tercihler (SharedPreferences) üzerinde çalıştırır.
+ * CloudStream DataStore root package köprüsü.
+ * Eklentiler hem `com.lagradost.cloudstream3.DataStore` hem de `com.lagradost.cloudstream3.utils.DataStore`
+ * çağrıları yapabildiğinden her iki paket üzerinden de tam uyumluluk sağlanır.
  */
 object DataStore {
-    private var prefs: SharedPreferences? = null
 
-    internal fun init(context: Context, name: String = "cs_plugin_data") {
-        prefs = context.getSharedPreferences(name, Context.MODE_PRIVATE)
+    @JvmStatic
+    fun init(context: Context, name: String = "cs_plugin_data") {
+        com.lagradost.cloudstream3.utils.DataStore.init(context, name)
     }
 
-    fun getFolderName(folder: String, path: String): String = "$folder/$path"
+    @JvmStatic
+    fun getPreferences(context: Context? = null): SharedPreferences? =
+        com.lagradost.cloudstream3.utils.DataStore.getPreferences(context)
+
+    @JvmStatic
+    fun getFolderName(folder: String, path: String): String =
+        com.lagradost.cloudstream3.utils.DataStore.getFolderName(folder, path)
 
     @JvmStatic
     fun <T> setKey(key: String, value: T) {
-        val p = prefs?.edit() ?: return
-        when (value) {
-            is String -> p.putString(key, value)
-            is Int -> p.putInt(key, value)
-            is Long -> p.putLong(key, value)
-            is Float -> p.putFloat(key, value)
-            is Boolean -> p.putBoolean(key, value)
-            else -> p.putString(key, value.toString())
-        }.apply()
+        com.lagradost.cloudstream3.utils.DataStore.setKey(key, value)
     }
 
-    @Suppress("UNCHECKED_CAST")
+    @JvmStatic
+    fun <T> setKey(folder: String, path: String, value: T) {
+        com.lagradost.cloudstream3.utils.DataStore.setKey(folder, path, value)
+    }
+
     @JvmStatic
     fun <T> getKey(key: String, defVal: T? = null): T? {
-        val p = prefs ?: return defVal
-        return when (defVal) {
-            is String -> p.getString(key, defVal as? String) as T?
-            is Int -> p.getInt(key, defVal as? Int ?: 0) as T?
-            is Long -> p.getLong(key, defVal as? Long ?: 0L) as T?
-            is Float -> p.getFloat(key, defVal as? Float ?: 0f) as T?
-            is Boolean -> p.getBoolean(key, defVal as? Boolean ?: false) as T?
-            null -> p.getString(key, null) as T?
-            else -> defVal
-        }
+        return com.lagradost.cloudstream3.utils.DataStore.getKey(key, defVal)
+    }
+
+    @JvmStatic
+    fun <T> getKey(folder: String, path: String, defVal: T? = null): T? {
+        return com.lagradost.cloudstream3.utils.DataStore.getKey(folder, path, defVal)
+    }
+
+    @JvmStatic
+    fun <T : Any> getKey(path: String, valueType: Class<T>): T? {
+        return com.lagradost.cloudstream3.utils.DataStore.getKey(path, valueType)
     }
 
     @JvmStatic
     fun removeKey(key: String) {
-        prefs?.edit()?.remove(key)?.apply()
+        com.lagradost.cloudstream3.utils.DataStore.removeKey(key)
     }
 
     @JvmStatic
-    fun containsKey(key: String): Boolean = prefs?.contains(key) ?: false
+    fun removeKey(folder: String, path: String) {
+        com.lagradost.cloudstream3.utils.DataStore.removeKey(folder, path)
+    }
 
-    fun <T> Context.setKey(path: String, value: T) = DataStore.setKey(path, value)
-    fun <T> Context.getKey(path: String, defVal: T? = null): T? = DataStore.getKey(path, defVal)
-    fun Context.removeKey(path: String) = DataStore.removeKey(path)
+    @JvmStatic
+    fun containsKey(key: String): Boolean =
+        com.lagradost.cloudstream3.utils.DataStore.containsKey(key)
+
+    @JvmStatic
+    fun containsKey(folder: String, path: String): Boolean =
+        com.lagradost.cloudstream3.utils.DataStore.containsKey(folder, path)
+
+    fun <T> Context.setKey(path: String, value: T) =
+        com.lagradost.cloudstream3.utils.DataStore.run { setKey(path, value) }
+
+    fun <T> Context.getKey(path: String, defVal: T? = null): T? =
+        com.lagradost.cloudstream3.utils.DataStore.run { getKey(path, defVal) }
+
+    fun Context.removeKey(path: String) =
+        com.lagradost.cloudstream3.utils.DataStore.run { removeKey(path) }
 }

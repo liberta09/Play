@@ -126,11 +126,10 @@ class NuvioAddonCatalog(
             .map { meta ->
                 val type = meta.type.lowercase(java.util.Locale.ROOT)
                 val live = LiveCatalogRules.isLiveType(type) || LiveCatalogRules.isKnownLiveChannel(meta.name)
-                    CatalogItem(
-                        id = meta.id,
-                        title = meta.name,
-                        year = meta.year ?: meta.releaseInfo?.let(::yearFromReleaseInfo),
-                        subtitle = when (type) {
+                CatalogItem(
+                    id = meta.id,
+                    title = meta.name,
+                    subtitle = when (type) {
                         "series" -> "Dizi"
                         "tv", "channel" -> if (java.util.Locale.getDefault().language == "tr") "Canlı" else "Live"
                         else -> if (live) if (java.util.Locale.getDefault().language == "tr") "Canlı" else "Live" else null
@@ -176,7 +175,6 @@ class NuvioAddonCatalog(
                 CatalogItem(
                     id = meta.id,
                     title = meta.name,
-                    year = meta.year ?: meta.releaseInfo?.let(::yearFromReleaseInfo),
                     subtitle = when (meta.type.lowercase()) {
                         "series" -> "Dizi"
                         "tv", "channel" -> if (java.util.Locale.getDefault().language == "tr") "Canlı" else "Live"
@@ -218,8 +216,4 @@ private data class StremioMeta(
     val name: String,
     val poster: String? = null,
     val description: String? = null,
-    val year: Int? = null,
-    val releaseInfo: String? = null,
 )
-
-private fun yearFromReleaseInfo(value: String): Int? = Regex("\\b(19\\d{2}|20\\d{2})\\b").find(value)?.groupValues?.get(1)?.toIntOrNull()

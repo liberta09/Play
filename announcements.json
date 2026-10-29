@@ -1,67 +1,59 @@
-﻿{
-  "announcements": [
-    {
-      "id": "2026-10-29-play-121",
-      "title": "🚀 Play 1.2.1 yayında!",
-      "message": "✨ Yenilikler & Hotfix:\n• Yepyeni Premium Neon Glow odak tasarımı ve kaba çizgilerin temizliği\n• Nuvio tarzı yüzen üst menü (Floating TopBar)\n• İçerik/eklenti tıklama ve kaynak bulma yönlendirme düzeltmeleri\n• Akış oynatma ve kararlılık iyileştirmeleri 🎉",
-      "link": "https://github.com/liberta09/Play/releases/download/v1.2.1/Play-1.2.1.apk",
-      "minVersion": "1.2.1",
-      "until": "2026-12-31"
-    },
-    {
-      "id": "2026-10-28-play-120",
-      "title": "🎉 Play 1.2.0 yayında!",
-      "message": "✨ Yenilikler:\n•  Wi-Fi senkronizasyonu: aynı ağdaki iki cihaz arasında profil, izleme geçmişi, favori ve eklentiler eşitlenir\n•  Bulut hesabı artık eklentilerinizi de eşitliyor\n•  İntro, özet ve jenerik atlama (verisi olan bölümlerde)\n•  Arama ekranında Tümü / Filmler / Diziler filtresi\n•  Detay ekranında bölüm indirme düğmeleri\n•  Kumanda ile Depo Kataloğu ve Eklentiler sayfalarında rahat gezinme\n•  Hız testi ve büyük yazı boyutunda TV sekmesi düzeltmeleri 🍿🎬",
-      "link": "https://github.com/liberta09/Play/releases/download/v1.2.0/Play-1.2.0.apk",
-      "until": "2026-12-31"
-    },
-    {
-      "id": "2026-10-28-play-1120",
-      "title": "🎉 Play 1.1.20 yayında!",
-      "message": "Çoklu Profil yönetimi, Supabase Bulut Senkronizasyonu, internet hız testi ve TV Box açılış zırhlaması eklendi. 🍿🎬",
-      "link": "https://github.com/liberta09/Play/releases/download/v1.1.20/Play-1.1.20.apk",
-      "minVersion": "1.1.20",
-      "until": "2026-12-31"
-    },
-    {
-      "id": "2026-10-27-play-1119",
-      "title": "🎉 Play 1.1.19 yayında!",
-      "message": "HDFilmCehennemi ve DiziBOX kaynak optimizasyonları ve oynatma iyileştirmeleri yapıldı. 🍿🎬",
-      "link": "https://github.com/liberta09/Play/releases/download/v1.1.19/Play-1.1.19.apk",
-      "minVersion": "1.1.19",
-      "until": "2026-12-31"
-    },
-    {
-      "id": "2026-10-26-play-1118",
-      "title": "🎉 Play 1.1.18 yayında!",
-      "message": "DataStore/Trakt koruma kalkanı ve oynatıcı kaynak listesi kararlılık düzeltmeleri yapıldı. 🍿🎬",
-      "link": "https://github.com/liberta09/Play/releases/download/v1.1.18/Play-1.1.18.apk",
-      "minVersion": "1.1.18",
-      "until": "2026-12-31"
-    },
-    {
-      "id": "2026-10-22-play-115",
-      "title": "🎉 Play 1.1.5 yayında!",
-      "message": "Web görünümünde kumanda imleci, ekran klavyesi, otomatik tam ekran ve güçlendirilmiş reklam engeli eklendi. 🍿🎬",
-      "link": "https://t.me/+o-RFlV4U3UY5NGU8",
-      "minVersion": "1.1.5",
-      "until": "2026-12-31"
-    },
-    {
-      "id": "2026-10-21-telegram",
-      "title": "📢 Play Telegram kanalı açıldı!",
-      "message": "Duyurular, yeni sürümler ve destek için kanalımıza katılın. 💬",
-      "link": "https://t.me/+o-RFlV4U3UY5NGU8",
-      "minVersion": "1.1.3",
-      "until": "2026-12-31"
-    },
-    {
-      "id": "2026-10-21-play-112-telegram",
-      "title": "🎉 Play yayında! 🚀",
-      "message": "Beklenen an geldi! 🎬 Play artık sizlerle! 🍿🎉\n\n✨ Öne çıkan özellikler:\n• CloudStream entegrasyonu\n• Nuvio entegrasyonu\n• Repo Manager desteği\n• Kolay ve kullanıcı dostu arayüz\n\n📢 Duyurular ve destek için Telegram kanalımıza katılın!\n\n🍿 Play'i keşfetmeye hazır mısınız?\n🙏 Desteğiniz için teşekkürler. Herkese iyi seyirler! 🍿🎉",
-      "link": "https://t.me/+o-RFlV4U3UY5NGU8",
-      "minVersion": "1.1.2",
-      "until": "2026-12-31"
-    }
-  ]
-}
+{
+  "announcements": [
+    {
+      "id": "2026-10-28-play-120",
+      "title": "🎉 Play 1.2.0 yayında!",
+      "message": "✨ Yenilikler:\n✅ Wi-Fi senkronizasyonu: aynı ağdaki iki cihaz arasında profil, izleme geçmişi, favori ve eklentiler eşitlenir\n✅ Bulut hesabı artık eklentilerinizi de eşitliyor\n✅ İntro, özet ve jenerik atlama (verisi olan bölümlerde)\n✅ Arama ekranında Tümü / Filmler / Diziler filtresi\n✅ Detay ekranında bölüm indirme düğmeleri\n✅ Kumanda ile Depo Kataloğu ve Eklentiler sayfalarında rahat gezinme\n✅ Hız testi ve büyük yazı boyutunda TV sekmesi düzeltmeleri 🍿🎬",
+      "link": "https://github.com/liberta09/Play/releases/download/v1.2.0/Play-1.2.0.apk",
+      "until": "2026-12-31"
+    },
+    {
+      "id": "2026-10-28-play-1120",
+      "title": "🎉 Play 1.1.20 yayında!",
+      "message": "Çoklu Profil yönetimi, Supabase Bulut Senkronizasyonu, internet hız testi ve TV Box açılış zırhlaması eklendi. 🍿🎬",
+      "link": "https://github.com/liberta09/Play/releases/download/v1.1.20/Play-1.1.20.apk",
+      "minVersion": "1.1.20",
+      "until": "2026-12-31"
+    },
+    {
+      "id": "2026-10-27-play-1119",
+      "title": "🎉 Play 1.1.19 yayında!",
+      "message": "HDFilmCehennemi ve DiziBOX kaynak optimizasyonları ve oynatma iyileştirmeleri yapıldı. 🍿🎬",
+      "link": "https://github.com/liberta09/Play/releases/download/v1.1.19/Play-1.1.19.apk",
+      "minVersion": "1.1.19",
+      "until": "2026-12-31"
+    },
+    {
+      "id": "2026-10-26-play-1118",
+      "title": "🎉 Play 1.1.18 yayında!",
+      "message": "DataStore/Trakt koruma kalkanı ve oynatıcı kaynak listesi kararlılık düzeltmeleri yapıldı. 🍿🎬",
+      "link": "https://github.com/liberta09/Play/releases/download/v1.1.18/Play-1.1.18.apk",
+      "minVersion": "1.1.18",
+      "until": "2026-12-31"
+    },
+    {
+      "id": "2026-10-22-play-115",
+      "title": "🎉 Play 1.1.5 yayında!",
+      "message": "Web görünümünde kumanda imleci, ekran klavyesi, otomatik tam ekran ve güçlendirilmiş reklam engeli eklendi. 🍿🎬",
+      "link": "https://t.me/+o-RFlV4U3UY5NGU8",
+      "minVersion": "1.1.5",
+      "until": "2026-12-31"
+    },
+    {
+      "id": "2026-10-21-telegram",
+      "title": "📢 Play Telegram kanalı açıldı!",
+      "message": "Duyurular, yeni sürümler ve destek için kanalımıza katılın. 🍿",
+      "link": "https://t.me/+o-RFlV4U3UY5NGU8",
+      "minVersion": "1.1.3",
+      "until": "2026-12-31"
+    },
+    {
+      "id": "2026-10-21-play-112-telegram",
+      "title": "🎉 Play yayında! 🚀",
+      "message": "Beklenen an geldi! 🔥 Play artık sizlerle! 🎬🍿\n\n✨ Öne çıkan özellikler:\n✅ CloudStream entegrasyonu\n✅ Nuvio entegrasyonu\n✅ Repo Manager desteği\n✅ Kolay ve kullanıcı dostu arayüz\n\n📢 Duyurular ve destek için Telegram kanalımıza katılın!\n\n📲 Play'i keşfetmeye hazır mısınız?\n❤️ Desteğiniz için teşekkürler. Herkese iyi seyirler! 🍿🎬",
+      "link": "https://t.me/+o-RFlV4U3UY5NGU8",
+      "minVersion": "1.1.2",
+      "until": "2026-12-31"
+    }
+  ]
+}

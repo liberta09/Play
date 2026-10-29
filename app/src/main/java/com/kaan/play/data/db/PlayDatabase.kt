@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         AddonEntity::class, PluginEntity::class, WatchHistoryEntity::class, FavoriteEntity::class,
         SubtitleLanguageEntity::class, SubtitleOffsetEntity::class, DownloadEntity::class,
     ],
-    version = 7,
+    version = 6,
     exportSchema = true,
 )
 abstract class PlayDatabase : RoomDatabase() {
@@ -22,22 +22,45 @@ abstract class PlayDatabase : RoomDatabase() {
     abstract fun downloadDao(): DownloadDao
 
     companion object {
-        val MIGRATION_6_7 = object : Migration(6, 7) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE `watch_history` ADD COLUMN `manuallyMarkedWatched` INTEGER NOT NULL DEFAULT 0")
-            }
-        }
-
+        /**
+         * 5 -> 6: Profil ve senkronizasyon desteği: watch_history ve favorites tablolarına `userId` ve `profileId`
+         * alanları eklendi. Mevcut kayıtlar 'legacy-user' / 'legacy-profile' olarak taşınır.
+         */
         val MIGRATION_5_6 = object : Migration(5, 6) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("CREATE TABLE IF NOT EXISTS `watch_history_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tmdbId` INTEGER NOT NULL, `type` TEXT NOT NULL, `userId` TEXT NOT NULL DEFAULT 'legacy-user', `profileId` TEXT NOT NULL DEFAULT 'legacy-profile', `season` INTEGER NOT NULL, `episode` INTEGER NOT NULL, `positionMs` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `lastWatchedAt` INTEGER NOT NULL, `title` TEXT NOT NULL, `posterPath` TEXT, `pluginId` TEXT, `dataUrl` TEXT, `contentUrl` TEXT)")
-                db.execSQL("INSERT INTO `watch_history_new` (`id`,`tmdbId`,`type`,`season`,`episode`,`positionMs`,`durationMs`,`lastWatchedAt`,`title`,`posterPath`,`pluginId`,`dataUrl`,`contentUrl`) SELECT `id`,`tmdbId`,`type`,`season`,`episode`,`positionMs`,`durationMs`,`lastWatchedAt`,`title`,`posterPath`,`pluginId`,`dataUrl`,`contentUrl` FROM `watch_history`")
-                db.execSQL("DROP TABLE `watch_history`"); db.execSQL("ALTER TABLE `watch_history_new` RENAME TO `watch_history`")
-                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_watch_history_userId_profileId_tmdbId_type_season_episode` ON `watch_history` (`userId`,`profileId`,`tmdbId`,`type`,`season`,`episode`)")
-                db.execSQL("CREATE INDEX IF NOT EXISTS `index_watch_history_userId_profileId_lastWatchedAt` ON `watch_history` (`userId`,`profileId`,`lastWatchedAt`)")
-                db.execSQL("CREATE TABLE IF NOT EXISTS `favorites_new` (`tmdbId` INTEGER NOT NULL, `type` TEXT NOT NULL, `userId` TEXT NOT NULL DEFAULT 'legacy-user', `profileId` TEXT NOT NULL DEFAULT 'legacy-profile', `title` TEXT NOT NULL, `posterPath` TEXT, `addedAt` INTEGER NOT NULL, PRIMARY KEY(`userId`,`profileId`,`tmdbId`,`type`))")
-                db.execSQL("INSERT INTO `favorites_new` (`tmdbId`,`type`,`title`,`posterPath`,`addedAt`) SELECT `tmdbId`,`type`,`title`,`posterPath`,`addedAt` FROM `favorites`")
-                db.execSQL("DROP TABLE `favorites`"); db.execSQL("ALTER TABLE `favorites_new` RENAME TO `favorites`")
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `watch_history_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`tmdbId` INTEGER NOT NULL, `type` TEXT NOT NULL, `userId` TEXT NOT NULL DEFAULT 'legacy-user', " +
+                        "`profileId` TEXT NOT NULL DEFAULT 'legacy-profile', `season` INTEGER NOT NULL, `episode` INTEGER NOT NULL, " +
+                        "`positionMs` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `lastWatchedAt` INTEGER NOT NULL, " +
+                        "`title` TEXT NOT NULL, `posterPath` TEXT, `pluginId` TEXT, `dataUrl` TEXT, `contentUrl` TEXT)"
+                )
+                db.execSQL(
+                    "INSERT INTO `watch_history_new` (`id`,`tmdbId`,`type`,`season`,`episode`,`positionMs`,`durationMs`,`lastWatchedAt`,`title`,`posterPath`,`pluginId`,`dataUrl`,`contentUrl`) " +
+                        "SELECT `id`,`tmdbId`,`type`,`season`,`episode`,`positionMs`,`durationMs`,`lastWatchedAt`,`title`,`posterPath`,`pluginId`,`dataUrl`,`contentUrl` FROM `watch_history`"
+                )
+                db.execSQL("DROP TABLE `watch_history`")
+                db.execSQL("ALTER TABLE `watch_history_new` RENAME TO `watch_history`")
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS `index_watch_history_userId_profileId_tmdbId_type_season_episode` " +
+                        "ON `watch_history` (`userId`,`profileId`,`tmdbId`,`type`,`season`,`episode`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_watch_history_userId_profileId_lastWatchedAt` " +
+                        "ON `watch_history` (`userId`,`profileId`,`lastWatchedAt`)"
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `favorites_new` (`tmdbId` INTEGER NOT NULL, `type` TEXT NOT NULL, " +
+                        "`userId` TEXT NOT NULL DEFAULT 'legacy-user', `profileId` TEXT NOT NULL DEFAULT 'legacy-profile', " +
+                        "`title` TEXT NOT NULL, `posterPath` TEXT, `addedAt` INTEGER NOT NULL, " +
+                        "PRIMARY KEY(`userId`,`profileId`,`tmdbId`,`type`))"
+                )
+                db.execSQL(
+                    "INSERT INTO `favorites_new` (`tmdbId`,`type`,`title`,`posterPath`,`addedAt`) " +
+                        "SELECT `tmdbId`,`type`,`title`,`posterPath`,`addedAt` FROM `favorites`"
+                )
+                db.execSQL("DROP TABLE `favorites`")
+                db.execSQL("ALTER TABLE `favorites_new` RENAME TO `favorites`")
             }
         }
 

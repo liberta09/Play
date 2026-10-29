@@ -1,17 +1,12 @@
 package com.kaan.play.ui.addons
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
@@ -38,9 +33,12 @@ import com.kaan.play.data.web.WebSiteException
 import com.kaan.play.data.web.WebSiteRepository
 import com.kaan.play.data.web.WebSiteUrl
 import com.kaan.play.ui.nav.PlayIcons
-import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.dpadLeavesTextField
+import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.rememberCursorField
+import com.kaan.play.ui.tv.rememberRowControls
+import com.kaan.play.ui.tv.rowControl
+import com.kaan.play.ui.tv.rowControlsHost
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -94,49 +92,35 @@ class WebSitesViewModel(private val repo: WebSiteRepository) : ViewModel() {
 @Composable
 fun WebSiteRow(site: WebSite, onOpen: () -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     val host = remember(site.url) { WebSiteUrl.displayHost(site.url) }
+    val controls = rememberRowControls(1)
     androidx.compose.material3.Surface(
+        onClick = onOpen,
         shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().rowControlsHost(controls).focusRing(androidx.compose.foundation.shape.RoundedCornerShape(14.dp)),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-                .focusGroup(),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .focusRing(RoundedCornerShape(10.dp))
-                    .clickable(onClick = onOpen)
-                    .padding(vertical = 4.dp, horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = PlayIcons.Globe,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(end = 12.dp),
+            Icon(
+                imageVector = PlayIcons.Globe,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(end = 12.dp),
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(site.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(
+                    text = host,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(site.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(
-                        text = host,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            IconButton(
-                onClick = onRemove,
-                modifier = Modifier.focusRing(CircleShape),
-            ) {
+            IconButton(onClick = onRemove, modifier = Modifier.rowControl(controls, 0)) {
                 Icon(
                     PlayIcons.Trash,
                     contentDescription = stringResource(R.string.web_remove),

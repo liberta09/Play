@@ -62,17 +62,6 @@ class AddonUrlTest {
     }
 
     @Test
-    fun stremioAuthQueryIsPreservedOnProtocolEndpoints() {
-        val manifest = norm("https://a.example.com/addon/manifest.json?token=abc123&client=play")
-        assertEquals("https://a.example.com/addon/manifest.json?token=abc123&client=play", manifest)
-        assertEquals(
-            "https://a.example.com/addon/stream/movie/tt123.json?token=abc123&client=play",
-            AddonUrl.endpoint(manifest, "stream", "movie", "tt123.json").toString(),
-        )
-        assertEquals("https://a.example.com/addon?token=abc123&client=play", AddonUrl.baseOf(manifest))
-    }
-
-    @Test
     fun `baska bir json dosyasi olan adrese manifest eklenmez`() {
         assertEquals(
             "https://raw.example.com/u/r/main/repo.json",

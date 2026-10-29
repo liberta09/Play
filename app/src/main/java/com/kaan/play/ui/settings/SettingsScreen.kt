@@ -1,28 +1,17 @@
 package com.kaan.play.ui.settings
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,17 +21,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.BuildConfig
@@ -52,18 +34,18 @@ import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.i18n.AppLanguage
 import com.kaan.play.i18n.LanguageChoice
 import com.kaan.play.ui.components.ChoiceDialog
+import com.kaan.play.ui.components.PlayCardRow
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.tv.focusMemory
-import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.rememberFocusMemory
 import kotlinx.coroutines.launch
 
 private enum class OpenDialog { Theme, Language, Poster }
 
 /**
- * Ayarlar: tam beş kalem (Eklentiler, Oynatıcı, Tema, Dil, Hakkında), kart düzeninde
- * (koyu mavi yarı saydam kartlar, sol ikon, sağ ok).
+ * Ayarlar ekranı: Eklentiler, Oynatıcı, Hız Testi, Tema, Dil, Poster URL,
+ * Profil Seçimi, Son Profili Hatırla, Senkronizasyon ve Hakkında.
  */
 @Composable
 fun SettingsScreen(
@@ -73,15 +55,13 @@ fun SettingsScreen(
     onOpenProfile: () -> Unit,
     onOpenSync: () -> Unit,
     onOpenAbout: () -> Unit,
-    contentFocusRequester: FocusRequester? = null,
-    topBarFocusRequester: FocusRequester? = null,
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
     val addonCount by container.installedSourcesCount
         .collectAsStateWithLifecycle(initialValue = null)
     val theme by container.settings.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.Dark)
-    val rememberLastProfile by container.settings.rememberLastProfile.collectAsStateWithLifecycle(initialValue = false)
+    val rememberLastProfile by container.settings.rememberLastProfile.collectAsStateWithLifecycle(initialValue = true)
     val posterTemplate by container.settings.posterUrlTemplate.collectAsStateWithLifecycle(initialValue = PosterUrlTemplate.DEFAULT)
     var language by remember { mutableStateOf(AppLanguage.choice()) }
     var dialog by remember { mutableStateOf<OpenDialog?>(null) }
@@ -102,18 +82,7 @@ fun SettingsScreen(
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
         )
-        com.kaan.play.ui.components.PlayCardRow(
-            title = stringResource(R.string.settings_speed_test),
-            subtitle = stringResource(R.string.settings_speed_test_summary),
-            icon = PlayIcons.Globe,
-            iconTint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                .focusMemory(focus, "speed-test", isDefault = true)
-                .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it },
-            onClick = onOpenSpeedTest,
-        )
-        com.kaan.play.ui.components.PlayCardRow(
+        PlayCardRow(
             title = stringResource(R.string.addons_title),
             badge = addonCount?.let { pluralStringResource(R.plurals.addons_count, it, it) },
             icon = PlayIcons.Extension,
@@ -121,14 +90,22 @@ fun SettingsScreen(
             modifier = Modifier.focusMemory(focus, "addons", isDefault = true),
             onClick = onOpenAddons,
         )
-        com.kaan.play.ui.components.PlayCardRow(
+        PlayCardRow(
             title = stringResource(R.string.settings_player),
             icon = PlayIcons.PlayCircle,
             iconTint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.focusMemory(focus, "player"),
             onClick = onOpenPlayer,
         )
-        com.kaan.play.ui.components.PlayCardRow(
+        PlayCardRow(
+            title = stringResource(R.string.settings_speed_test),
+            subtitle = stringResource(R.string.settings_speed_test_summary),
+            icon = PlayIcons.Globe,
+            iconTint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.focusMemory(focus, "speed-test"),
+            onClick = onOpenSpeedTest,
+        )
+        PlayCardRow(
             title = stringResource(R.string.settings_theme),
             value = stringResource(theme.labelRes()),
             icon = PlayIcons.Palette,
@@ -136,7 +113,7 @@ fun SettingsScreen(
             modifier = Modifier.focusMemory(focus, "theme"),
             onClick = { dialog = OpenDialog.Theme },
         )
-        com.kaan.play.ui.components.PlayCardRow(
+        PlayCardRow(
             title = stringResource(R.string.settings_language),
             value = stringResource(language.labelRes()),
             icon = PlayIcons.Globe,
@@ -144,7 +121,7 @@ fun SettingsScreen(
             modifier = Modifier.focusMemory(focus, "language"),
             onClick = { dialog = OpenDialog.Language },
         )
-        com.kaan.play.ui.components.PlayCardRow(
+        PlayCardRow(
             title = stringResource(R.string.settings_poster_url),
             value = stringResource(
                 if (posterTemplate.isBlank()) R.string.settings_poster_url_default
@@ -158,15 +135,15 @@ fun SettingsScreen(
                 dialog = OpenDialog.Poster
             },
         )
-        com.kaan.play.ui.components.PlayCardRow(
+        PlayCardRow(
             title = "Profil seçimi",
-            value = "Profil oluştur ve geçiş yap",
+            subtitle = "Profil oluştur ve geçiş yap",
             icon = PlayIcons.Library,
             iconTint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.focusMemory(focus, "profile"),
             onClick = onOpenProfile,
         )
-        com.kaan.play.ui.components.PlayCardRow(
+        PlayCardRow(
             title = "Son profili hatırla",
             subtitle = if (rememberLastProfile) "Uygulama açılışında son profil otomatik seçilir" else "Her açılışta profili sen seç",
             icon = PlayIcons.Lock,
@@ -176,19 +153,20 @@ fun SettingsScreen(
             trailing = {
                 Switch(
                     checked = rememberLastProfile,
-                    onCheckedChange = { enabled -> scope.launch { container.settings.setRememberLastProfile(enabled) } },
+                    onCheckedChange = { scope.launch { container.settings.setRememberLastProfile(it) } },
                 )
             },
         )
-        com.kaan.play.ui.components.PlayCardRow(
+        PlayCardRow(
             title = "Bulut hesabı ve senkronizasyon",
-            value = "E-posta ile giriş; cihazlar arası otomatik eşitleme",
+            subtitle = "E-posta ile giriş; cihazlar arası otomatik eşitleme",
             icon = PlayIcons.Tv,
             iconTint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.focusMemory(focus, "sync"),
             onClick = onOpenSync,
         )
-        com.kaan.play.ui.components.PlayCardRow(
+        WifiSyncCard()
+        PlayCardRow(
             title = stringResource(R.string.settings_about),
             value = BuildConfig.VERSION_NAME,
             icon = PlayIcons.InfoCircle,

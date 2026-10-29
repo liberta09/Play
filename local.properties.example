@@ -1,3 +1,0 @@
-# local.properties olarak kopyalayın, kendi Android SDK yolunuzu ve TMDB anahtarınızı yazın.
-sdk.dir=/path/to/Android/Sdk
-TMDB_API_KEY=YOUR_TMDB_API_KEY

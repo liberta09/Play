@@ -36,12 +36,6 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withTimeout
 
-private val ANIME_API_TYPES = setOf(TvType.Anime, TvType.OVA, TvType.AnimeMovie)
-
-/** Anime-only eklentiler bazen arama cevaplarını yanlışlıkla `TvSeries` diye etiketler; API'nin ilan ettiği türleri de esas al. */
-internal fun isAnimeOnlyProvider(types: Set<TvType>): Boolean =
-    types.isNotEmpty() && types.all { it in ANIME_API_TYPES }
-
 /**
  * CloudStream eklentisi çalıştırıcısı. Yüklenmiş [MainAPI] örnekleriyle şu akışı izler:
  *  1. [MainAPI.search] ile başlık arar
@@ -93,10 +87,6 @@ class CsRuntime {
         source: StreamSource,
         timeoutMs: Long,
     ): List<PlayableStream> {
-        if (identity.isAnimation == false && isAnimeOnlyProvider(api.supportedTypes)) {
-            Log.d(TAG, "${api.name}: animasyon dışı içerik için anime-only API atlandı (supportedTypes=${api.supportedTypes})")
-            return emptyList()
-        }
         // 1-2. Arama (yerel başlık, özgün başlık, alternatif) ve yıl/başlık eşleştirmesi
         val match = findMatch(api, identity, timeoutMs) ?: return emptyList()
 
@@ -111,7 +101,7 @@ class CsRuntime {
         if (loadResp == null) return emptyList()
 
         // 3b. Yükleme sonrası doğrulama: eklentinin bildirdiği ad/yıl/kimlik istenen içerikle uyuşmuyorsa kaynak atılır.
-        val info = loadedInfo(loadResp, api)
+        val info = loadedInfo(loadResp)
         when (val verdict = CsMatchRules.verifyLoaded(info, identity)) {
             Verdict.Ok -> Log.d(TAG, "${api.name}: doğrulandı (ad=\"${info.name}\", yıl=${info.year}, tmdb=${info.tmdbId}, imdb=${info.imdbId})")
             is Verdict.Reject -> {
@@ -136,13 +126,29 @@ class CsRuntime {
     private suspend fun findMatch(api: MainAPI, identity: ContentIdentity, timeoutMs: Long): MatchCandidate? {
         val collected = LinkedHashMap<String, MatchCandidate>()
         var lastRejections: List<String> = emptyList()
-        for (query in identity.searchQueries()) {
+        val queries = buildList {
+            addAll(identity.searchQueries(max = 5))
+            identity.imdbId?.takeIf { it.startsWith("tt") }?.let { if (it !in this) add(it) }
+            identity.year?.let { y ->
+                val primaryTitle = identity.titles.firstOrNull()?.trim().orEmpty()
+                if (primaryTitle.isNotBlank()) {
+                    val ty = "$primaryTitle $y"
+                    if (ty !in this) add(ty)
+                }
+                val origTitle = identity.titles.drop(1).firstOrNull()?.trim().orEmpty()
+                if (origTitle.isNotBlank() && origTitle != primaryTitle) {
+                    val oy = "$origTitle $y"
+                    if (oy !in this) add(oy)
+                }
+            }
+        }.distinct()
+        for (query in queries) {
             var results = search(api, query, timeoutMs) ?: continue
             if (results.isEmpty()) {
                 val plain = TitleText.plainQuery(query)
                 if (plain != query) results = search(api, plain, timeoutMs) ?: emptyList()
             }
-            for (r in results) collected.putIfAbsent(r.url, candidateOf(r, api))
+            for (r in results) collected.putIfAbsent(r.url, candidateOf(r))
             when (val outcome = CsMatchRules.pick(collected.values.toList(), identity)) {
                 is MatchOutcome.Match -> {
                     val best = outcome.best
@@ -156,7 +162,7 @@ class CsRuntime {
         return null
     }
 
-    private fun candidateOf(r: SearchResponse, api: MainAPI): MatchCandidate = MatchCandidate(
+    private fun candidateOf(r: SearchResponse): MatchCandidate = MatchCandidate(
         name = r.name,
         year = when (r) {
             is MovieSearchResponse -> r.year
@@ -171,29 +177,14 @@ class CsRuntime {
             else -> null
         },
         otherNames = (r as? AnimeSearchResponse)?.otherName?.takeIf { it.isNotBlank() }?.let(::listOf).orEmpty(),
-        isAnimation = when {
-            isAnimeOnlyProvider(api.supportedTypes) || r is AnimeSearchResponse || r.type in ANIME_API_TYPES -> true
-            r.type in setOf(TvType.Movie, TvType.TvSeries, TvType.AsianDrama) -> false
-            else -> null
-        },
     )
 
-    private fun loadedInfo(resp: LoadResponse, api: MainAPI): CsMatchRules.LoadedInfo = CsMatchRules.LoadedInfo(
+    private fun loadedInfo(resp: LoadResponse): CsMatchRules.LoadedInfo = CsMatchRules.LoadedInfo(
         name = resp.name,
         year = resp.year,
         imdbId = runCatching { with(LoadResponse.Companion) { resp.getImdbId() } }.getOrNull(),
         tmdbId = runCatching { with(LoadResponse.Companion) { resp.getTMDbId() } }.getOrNull(),
         durationMinutes = resp.duration,
-        kind = when (resp.type) {
-            TvType.Movie, TvType.AnimeMovie -> ContentKind.Movie
-            TvType.TvSeries, TvType.Anime, TvType.OVA, TvType.AsianDrama -> ContentKind.Tv
-            else -> null
-        },
-        isAnimation = when {
-            isAnimeOnlyProvider(api.supportedTypes) || resp is AnimeLoadResponse || resp.type in ANIME_API_TYPES -> true
-            resp.type in setOf(TvType.Movie, TvType.TvSeries, TvType.AsianDrama) -> false
-            else -> null
-        },
     )
 
     suspend fun loadLinksDirect(

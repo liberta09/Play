@@ -24,7 +24,6 @@ data class MediaSummary(
     val genreIds: List<Int> = emptyList(),
     /** TMDB popülerliği; içerik ilgisinden sonra yalnızca yakın skorlarda kullanılır. */
     val popularity: Double? = null,
-    val adult: Boolean = false,
 )
 
 /** Ana sayfa kapak karuselinin bir sayfası: arka plan görseli olan içerik + tür adları + (varsa) başlık logosu. */

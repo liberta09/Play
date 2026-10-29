@@ -3,7 +3,6 @@ package com.kaan.play.ui.library
 import android.text.format.Formatter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,41 +56,35 @@ import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.ui.components.PosterCard
 import com.kaan.play.ui.components.resolvePosterImageUrl
 import com.kaan.play.ui.containerViewModel
-import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.nav.PlayIcons
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRequester
 import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.rememberFocusMemory
 
 private val CardMinWidth = 132.dp
 private val Gutter = 20.dp
 
-/** Kütüphane kişisel koleksiyondur: yalnızca favoriler ve indirilenler gösterilir. */
+/**
+ * Kütüphane: tek ana iş "benim listem". İki bölüm: Favoriler (kapak ızgarası, sütun sayısı ekran genişliğinden)
+ * ve Geçmiş (son izlenen üstte, ilerleme çubuğuyla). Her silme işlemi bir düğmedir; dokunma dışı hareket gerekmez.
+ */
 @Composable
 fun LibraryScreen(
     onOpenDetail: (MediaType, Int) -> Unit,
+    onPlayEntry: (WatchHistoryEntity) -> Unit,
     onPlayDownload: (DownloadEntity) -> Unit,
-    contentFocusRequester: FocusRequester? = null,
-    topBarFocusRequester: FocusRequester? = null,
 ) {
-    val container = rememberContainer()
-    val activeProfileId by container.localProfile.id.collectAsStateWithLifecycle(initialValue = "")
-    val profiles by container.localProfile.profiles.collectAsStateWithLifecycle(initialValue = emptyList())
-    val childProfile = profiles.firstOrNull { it.id == activeProfileId }?.isChild == true
     val vm = containerViewModel { LibraryViewModel(it.library, it.downloads, it.settings) }
     val favorites by vm.favorites.collectAsStateWithLifecycle()
-    val manuallyWatched by vm.manuallyWatched.collectAsStateWithLifecycle()
+    val history by vm.history.collectAsStateWithLifecycle()
+    var confirmClear by remember { mutableStateOf(false) }
     val downloads by vm.downloads.collectAsStateWithLifecycle()
     val waitingForNetwork by vm.waitingForNetwork.collectAsStateWithLifecycle()
     val wifiOnly by vm.wifiOnly.collectAsStateWithLifecycle()
     var deleteTarget by remember { mutableStateOf<DownloadEntity?>(null) }
     var confirmDeleteAll by remember { mutableStateOf(false) }
-    // Kumanda: ilk favori veya indirme başlangıç odağı.
-    val focus = rememberFocusMemory(enabled = favorites != null && downloads != null)
+    // Kumanda: ilk favori (yoksa ilk geçmiş satırı) başlangıç odağı; geri dönünce son odaklanan öğe.
+    val focus = rememberFocusMemory(enabled = favorites != null && history != null)
     val firstIsFavorite = !favorites.isNullOrEmpty()
-    val firstIsWatched = !manuallyWatched.isNullOrEmpty()
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(CardMinWidth),
@@ -110,14 +103,12 @@ fun LibraryScreen(
 
         // Yüklenirken (null) boş durum mesajı yanıp sönmesin.
         val favs = favorites
-        val watchedTitles = manuallyWatched
         fullWidth { SectionTitle(stringResource(R.string.library_favorites)) }
         if (favs != null && favs.isEmpty()) {
             fullWidth { EmptyText(stringResource(R.string.library_favorites_empty)) }
         } else if (favs != null) {
             items(favs, key = { "fav-${it.type}-${it.tmdbId}" }) { fav ->
                 val removeLabel = stringResource(R.string.detail_favorite_remove)
-                val isFirstFav = fav == favs.first()
                 PosterCard(
                     title = fav.title,
                     subtitle = stringResource(if (fav.type == MediaType.Movie) R.string.type_movie else R.string.type_series),
@@ -125,10 +116,7 @@ fun LibraryScreen(
                     tmdbId = fav.tmdbId,
                     mediaType = fav.type,
                     onClick = { onOpenDetail(fav.type, fav.tmdbId) },
-                    modifier = Modifier
-                        .let { if (isFirstFav && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                        .let { if (isFirstFav && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
-                        .focusMemory(focus, "fav-${fav.type}-${fav.tmdbId}", isDefault = isFirstFav),
+                    modifier = Modifier.focusMemory(focus, "fav-${fav.type}-${fav.tmdbId}", isDefault = fav == favs.first()),
                     overlay = {
                         IconButton(
                             onClick = { vm.removeFavorite(fav) },
@@ -145,72 +133,73 @@ fun LibraryScreen(
             }
         }
 
-        fullWidth { SectionTitle(stringResource(R.string.library_watched), Modifier.padding(top = 12.dp)) }
-        if (watchedTitles != null && watchedTitles.isEmpty()) {
-            fullWidth { EmptyText(stringResource(R.string.library_watched_empty)) }
-        } else if (watchedTitles != null) {
-            items(watchedTitles, key = { "watched-${it.type}-${it.tmdbId}" }) { watched ->
-                val key = "watched-${watched.type}-${watched.tmdbId}"
-                PosterCard(
-                    title = watched.title,
-                    subtitle = stringResource(if (watched.type == MediaType.Movie) R.string.type_movie else R.string.type_series),
-                    imageUrl = TmdbImages.url(watched.posterPath, TmdbImages.Size.Poster),
-                    tmdbId = watched.tmdbId,
-                    mediaType = watched.type,
-                    onClick = { onOpenDetail(watched.type, watched.tmdbId) },
-                    modifier = Modifier.focusMemory(
-                        focus,
-                        key,
-                        isDefault = !firstIsFavorite && watchedTitles.firstOrNull() == watched,
-                    ),
+        val hist = history
+        fullWidth {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SectionTitle(stringResource(R.string.library_history), Modifier.weight(1f))
+                if (!hist.isNullOrEmpty()) {
+                    TextButton(onClick = { confirmClear = true }) { Text(stringResource(R.string.library_clear_history)) }
+                }
+            }
+        }
+        if (hist != null && hist.isEmpty()) {
+            fullWidth { EmptyText(stringResource(R.string.library_history_empty)) }
+        } else if (hist != null) {
+            items(hist, key = { "hist-${it.id}" }, span = { GridItemSpan(maxLineSpan) }) { entry ->
+                HistoryRow(
+                    entry,
+                    onClick = { onPlayEntry(entry) },
+                    onRemove = { vm.removeHistory(entry) },
+                    modifier = Modifier.focusMemory(focus, "hist-${entry.id}", isDefault = !firstIsFavorite && entry == hist.first()),
                 )
             }
         }
 
-        if (!childProfile) {
-            // İndirilenler cihaz genelinde ortak olduğundan çocuk profiline yetişkin içerik taşımasın.
-            val dls = downloads
-            fullWidth {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    SectionTitle(stringResource(R.string.library_downloads), Modifier.weight(1f))
-                    if (!dls.isNullOrEmpty()) {
-                        TextButton(onClick = { confirmDeleteAll = true }) { Text(stringResource(R.string.library_downloads_delete_all)) }
-                    }
+        // Üçüncü bölüm: İndirilenler (çevrimdışı izleme).
+        val dls = downloads
+        fullWidth {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SectionTitle(stringResource(R.string.library_downloads), Modifier.weight(1f))
+                if (!dls.isNullOrEmpty()) {
+                    TextButton(onClick = { confirmDeleteAll = true }) { Text(stringResource(R.string.library_downloads_delete_all)) }
                 }
             }
-            if (dls != null && dls.isEmpty()) {
-                fullWidth { EmptyText(stringResource(R.string.library_downloads_empty)) }
-            } else if (dls != null) {
-                items(dls, key = { "dl-${it.id}" }, span = { GridItemSpan(maxLineSpan) }) { entry ->
-                    DownloadRow(
-                        entry = entry,
-                        waitingForNetwork = waitingForNetwork,
-                        wifiOnly = wifiOnly,
-                        onClick = {
-                            when (DownloadRules.rowAction(entry.status)) {
-                                DownloadRules.RowAction.Play -> onPlayDownload(entry)
-                                DownloadRules.RowAction.Pause -> vm.pauseDownload(entry)
-                                DownloadRules.RowAction.Resume -> vm.resumeDownload(entry)
-                            }
-                        },
-                        onPauseResume = {
-                            if (DownloadRules.rowAction(entry.status) == DownloadRules.RowAction.Pause) {
-                                vm.pauseDownload(entry)
-                            } else {
-                                vm.resumeDownload(entry)
-                            }
-                        },
-                        onRemove = { deleteTarget = entry },
-                        modifier = Modifier.focusMemory(
-                            focus,
-                            "dl-${entry.id}",
-                            isDefault = !firstIsFavorite && !firstIsWatched && entry == dls.first(),
-                        ),
-                    )
-                }
+        }
+        if (dls != null && dls.isEmpty()) {
+            fullWidth { EmptyText(stringResource(R.string.library_downloads_empty)) }
+        } else if (dls != null) {
+            items(dls, key = { "dl-${it.id}" }, span = { GridItemSpan(maxLineSpan) }) { entry ->
+                DownloadRow(
+                    entry = entry,
+                    waitingForNetwork = waitingForNetwork,
+                    wifiOnly = wifiOnly,
+                    onClick = {
+                        when (DownloadRules.rowAction(entry.status)) {
+                            DownloadRules.RowAction.Play -> onPlayDownload(entry)
+                            DownloadRules.RowAction.Pause -> vm.pauseDownload(entry)
+                            DownloadRules.RowAction.Resume -> vm.resumeDownload(entry)
+                        }
+                    },
+                    onPauseResume = {
+                        if (DownloadRules.rowAction(entry.status) == DownloadRules.RowAction.Pause) {
+                            vm.pauseDownload(entry)
+                        } else {
+                            vm.resumeDownload(entry)
+                        }
+                    },
+                    onRemove = { deleteTarget = entry },
+                    modifier = Modifier.focusMemory(
+                        focus,
+                        "dl-${entry.id}",
+                        isDefault = !firstIsFavorite && hist.isNullOrEmpty() && entry == dls.first(),
+                    ),
+                )
             }
         }
     }
@@ -247,6 +236,21 @@ fun LibraryScreen(
         )
     }
 
+    if (confirmClear) {
+        AlertDialog(
+            onDismissRequest = { confirmClear = false },
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text(stringResource(R.string.library_clear_title), style = MaterialTheme.typography.titleLarge) },
+            text = { Text(stringResource(R.string.library_clear_message)) },
+            confirmButton = {
+                TextButton(onClick = { vm.clearHistory(); confirmClear = false }) {
+                    Text(stringResource(R.string.library_clear_confirm), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = { TextButton(onClick = { confirmClear = false }) { Text(stringResource(R.string.common_cancel)) } },
+        )
+    }
 }
 
 private fun LazyGridScope.fullWidth(content: @Composable () -> Unit) {
@@ -266,6 +270,68 @@ private fun EmptyText(text: String) {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(vertical = 8.dp),
     )
+}
+
+@Composable
+private fun HistoryRow(entry: WatchHistoryEntity, onClick: () -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+    val watched = WatchRules.isWatched(entry.positionMs, entry.durationMs)
+    val minutesLeft = (((entry.durationMs - entry.positionMs) + 59_999L) / 60_000L).toInt().coerceAtLeast(1)
+    val isSeries = entry.type == MediaType.Tv
+    val subtitle = when {
+        isSeries && watched -> stringResource(R.string.library_episode_watched, entry.season, entry.episode)
+        isSeries -> stringResource(R.string.continue_left_episode, entry.season, entry.episode, minutesLeft)
+        watched -> stringResource(R.string.library_watched)
+        else -> stringResource(R.string.continue_left_movie, minutesLeft)
+    }
+    val progress = (entry.positionMs.toFloat() / entry.durationMs.toFloat()).coerceIn(0f, 1f)
+
+    androidx.compose.material3.Surface(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                Modifier
+                    .width(52.dp)
+                    .aspectRatio(2f / 3f)
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
+            ) {
+                resolvePosterImageUrl(TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster), null, entry.tmdbId, entry.type)?.let {
+                    AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+                }
+            }
+            Column(modifier = Modifier.weight(1f).padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(entry.title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(
+                    subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp).height(4.dp).clip(androidx.compose.foundation.shape.RoundedCornerShape(2.dp)),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.outline,
+                )
+            }
+            IconButton(onClick = onRemove) {
+                Icon(
+                    PlayIcons.Close,
+                    contentDescription = stringResource(R.string.library_remove_history),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
 }
 
 /**

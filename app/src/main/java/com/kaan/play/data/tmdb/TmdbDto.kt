@@ -32,7 +32,6 @@ internal data class ItemDto(
     @SerialName("vote_average") val voteAverage: Double? = null,
     val popularity: Double? = null,
     @SerialName("genre_ids") val genreIds: List<Int> = emptyList(),
-    val adult: Boolean = false,
 )
 
 @Serializable
@@ -49,7 +48,6 @@ internal data class DetailDto(
     @SerialName("release_date") val releaseDate: String? = null,
     @SerialName("first_air_date") val firstAirDate: String? = null,
     @SerialName("vote_average") val voteAverage: Double? = null,
-    val adult: Boolean = false,
     val runtime: Int? = null,
     @SerialName("episode_run_time") val episodeRunTime: List<Int> = emptyList(),
     val genres: List<GenreDto> = emptyList(),

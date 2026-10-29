@@ -20,7 +20,7 @@ object SubtitleParser {
     const val MAX_CUES = 20_000
 
     fun sniff(text: String): SubtitleFormat {
-        val head = text.trimStart('\uFEFF', ' ', '\t', '\r', '\n')
+        val head = text.trimStart('﻿', ' ', '\t', '\r', '\n')
         return when {
             head.startsWith("WEBVTT") -> SubtitleFormat.WebVtt
             head.take(4096).let { it.contains("[Script Info]", ignoreCase = true) || it.contains("[Events]", ignoreCase = true) } ->
@@ -107,7 +107,7 @@ object SubtitleParser {
         var format = DEFAULT_SSA_FORMAT
         val out = ArrayList<SubtitleCue>()
         for (rawLine in text.lineSequence()) {
-            val line = rawLine.trim().trimStart('\uFEFF')
+            val line = rawLine.trim().trimStart('﻿')
             when {
                 line.startsWith("[") -> inEvents = line.equals("[Events]", ignoreCase = true)
                 !inEvents -> Unit

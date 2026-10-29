@@ -8,9 +8,7 @@ import com.kaan.play.data.stream.StreamProvider
 import com.kaan.play.data.stream.StreamRequest
 import com.kaan.play.data.stream.StreamResult
 import com.kaan.play.data.stream.StreamSource
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flowOn
@@ -35,7 +33,6 @@ class CsStreamProvider(
     private val runtime: CsRuntime,
     private val identityResolver: suspend (request: StreamRequest) -> ContentIdentity?,
     private val timeoutMs: Long = 30_000L,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO.limitedParallelism(16),
 ) : StreamProvider {
 
     override fun streams(request: StreamRequest): Flow<StreamResult> = channelFlow {
@@ -47,43 +44,29 @@ class CsStreamProvider(
                 val source = StreamSource(addonId = plugin.id, addonName = plugin.name)
                 try {
                     val apis = repository.loadApis(plugin.id).apisOrEmpty()
-                    val directStreams = apis.flatMap { api ->
-                        try {
-                            runtime.loadLinksDirect(api = api, data = request.dataUrl, source = source, timeoutMs = timeoutMs)
-                        } catch (c: CancellationException) {
-                            throw c
-                        } catch (t: Throwable) {
-                            Log.d(TAG, "${api.name}: direct loadLinksDirect error: ${t.message}")
-                            emptyList()
-                        }
-                    }
-                    val streams = if (directStreams.isNotEmpty()) directStreams else {
-                        apis.flatMap { api ->
-                            try {
-                                runtime.loadLiveLinks(api = api, catalogUrl = request.dataUrl, source = source, timeoutMs = timeoutMs)
-                            } catch (c: CancellationException) {
-                                throw c
-                            } catch (t: Throwable) {
-                                Log.d(TAG, "${api.name}: direct loadLiveLinks error: ${t.message}")
-                                emptyList()
-                            }
-                        }
+                    val streams = mutableListOf<PlayableStream>()
+                    for (api in apis) {
+                        val links = runtime.loadLiveLinks(
+                            api = api,
+                            catalogUrl = request.dataUrl,
+                            source = source,
+                            timeoutMs = timeoutMs,
+                        )
+                        streams += links
+                        if (streams.isNotEmpty()) break
                     }
                     if (streams.isEmpty()) {
-                        Log.w(TAG, "${plugin.name}: doğrudan link için akış bulunamadı (${request.dataUrl})")
-                        send(StreamResult.Found(source, emptyList()))
+                        Log.w(TAG, "${plugin.name}: canlı kanal için akış bulunamadı (${request.dataUrl})")
+                        send(StreamResult.Failed(source, FailureReason.Network))
                     } else {
                         send(StreamResult.Found(source, streams))
                     }
-                } catch (cancel: CancellationException) {
+                } catch (cancel: kotlinx.coroutines.CancellationException) {
                     throw cancel
                 } catch (t: Throwable) {
                     Log.d(TAG, "${plugin.name}: direct loadLinks error: ${t.message}")
                     send(StreamResult.Failed(source, FailureReason.Network))
                 }
-            } else {
-                val id = request.pluginId.removePrefix("cs:").toLongOrNull() ?: 0L
-                send(StreamResult.Failed(StreamSource(id, "CloudStream"), FailureReason.Network))
             }
             return@channelFlow
         }
@@ -99,11 +82,11 @@ class CsStreamProvider(
 
         val gate = Semaphore(6)
         for (plugin in plugins) {
-            launch(dispatcher) {
+            launch {
                 gate.withPermit {
                     val source = StreamSource(addonId = plugin.id, addonName = plugin.name)
                     try {
-                        val streams: List<PlayableStream> = withTimeoutOrNull(8000L) {
+                        val streams: List<PlayableStream> = withTimeoutOrNull(timeoutMs) {
                             val apis = repository.loadApis(plugin.id).apisOrEmpty()
                             Log.d(TAG, "${plugin.name}: ${apis.size} MainAPI yüklendi")
                             if (apis.isEmpty()) {
@@ -115,11 +98,15 @@ class CsStreamProvider(
                                     identity = identity,
                                     pluginRowId = plugin.id,
                                     pluginName = plugin.name,
-                                    timeoutMs = 8000L,
+                                    timeoutMs = timeoutMs,
                                 )
                             }
                         } ?: emptyList()
-                        send(StreamResult.Found(source, streams))
+                        if (streams.isNotEmpty()) {
+                            send(StreamResult.Found(source, streams))
+                        } else {
+                            send(StreamResult.Failed(source, FailureReason.Network))
+                        }
                     } catch (t: Throwable) {
                         Log.d(TAG, "${plugin.name}: streams hata ${t.javaClass.simpleName}: ${t.message}")
                         send(StreamResult.Failed(source, FailureReason.Network))
@@ -127,7 +114,7 @@ class CsStreamProvider(
                 }
             }
         }
-    }.flowOn(dispatcher) // DEX yükleme ve eklentilerin ayrıştırma işi ana iş parçacığını dondurmasın
+    }.flowOn(Dispatchers.IO) // DEX yükleme ve eklentilerin ayrıştırma işi ana iş parçacığını dondurmasın
 
     override suspend fun sources(request: StreamRequest): List<StreamSource> =
         repository.enabledPlugins().map { StreamSource(addonId = it.id, addonName = it.name) }

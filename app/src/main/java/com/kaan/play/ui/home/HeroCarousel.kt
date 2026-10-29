@@ -31,7 +31,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
@@ -70,8 +69,6 @@ fun HeroCarousel(
     focus: FocusMemory,
     isDefaultFocus: Boolean,
     onOpen: (MediaType, Int) -> Unit,
-    contentFocusRequester: FocusRequester? = null,
-    topBarFocusRequester: FocusRequester? = null,
     modifier: Modifier = Modifier,
 ) {
     val pager = rememberPagerState { items.size }
@@ -99,9 +96,6 @@ fun HeroCarousel(
                 when (event.key) {
                     Key.DirectionRight -> if (page < items.lastIndex) { go(page + 1); true } else false
                     Key.DirectionLeft -> if (page > 0) { go(page - 1); true } else focusManager.moveFocus(FocusDirection.Left)
-                    Key.DirectionUp -> if (topBarFocusRequester != null) {
-                        runCatching { topBarFocusRequester.requestFocus() }.getOrDefault(false)
-                    } else false
                     else -> false
                 }
             },
@@ -113,13 +107,7 @@ fun HeroCarousel(
                 onOpen = { onOpen(item.media.type, item.media.id) },
                 buttonModifier = Modifier
                     .focusRequester(requesters[page])
-                    .let { if (page == pager.currentPage && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                    .let { if (page == pager.currentPage) it.focusMemory(focus, "hero", isDefault = isDefaultFocus) else it }
-                    .let {
-                        if (topBarFocusRequester != null) {
-                            it.focusProperties { up = topBarFocusRequester }
-                        } else it
-                    },
+                    .let { if (page == pager.currentPage) it.focusMemory(focus, "hero", isDefault = isDefaultFocus) else it },
             )
         }
         PageDots(

@@ -167,7 +167,7 @@ class SourceCoordinatorContentGuardTest {
     }
 
     @Test
-    fun episodeWithDifferentRuntimeIsRejected() = runTest {
+    fun episodeNeedsClearMismatchOnly() = runTest {
         val ep = StreamRequest(1399, "tt0944947", MediaType.Tv, season = 1, episode = 2)
         val epKey = StreamOwnership.keyOf(ep)
         val s = stream(bogard, "https://x/ep", forKey = epKey)
@@ -175,8 +175,8 @@ class SourceCoordinatorContentGuardTest {
         rig.coordinator.start(null, emptyList(), 0)
         advanceTimeBy(StartPolicy.DUB_WAIT_MS + 1_000)
         rig.coordinator.onFirstFrame()
-        rig.coordinator.onDuration(70 * min) // 1,5 kat eşiğini aşar: yanlış bölüm reddedilir
+        rig.coordinator.onDuration(70 * min) // 1,5 kat: eleme yok
         advanceUntilIdle()
-        assertEquals(SourcePhase.Failed, rig.coordinator.phase)
+        assertEquals(SourcePhase.Playing, rig.coordinator.phase)
     }
 }

@@ -300,22 +300,6 @@ class AutoNextControllerTest {
     }
 
     @Test
-    fun creditsCanPrepareManualNextEvenWhenAutomaticAdvanceIsOff() = runTest {
-        val next = online(seriesTarget, stream(1, "https://a.example/s1e4.mp4"))
-        val rig = Rig(this, seriesTarget, enabled = false, prepared = next)
-
-        assertTrue(rig.controller.prepareManualNext())
-        runCurrent()
-        assertEquals(1, rig.lookupCalls)
-        assertEquals(1, rig.prepareCalls)
-        assertEquals(AutoNextPhase.Hidden, rig.controller.phase)
-
-        rig.controller.skipToNext()
-        runCurrent()
-        assertEquals(listOf<NextPlayback>(next), rig.advanced)
-    }
-
-    @Test
     fun lastEpisodeShowsNoCard() = runTest {
         val rig = Rig(this, seriesTarget, next = null, prepared = online(seriesTarget, stream(1, "https://a.example/x.mp4")))
         repeat(5) { rig.tick(remainingMs = 10_000) }

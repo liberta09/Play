@@ -44,8 +44,6 @@ data class ProviderItem(
     val isPinned: Boolean = false,
     /** Nuvio addon'larında manifest kimliği (ör. `com.play.custom.catalogs`); diğerlerinde null. */
     val addonId: String? = null,
-    /** Katalog yoksa eklenti seçicide görünür ancak ana sayfa kaynağı olarak seçilemez. */
-    val hasHomeCatalog: Boolean = true,
 )
 
 /**
@@ -54,7 +52,6 @@ data class ProviderItem(
 data class CatalogItem(
     val id: String,
     val title: String,
-    val year: Int? = null,
     val subtitle: String? = null,
     val posterUrl: String? = null,
     val posterHeaders: Map<String, String>? = null,

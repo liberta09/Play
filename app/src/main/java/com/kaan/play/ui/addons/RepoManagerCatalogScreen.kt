@@ -1,25 +1,30 @@
 package com.kaan.play.ui.addons
 
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,296 +37,315 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.AppContainer
 import com.kaan.play.R
-import com.kaan.play.data.plugin.RepoManagerEntry
 import com.kaan.play.data.plugin.CatalogInstallOutcome
+import com.kaan.play.data.plugin.RepoManagerEntry
 import com.kaan.play.data.plugin.SourceType
+import com.kaan.play.ui.components.Button
 import com.kaan.play.ui.components.ScreenHeader
+import com.kaan.play.ui.nav.PlayIcons
+import com.kaan.play.ui.tv.dpadLeavesTextField
+import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.focusRing
-import kotlinx.coroutines.CancellationException
+import com.kaan.play.ui.tv.rememberFocusMemory
+import com.kaan.play.ui.tv.rememberInitialFocus
 import kotlinx.coroutines.launch
+import java.util.Locale
+
+
+
+fun canonicalCatalogUrl(url: String): String {
+    return url.trim().removeSuffix("/").lowercase(Locale.ROOT)
+}
 
 @Composable
-fun RepoManagerCatalogScreen(onBack: () -> Unit, container: AppContainer) {
-    val addons by container.addons.addons.collectAsStateWithLifecycle(initialValue = emptyList())
-    val nuvioRepos by container.plugins.repos.collectAsStateWithLifecycle(initialValue = emptyList())
-    val cloudStreamRepos by container.csRepos.repos.collectAsStateWithLifecycle(initialValue = emptyList())
-    val installedUrls = remember(addons, nuvioRepos, cloudStreamRepos) {
-        (addons.map { it.sourceUrl } + nuvioRepos.map { it.sourceUrl } + cloudStreamRepos.map { it.sourceUrl })
-            .mapTo(HashSet()) { canonicalCatalogUrl(it) }
+fun RepoManagerCatalogScreen(
+    onBack: () -> Unit,
+    container: AppContainer,
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val installedAddons by container.addons.addons.collectAsStateWithLifecycle(initialValue = emptyList())
+    val installedPlugins by container.plugins.repos.collectAsStateWithLifecycle(initialValue = emptyList())
+    val installedCsRepos by container.csRepos.repos.collectAsStateWithLifecycle(initialValue = emptyList())
+
+    val installedUrls = remember(installedAddons, installedPlugins, installedCsRepos) {
+        val urls = HashSet<String>()
+        installedAddons.forEach { urls.add(canonicalCatalogUrl(it.sourceUrl)) }
+        installedPlugins.forEach { urls.add(canonicalCatalogUrl(it.sourceUrl)) }
+        installedCsRepos.forEach { urls.add(canonicalCatalogUrl(it.sourceUrl)) }
+        urls
     }
 
     var entries by remember { mutableStateOf<List<RepoManagerEntry>>(emptyList()) }
-    var loading by remember { mutableStateOf(false) }
-    val installingUrl by container.catalogInstallCoordinator.installingUrl.collectAsStateWithLifecycle()
-    val installOutcome by container.catalogInstallCoordinator.outcome.collectAsStateWithLifecycle()
+    var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var query by remember { mutableStateOf("") }
-    var notice by remember { mutableStateOf<String?>(null) }
-    var entryToRemove by remember { mutableStateOf<RepoManagerEntry?>(null) }
-    var removingUrl by remember { mutableStateOf<String?>(null) }
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+
+    val loadFailedText = stringResource(R.string.repo_catalog_load_failed)
+    val installingUrl by container.catalogInstallCoordinator.installingUrl.collectAsStateWithLifecycle()
+    val outcome by container.catalogInstallCoordinator.outcome.collectAsStateWithLifecycle()
 
     fun refresh() {
-        if (loading) return
-        loading = true
-        error = null
         scope.launch {
+            loading = true
+            error = null
             try {
                 entries = container.repoManagerCatalog.refresh()
-                notice = null
-            } catch (e: CancellationException) {
-                throw e
             } catch (e: Exception) {
-                error = e.message ?: e.javaClass.simpleName
+                error = e.message ?: loadFailedText
             } finally {
                 loading = false
             }
         }
     }
 
-    LaunchedEffect(Unit) { refresh() }
-    LaunchedEffect(installOutcome) {
-        when (val outcome = installOutcome) {
+    LaunchedEffect(Unit) {
+        refresh()
+    }
+
+    LaunchedEffect(outcome) {
+        when (val res = outcome) {
             is CatalogInstallOutcome.Success -> {
-                val name = when (val result = outcome.result) {
-                    is com.kaan.play.data.plugin.AddResult.Addon -> result.name
-                    is com.kaan.play.data.plugin.AddResult.PluginRepo -> result.name
-                    is com.kaan.play.data.plugin.AddResult.CsRepo -> result.name
-                }
-                notice = context.getString(R.string.repo_manager_catalog_success, name)
+                Toast.makeText(context, context.getString(R.string.repo_catalog_install_success), Toast.LENGTH_SHORT).show()
                 container.catalogInstallCoordinator.clearOutcome()
             }
             is CatalogInstallOutcome.Failure -> {
-                notice = context.getString(R.string.repo_manager_catalog_error, outcome.message)
+                Toast.makeText(context, context.getString(R.string.repo_catalog_install_failure, res.message), Toast.LENGTH_LONG).show()
                 container.catalogInstallCoordinator.clearOutcome()
             }
             null -> Unit
         }
     }
 
-    val filtered = remember(entries, query) {
-        val term = query.trim().lowercase()
-        if (term.isBlank()) entries else entries.filter {
-            it.name.lowercase().contains(term) || it.category.lowercase().contains(term) || it.url.lowercase().contains(term)
-        }
-    }
-
-    val backFocusRequester = remember { FocusRequester() }
-    val refreshFocusRequester = remember { FocusRequester() }
-    val searchFocusRequester = remember { FocusRequester() }
-    val firstCardFocusRequester = remember { FocusRequester() }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        ScreenHeader(
-            title = stringResource(R.string.repo_manager_catalog_title),
-            onBack = onBack,
-            backFocusRequester = backFocusRequester,
-            backModifier = Modifier.focusProperties {
-                right = refreshFocusRequester
-                down = searchFocusRequester
-            },
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Text(stringResource(R.string.repo_manager_catalog_count, entries.size), style = MaterialTheme.typography.bodyMedium)
-            TextButton(
-                onClick = ::refresh,
-                enabled = !loading,
-                modifier = Modifier
-                    .focusRequester(refreshFocusRequester)
-                    .focusProperties {
-                        left = backFocusRequester
-                        down = searchFocusRequester
-                    }
-                    .focusRing(),
-            ) { Text(stringResource(R.string.repo_manager_catalog_refresh)) }
-        }
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp)
-                .focusRequester(searchFocusRequester)
-                .focusProperties {
-                    up = refreshFocusRequester
-                    down = firstCardFocusRequester
-                }
-                .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown) {
-                        when (event.key) {
-                            Key.DirectionDown -> {
-                                firstCardFocusRequester.requestFocus()
-                                true
-                            }
-                            Key.DirectionUp -> {
-                                refreshFocusRequester.requestFocus()
-                                true
-                            }
-                            else -> false
-                        }
-                    } else false
-                },
-            singleLine = true,
-            maxLines = 1,
-            label = { Text(stringResource(R.string.repo_manager_catalog_search)) },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(onSearch = { firstCardFocusRequester.requestFocus() }),
-        )
-        error?.let { Text(stringResource(R.string.repo_manager_catalog_error, it), color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(horizontal = 18.dp, vertical = 8.dp)) }
-        notice?.let { Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 18.dp, vertical = 6.dp)) }
-        when {
-            loading && entries.isEmpty() -> CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally).padding(24.dp))
-            entries.isEmpty() && error == null -> Text(stringResource(R.string.repo_manager_catalog_empty), modifier = Modifier.padding(20.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            filtered.isEmpty() -> Text(stringResource(R.string.repo_manager_catalog_no_results), modifier = Modifier.padding(20.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            else -> LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                itemsIndexed(filtered, key = { _, it -> it.id + "|" + it.url }) { index, entry ->
-                    val isInstalled = canonicalCatalogUrl(entry.url) in installedUrls
-                    CatalogEntryCard(
-                        entry = entry,
-                        installed = isInstalled,
-                        installing = installingUrl == entry.url,
-                        removing = removingUrl == entry.url,
-                        onInstall = {
-                            if (installingUrl == null && !isInstalled) {
-                                notice = null
-                                container.catalogInstallCoordinator.install(entry.url, entry.sourceType)
-                            }
-                        },
-                        onRemove = { entryToRemove = entry },
-                        buttonModifier = if (index == 0) {
-                            Modifier
-                                .focusRequester(firstCardFocusRequester)
-                                .focusProperties { up = searchFocusRequester }
-                        } else {
-                            Modifier
-                        },
-                    )
-                }
+    val filteredEntries = remember(entries, query) {
+        if (query.isBlank()) entries
+        else {
+            val q = query.lowercase(Locale.ROOT).trim()
+            entries.filter {
+                it.name.lowercase(Locale.ROOT).contains(q) ||
+                it.category.lowercase(Locale.ROOT).contains(q) ||
+                it.url.lowercase(Locale.ROOT).contains(q)
             }
         }
     }
 
-    entryToRemove?.let { entry ->
-        AlertDialog(
-            onDismissRequest = { entryToRemove = null },
-            title = { Text(stringResource(R.string.repo_manager_catalog_remove_title)) },
-            text = { Text(stringResource(R.string.repo_manager_catalog_remove_message, entry.name)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    entryToRemove = null
-                    removingUrl = entry.url
-                    scope.launch {
-                        try {
-                            val url = canonicalCatalogUrl(entry.url)
-                            val removed = when (entry.sourceType) {
-                                SourceType.NUVIO_REPO -> addons.firstOrNull { canonicalCatalogUrl(it.sourceUrl) == url }
-                                    ?.let { container.addons.remove(it.id); true } ?: false
-                                SourceType.NUVIO_PLUGIN -> nuvioRepos.firstOrNull { canonicalCatalogUrl(it.sourceUrl) == url }
-                                    ?.let { container.plugins.remove(it.id); true } ?: false
-                                SourceType.CLOUDSTREAM -> cloudStreamRepos.firstOrNull { canonicalCatalogUrl(it.sourceUrl) == url }
-                                    ?.let { container.csRepos.remove(it.id); true } ?: false
-                            }
-                            notice = context.getString(
-                                if (removed) R.string.repo_manager_catalog_remove_success
-                                else R.string.repo_manager_catalog_remove_missing,
-                                entry.name,
-                            )
-                        } catch (e: CancellationException) {
-                            throw e
-                        } catch (e: Exception) {
-                            notice = context.getString(R.string.repo_manager_catalog_remove_error, e.message ?: e.javaClass.simpleName)
-                        } finally {
-                            removingUrl = null
+    val focus = rememberFocusMemory(enabled = !loading && error == null && filteredEntries.isNotEmpty())
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .padding(horizontal = 20.dp),
+    ) {
+        ScreenHeader(
+            title = stringResource(R.string.repo_catalog_title),
+            onBack = onBack,
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier.fillMaxWidth().focusRing(RoundedCornerShape(12.dp)).dpadLeavesTextField(),
+            placeholder = { Text(stringResource(R.string.repo_catalog_search_hint)) },
+            leadingIcon = {
+                Icon(
+                    imageVector = PlayIcons.Search,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        when {
+            loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
+            }
+            error != null -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = error ?: stringResource(R.string.repo_catalog_error_generic),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = { refresh() }, modifier = Modifier.focusRequester(rememberInitialFocus())) {
+                            Text(stringResource(R.string.common_retry))
                         }
                     }
-                }) {
-                    Text(stringResource(R.string.repo_manager_catalog_remove), color = MaterialTheme.colorScheme.error)
                 }
-            },
-            dismissButton = {
-                TextButton(onClick = { entryToRemove = null }) { Text(stringResource(R.string.common_cancel)) }
-            },
-        )
+            }
+            filteredEntries.isEmpty() -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = stringResource(if (query.isBlank()) R.string.repo_catalog_empty else R.string.repo_catalog_no_results),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(bottom = 24.dp),
+                ) {
+                    itemsIndexed(
+                        items = filteredEntries,
+                        key = { _, it -> it.url + "|" + it.sourceType.name },
+                    ) { index, entry ->
+                        val isInstalled = installedUrls.contains(canonicalCatalogUrl(entry.url))
+                        val isInstalling = installingUrl == entry.url
+                        CatalogEntryCard(
+                            entry = entry,
+                            installed = isInstalled,
+                            installing = isInstalling,
+                            onInstall = {
+                                container.catalogInstallCoordinator.install(entry.url, entry.sourceType)
+                            },
+                            modifier = Modifier.focusMemory(focus, entry.url + "|" + entry.sourceType.name, isDefault = index == 0),
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun CatalogEntryCard(
+fun CatalogEntryCard(
     entry: RepoManagerEntry,
     installed: Boolean,
     installing: Boolean,
-    removing: Boolean,
     onInstall: () -> Unit,
-    onRemove: () -> Unit,
-    buttonModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
 ) {
-    androidx.compose.material3.Surface(
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        modifier = Modifier.fillMaxWidth(),
+    val shape = RoundedCornerShape(14.dp)
+    // Kumandada Yükle'ye basınca düğme "Yüklü"ye dönüşüp kaybolur; odak satırda kalır.
+    val rowFocus = remember { FocusRequester() }
+    val buttonFocus = remember { FocusRequester() }
+    val showButton = !installing && !installed
+    val inputMode = LocalInputModeManager.current
+    Surface(
+        shape = shape,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+        modifier = modifier.fillMaxWidth().focusRequester(rowFocus).focusRing(shape)
+            .focusProperties { if (showButton) right = buttonFocus }.focusable(),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(modifier = Modifier.weight(1f).padding(end = 10.dp)) {
-                Text(entry.name, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(R.string.repo_manager_catalog_meta, entry.category, entry.sourceType.label()),
+                    text = entry.name,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(6.dp),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                    ) {
+                        Text(
+                            text = stringResource(label(entry.sourceType)),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        )
+                    }
+                    if (entry.category.isNotBlank() && entry.category != "Diğer") {
+                        Text(
+                            text = entry.category,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = entry.url,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
             when {
-                installing || removing -> CircularProgressIndicator(strokeWidth = 2.dp)
+                installing -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
                 installed -> {
-                    Text(stringResource(R.string.repo_manager_catalog_installed), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
-                    IconButton(onClick = onRemove, modifier = Modifier.focusRing().then(buttonModifier)) {
-                        Icon(
-                            imageVector = com.kaan.play.ui.nav.PlayIcons.Trash,
-                            contentDescription = stringResource(R.string.repo_manager_catalog_remove),
-                            tint = MaterialTheme.colorScheme.error,
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.repo_catalog_installed),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                         )
                     }
                 }
-                else -> Button(onClick = onInstall, modifier = Modifier.focusRing().then(buttonModifier)) {
-                    Text(stringResource(R.string.repo_manager_catalog_install))
+                else -> {
+                    Button(
+                        modifier = Modifier.focusRequester(buttonFocus).focusProperties { left = rowFocus },
+                        onClick = {
+                            onInstall()
+                            if (inputMode.inputMode == InputMode.Keyboard) rowFocus.requestFocus()
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.repo_catalog_install),
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-private fun SourceType.label(): String = when (this) {
-    SourceType.CLOUDSTREAM -> stringResource(R.string.repo_manager_platform_cloudstream)
-    SourceType.NUVIO_REPO -> stringResource(R.string.repo_manager_platform_nuvio_addon)
-    SourceType.NUVIO_PLUGIN -> stringResource(R.string.repo_manager_platform_nuvio_plugin)
+private fun label(sourceType: SourceType): Int = when (sourceType) {
+    SourceType.CLOUDSTREAM -> R.string.repo_catalog_type_cloudstream
+    SourceType.NUVIO_REPO -> R.string.repo_catalog_type_nuvio_repo
+    SourceType.NUVIO_PLUGIN -> R.string.repo_catalog_type_nuvio_plugin
 }
-
-private fun canonicalCatalogUrl(url: String) = url.trim().removeSuffix("/").lowercase()

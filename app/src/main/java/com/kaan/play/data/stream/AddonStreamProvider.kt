@@ -1,15 +1,13 @@
 package com.kaan.play.data.stream
 
 import com.kaan.play.data.addon.Addon
-import com.kaan.play.data.addon.AddonUrl
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withTimeoutOrNull
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -27,35 +25,26 @@ class AddonStreamProvider(
     private val client: OkHttpClient,
     private val timeout: suspend () -> Duration = { 15.seconds },
     private val maxBytes: Long = MAX_BYTES,
-    private val dispatcher: CoroutineDispatcher? = null,
 ) : StreamProvider {
 
-    override fun streams(request: StreamRequest): Flow<StreamResult> {
-        val flow = channelFlow {
-            val contentId = request.contentId ?: return@channelFlow
-            val type = request.addonType ?: request.type.addonType
-            val limit = timeout()
-            val targetAddonId = if (request.pluginId?.startsWith("nuvio_addon:") == true) request.pluginId.removePrefix("nuvio_addon:").toLongOrNull() else null
-            val gate = Semaphore(6)
-            for (addon in askable(type, contentId, targetAddonId)) {
-                val block: suspend kotlinx.coroutines.CoroutineScope.() -> Unit = {
-                    gate.withPermit {
-                        try {
-                            send(query(addon, type, contentId, limit))
-                        } catch (t: Throwable) {
-                            android.util.Log.e("PlayAddon", "${addon.manifest.name} çağrı hatası: ${t.message}", t)
-                            send(StreamResult.Failed(StreamSource(addon.id, addon.manifest.name), FailureReason.Network))
-                        }
+    override fun streams(request: StreamRequest): Flow<StreamResult> = channelFlow {
+        val contentId = request.contentId ?: return@channelFlow
+        val type = request.addonType ?: request.type.addonType
+        val limit = timeout()
+        val targetAddonId = if (request.pluginId?.startsWith("nuvio_addon:") == true) request.pluginId.removePrefix("nuvio_addon:").toLongOrNull() else null
+        val gate = Semaphore(6)
+        for (addon in askable(type, contentId, targetAddonId)) {
+            launch {
+                gate.withPermit {
+                    try {
+                        send(query(addon, type, contentId, limit))
+                    } catch (t: Throwable) {
+                        android.util.Log.e("PlayAddon", "${addon.manifest.name} çağrı hatası: ${t.message}", t)
+                        send(StreamResult.Failed(StreamSource(addon.id, addon.manifest.name), FailureReason.Network))
                     }
-                }
-                if (dispatcher != null) {
-                    launch(dispatcher, block = block)
-                } else {
-                    launch(block = block)
                 }
             }
         }
-        return if (dispatcher != null) flow.flowOn(dispatcher) else flow
     }
 
     override suspend fun sources(request: StreamRequest): List<StreamSource> {
@@ -73,7 +62,7 @@ class AddonStreamProvider(
         val source = StreamSource(addon.id, addon.manifest.name)
         // Tanı: addon'a giden kimlik (IMDb "tt…" + sezon/bölüm); adres yazılmaz.
         android.util.Log.d("PlayAddon", "${addon.manifest.name}: istek tür=$type kimlik=$contentId")
-        val url = AddonUrl.endpoint(addon.sourceUrl, "stream", type, "$contentId.json")
+        val url = "${addon.baseUrl}/stream/$type/$contentId.json".toHttpUrlOrNull()
             ?: return StreamResult.Failed(source, FailureReason.Network)
 
         return try {

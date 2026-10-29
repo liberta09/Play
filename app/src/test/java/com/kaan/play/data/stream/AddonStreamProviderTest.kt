@@ -30,7 +30,6 @@ class AddonStreamProviderTest {
     /** Yol -> cevap. Kayıtsız yollar 404 döner. */
     private val routes = mutableMapOf<String, () -> MockResponse>()
     private val requestedPaths = mutableListOf<String>()
-    private val requestedQueries = mutableListOf<String?>()
     private val requestedHeaders = mutableListOf<String?>()
 
     @Before
@@ -40,7 +39,6 @@ class AddonStreamProviderTest {
                 override fun dispatch(request: RecordedRequest): MockResponse {
                     synchronized(requestedPaths) {
                         requestedPaths += request.url.encodedPath
-                        requestedQueries += request.url.encodedQuery
                         requestedHeaders += request.headers["Accept"]
                     }
                     return routes[request.url.encodedPath]?.invoke() ?: MockResponse.Builder().code(404).build()
@@ -124,19 +122,6 @@ class AddonStreamProviderTest {
 
         assertEquals(listOf("/a/stream/movie/tt0133093.json"), requestedPaths)
         assertEquals(listOf<String?>("application/json"), requestedHeaders)
-    }
-
-    @Test
-    fun authQueryFromManifestUrlIsSentOnStreamRequest() = runTest {
-        routes["/secure/stream/movie/tt0133093.json"] = { json("""{"streams":[]}""") }
-        val secure = addon(1, "Token addon", "/secure").copy(
-            sourceUrl = server.url("/secure/manifest.json?token=secret-123&client=play").toString(),
-        )
-
-        val result = provider(listOf(secure)).streams(movie).toList().single()
-
-        assertTrue(result.found().streams.isEmpty())
-        assertEquals(listOf("token=secret-123&client=play"), requestedQueries)
     }
 
     @Test

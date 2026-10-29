@@ -230,10 +230,6 @@ class AutoNextController(
     var picking by mutableStateOf(false)
         private set
 
-    /** Ayar okunduktan sonra, PlayerScreen'in manuel geçiş ikonunu güvenle gösterebilmesi için. */
-    var manualNextEnabled by mutableStateOf(false)
-        private set
-
     private var settings = AutoNextConfig(enabled = false, seconds = 10)
     private var started = false
     private var next: Pair<Int, Int>? = null
@@ -256,7 +252,6 @@ class AutoNextController(
         started = true
         scope.launch {
             settings = config()
-            manualNextEnabled = settings.enabled
             if (settings.enabled) lookUp()
         }
     }
@@ -375,26 +370,6 @@ class AutoNextController(
                 }
             }
         }
-    }
-
-    /**
-     * Jenerik yazıları akmaya başladığında manuel geçiş düğmesi için sonraki bölümü bulur ve
-     * kaynak aramasını başlatır. Otomatik geri sayım ayarından bağımsızdır.
-     */
-    suspend fun prepareManualNext(): Boolean {
-        if (!isSeries) return false
-        if (next == null && !lookupDone) {
-            if (lookup?.isActive != true) lookUp()
-            lookup?.join()
-        }
-        // İlk arama ağ hatasıyla bittiyse, ikinci ve son deneme hakkını burada kullan.
-        if (next == null && !lookupDone && lookups < MAX_LOOKUPS) {
-            lookUp()
-            lookup?.join()
-        }
-        if (next == null) return false
-        prefetch()
-        return true
     }
 
     /** "İptal": bu bölüm için kart bir daha çıkmaz, geçiş yapılmaz. */

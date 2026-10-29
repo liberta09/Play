@@ -204,8 +204,10 @@ class CloudflareVerifyActivity : AppCompatActivity() {
                         ThemeMode.System -> isSystemInDarkTheme()
                     }
                     DisposableEffect(dark) {
-                        val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
-                        enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+                        runCatching {
+                            val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+                            enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+                        }
                         onDispose { }
                     }
                     PlayTheme(darkTheme = dark) {

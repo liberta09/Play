@@ -27,7 +27,6 @@ import com.kaan.play.ui.components.PosterCard
 import com.kaan.play.ui.components.ScreenHeader
 import com.kaan.play.ui.components.posterUrl
 import com.kaan.play.ui.containerViewModel
-import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.rememberFocusMemory
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -36,11 +35,7 @@ import kotlinx.coroutines.flow.filter
 /** Ana sayfadaki bir satırın tamamı ("tümü"): afiş ızgarası, kaydırdıkça sonraki sayfalar. */
 @Composable
 fun CategoryScreen(row: HomeRow, onBack: () -> Unit, onOpenDetail: (MediaType, Int) -> Unit) {
-    val container = rememberContainer()
-    val profileId by container.localProfile.id.collectAsStateWithLifecycle(initialValue = "")
-    val profiles by container.localProfile.profiles.collectAsStateWithLifecycle(initialValue = emptyList())
-    val childProfile = profiles.firstOrNull { it.id == profileId }?.isChild == true
-    val vm = containerViewModel(key = "category-${row.name}-${AppLanguage.effective().iso}-$profileId-$childProfile") { CategoryViewModel(it.tmdb, row) }
+    val vm = containerViewModel(key = "category-${row.name}-${AppLanguage.effective().iso}") { CategoryViewModel(it.tmdb, row) }
     val state by vm.state.collectAsStateWithLifecycle()
     // Kumanda: içerik gelince ilk afiş başlangıç odağı; geri dönünce son odaklanan afiş.
     val focus = rememberFocusMemory(enabled = state.items.isNotEmpty())

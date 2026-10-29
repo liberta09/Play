@@ -210,7 +210,11 @@ class SubtitleController(
                             addonTracks = addonTracks + updatedTracks
                             rebuild()
                         }
-                        is SubtitleResult.Failed -> failedSources = failedSources + result.source
+                        is SubtitleResult.Failed -> {
+                            if (failedSources.none { it.addonId == result.source.addonId }) {
+                                failedSources = failedSources + result.source
+                            }
+                        }
                     }
                 }
         }

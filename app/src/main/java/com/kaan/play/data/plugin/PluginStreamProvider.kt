@@ -15,12 +15,8 @@ import com.kaan.play.data.stream.StreamRequest
 import com.kaan.play.data.stream.StreamResult
 import com.kaan.play.data.stream.StreamLog
 import com.kaan.play.data.stream.StreamSource
-import com.kaan.play.data.stream.StreamSessionCookies
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -53,34 +49,25 @@ class PluginStreamProvider(
     private val timeout: suspend () -> Duration,
     private val cache: PluginResultCache = PluginResultCache(),
     private val maxParallel: Int = MAX_PARALLEL,
-    private val dispatcher: CoroutineDispatcher? = null,
 ) : StreamProvider {
 
-    override fun streams(request: StreamRequest): Flow<StreamResult> {
-        val flow = channelFlow {
-            val chosen = askable(request)
-            if (chosen.isEmpty()) return@channelFlow
-            val limit = timeout()
-            val gate = Semaphore(maxParallel)
-            for (plugin in chosen) {
-                val block: suspend kotlinx.coroutines.CoroutineScope.() -> Unit = {
-                    gate.withPermit {
-                        try {
-                            send(query(plugin, request, limit))
-                        } catch (t: Throwable) {
-                            Log.e(TAG, "${plugin.name} eklenti hatası: ${t.message}", t)
-                            send(StreamResult.Failed(plugin.toSource(), FailureReason.Network))
-                        }
+    override fun streams(request: StreamRequest): Flow<StreamResult> = channelFlow {
+        val chosen = askable(request)
+        if (chosen.isEmpty()) return@channelFlow
+        val limit = timeout()
+        val gate = Semaphore(maxParallel)
+        for (plugin in chosen) {
+            launch {
+                gate.withPermit {
+                    try {
+                        send(query(plugin, request, limit))
+                    } catch (t: Throwable) {
+                        Log.e(TAG, "${plugin.name} eklenti hatası: ${t.message}", t)
+                        send(StreamResult.Failed(plugin.toSource(), FailureReason.Network))
                     }
-                }
-                if (dispatcher != null) {
-                    launch(dispatcher, block = block)
-                } else {
-                    launch(block = block)
                 }
             }
         }
-        return if (dispatcher != null) flow.flowOn(dispatcher) else flow
     }
 
     override suspend fun sources(request: StreamRequest): List<StreamSource> =
@@ -120,16 +107,52 @@ class PluginStreamProvider(
         val script = code(plugin.id) ?: return StreamResult.Failed(source, FailureReason.InvalidResponse)
         val outcome = runner.run(script, pluginRequest, plugin.pluginId, limit.inWholeMilliseconds, saved)
         if (outcome is PluginOutcome.Success) {
-            outcome.streams.forEach { stream ->
-                StreamSessionCookies.remember(source.addonId, stream.url, outcome.sessionCookies)
+            val resolvedStreams = mutableListOf<PluginStream>()
+            for (stream in outcome.streams) {
+                var extractedAny = false
+                val isEmbed = stream.url.contains("/embed/", ignoreCase = true) ||
+                    stream.url.contains("molystream", ignoreCase = true) ||
+                    stream.url.contains("vidmoly", ignoreCase = true)
+                if (isEmbed) {
+                    try {
+                        com.lagradost.cloudstream3.utils.loadExtractor(
+                            url = stream.url,
+                            referer = stream.headers["Referer"] ?: stream.url,
+                            subtitleCallback = {},
+                            callback = { link ->
+                                extractedAny = true
+                                resolvedStreams.add(
+                                    PluginStream(
+                                        url = link.url,
+                                        name = stream.name ?: link.name,
+                                        title = stream.title,
+                                        quality = stream.quality ?: "${link.quality}p",
+                                        size = stream.size,
+                                        language = stream.language,
+                                        headers = buildMap {
+                                            putAll(stream.headers)
+                                            if (link.referer.isNotEmpty()) put("Referer", link.referer)
+                                            putAll(link.headers)
+                                        },
+                                        subtitles = stream.subtitles,
+                                        fileIdx = stream.fileIdx,
+                                        format = if (link.type == com.lagradost.cloudstream3.utils.ExtractorLinkType.M3U8) "hls" else stream.format,
+                                    )
+                                )
+                            }
+                        )
+                    } catch (t: Throwable) {
+                        Log.d(TAG, "${plugin.name}: loadExtractor hata ${t.message}")
+                    }
+                }
+                if (!extractedAny) {
+                    resolvedStreams.add(stream)
+                }
             }
+            resolvedStreams.take(3).forEach { Log.d(TAG, "${plugin.name}: akış ${StreamLog.fingerprint(it.url)}") }
+            if (resolvedStreams.isNotEmpty()) cache.put(key, resolvedStreams)
+            return found(source, resolvedStreams)
         }
-        if (outcome is PluginOutcome.Success) {
-            // Tanı: hangi akış geldi (adres yok; ana makine + yol biçimi + parametre özetleri).
-            outcome.streams.take(3).forEach { Log.d(TAG, "${plugin.name}: akış ${StreamLog.fingerprint(it.url)}") }
-        }
-        // Yalnızca dolu başarılı sonuçlar saklanır: boş/hatalı sonuç (geçici site sorunu) yeniden denenebilsin.
-        if (outcome is PluginOutcome.Success && outcome.streams.isNotEmpty()) cache.put(key, outcome.streams)
         return outcome.toStreamResult(source)
     }
 

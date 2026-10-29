@@ -9,7 +9,6 @@ import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.model.Page
 import com.kaan.play.data.model.SeasonDetail
 import com.kaan.play.data.model.SeasonInfo
-import com.kaan.play.data.sync.AgeRatingPolicy
 import com.kaan.play.i18n.UiLanguage
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -33,19 +32,18 @@ class TmdbRepository(
     apiKey: String,
     private val language: () -> UiLanguage,
     baseUrl: HttpUrl = TmdbService.DEFAULT_BASE_URL.toHttpUrl(),
-    private val childMode: suspend () -> Boolean = { false },
 ) {
     private val service = TmdbService(client, json, apiKey, baseUrl)
 
     suspend fun trending(page: Int = 1): Page<MediaSummary> =
-        service.trending(lang(), page).toPage().filterForChildMode()
+        service.trending(lang(), page).toPage()
 
     suspend fun popular(type: MediaType, page: Int = 1): Page<MediaSummary> =
-        service.popular(type.tmdbPath, lang(), page).toPage(defaultType = type).filterForChildMode()
+        service.popular(type.tmdbPath, lang(), page).toPage(defaultType = type)
 
     /** Yalnızca film ya da yalnızca dizi için bu haftanın trendleri. */
     suspend fun trending(type: MediaType, page: Int = 1): Page<MediaSummary> =
-        service.trendingOf(type.tmdbPath, lang(), page).toPage(defaultType = type).filterForChildMode()
+        service.trendingOf(type.tmdbPath, lang(), page).toPage(defaultType = type)
 
     /**
      * Ana sayfa kapak karuseli: bu haftanın trendlerinden arka plan görseli olan ilk [limit] içerik; tür adları ve
@@ -82,20 +80,23 @@ class TmdbRepository(
     /** `tr,en,null`: arayüz dili, İngilizce, dilsiz logolar (sırayla tercih edilir, bkz. [pickLogo]). */
     private fun imageLanguages(): String = imageLanguagesFor(language())
 
-    /** Boş sorgu ağa gitmeden boş sonuç verir. Kişi sonuçları ayıklanır. */
-    suspend fun search(query: String, page: Int = 1): Page<MediaSummary> {
+    /**
+     * Boş sorgu ağa gitmeden boş sonuç verir. [type] null ise `search/multi` (kişi sonuçları ayıklanır); verilirse
+     * TMDB'nin `search/movie` / `search/tv` uç noktası çağrılır (sonuçlar istemcide süzülmez, sayfalama bozulmaz).
+     */
+    suspend fun search(query: String, page: Int = 1, type: MediaType? = null): Page<MediaSummary> {
         val q = query.trim()
         if (q.isEmpty()) return Page(emptyList(), 1, 1)
-        return service.search(q, lang(), page).toPage().filterForChildMode()
+        return service.search(q, lang(), page, type?.tmdbPath ?: "multi").toPage(defaultType = type)
     }
 
     /** IMDb kimliğine göre TMDB'de ara. Bulunursa (MediaType, tmdbId), yoksa null döner. */
     suspend fun findByImdb(imdbId: String): Pair<MediaType, Int>? {
         val result = bestEffort { service.findByImdb(imdbId, lang()) } ?: return null
-        val movie = result.movieResults.firstOrNull { it.id > 0 }
-        if (movie != null && isAllowedForCurrentProfile(MediaType.Movie, movie.id)) return MediaType.Movie to movie.id
-        val tv = result.tvResults.firstOrNull { it.id > 0 }
-        if (tv != null && isAllowedForCurrentProfile(MediaType.Tv, tv.id)) return MediaType.Tv to tv.id
+        val movie = result.movieResults.firstOrNull()
+        if (movie != null) return MediaType.Movie to movie.id
+        val tv = result.tvResults.firstOrNull()
+        if (tv != null) return MediaType.Tv to tv.id
         return null
     }
 
@@ -121,22 +122,8 @@ class TmdbRepository(
         } else {
             emptyList()
         }
-        val mapped = merged.toDetail(type, language(), discovered)
-        return if (childMode()) mapped.copy(similar = mapped.similar.filter { AgeRatingPolicy.allowsChildGenres(it.type, it.genreIds, it.adult) }) else mapped
+        return merged.toDetail(type, language(), discovered)
     }
-
-    /** Son güvenlik kapısı: çocuk modunda derecelendirmesi bilinmeyen içerik de oynatılamaz. */
-    suspend fun isAllowedForCurrentProfile(type: MediaType, id: Int): Boolean {
-        if (!childMode()) return true
-        return runCatching {
-            val candidate = detail(type, id)
-            AgeRatingPolicy.allowsChildGenres(type, candidate.summary.genreIds, candidate.summary.adult) &&
-                AgeRatingPolicy.allowsChild(candidate.certification)
-        }.getOrDefault(false)
-    }
-
-    private suspend fun Page<MediaSummary>.filterForChildMode(): Page<MediaSummary> =
-        if (!childMode()) this else copy(items = items.filter { AgeRatingPolicy.allowsChildGenres(it.type, it.genreIds, it.adult) })
 
     suspend fun season(tvId: Int, season: Int): SeasonDetail {
         val primary = service.season(tvId, season, lang())
@@ -188,7 +175,6 @@ private fun ItemDto.toSummary(defaultType: MediaType?): MediaSummary? {
         rating = voteAverage?.takeIf { it > 0.0 },
         genreIds = genreIds,
         popularity = popularity?.takeIf { it > 0.0 },
-        adult = adult,
     )
 }
 
@@ -207,7 +193,6 @@ private fun DetailDto.toDetail(
         year = yearOf(releaseDate ?: firstAirDate),
         rating = voteAverage?.takeIf { it > 0.0 },
         genreIds = genres.map { it.id }.filter { it > 0 },
-        adult = adult,
     ),
     imdbId = (externalIds?.imdbId ?: imdbId)?.takeIf { it.startsWith("tt") },
     tagline = tagline.orEmpty(),

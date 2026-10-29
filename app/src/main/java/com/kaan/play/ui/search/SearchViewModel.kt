@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kaan.play.data.model.MediaSummary
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.model.Page
 import com.kaan.play.data.tmdb.TmdbException
 import com.kaan.play.data.tmdb.TmdbRepository
 import kotlinx.coroutines.FlowPreview
@@ -18,16 +19,20 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** Arama türü süzgeci: Tümü (`search/multi`), Filmler (`search/movie`), Diziler (`search/tv`). */
+enum class SearchFilter(val type: MediaType?) {
+    All(null),
+    Movies(MediaType.Movie),
+    Series(MediaType.Tv),
+}
+
 data class SearchState(
+    val filter: SearchFilter = SearchFilter.All,
     /** Kutudaki ham metin. */
     val query: String = "",
     /** Sonuçları gösterilen (kırpılmış) sorgu; boşsa henüz arama yok. */
     val activeQuery: String = "",
-    /** Geçerli filtreye göre ekrana çizilecek sonuçlar. */
     val items: List<MediaSummary> = emptyList(),
-    /** Filtre değiştirirken yeniden ağ isteği yapılmaması için son ham sonuçlar. */
-    val allItems: List<MediaSummary> = emptyList(),
-    val filter: SearchFilter = SearchFilter.All,
     val loading: Boolean = false,
     val loadingMore: Boolean = false,
     val error: TmdbException? = null,
@@ -35,39 +40,28 @@ data class SearchState(
     val hasMore: Boolean = false,
 )
 
-enum class SearchFilter {
-    All,
-    Movies,
-    Series,
-}
-
 @OptIn(FlowPreview::class)
-class SearchViewModel(private val tmdb: TmdbRepository) : ViewModel() {
+class SearchViewModel(
+    private val search: suspend (query: String, page: Int, type: MediaType?) -> Page<MediaSummary>,
+    private val debounceMs: Long = DEBOUNCE_MS,
+) : ViewModel() {
+
+    constructor(tmdb: TmdbRepository) : this({ q, page, type -> tmdb.search(q, page, type) })
 
     private val _state = MutableStateFlow(SearchState())
     val state: StateFlow<SearchState> = _state.asStateFlow()
 
     private val queries = MutableStateFlow("")
     private var moreJob: Job? = null
+    private var filterJob: Job? = null
 
     init {
         // Yazmayı bitirince ara; yeni sorgu gelince eskisinin isteği iptal edilir.
         viewModelScope.launch {
-            queries.debounce(DEBOUNCE_MS).map { it.trim() }.distinctUntilChanged().collectLatest { q ->
+            queries.debounce(debounceMs).map { it.trim() }.distinctUntilChanged().collectLatest { q ->
                 moreJob?.cancel()
                 if (q.isEmpty()) {
-                    _state.update {
-                        it.copy(
-                            activeQuery = "",
-                            items = emptyList(),
-                            allItems = emptyList(),
-                            loading = false,
-                            loadingMore = false,
-                            error = null,
-                            page = 0,
-                            hasMore = false,
-                        )
-                    }
+                    _state.update { it.copy(activeQuery = "", items = emptyList(), loading = false, loadingMore = false, error = null, page = 0, hasMore = false) }
                 } else {
                     runSearch(q)
                 }
@@ -80,11 +74,18 @@ class SearchViewModel(private val tmdb: TmdbRepository) : ViewModel() {
         queries.value = text
     }
 
-    /** Sonuçları yeniden indirmeden film/dizi/tümü görünümünü değiştirir. */
-    fun setFilter(filter: SearchFilter) {
-        _state.update { state ->
-            state.copy(filter = filter, items = state.allItems.filterFor(filter))
-        }
+    /**
+     * Tür çipi değişti: aynı sorgu yeni türle yeniden aranır, sayfalama sıfırlanır (ızgara başa döner). Sorgu boşsa
+     * (ya da yazma bitip arama henüz başlamadıysa) istek yapılmaz; bekleyen arama yeni türle çalışır.
+     */
+    fun onFilterChange(filter: SearchFilter) {
+        if (_state.value.filter == filter) return
+        moreJob?.cancel()
+        filterJob?.cancel()
+        _state.update { it.copy(filter = filter) }
+        val q = _state.value.activeQuery
+        if (q.isEmpty()) return
+        filterJob = viewModelScope.launch { runSearch(q) }
     }
 
     fun retry() {
@@ -97,23 +98,18 @@ class SearchViewModel(private val tmdb: TmdbRepository) : ViewModel() {
         val s = _state.value
         if (s.loading || s.loadingMore || s.error != null || !s.hasMore || s.activeQuery.isEmpty()) return
         val q = s.activeQuery
+        val filter = s.filter
         _state.update { it.copy(loadingMore = true) }
         moreJob = viewModelScope.launch {
             try {
-                val next = tmdb.search(q, s.page + 1)
+                val next = search(q, s.page + 1, filter.type)
                 _state.update {
-                    if (it.activeQuery != q) it else {
-                        val merged = it.allItems + next.items.filter { candidate ->
-                            it.allItems.none { existing -> existing.id == candidate.id && existing.type == candidate.type }
-                        }
-                        it.copy(
-                            allItems = merged,
-                            items = merged.filterFor(it.filter),
-                            page = next.page,
-                            hasMore = next.hasMore,
-                            loadingMore = false,
-                        )
-                    }
+                    if (it.activeQuery != q || it.filter != filter) it else it.copy(
+                        items = it.items + next.items.filter { n -> it.items.none { o -> o.id == n.id && o.type == n.type } },
+                        page = next.page,
+                        hasMore = next.hasMore,
+                        loadingMore = false,
+                    )
                 }
             } catch (e: TmdbException) {
                 // Sonraki sayfa hatası listeyi bozmaz; kullanıcı kaydırmaya devam edince yeniden denenir.
@@ -123,41 +119,17 @@ class SearchViewModel(private val tmdb: TmdbRepository) : ViewModel() {
     }
 
     private suspend fun runSearch(q: String) {
-        _state.update {
-            it.copy(
-                activeQuery = q,
-                loading = true,
-                loadingMore = false,
-                error = null,
-                items = emptyList(),
-                allItems = emptyList(),
-                page = 0,
-                hasMore = false,
-            )
-        }
+        val filter = _state.value.filter
+        _state.update { it.copy(activeQuery = q, loading = true, loadingMore = false, error = null, items = emptyList(), page = 0, hasMore = false) }
         try {
-            val first = tmdb.search(q, 1)
-            _state.update {
-                it.copy(
-                    allItems = first.items,
-                    items = first.items.filterFor(it.filter),
-                    page = first.page,
-                    hasMore = first.hasMore,
-                    loading = false,
-                )
-            }
+            val first = search(q, 1, filter.type)
+            _state.update { if (it.filter != filter) it else it.copy(items = first.items, page = first.page, hasMore = first.hasMore, loading = false) }
         } catch (e: TmdbException) {
-            _state.update { it.copy(loading = false, error = e) }
+            _state.update { if (it.filter != filter) it else it.copy(loading = false, error = e) }
         }
     }
 
-    private companion object {
+    companion object {
         const val DEBOUNCE_MS = 400L
     }
-}
-
-private fun List<MediaSummary>.filterFor(filter: SearchFilter): List<MediaSummary> = when (filter) {
-    SearchFilter.All -> this
-    SearchFilter.Movies -> filter { it.type == MediaType.Movie }
-    SearchFilter.Series -> filter { it.type == MediaType.Tv }
 }

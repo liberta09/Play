@@ -55,25 +55,25 @@ object ProviderRules {
     fun resolveSelection(selectedIds: Set<String>, providers: List<ProviderItem>?): ResolvedSelection {
         if (isAllProviders(selectedIds)) return ResolvedSelection(emptyList(), showAll = true, stale = emptySet())
         if (providers == null) return ResolvedSelection(emptyList(), showAll = false, stale = emptySet())
-        val known = providers.associateBy { it.id }
-        val valid = providers.filter { it.hasHomeCatalog && it.id in selectedIds }
-        val stale = selectedIds.filterTo(LinkedHashSet()) { id -> known[id]?.hasHomeCatalog != true && id != ProviderConstants.ALL_PROVIDERS_ID }
+        val known = providers.mapTo(HashSet()) { it.id }
+        val valid = providers.filter { it.id in selectedIds }
+        val stale = selectedIds.filterTo(LinkedHashSet()) { it !in known && it != ProviderConstants.ALL_PROVIDERS_ID }
         return ResolvedSelection(valid, showAll = valid.isEmpty(), stale = stale)
     }
 
     /**
-     * Etkin tüm Nuvio addon ve plugin depoları seçicide gösterilir. Katalog sunmayanlar görünür ama
-     * [ProviderItem.hasHomeCatalog] false olur; böylece kullanıcı neden ana sayfa kaynağı seçilemediğini görür.
+     * Ana sayfa kataloğu verebilen Nuvio sağlayıcıları: açık ve manifestinde `catalogs` olan addon'lar ve plugin
+     * depoları (girdi sırası korunur). Katalogsuz olanlar (Torrentio, Nexus, altyazı addon'ları, yalnızca kazıyıcı
+     * listeleyen plugin depoları) seçicide ve ana sayfada yer almaz. Hepsi aynı addon katalog yolundan (`nuvio_addon:`) çekilir.
      */
-    fun nuvioProviders(sources: List<NuvioSource>): List<ProviderItem> =
-        sources.filter { it.enabled }.map { s ->
+    fun nuvioCatalogProviders(sources: List<NuvioSource>): List<ProviderItem> =
+        sources.filter { it.enabled && it.manifest?.catalogs?.isNotEmpty() == true }.map { s ->
             ProviderItem(
                 id = "nuvio_addon:${s.rowId}",
                 name = s.name,
                 subtitle = "Nuvio · ${s.name}",
                 kind = ProviderKind.NuvioAddon,
                 addonId = s.addonId,
-                hasHomeCatalog = s.manifest?.catalogs?.isNotEmpty() == true,
             )
         }
 
@@ -129,13 +129,13 @@ object ProviderRules {
         pinnedIds: Set<String>,
     ): List<ProviderItem> {
         val pinnedCs = csProviders
-            .filter { it.hasHomeCatalog && it.id in pinnedIds }
+            .filter { it.id in pinnedIds }
             .sortedWith(
                 compareBy<ProviderItem, String>(String.CASE_INSENSITIVE_ORDER) { it.name }
                     .thenBy { it.id },
             )
         // sortedBy kararlıdır: Play Özel Kataloglar öne geçer, diğerlerinin sırası korunur.
-        val nuvio = nuvioProviders.filter { it.hasHomeCatalog }.sortedBy { it.addonId != DefaultCatalogAddons.PLAY_CATALOGS_ID }
+        val nuvio = nuvioProviders.sortedBy { it.addonId != DefaultCatalogAddons.PLAY_CATALOGS_ID }
         return nuvio + pinnedCs
     }
 

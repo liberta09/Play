@@ -3,7 +3,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
 
     <!-- İndirme (Faz 4/B): ön plan servisi (Android 14+ için veri senkronu türü), Android 13+ bildirim izni, iş zamanlayıcının
          yeniden başlatmada kalıcı olması. Bildirim izni reddedilse de indirme çalışır. -->
@@ -14,6 +13,12 @@
 
     <!-- Uygulama içi güncelleme: indirilen APK için sistem kurulum ekranını açar (Android 8+ ayrıca "bilinmeyen kaynaklar" izni ister). -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- Wi-Fi senkronizasyonu (yalnızca kart açıkken, yerel ağ): UDP yayın bulması için MulticastLock, Android 17+ yerel ağ
+         erişimi (çalışma anında istenir). -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
 
     <!-- Android TV/kumanda: dokunmatik ekran ve leanback zorunlu değil, aynı APK telefon, tablet ve TV'de kurulur. -->
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
@@ -27,8 +32,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:localeConfig="@xml/locales_config"
         android:hardwareAccelerated="true"
+        android:localeConfig="@xml/locales_config"
         android:theme="@style/Theme.Play"
         android:usesCleartextTraffic="true">
 
@@ -68,16 +73,16 @@
         </activity>
 
         <!-- Tam ekran yatay oynatıcı; kaynak seçiminden PlaySession ile açılır. -->
+        <!-- YouTube fragmanını Compose AndroidView yüzeyi dışında oynatır. -->
+        <activity
+            android:name=".ui.detail.YouTubeTrailerActivity"
+            android:exported="false" />
+
         <activity
             android:name=".ui.player.PlayerActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|navigation|uiMode"
             android:exported="false"
             android:screenOrientation="sensorLandscape" />
-
-        <!-- YouTube fragmanını Compose AndroidView yüzeyi dışında oynatır. -->
-        <activity
-            android:name=".ui.detail.YouTubeTrailerActivity"
-            android:exported="false" />
 
         <!-- Reklamsız web görünümü; Ayarlar > Eklentiler > Web siteleri'nden adres verilerek açılır. -->
         <activity

@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
@@ -44,8 +45,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -82,11 +81,7 @@ private data class LiveChannelGroup(val key: String, val sources: List<LiveChann
 
 /** Sağlayıcıların canlı tv/channel akışlarını aranabilir tek bir ekranda toplar. */
 @Composable
-fun TvScreen(
-    onPlay: (CatalogItem) -> Unit,
-    contentFocusRequester: FocusRequester? = null,
-    topBarFocusRequester: FocusRequester? = null,
-) {
+fun TvScreen(onPlay: (CatalogItem) -> Unit) {
     val container = rememberContainer()
     var refreshKey by remember { mutableIntStateOf(0) }
     var result by remember { mutableStateOf<CatalogResult?>(null) }
@@ -173,12 +168,7 @@ fun TvScreen(
         OutlinedTextField(
             value = field.value,
             onValueChange = field.onValueChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                .focusRequester(initialFocus)
-                .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
-                .dpadLeavesTextField(field),
+            modifier = Modifier.fillMaxWidth().focusRequester(initialFocus).dpadLeavesTextField(field),
             placeholder = { Text(stringResource(R.string.tv_search_hint)) },
             leadingIcon = { Icon(PlayIcons.Search, contentDescription = null) },
             trailingIcon = {
@@ -194,21 +184,26 @@ fun TvScreen(
             keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
         )
 
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        // Çipler kendi genişliğini alır ve satır yana kayar; etiket tek satırdır. (Eskiden dar ekran/büyük yazıda etiket harf
+        // harf sarıp satırı ekran boyu uzatıyor, `weight(1f)` ızgaraya sıfır yükseklik kalıyordu.)
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             FilterChip(
                 selected = sourceFilter == ChannelSourceFilter.All,
                 onClick = { sourceFilter = ChannelSourceFilter.All },
-                label = { Text(stringResource(R.string.tv_filter_all, allChannels.size)) },
+                label = { Text(stringResource(R.string.tv_filter_all, allChannels.size), maxLines = 1, softWrap = false) },
             )
             FilterChip(
                 selected = sourceFilter == ChannelSourceFilter.Nuvio,
                 onClick = { sourceFilter = ChannelSourceFilter.Nuvio },
-                label = { Text(stringResource(R.string.tv_filter_nuvio, nuvioCount)) },
+                label = { Text(stringResource(R.string.tv_filter_nuvio, nuvioCount), maxLines = 1, softWrap = false) },
             )
             FilterChip(
                 selected = sourceFilter == ChannelSourceFilter.CloudStream,
                 onClick = { sourceFilter = ChannelSourceFilter.CloudStream },
-                label = { Text(stringResource(R.string.tv_filter_cloudstream, cloudStreamCount)) },
+                label = { Text(stringResource(R.string.tv_filter_cloudstream, cloudStreamCount), maxLines = 1, softWrap = false) },
             )
         }
 

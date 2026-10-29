@@ -25,7 +25,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import okhttp3.Cookie
 import okhttp3.OkHttpClient
 
 /** Eklentiye verilen çağrı: TMDB kimliği (metin), tür ve (dizide) sezon/bölüm. */
@@ -44,13 +43,7 @@ sealed interface PluginOutcome {
     /** Tanı notları (adres/anahtar içermez): "ana-makine 403", "ana-makine blocked", konsol hataları... Arayüzde gösterilmez. */
     val notes: List<String>
 
-    data class Success(
-        override val streams: List<PluginStream>,
-        override val notes: List<String> = emptyList(),
-        val sessionCookies: List<Cookie> = emptyList(),
-    ) : PluginOutcome {
-        override fun toString(): String = "Success(streams=${streams.size}, notes=$notes, sessionCookies=${sessionCookies.size})"
-    }
+    data class Success(override val streams: List<PluginStream>, override val notes: List<String> = emptyList()) : PluginOutcome
 
     data class Failure(val reason: Reason, val message: String? = null, override val notes: List<String> = emptyList()) : PluginOutcome {
         override val streams: List<PluginStream> get() = emptyList()
@@ -70,18 +63,12 @@ internal fun PluginOutcome.withNotes(notes: List<String>): PluginOutcome = when 
     is PluginOutcome.Failure -> copy(notes = notes)
 }
 
-internal fun PluginOutcome.withSessionCookies(cookies: List<Cookie>): PluginOutcome = when (this) {
-    is PluginOutcome.Success -> copy(sessionCookies = cookies)
-    is PluginOutcome.Failure -> this
-}
-
 /**
  * Nuvio JS kazıyıcısını (docs/nuvio-plugin-format.md) QuickJS içinde çalıştırır: dosyayı yükler, `getStreams`'i belgedeki
  * imzayla çağırır, sonucu [PluginStream]'e çevirir. Yalnızca motor ve köprüler; kaynak listesine bağlama sonraki turdadır.
  *
  * **Güvenlik/kaynak sınırları**
- * - Her çağrı yeni, yalıtılmış bir QuickJS örneğidir; JS durumu eklentiler/çağrılar arasında paylaşılmaz. Yalnızca bu çağrıda
- *   alınan ve dönen medya URL'siyle eşleşen HTTP çerezleri oynatıcıya kısa süreli, alan adı/yol kapsamlı biçimde aktarılabilir.
+ * - Her çağrı yeni, yalıtılmış bir QuickJS örneğidir (çağrılar ve eklentiler arası durum/çerez paylaşımı yok).
  * - Dosya sistemi, veritabanı, Intent hiçbir şekilde köprülenmez; ağ yalnızca [PluginHttp] üzerinden ve [NetworkPolicy] ile.
  * - Süre ([run] `timeoutMs`), bellek ([PluginLimits.memoryLimitBytes]), yığın, istek/bayt bütçeleri sınırlıdır.
  * - Gerçek TMDB anahtarı eklentiye verilmez ([PluginPrelude.TMDB_PLACEHOLDER], bkz. [PluginHttp]).
@@ -106,11 +93,7 @@ class PluginRuntime(
     private val gate = Semaphore(maxConcurrent)
 
     /** Bir çağrının ham sonucu: ya JS'in döndürdüğü JSON ya da hazır bir hata. */
-    private class Raw(
-        val json: String?,
-        val failure: PluginOutcome.Failure?,
-        val sessionCookies: List<Cookie> = emptyList(),
-    )
+    private class Raw(val json: String?, val failure: PluginOutcome.Failure?)
 
     /** Boş/hatalı durumda boş liste. */
     suspend fun getStreams(code: String, request: PluginRequest, scraperId: String = "", timeoutMs: Long = DEFAULT_TIMEOUT_MS): List<PluginStream> =
@@ -136,7 +119,7 @@ class PluginRuntime(
         val notes = Notes()
         val raw = call(code, scraperId, timeoutMs, JsonObject(settings).toString(), args, PluginPrelude.CALL, notes)
         val outcome = raw.failure ?: PluginResultParser.parse(raw.json.orEmpty(), limits.maxStreams)
-        return outcome.withNotes(notes.all()).withSessionCookies(raw.sessionCookies)
+        return outcome.withNotes(notes.all())
     }
 
     /**
@@ -225,7 +208,7 @@ class PluginRuntime(
                 job.cancel() // sarkan zamanlayıcıları/istekleri bırak
                 first
             }
-            return Raw(json, null, http.sessionCookies())
+            return Raw(json, null)
         } finally {
             try {
                 qjs.close()

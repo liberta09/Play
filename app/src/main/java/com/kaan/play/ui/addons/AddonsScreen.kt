@@ -1,6 +1,5 @@
 package com.kaan.play.ui.addons
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,9 +25,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -84,6 +80,9 @@ import com.kaan.play.ui.tv.dpadLeavesTextField
 import com.kaan.play.ui.tv.rememberCursorField
 import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.rememberFocusMemory
+import com.kaan.play.ui.tv.rememberRowControls
+import com.kaan.play.ui.tv.rowControl
+import com.kaan.play.ui.tv.rowControlsHost
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
@@ -91,7 +90,6 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
  * Ayarlar > Eklentiler: yalnızca üç satır (ekle, depolar, yüklü eklentiler). Kaynak zaman aşımı
  * ikincil bir ayar olarak altta küçük durur.
  */
-@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun AddonsScreen(
     startAdding: Boolean,
@@ -99,9 +97,9 @@ fun AddonsScreen(
     onOpenRepos: () -> Unit,
     onOpenInstalled: () -> Unit,
     onOpenCsRepos: () -> Unit,
-    onOpenRepoManagerCatalog: () -> Unit,
     onOpenNuvioRepos: () -> Unit,
     onOpenNuvioPlugins: () -> Unit,
+    onOpenCatalog: () -> Unit = {},
 ) {
     val vm = containerViewModel { AddonsViewModel(it.sourceInstaller, it.addons, it.pendingAddonUrl) }
     val dialog by vm.dialog.collectAsStateWithLifecycle()
@@ -195,22 +193,22 @@ fun AddonsScreen(
             }
             item {
                 com.kaan.play.ui.components.PlayCardRow(
+                    title = stringResource(R.string.repo_catalog_title),
+                    subtitle = stringResource(R.string.repo_catalog_subtitle),
+                    icon = PlayIcons.Library,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.focusMemory(focus, "catalog"),
+                    onClick = onOpenCatalog,
+                )
+            }
+            item {
+                com.kaan.play.ui.components.PlayCardRow(
                     title = stringResource(R.string.cs_repos_title),
                     subtitle = stringResource(R.string.cs_repos_subtitle),
                     icon = PlayIcons.Cloud,
                     iconTint = PlayColors.CloudStreamBlue,
                     modifier = Modifier.focusMemory(focus, "csrepos"),
                     onClick = onOpenCsRepos,
-                )
-            }
-            item {
-                com.kaan.play.ui.components.PlayCardRow(
-                    title = stringResource(R.string.repo_manager_catalog_title),
-                    subtitle = stringResource(R.string.repo_manager_catalog_subtitle),
-                    icon = PlayIcons.Cloud,
-                    iconTint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.focusMemory(focus, "repomanager"),
-                    onClick = onOpenRepoManagerCatalog,
                 )
             }
             item {
@@ -398,59 +396,41 @@ internal fun AddonRow(
         else -> null
     }
     val detail = if (typeLabel != null) "$typeLabel • $host" else host
+    val controls = rememberRowControls(2)
 
     Surface(
+        onClick = onClick ?: {},
+        enabled = onClick != null,
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .then(if (onClick != null) Modifier.rowControlsHost(controls).focusRing(RoundedCornerShape(14.dp)) else Modifier),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-                .focusGroup(),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .then(
-                        if (onClick != null) {
-                            Modifier
-                                .focusRing(RoundedCornerShape(10.dp))
-                                .clickable(onClick = onClick)
-                        } else {
-                            Modifier
-                                .focusRing(RoundedCornerShape(10.dp))
-                                .focusable()
-                        }
-                    )
-                    .padding(vertical = 4.dp, horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f).alpha(if (addon.enabled) 1f else 0.5f)) {
-                    Text(text = name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(
-                        text = stringResource(R.string.addons_row_info, addon.manifest.version ?: "—", detail),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                if (onClick != null) {
-                    Icon(
-                        PlayIcons.Forward,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 8.dp, end = 4.dp),
-                    )
-                }
+            Column(modifier = Modifier.weight(1f).alpha(if (addon.enabled) 1f else 0.5f)) {
+                Text(text = name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(
+                    text = stringResource(R.string.addons_row_info, addon.manifest.version ?: "—", detail),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
-            Spacer(modifier = Modifier.width(8.dp))
+            if (onClick != null) {
+                Icon(
+                    PlayIcons.Forward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(end = 8.dp),
+                )
+            }
             Switch(
                 checked = addon.enabled,
                 onCheckedChange = onToggle,
@@ -458,13 +438,9 @@ internal fun AddonRow(
                     checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                     checkedTrackColor = MaterialTheme.colorScheme.primary,
                 ),
-                modifier = Modifier.focusRing(CircleShape).semantics { contentDescription = toggleLabel },
+                modifier = Modifier.rowControl(controls, 0, onClick != null).focusRing(CircleShape).semantics { contentDescription = toggleLabel },
             )
-            Spacer(modifier = Modifier.width(4.dp))
-            IconButton(
-                onClick = onRemove,
-                modifier = Modifier.focusRing(CircleShape),
-            ) {
+            IconButton(onClick = onRemove, modifier = Modifier.rowControl(controls, 1, onClick != null)) {
                 Icon(
                     PlayIcons.Trash,
                     contentDescription = stringResource(R.string.addons_remove),
@@ -761,3 +737,4 @@ private fun AddSourceInputDialog(
         },
     )
 }
+

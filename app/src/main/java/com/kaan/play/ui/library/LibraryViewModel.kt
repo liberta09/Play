@@ -26,9 +26,6 @@ class LibraryViewModel(
     val history: StateFlow<List<WatchHistoryEntity>?> =
         library.watchHistory.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    val manuallyWatched: StateFlow<List<WatchHistoryEntity>?> =
-        library.manuallyWatched.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
-
     val downloads: StateFlow<List<DownloadEntity>?> =
         downloadCenter.rows.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
@@ -45,14 +42,6 @@ class LibraryViewModel(
 
     fun removeHistory(entry: WatchHistoryEntity) {
         viewModelScope.launch { library.removeHistory(entry.id) }
-    }
-
-    fun addHistoryToFavorites(entry: WatchHistoryEntity) {
-        viewModelScope.launch { library.addHistoryToFavorites(entry) }
-    }
-
-    fun markHistoryWatched(entry: WatchHistoryEntity, onResult: (Boolean) -> Unit) {
-        viewModelScope.launch { onResult(library.markHistoryWatched(entry)) }
     }
 
     fun clearHistory() {

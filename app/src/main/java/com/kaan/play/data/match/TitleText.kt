@@ -22,11 +22,11 @@ object TitleText {
     private val NOISE = setOf(
         "izle", "full", "hd", "fullhd", "uhd", "4k", "1080p", "720p", "480p", "turkce", "dublaj", "dublajli", "altyazili", "altyazi",
         "film", "filmi", "filmini", "seyret", "online", "bedava", "indir", "extended", "uncut", "imax", "remastered", "restored",
-        "edition", "cut", "directors", "bluray", "webdl", "tr", "en",
+        "edition", "cut", "directors", "bluray", "webdl", "tr", "en", "sezon", "season", "dizi", "dizisi",
     )
 
     /** "part/bölüm/chapter" gibi devam işaretleri: kendileri düşer, ardından gelen sayı kalır. */
-    private val PART_MARKERS = setOf("part", "pt", "bolum", "chapter", "volume", "vol", "kisim", "episode")
+    private val PART_MARKERS = setOf("part", "pt", "bolum", "chapter", "volume", "vol", "kisim", "episode", "sezon", "season")
 
     private val ROMAN = mapOf("ii" to "2", "iii" to "3", "iv" to "4", "vi" to "6", "vii" to "7", "viii" to "8", "ix" to "9")
     private val AFTER_MARKER_WORDS = mapOf(

@@ -5,164 +5,179 @@ import com.kaan.play.data.db.FavoriteEntity
 import com.kaan.play.data.db.WatchHistoryDao
 import com.kaan.play.data.db.WatchHistoryEntity
 import com.kaan.play.data.model.MediaType
-import com.kaan.play.data.net.PlayJson
 import kotlinx.coroutines.flow.first
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class LocalProfileBackup(
-    val format: Int = 1,
-    val profileName: String,
-    val profileId: String,
-    val exportedAt: Long,
-    val history: List<HistoryBackup> = emptyList(),
-    val favorites: List<FavoriteBackup> = emptyList(),
-)
-
-@Serializable
-data class HistoryBackup(
-    val tmdbId: Int,
-    val type: String,
-    val season: Int,
-    val episode: Int,
-    val positionMs: Long,
-    val durationMs: Long,
-    val lastWatchedAt: Long,
-    val title: String,
-    val posterPath: String? = null,
-    val pluginId: String? = null,
-    val dataUrl: String? = null,
-    val contentUrl: String? = null,
-    val manuallyMarkedWatched: Boolean = false,
-)
-
-@Serializable
-data class FavoriteBackup(
-    val tmdbId: Int,
-    val type: String,
-    val title: String,
-    val posterPath: String? = null,
-    val addedAt: Long,
-)
+import kotlinx.serialization.json.Json
 
 class LocalSyncBackup(
     private val history: WatchHistoryDao,
     private val favorites: FavoriteDao,
     private val profile: LocalProfileRepository,
-    private val inTransaction: suspend (suspend () -> Unit) -> Unit = { action -> action() },
+    private val inTransaction: suspend (suspend () -> Unit) -> Unit = { it() },
 ) {
+    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+
+    private fun favoriteKey(fav: FavoriteBackup): String = "${fav.tmdbId}:${fav.type.lowercase()}"
+    private fun historyKey(h: HistoryBackup): String = "${h.tmdbId}:${h.type.lowercase()}:${h.season}:${h.episode}"
+
+    suspend fun exportJson(): String {
+        val uId = profile.userId.first().ifEmpty { "legacy-user" }
+        val pId = profile.id.first().ifEmpty { "legacy-profile" }
+        val pName = profile.name.first().ifEmpty { "Varsayılan" }
+        val favs = favorites.all(uId, pId).map {
+            FavoriteBackup(
+                tmdbId = it.tmdbId,
+                type = it.type.name.lowercase(),
+                title = it.title,
+                posterPath = it.posterPath,
+                addedAt = it.addedAt,
+            )
+        }
+        val hist = history.all(uId, pId).map {
+            HistoryBackup(
+                tmdbId = it.tmdbId,
+                type = it.type.name.lowercase(),
+                season = it.season,
+                episode = it.episode,
+                positionMs = it.positionMs,
+                durationMs = it.durationMs,
+                lastWatchedAt = it.lastWatchedAt,
+                title = it.title,
+                posterPath = it.posterPath,
+                pluginId = it.pluginId,
+                dataUrl = it.dataUrl,
+                contentUrl = it.contentUrl,
+            )
+        }
+        val backup = LocalProfileBackup(
+            profileId = pId,
+            profileName = pName,
+            format = 1,
+            favorites = favs,
+            history = hist,
+            exportedAt = System.currentTimeMillis(),
+        )
+        return json.encodeToString(LocalProfileBackup.serializer(), backup)
+    }
+
+    suspend fun importJson(jsonStr: String): Result<Unit> = runCatching {
+        val uId = profile.userId.first().ifEmpty { "legacy-user" }
+        val pId = profile.id.first().ifEmpty { "legacy-profile" }
+        val backup = json.decodeFromString(LocalProfileBackup.serializer(), jsonStr)
+        clearProfile(uId, pId)
+        for (f in backup.favorites) {
+            val type = if (f.type.equals("tv", ignoreCase = true)) MediaType.Tv else MediaType.Movie
+            favorites.add(
+                FavoriteEntity(
+                    tmdbId = f.tmdbId,
+                    type = type,
+                    userId = uId,
+                    profileId = pId,
+                    title = f.title,
+                    posterPath = f.posterPath,
+                    addedAt = f.addedAt,
+                )
+            )
+        }
+        for (h in backup.history) {
+            val type = if (h.type.equals("tv", ignoreCase = true)) MediaType.Tv else MediaType.Movie
+            history.upsert(
+                WatchHistoryEntity(
+                    tmdbId = h.tmdbId,
+                    type = type,
+                    userId = uId,
+                    profileId = pId,
+                    season = h.season,
+                    episode = h.episode,
+                    positionMs = h.positionMs,
+                    durationMs = h.durationMs,
+                    lastWatchedAt = h.lastWatchedAt,
+                    title = h.title,
+                    posterPath = h.posterPath,
+                    pluginId = h.pluginId,
+                    dataUrl = h.dataUrl,
+                    contentUrl = h.contentUrl,
+                )
+            )
+        }
+    }
+
+    suspend fun mergeJson(jsonStr: String): Result<Unit> {
+        val uId = profile.userId.first().ifEmpty { "legacy-user" }
+        val pId = profile.id.first().ifEmpty { "legacy-profile" }
+        return mergeJsonFor(uId, pId, jsonStr)
+    }
+
+    suspend fun mergeJsonFor(
+        targetUserId: String,
+        targetProfileId: String,
+        jsonStr: String,
+        extraFavorites: List<FavoriteBackup> = emptyList(),
+        extraHistory: List<HistoryBackup> = emptyList(),
+    ): Result<Unit> = runCatching {
+        val backup = if (jsonStr.isNotBlank()) {
+            json.decodeFromString(LocalProfileBackup.serializer(), jsonStr)
+        } else {
+            LocalProfileBackup()
+        }
+        val existingFavs = favorites.all(targetUserId, targetProfileId)
+        val favMap = existingFavs.associateBy { "${it.tmdbId}:${it.type.name.lowercase()}" }.toMutableMap()
+        for (f in backup.favorites + extraFavorites) {
+            val key = favoriteKey(f)
+            val current = favMap[key]
+            if (current == null || f.addedAt > current.addedAt) {
+                val type = if (f.type.equals("tv", ignoreCase = true)) MediaType.Tv else MediaType.Movie
+                val entity = FavoriteEntity(
+                    tmdbId = f.tmdbId,
+                    type = type,
+                    userId = targetUserId,
+                    profileId = targetProfileId,
+                    title = f.title,
+                    posterPath = f.posterPath,
+                    addedAt = f.addedAt,
+                )
+                favorites.add(entity)
+                favMap[key] = entity
+            }
+        }
+
+        val existingHist = history.all(targetUserId, targetProfileId)
+        val histMap = existingHist.associateBy { "${it.tmdbId}:${it.type.name.lowercase()}:${it.season}:${it.episode}" }.toMutableMap()
+        for (h in backup.history + extraHistory) {
+            val key = historyKey(h)
+            val current = histMap[key]
+            if (current == null || h.lastWatchedAt > current.lastWatchedAt) {
+                val type = if (h.type.equals("tv", ignoreCase = true)) MediaType.Tv else MediaType.Movie
+                val entity = WatchHistoryEntity(
+                    id = current?.id ?: 0,
+                    tmdbId = h.tmdbId,
+                    type = type,
+                    userId = targetUserId,
+                    profileId = targetProfileId,
+                    season = h.season,
+                    episode = h.episode,
+                    positionMs = h.positionMs,
+                    durationMs = h.durationMs,
+                    lastWatchedAt = h.lastWatchedAt,
+                    title = h.title,
+                    posterPath = h.posterPath,
+                    pluginId = h.pluginId,
+                    dataUrl = h.dataUrl,
+                    contentUrl = h.contentUrl,
+                )
+                history.upsert(entity)
+                histMap[key] = entity
+            }
+        }
+    }
+
     suspend fun clearCurrent() {
-        val userId = profile.ensureUserId()
-        val profileId = profile.ensureId()
-        clearProfile(userId, profileId)
+        val uId = profile.userId.first().ifEmpty { "legacy-user" }
+        val pId = profile.id.first().ifEmpty { "legacy-profile" }
+        clearProfile(uId, pId)
     }
 
     suspend fun clearProfile(userId: String, profileId: String) {
-        inTransaction {
-            history.clear(userId, profileId)
-            favorites.clear(userId, profileId)
-        }
+        favorites.clear(userId, profileId)
+        history.clear(userId, profileId)
     }
-
-    suspend fun exportJson(): String {
-        val profileId = profile.ensureId()
-        val name = profile.name.first()
-        val userId = profile.ensureUserId()
-        return PlayJson.encodeToString(
-            LocalProfileBackup.serializer(),
-            LocalProfileBackup(
-                profileName = name,
-                profileId = profileId,
-                exportedAt = System.currentTimeMillis(),
-                history = history.all(userId, profileId).map {
-                    HistoryBackup(it.tmdbId, it.type.name, it.season, it.episode, it.positionMs, it.durationMs, it.lastWatchedAt, it.title, it.posterPath, it.pluginId, it.dataUrl, it.contentUrl, it.manuallyMarkedWatched)
-                },
-                favorites = favorites.all(userId, profileId).map { FavoriteBackup(it.tmdbId, it.type.name, it.title, it.posterPath, it.addedAt) },
-            ),
-        )
-    }
-
-    suspend fun importJson(raw: String): Result<Int> = runCatching {
-        val backup = PlayJson.decodeFromString(LocalProfileBackup.serializer(), raw)
-        require(backup.format == 1) { "Desteklenmeyen yerel profil yedeği" }
-        val userId = profile.ensureUserId()
-        val profileId = profile.ensureId()
-        val historyRows = backup.history.mapNotNull { row ->
-            val type = MediaType.entries.firstOrNull { it.name == row.type } ?: return@mapNotNull null
-            WatchHistoryEntity(id=0, tmdbId=row.tmdbId, type=type, userId=userId, profileId=profileId, season=row.season, episode=row.episode, positionMs=row.positionMs, durationMs=row.durationMs, lastWatchedAt=row.lastWatchedAt, title=row.title, posterPath=row.posterPath, pluginId=row.pluginId, dataUrl=row.dataUrl, contentUrl=row.contentUrl, manuallyMarkedWatched=row.manuallyMarkedWatched)
-        }
-        val favoriteRows = backup.favorites.mapNotNull { row ->
-            val type = MediaType.entries.firstOrNull { it.name == row.type } ?: return@mapNotNull null
-            FavoriteEntity(tmdbId=row.tmdbId, type=type, userId=userId, profileId=profileId, title=row.title, posterPath=row.posterPath, addedAt=row.addedAt)
-        }
-        inTransaction {
-            history.clear(userId, profileId)
-            favorites.clear(userId, profileId)
-            historyRows.forEach { history.upsert(it) }
-            favoriteRows.forEach { favorites.add(it) }
-        }
-        profile.setName(backup.profileName)
-        profile.ensureId()
-        backup.history.size + backup.favorites.size
-    }
-
-    /** İki cihazın yerel yedeğini son izleme/favori ekleme zamanına göre birleştirir. */
-    suspend fun mergeJson(raw: String): Result<Int> {
-        val userId = profile.ensureUserId()
-        val profileId = profile.ensureId()
-        return mergeJsonFor(userId, profileId, raw)
-    }
-
-    /** Buluttan gelen yedeği aktif profili değiştirmeden hedef profile birleştirir. */
-    suspend fun mergeJsonFor(
-        userId: String,
-        profileId: String,
-        raw: String,
-        historyOverride: List<HistoryBackup>? = null,
-        favoritesOverride: List<FavoriteBackup>? = null,
-    ): Result<Int> = runCatching {
-        val incoming = PlayJson.decodeFromString(LocalProfileBackup.serializer(), raw)
-        require(incoming.format == 1) { "Desteklenmeyen yerel profil yedeği" }
-        require(incoming.profileId == profileId) { "Yedek profil kimliği eşleşmiyor" }
-
-        val currentHistory = history.all(userId, profileId).map {
-            HistoryBackup(it.tmdbId, it.type.name, it.season, it.episode, it.positionMs, it.durationMs, it.lastWatchedAt, it.title, it.posterPath, it.pluginId, it.dataUrl, it.contentUrl, it.manuallyMarkedWatched)
-        }
-        val currentFavorites = favorites.all(userId, profileId).map {
-            FavoriteBackup(it.tmdbId, it.type.name, it.title, it.posterPath, it.addedAt)
-        }
-        val mergedHistory = (historyOverride ?: (currentHistory + incoming.history))
-            .groupBy(::historyKey)
-            .map { (_, rows) -> rows.maxBy { it.lastWatchedAt } }
-        val mergedFavorites = (favoritesOverride ?: (currentFavorites + incoming.favorites))
-            .groupBy(::favoriteKey)
-            .map { (_, rows) -> rows.maxBy { it.addedAt } }
-        val historyChanged = currentHistory.associateBy(::historyKey) != mergedHistory.associateBy(::historyKey)
-        val favoritesChanged = currentFavorites.associateBy(::favoriteKey) != mergedFavorites.associateBy(::favoriteKey)
-
-        if (historyChanged || favoritesChanged) {
-            val historyRows = mergedHistory.mapNotNull { row ->
-                val type = MediaType.entries.firstOrNull { it.name == row.type } ?: return@mapNotNull null
-                WatchHistoryEntity(id=0, tmdbId=row.tmdbId, type=type, userId=userId, profileId=profileId, season=row.season, episode=row.episode, positionMs=row.positionMs, durationMs=row.durationMs, lastWatchedAt=row.lastWatchedAt, title=row.title, posterPath=row.posterPath, pluginId=row.pluginId, dataUrl=row.dataUrl, contentUrl=row.contentUrl, manuallyMarkedWatched=row.manuallyMarkedWatched)
-            }
-            val favoriteRows = mergedFavorites.mapNotNull { row ->
-                val type = MediaType.entries.firstOrNull { it.name == row.type } ?: return@mapNotNull null
-                FavoriteEntity(tmdbId=row.tmdbId, type=type, userId=userId, profileId=profileId, title=row.title, posterPath=row.posterPath, addedAt=row.addedAt)
-            }
-            inTransaction {
-                if (historyChanged) {
-                    history.clear(userId, profileId)
-                    historyRows.forEach { history.upsert(it) }
-                }
-                if (favoritesChanged) {
-                    favorites.clear(userId, profileId)
-                    favoriteRows.forEach { favorites.add(it) }
-                }
-            }
-        }
-        mergedHistory.size + mergedFavorites.size
-    }
-
-    private fun historyKey(row: HistoryBackup) = "${row.tmdbId}:${row.type}:${row.season}:${row.episode}"
-    private fun favoriteKey(row: FavoriteBackup) = "${row.tmdbId}:${row.type}"
 }

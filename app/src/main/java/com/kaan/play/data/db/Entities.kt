@@ -1,7 +1,6 @@
 package com.kaan.play.data.db
 
 import androidx.room.Entity
-import androidx.room.ColumnInfo
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -89,6 +88,8 @@ data class WatchHistoryEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val tmdbId: Int,
     val type: MediaType,
+    val userId: String = "legacy-user",
+    val profileId: String = "legacy-profile",
     val season: Int = 0,
     val episode: Int = 0,
     val positionMs: Long,
@@ -99,9 +100,6 @@ data class WatchHistoryEntity(
     val pluginId: String? = null,
     val dataUrl: String? = null,
     val contentUrl: String? = null,
-    @ColumnInfo(defaultValue = "'legacy-user'") val userId: String = "legacy-user",
-    @ColumnInfo(defaultValue = "'legacy-profile'") val profileId: String = "legacy-profile",
-    @ColumnInfo(defaultValue = "0") val manuallyMarkedWatched: Boolean = false,
 )
 
 
@@ -168,13 +166,16 @@ data class DownloadEntity(
     val subtitlesJson: String = "[]",
 )
 
-@Entity(tableName = "favorites", primaryKeys = ["userId", "profileId", "tmdbId", "type"])
+@Entity(
+    tableName = "favorites",
+    primaryKeys = ["userId", "profileId", "tmdbId", "type"],
+)
 data class FavoriteEntity(
     val tmdbId: Int,
     val type: MediaType,
+    val userId: String = "legacy-user",
+    val profileId: String = "legacy-profile",
     val title: String,
     val posterPath: String?,
     val addedAt: Long,
-    @ColumnInfo(defaultValue = "'legacy-user'") val userId: String = "legacy-user",
-    @ColumnInfo(defaultValue = "'legacy-profile'") val profileId: String = "legacy-profile",
 )

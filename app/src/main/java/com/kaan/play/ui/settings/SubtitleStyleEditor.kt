@@ -112,7 +112,7 @@ private fun <T> ChipGroup(
     title: String,
     options: List<T>,
     selected: T,
-    label: (T) -> Int,
+    @StringRes label: (T) -> Int,
     onSelect: (T) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -120,12 +120,11 @@ private fun <T> ChipGroup(
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             options.forEach { option ->
                 val isSelected = option == selected
-                @StringRes val labelRes = label(option)
                 FilterChip(
                     selected = isSelected,
                     onClick = { onSelect(option) },
                     modifier = Modifier.focusRing(RoundedCornerShape(8.dp)),
-                    label = { Text(stringResource(labelRes)) },
+                    label = { Text(stringResource(label(option))) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                         selectedLabelColor = MaterialTheme.colorScheme.onBackground,

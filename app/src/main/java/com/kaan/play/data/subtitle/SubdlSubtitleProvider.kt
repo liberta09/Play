@@ -29,6 +29,9 @@ data class SubdlEndpoints(val api: String = "https://api.subdl.com", val dl: Str
  */
 object DebugEndpoints {
     @Volatile var subsBase: String? = null
+
+    /** Sahte TheIntroDB uç noktası (`--es play_introdb_endpoint`); yalnızca debug derlemede ayarlanır. */
+    @Volatile var introDbBase: String? = null
 }
 
 /**

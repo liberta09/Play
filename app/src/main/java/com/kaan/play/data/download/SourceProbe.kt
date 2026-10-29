@@ -3,7 +3,6 @@ import com.kaan.play.ui.player.PlaybackController
 
 import android.util.Log
 import com.kaan.play.data.net.await
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -50,18 +49,22 @@ sealed interface Probe {
 class SourceProbe(
     private val client: OkHttpClient,
     private val timeoutMs: Long = 15_000,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO.limitedParallelism(16),
 ) {
 
-    suspend fun probe(url: String, headers: Map<String, String>, timeoutMs: Long = this.timeoutMs): Probe = withContext(dispatcher) {
+    suspend fun probe(url: String, headers: Map<String, String>, timeoutMs: Long = this.timeoutMs): Probe = withContext(Dispatchers.IO) {
         val httpUrl = url.toHttpUrlOrNull()
         if (httpUrl == null || (httpUrl.scheme != "http" && httpUrl.scheme != "https")) {
             return@withContext Probe.Rejected(Probe.Reason.NotMedia)
         }
         val http = client.newBuilder().callTimeout(timeoutMs, TimeUnit.MILLISECONDS).build()
         val request = Request.Builder().url(httpUrl).get().apply {
+            val hasUa = headers.keys.any { it.equals("User-Agent", ignoreCase = true) }
+            if (!hasUa) header("User-Agent", PlaybackController.DEFAULT_USER_AGENT)
             headers.forEach { (k, v) -> header(k, v) }
-            if (headers.keys.none { it.equals("Range", ignoreCase = true) }) header("Range", "bytes=0-${RANGE_END}")
+            val isStreaming = com.kaan.play.data.stream.SourceMediaRules.isStreamingManifest(url)
+            if (!isStreaming && headers.keys.none { it.equals("Range", ignoreCase = true) }) {
+                header("Range", "bytes=0-${RANGE_END}")
+            }
         }.build()
         try {
             http.newCall(request).await().use { response ->
@@ -106,14 +109,14 @@ class SourceProbe(
 
         /** Gelen ilk baytlara ve `Content-Type`'a bakıp biçimi/uygunluğu belirler (saf, birim testli). */
         internal fun classify(head: String, contentType: String?, length: Long?): Probe {
-            val text = head.trimStart('\uFEFF', ' ', '\t', '\r', '\n')
+            val text = head.trimStart('﻿', ' ', '\t', '\r', '\n')
             val type = contentType?.substringBefore(';')?.trim()?.lowercase(Locale.ROOT).orEmpty()
 
-            if (text.startsWith("#EXTM3U")) {
+            if (text.startsWith("#EXTM3U") || type == "application/vnd.apple.mpegurl" || type == "application/x-mpegurl") {
                 // Korumalı (FairPlay/Widevine/SAMPLE-AES) HLS çevrimdışı çalışmaz; düz AES-128 sorun değildir.
                 return if (isProtectedHls(text)) Probe.Rejected(Probe.Reason.Drm) else Probe.Ok(SourceKind.Hls, null)
             }
-            if (text.startsWith("<") && "<MPD" in text) {
+            if ((text.startsWith("<") && "<MPD" in text) || type == "application/dash+xml") {
                 return if (isProtectedDash(text)) Probe.Rejected(Probe.Reason.Drm) else Probe.Ok(SourceKind.Dash, null)
             }
             // HTML hata sayfası, JSON, düz metin, torrent: indirilecek bir video değil.

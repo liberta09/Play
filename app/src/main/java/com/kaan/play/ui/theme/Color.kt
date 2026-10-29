@@ -12,11 +12,11 @@ object PlayColors {
     val OnAccent = Color(0xFF021B24)
 
     // Koyu Tema
-    val DarkBackground = Color(0xFF06070B)
-    val DarkSurface = Color(0xFF0A0D14)
-    val DarkSurfaceVariant = Color(0xFF101420)
-    val DarkSurfaceContainer = Color(0xFF0E1A2B)
-    val DarkOutline = Color(0xFF1A2838)
+    val DarkBackground = Color(0xFF07111A)
+    val DarkSurface = Color(0xFF0B1622)
+    val DarkSurfaceVariant = Color(0xFF0F1E2E)
+    val DarkSurfaceContainer = Color(0xFF062A3B)
+    val DarkOutline = Color(0xFF1E3A5F)
     val DarkOnBackground = Color(0xFFFFFFFF)
     val DarkOnMuted = Color(0xFF8FA7B8)
 

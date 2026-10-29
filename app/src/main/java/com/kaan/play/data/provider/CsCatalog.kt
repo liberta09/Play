@@ -118,7 +118,6 @@ class CsCatalog(
                     CatalogItem(
                         id = "${item.name}_${item.url}",
                         title = item.name,
-                        year = com.kaan.play.data.stream.TitleCleaner.cleanTitleAndYear(item.name).second,
                         subtitle = when {
                             live -> "Canlı"
                             item.type == TvType.TvSeries -> "Dizi"
@@ -167,7 +166,6 @@ class CsCatalog(
                         CatalogItem(
                             id = "${item.name}_${item.url}",
                             title = item.name,
-                            year = com.kaan.play.data.stream.TitleCleaner.cleanTitleAndYear(item.name).second,
                             subtitle = when {
                                 live -> "Canlı"
                                 item.type == TvType.TvSeries -> "Dizi"
