@@ -1,0 +1,9 @@
+--------- beginning of main
+--------- beginning of system
+10-29 21:37:08.750 24534 24534 D PlayPlugin: HDFilmCehennemi: istek tmdbId=247718 tür=tv sezon=1 bölüm=1
+10-29 21:37:08.783 24534 24615 D PlayCs  : streams: 0 açık CS eklentisi
+10-29 21:37:10.280 24534 24534 D PlayPlugin: HDFilmCehennemi: akış https://srv12.cdnimages3168.cyou/hls/<51>/txt/master.txt?s=#371d87(len56)
+10-29 21:37:10.284 24534 24534 D PlayMatch: kaynak başlatılıyor: HDFilmCehennemi (srv12.cdnimages3168.cyou)
+10-29 21:37:11.133 24534 24534 D PlayMatch: ilk kare: HDFilmCehennemi (faz=Starting)
+10-29 21:37:11.429 24534 24534 D PlayMatch: süre kontrolü kaynak=HDFilmCehennemi (srv12.cdnimages3168.cyou) süre=56.8 dk beklenen=60 dk tür=Tv -> Ok
+10-29 21:37:24.356 24534 24534 D PlayMatch: takılma-ayrıntı kaynak=HDFilmCehennemi bitHızı=2.72 Mbps bantTahmini=16.28 Mbps tampon=0.1 sn

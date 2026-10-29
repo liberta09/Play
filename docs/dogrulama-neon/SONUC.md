@@ -38,8 +38,62 @@ Dal: `ozellik/neon-dpad-1.2.1` (taban `d247b96`). Tarih: 2026-10-29.
 ## GÖRÜLMEYENLER / sınırlar
 - Kütüphane'de dolu favori/geçmiş/indirme satırları ve odakları (veri yoktu).
 - TV/Canlı TV sekmesi, Kaynak seçim listesi, oynatıcı içi paneller (yalnızca kodda `focusRing` eklendi, ekranda denenmedi).
-- Dokunmatik kullanım; telefon dikey düzen; İngilizce dil; uzun Türkçe metinle taşma; büyük yazı boyutu.
+- Dokunmatik kullanım, telefon dikey düzen, İngilizce dil, büyük yazı boyutu 2. turda görüldü (aşağıda); uzun Türkçe metinle taşma ve gerçek TV hâlâ görülmedi.
 - "Detay" sayfasında yatay cihazda "Oynat" (film) düğmesi büyüyünce sol kenara taşıyor (`34`), kapak çubuğunda pill alt başlığı ("Tümünü göster") "Eklenti seç" hapının arkasında kalıyor (`23-asagi-03`): görsel pürüz, düzeltilmedi.
 - Sezon açılır menüsü seçimi sonrası odak bir süre görünmez (`29g`, `29h`): 3 tuş sonra geri geliyor; `DropdownMenu` kaynaklı olabilir, bu iş kapsamında incelenmedi.
 - Profil kapısı: uygulama her açılışta profil seçtiriyor (bu dalda da, 517469a'da da farklı; bizim mantık korundu).
 - Profil ekranlarındaki gömülü Türkçe metinler (önceden vardı) çevrilmedi.
+
+---
+
+# 2. tur (2026-10-29): 6 düzeltme + kaynak bulma taban testi
+
+Cihaz: yalnızca **PlayNeon** (LDPlayer index 1, `emulator-5556`; asıl örneğe dokunulmadı). Test APK'sı yine `versionCode=99` init betiğiyle; dal `versionCode=27` / `1.2.0`. `git diff --stat d247b96..HEAD -- app/src/main/java/com/kaan/play/data` **boş**. Birim testler (`testDebugUnitTest`) geçti. Ekran: 1600x900/240dpi → dikey testte `wm size 900x1600` + `wm density 350` (411 dp genişlik; LDPlayer `1080x2400` isteğini 1080x1800'e kırptı, bu yüzden 900x1600 kullanıldı). İş bitince `wm size reset` / `wm density reset` (özgün: 1600x900, 240), `font_scale` 1.0, Dil "Sistem", Tema "Koyu", iki eklenti de açık.
+
+## 1) Kopyalama kuralı
+Arama: Netflix, Disney, Hotstar, Prime Video, Hikari, Stremio, "Nuvio Cyan" (`app/src/main`, büyük/küçük harf duyarsız).
+- **Değişti:** `ProfileAvatar.kt` ("Netflix / Disney+ tarzı…" → "Özgün çizim avatar kataloğu."), `PlayFocus.kt` ("Nuvio Cyan (#00E5FF)" → "elektrik camgöbeği (#00E5FF)"), `ProviderDetailRules.kt` ("Stremio türü" → "Addon meta türü"). Commit `cc31626`.
+- **Dokunulmadı (teknik/protokol, arayüzde görünmez):** `Stremio…` özel veri sınıfı adları (`ui/detail/ProviderDetailScreen.kt`, `ui/addons/AddonDetailScreen.kt`); `data/**` içindeki protokol adları/yorumları (`NuvioAddonCatalog`, `ProviderModels`, `PluginRepoManifest`, `AddonManifest`, `AddonUrl` içindeki `stremio://` şeması, `AppContainer` yorumu, `DefaultSubtitleAddons` içindeki üçüncü taraf alan adı `altyazi-stremio.online`) — `data/**` bu turda kilitli. `strings.xml` / `values-tr`: eşleşme **yok**. `assets/adhosts.txt` yalnızca alan adı listesidir (`shikarirevent.qpon`, `vinealdisneyoscars.cyou` alt dize eşleşmesi). Hikari, Hotstar, Prime Video, Netflix: başka eşleşme yok.
+
+## 2) CLAUDE.md
+"Ekranlar" ve "TV ve tablet uyumluluğu" bölümlerindeki alt/yan menü anlatımı 2026-10-29 kararına göre güncellendi (yüzen hap üst menü, köprüler `contentFocusRequester` / `topBarFocusRequester`, profil simgesinden SAĞ ile "Eklenti seç", `tvFocusableScaleGlow`). Commit `f27ac95`. Ayrıca `docs/yol-haritasi.md` karar günlüğüne satır eklendi (`ba63876`). Başka kural değişmedi. Not: CLAUDE.md'nin "Sağlayıcı merkezli ana sayfa" bölümündeki "alt menünün hemen üzerinde" ifadesi, istek yalnızca iki bölümü kapsadığı için dokunulmadan kaldı.
+
+## 3) Açık tema
+- `HomeScreen` radyal gradyanı ve `PlayTopBar` hap rengi (`0xE60A131F`) artık `ui/theme/Backdrop.kt` üzerinden: koyu temada eski sabit değerler, açık temada `MaterialTheme.colorScheme`. Üst menü seçili simge/parlama rengi `colorScheme.primary` (koyuda `#00E5FF`, aynı).
+- **Koyu tema bire bir aynı:** 4 ekran (Ana sayfa, Ara, Ayarlar, Detay) önce/sonra, durum çubuğu hariç tüm piksellerde fark **0** (`39-koyu-*-once/sonra.png`). Sonraki düzeltmelerden sonra son kontrol: Ara ve Ayarlar yine **0 piksel fark**; Ana sayfa ve Detay'da fark var, çünkü TMDB trendi/kapak ve "devam et" sırası değişti (içerik farkı, tema değil).
+- Açık temada PNG: Ana sayfa `38a`, Ayarlar `38b`, Detay `38c`, Ara `38e`, üst menü `38f`, profil seçimi dikey `38g`.
+- **Bulunup düzeltilenler:** (a) açık Detay'da TMDB başlık logosu beyaz olduğu için görünmüyordu (`38d`) → açık temada metin başlık (`TitleOrLogo(logoVisible)`); (b) profil seçimi ekranı açık temada koyu bordo gradyan üstünde koyu yazıydı → `profileBackdropBrush()` (koyuda aynı); (c) Bulut hesabı kartında "E-posta ile Giriş Yap" başlığı **koyu temada da** siyah yazıyla görünmez kalıyordu (kartın `Surface` rengi saydam olduğundan içerik rengi çözülmüyordu) → `contentColor = onSurface`. Commitler `0f3a9a6`, `64c6a3c`, `2c1d03b`.
+- Kalan (düzeltilmedi): açık temada kapak karuselinin üstündeki koyu gradyan ile durum çubuğu zemini arasında hafif bir açık bant görünür (okunur, simgeler görünür).
+
+## 4) Dikey telefon (900x1600 @350dpi ≈ 411 dp)
+- Üst hap menü 6 öğeyle **sığar** (menü genişliği ≈ %73); 320 dp genişlikte (`density 450`) menü neredeyse kenardan kenara ama taşmaz, üst üste binme yok (`43`). Durum çubuğuyla çakışma yok.
+- Dokunmatik: Ana sayfa `40a`, Ara `40b`, Kütüphane `40c`, Ayarlar `40d`, Detay `40e/40f`, Profil seçimi `40g`. Kumanda (`keyevent`): Profil seçimi `41a`, Ana sayfa + üst menü odağı `41b`, Ara çipi `41c`, Kütüphane `41d`, Ayarlar `41e`. Her adımda odak halkası görünür; taşma/üst üste binme yok.
+- İngilizce: Ayarlar `42a`; yazı boyutu 1.3: Ana sayfa `42b`, Ayarlar `42d`.
+- **Bulunup düzeltilen:** yazı 1.3 + İngilizce'de "Poster URL" satırı "Poste…" diye kısalıyordu, uzun değer ("Custom poster template") başlığı eziyordu (`42c`) → `PlayCardRow`'da değer varken ağırlıklar 0,8 : 1,2, değer sağa yaslı; başlık tam görünür, değer "Custom poster t…" diye kısalır (`42d`). Normal yazıda (1.0) satır aynı (`42e`; yatay Ayarlar piksel farkı 0). Commit `460fc05`.
+- **Bulunup düzeltilmeyen:** İngilizce arayüzde Türkçe gömülü metinler (Ayarlar'da "Profil seçimi / Profil oluştur ve geçiş yap", "Son profili hatırla", "Bulut hesabı ve senkronizasyon…"; Profil seçimi, Profil kurulumu, Bulut hesabı formları). `ui/` altında Türkçe karakterli ≈ 80 sabit metin var (en çok `ProfileChooserScreen` 31, `ProfileScreen` 28, `ProfileSetupScreen` 11, `SettingsScreen` 6). CLAUDE.md "hiçbir metin koda gömülmez" kuralına aykırı; bu turun kapsamı dışında, ayrı iş.
+- "Eklenti seç" hapı dikeyde de kart altyazılarının üstüne biner (bilinen pürüz).
+
+## 5) Kaynak bulma taban testi (düzeltme yok, yalnızca ölçüm)
+Yöntem: `git worktree add ..\Play-taban d247b96` (saf v1.2.0; test için `versionCode=99`), PlayNeon'a kuruldu; sonra `ozellik/neon-dpad-1.2.1` derlemesi. Her denemede uygulama kapatılıp açıldı (`force-stop`), arama → içerik → Oynat (dizide 1. sezon 1. bölüm satırı); günlük `adb logcat -s PlayCs PlayMatch PlayPlugin` (`taban-testi/`). Ölçüt: günlükte `kaynak başlatılıyor` satırı = **bulundu**; ekranda "Bu içerik için kaynak bulunamadı." = **bulunamadı**. Otomasyon `uiautomator` dökümü + `input tap` ile yapıldı; yalnızca içerik detayı doğru açıldıktan sonra Oynat'a basılan denemeler geçerli sayıldı. Her ölçümde tek eklenti açık, diğeri kapalı bırakıldı (Mobland için ayrı ayrı). İş bitince iki eklenti de açıldı; worktree kaldırıldı.
+
+| İçerik / eklenti | Taban (v1.2.0, `d247b96`) | Dal (`ozellik/neon-dpad-1.2.1`) |
+|---|---|---|
+| Örümcek-Adam: Yepyeni Bir Gün · HDFilmCehennemi | 3 geçerli denemede **3 bulundu**, 0 bulunamadı | 3 geçerli denemede **2 bulundu**, **1 bulunamadı** |
+| Mobland S1 B1 · HDFilmCehennemi | 1/1 bulundu | 1/1 bulundu |
+| Mobland S1 B1 · DiziBOX | 1/1 bulundu | 1/1 bulundu |
+
+Ayrıntı:
+- Taban: Örümcek-Adam denemeleri 1, 3, 4 geçerli (hepsi `kaynak başlatılıyor`); deneme 2'de otomasyon içerik detayını açamadı, **sayılmadı**. İlk otomasyon koşusunun (doğrulamasız betik) sonuçları geçersiz sayıldı ve silindi.
+- Dal: deneme 1 "bulunamadı": günlükte yalnızca `HDFilmCehennemi: istek tmdbId=969681 tür=movie` satırı var, eklentiden akış/hata satırı yok; ekranda 5 sn içinde "Bu içerik için kaynak bulunamadı." + "Başka kaynak seç" görünür (günlük `taban-testi/dal-orumcek-1.txt`). Denemeler 2 ve 3: `kaynak başlatılıyor`, süre kontrolü Ok.
+- Bu tablo sonucu olduğu gibi gösterir; deneme sayısı küçüktür (3 + 1 + 1), yorum yapılmadı. Not: 1. turdaki Örümcek-Adam 1. denemesinin günlüksüz "bulunamadı" belirtisi bu turda dalda bir kez daha görüldü (günlükte yalnızca istek satırı); tabanın 3 geçerli denemesinde görülmedi.
+- Dosyalar: `taban-testi/*.txt` (günlükler), `*-sonuc-*.json` (ham sonuçlar; `taban-film-sonuc.json` 2. otomasyon koşusunun ham çıktısıdır: 2. deneme "geçersiz").
+
+## 6) focusRing rengi
+- `focusRing(color)` parametresini yok sayıyordu (halka/iç çizgi/parlama sabit `#00E5FF`). Şimdi `tvFocusableScaleGlow(glowColor)` halkada, iç çizgide ve dolgu parlamasında verilen rengi kullanır; verilmezse temanın vurgusu (`colorScheme.primary` = turkuaz; açık temada `#00838F`). Eski çağrı yerleri: `color` veren tek yer `ui/components/PlayButtons.kt` (3 çağrı, `onFilled()`); başka `focusRing(..., color)` çağrısı yok.
+- Dolu turkuaz düğmede ters renk: `onFilled()` = `colorScheme.onPrimary` (koyuda `#021B24`, açıkta beyaz) ve `strong = true` ile halka 4/2 dp (öncekinde ince çizgi dolgudan ayırt edilmiyordu: `37c` önce, `37` / `37b` sonra). Commit `4e8f749`.
+- Ekran görüntüsü: Profil seçimi'nde "Yeni Profil" dolu düğme odağı (`37-dolu-dugme-odak.png`, yakın plan `37b`).
+
+## Bilinen pürüz (bu turda DÜZELTİLMEDİ, istek gereği)
+- Detay'da yatay ekranda Oynat düğmesinin sola kayması / çok genişlemesi (`34`, `29b`, `38c`).
+- "Eklenti seç" hapının "Tümünü göster"i (ve kart altyazılarını) örtmesi (`23-asagi-03`, dikeyde de).
+- Sezon menüsü seçimi sonrası odağın ~3 tuş görünmemesi (`29g`, `29h`).
