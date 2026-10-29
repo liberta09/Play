@@ -40,7 +40,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.kaan.play.BuildConfig
 import com.kaan.play.MainActivity
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import com.kaan.play.ui.tv.categoryHeaderFocusable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -106,6 +112,8 @@ fun HomeScreen(
     onAddAddon: () -> Unit,
     onOpenSearch: (String) -> Unit = {},
     onOpenProviderDetail: (providerId: String, url: String) -> Unit = { _, _ -> },
+    contentFocusRequester: FocusRequester? = null,
+    topBarFocusRequester: FocusRequester? = null,
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
@@ -149,7 +157,16 @@ fun HomeScreen(
         else -> stringResource(R.string.provider_pill_multiple, validSelected.first().name, validSelected.size - 1)
     }
 
-    Box(Modifier.fillMaxSize()) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(Color(0xFF1A1A24), Color(0xFF0A0D14), Color(0xFF040508)),
+                    radius = 1500f,
+                ),
+            ),
+    ) {
         when {
             hasSource == null -> Box(Modifier.fillMaxSize())
             !effectiveIsAll -> ProviderCatalogView(
@@ -161,8 +178,14 @@ fun HomeScreen(
                 onOpenCategory = onOpenCategory,
                 onContinue = onContinue,
                 onOpenProviderCategory = { activeProviderRow = it },
+                contentFocusRequester = contentFocusRequester,
+                topBarFocusRequester = topBarFocusRequester,
             )
-            hasSource == false -> HomeEmptyState(onAddAddon)
+            hasSource == false -> HomeEmptyState(
+                onAddAddon = onAddAddon,
+                contentFocusRequester = contentFocusRequester,
+                topBarFocusRequester = topBarFocusRequester,
+            )
             else -> HomeContent(
                 onOpenDetail = onOpenDetail,
                 onOpenCategory = onOpenCategory,
@@ -170,6 +193,8 @@ fun HomeScreen(
                 onOpenProviderDetail = onOpenProviderDetail,
                 onOpenProviderCategory = { activeProviderRow = it },
                 onOpenSearch = onOpenSearch,
+                contentFocusRequester = contentFocusRequester,
+                topBarFocusRequester = topBarFocusRequester,
             )
         }
 
@@ -218,7 +243,11 @@ fun HomeScreen(
 }
 
 @Composable
-private fun HomeEmptyState(onAddAddon: () -> Unit) {
+private fun HomeEmptyState(
+    onAddAddon: () -> Unit,
+    contentFocusRequester: FocusRequester? = null,
+    topBarFocusRequester: FocusRequester? = null,
+) {
     Column(
         modifier = Modifier.fillMaxSize().padding(32.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
@@ -231,7 +260,13 @@ private fun HomeEmptyState(onAddAddon: () -> Unit) {
             textAlign = TextAlign.Center,
         )
         val focus = rememberInitialFocus()
-        Button(onClick = onAddAddon, modifier = Modifier.focusRequester(focus)) { Text(stringResource(R.string.home_empty_action)) }
+        Button(
+            onClick = onAddAddon,
+            modifier = Modifier
+                .focusRequester(focus)
+                .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it },
+        ) { Text(stringResource(R.string.home_empty_action)) }
     }
 }
 
@@ -243,6 +278,8 @@ private fun HomeContent(
     onOpenProviderDetail: (providerId: String, url: String) -> Unit = { _, _ -> },
     onOpenProviderCategory: (CatalogRow) -> Unit = {},
     onOpenSearch: (String) -> Unit = {},
+    contentFocusRequester: FocusRequester? = null,
+    topBarFocusRequester: FocusRequester? = null,
 ) {
     val container = rememberContainer()
     val homeProviders by container.providers.homeProviders.collectAsStateWithLifecycle(initialValue = emptyList())
@@ -294,6 +331,8 @@ private fun HomeContent(
                     focus = focus,
                     isDefaultFocus = true,
                     onOpen = onOpenDetail,
+                    contentFocusRequester = contentFocusRequester,
+                    topBarFocusRequester = topBarFocusRequester,
                 )
                 // Yükleniyor: aynı boyutta sönük kutu (yerleşim zıplamasın). Başarısızsa kapak hiç çıkmaz.
                 hero is Loadable.Loading -> Box(Modifier.fillMaxWidth().height(heroHeight).background(MaterialTheme.colorScheme.surfaceVariant))
@@ -308,12 +347,16 @@ private fun HomeContent(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(continueWatching, key = { "${it.entry.type}-${it.entry.tmdbId}" }) { item ->
+                            val isFirstContinue = !hasHero && item === continueWatching.first()
                             ContinueCard(
                                 item,
-                                modifier = Modifier.focusMemory(
-                                    focus, "c-${item.entry.type}-${item.entry.tmdbId}",
-                                    isDefault = !hasHero && item === continueWatching.first(),
-                                ),
+                                modifier = Modifier
+                                    .let { if (isFirstContinue && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                                    .let { if (isFirstContinue && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                                    .focusMemory(
+                                        focus, "c-${item.entry.type}-${item.entry.tmdbId}",
+                                        isDefault = isFirstContinue,
+                                    ),
                                 width = cardWidth,
                             ) { onContinue(item) }
                         }
@@ -351,6 +394,7 @@ private fun HomeContent(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             items(state.value, key = { "${it.type}-${it.id}" }) { media ->
+                                val isFirstTrending = !hasHero && !hasContinue && row == HomeRow.TrendingMovies && media == state.value.first()
                                 PosterCard(
                                     title = media.title,
                                     subtitle = media.year?.toString(),
@@ -360,10 +404,12 @@ private fun HomeContent(
                                     onClick = { onOpenDetail(media.type, media.id) },
                                     modifier = Modifier
                                         .width(cardWidth)
+                                        .let { if (isFirstTrending && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                                        .let { if (isFirstTrending && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
                                         .focusMemory(
                                             focus,
                                             "${row.name}-${media.type}-${media.id}",
-                                            isDefault = !hasHero && !hasContinue && row == HomeRow.TrendingMovies && media == state.value.first(),
+                                            isDefault = isFirstTrending,
                                         ),
                                 )
                             }
@@ -394,13 +440,17 @@ private fun Section(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         val seeAll = stringResource(R.string.home_see_all)
+        val interactionSource = remember { MutableInteractionSource() }
         Row(
             modifier = headerModifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-                .clip(MaterialTheme.shapes.small)
-                .then(if (onSeeAll != null) Modifier.clickable(onClickLabel = seeAll, onClick = onSeeAll) else Modifier)
-                .padding(horizontal = 12.dp, vertical = 6.dp),
+                .padding(horizontal = ScreenPadding)
+                .categoryHeaderFocusable(
+                    interactionSource = interactionSource,
+                    onClick = onSeeAll,
+                    scale = 1.02f,
+                )
+                .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
@@ -408,10 +458,7 @@ private fun Section(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.small)
-                        .focusRing(MaterialTheme.shapes.small)
-                        .padding(horizontal = 4.dp, vertical = 2.dp),
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                 ) {
                     Text(
                         text = seeAll,
@@ -601,19 +648,21 @@ private fun LazyProviderSection(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
+                        val headerInteraction = remember(row.providerId, row.id) { MutableInteractionSource() }
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = ScreenPadding),
+                                .padding(horizontal = ScreenPadding)
+                                .focusMemory(focus, "header_${row.providerId}_${row.id}")
+                                .categoryHeaderFocusable(
+                                    interactionSource = headerInteraction,
+                                    onClick = { onOpenProviderCategory(row) },
+                                    scale = 1.02f,
+                                )
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(MaterialTheme.shapes.small)
-                                    .clickable { onOpenProviderCategory(row) }
-                                    .padding(vertical = 2.dp),
-                            ) {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = row.title,
                                     style = MaterialTheme.typography.titleLarge,
@@ -632,12 +681,7 @@ private fun LazyProviderSection(
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                modifier = Modifier
-                                    .clip(MaterialTheme.shapes.small)
-                                    .focusRing(MaterialTheme.shapes.small)
-                                    .focusMemory(focus, "see_all_${row.providerId}_${row.id}")
-                                    .clickable { onOpenProviderCategory(row) }
-                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                             ) {
                                 Text(
                                     text = stringResource(R.string.provider_catalog_show_all),
@@ -724,6 +768,8 @@ private fun ProviderCatalogView(
     onContinue: (ContinueItem) -> Unit,
     onOpenProviderCategory: (CatalogRow) -> Unit,
     modifier: Modifier = Modifier,
+    contentFocusRequester: FocusRequester? = null,
+    topBarFocusRequester: FocusRequester? = null,
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
@@ -794,6 +840,8 @@ private fun ProviderCatalogView(
                     onOpenProviderDetail = onOpenProviderDetail,
                     onOpenProviderCategory = onOpenProviderCategory,
                     onOpenSearch = onOpenSearch,
+                    contentFocusRequester = contentFocusRequester,
+                    topBarFocusRequester = topBarFocusRequester,
                 )
             }
         }
@@ -926,18 +974,20 @@ private fun ProviderCatalogView(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
+                        val headerInteraction = remember(row.providerId, row.id) { MutableInteractionSource() }
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = ScreenPadding),
+                                .padding(horizontal = ScreenPadding)
+                                .categoryHeaderFocusable(
+                                    interactionSource = headerInteraction,
+                                    onClick = { onOpenProviderCategory(row) },
+                                    scale = 1.02f,
+                                )
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(MaterialTheme.shapes.small)
-                                    .clickable { onOpenProviderCategory(row) },
-                            ) {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = row.title,
                                     style = MaterialTheme.typography.titleLarge,
@@ -953,16 +1003,23 @@ private fun ProviderCatalogView(
                                     )
                                 }
                             }
-                            Text(
-                                text = stringResource(R.string.provider_catalog_show_all),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .clip(MaterialTheme.shapes.small)
-                                    .focusRing(MaterialTheme.shapes.small)
-                                    .clickable { onOpenProviderCategory(row) }
-                                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.provider_catalog_show_all),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                                Icon(
+                                    imageVector = PlayIcons.Forward,
+                                    contentDescription = stringResource(R.string.provider_catalog_show_all),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                            }
                         }
 
                         LazyRow(
@@ -1196,7 +1253,6 @@ private fun ProviderPillButton(
         modifier = modifier
             .clip(shape)
             .background(containerColor)
-            .border(if (isSelected) 1.5.dp else 1.dp, borderColor, shape)
             .focusRing(shape)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 10.dp),
