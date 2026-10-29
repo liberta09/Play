@@ -45,6 +45,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -81,7 +83,11 @@ private data class LiveChannelGroup(val key: String, val sources: List<LiveChann
 
 /** Sağlayıcıların canlı tv/channel akışlarını aranabilir tek bir ekranda toplar. */
 @Composable
-fun TvScreen(onPlay: (CatalogItem) -> Unit) {
+fun TvScreen(
+    onPlay: (CatalogItem) -> Unit,
+    contentFocusRequester: FocusRequester? = null,
+    topBarFocusRequester: FocusRequester? = null,
+) {
     val container = rememberContainer()
     var refreshKey by remember { mutableIntStateOf(0) }
     var result by remember { mutableStateOf<CatalogResult?>(null) }
@@ -168,7 +174,12 @@ fun TvScreen(onPlay: (CatalogItem) -> Unit) {
         OutlinedTextField(
             value = field.value,
             onValueChange = field.onValueChange,
-            modifier = Modifier.fillMaxWidth().focusRequester(initialFocus).dpadLeavesTextField(field),
+            modifier = Modifier
+                .fillMaxWidth()
+                .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                .focusRequester(initialFocus)
+                .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                .dpadLeavesTextField(field),
             placeholder = { Text(stringResource(R.string.tv_search_hint)) },
             leadingIcon = { Icon(PlayIcons.Search, contentDescription = null) },
             trailingIcon = {

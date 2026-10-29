@@ -37,6 +37,9 @@ import com.kaan.play.ui.components.ChoiceDialog
 import com.kaan.play.ui.components.PlayCardRow
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.rememberContainer
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.rememberFocusMemory
 import kotlinx.coroutines.launch
@@ -55,6 +58,8 @@ fun SettingsScreen(
     onOpenProfile: () -> Unit,
     onOpenSync: () -> Unit,
     onOpenAbout: () -> Unit,
+    contentFocusRequester: FocusRequester? = null,
+    topBarFocusRequester: FocusRequester? = null,
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
@@ -87,7 +92,10 @@ fun SettingsScreen(
             badge = addonCount?.let { pluralStringResource(R.plurals.addons_count, it, it) },
             icon = PlayIcons.Extension,
             iconTint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.focusMemory(focus, "addons", isDefault = true),
+            modifier = Modifier
+                .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                .focusMemory(focus, "addons", isDefault = true),
             onClick = onOpenAddons,
         )
         PlayCardRow(
