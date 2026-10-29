@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kaan.play.ui.nav.PlayIcons
@@ -113,7 +114,9 @@ fun PlayCardRow(
                 )
                 Spacer(modifier = Modifier.width(16.dp))
             }
-            Column(modifier = Modifier.weight(1f)) {
+            // Değer varken ağırlıklar 0,8 : 1,2: uzun değer büyük yazıda başlığı ezmesin, kısa değer sağa yaslı kalır.
+            val hasValue = badge.isNullOrEmpty() && !value.isNullOrEmpty()
+            Column(modifier = Modifier.weight(if (hasValue) 0.8f else 1f)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
@@ -140,7 +143,8 @@ fun PlayCardRow(
                     text = value,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(end = 10.dp),
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.weight(1.2f).padding(start = 8.dp, end = 10.dp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
