@@ -228,20 +228,23 @@ fun PlayRoot() {
     val activeProfile by container.localProfile.activeProfile.collectAsStateWithLifecycle(initialValue = null)
     val rememberLastProfile by container.settings.rememberLastProfile.collectAsStateWithLifecycle(initialValue = true)
     var profileGate by remember { mutableStateOf(false) }
-    var initialGateChecked by remember { mutableStateOf(false) }
+    var gateDecided by remember { mutableStateOf(false) }
     var showProfileSetup by remember { mutableStateOf(false) }
     var managingProfiles by remember { mutableStateOf(false) }
 
-    LaunchedEffect(profiles, rememberLastProfile) {
-        if (!initialGateChecked && profiles.isNotEmpty()) {
-            if (!rememberLastProfile || activeProfile == null) {
-                profileGate = true
-            }
-            initialGateChecked = true
-        } else if (!initialGateChecked && profiles.isEmpty()) {
-            profileGate = true
-            initialGateChecked = true
-        }
+    // Üç akış da DataStore'dan gelir; collectAsState başlangıç değerleri (boş liste/null) gerçek değil.
+    // Kapı kararı, her akışın ilk gerçek değeri gelene kadar bekler ve tek seferde verilir.
+    LaunchedEffect(Unit) {
+        val loadedProfiles = container.localProfile.profiles.first()
+        val loadedActive = container.localProfile.activeProfile.first()
+        val loadedRemember = container.settings.rememberLastProfile.first()
+        profileGate = shouldShowProfileGate(loadedProfiles.size, loadedActive != null, loadedRemember)
+        gateDecided = true
+    }
+
+    if (!gateDecided) {
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
+        return
     }
 
     if (showProfileSetup) {
