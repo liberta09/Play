@@ -82,6 +82,10 @@ class TorrentHttpServer(private val engine: TorrentEngine) {
                     TorrentException.Reason.NoSpace -> status(out, 507, "Insufficient Storage")
                     else -> status(out, 404, "Not Found")
                 }
+            } catch (t: Throwable) {
+                Log.w(TAG, "engine.open beklenmeyen hata: ${t.message}", t)
+                TorrentDiag.e("motor genel hata", t)
+                return status(out, 503, "Service Unavailable")
             }
 
             onOpened?.invoke(magnet, file.size)
@@ -118,6 +122,9 @@ class TorrentHttpServer(private val engine: TorrentEngine) {
             TorrentDiag.e("yerel sunucu istisnası", e)
         } catch (_: InterruptedException) {
             Thread.currentThread().interrupt()
+        } catch (t: Throwable) {
+            Log.w(TAG, "yerel sunucu kritik hata: ${t.message}", t)
+            TorrentDiag.e("yerel sunucu kritik hata", t)
         }
     }
 

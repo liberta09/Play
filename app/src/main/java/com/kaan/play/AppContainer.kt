@@ -7,16 +7,11 @@ import android.util.Log
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.room.withTransaction
 import com.kaan.play.data.addon.AddonRepository
 import com.kaan.play.data.addon.DefaultCatalogAddons
 import com.kaan.play.data.addon.DefaultSubtitleAddons
 import com.kaan.play.data.addon.OkHttpManifestFetcher
-import com.kaan.play.data.sync.LocalProfileRepository
-import com.kaan.play.data.sync.LocalSyncBackup
-import com.kaan.play.data.sync.SupabaseCloudSync
-import com.kaan.play.data.speedtest.InternetSpeedTest
 import com.kaan.play.data.db.PlayDatabase
 import com.kaan.play.data.download.DownloadCenter
 import com.kaan.play.data.download.DownloadFiles
@@ -39,6 +34,12 @@ import com.kaan.play.data.plugin.PluginSettingsRepository
 import com.kaan.play.data.plugin.PluginStreamProvider
 import com.kaan.play.data.plugin.DeepLinkHandler
 import com.kaan.play.data.plugin.SourceInstaller
+import com.kaan.play.data.plugin.CatalogInstallCoordinator
+import com.kaan.play.data.plugin.RepoManagerCatalog
+import com.kaan.play.data.speedtest.InternetSpeedTest
+import com.kaan.play.data.skip.IntroDbRepository
+import com.kaan.play.data.skip.CombinedSkipSegmentProvider
+import com.kaan.play.data.skip.SkipSegmentProvider
 import com.kaan.play.data.plugin.runtime.PluginRuntime
 import com.kaan.play.data.settings.SettingsRepository
 import com.kaan.play.data.stream.AddonStreamProvider
@@ -64,6 +65,12 @@ import com.kaan.play.data.tmdb.TmdbRepository
 import com.kaan.play.data.torrent.TorrentEngine
 import com.kaan.play.data.torrent.TorrentHttpServer
 import com.kaan.play.data.web.WebSiteRepository
+import com.kaan.play.data.sync.LocalProfileRepository
+import com.kaan.play.data.sync.LocalSyncBackup
+import com.kaan.play.data.sync.LocalSyncServer
+import com.kaan.play.data.sync.LocalSyncClient
+import com.kaan.play.data.sync.LocalNetworkAccess
+import com.kaan.play.data.sync.SupabaseCloudSync
 import com.kaan.play.ui.web.AndroidWebDataCleaner
 import com.kaan.play.i18n.AppLanguage
 import com.kaan.play.data.update.AndroidInstallPlatform
@@ -73,14 +80,22 @@ import com.kaan.play.data.update.UpdateChecker
 import com.kaan.play.data.announcement.AnnouncementChecker
 import com.kaan.play.data.update.UpdateDownloader
 import com.kaan.play.data.update.UpdateFlow
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
@@ -108,7 +123,6 @@ class AppContainer(context: Context) {
         .readTimeout(20, TimeUnit.SECONDS)
         .followRedirects(true)
         // Güvenlik denetimi (ilk sırada): engellenen istek IOException ile reddedilir, uygulamayı çökertmez.
-        .addInterceptor(com.lagradost.cloudstream3.SafePluginInterceptor())
         .addInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
         .addInterceptor { chain ->
             val req = chain.request()
@@ -167,16 +181,11 @@ class AppContainer(context: Context) {
 
     init {
         // CloudStream eklentileri app.get()/post() ve depolama için ilklendirilir
-        try {
-            com.lagradost.cloudstream3.initApp(httpClient)
-            com.lagradost.cloudstream3.utils.DataStore.init(appContext)
-            com.lagradost.cloudstream3.DataStore.init(appContext)
-            com.lagradost.cloudstream3.AcraApplication.context = appContext
-            com.lagradost.cloudstream3.CloudStreamApp.context = appContext
-            com.lagradost.cloudstream3.CommonActivity.context = appContext
-        } catch (t: Throwable) {
-            android.util.Log.e("AppContainer", "CloudStream init hatasi: ${t.message}", t)
-        }
+        com.lagradost.cloudstream3.initApp(httpClient)
+        com.lagradost.cloudstream3.DataStore.init(appContext)
+        com.lagradost.cloudstream3.AcraApplication.context = appContext
+        com.lagradost.cloudstream3.CloudStreamApp.context = appContext
+        com.lagradost.cloudstream3.CommonActivity.context = appContext
 
         // Pichive / Hotlinger / DPlayer çıkarıcılarını ekle (önceden tanımlı eski versiyonları temizleyip en başa ekle)
         val extApis = com.lagradost.cloudstream3.utils.extractorApis
@@ -184,9 +193,10 @@ class AppContainer(context: Context) {
             it.mainUrl.contains("hotlinger", ignoreCase = true) ||
             it.mainUrl.contains("pichive", ignoreCase = true) ||
             it.mainUrl.contains("dplayer", ignoreCase = true) ||
-            it.mainUrl.contains("molystream", ignoreCase = true)
+            it.mainUrl.contains("molystream", ignoreCase = true) ||
+            it.mainUrl.contains("moly.to", ignoreCase = true)
         }
-        val customExts = listOf(
+        val pichiveExts = listOf(
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("Pichive", "https://four.pichive.online"),
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("Pichive", "https://pichive.online"),
             com.kaan.play.data.cloudstream.extractors.PichiveExtractor("Hotlinger", "https://sn.hotlinger.com"),
@@ -198,7 +208,7 @@ class AppContainer(context: Context) {
             com.kaan.play.data.cloudstream.extractors.DbxMolystream(),
             com.kaan.play.data.cloudstream.extractors.MolyTo(),
         )
-        for (ext in customExts) {
+        for (ext in pichiveExts) {
             extApis.add(0, ext)
         }
     }
@@ -206,7 +216,13 @@ class AppContainer(context: Context) {
 
     /** Dil her istekte [AppLanguage.effective] ile okunur: Ayarlar'da dil değişince yeni istekler yeni dilde gider. */
     val tmdb: TmdbRepository by lazy {
-        TmdbRepository(httpClient, json, BuildConfig.TMDB_API_KEY, language = AppLanguage::effective)
+        TmdbRepository(
+            httpClient,
+            json,
+            BuildConfig.TMDB_API_KEY,
+            language = AppLanguage::effective,
+            childMode = { localProfile.activeProfile()?.isChild == true },
+        )
     }
 
     val database: PlayDatabase by lazy {
@@ -217,24 +233,8 @@ class AppContainer(context: Context) {
                 PlayDatabase.MIGRATION_3_4,
                 PlayDatabase.MIGRATION_4_5,
                 PlayDatabase.MIGRATION_5_6,
+                PlayDatabase.MIGRATION_6_7,
             )
-            .addCallback(object : RoomDatabase.Callback() {
-                override fun onOpen(db: SupportSQLiteDatabase) {
-                    super.onOpen(db)
-                    try {
-                        db.execSQL("DELETE FROM subtitle_offset WHERE rowid NOT IN (SELECT rowid FROM subtitle_offset ORDER BY updatedAt DESC LIMIT 500)")
-                        db.execSQL("DELETE FROM subtitle_language WHERE rowid NOT IN (SELECT rowid FROM subtitle_language ORDER BY updatedAt DESC LIMIT 500)")
-                    } catch (t: Throwable) {
-                        Log.e("PlayDatabase", "Subtitle onOpen budama hatasi: ${t.message}", t)
-                        if (t.javaClass.name.contains("CursorWindow") || t is android.database.sqlite.SQLiteException) {
-                            runCatching {
-                                db.execSQL("DELETE FROM subtitle_offset")
-                                db.execSQL("DELETE FROM subtitle_language")
-                            }
-                        }
-                    }
-                }
-            })
             .build()
     }
 
@@ -247,92 +247,49 @@ class AppContainer(context: Context) {
         }
     }
 
+    /** Harici hesap gerektirmeyen yerel profil. */
+    val localProfile: LocalProfileRepository by lazy {
+        LocalProfileRepository(PreferenceDataStoreFactory.create { appContext.preferencesDataStoreFile("local_profile") })
+    }
+
+    /** Telefon/TV arasında dosya paylaşımıyla taşınabilen yerel geçmiş yedeği. */
+    val localSyncBackup: LocalSyncBackup by lazy {
+        LocalSyncBackup(database.watchHistoryDao(), database.favoriteDao(), localProfile) { action ->
+            database.withTransaction { action() }
+        }
+    }
+
+    val localSourceTransfer: com.kaan.play.data.sync.LocalSourceTransfer by lazy {
+        com.kaan.play.data.sync.LocalSourceTransfer(database.addonDao(), database.pluginDao(), sourceInstaller)
+    }
+
+    val localSyncServer: LocalSyncServer by lazy { LocalSyncServer(localSyncBackup, localProfile, localSourceTransfer) }
+    val localSyncClient: LocalSyncClient by lazy { LocalSyncClient(localSyncBackup, localProfile, localSourceTransfer) }
+
+    /** Hesap bazlı internet senkronu; publishable key erişimi sunucu tarafı RLS ile sınırlandırılır. */
+    val cloudSync: SupabaseCloudSync by lazy {
+        SupabaseCloudSync(
+            appContext,
+            localProfile,
+            localSyncBackup,
+            database.watchHistoryDao(),
+            database.favoriteDao(),
+        )
+    }
+
     /** Elle seçilen kaynak (film/dizi başına): sonraki açılışta ve dizinin sonraki bölümünde önce denenir. Ayarlarla aynı DataStore. */
     val sourceMemory: SourceMemory by lazy { SourceMemory(settings.store) }
 
     /** Doğrudan HTTP kaynakların dosya boyutu (HEAD ile; hata sessizce geçilir). */
     val sizeProbe: SizeProbe by lazy { SizeProbe(httpClient) }
 
-    /**
-     * TheIntroDB intro/özet/jenerik/önizleme zamanları (yalnızca TMDB/IMDb kimliği, sezon/bölüm, süre gider; bellekte önbellek).
-     * Ortak [httpClient] yerine sade istemci: çerez, site yönlendirmeleri ve eklenti başlıkları bu isteğe karışmaz;
-     * PlayNetworkGuard yönlendirmeler dahil her adımda yerel/özel adresleri engeller.
-     */
-    val skipSegmentProvider: com.kaan.play.data.skip.SkipSegmentProvider by lazy {
-        val client = OkHttpClient.Builder()
-            .connectTimeout(7, TimeUnit.SECONDS)
-            .readTimeout(7, TimeUnit.SECONDS)
-            .addInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
-            .addNetworkInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
-            .build()
-        val introDb = com.kaan.play.data.skip.IntroDbRepository(client, json) {
-            com.kaan.play.data.subtitle.DebugEndpoints.introDbBase ?: com.kaan.play.data.skip.IntroDbRepository.DEFAULT_ENDPOINT
-        }
-        com.kaan.play.data.skip.CombinedSkipSegmentProvider(listOf(introDb))
-    }
+    /** TheIntroDB bölüm atlama zamanları; sonuçlar bu uygulama oturumunda bellekte önbelleğe alınır. */
+    val introDb: IntroDbRepository by lazy { IntroDbRepository(httpClient, json) }
+    /** Sağlayıcıdan bağımsız, ileride genişletilebilir atlama timestamp kaynağı; şu an yalnızca TheIntroDB v4. */
+    val skipSegmentProvider: SkipSegmentProvider by lazy { CombinedSkipSegmentProvider(listOf(introDb)) }
 
     /** Medya içeriği yoklaması: indirme öncesi ve oynatma öncesi (HTML/sahte kaynak engeli). */
-    val sourceProbe: SourceProbe by lazy { SourceProbe(httpClient) }
-
-    val localProfile: LocalProfileRepository by lazy {
-        LocalProfileRepository(
-            PreferenceDataStoreFactory.create { appContext.preferencesDataStoreFile("profile_sync") }
-        )
-    }
-
-    val localSyncBackup: LocalSyncBackup by lazy {
-        LocalSyncBackup(
-            history = database.watchHistoryDao(),
-            favorites = database.favoriteDao(),
-            profile = localProfile,
-        )
-    }
-
-    val cloudSync: SupabaseCloudSync by lazy {
-        SupabaseCloudSync(
-            appContext = appContext,
-            profiles = localProfile,
-            backups = localSyncBackup,
-            historyDao = database.watchHistoryDao(),
-            favoriteDao = database.favoriteDao(),
-            data = localSyncData,
-            projectUrl = BuildConfig.SUPABASE_URL,
-            publishableKey = BuildConfig.SUPABASE_PUBLISHABLE_KEY,
-        )
-    }
-
-    /**
-     * Bulut ve Wi-Fi senkronizasyonunun ortak veri bağlantısı: anlık görüntü (profiller PIN'siz, geçmiş, favoriler,
-     * kaynaklar + durumları) ve onaylanan kaynağın [SourceInstaller] ile kurulması. Eklenti dosyaları taşınmaz.
-     */
-    val localSyncData: com.kaan.play.data.sync.local.LocalSyncData by lazy {
-        com.kaan.play.data.sync.local.LocalSyncData(
-            profiles = localProfile,
-            backups = localSyncBackup,
-            history = database.watchHistoryDao(),
-            favorites = database.favoriteDao(),
-            addonDao = database.addonDao(),
-            pluginDao = database.pluginDao(),
-            pluginSettings = pluginSettings,
-            settings = settings,
-            installer = sourceInstaller,
-            webSites = webSites,
-            deviceName = Build.MODEL,
-        )
-    }
-
-    val internetSpeedTest: InternetSpeedTest by lazy {
-        // Sade istemci: ortak httpClient'ın ağ koruması/site interceptor'ları ölçümü etkilemesin.
-        InternetSpeedTest()
-    }
-
-    val repoManagerCatalog: com.kaan.play.data.plugin.RepoManagerCatalog by lazy {
-        com.kaan.play.data.plugin.RepoManagerCatalog(com.kaan.play.data.addon.OkHttpManifestFetcher(httpClient))
-    }
-
-    val catalogInstallCoordinator: com.kaan.play.data.plugin.CatalogInstallCoordinator by lazy {
-        com.kaan.play.data.plugin.CatalogInstallCoordinator(appScope, sourceInstaller)
-    }
+    val sourceProbe: SourceProbe by lazy { SourceProbe(httpClient, dispatcher = sourceScanDispatcher) }
 
     val library: LibraryRepository by lazy {
         LibraryRepository(database.watchHistoryDao(), database.favoriteDao(), localProfile)
@@ -340,6 +297,80 @@ class AppContainer(context: Context) {
 
     /** Etkinliklerden bağımsız işler için (ör. oynatıcı kapanırken konum kaydı tamamlansın). */
     val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    @Volatile
+    private var localSyncStarted = false
+
+    @Volatile
+    private var cloudSyncStarted = false
+
+    /**
+     * Telefon-TV yerel senkronizasyonunu uygulama ömrü boyunca çalıştırır.
+     * Eşleştirme bilgileri DataStore'da bulunduğu için profil ekranı kapatılsa da
+     * aynı Wi-Fi üzerindeki eş cihazla geçmiş, profiller ve eklentiler birleşir.
+     */
+    fun startLocalSync(): Job {
+        if (!LocalNetworkAccess.isGranted(appContext)) return appScope.launch { }
+        if (localSyncStarted) return Job()
+        localSyncStarted = true
+        return appScope.launch {
+            localProfile.ensureId()
+            localProfile.ensureSyncCode()
+            localSyncServer.start(this) { localProfile.ensureSyncCode() }
+            while (isActive) {
+                val host = localProfile.peerHost.first()
+                val code = localProfile.peerCode.first()
+                if (host.isNotBlank() && code.isNotBlank()) {
+                    val result = localSyncClient.syncWithRetry(host, localProfile.peerPort.first(), code, attempts = 1)
+                    // DHCP nedeniyle IP değişmişse kullanıcıdan tekrar IP istemeden keşfet.
+                    if (result.isFailure) {
+                        localSyncClient.discoverAndSync(code, localProfile.peerPort.first())
+                            .onSuccess { (newHost, _) -> localProfile.setPeer(newHost, code, localProfile.peerPort.first()) }
+                    }
+                }
+                delay(30_000L)
+            }
+        }
+    }
+
+    /** Giriş yapılmışsa açılışta, aktif profilin geçmiş/favori değişiminde ve periyodik olarak buluta eşitler. */
+    @OptIn(FlowPreview::class)
+    fun startCloudAutoSync(): Job {
+        if (cloudSyncStarted) return Job()
+        cloudSyncStarted = true
+        return appScope.launch {
+            localProfile.ensureUserId()
+            localProfile.ensureId()
+            launch {
+                while (isActive) {
+                    if (cloudSync.account.value != null) {
+                        runCatching { cloudSync.synchronize() }
+                            .onFailure { Log.w("PlayCloudSync", "Otomatik bulut eşitlemesi başarısız", it) }
+                    }
+                    delay(15 * 60_000L)
+                }
+            }
+            combine(cloudSync.account, localProfile.id, localProfile.profiles) { account, profileId, profiles ->
+                if (account == null) null else profileId to profiles.hashCode()
+            }.distinctUntilChanged().collectLatest { profileId ->
+                if (profileId == null) return@collectLatest
+                val activeProfileId = profileId.first
+                val userId = localProfile.ensureUserId()
+                combine(
+                    database.watchHistoryDao().observeHistory(userId, activeProfileId),
+                    database.favoriteDao().observeAll(userId, activeProfileId),
+                ) { history, favorites -> history to favorites }
+                    .distinctUntilChanged()
+                    .debounce(1_500L)
+                    .collect {
+                        if (cloudSync.account.value != null) {
+                            runCatching { cloudSync.synchronize() }
+                                .onFailure { Log.w("PlayCloudSync", "Değişiklik eşitlenemedi; sonraki denemede yinelenecek", it) }
+                        }
+                    }
+            }
+        }
+    }
 
     /** Bir bölümden sonraki izlenebilir bölüm (ana sayfa "devam et" ve oynatıcının otomatik sonraki bölümü ortak kullanır). */
     val nextEpisodes: NextEpisodeResolver by lazy {
@@ -391,25 +422,6 @@ class AppContainer(context: Context) {
     fun seedDefaultAddons(): Job = appScope.launch {
         DefaultSubtitleAddons.seedIfNeeded(database.addonDao(), settings.store)
         DefaultCatalogAddons.seedIfNeeded(database.addonDao(), settings.store)
-        cleanupTraktPlugins()
-    }
-
-    private suspend fun cleanupTraktPlugins() {
-        try {
-            val allPlugins = database.pluginDao().observeAll().first()
-            for (p in allPlugins) {
-                if (p.pluginId.contains("traktsync", ignoreCase = true) ||
-                    p.name.contains("traktsync", ignoreCase = true) ||
-                    p.pluginId.contains("pltmustafa", ignoreCase = true)
-                ) {
-                    database.pluginDao().delete(p.id)
-                    csDexStore.delete(p.id)
-                    Log.i("PlayApp", "TraktSync veritabanından ve diskten silindi: ${p.pluginId}")
-                }
-            }
-        } catch (t: Throwable) {
-            Log.w("PlayApp", "TraktSync kalıntı temizleme hatası: ${t.message}")
-        }
     }
 
     /** Eklenti ayarları (`onSettings` ile bildirilen değerler), eklenti başına; ayrı bir DataStore dosyasında. */
@@ -432,6 +444,11 @@ class AppContainer(context: Context) {
     /** CloudStream .cs3 eklenti DEX dosyaları: `filesDir/cloudstream/`. */
     val csDexStore: CsDexStore by lazy { CsDexStore(File(appContext.filesDir, "cloudstream")) }
 
+    /** Mega ve nested repo keşiflerinin kullanıcı seçimine kadar saklandığı yerel katalog. */
+    val csRepoCatalog: com.kaan.play.data.cloudstream.CsRepoCatalogStore by lazy {
+        com.kaan.play.data.cloudstream.CsRepoCatalogStore(appContext)
+    }
+
     /** CloudStream DEX yükleyicisi (PathClassLoader; tek seferde bir yükleme). */
     val csDexLoader: CsDexLoader by lazy { CsDexLoader(appContext) }
 
@@ -447,11 +464,36 @@ class AppContainer(context: Context) {
             httpClient = httpClient,
             store = csDexStore,
             loader = csDexLoader,
+            repoCatalog = csRepoCatalog,
         )
+    }
+
+    /** Önceden kurulmuş Mega loader varsa alt depo indeksini sessizce arka planda yeniler. */
+    fun refreshCloudStreamSubRepositories(): Job = appScope.launch {
+        runCatching { csRepos.refreshMegaRepositories() }
+            .onFailure { Log.w("PlayCs", "Alt depo yenilemesi tamamlanamadı", it) }
     }
 
     /** "Eklenti ekle": adresin içeriğine bakıp addon mu eklenti deposu mu CloudStream deposu mu olduğunu kendisi anlar. */
     val sourceInstaller: SourceInstaller by lazy { SourceInstaller(addons, plugins, csRepos, OkHttpManifestFetcher(httpClient)) }
+
+    /** CloudStreamRepoManager'ın merkezi kataloğu: liste uygulama açıldığında/ekran yenilendiğinde canlı çekilir. */
+    val repoManagerCatalog: RepoManagerCatalog by lazy { RepoManagerCatalog(OkHttpManifestFetcher(httpClient)) }
+
+    /** Katalogdaki yüklemeler ekrandan geri gidilse de uygulama kapanana kadar devam eder. */
+    val catalogInstallCoordinator: CatalogInstallCoordinator by lazy {
+        CatalogInstallCoordinator(appScope, sourceInstaller)
+    }
+
+    /** Hız testi: yavaş bağlantılarda da tamamlanabilmesi için normal API istemcisinden daha uzun okuma sınırı. */
+    val internetSpeedTest: InternetSpeedTest by lazy {
+        InternetSpeedTest(
+            httpClient.newBuilder()
+                .readTimeout(60, TimeUnit.SECONDS)
+                .callTimeout(75, TimeUnit.SECONDS)
+                .build(),
+        )
+    }
 
     /** Sağlayıcı merkezli ana sayfa için sağlayıcı listesi ve seçim durumu (Aşama A). */
     val providers: com.kaan.play.data.provider.ProviderRepository by lazy {
@@ -488,24 +530,22 @@ class AppContainer(context: Context) {
     }
 
     /**
-     * Wi-Fi senkronizasyonu (aynı ağdaki iki cihaz). Tembel: uygulama açılışında hiçbir sunucu başlamaz; yalnızca
-     * kart açılınca [com.kaan.play.data.sync.local.LocalSyncController.open] çağrılır.
-     */
-    val localSync: com.kaan.play.data.sync.local.LocalSyncController by lazy {
-        com.kaan.play.data.sync.local.LocalSyncController(
-            data = localSyncData,
-            nsd = com.kaan.play.data.sync.local.LocalSyncNsd(appContext),
-            scope = appScope,
-        )
-    }
-
-    /**
      * Kaynaklar tek birleşik sağlayıcıdan gelir: aktif addon'lar ([AddonStreamProvider]),
      * açık Nuvio JS eklentileri ([PluginStreamProvider]) ve açık CS .cs3 eklentileri ([CsStreamProvider]).
      * Zaman aşımı Ayarlar'daki ortak kaynak zaman aşımıdır; her istekte yeniden okunur.
      */
     val streams: StreamProvider by lazy {
-        TorrentStreamProvider(rawStreams, server = { settings.torrentServer.first() }, onBuiltIn = torrentEngine::warmUp)
+        TorrentStreamProvider(
+            rawStreams,
+            server = { settings.torrentServer.first() },
+            onBuiltIn = {
+                try {
+                    torrentEngine.warmUp()
+                } catch (t: Throwable) {
+                    android.util.Log.w("AppContainer", "torrent warmUp hatası (zırhlandı): ${t.message}", t)
+                }
+            },
+        )
     }
 
     /**
@@ -522,10 +562,19 @@ class AppContainer(context: Context) {
     /** Oynatma sırasında "bu içerik değil" diye reddedilen kaynaklar (bellek içi, oturum boyunca): aynı içerikte bir daha listeye girmez. */
     val streamVerdicts: StreamVerdicts by lazy { StreamVerdicts() }
 
+    val sourceScanDispatcher: CoroutineDispatcher by lazy {
+        Dispatchers.IO.limitedParallelism(16)
+    }
+
     private val rawStreams: StreamProvider by lazy {
         CompositeStreamProvider(
             providers = listOf(
-                AddonStreamProvider(addons = addons::enabledAddons, client = httpClient, timeout = sourceTimeout),
+                AddonStreamProvider(
+                    addons = addons::enabledAddons,
+                    client = httpClient,
+                    timeout = sourceTimeout,
+                    dispatcher = sourceScanDispatcher,
+                ),
                 PluginStreamProvider(
                     plugins = plugins::enabledPlugins,
                     code = plugins::loadCode,
@@ -533,33 +582,20 @@ class AppContainer(context: Context) {
                     settings = pluginSettings::get,
                     timeout = sourceTimeout,
                     maxParallel = 6,
+                    dispatcher = sourceScanDispatcher,
                 ),
                 CsStreamProvider(
                     repository = csRepos,
                     runtime = csRuntime,
                     identityResolver = { req ->
-                        val fromTmdb = runCatching { tmdb.detail(req.type, req.tmdbId).toContentIdentity(req.season, req.episode) }.getOrNull()
-                        fromTmdb ?: run {
-                            val title = req.title?.trim()
-                            if (!title.isNullOrBlank()) {
-                                com.kaan.play.data.match.ContentIdentity.of(
-                                    kind = if (req.type == com.kaan.play.data.model.MediaType.Tv) com.kaan.play.data.match.ContentKind.Tv else com.kaan.play.data.match.ContentKind.Movie,
-                                    title = title,
-                                    originalTitle = null,
-                                    alternatives = emptyList(),
-                                    year = req.year,
-                                    tmdbId = req.tmdbId.takeIf { it > 0 },
-                                    imdbId = req.imdbId,
-                                    season = req.season,
-                                    episode = req.episode,
-                                )
-                            } else null
-                        }
+                        runCatching { tmdb.detail(req.type, req.tmdbId).toContentIdentity(req.season, req.episode) }.getOrNull()
                     },
                     timeoutMs = 30_000L,
+                    dispatcher = sourceScanDispatcher,
                 ),
             ),
             verdicts = streamVerdicts,
+            dispatcher = sourceScanDispatcher,
         )
     }
 

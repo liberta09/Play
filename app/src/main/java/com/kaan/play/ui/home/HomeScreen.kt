@@ -1,8 +1,15 @@
 package com.kaan.play.ui.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.Surface
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.zIndex
+import com.kaan.play.ui.settings.ProfileAvatar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,9 +31,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,12 +43,15 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.kaan.play.BuildConfig
 import com.kaan.play.MainActivity
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +61,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.app.Activity
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -56,6 +69,10 @@ import androidx.compose.ui.platform.LocalContext
 import com.kaan.play.R
 import com.kaan.play.data.cloudstream.cloudflare.CloudflareSolver
 import com.kaan.play.data.library.ContinueItem
+import com.kaan.play.data.library.ContinueSortMode
+import com.kaan.play.data.library.WatchRules
+import com.kaan.play.data.library.sortContinueItems
+import com.kaan.play.data.db.WatchHistoryEntity
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.provider.ProviderRules
 import com.kaan.play.data.addon.CatalogVisibility
@@ -73,11 +90,14 @@ import com.kaan.play.ui.containerViewModel
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.provider.ProviderSelectorSheet
 import com.kaan.play.ui.rememberContainer
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import com.kaan.play.ui.tv.categoryHeaderFocusable
 import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.rememberFocusMemory
 import com.kaan.play.ui.tv.rememberInitialFocus
 import com.kaan.play.ui.tv.rememberPlayLayout
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -103,14 +123,22 @@ fun HomeScreen(
     onOpenDetail: (MediaType, Int) -> Unit,
     onOpenCategory: (HomeRow) -> Unit,
     onContinue: (ContinueItem) -> Unit,
+    onPlayHistory: (WatchHistoryEntity) -> Unit,
     onAddAddon: () -> Unit,
     onOpenSearch: (String) -> Unit = {},
     onOpenProviderDetail: (providerId: String, url: String) -> Unit = { _, _ -> },
+    onOpenProfile: () -> Unit = {},
+    contentFocusRequester: FocusRequester? = null,
+    topBarFocusRequester: FocusRequester? = null,
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
     val hasSource by container.hasAnySource.collectAsStateWithLifecycle(initialValue = null)
     val selectedProviders by container.providers.selectedProviders.collectAsStateWithLifecycle(initialValue = emptySet())
+    val activeProfileId by container.localProfile.id.collectAsStateWithLifecycle(initialValue = "")
+    val watchHistory by container.library.watchHistory.collectAsStateWithLifecycle(initialValue = emptyList())
+    val savedProfiles by container.localProfile.profiles.collectAsStateWithLifecycle(initialValue = emptyList())
+    val childProfile = savedProfiles.firstOrNull { it.id == activeProfileId }?.isChild == true
     // null: liste henüz yükleniyor (boş listeyle karıştırılmasın; bkz. ProviderRules.resolveSelection).
     val loadedProviders by container.providers.allProviders.collectAsStateWithLifecycle(initialValue = null)
     val allProviders = loadedProviders.orEmpty()
@@ -118,7 +146,7 @@ fun HomeScreen(
     var activeProviderRow by remember { mutableStateOf<CatalogRow?>(null) }
 
     val currentProviderRow = activeProviderRow
-    if (currentProviderRow != null) {
+    if (currentProviderRow != null && !childProfile) {
         BackHandler { activeProviderRow = null }
         ProviderCategoryScreen(
             row = currentProviderRow,
@@ -149,8 +177,35 @@ fun HomeScreen(
         else -> stringResource(R.string.provider_pill_multiple, validSelected.first().name, validSelected.size - 1)
     }
 
-    Box(Modifier.fillMaxSize()) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(
+                        Color(0xFF1A1A24),
+                        Color(0xFF0A0D14),
+                        Color(0xFF040508),
+                    ),
+                    radius = 1500f,
+                )
+            )
+    ) {
         when {
+            childProfile -> HomeContent(
+                onOpenDetail = onOpenDetail,
+                onOpenCategory = onOpenCategory,
+                onContinue = onContinue,
+                watchHistory = watchHistory,
+                onPlayHistory = onPlayHistory,
+                onOpenProviderDetail = onOpenProviderDetail,
+                onOpenProviderCategory = { activeProviderRow = it },
+                onOpenSearch = onOpenSearch,
+                showProviderCatalogs = false,
+                childProfile = true,
+                contentFocusRequester = contentFocusRequester,
+                topBarFocusRequester = topBarFocusRequester,
+            )
             hasSource == null -> Box(Modifier.fillMaxSize())
             !effectiveIsAll -> ProviderCatalogView(
                 selectedIds = selectedProviders,
@@ -160,23 +215,37 @@ fun HomeScreen(
                 onOpenSearch = onOpenSearch,
                 onOpenCategory = onOpenCategory,
                 onContinue = onContinue,
+                onPlayHistory = onPlayHistory,
+                watchHistory = watchHistory,
                 onOpenProviderCategory = { activeProviderRow = it },
+                contentFocusRequester = contentFocusRequester,
+                topBarFocusRequester = topBarFocusRequester,
             )
-            hasSource == false -> HomeEmptyState(onAddAddon)
+            hasSource == false -> HomeEmptyState(
+                onAddAddon = onAddAddon,
+                watchHistory = watchHistory,
+                onPlayHistory = onPlayHistory,
+                contentFocusRequester = contentFocusRequester,
+                topBarFocusRequester = topBarFocusRequester,
+            )
             else -> HomeContent(
                 onOpenDetail = onOpenDetail,
                 onOpenCategory = onOpenCategory,
                 onContinue = onContinue,
+                watchHistory = watchHistory,
+                onPlayHistory = onPlayHistory,
                 onOpenProviderDetail = onOpenProviderDetail,
                 onOpenProviderCategory = { activeProviderRow = it },
                 onOpenSearch = onOpenSearch,
+                contentFocusRequester = contentFocusRequester,
+                topBarFocusRequester = topBarFocusRequester,
             )
         }
 
         StatusBarScrim()
 
         // Yüzen hap buton (sağ altta, alt menünün hemen üzerinde)
-        ProviderPillButton(
+        if (!childProfile) ProviderPillButton(
             text = pillText,
             isSelected = !effectiveIsAll,
             onClick = { showProviderSelector = true },
@@ -185,7 +254,7 @@ fun HomeScreen(
                 .padding(end = 20.dp, bottom = 20.dp),
         )
 
-        if (showProviderSelector) {
+        if (showProviderSelector && !childProfile) {
             ProviderSelectorSheet(
                 providers = if (BuildConfig.DEBUG && MainActivity.testManyProviders) {
                     allProviders + (1..60).map {
@@ -212,13 +281,20 @@ fun HomeScreen(
                 },
                 onDismiss = { showProviderSelector = false },
                 onAddExtension = onAddAddon,
+                isLoading = loadedProviders == null,
             )
         }
     }
 }
 
 @Composable
-private fun HomeEmptyState(onAddAddon: () -> Unit) {
+private fun HomeEmptyState(
+    onAddAddon: () -> Unit,
+    watchHistory: List<WatchHistoryEntity>,
+    onPlayHistory: (WatchHistoryEntity) -> Unit,
+    contentFocusRequester: FocusRequester? = null,
+    topBarFocusRequester: FocusRequester? = null,
+) {
     Column(
         modifier = Modifier.fillMaxSize().padding(32.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
@@ -231,7 +307,13 @@ private fun HomeEmptyState(onAddAddon: () -> Unit) {
             textAlign = TextAlign.Center,
         )
         val focus = rememberInitialFocus()
-        Button(onClick = onAddAddon, modifier = Modifier.focusRequester(focus)) { Text(stringResource(R.string.home_empty_action)) }
+        Button(
+            onClick = onAddAddon,
+            modifier = Modifier
+                .focusRequester(focus)
+                .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it },
+        ) { Text(stringResource(R.string.home_empty_action)) }
     }
 }
 
@@ -240,20 +322,35 @@ private fun HomeContent(
     onOpenDetail: (MediaType, Int) -> Unit,
     onOpenCategory: (HomeRow) -> Unit,
     onContinue: (ContinueItem) -> Unit,
+    watchHistory: List<WatchHistoryEntity>,
+    onPlayHistory: (WatchHistoryEntity) -> Unit,
     onOpenProviderDetail: (providerId: String, url: String) -> Unit = { _, _ -> },
     onOpenProviderCategory: (CatalogRow) -> Unit = {},
     onOpenSearch: (String) -> Unit = {},
+    showProviderCatalogs: Boolean = true,
+    childProfile: Boolean = false,
+    contentFocusRequester: FocusRequester? = null,
+    topBarFocusRequester: FocusRequester? = null,
 ) {
     val container = rememberContainer()
     val homeProviders by container.providers.homeProviders.collectAsStateWithLifecycle(initialValue = emptyList())
+    val visibleHomeProviders = if (showProviderCatalogs) homeProviders else emptyList()
     val loadSemaphore = remember { Semaphore(3) }
 
     // Dil değişince (etkinlik yeniden kurulur) yeni dille taze bir ViewModel: satırlar yeni dilde yüklenir.
     val vm = containerViewModel(key = "home-${AppLanguage.effective().iso}") { HomeViewModel(it.tmdb, it.continueWatching) }
     val rows by vm.rows.collectAsStateWithLifecycle()
     val hero by vm.hero.collectAsStateWithLifecycle()
+    LaunchedEffect(childProfile) {
+        if (childProfile) {
+            vm.loadHero()
+            HomeRow.entries.forEach(vm::load)
+        }
+    }
     // Durum kompozisyon kapsamında okunur (LazyColumn DSL bloğunda değil): değişince bu ekran yeniden çizilir.
     val continueWatching = vm.continueWatching.collectAsStateWithLifecycle().value
+    var continueSort by rememberSaveable { mutableStateOf(ContinueSortMode.RecentFirst) }
+    val sortedContinueWatching = remember(continueWatching, continueSort) { sortContinueItems(continueWatching, continueSort) }
     val layout = rememberPlayLayout()
     val cardWidth = if (layout.widthDp >= 600) 152.dp else 132.dp
     val heroHeight = heroHeightFor(layout.widthDp, layout.heightDp)
@@ -274,7 +371,7 @@ private fun HomeContent(
     // yalnızca gerçekten görünen sağlayıcı rafları sayılır (addon rafı yüklenemezse TMDB rafı kalır).
     val shownProviderTitles = remember { mutableStateMapOf<String, List<String>>() }
     val tmdbTitles = HomeRow.entries.associateWith { stringResource(it.titleRes()) }
-    val providerIds = homeProviders.mapTo(HashSet()) { it.id }
+    val providerIds = visibleHomeProviders.mapTo(HashSet()) { it.id }
     val hiddenTmdbRows = ProviderRules.duplicateTmdbRows(
         tmdbTitles,
         shownProviderTitles.filterKeys { it in providerIds }.values.flatten(),
@@ -294,6 +391,8 @@ private fun HomeContent(
                     focus = focus,
                     isDefaultFocus = true,
                     onOpen = onOpenDetail,
+                    contentFocusRequester = contentFocusRequester,
+                    topBarFocusRequester = topBarFocusRequester,
                 )
                 // Yükleniyor: aynı boyutta sönük kutu (yerleşim zıplamasın). Başarısızsa kapak hiç çıkmaz.
                 hero is Loadable.Loading -> Box(Modifier.fillMaxWidth().height(heroHeight).background(MaterialTheme.colorScheme.surfaceVariant))
@@ -302,18 +401,25 @@ private fun HomeContent(
         }
         if (hasContinue) {
             item(key = "continue") {
-                Section(title = stringResource(R.string.home_row_continue)) {
+                Section(
+                    title = stringResource(R.string.home_row_continue),
+                    headerAction = { ContinueSortControl(continueSort) { continueSort = it } },
+                ) {
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = ScreenPadding),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        items(continueWatching, key = { "${it.entry.type}-${it.entry.tmdbId}" }) { item ->
+                        items(sortedContinueWatching, key = { "${it.entry.type}-${it.entry.tmdbId}" }) { item ->
+                            val isFirstContinue = !hasHero && item == sortedContinueWatching.firstOrNull()
                             ContinueCard(
                                 item,
-                                modifier = Modifier.focusMemory(
-                                    focus, "c-${item.entry.type}-${item.entry.tmdbId}",
-                                    isDefault = !hasHero && item === continueWatching.first(),
-                                ),
+                                modifier = Modifier
+                                    .let { if (isFirstContinue && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                                    .let { if (isFirstContinue && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                                    .focusMemory(
+                                        focus, "c-${item.entry.type}-${item.entry.tmdbId}",
+                                        isDefault = isFirstContinue,
+                                    ),
                                 width = cardWidth,
                             ) { onContinue(item) }
                         }
@@ -321,7 +427,7 @@ private fun HomeContent(
                 }
             }
         }
-        homeProviders.forEach { provider ->
+        visibleHomeProviders.forEach { provider ->
             item(key = "home_provider_${provider.id}") {
                 LazyProviderSection(
                     provider = provider,
@@ -351,6 +457,7 @@ private fun HomeContent(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             items(state.value, key = { "${it.type}-${it.id}" }) { media ->
+                                val isFirstTrending = !hasHero && !hasContinue && row == HomeRow.TrendingMovies && media == state.value.first()
                                 PosterCard(
                                     title = media.title,
                                     subtitle = media.year?.toString(),
@@ -360,10 +467,12 @@ private fun HomeContent(
                                     onClick = { onOpenDetail(media.type, media.id) },
                                     modifier = Modifier
                                         .width(cardWidth)
+                                        .let { if (isFirstTrending && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                                        .let { if (isFirstTrending && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
                                         .focusMemory(
                                             focus,
                                             "${row.name}-${media.type}-${media.id}",
-                                            isDefault = !hasHero && !hasContinue && row == HomeRow.TrendingMovies && media == state.value.first(),
+                                            isDefault = isFirstTrending,
                                         ),
                                 )
                             }
@@ -390,17 +499,22 @@ private fun Section(
     title: String,
     onSeeAll: (() -> Unit)? = null,
     headerModifier: Modifier = Modifier,
+    headerAction: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         val seeAll = stringResource(R.string.home_see_all)
+        val interactionSource = remember { MutableInteractionSource() }
         Row(
             modifier = headerModifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-                .clip(MaterialTheme.shapes.small)
-                .then(if (onSeeAll != null) Modifier.clickable(onClickLabel = seeAll, onClick = onSeeAll) else Modifier)
-                .padding(horizontal = 12.dp, vertical = 6.dp),
+                .padding(horizontal = ScreenPadding)
+                .categoryHeaderFocusable(
+                    interactionSource = interactionSource,
+                    onClick = onSeeAll,
+                    scale = 1.02f,
+                )
+                .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
@@ -408,10 +522,7 @@ private fun Section(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.small)
-                        .focusRing(MaterialTheme.shapes.small)
-                        .padding(horizontal = 4.dp, vertical = 2.dp),
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                 ) {
                     Text(
                         text = seeAll,
@@ -426,6 +537,7 @@ private fun Section(
                     )
                 }
             }
+            headerAction?.invoke()
         }
         content()
     }
@@ -434,6 +546,9 @@ private fun Section(
 @Composable
 private fun ContinueCard(item: ContinueItem, width: Dp, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val entry = item.entry
+    val container = rememberContainer()
+    val actionContext = LocalContext.current.applicationContext
+    var showActions by remember(entry.id) { mutableStateOf(false) }
     val subtitle: String
     val progress: Float?
     when (item) {
@@ -459,12 +574,79 @@ private fun ContinueCard(item: ContinueItem, width: Dp, modifier: Modifier = Mod
         tmdbId = entry.tmdbId,
         mediaType = entry.type,
         onClick = onClick,
+        onLongClick = { showActions = true },
         modifier = modifier.width(width),
         progress = progress,
     )
+
+    if (showActions) {
+        AlertDialog(
+            onDismissRequest = { showActions = false },
+            title = { Text(entry.title) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(stringResource(R.string.history_actions_hint))
+                    TextButton(onClick = {
+                        showActions = false
+                        container.appScope.launch {
+                            try {
+                                container.library.addHistoryToFavorites(entry)
+                                withContext(Dispatchers.Main.immediate) {
+                                    Toast.makeText(actionContext, actionContext.getString(R.string.history_added_favorite), Toast.LENGTH_SHORT).show()
+                                }
+                            } catch (cancelled: CancellationException) {
+                                throw cancelled
+                            } catch (_: Exception) {
+                                withContext(Dispatchers.Main.immediate) {
+                                    Toast.makeText(actionContext, actionContext.getString(R.string.history_action_failed), Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.history_action_favorite)) }
+                    TextButton(onClick = {
+                        showActions = false
+                        container.appScope.launch {
+                            try {
+                                val marked = container.library.markHistoryWatched(entry)
+                                withContext(Dispatchers.Main.immediate) {
+                                    val message = if (marked) R.string.history_marked_watched else R.string.history_mark_watched_unavailable
+                                    Toast.makeText(actionContext, actionContext.getString(message), Toast.LENGTH_SHORT).show()
+                                }
+                            } catch (cancelled: CancellationException) {
+                                throw cancelled
+                            } catch (_: Exception) {
+                                withContext(Dispatchers.Main.immediate) {
+                                    Toast.makeText(actionContext, actionContext.getString(R.string.history_action_failed), Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    }, enabled = entry.durationMs > 0, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.history_action_watched)) }
+                    TextButton(onClick = {
+                        showActions = false
+                        container.appScope.launch {
+                            try {
+                                container.library.removeContentHistory(entry)
+                                withContext(Dispatchers.Main.immediate) {
+                                    Toast.makeText(actionContext, actionContext.getString(R.string.history_removed), Toast.LENGTH_SHORT).show()
+                                }
+                            } catch (cancelled: CancellationException) {
+                                throw cancelled
+                            } catch (_: Exception) {
+                                withContext(Dispatchers.Main.immediate) {
+                                    Toast.makeText(actionContext, actionContext.getString(R.string.history_action_failed), Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.history_action_remove), color = MaterialTheme.colorScheme.error) }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showActions = false }) { Text(stringResource(R.string.common_cancel)) } },
+        )
+    }
 }
 
 /** Yüklenirken afiş biçiminde sönük kutular: yerleşim yüklenince zıplamaz. */
+
 @Composable
 private fun SkeletonRow(cardWidth: Dp) {
     LazyRow(
@@ -601,19 +783,21 @@ private fun LazyProviderSection(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
+                        val headerInteraction = remember(row.providerId, row.id) { MutableInteractionSource() }
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = ScreenPadding),
+                                .padding(horizontal = ScreenPadding)
+                                .focusMemory(focus, "header_${row.providerId}_${row.id}")
+                                .categoryHeaderFocusable(
+                                    interactionSource = headerInteraction,
+                                    onClick = { onOpenProviderCategory(row) },
+                                    scale = 1.02f,
+                                )
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(MaterialTheme.shapes.small)
-                                    .clickable { onOpenProviderCategory(row) }
-                                    .padding(vertical = 2.dp),
-                            ) {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = row.title,
                                     style = MaterialTheme.typography.titleLarge,
@@ -632,12 +816,7 @@ private fun LazyProviderSection(
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                modifier = Modifier
-                                    .clip(MaterialTheme.shapes.small)
-                                    .focusRing(MaterialTheme.shapes.small)
-                                    .focusMemory(focus, "see_all_${row.providerId}_${row.id}")
-                                    .clickable { onOpenProviderCategory(row) }
-                                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                             ) {
                                 Text(
                                     text = stringResource(R.string.provider_catalog_show_all),
@@ -666,7 +845,7 @@ private fun LazyProviderSection(
                                     tmdbId = item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(item.id, item.rawUrl, item.posterUrl),
                                     mediaType = item.mediaType,
                                     onClick = {
-                                        if (!item.rawUrl.isNullOrBlank() && item.providerId.startsWith("cs:")) {
+                                        if (!item.rawUrl.isNullOrBlank() && (item.providerId.startsWith("cs:") || item.providerId.startsWith("nuvio_addon:"))) {
                                             onOpenProviderDetail(item.providerId, item.rawUrl)
                                         } else {
                                             scope.launch {
@@ -722,8 +901,12 @@ private fun ProviderCatalogView(
     onOpenSearch: (String) -> Unit,
     onOpenCategory: (HomeRow) -> Unit,
     onContinue: (ContinueItem) -> Unit,
+    onPlayHistory: (WatchHistoryEntity) -> Unit,
+    watchHistory: List<WatchHistoryEntity>,
     onOpenProviderCategory: (CatalogRow) -> Unit,
     modifier: Modifier = Modifier,
+    contentFocusRequester: FocusRequester? = null,
+    topBarFocusRequester: FocusRequester? = null,
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
@@ -743,6 +926,10 @@ private fun ProviderCatalogView(
     }
 
     val disabledCatalogs by container.settings.disabledCatalogs.collectAsStateWithLifecycle(initialValue = emptySet())
+    val continueWatching by container.continueWatching.items.collectAsStateWithLifecycle(initialValue = emptyList())
+    var continueSort by rememberSaveable { mutableStateOf(ContinueSortMode.RecentFirst) }
+    val sortedContinueWatching = remember(continueWatching, continueSort) { sortContinueItems(continueWatching, continueSort) }
+    val continueCardWidth = if (layout.widthDp >= 600) 152.dp else 132.dp
     LaunchedEffect(selectedIds, refreshKey, disabledCatalogs) {
         state = CatalogUiState.Loading
         val result = container.catalogRepository.loadCatalog(selectedIds, forceRefresh = refreshKey > 0)
@@ -791,6 +978,8 @@ private fun ProviderCatalogView(
                     onOpenDetail = onOpenDetail,
                     onOpenCategory = onOpenCategory,
                     onContinue = onContinue,
+                    watchHistory = watchHistory,
+                    onPlayHistory = onPlayHistory,
                     onOpenProviderDetail = onOpenProviderDetail,
                     onOpenProviderCategory = onOpenProviderCategory,
                     onOpenSearch = onOpenSearch,
@@ -921,23 +1110,42 @@ private fun ProviderCatalogView(
                 contentPadding = PaddingValues(top = 16.dp, bottom = 96.dp),
                 verticalArrangement = Arrangement.spacedBy(28.dp),
             ) {
+                if (continueWatching.isNotEmpty()) {
+                    item(key = "provider_continue") {
+                        Section(
+                            title = stringResource(R.string.home_row_continue),
+                            headerAction = { ContinueSortControl(continueSort) { continueSort = it } },
+                        ) {
+                            LazyRow(
+                                contentPadding = PaddingValues(horizontal = ScreenPadding),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                items(sortedContinueWatching, key = { "provider-continue-${it.entry.id}" }) { item ->
+                                    ContinueCard(item, width = continueCardWidth) { onContinue(item) }
+                                }
+                            }
+                        }
+                    }
+                }
                 itemsIndexed(rows, key = { index, row -> "${row.providerId}_${row.id}_$index" }) { _, row ->
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
+                        val headerInteraction = remember(row.providerId, row.id) { MutableInteractionSource() }
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = ScreenPadding),
+                                .padding(horizontal = ScreenPadding)
+                                .categoryHeaderFocusable(
+                                    interactionSource = headerInteraction,
+                                    onClick = { onOpenProviderCategory(row) },
+                                    scale = 1.02f,
+                                )
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(MaterialTheme.shapes.small)
-                                    .clickable { onOpenProviderCategory(row) },
-                            ) {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = row.title,
                                     style = MaterialTheme.typography.titleLarge,
@@ -953,16 +1161,23 @@ private fun ProviderCatalogView(
                                     )
                                 }
                             }
-                            Text(
-                                text = stringResource(R.string.provider_catalog_show_all),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier
-                                    .clip(MaterialTheme.shapes.small)
-                                    .focusRing(MaterialTheme.shapes.small)
-                                    .clickable { onOpenProviderCategory(row) }
-                                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.provider_catalog_show_all),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                                Icon(
+                                    imageVector = PlayIcons.Forward,
+                                    contentDescription = stringResource(R.string.provider_catalog_show_all),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                            }
                         }
 
                         LazyRow(
@@ -978,7 +1193,7 @@ private fun ProviderCatalogView(
                                     tmdbId = item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(item.id, item.rawUrl, item.posterUrl),
                                     mediaType = item.mediaType,
                                     onClick = {
-                                        if (!item.rawUrl.isNullOrBlank() && item.providerId.startsWith("cs:")) {
+                                        if (!item.rawUrl.isNullOrBlank() && (item.providerId.startsWith("cs:") || item.providerId.startsWith("nuvio_addon:"))) {
                                             onOpenProviderDetail(item.providerId, item.rawUrl)
                                         } else {
                                             scope.launch {
@@ -1116,15 +1331,16 @@ internal suspend fun resolveAndOpenPoster(
             idPart.startsWith("series:") || idPart.startsWith("tv:") -> MediaType.Tv to idPart.removePrefix("series:").removePrefix("tv:").toIntOrNull()
             else -> item.mediaType to idPart.toIntOrNull()
         }
-        if (parsedId != null) {
+        if (parsedId != null && parsedId > 0) {
             onOpenDetail(mediaType, parsedId)
             return
         }
     }
 
     // 2. tt... ise TMDB find ile IMDb kimliğinden TMDB Detay ekranını aç
-    if (item.id.startsWith("tt")) {
-        val found = withContext(Dispatchers.IO) { tmdb.findByImdb(item.id) }
+    val imdbId = if (item.id.startsWith("tt")) item.id else PosterUrlTemplate.findImdbId(item.id, item.rawUrl, item.posterUrl)
+    if (imdbId != null && imdbId.startsWith("tt")) {
+        val found = withContext(Dispatchers.IO) { runCatching { tmdb.findByImdb(imdbId) }.getOrNull() }
         if (found != null) {
             onOpenDetail(found.first, found.second)
             return
@@ -1134,7 +1350,7 @@ internal suspend fun resolveAndOpenPoster(
     // 3. Başka id ise addon'un meta kaynağıyla basit detay
     if (item.providerId.startsWith("nuvio_addon:") && onOpenProviderDetail != null && addons != null) {
         val addonRowId = item.providerId.removePrefix("nuvio_addon:").toLongOrNull() ?: 0L
-        val addon = withContext(Dispatchers.IO) { addons.byId(addonRowId) }
+        val addon = withContext(Dispatchers.IO) { runCatching { addons.byId(addonRowId) }.getOrNull() }
         val hasMeta = addon?.manifest?.resources?.any { it.name == com.kaan.play.data.addon.AddonManifest.META } == true
         val isLive = item.addonType in listOf("tv", "channel")
         if (hasMeta || isLive) {
@@ -1145,6 +1361,12 @@ internal suspend fun resolveAndOpenPoster(
             onOpenProviderDetail(item.providerId, "$typeStr/${item.id}")
             return
         }
+    }
+
+    // Doğrudan provider rawUrl varsa sağlayıcı detayını aç
+    if (!item.rawUrl.isNullOrBlank() && onOpenProviderDetail != null) {
+        onOpenProviderDetail(item.providerId, item.rawUrl)
+        return
     }
 
     // Canlı kanalda (tv/channel) TMDB başlık araması yapılmaz; yanlış içerik açar
@@ -1163,10 +1385,17 @@ internal suspend fun resolveAndOpenPoster(
         if (search.items.isEmpty() && clean != item.title) {
             search = withContext(Dispatchers.IO) { tmdb.search(item.title) }
         }
-        val results = search.items
-        val matched = results.firstOrNull { it.title.equals(clean, ignoreCase = true) }
-            ?: results.firstOrNull { it.title.equals(item.title, ignoreCase = true) }
-            ?: results.firstOrNull()
+        val results = search.items.filter { it.type == item.mediaType }
+        val wantedTitle = normalizePosterTitle(clean)
+        val exactTitle = results.filter { normalizePosterTitle(it.title) == wantedTitle }
+        // Aynı ad farklı yıllarda kullanılabiliyor. Yıl biliniyorsa yalnızca aynı yapım seçilir;
+        // yıl bilinmiyorsa tam eşleşen veya bulunan ilk yapım seçilir.
+        val matched = when {
+            item.year != null -> exactTitle.firstOrNull { it.year == item.year } ?: results.firstOrNull { it.year == item.year }
+            exactTitle.isNotEmpty() -> exactTitle.first()
+            results.isNotEmpty() -> results.first()
+            else -> null
+        }
         if (matched != null) {
             onOpenDetail(matched.type, matched.id)
         } else {
@@ -1176,6 +1405,12 @@ internal suspend fun resolveAndOpenPoster(
         onOpenSearch(clean)
     }
 }
+
+private fun normalizePosterTitle(value: String): String =
+    value.lowercase(java.util.Locale.ROOT)
+        .replace('ı', 'i').replace('ğ', 'g').replace('ü', 'u')
+        .replace('ş', 's').replace('ö', 'o').replace('ç', 'c')
+        .filter { it.isLetterOrDigit() }
 
 /**
  * Ana sayfanın sağ altında yüzen hap buton. Seçili eklentinin adını veya "Eklenti seç" yazar.
@@ -1196,7 +1431,6 @@ private fun ProviderPillButton(
         modifier = modifier
             .clip(shape)
             .background(containerColor)
-            .border(if (isSelected) 1.5.dp else 1.dp, borderColor, shape)
             .focusRing(shape)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 10.dp),

@@ -24,6 +24,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.util.Locale
+import kotlin.time.Duration.Companion.seconds
 
 class NuvioLiveStreamTest {
 
@@ -118,6 +119,82 @@ class NuvioLiveStreamTest {
         assertEquals("Dizi", seriesItem.subtitle)
         assertEquals(MediaType.Tv, seriesItem.mediaType)
         assertEquals("series", seriesItem.addonType)
+    }
+
+    @Test
+    fun liveRowsRequestsOnlyLiveCatalogTypesAndDropsSeriesFromMixedResponse(): Unit = runBlocking {
+        val manifest = AddonManifest(
+            id = "test.mixed.catalogs",
+            name = "Mixed",
+            types = listOf("movie", "series", "tv"),
+            resources = listOf(ManifestResource("catalog")),
+            catalogs = listOf(
+                ManifestCatalog(type = "movie", id = "popular", name = "Popular movies"),
+                ManifestCatalog(type = "tv", id = "live", name = "Ana Sayfa"),
+            ),
+        )
+        val addon = Addon(
+            id = 2L,
+            type = AddonType.NUVIO_ADDON,
+            sourceUrl = server.url("/manifest.json").toString(),
+            manifest = manifest,
+            enabled = true,
+            addedAt = 2L,
+        )
+        routes["/catalog/tv/live.json"] = {
+            json("""{"metas":[
+                {"id":"ch1","type":"tv","name":"Canal 1"},
+                {"id":"ch2","type":"channel","name":"Canal 2"},
+                {"id":"s1","type":"series","name":"Dizi 1"}
+            ]}""")
+        }
+
+        val rows = NuvioAddonCatalog(addon, OkHttpClient(), 2.seconds).liveRows().first()
+
+        assertEquals(1, rows.size)
+        assertEquals("Ana Sayfa", rows.single().title)
+        assertEquals(listOf("ch1", "ch2"), rows.single().items.map { it.id })
+        synchronized(requestedPaths) {
+            assertEquals(listOf("/catalog/tv/live.json"), requestedPaths)
+        }
+    }
+
+    @Test
+    fun liveRowsFindsMislabeledCatalogByNameButStillFiltersNonLiveMetas(): Unit = runBlocking {
+        val manifest = AddonManifest(
+            id = "test.mislabeled.live",
+            name = "Mislabeled live addon",
+            types = listOf("movie", "series", "tv"),
+            resources = listOf(ManifestResource("catalog")),
+            catalogs = listOf(
+                ManifestCatalog(type = "movie", id = "live_channels", name = "Live Channels"),
+                ManifestCatalog(type = "movie", id = "popular", name = "Popular Movies"),
+            ),
+        )
+        val addon = Addon(
+            id = 9L,
+            type = AddonType.NUVIO_ADDON,
+            sourceUrl = server.url("/manifest.json").toString(),
+            manifest = manifest,
+            enabled = true,
+            addedAt = 9L,
+        )
+        routes["/catalog/movie/live_channels.json"] = {
+            json("""{"metas":[
+                {"id":"live-1","type":"channel","name":"News TV"},
+                {"id":"live-2","type":"movie","name":"ArdaSpor"},
+                {"id":"movie-1","type":"movie","name":"Not a channel"}
+            ]}""")
+        }
+
+        val rows = NuvioAddonCatalog(addon, OkHttpClient(), 2.seconds).liveRows().first()
+
+        assertEquals(1, rows.size)
+        assertEquals(listOf("live-1", "live-2"), rows.single().items.map { it.id })
+        assertEquals("channel", rows.single().items.last().addonType)
+        synchronized(requestedPaths) {
+            assertEquals(listOf("/catalog/movie/live_channels.json"), requestedPaths)
+        }
     }
 
     @Test

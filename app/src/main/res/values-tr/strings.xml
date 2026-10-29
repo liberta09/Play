@@ -20,6 +20,12 @@
     <string name="home_empty_message">Henüz hiçbir eklenti yok.</string>
     <string name="home_empty_action">Başlamak için bir eklenti ekle</string>
     <string name="home_row_continue">İzlemeye devam et</string>
+    <string name="home_continue_sort_action">Sırala</string>
+    <string name="home_continue_sort_recent">En son izlenen</string>
+    <string name="home_continue_sort_oldest">En eski önce</string>
+    <string name="home_continue_sort_movies">Filmler önce</string>
+    <string name="home_continue_sort_series">Diziler önce</string>
+    <string name="home_continue_sort_title">Başlığa göre (A–Z)</string>
     <string name="home_row_trending_movies">Trend filmler</string>
     <string name="home_row_trending_series">Trend diziler</string>
     <string name="home_hero_details">Detayları gör</string>
@@ -35,6 +41,11 @@
     <string name="search_clear">Temizle</string>
     <string name="search_idle">Aramak için bir şey yaz.</string>
     <string name="search_no_results">“%1$s” için sonuç yok.</string>
+    <string name="search_filter_all">Tümü</string>
+    <string name="search_filter_movies">Filmler</string>
+    <string name="search_filter_series">Diziler</string>
+    <string name="search_filtered_no_results_movies">“%1$s” için film bulunamadı.</string>
+    <string name="search_filtered_no_results_series">“%1$s” için dizi bulunamadı.</string>
 
     <!-- Detay -->
     <string name="detail_play">Oynat</string>
@@ -143,6 +154,27 @@
     </plurals>
     <string name="addons_empty">Yüklü eklenti yok.</string>
     <string name="addons_add">Eklenti ekle</string>
+    <string name="repo_manager_catalog_title">Eklenti kataloğu</string>
+    <string name="repo_manager_catalog_subtitle">CloudStream Repo Manager kataloğundaki eklentileri görüntüle ve kur</string>
+    <string name="repo_manager_catalog_count">%1$d kayıt</string>
+    <string name="repo_manager_catalog_refresh">Yenile</string>
+    <string name="repo_manager_catalog_search">Ad, kategori veya adres ara</string>
+    <string name="repo_manager_catalog_error">Katalog veya kurulum hatası: %1$s</string>
+    <string name="repo_manager_catalog_empty">Çevrimiçi katalogda uyumlu kayıt bulunamadı.</string>
+    <string name="repo_manager_catalog_no_results">Eşleşen kayıt bulunamadı.</string>
+    <string name="repo_manager_catalog_success">%1$s eklendi.</string>
+    <string name="repo_manager_catalog_installed">Yüklendi</string>
+    <string name="repo_manager_catalog_install">Yükle</string>
+    <string name="repo_manager_catalog_remove">Sil</string>
+    <string name="repo_manager_catalog_remove_title">Yüklü eklenti kaldırılsın mı?</string>
+    <string name="repo_manager_catalog_remove_message">“%1$s” ve bu kaynağın uygulamaya yüklediği eklentiler/dosyalar kaldırılacak.</string>
+    <string name="repo_manager_catalog_remove_success">“%1$s” kaldırıldı.</string>
+    <string name="repo_manager_catalog_remove_missing">“%1$s” artık yüklü görünmüyor.</string>
+    <string name="repo_manager_catalog_remove_error">Öğe kaldırılamadı: %1$s</string>
+    <string name="repo_manager_catalog_meta">%1$s · %2$s</string>
+    <string name="repo_manager_platform_cloudstream">CloudStream</string>
+    <string name="repo_manager_platform_nuvio_addon">Nuvio eklentisi</string>
+    <string name="repo_manager_platform_nuvio_plugin">Nuvio plugin’i</string>
     <string name="addons_repos">Kurulu tüm depolar</string>
     <string name="addons_repos_empty">Kurulu depo yok.</string>
     <string name="repos_section_nuvio">Nuvio</string>
@@ -263,16 +295,43 @@
     <string name="library_favorites_empty">Henüz favorin yok. Bir içeriğin kalbine dokunarak buraya ekle.</string>
     <string name="library_history">Geçmiş</string>
     <string name="library_history_empty">Henüz bir şey izlemedin.</string>
-    <string name="library_watched">İzlendi</string>
+    <string name="library_watched">İzlendi olarak işaretlenen filmler ve diziler</string>
+    <string name="library_watched_empty">İzlendi olarak işaretlediğin içerikler burada görünür.</string>
     <string name="library_episode_watched">S%1$d B%2$d · İzlendi</string>
     <string name="library_remove_history">Geçmişten kaldır</string>
     <string name="library_clear_history">Tümünü temizle</string>
     <string name="library_clear_title">Geçmiş temizlensin mi?</string>
     <string name="library_clear_message">İzlediklerin bu listeden silinecek. Favorilerin etkilenmez.</string>
     <string name="library_clear_confirm">Temizle</string>
+    <string name="history_actions_hint">Bu içerik için bir işlem seç.</string>
+    <string name="history_action_favorite">Favorilere ekle</string>
+    <string name="history_action_watched">İzlendi olarak işaretle</string>
+    <string name="history_action_remove">Geçmişten kaldır</string>
+    <string name="history_added_favorite">Favorilere eklendi</string>
+    <string name="history_marked_watched">İzlendi olarak işaretlendi ve Kütüphaneye taşındı</string>
+    <string name="history_mark_watched_unavailable">Süre bilgisi bilinmediği için izlendi olarak işaretlenemedi.</string>
+    <string name="history_removed">Geçmişten kaldırıldı</string>
+    <string name="history_action_failed">İşlem tamamlanamadı. Lütfen tekrar dene.</string>
 
     <!-- Ayarlar: oynatıcı ve altyazı görünümü -->
     <string name="settings_player">Oynatıcı</string>
+    <string name="settings_speed_test">İnternet hız testi</string>
+    <string name="settings_speed_test_summary">Anlık indirme hızını ölç</string>
+    <string name="speed_test_description">Cloudflare ağı üzerinden indirme hızını ve ping süresini ölçer. Sonuç Wi-Fi veya mobil şebeke sinyaline göre değişebilir.</string>
+    <string name="speed_test_start">Hız testini başlat</string>
+    <string name="speed_test_running">Bağlantı ölçülüyor…</string>
+    <string name="speed_test_error">Test tamamlanamadı. Bağlantını kontrol edip tekrar dene.</string>
+    <string name="speed_test_error_network">Hız testi sunucusuna ulaşılamadı. İnternet bağlantını, VPN’i veya Özel DNS ayarını kontrol et.</string>
+    <string name="speed_test_error_timeout">Hız testi sunucusu zamanında yanıt vermedi. Daha güçlü bir bağlantıda tekrar dene.</string>
+    <string name="speed_test_error_server">Hız testi sunucusu HTTP %1$d hatası verdi. Daha sonra tekrar dene.</string>
+    <string name="speed_test_error_detail">Hız testi başarısız oldu: %1$s</string>
+    <string name="speed_test_data_note">Test en fazla yaklaşık 9 MB veri kullanır. Ölçüm test sunucusuna bağlantını gösterir; izlediğin video kaynağının hızını ölçmez.</string>
+    <string name="speed_test_result_title">Sonucun</string>
+    <string name="speed_test_download_label">İndirme hızı</string>
+    <string name="speed_test_download_value">%1$.1f Mbps</string>
+    <string name="speed_test_ping_label">Ping</string>
+    <string name="speed_test_ping_value">%1$d ms</string>
+    <string name="speed_test_result_hint">Kaynak seçerken Mbps değerini ölçü olarak kullan. Oynatma, kaynağın kalitesine ve bağlantının kararlılığına da bağlıdır.</string>
     <string name="settings_always_resume">Her zaman kaldığım yerden devam et</string>
     <string name="common_done">Tamam</string>
     <string name="subtitle_preview">Altyazıların böyle görünecek.</string>
@@ -333,7 +392,6 @@
     <string name="web_refresh">Yenile</string>
     <string name="web_load_failed">Sayfa açılamadı. Bağlantını kontrol edip yenile.</string>
     <string name="about_web_blocking">Web görünümü bilinen reklamları ve açılır pencereleri engeller; her reklamı yakalamayabilir.</string>
-    <string name="about_introdb_privacy">Atlama düğmeleri intro ve jenerik zamanlarını TheIntroDB\'den sorar; yalnızca TMDB kimliği, sezon/bölüm ve video süresi gider, TheIntroDB IP adresini ve izlenen içeriğin kimliğini görür.</string>
 
     <!-- Faz 4/B: indirme -->
     <string name="download_channel_name">İndirmeler</string>
@@ -352,6 +410,11 @@
     <string name="download_state_paused">Duraklatıldı</string>
     <string name="download_state_failed">İndirilemedi. Kaynağın süresi dolmuş olabilir.</string>
     <string name="download_action">İndir</string>
+    <string name="download_choose_source">İndirmek için kaynak seç</string>
+    <string name="download_now">Şimdi indir</string>
+    <string name="download_choose_quality">Kaynak / kalite seç</string>
+    <string name="download_quality_best">En iyi mevcut kalite</string>
+    <string name="download_current_source_message">Geçerli kaynak: %1$s · %2$s. Şimdi indirebilir veya başka kaynak/kalite seçebilirsin.</string>
     <string name="download_in_progress">İndiriliyor</string>
     <string name="download_done">İndirildi</string>
     <string name="download_pause">İndirmeyi duraklat</string>
@@ -374,6 +437,11 @@
     <string name="cs_repos_title">CloudStream Depoları</string>
     <string name="cs_repos_subtitle">.cs3 eklenti deposu ekle</string>
     <string name="cs_repos_empty">Henüz CloudStream deposu eklenmedi.</string>
+    <string name="cs_repos_tab_installed">Kurulu</string>
+    <string name="cs_repos_tab_discovered">Alt depolar</string>
+    <string name="cs_repos_discovered_empty">Henüz alt depo bulunamadı. MegaRepo ekleyin veya alt depoları bildiren bir depo tanımlayın.</string>
+    <string name="cs_repos_discovered_note">Bulunan depolar otomatik kurulmaz. Birini eklemek için Kur\'a basın; tüm depoların eklentileri topluca indirilmez.</string>
+    <string name="cs_repo_install">Kur</string>
     <string name="cs_repo_remove_title">Depoyu kaldır</string>
     <string name="cs_repo_remove_body">"%1$s" deposu ve tüm eklentileri kaldırılsın mı?</string>
     <string name="add_done_cs_repo">CloudStream deposu eklendi.</string>
@@ -421,10 +489,6 @@
     <string name="settings_skip_recap">Özet</string>
     <string name="settings_skip_credits">Jenerik</string>
     <string name="settings_skip_preview">Önizleme</string>
-    <string name="player_skip_intro">İntroyu geç</string>
-    <string name="player_skip_recap">Özeti geç</string>
-    <string name="player_skip_credits">Jeneriği geç</string>
-    <string name="player_skip_preview">Önizlemeyi geç</string>
 
     <!-- Güncelleme indirmesi: bildirimler -->
     <string name="update_channel_name">Uygulama güncellemeleri</string>
@@ -441,7 +505,14 @@
     <string name="player_btn_sync">Altyazı senkronu</string>
     <string name="player_btn_source">Kaynak</string>
     <string name="player_btn_tracks">Parçalar</string>
-    <string name="player_btn_next_episode">Sonraki bölüm</string>
+    <string name="player_btn_download">İndir</string>
+    <string name="player_btn_next_episode">Yeni bölüme geç</string>
+    <string name="player_next_episode_credits">Bir sonraki bölüme geç</string>
+    <string name="player_skip_intro">İntroyu geç</string>
+    <string name="player_skip_recap">Özeti geç</string>
+    <string name="player_skip_outro">Outroyu geç</string>
+    <string name="player_skip_credits">Jeneriği geç</string>
+    <string name="player_skip_preview">Önizlemeyi geç</string>
     <string name="player_no_next_episode">Sonraki bölüm bulunamadı</string>
     <string name="resize_fit">Sığdır</string>
     <string name="resize_fill">Doldur (kırp)</string>
@@ -496,7 +567,7 @@
     <string name="provider_pill_select">Eklenti seç</string>
     <string name="provider_pill_multiple">%1$s +%2$d</string>
     <string name="provider_selector_title">Bir uzantı seçin</string>
-    <string name="provider_selector_desc">Ana sayfa içeriğini besleyecek sağlayıcıyı seçin</string>
+    <string name="provider_selector_desc">Etkin eklentilerin hepsi listelenir; yalnızca ana sayfa kataloğu olanlar seçilebilir.</string>
     <string name="provider_search_hint">Uzantıları ara…</string>
     <string name="provider_search_clear">Aramayı temizle</string>
     <string name="provider_tab_all">Hepsi</string>
@@ -513,6 +584,8 @@
     <string name="provider_selected_count">%1$d seçildi</string>
     <string name="provider_empty_message">Hiç sağlayıcı eklentisi bulunamadı.</string>
     <string name="provider_empty_action">Eklenti ekle</string>
+    <string name="provider_no_home_catalog">Bu eklenti ana sayfa kataloğu sunmuyor</string>
+    <string name="provider_loading">Yüklü eklentiler yükleniyor…</string>
     <string name="provider_catalog_coming_soon">Katalog yakında</string>
     <string name="provider_catalog_coming_soon_desc">Bu sağlayıcı için katalog desteği sonraki aşamada eklenecek.</string>
     <string name="provider_catalog_no_catalog">Bu eklenti katalog sunmuyor</string>
@@ -536,77 +609,4 @@
     <string name="provider_error_meta_not_found">Meta bilgisi bulunamadı</string>
     <string name="provider_error_content_load_failed">İçerik yüklenemedi</string>
     <string name="provider_error_unexpected">Beklenmeyen hata</string>
-    <string name="settings_speed_test">İnternet hız testi</string>
-    <string name="settings_speed_test_summary">Anlık indirme hızını ölç</string>
-    <string name="speed_test_failed">Test tamamlanamadı: %1$s</string>
-    <string name="speed_test_error_unreachable">Sunucuya ulaşılamadı</string>
-    <string name="speed_test_error_timeout">Zaman aşımı</string>
-    <string name="download_pick_title">İndirilecek kaynağı seç</string>
-    <string name="download_pick_checking">İndirilebilir kaynaklar denetleniyor…</string>
-    <string name="download_pick_empty_episode">Bu bölüm için indirilebilir kaynak bulunamadı</string>
-    <string name="download_pick_empty_movie">Bu film için indirilebilir kaynak bulunamadı</string>
-    <string name="wifi_sync_title">Wi-Fi senkronizasyonu · Yerel</string>
-    <string name="wifi_sync_description">Profil, geçmiş, eklenti depoları ve eklenti durumları eşitlenir</string>
-    <string name="wifi_sync_code">Kod: %1$s</string>
-    <string name="wifi_sync_code_hint">Diğer cihazda \'Diğer cihazın kodu\' kutusuna bu kodu yaz. 3 dakika geçerlidir.</string>
-    <string name="wifi_sync_peer_code">Diğer cihazın kodu</string>
-    <string name="wifi_sync_connect">Bağlan</string>
-    <string name="wifi_sync_debug_address">Cihaz adresi (debug)</string>
-    <string name="wifi_sync_new_code">Yeni kod</string>
-    <string name="wifi_sync_expired">Kod artık geçerli değil.</string>
-    <string name="wifi_sync_searching">Cihaz aranıyor…</string>
-    <string name="wifi_sync_connecting">Bağlanılıyor…</string>
-    <string name="wifi_sync_syncing">Eşitleniyor…</string>
-    <string name="wifi_sync_result">Eşitlendi: %1$s, %2$s, %3$s, %4$s</string>
-    <plurals name="wifi_sync_profiles">
-        <item quantity="one">%d profil</item>
-        <item quantity="other">%d profil</item>
-    </plurals>
-    <plurals name="wifi_sync_history">
-        <item quantity="one">%d geçmiş</item>
-        <item quantity="other">%d geçmiş</item>
-    </plurals>
-    <plurals name="wifi_sync_addons">
-        <item quantity="one">%d addon</item>
-        <item quantity="other">%d addon</item>
-    </plurals>
-    <plurals name="wifi_sync_repos">
-        <item quantity="one">%d depo</item>
-        <item quantity="other">%d depo</item>
-    </plurals>
-    <string name="wifi_sync_error_not_found">Cihaz bulunamadı; iki cihaz aynı Wi-Fi\'de mi?</string>
-    <string name="wifi_sync_error_wrong_code">Kod yanlış.</string>
-    <string name="wifi_sync_error_invalid_code">6 haneli kodu yaz.</string>
-    <string name="wifi_sync_error_unreachable">Cihaza bağlanılamadı.</string>
-    <string name="wifi_sync_error_locked">Çok fazla yanlış deneme. Yeni kod gerekiyor.</string>
-    <string name="wifi_sync_error_port">Eşitleme bu cihazda başlatılamadı.</string>
-    <string name="wifi_sync_error_failed">Eşitleme başarısız oldu.</string>
-    <string name="wifi_sync_error_permission">Yerel ağ izni gerekiyor.</string>
-    <string name="wifi_sync_add_title">Şunlar eklensin mi?</string>
-    <string name="wifi_sync_add_all">Hepsini ekle</string>
-    <string name="wifi_sync_add_selected">Seçilenleri ekle</string>
-    <string name="wifi_sync_add_skip">Şimdi değil</string>
-    <string name="wifi_sync_installing">Ekleniyor…</string>
-    <plurals name="wifi_sync_install_failed">
-        <item quantity="one">%d kaynak eklenemedi.</item>
-        <item quantity="other">%d kaynak eklenemedi.</item>
-    </plurals>
-    <string name="cloud_sync_scope">Profiller, izleme geçmişi, favoriler ve eklentiler (depolar, açık/kapalı durumları, ayarlar) bu hesapla eşitlenir. Eklenti dosyaları kopyalanmaz; her cihaz kendisi indirir.</string>
-    <string name="search_filter_all">Tümü</string>
-    <string name="search_filter_movies">Filmler</string>
-    <string name="search_filter_series">Diziler</string>
-    <!-- Depo kataloğu (Ayarlar > Eklentiler > Depo Kataloğu) -->
-    <string name="repo_catalog_title">Depo Kataloğu</string>
-    <string name="repo_catalog_subtitle">Topluluk depolarını keşfet ve tek tıkla yükle</string>
-    <string name="repo_catalog_search_hint">Depo veya kategori ara…</string>
-    <string name="repo_catalog_empty">Depo bulunamadı</string>
-    <string name="repo_catalog_no_results">Sonuç bulunamadı</string>
-    <string name="repo_catalog_load_failed">Katalog yüklenemedi</string>
-    <string name="repo_catalog_error_generic">Bir hata oluştu</string>
-    <string name="repo_catalog_install">Yükle</string>
-    <string name="repo_catalog_installed">Yüklü</string>
-    <string name="repo_catalog_install_success">Depo eklendi</string>
-    <string name="repo_catalog_install_failure">Hata: %1$s</string>
-    <string name="repo_catalog_type_nuvio_repo">Nuvio deposu</string>
-    <string name="repo_catalog_type_nuvio_plugin">Nuvio eklentisi</string>
 </resources>

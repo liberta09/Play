@@ -21,6 +21,22 @@ sealed interface ContinueItem {
     data class Next(override val entry: WatchHistoryEntity, val season: Int, val episode: Int) : ContinueItem
 }
 
+enum class ContinueSortMode { RecentFirst, OldestFirst, MoviesFirst, SeriesFirst, TitleAscending }
+
+/** Sıralama değişse de hiçbir devam kaydını düşürmeden aynı öğeleri döndürür. */
+fun sortContinueItems(items: List<ContinueItem>, mode: ContinueSortMode): List<ContinueItem> {
+    val recent = compareByDescending<ContinueItem> { it.entry.lastWatchedAt }.thenByDescending { it.entry.id }
+    return when (mode) {
+        ContinueSortMode.RecentFirst -> items.sortedWith(recent)
+        ContinueSortMode.OldestFirst -> items.sortedWith(compareBy<ContinueItem> { it.entry.lastWatchedAt }.thenBy { it.entry.id })
+        ContinueSortMode.MoviesFirst -> items.sortedWith(compareBy<ContinueItem> { if (it.entry.type == MediaType.Movie) 0 else 1 }.then(recent))
+        ContinueSortMode.SeriesFirst -> items.sortedWith(compareBy<ContinueItem> { if (it.entry.type == MediaType.Tv) 0 else 1 }.then(recent))
+        ContinueSortMode.TitleAscending -> items.sortedWith(
+            compareBy<ContinueItem, String>(String.CASE_INSENSITIVE_ORDER) { it.entry.title }.then(recent),
+        )
+    }
+}
+
 /**
  * Geçmişten "devam et" listesi. Yarım kalanlar hemen gelir; bitmiş dizilerin sıradaki bölümü
  * ([nextEpisode]) ağdan çözülünce liste bir kez daha yayılır. Biten filmler listeden kalkar.
@@ -51,11 +67,7 @@ class ContinueWatching(
                 row.type == MediaType.Tv -> next[row.id]?.let { ContinueItem.Next(row, it.first, it.second) }
                 else -> null // izlenmiş film listeden kalkar
             }
-        }.take(MAX_ITEMS)
-
-    companion object {
-        const val MAX_ITEMS = 20
-    }
+        }
 }
 
 /**

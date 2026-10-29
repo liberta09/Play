@@ -212,8 +212,7 @@ private fun FailedDialog(state: UpdateState.Failed, flow: UpdateFlow, context: C
 /** Tarayıcısı olmayan cihazda (bazı TV'ler) sessizce geçer. */
 private fun openReleasePage(context: Context, info: UpdateInfo) {
     try {
-        val target = info.directDownloadUrl
-        context.startActivity(Intent(Intent.ACTION_VIEW, target.toUri()))
+        context.startActivity(Intent(Intent.ACTION_VIEW, info.pageUrl.toUri()))
     } catch (_: ActivityNotFoundException) {
     }
 }

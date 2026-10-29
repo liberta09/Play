@@ -15,7 +15,7 @@ val localProps = Properties().apply {
 }
 val tmdbApiKey: String = localProps.getProperty("TMDB_API_KEY")
     ?: System.getenv("TMDB_API_KEY")
-    ?: ""
+    ?: "47c8ebc3ce0f8caa6b7899f702d9c8f2"
 
 // SubDL altyazı araması için anahtar (isteğe bağlı): local.properties'te SUBDL_API_KEY. Yoksa SubDL sessizce atlanır.
 // Anahtar git'e girmez (local.properties .gitignore'dadır); derlemede BuildConfig'e geçer.
@@ -23,20 +23,11 @@ val subdlApiKey: String = localProps.getProperty("SUBDL_API_KEY")
     ?: System.getenv("SUBDL_API_KEY")
     ?: ""
 
-val telegramBotToken: String = localProps.getProperty("TELEGRAM_BOT_TOKEN")
-    ?: System.getenv("TELEGRAM_BOT_TOKEN")
-    ?: ""
-val telegramChatId: String = localProps.getProperty("TELEGRAM_CHAT_ID")
-    ?: System.getenv("TELEGRAM_CHAT_ID")
-    ?: ""
-
-val supabaseUrl: String = (localProps.getProperty("SUPABASE_URL")
-    ?: System.getenv("SUPABASE_URL")
-    ?: "").trim()
-
-val supabasePublishableKey: String = (localProps.getProperty("SUPABASE_PUBLISHABLE_KEY")
-    ?: System.getenv("SUPABASE_PUBLISHABLE_KEY")
-    ?: "").trim()
+// Supabase publishable key istemci uygulamasında kullanılmak üzere tasarlanmıştır; erişim RLS ile sınırlandırılır.
+val supabaseUrl: String = localProps.getProperty("SUPABASE_URL")
+    ?: "https://ogbchrmompdcfcrvhfhm.supabase.co"
+val supabasePublishableKey: String = localProps.getProperty("SUPABASE_PUBLISHABLE_KEY")
+    ?: "sb_publishable_2Au1wxFNZxZUfF7RVWB2ow_KYicGZx8"
 
 android {
     namespace = "com.kaan.play"
@@ -46,8 +37,8 @@ android {
         applicationId = "com.kaan.play"
         minSdk = 24
         targetSdk = 37
-        versionCode = 27
-        versionName = "1.2.0"
+        versionCode = 55
+        versionName = "1.2.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -56,8 +47,6 @@ android {
 
         buildConfigField("String", "TMDB_API_KEY", "\"$tmdbApiKey\"")
         buildConfigField("String", "SUBDL_API_KEY", "\"$subdlApiKey\"")
-        buildConfigField("String", "TELEGRAM_BOT_TOKEN", "\"$telegramBotToken\"")
-        buildConfigField("String", "TELEGRAM_CHAT_ID", "\"$telegramChatId\"")
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
         buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"$supabasePublishableKey\"")
     }
@@ -77,15 +66,12 @@ android {
     }
 
     buildTypes {
-        debug {
-            if (signingConfigs.getByName("release").storeFile != null) {
-                signingConfig = signingConfigs.getByName("release")
-            }
-        }
         release {
-            // Şifreler yoksa (ör. başka makine) imzasız derlenir; derleme kırılmaz.
+            // Şifreler yoksa (ör. başka makine) debug imzasıyla derlenir (cihaza/emülatöre kurulabilir).
             if (signingConfigs.getByName("release").storeFile != null) {
                 signingConfig = signingConfigs.getByName("release")
+            } else {
+                signingConfig = signingConfigs.getByName("debug")
             }
             isMinifyEnabled = true
             isShrinkResources = true
@@ -137,7 +123,6 @@ configurations.all {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation("androidx.fragment:fragment-ktx:1.8.5")
     implementation(libs.androidx.webkit)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
@@ -182,6 +167,8 @@ dependencies {
 
     // Cihaz üstünde çeviri (Türkçe altyazı yoksa İngilizceden); model ilk kullanımda iner, metin sunucuya gitmez.
     implementation(libs.mlkit.translate)
+    // Jenerik yazılarının video karesinden cihaz üzerinde algılanması; kareler uygulama dışına gönderilmez.
+    implementation(libs.mlkit.text.recognition)
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
@@ -223,7 +210,8 @@ tasks.matching { it.name == "assembleRelease" }.configureEach {
     doLast {
         val releaseDir = layout.buildDirectory.dir("outputs/apk/release").get().asFile
         val targetApk = File(releaseDir, "Play-${android.defaultConfig.versionName}.apk")
-        val generatedApk = releaseDir.listFiles()?.firstOrNull { it.name.endsWith(".apk") && it.name != targetApk.name }
+        val generatedApk = releaseDir.listFiles()?.firstOrNull { it.name.startsWith("app-") && it.name.endsWith(".apk") }
+            ?: releaseDir.listFiles()?.firstOrNull { it.name.endsWith(".apk") && it.name != targetApk.name }
         if (generatedApk != null) {
             generatedApk.copyTo(targetApk, overwrite = true)
             generatedApk.delete()

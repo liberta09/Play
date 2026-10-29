@@ -21,13 +21,17 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withPermit
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 
 private const val TAG = "PlayCs"
+internal const val CLOUDSTREAM_MEGA_REPOSITORY_INDEX_URL = "https://raw.githubusercontent.com/recloudstream/cs-repos/master/repos-db.json"
+internal const val WIO_MEGA_REPOSITORY_INDEX_URL = "https://raw.githubusercontent.com/Wiojelt/WioLand/main/repos-db.json"
 
 /** Kurulu bir CloudStream deposu özeti. */
 data class CsRepo(
@@ -70,12 +74,16 @@ class CsRepository(
     private val httpClient: OkHttpClient,
     private val store: CsDexStore,
     private val loader: PluginDexLoader,
+    private val repoCatalog: CsRepoCatalogStore? = null,
     private val clock: () -> Long = System::currentTimeMillis,
     private val parallelDownloads: Int = 2,
     private val cs3Downloader: Cs3Downloader = Cs3Downloader { url, hash, id ->
         downloadCs3(url, hash, httpClient, store, id)
     },
 ) {
+    private val megaInstallMutex = Mutex()
+    private val pendingMegaIndexLock = Any()
+    private val pendingMegaIndexUrls = linkedMapOf<String, LinkedHashSet<String>>()
 
     val repos: Flow<List<CsRepo>> = combine(
         addonDao.observeOfType(AddonType.CLOUDSTREAM_REPO),
@@ -100,10 +108,11 @@ class CsRepository(
      */
     suspend fun addFetched(url: String, raw: String): CsRepoAdded {
         if (addonDao.countBySourceUrl(url) > 0) throw AddonException(Kind.AlreadyAdded)
-        val root = CsRepoManifestParser.parseRoot(raw)
+        val root = CsRepoManifestParser.parseRoot(raw, url)
 
         // pluginLists adreslerinden eklenti listelerini paralel indir
-        val allEntries = fetchAllPluginLists(root.pluginLists, url)
+        val nestedRepositories = mutableListOf<CsRepoReference>()
+        val allEntries = fetchAllPluginLists(root.pluginLists, url, nestedRepositories)
         if (allEntries.isEmpty()) throw AddonException(Kind.NoPlugins)
 
         // Depo satırını ekle
@@ -137,6 +146,15 @@ class CsRepository(
             Log.d(TAG, "addFetched: tüm eklentiler başarısız (${downloads.size} denendi)")
             throw AddonException(Kind.PluginFileFailed, detail)
         }
+
+        val childRepositories = mergeReferences(root.subRepositories + nestedRepositories)
+        installRepositories(childRepositories)
+        val indexUrls = downloads.asSequence()
+            .filter { it.success }
+            .flatMap { megaRepoIndexUrlsFor(it.entry.internalName, it.entry.name, it.entry.description).asSequence() }
+            .distinct()
+            .toList()
+        if (indexUrls.isNotEmpty()) discoverMegaRepositories(indexUrls, url)
 
         return CsRepoAdded(
             repo = repoEntity.copy(id = repoId).toCsRepo(good.size),
@@ -219,6 +237,9 @@ class CsRepository(
         if (tmpMf.exists()) tmpMf.renameTo(store.manifestFile(rowId))
         store.setReadOnly(rowId)
 
+        val indexUrls = megaRepoIndexUrlsFor(internalName, pluginName, rawDesc)
+        if (indexUrls.isNotEmpty()) discoverMegaRepositories(indexUrls, url)
+
         return CsRepoAdded(
             repo = repoEntity.copy(id = repoId).toCsRepo(1),
             installed = 1,
@@ -231,17 +252,52 @@ class CsRepository(
     // ---------------------------------------------------------------------------
 
     suspend fun remove(repoId: Long) {
-        pluginDao.ofRepo(repoId).forEach { store.delete(it.id) }
-        addonDao.delete(repoId)
+        val root = addonDao.byId(repoId) ?: return
+        if (root.type != AddonType.CLOUDSTREAM_REPO) return
+
+        // Eski kurulumlarda grafiğe henüz kaydedilmemiş doğrudan alt depoları da silme sırasında yakala.
+        repoCatalog?.let { catalog ->
+            val declaredChildren = runCatching {
+                CsRepoManifestParser.parseRoot(root.manifestJson, root.sourceUrl).subRepositories
+            }.getOrDefault(emptyList())
+            catalog.merge(declaredChildren)
+        }
+        val descendantUrls = repoCatalog?.removeOwnedDescendants(root.sourceUrl).orEmpty()
+        val rowsByUrl = addonDao.observeOfType(AddonType.CLOUDSTREAM_REPO).first()
+            .associateBy { canonicalRepoUrl(it.sourceUrl) }
+        val rowsToRemove = (descendantUrls.mapNotNull { rowsByUrl[canonicalRepoUrl(it)] } + root)
+            .distinctBy { it.id }
+        rowsToRemove.forEach { row ->
+            pluginDao.ofRepo(row.id).forEach { store.delete(it.id) }
+            addonDao.delete(row.id)
+            repoCatalog?.remove(row.sourceUrl)
+        }
     }
 
     // ---------------------------------------------------------------------------
     // Açık/kapalı
     // ---------------------------------------------------------------------------
 
-    suspend fun setEnabled(pluginId: Long, enabled: Boolean) = pluginDao.setEnabled(pluginId, enabled)
-    suspend fun setRepoEnabled(repoId: Long, enabled: Boolean) = pluginDao.setEnabledForRepo(repoId, enabled)
-    suspend fun setAllEnabled(enabled: Boolean) = pluginDao.setAllEnabledOfType(AddonType.CLOUDSTREAM_REPO, enabled)
+    suspend fun setEnabled(pluginId: Long, enabled: Boolean) {
+        pluginDao.setEnabled(pluginId, enabled)
+        if (enabled) {
+            val row = pluginDao.byId(pluginId)
+            val plugin = row?.toInstalled()
+            val indexUrls = plugin?.let { megaRepoIndexUrlsFor(it.pluginId, it.name, it.description) }.orEmpty()
+            val ownerUrl = row?.let { addonDao.byId(it.repoId)?.sourceUrl }
+            if (indexUrls.isNotEmpty() && ownerUrl != null) discoverMegaRepositories(indexUrls, ownerUrl)
+        }
+    }
+
+    suspend fun setRepoEnabled(repoId: Long, enabled: Boolean) {
+        pluginDao.setEnabledForRepo(repoId, enabled)
+        if (enabled) refreshMegaRepositories()
+    }
+
+    suspend fun setAllEnabled(enabled: Boolean) {
+        pluginDao.setAllEnabledOfType(AddonType.CLOUDSTREAM_REPO, enabled)
+        if (enabled) refreshMegaRepositories()
+    }
 
     // ---------------------------------------------------------------------------
     // Çalışma zamanı
@@ -256,13 +312,6 @@ class CsRepository(
             val failure = CsApiResult.PluginRowMissing(pluginRowId)
             Log.w(TAG, formatCsLog(failure))
             return failure
-        }
-        if (row.pluginId.contains("traktsync", ignoreCase = true) ||
-            row.name.contains("traktsync", ignoreCase = true) ||
-            row.pluginId.contains("pltmustafa", ignoreCase = true)
-        ) {
-            Log.w(TAG, "Trakt eklentisi yuklenmedi (devre disi): ${row.pluginId}")
-            return CsApiResult.LoadFailed("TraktSyncDisabled", row.pluginId)
         }
         val dexFile = store.dexFile(pluginRowId)
         if (!dexFile.exists()) {
@@ -293,24 +342,139 @@ class CsRepository(
     suspend fun enabledPlugins(): List<InstalledCsPlugin> =
         pluginDao.enabledOfType(AddonType.CLOUDSTREAM_REPO).map { it.toInstalled() }
 
+    /** App startup/repo enable sonrası, daha önce kurulmuş Mega loader varsa alt depoları keşfeder ve kurar. */
+    suspend fun refreshMegaRepositories() {
+        val repoUrls = addonDao.observeOfType(AddonType.CLOUDSTREAM_REPO).first().associate { it.id to it.sourceUrl }
+        val indexesByOwner = pluginDao.observeOfType(AddonType.CLOUDSTREAM_REPO).first()
+            .mapNotNull { row ->
+                val owner = repoUrls[row.repoId] ?: return@mapNotNull null
+                owner to megaRepoIndexUrlsFor(row.pluginId, row.name, row.description)
+            }
+            .groupBy({ it.first }, { it.second })
+        indexesByOwner.forEach { (owner, indexGroups) ->
+            val indexes = indexGroups.flatten().distinct()
+            if (indexes.isNotEmpty()) discoverMegaRepositories(indexes, owner)
+        }
+    }
+
+    suspend fun add(url: String): CsRepoAdded = addFetched(url, fetcher.fetch(url))
+
     // ---------------------------------------------------------------------------
     // İç yardımcılar
     // ---------------------------------------------------------------------------
 
-    private suspend fun fetchAllPluginLists(listUrls: List<String>, baseUrl: String): List<CsPluginEntry> =
-        listUrls.flatMap { listUrl ->
-            try {
-                val raw = fetcher.fetch(listUrl)
-                val entries = CsRepoManifestParser.parsePluginList(raw, listUrl)
-                if (entries.isEmpty()) {
-                    Log.d(TAG, "fetchAllPluginLists: boş/çözümlenemedi host=${listUrl.toHttpUrlOrNull()?.host} bytes=${raw.length}")
-                }
-                entries
+    private suspend fun fetchAllPluginLists(
+        listUrls: List<String>,
+        baseUrl: String,
+        nestedRepositories: MutableList<CsRepoReference>,
+    ): List<CsPluginEntry> {
+        val visited = linkedSetOf<String>()
+
+        suspend fun visit(rawUrl: String, parentUrl: String, depth: Int): List<CsPluginEntry> {
+            if (depth > MAX_NESTED_REPO_DEPTH || visited.size >= MAX_NESTED_REPO_FILES) return emptyList()
+            val resolvedUrl = rawUrl.toHttpUrlOrNull()?.toString()
+                ?: parentUrl.toHttpUrlOrNull()?.resolve(rawUrl)?.toString()
+                ?: return emptyList()
+            if (!visited.add(resolvedUrl)) return emptyList()
+            return try {
+                val raw = fetcher.fetch(resolvedUrl)
+                val entries = CsRepoManifestParser.parsePluginList(raw, resolvedUrl)
+                if (entries.isNotEmpty()) return entries
+
+                // Bazı depolar pluginLists içine doğrudan plugins.json yerine başka repo.json koyuyor.
+                val nestedRoot = runCatching { CsRepoManifestParser.parseRoot(raw, resolvedUrl) }.getOrNull()
+                    ?: run {
+                        Log.d(TAG, "fetchAllPluginLists: boş/çözümlenemedi host=${resolvedUrl.toHttpUrlOrNull()?.host} bytes=${raw.length}")
+                        return emptyList()
+                    }
+                nestedRepositories += nestedRoot.subRepositories.map { it.copy(discoveredFrom = listOf(baseUrl)) }
+                nestedRoot.pluginLists.flatMap { child -> visit(child, resolvedUrl, depth + 1) }
             } catch (e: Exception) {
-                Log.d(TAG, "fetchAllPluginLists: indirilemedi host=${listUrl.toHttpUrlOrNull()?.host} ${e.javaClass.simpleName}: ${e.message}")
+                Log.d(TAG, "fetchAllPluginLists: indirilemedi host=${resolvedUrl.toHttpUrlOrNull()?.host} ${e.javaClass.simpleName}: ${e.message}")
                 emptyList()
             }
-        }.distinctBy { it.internalName }.take(CsRepoManifestParser.MAX_PLUGINS)
+        }
+
+        return listUrls.flatMap { visit(it, baseUrl, 0) }
+            .distinctBy { it.internalName }
+            .take(CsRepoManifestParser.MAX_PLUGINS)
+    }
+
+    private suspend fun discoverMegaRepositories(indexUrls: Collection<String>, ownerUrl: String) {
+        synchronized(pendingMegaIndexLock) {
+            if (ownerUrl.isNotBlank()) {
+                indexUrls.forEach { indexUrl -> pendingMegaIndexUrls.getOrPut(indexUrl) { linkedSetOf() }.add(ownerUrl) }
+            }
+        }
+        if (!megaInstallMutex.tryLock()) return
+        try {
+            while (true) {
+                val batch = synchronized(pendingMegaIndexLock) {
+                    pendingMegaIndexUrls.mapValues { it.value.toList() }.also { pendingMegaIndexUrls.clear() }
+                }
+                if (batch.isEmpty()) break
+                val found = mutableListOf<CsRepoReference>()
+                for ((indexUrl, owners) in batch) {
+                    try {
+                        val raw = fetcher.fetch(indexUrl)
+                        found += CsRepoManifestParser.parseRepoIndex(raw, indexUrl).map { reference ->
+                            reference.copy(discoveredFrom = (reference.discoveredFrom + owners).distinct())
+                        }
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Mega alt depo kataloğu alınamadı: $indexUrl (${e.javaClass.simpleName}: ${e.message})")
+                    }
+                }
+                installRepositories(mergeReferences(found))
+            }
+        } finally {
+            megaInstallMutex.unlock()
+        }
+        val workArrivedDuringUnlock = synchronized(pendingMegaIndexLock) { pendingMegaIndexUrls.isNotEmpty() }
+        if (workArrivedDuringUnlock) discoverMegaRepositories(emptyList(), "")
+    }
+
+    private suspend fun installRepositories(references: List<CsRepoReference>) {
+        if (references.isEmpty()) return
+        val unique = mergeReferences(references)
+        repoCatalog?.merge(unique)
+        var installed = 0
+        var alreadyInstalled = 0
+        var failed = 0
+        for (item in unique) {
+            try {
+                if (addonDao.countBySourceUrl(item.url) > 0) {
+                    alreadyInstalled++
+                    repoCatalog?.remove(item.url)
+                    continue
+                }
+                add(item.url)
+                installed++
+                repoCatalog?.remove(item.url)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                failed++
+                Log.w(TAG, "Mega alt repo kurulamadı: ${item.name.ifBlank { item.url }} (${e.javaClass.simpleName}: ${e.message})")
+            }
+        }
+        Log.i(TAG, "Mega alt depoları: keşfedilen=${unique.size}, kurulan=$installed, zaten kurulu=$alreadyInstalled, başarısız=$failed")
+    }
+
+    private fun mergeReferences(references: List<CsRepoReference>): List<CsRepoReference> =
+        references.groupBy { canonicalRepoUrl(it.url) }.values.map { duplicates ->
+            val first = duplicates.first()
+            first.copy(discoveredFrom = duplicates.flatMap { it.discoveredFrom }.distinct())
+        }
+
+    private fun canonicalRepoUrl(url: String): String = url.trim().removeSuffix("/").lowercase()
+
+    private fun CsPluginEntry.isMegaRepositoryLoader(): Boolean =
+        isMegaRepoLoaderIdentity(internalName, name, description)
+
+    private fun InstalledCsPlugin.isMegaRepositoryLoader(): Boolean =
+        isMegaRepoLoaderIdentity(pluginId, name, description)
 
     private class Dl(val entry: CsPluginEntry, val success: Boolean, val reason: String? = null)
 
@@ -387,4 +551,30 @@ class CsRepository(
         language = contentLanguage, tvTypes = supportedTypes.split(',').filter { it.isNotBlank() },
         enabled = enabled,
     )
+
+    private companion object {
+        const val MAX_NESTED_REPO_DEPTH = 4
+        const val MAX_NESTED_REPO_FILES = 64
+    }
+}
+
+/** Mega loaders use different names and descriptions; match the loader identity, not one exact English phrase. */
+internal fun isMegaRepoLoaderIdentity(pluginId: String, name: String, description: String?): Boolean {
+    if (pluginId.contains("megaprovider", ignoreCase = true)) return true
+    if (pluginId.contains("mega", ignoreCase = true) || name.contains("mega", ignoreCase = true)) return true
+    val descriptionText = description.orEmpty().lowercase()
+    return listOf("all repositories", "all repos", "add all repositories", "add all repos")
+        .any(descriptionText::contains)
+}
+
+internal fun isWioMegaRepoLoaderIdentity(pluginId: String, name: String, description: String?): Boolean =
+    listOf(pluginId, name, description.orEmpty()).any { it.contains("megawio", ignoreCase = true) }
+
+internal fun megaRepoIndexUrlsFor(pluginId: String, name: String, description: String?): List<String> {
+    if (!isMegaRepoLoaderIdentity(pluginId, name, description)) return emptyList()
+    return if (isWioMegaRepoLoaderIdentity(pluginId, name, description)) {
+        listOf(WIO_MEGA_REPOSITORY_INDEX_URL)
+    } else {
+        listOf(CLOUDSTREAM_MEGA_REPOSITORY_INDEX_URL)
+    }
 }

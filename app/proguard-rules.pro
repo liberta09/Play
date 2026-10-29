@@ -30,21 +30,9 @@
 # yeniden adlandırırsa eklenti NoClassDefFoundError/NoSuchMethodError verir. Kökler, gerçek
 # eklentilerin dex başvurularının release APK ile karşılaştırılmasından çıkarıldı (README, Faz 3).
 -keep class com.lagradost.** { *; }
--keep interface com.lagradost.** { *; }
--keep class com.lagradost.cloudstream3.** { *; }
--keep interface com.lagradost.cloudstream3.** { *; }
--keep class com.lagradost.api.** { *; }
--keep interface com.lagradost.api.** { *; }
--keep class com.lagradost.cloudstream3.CloudStreamApp { *; }
--keep class com.lagradost.cloudstream3.CloudStreamApp$Companion { *; }
--keepclassmembers class com.lagradost.** { *; }
--keep class androidx.appcompat.** { *; }
--keep class androidx.fragment.** { *; }
--keep class kotlin.Metadata { *; }
 -keep class kotlin.** { *; }
 -keep class kotlinx.coroutines.** { *; }
 -keep class com.fasterxml.jackson.** { *; }
--keep interface com.fasterxml.jackson.** { *; }
 -keep class org.jsoup.** { *; }
 -keep class okhttp3.** { *; }
 -keep class okio.** { *; }
@@ -58,13 +46,9 @@
 -dontwarn com.fasterxml.jackson.**
 -dontwarn java.beans.**
 
-# ── QuickJS (JNI sembolleri) & Plugin Runtime ──────────────────────────────────
--keep class com.dokar.quickjs.** { *; }
--dontwarn com.dokar.quickjs.**
+# ── QuickJS (JNI sembolleri) ────────────────────────────────────────────────────
 -keep class app.cash.quickjs.** { *; }
 -dontwarn app.cash.quickjs.**
--keep class com.kaan.play.data.plugin.** { *; }
--dontwarn com.kaan.play.data.plugin.**
 
 # ── Kotlin coroutines ───────────────────────────────────────────────────────────
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
@@ -98,12 +82,3 @@
 -dontwarn com.fleeksoft.ksoup.**
 -dontwarn dev.whyoleg.cryptography.**
 
-
-# ── CloudStream DataStore & Trakt Güvenlik Kuralları ──────────────────────────
--keep class com.lagradost.cloudstream3.utils.DataStore { *; }
--keep class com.lagradost.cloudstream3.utils.DataStore$* { *; }
--keep class com.lagradost.cloudstream3.utils.DataStoreHelperKt { *; }
--keep class com.lagradost.cloudstream3.DataStore { *; }
--keep class com.lagradost.cloudstream3.DataStore$* { *; }
--dontwarn com.pltmustafa.traktsync.**
--dontwarn com.pltmustafa.**

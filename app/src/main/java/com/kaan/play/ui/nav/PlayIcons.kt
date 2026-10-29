@@ -80,6 +80,17 @@ object PlayIcons {
         }
     }
 
+    val History: ImageVector by lazy {
+        icon("History") {
+            line {
+                moveTo(3f, 12f)
+                arcToRelative(9f, 9f, 0f, true, true, 2.64f, 6.36f)
+                moveTo(3f, 5f); verticalLineTo(12f); horizontalLineTo(10f)
+                moveTo(12f, 7f); verticalLineTo(12f); lineTo(16f, 14f)
+            }
+        }
+    }
+
     private fun ImageVector.Builder.solid(d: androidx.compose.ui.graphics.vector.PathBuilder.() -> Unit) =
         path(fill = SolidColor(Color.Black), pathBuilder = d)
 

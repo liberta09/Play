@@ -15,4 +15,7 @@ fun MediaDetail.toContentIdentity(season: Int? = null, episode: Int? = null): Co
     runtimeMinutes = runtimeMinutes,
     season = season,
     episode = episode,
+    isAnimation = summary.genreIds.takeIf { it.isNotEmpty() }?.contains(TMDB_ANIMATION_GENRE_ID),
 )
+
+private const val TMDB_ANIMATION_GENRE_ID = 16

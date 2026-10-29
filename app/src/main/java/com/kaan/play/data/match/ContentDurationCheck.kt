@@ -7,7 +7,8 @@ package com.kaan.play.data.match
  * 3 saatlik bir filmin yerine oynatılamaz. Eşikler geniştir ki uzatılmış sürümler (extended) elenmesin.
  *
  * - **Film:** süre TMDB süresinin %50'sinden kısa ya da %180'inden uzunsa [Result.Mismatch].
- * - **Dizi bölümü:** bölüm süreleri çok değişkendir; yalnızca belirgin uyumsuzlukta (3 kattan fazla uzun / 3 kattan fazla kısa).
+ * - **Dizi bölümü:** sağlayıcının başka bir dizinin/anime bölümünün videosunu döndürmesini yakalamak için süre TMDB bölüm süresinin
+ *   %65'inden kısa ya da %150'sinden uzunsa reddedilir. Bu sınır, olağan bölüm farklılıklarına pay bırakırken yarı süreli yanlış bölümü eler.
  * - Video süresi bilinmiyorsa (canlı yayın, belirsiz) ya da beklenen süre bilinmiyorsa karar verilmez ([Result.Unknown]): kaynak ELENMEZ.
  * - **Canlı Yayın:** Canlı TV yayınında sonlu ve kısa süre (<= 30 dk) bir sahte/engel video göstergesidir.
  */
@@ -19,7 +20,8 @@ object ContentDurationCheck {
 
     const val MOVIE_MIN_RATIO = 0.5
     const val MOVIE_MAX_RATIO = 1.8
-    const val EPISODE_RATIO = 3.0
+    const val EPISODE_MIN_RATIO = 0.65
+    const val EPISODE_MAX_RATIO = 1.5
 
     /** Canlı yayında (TV/kanal) sonlu ve kısa dosya süresi (<= 30 dk) sahte/engel/yer tutucu video kabul edilir. */
     fun isFakeLiveStream(durationMs: Long, isLive: Boolean): Boolean {
@@ -37,7 +39,7 @@ object ContentDurationCheck {
                 else -> Result.Ok
             }
             ContentKind.Tv ->
-                if (ratio > EPISODE_RATIO || ratio < 1.0 / EPISODE_RATIO) Result.Mismatch else Result.Ok
+                if (ratio > EPISODE_MAX_RATIO || ratio < EPISODE_MIN_RATIO) Result.Mismatch else Result.Ok
         }
     }
 }

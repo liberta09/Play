@@ -1,6 +1,6 @@
 package com.kaan.play.data.settings
 
-/** Atlama düğmesi ayarlarının denetlediği bölüm türleri (chapter işaretleri ve TheIntroDB zamanları). */
+/** Community/chapter segment categories controlled by the skip button settings. */
 enum class SkipCategory {
     Intro,
     Recap,
@@ -8,7 +8,6 @@ enum class SkipCategory {
     Preview,
 }
 
-/** Ayarlar > Oynatıcı: düğmeler varsayılan açık, otomatik atlama varsayılan kapalı, dört tür ayrı ayrı açılıp kapanır. */
 data class SkipPlaybackSettings(
     val showButtons: Boolean = true,
     val autoSkip: Boolean = false,

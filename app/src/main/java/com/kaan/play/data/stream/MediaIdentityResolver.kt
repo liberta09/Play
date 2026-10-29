@@ -23,9 +23,20 @@ object MediaIdentityResolver {
         fun titleOk(c: com.kaan.play.data.model.MediaSummary) = wanted.isNotEmpty() && normalize(c.title) == wanted
         return if (year != null) {
             val yearOk = candidates.filter { c -> c.year != null && kotlin.math.abs(c.year - year) <= 1 }
-            yearOk.firstOrNull(::titleOk) ?: yearOk.firstOrNull()
+            // Aynı yılda farklı başlıklar olabilir; başlık eşleşmiyorsa ilk adayı seçmek
+            // yanlış filmin kaynaklarını açar. Kimlik bulunamadı kabul edip sağlayıcı verisini koru.
+            yearOk.filter(::titleOk).maxWithOrNull(
+                compareBy<com.kaan.play.data.model.MediaSummary> { it.popularity ?: 0.0 }
+                    .thenBy { it.year ?: 0 },
+            )
         } else {
-            candidates.firstOrNull(::titleOk)
+            // Yıl metadata'sı gelmeyen sağlayıcılarda aynı isimli yapımlar olabilir
+            // (ör. Lupin / Lupin III). İlk TMDB sonucunu almak yerine tam başlık
+            // eşleşmeleri içinde en güçlü ve en güncel yapımı seç.
+            candidates.filter(::titleOk).maxWithOrNull(
+                compareBy<com.kaan.play.data.model.MediaSummary> { it.popularity ?: 0.0 }
+                    .thenBy { it.year ?: 0 },
+            )
         }
     }
 

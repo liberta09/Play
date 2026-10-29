@@ -181,10 +181,8 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
                         ThemeMode.System -> isSystemInDarkTheme()
                     }
                     DisposableEffect(dark) {
-                        runCatching {
-                            val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
-                            enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
-                        }
+                        val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+                        enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                         onDispose { }
                     }
                     PlayTheme(darkTheme = dark) {

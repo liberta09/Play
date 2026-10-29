@@ -21,18 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * [apk]: bu cihazın işlemci türüne uyan, SHA-256 dosyası da olan APK; yoksa (eşleşme yok) eski tarayıcı yöntemi kullanılır.
  */
 @Serializable
-data class UpdateInfo(
-    val tag: String,
-    val pageUrl: String,
-    val apk: UpdateApk? = null,
-) {
-    /**
-     * Dogrudan APK indirme linki. Kullanici "Son surumu indir" dediginde veya in-app basarisiz/desteklenmez oldugunda
-     * GitHub Release web sayfasina yonlendirmek yerine dogrudan .apk dosyasini indirir.
-     */
-    val directDownloadUrl: String
-        get() = apk?.url ?: "https://github.com/liberta09/Play/releases/download/$tag/Play-${tag.trim().removePrefix("v").removePrefix("V")}.apk"
-}
+data class UpdateInfo(val tag: String, val pageUrl: String, val apk: UpdateApk? = null)
 
 /**
  * Uygulama içi güncelleme kontrolü: GitHub `releases/latest` API'sinden son sürüm etiketi alınır, yüklü sürümle

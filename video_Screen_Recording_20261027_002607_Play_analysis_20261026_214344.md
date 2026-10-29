@@ -1,0 +1,5 @@
+Based on the video provided, here is the analysis of the playback origin and content identity:
+
+*   **Playback Origin and Content Identity:** The episode is opened from a detailed information page for the series **Lupin**, which includes cast photos (e.g., Omar Sy, Ludivine Sagnier) and an episode list, characteristic of a TMDB-based detail view. The playback source is explicitly identified as **Anizlum** (labeled as "Anizlum - Dublajlı" and "Anizlum - 1,0 GB - Dublajlı"). The series is listed under the "**Play Özel Kataloglar**" section on the home screen.
+*   **Playback Content:** The content being played is an **anime**. Visible evidence includes the hand-drawn animation style and the appearance of iconic characters Lupin III (wearing a pink jacket) and Jigen (wearing a hat and beard) on a boat during an action sequence. The audio features an English dub.
+*   **Home Section Label:** The blue-circled label at the end of the video is **Geçmiş** (History).

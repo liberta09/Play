@@ -13,10 +13,11 @@ class ContentMatchTest {
     private fun movie(vararg titles: String, year: Int?, tmdb: Int? = null, imdb: String? = null, runtime: Int? = null) =
         ContentIdentity(ContentKind.Movie, titles.toList(), year, tmdb, imdb, runtime)
 
-    private fun tv(vararg titles: String, year: Int?) = ContentIdentity(ContentKind.Tv, titles.toList(), year)
+    private fun tv(vararg titles: String, year: Int?, isAnimation: Boolean? = null) =
+        ContentIdentity(ContentKind.Tv, titles.toList(), year, isAnimation = isAnimation)
 
-    private fun c(name: String, year: Int? = null, url: String = "u:$name", kind: ContentKind? = null, other: List<String> = emptyList()) =
-        MatchCandidate(name, year, url, kind, other)
+    private fun c(name: String, year: Int? = null, url: String = "u:$name", kind: ContentKind? = null, other: List<String> = emptyList(), isAnimation: Boolean? = null) =
+        MatchCandidate(name, year, url, kind, other, isAnimation)
 
     private fun pickUrl(candidates: List<MatchCandidate>, identity: ContentIdentity): String? =
         (CsMatchRules.pick(candidates, identity) as? MatchOutcome.Match)?.best?.candidate?.url
@@ -211,6 +212,28 @@ class ContentMatchTest {
         val id = tv("Kurtlar Vadisi", year = 2003)
         val results = listOf(c("Kurtlar Vadisi Pusu", 2007, "pusu"), c("Kurtlar Vadisi", 2003, "kv"))
         assertEquals("kv", pickUrl(results, id))
+    }
+
+    @Test
+    fun liveActionLupinDoesNotMatchSameNamedAnimeEvenWhenAnimeYearIsMissing() {
+        val liveAction = tv("Lupin", year = 2021, isAnimation = false)
+        val animeCandidate = c("Lupin", null, "aniztum", ContentKind.Tv, isAnimation = true)
+        assertNull(pickUrl(listOf(animeCandidate), liveAction))
+    }
+
+    @Test
+    fun loadedAnimeIsRejectedForLiveActionRequestEvenWhenNameAndYearMatch() {
+        val liveAction = tv("Lupin", year = 2021, isAnimation = false)
+        val loaded = CsMatchRules.LoadedInfo(
+            name = "Lupin",
+            year = 2021,
+            imdbId = null,
+            tmdbId = null,
+            durationMinutes = null,
+            kind = ContentKind.Tv,
+            isAnimation = true,
+        )
+        assertTrue(CsMatchRules.verifyLoaded(loaded, liveAction) is Verdict.Reject)
     }
 
     @Test

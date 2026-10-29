@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -80,6 +81,7 @@ fun ProviderSelectorSheet(
     onTogglePin: (String) -> Unit,
     onDismiss: () -> Unit,
     onAddExtension: () -> Unit,
+    isLoading: Boolean = false,
 ) {
     var query by remember { mutableStateOf("") }
     var selectedTab by remember { mutableStateOf(ProviderTab.All) }
@@ -157,7 +159,16 @@ fun ProviderSelectorSheet(
                 }
             }
 
-            if (providers.isEmpty()) {
+            if (isLoading && providers.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+                ) {
+                    CircularProgressIndicator()
+                    Text(stringResource(R.string.provider_loading), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            } else if (providers.isEmpty()) {
                 // Hiç sağlayıcı yokken boş durum
                 EmptyProvidersView(
                     onAddExtension = {
@@ -270,7 +281,7 @@ fun ProviderSelectorSheet(
 
                         // Eklentiler listesi
                         items(section.items, key = { it.id }) { item ->
-                            val isSelected = if (isMultiSelect) {
+                            val isSelected = item.hasHomeCatalog && if (isMultiSelect) {
                                 item.id in draftSelected
                             } else {
                                 item.id in selectedIds && !ProviderRules.isAllProviders(selectedIds)
@@ -280,6 +291,7 @@ fun ProviderSelectorSheet(
                                 item = item,
                                 isSelected = isSelected,
                                 isMultiSelect = isMultiSelect,
+                                selectable = item.hasHomeCatalog,
                                 onClick = {
                                     if (isMultiSelect) {
                                         draftSelected = ProviderRules.toggleMultiSelect(draftSelected, item.id)
@@ -374,6 +386,7 @@ private fun ProviderRow(
     item: ProviderItem,
     isSelected: Boolean,
     isMultiSelect: Boolean,
+    selectable: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     onTogglePin: () -> Unit,
@@ -383,10 +396,11 @@ private fun ProviderRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .focusRing(shape)
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick,
+            .then(
+                if (selectable) Modifier.focusRing(shape).combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                ) else Modifier,
             )
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -407,32 +421,44 @@ private fun ProviderRow(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            if (!selectable) {
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = stringResource(R.string.provider_no_home_catalog),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
 
         // İğneleme (sabitleme) düğmesi
-        IconButton(
-            onClick = onTogglePin,
-            modifier = Modifier.focusRing(CircleShape),
-        ) {
-            Icon(
-                imageVector = if (item.isPinned) PlayIcons.PinFilled else PlayIcons.Pin,
-                contentDescription = stringResource(if (item.isPinned) R.string.provider_unpin else R.string.provider_pin),
-                tint = if (item.isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp),
-            )
+        if (selectable) {
+            IconButton(
+                onClick = onTogglePin,
+                modifier = Modifier.focusRing(CircleShape),
+            ) {
+                Icon(
+                    imageVector = if (item.isPinned) PlayIcons.PinFilled else PlayIcons.Pin,
+                    contentDescription = stringResource(if (item.isPinned) R.string.provider_unpin else R.string.provider_pin),
+                    tint = if (item.isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
         }
 
         Spacer(Modifier.width(4.dp))
 
         // Seçim göstergesi
-        if (isSelected) {
+        if (selectable && isSelected) {
             Icon(
                 imageVector = PlayIcons.Check,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp),
             )
-        } else if (isMultiSelect) {
+        } else if (selectable && isMultiSelect) {
             // Çoklu seçim modunda seçilmemiş öğeler için boş daire
             Box(
                 modifier = Modifier

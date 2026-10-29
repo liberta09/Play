@@ -17,7 +17,7 @@
 <br/>
 
 <p align="center">
-  <a href="https://github.com/liberta09/Play/releases/download/v1.1.20/Play-1.1.20.apk"><img src="https://img.shields.io/badge/APK%20%C4%B0ND%C4%B0R-Play%20(son%20s%C3%BCr%C3%BCm)-2DD4BF?style=for-the-badge&logo=android&logoColor=0B0C10&labelColor=0B0C10&color=2DD4BF" alt="APK İndir" height="52" /></a>
+  <a href="https://github.com/liberta09/Play/releases/download/v1.1.5/Play-1.1.5.apk"><img src="https://img.shields.io/badge/APK%20%C4%B0ND%C4%B0R-Play%20(son%20s%C3%BCr%C3%BCm)-2DD4BF?style=for-the-badge&logo=android&logoColor=0B0C10&labelColor=0B0C10&color=2DD4BF" alt="APK İndir" height="52" /></a>
   &nbsp;
   <a href="https://t.me/+o-RFlV4U3UY5NGU8"><img src="https://img.shields.io/badge/TELEGRAM-Kanala%20Kat%C4%B1l-229ED9?style=for-the-badge&logo=telegram&logoColor=white&labelColor=0B0C10" alt="Telegram Kanalına Katıl" height="52" /></a>
 </p>
@@ -293,11 +293,6 @@ Dizide bölüm bitmeye yaklaşınca (son ~20 sn) köşede "Sonraki bölüm: S1 B
 - **Geçiş:** yeni `PlayerActivity` açılır, eskisi kapanır; biten bölüm "izlendi" yazılır; altyazı dili/görünümü ortak hafızadan gelir; torrent oturumu kapatılır.
 - **Cihaz denemesi (LDPlayer, Android 9; sahte addon sunucusu, Breaking Bad, 170 sn'lik test videosu):** kart ~15 sn sonra çıkıp geri sayıyor, bölüm aynı eklenti/kaynakla açıldı (S1 B1 → B2 → … → S1 B7 → **S2 B1**: sezon geçişi); İptal sonrası kart bir daha çıkmadı ve video bitince oynatıcı kapandı; ilk kaynak 404 verince (kasıtlı) sıradaki kaynağa düşüldü; bölüm için kaynak yokken "S1 B4 için kaynak bulunamadı · Başka kaynak seç" göründü (ekran siyah değildi), listeden seçilen kaynakla bölüm açıldı; ayar kapalıyken kart ve sonraki bölüm isteği olmadı; geri sayım 15 sn ayarı uygulandı; Türkçe (1,3× yazı boyutunda da) ve İngilizce metinle kart taşmadı; kumandada (adb tuşları) Tamam "Şimdi oynat" (dokunmatik moddan da), Geri "İptal" yaptı. Otomatik Türkçe altyazı sonraki bölümlerde de geldi.
 - **Bilinen sınırlar:** (1) Geçiş yeni etkinlikle olduğu için bölümler arasında yeni oynatıcı hazırlanırken kısa bir bekleme (yükleniyor göstergesi) görülebilir; geçiş süresini ölçmedik. Geri sayım dolana dek bölüm oynamaya devam eder. (2) Torrent kaynaklarında geçiş ve yedek kaynak mantığı birim testle ve kodla desteklenir, cihazda torrentle denenmedi. (3) Kart açıkken kumandanın Sol/Sağ tuşları sarmaz, kartın düğmelerine gider (kart geri sayım boyunca görünür). (4) Sonraki bölüm hiç çözülemezse (TMDB'ye ulaşılamıyor) eskisi gibi bölüm bitince oynatıcı kapanır.
-
-## İntro/özet/jenerik atlama (TheIntroDB; kullanıcının isteğiyle; 2026-10-28)
-Film ve dizi bölümlerinde intro, özet, jenerik ve önizleme aralıkları biliniyorsa sağ altta "İntroyu geç" / "Özeti geç" / "Jeneriği geç" / "Önizlemeyi geç" düğmesi çıkar; kumandada Tamam ile atlanır. Ayarlar > Oynatıcı: "Atlama butonlarını göster" (varsayılan açık), "Atlama bölümlerini otomatik geç" (varsayılan kapalı; her segment oturumda en çok bir kez) ve dört tür anahtarı. Zamanlar önce videonun kendi bölüm işaretlerinden, yoksa topluluk veritabanı [TheIntroDB](https://theintrodb.org)'den (API v4) gelir; özellik ortak geliştiricinin 1.1.47 sürümünden uyarlandı (OCR jenerik algısı alınmadı). Bağlayıcı kurallar CLAUDE.md "İntro/özet/jenerik atlama"; cihaz kanıtı `docs/dogrulama-atla/SONUC.md`.
-- **Gizlilik:** TheIntroDB'ye yalnızca TMDB kimliği (yoksa IMDb), dizide sezon/bölüm ve video süresi gider; akış adresi, başlıklar, çerez, profil, hesap gönderilmez. **TheIntroDB isteği IP adresini ve izlenen içeriğin TMDB kimliğini görür.** Canlı TV'de istek atılmaz.
-- Veri yoksa ya da TheIntroDB'ye ulaşılamazsa (7 sn zaman aşımı) hiçbir şey görünmez; oynatma sorguyu beklemez.
 
 ## Oynatıcı: hızlı başlangıç, kaynak/altyazı/parça panelleri (kullanıcının isteğiyle; 2026-10-14)
 Amaç: filme basınca olabildiğince hızlı açılmak; kaynağı, altyazıyı, sesi ve kaliteyi oynatıcının içinden değiştirebilmek. Sürüm 1.0.4'te kaldı (yayınlanmadı; CHANGELOG "Yayınlanmamış"). Ayarlar'a yeni ana kalem eklenmedi; iki anahtar **Ayarlar > Oynatıcı** içindedir.

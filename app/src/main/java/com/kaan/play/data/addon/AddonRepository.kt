@@ -7,6 +7,7 @@ import com.kaan.play.data.db.AddonType
 import com.kaan.play.data.net.PlayJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 
 data class Addon(
     val id: Long,
@@ -86,6 +87,16 @@ class AddonRepository(
     }
 
     suspend fun byId(id: Long): Addon? = dao.byId(id)?.toAddon()
+
+    suspend fun exportTransfer(): List<AddonTransferItem> = addons.first().map { AddonTransferItem(it.sourceUrl, it.enabled) }
+
+    suspend fun importTransfer(items: List<AddonTransferItem>) {
+        items.forEach { item ->
+            val existing = addons.first().firstOrNull { it.sourceUrl == item.sourceUrl }
+            val addon = existing ?: runCatching { add(item.sourceUrl) }.getOrNull()
+            addon?.let { setEnabled(it.id, item.enabled) }
+        }
+    }
 
     private fun AddonEntity.toAddon() = Addon(
         id = id,

@@ -12,14 +12,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.data.download.DownloadBadge
-import com.kaan.play.data.download.DownloadPick
 import com.kaan.play.data.download.DownloadRules
 import com.kaan.play.data.download.Probe
 import com.kaan.play.data.download.StartResult
@@ -58,7 +55,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalContext
@@ -75,23 +71,22 @@ import com.kaan.play.ui.components.IconButton
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.tv.rememberInitialFocus
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
 
 /**
  * Kaynak seçimi: alttan açılan liste. Addon'lar paralel sorulur, kaynaklar geldikçe listeye girer; her addon kendi
  * başlığı altında toplanır (cevabı sürenlerde "Alınıyor…"). Üstte yenile düğmesi ve (birden çok addon varsa) addon
  * süzgeci vardır. En uygun kaynak işaretlidir ve herhangi bir satıra tek dokunuş seçer. Satırda addon adı ile
  * "kalite · boyut · dil · altyazı" bulunur (codec/HDR yok).
- *
- * [downloadMode] (Detay'daki indir düğmesi): yalnızca indirilebilir doğrudan kaynaklar ([SourceProbe] ile denetlenir,
- * torrent yok) tek liste halinde, önerilen en üstte ve seçili gelir; satıra dokunmak indirir, indirme başlayınca liste kapanır.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SourcesSheet(target: PlayTarget, onDismiss: () -> Unit, onPicked: (PlayableStream) -> Unit, downloadMode: Boolean = false) {
+fun SourcesSheet(
+    target: PlayTarget,
+    onDismiss: () -> Unit,
+    onPicked: (PlayableStream) -> Unit,
+    downloadOnly: Boolean = false,
+) {
     val request = target.request
     val container = rememberContainer()
     var refresh by remember { mutableIntStateOf(0) }
@@ -114,10 +109,6 @@ fun SourcesSheet(target: PlayTarget, onDismiss: () -> Unit, onPicked: (PlayableS
         scope.launch {
             val result = container.downloads.start(target, stream)
             starting -= stream.url
-            if (downloadMode && result is StartResult.Started) {
-                onDismiss()
-                return@launch
-            }
             notice = when (result) {
                 is StartResult.Started ->
                     Notice(if (notificationsOff) R.string.download_notifications_off else R.string.download_started)
@@ -163,33 +154,6 @@ fun SourcesSheet(target: PlayTarget, onDismiss: () -> Unit, onPicked: (PlayableS
             .onCompletion { cause -> if (cause == null) value = value.finished() }
             .collect { value += it }
     }
-    // İndirme modu: adaylar geldikçe arka planda yoklanır (aynı adres bir kez); sonuç adres → indirilebilir mi.
-    val probed = remember(request, refresh) { mutableStateMapOf<String, Boolean>() }
-    if (downloadMode) {
-        LaunchedEffect(request, refresh) {
-            val started = HashSet<String>()
-            val gate = Semaphore(PROBE_PARALLEL)
-            snapshotFlow { DownloadPick.candidates(state.streams) }.collect { list ->
-                list.filter { started.add(it.url) }.forEach { stream ->
-                    launch {
-                        val ok = gate.withPermit {
-                            try {
-                                container.sourceProbe.probe(stream.url, stream.headers) is Probe.Ok
-                            } catch (e: CancellationException) {
-                                throw e
-                            } catch (_: Exception) {
-                                false
-                            }
-                        }
-                        probed[stream.url] = ok
-                    }
-                }
-            }
-        }
-    }
-    val downloadable = if (downloadMode) DownloadPick.visible(state.streams, probed) else emptyList()
-    val checking = downloadMode && (state.loading || DownloadPick.pending(state.streams, probed))
-
     val addons = state.addons
     // Yenilemede ya da süzülen addon artık listede yokken "Tümü"ne dön.
     val activeFilter = filter?.takeIf { id -> addons.any { it.addonId == id } }
@@ -197,7 +161,7 @@ fun SourcesSheet(target: PlayTarget, onDismiss: () -> Unit, onPicked: (PlayableS
     val visibleStreams = visible.flatMap { state.streamsOf(it.addonId) }
 
     // Kumanda: kaynaklar gelince önerilen satır (yoksa ilk satır) odak alır; Tamam seçer.
-    val focus = rememberInitialFocus(enabled = if (downloadMode) downloadable.isNotEmpty() else state.streams.isNotEmpty())
+    val focus = rememberInitialFocus(enabled = state.streams.isNotEmpty())
     val focusStream = state.recommended?.takeIf { it in visibleStreams } ?: visibleStreams.firstOrNull()
     val pendingVisible = state.pending.filter { activeFilter == null || it.addonId == activeFilter }
 
@@ -218,7 +182,7 @@ fun SourcesSheet(target: PlayTarget, onDismiss: () -> Unit, onPicked: (PlayableS
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = stringResource(if (downloadMode) R.string.download_pick_title else R.string.sources_title),
+                    text = stringResource(if (downloadOnly) R.string.download_choose_source else R.string.sources_title),
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.weight(1f),
                 )
@@ -227,7 +191,7 @@ fun SourcesSheet(target: PlayTarget, onDismiss: () -> Unit, onPicked: (PlayableS
                 }
             }
             notice?.let { SoftLine(stringResource(it.res, *it.args.toTypedArray())) }
-            if (!downloadMode && addons.size >= 2) {
+            if (addons.size >= 2) {
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -240,22 +204,7 @@ fun SourcesSheet(target: PlayTarget, onDismiss: () -> Unit, onPicked: (PlayableS
             }
             // Yükleme çubuğu kalkınca liste zıplamasın diye yer her zaman ayrılır.
             Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 4.dp).height(4.dp)) {
-                if (state.loading || checking) LinearProgressIndicator(Modifier.fillMaxWidth())
-            }
-            if (downloadMode) {
-                DownloadPickList(
-                    streams = downloadable,
-                    checking = checking,
-                    isEpisode = request.episode != null,
-                    badgeOf = { stream -> DownloadRules.badge(downloadOfContent, stream.url, starting = stream.url in starting) },
-                    fractionOf = { stream ->
-                        downloadOfContent?.takeIf { it.sourceUrl == stream.url }
-                            ?.let { DownloadRules.fraction(it.downloadedBytes, it.totalBytes) }
-                    },
-                    onDownload = ::onDownloadClicked,
-                    focus = focus,
-                )
-                return@Column
+                if (state.loading) LinearProgressIndicator(Modifier.fillMaxWidth())
             }
             LazyColumn(Modifier.weight(1f, fill = false).heightIn(min = 300.dp, max = 460.dp)) {
                 visible.forEach { addon ->
@@ -270,7 +219,7 @@ fun SourcesSheet(target: PlayTarget, onDismiss: () -> Unit, onPicked: (PlayableS
                             badge = DownloadRules.badge(downloadOfContent, stream.url, starting = stream.url in starting),
                             downloadFraction = downloadOfContent?.takeIf { it.sourceUrl == stream.url }
                                 ?.let { DownloadRules.fraction(it.downloadedBytes, it.totalBytes) },
-                            onClick = { onPicked(stream) },
+                            onClick = { if (downloadOnly) onDownloadClicked(stream) else onPicked(stream) },
                             onDownload = { onDownloadClicked(stream) },
                             modifier = if (stream == focusStream) Modifier.focusRequester(focus) else Modifier,
                         )
@@ -337,52 +286,6 @@ private class Notice(@androidx.annotation.StringRes val res: Int, vararg args: A
 
 private const val NOTICE_MS = 5_000L
 
-/** İndirme modunda aynı anda yoklanan en çok kaynak. */
-private const val PROBE_PARALLEL = 4
-
-/**
- * İndirme modunun listesi: önerilen (ilk satır) seçili ve odakta; satıra dokunmak indirir. Yoklama sürerken altta
- * "denetleniyor", hiçbir kaynak indirilemiyorsa tek cümle.
- */
-@Composable
-private fun DownloadPickList(
-    streams: List<PlayableStream>,
-    checking: Boolean,
-    isEpisode: Boolean,
-    badgeOf: (PlayableStream) -> DownloadBadge,
-    fractionOf: (PlayableStream) -> Float?,
-    onDownload: (PlayableStream) -> Unit,
-    focus: FocusRequester,
-) {
-    LazyColumn(Modifier.heightIn(min = 300.dp, max = 460.dp)) {
-        items(streams, key = { it.url }) { stream ->
-            val first = stream == streams.first()
-            SourceRow(
-                stream,
-                isRecommended = first,
-                badge = badgeOf(stream),
-                downloadFraction = fractionOf(stream),
-                onClick = { onDownload(stream) },
-                onDownload = { onDownload(stream) },
-                downloadOnTap = true,
-                modifier = if (first) Modifier.focusRequester(focus) else Modifier,
-            )
-        }
-        if (checking) {
-            item(key = "checking") { SoftLine(stringResource(R.string.download_pick_checking)) }
-        } else if (streams.isEmpty()) {
-            item(key = "empty") {
-                Text(
-                    text = stringResource(if (isEpisode) R.string.download_pick_empty_episode else R.string.download_pick_empty_movie),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 24.dp),
-                )
-            }
-        }
-    }
-}
-
 @Composable
 private fun SourceRow(
     stream: PlayableStream,
@@ -392,7 +295,6 @@ private fun SourceRow(
     onClick: () -> Unit,
     onDownload: () -> Unit,
     modifier: Modifier = Modifier,
-    downloadOnTap: Boolean = false,
 ) {
     val shape = MaterialTheme.shapes.medium
     androidx.compose.material3.Surface(
@@ -435,12 +337,7 @@ private fun SourceRow(
                 androidx.compose.foundation.layout.Spacer(Modifier.size(8.dp))
             }
             // Torrent kaynağı yalnızca izlenir (yerleşik motor geçici indirir); çevrimdışı indirme yok.
-            // İndirme modunda satırın kendisi indirir: simge yalnızca durumu gösterir, ayrıca odaklanmaz.
-            if (downloadOnTap) {
-                DownloadStateIcon(badge, downloadFraction)
-            } else if (!TorrentLinks.isMagnet(stream.url)) {
-                DownloadButton(badge, downloadFraction, onDownload)
-            }
+            if (!TorrentLinks.isMagnet(stream.url)) DownloadButton(badge, downloadFraction, onDownload)
         }
     }
 }
@@ -475,26 +372,6 @@ private fun DownloadButton(badge: DownloadBadge, fraction: Float?, onClick: () -
             Box(Modifier.size(48.dp).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
                 Icon(PlayIcons.DownloadDone, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             }
-        }
-    }
-}
-
-/** Yalnızca durum gösteren (dokunulmayan) indirme simgesi: aşağı ok / ilerleme halkası / tik / hata renginde ok. */
-@Composable
-fun DownloadStateIcon(badge: DownloadBadge, fraction: Float?, modifier: Modifier = Modifier) {
-    Box(modifier.size(48.dp), contentAlignment = Alignment.Center) {
-        when (badge) {
-            DownloadBadge.None, DownloadBadge.Failed -> Icon(
-                PlayIcons.Download,
-                contentDescription = null,
-                tint = if (badge == DownloadBadge.Failed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            DownloadBadge.Active -> if (fraction != null && fraction > 0f) {
-                CircularProgressIndicator(progress = { fraction }, modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
-            } else {
-                CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
-            }
-            DownloadBadge.Done -> Icon(PlayIcons.DownloadDone, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
         }
     }
 }

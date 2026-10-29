@@ -103,44 +103,14 @@ data class PlaySession(
         private const val TEST_TITLE = "Play test"
 
         /** Bozuk/eksik veri null döner (etkinlik kendini kapatır). */
-        fun from(intent: Intent?): PlaySession? {
-            if (intent == null) return null
-            try {
-                val text = intent.getStringExtra(EXTRA)
-                if (!text.isNullOrBlank()) {
-                    return PlayJson.decodeFromString(serializer(), text)
-                }
-            } catch (_: Throwable) {
-                // Hatalı JSON veya serialization hatası
+        fun from(intent: Intent): PlaySession? {
+            val text = intent.getStringExtra(EXTRA) ?: return null
+            return try {
+                PlayJson.decodeFromString(serializer(), text)
+            } catch (t: Throwable) {
+                android.util.Log.e("PlaySession", "PlaySession deserialization failed: ${t.message}", t)
+                null
             }
-
-            // Doğrudan URI veya medya intent verisi (ör. ACTION_VIEW veya harici oynatıcı çağrısı)
-            try {
-                val dataUri = intent.data
-                if (dataUri != null) {
-                    val uriString = dataUri.toString().trim()
-                    if (uriString.isNotBlank() && (uriString.startsWith("http://") || uriString.startsWith("https://") || uriString.startsWith("file://") || uriString.startsWith("content://") || uriString.startsWith("magnet:"))) {
-                        return testVideo(uriString)
-                    }
-                }
-
-                // Ekstra video parametreleri (url, video_url, uri, media_url, play_test_video)
-                val extraUrl = intent.getStringExtra("url")
-                    ?: intent.getStringExtra("video_url")
-                    ?: intent.getStringExtra("uri")
-                    ?: intent.getStringExtra("media_url")
-                    ?: intent.getStringExtra("play_test_video")
-                if (!extraUrl.isNullOrBlank()) {
-                    val trimmed = extraUrl.trim()
-                    if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("file://") || trimmed.startsWith("content://") || trimmed.startsWith("magnet:")) {
-                        return testVideo(trimmed)
-                    }
-                }
-            } catch (_: Throwable) {
-                // Uri okuma hatası
-            }
-
-            return null
         }
     }
 }

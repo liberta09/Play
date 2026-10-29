@@ -1,12 +1,17 @@
 package com.kaan.play.ui.addons
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -51,9 +56,6 @@ import com.kaan.play.ui.containerViewModel
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.tv.focusRing
-import com.kaan.play.ui.tv.rememberRowControls
-import com.kaan.play.ui.tv.rowControl
-import com.kaan.play.ui.tv.rowControlsHost
 import kotlinx.coroutines.launch
 
 /** "Kurulu tüm depolar"da bölüm başlığı (Nuvio / CloudStream). Odak almaz; uzun metinde alt satıra geçer. */
@@ -85,11 +87,12 @@ private fun ThirdPartyNote() {
  * - **CloudStream:** "CloudStream Depoları"ndaki depolar ([CsRepoRow]).
  * Satırlar ve veri kaynakları o ekranlarınkiyle aynıdır; boş bölüm gösterilmez.
  */
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun RepositoriesScreen(onBack: () -> Unit, onOpenAddon: (Long) -> Unit = {}) {
     val container = rememberContainer()
     val vm = containerViewModel { RepositoriesViewModel(it.plugins) }
-    val csVm = containerViewModel { CsReposViewModel(it.csRepos) }
+    val csVm = containerViewModel { CsReposViewModel(it.csRepos, it.csRepoCatalog) }
     val repos by vm.repos.collectAsStateWithLifecycle()
     val addons by container.addons.addons.collectAsStateWithLifecycle(initialValue = null)
     val csRepos by csVm.repos.collectAsStateWithLifecycle()
@@ -212,10 +215,19 @@ private fun RepoRow(repo: PluginRepo, busy: Boolean, enabled: Boolean, onCheck: 
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .focusGroup(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .focusRing(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                    .focusable()
+                    .padding(vertical = 4.dp, horizontal = 4.dp),
+            ) {
                 Text(text = repo.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(
                     text = stringResource(
@@ -229,10 +241,15 @@ private fun RepoRow(repo: PluginRepo, busy: Boolean, enabled: Boolean, onCheck: 
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+            Spacer(modifier = Modifier.width(8.dp))
             if (busy) {
                 CircularProgressIndicator(modifier = Modifier.padding(12.dp).size(24.dp), strokeWidth = 2.dp)
             } else {
-                IconButton(onClick = onCheck, enabled = enabled) {
+                IconButton(
+                    onClick = onCheck,
+                    enabled = enabled,
+                    modifier = Modifier.focusRing(CircleShape),
+                ) {
                     Icon(
                         PlayIcons.Refresh,
                         contentDescription = stringResource(R.string.repos_check),
@@ -240,7 +257,12 @@ private fun RepoRow(repo: PluginRepo, busy: Boolean, enabled: Boolean, onCheck: 
                     )
                 }
             }
-            IconButton(onClick = onRemove, enabled = enabled) {
+            Spacer(modifier = Modifier.width(4.dp))
+            IconButton(
+                onClick = onRemove,
+                enabled = enabled,
+                modifier = Modifier.focusRing(CircleShape),
+            ) {
                 Icon(
                     PlayIcons.Trash,
                     contentDescription = stringResource(R.string.repos_remove),
@@ -269,7 +291,8 @@ fun InstalledAddonsScreen(onBack: () -> Unit, onOpenPlugin: (Long) -> Unit, onOp
 
     val totalCount = (addonList?.size ?: 0) +
         (groupList?.sumOf { it.plugins.size } ?: 0) +
-        (csGroupList?.sumOf { it.plugins.size } ?: 0)
+        (csGroupList?.sumOf { it.plugins.size } ?: 0) +
+        (csGroupList?.size ?: 0)
     val allEnabled = totalCount > 0 &&
         (addonList?.all { it.enabled } != false) &&
         (groupList?.all { g -> g.plugins.all { it.enabled } } != false) &&
@@ -341,6 +364,7 @@ fun InstalledAddonsScreen(onBack: () -> Unit, onOpenPlugin: (Long) -> Unit, onOp
                 csGroupList.forEach { group ->
                     item(key = "cs-${group.repo.id}") {
                         val groupAllEnabled = group.plugins.isNotEmpty() && group.plugins.all { it.enabled }
+                        val toggleLabel = stringResource(R.string.addons_enabled_toggle, group.repo.name)
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -348,23 +372,34 @@ fun InstalledAddonsScreen(onBack: () -> Unit, onOpenPlugin: (Long) -> Unit, onOp
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(
-                                text = group.repo.name,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            if (group.plugins.size > 1) {
-                                TextButton(onClick = { vm.setCsRepoPluginsEnabled(group.repo.id, !groupAllEnabled) }) {
-                                    Text(
-                                        text = stringResource(if (groupAllEnabled) R.string.addons_disable_all else R.string.addons_enable_all),
-                                        style = MaterialTheme.typography.labelMedium,
-                                    )
-                                }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = group.repo.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text = pluralStringResource(R.plurals.cs_plugins_count, group.plugins.size, group.plugins.size),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
                             }
+                            Switch(
+                                checked = groupAllEnabled,
+                                enabled = group.plugins.isNotEmpty(),
+                                onCheckedChange = { vm.setCsRepoPluginsEnabled(group.repo.id, it) },
+                                modifier = Modifier.focusRing(CircleShape).semantics { contentDescription = toggleLabel },
+                                colors = androidx.compose.material3.SwitchDefaults.colors(
+                                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                ),
+                            )
                         }
                     }
-                    items(group.plugins, key = { "csp-${it.id}" }) { plugin ->
-                        CsPluginRow(plugin = plugin, onToggle = { vm.setCsPluginEnabled(plugin, it) })
+                    if (group.plugins.isNotEmpty()) {
+                        items(group.plugins, key = { "csp-${it.id}" }) { plugin ->
+                            CsPluginRow(plugin = plugin, onToggle = { vm.setCsPluginEnabled(plugin, it) })
+                        }
                     }
                 }
             }
@@ -393,39 +428,57 @@ internal fun PluginRow(plugin: InstalledPlugin, onToggle: (Boolean) -> Unit, onO
     val series = stringResource(R.string.type_series)
     val types = plugin.supportedTypes.joinToString(", ") { if (it == "movie") movie else series }
     val detail = plugin.contentLanguage.takeIf { it.isNotEmpty() }?.joinToString(", ") { it.uppercase() } ?: types
-    val controls = rememberRowControls(1)
 
     androidx.compose.material3.Surface(
-        onClick = onOpen,
-        enabled = plugin.hasSettings,
         shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-            .then(if (plugin.hasSettings) Modifier.rowControlsHost(controls).focusRing(androidx.compose.foundation.shape.RoundedCornerShape(14.dp)) else Modifier),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .focusGroup(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(modifier = Modifier.weight(1f).alpha(if (plugin.enabled) 1f else 0.6f)) {
-                Text(text = plugin.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(
-                    text = stringResource(R.string.addons_row_info, plugin.version ?: "–", detail),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .then(
+                        if (plugin.hasSettings) {
+                            Modifier
+                                .focusRing(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                                .clickable(onClick = onOpen)
+                        } else {
+                            Modifier
+                                .focusRing(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
+                                .focusable()
+                        }
+                    )
+                    .padding(vertical = 4.dp, horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f).alpha(if (plugin.enabled) 1f else 0.6f)) {
+                    Text(text = plugin.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(
+                        text = stringResource(R.string.addons_row_info, plugin.version ?: "–", detail),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                if (plugin.hasSettings) {
+                    Icon(
+                        PlayIcons.Forward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 8.dp, end = 4.dp),
+                    )
+                }
             }
-            if (plugin.hasSettings) {
-                Icon(
-                    PlayIcons.Forward,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(end = 8.dp),
-                )
-            }
+            Spacer(modifier = Modifier.width(8.dp))
             Switch(
                 checked = plugin.enabled,
                 onCheckedChange = onToggle,
@@ -433,7 +486,7 @@ internal fun PluginRow(plugin: InstalledPlugin, onToggle: (Boolean) -> Unit, onO
                     checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                     checkedTrackColor = MaterialTheme.colorScheme.primary,
                 ),
-                modifier = Modifier.rowControl(controls, 0, plugin.hasSettings).focusRing(CircleShape).semantics { contentDescription = toggleLabel },
+                modifier = Modifier.focusRing(CircleShape).semantics { contentDescription = toggleLabel },
             )
         }
     }

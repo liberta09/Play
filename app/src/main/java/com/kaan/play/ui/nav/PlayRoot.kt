@@ -1,15 +1,42 @@
 package com.kaan.play.ui.nav
 
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import com.kaan.play.ui.tv.tvFocusableScaleGlow
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.zIndex
+import androidx.compose.foundation.layout.statusBarsPadding
+import com.kaan.play.ui.settings.ProfileAvatar
+import android.app.Activity
+import android.view.WindowManager
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalInputModeManager
 import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.rememberFocusMemory
 import android.net.Uri
+import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.WindowInsets
@@ -42,6 +69,7 @@ import com.kaan.play.ui.tv.PlayLayout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -52,6 +80,7 @@ import androidx.compose.material3.Text
 import com.kaan.play.ui.components.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.runtime.LaunchedEffect
@@ -96,6 +125,7 @@ import com.kaan.play.ui.addons.NuvioPluginsScreen
 import com.kaan.play.ui.addons.NuvioReposScreen
 import com.kaan.play.ui.addons.PluginSettingsScreen
 import com.kaan.play.ui.addons.RepositoriesScreen
+import com.kaan.play.ui.addons.RepoManagerCatalogScreen
 import com.kaan.play.data.plugin.AddResult
 import com.kaan.play.data.plugin.DeepLinkEvent
 import com.kaan.play.ui.detail.DetailScreen
@@ -110,32 +140,34 @@ import com.kaan.play.ui.library.LibraryScreen
 import com.kaan.play.ui.tv.TvScreen
 import com.kaan.play.ui.settings.AboutScreen
 import com.kaan.play.ui.settings.PlayerSettingsScreen
-import com.kaan.play.ui.settings.SettingsScreen
 import com.kaan.play.ui.settings.SpeedTestScreen
+import com.kaan.play.ui.settings.SettingsScreen
 import com.kaan.play.ui.settings.ProfileScreen
 import com.kaan.play.ui.settings.SyncScreen
 import com.kaan.play.ui.settings.ProfileChooserScreen
 import com.kaan.play.ui.settings.ProfileSetupScreen
-import com.kaan.play.ui.addons.RepoManagerCatalogScreen
 import com.kaan.play.data.sync.LocalProfileSummary
+import com.kaan.play.data.sync.LastProfileRestoration
 import kotlinx.coroutines.flow.first
 import com.kaan.play.ui.sources.SourcesSheet
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-private const val SPEED_TEST_ROUTE = "settings/speed-test"
-private const val PROFILE_ROUTE = "settings/profile"
-private const val SYNC_ROUTE = "settings/sync"
-private const val REPO_MANAGER_CATALOG_ROUTE = "settings/addons/catalog"
 private const val ADDONS_ROUTE = "settings/addons?add={add}"
 private const val ADDONS_REPOS_ROUTE = "settings/addons/repos"
 private const val ADDONS_INSTALLED_ROUTE = "settings/addons/installed"
 private const val CS_REPOS_ROUTE = "settings/addons/csrepos"
+private const val REPO_MANAGER_CATALOG_ROUTE = "settings/addons/catalog"
 private const val NUVIO_REPOS_ROUTE = "settings/addons/nuviorepos"
 private const val NUVIO_PLUGINS_ROUTE = "settings/addons/nuvioplugins"
 private const val PLUGIN_ROUTE = "settings/addons/plugin/{id}"
 private const val ADDON_DETAIL_ROUTE = "settings/addons/detail/{id}"
 private const val PLAYER_SETTINGS_ROUTE = "settings/player"
+private const val SPEED_TEST_ROUTE = "settings/speed-test"
 private const val ABOUT_ROUTE = "settings/about"
+private const val PROFILE_ROUTE = "settings/profile"
+private const val SYNC_ROUTE = "settings/sync"
 private const val DETAIL_ROUTE = "detail/{type}/{id}"
 private const val PROVIDER_DETAIL_ROUTE = "provider_detail/{providerId}/{encodedUrl}"
 private const val CATEGORY_ROUTE = "home/category/{row}"
@@ -184,78 +216,116 @@ fun PlayRoot() {
     val scope = rememberCoroutineScope()
     val backStack by navController.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
-
-    val profiles by container.localProfile.profiles.collectAsStateWithLifecycle(initialValue = emptyList())
-    val activeProfile by container.localProfile.activeProfile.collectAsStateWithLifecycle(initialValue = null)
-    val rememberLastProfile by container.settings.rememberLastProfile.collectAsStateWithLifecycle(initialValue = true)
+    var pendingAddedNavigation by remember { mutableStateOf<AddResult?>(null) }
+    val localProfiles by container.localProfile.profiles.collectAsStateWithLifecycle(initialValue = emptyList())
+    val activeProfileId by container.localProfile.id.collectAsStateWithLifecycle(initialValue = "")
+    val activeProfileIsAdmin = localProfiles.any { it.id == activeProfileId && it.isAdmin }
+    val activeProfileIsChild = localProfiles.any { it.id == activeProfileId && it.isChild }
+    val profileSetupComplete by container.localProfile.profileSetupComplete.collectAsStateWithLifecycle(initialValue = false)
+    val rememberLastProfile by container.settings.rememberLastProfile.collectAsStateWithLifecycle(initialValue = false)
     var profileGate by remember { mutableStateOf(false) }
-    var initialGateChecked by remember { mutableStateOf(false) }
-    var showProfileSetup by remember { mutableStateOf(false) }
     var managingProfiles by remember { mutableStateOf(false) }
+    var showProfileSetup by remember { mutableStateOf(false) }
+    var pinProfile by remember { mutableStateOf<LocalProfileSummary?>(null) }
+    var pinDraft by remember { mutableStateOf("") }
+    var pinError by remember { mutableStateOf(false) }
 
-    LaunchedEffect(profiles, rememberLastProfile) {
-        if (!initialGateChecked && profiles.isNotEmpty()) {
-            if (!rememberLastProfile || activeProfile == null) {
-                profileGate = true
+    val homeFocusRequester = remember { FocusRequester() }
+    val tvFocusRequester = remember { FocusRequester() }
+    val searchFocusRequester = remember { FocusRequester() }
+    val libraryFocusRequester = remember { FocusRequester() }
+    val settingsFocusRequester = remember { FocusRequester() }
+    val topBarFocusRequester = remember { FocusRequester() }
+
+    val currentContentFocusRequester = when {
+        currentRoute == Tab.Tv.route -> tvFocusRequester
+        currentRoute == Tab.Search.route || currentRoute?.startsWith("search") == true -> searchFocusRequester
+        currentRoute == Tab.Library.route -> libraryFocusRequester
+        currentRoute == Tab.Settings.route -> settingsFocusRequester
+        else -> homeFocusRequester
+    }
+
+    suspend fun activateProfile(profile: LocalProfileSummary) {
+        val currentId = container.localProfile.id.first()
+        if (currentId.isNotBlank() && currentId != profile.id) {
+            container.localProfile.saveBackup(currentId, container.localSyncBackup.exportJson())
+        }
+        container.localProfile.setActiveProfile(profile)
+        container.localProfile.backup(profile.id)?.let { container.localSyncBackup.importJson(it) }
+        profileGate = false
+    }
+
+    LaunchedEffect(Unit) {
+        val user = container.localProfile.ensureUserId()
+        container.localProfile.ensureSyncCode()
+
+        val lastActiveId = container.localProfile.lastActiveProfileId.first()
+        val setupComplete = container.localProfile.profileSetupComplete.first()
+        val allProfiles = container.localProfile.profiles.first()
+
+        // 1. İLK KURULUM: Hiç profil yoksa zorunlu kurulum ekranına al
+        if (allProfiles.isEmpty()) {
+            showProfileSetup = true
+            profileGate = false
+        } else {
+            // 2. BYPASS MANTIĞI: Profil varsa (son aktif profil veya ilk uygun profil) KESİNLİKLE ATLA ve direkt Ana Sayfaya geç
+            val matched = allProfiles.firstOrNull { it.id == lastActiveId && !it.isHidden }
+                ?: allProfiles.firstOrNull { !it.isHidden }
+                ?: allProfiles.first()
+            profileGate = false
+            showProfileSetup = false
+            if (matched.pinHash.isNullOrBlank()) {
+                activateProfile(matched)
+            } else {
+                pinProfile = matched
+                pinDraft = ""
+                pinError = false
             }
-            initialGateChecked = true
-        } else if (!initialGateChecked && profiles.isEmpty()) {
-            profileGate = true
-            initialGateChecked = true
+            container.database.watchHistoryDao().adoptLegacy(user, matched.id)
+            container.database.favoriteDao().adoptLegacy(user, matched.id)
         }
     }
 
-    if (showProfileSetup) {
-        ProfileSetupScreen(
-            onCreate = { name, avatar, isChild, pin ->
-                scope.launch {
-                    container.localProfile.createProfile(name, avatar, isChild, pin)
-                    showProfileSetup = false
-                    profileGate = false
-                }
-            },
-            onCancel = {
-                if (profiles.isNotEmpty()) {
-                    showProfileSetup = false
-                }
-            }
-        )
-        return
+    // Profil kapısı kapalıysa önceki seçime dokunulmaz; açıksa yerel eşitleme çalıştırılır.
+    LaunchedEffect(profileGate) {
+        if (profileGate) {
+            container.localProfile.ensureSyncCode()
+            container.startLocalSync()
+        }
     }
 
-    if (profileGate) {
-        ProfileChooserScreen(
-            profiles = profiles,
-            onSelect = { profile ->
-                scope.launch {
-                    container.localProfile.selectProfile(profile.id)
-                    profileGate = false
+    pinProfile?.let { profile ->
+        AlertDialog(
+            onDismissRequest = { pinProfile = null },
+            title = { Text("${profile.name} PIN") },
+            text = {
+                Column {
+                    androidx.compose.material3.OutlinedTextField(
+                        value = pinDraft,
+                        onValueChange = { pinDraft = it.filter(Char::isDigit).take(6); pinError = false },
+                        label = { Text("PIN") },
+                        singleLine = true,
+                    )
+                    if (pinError) Text("PIN hatalı", color = MaterialTheme.colorScheme.error)
                 }
             },
-            isAdmin = true,
-            managingProfiles = managingProfiles,
-            onToggleManage = { managingProfiles = !managingProfiles },
-            onCreateProfile = { showProfileSetup = true },
-            onToggleHidden = { profile ->
-                scope.launch {
-                    container.localProfile.setHidden(profile.id, !profile.isHidden)
-                }
+            confirmButton = {
+                Button(onClick = {
+                    scope.launch {
+                        if (container.localProfile.verifyPin(profile, pinDraft)) {
+                            activateProfile(profile)
+                            pinProfile = null
+                        } else pinError = true
+                    }
+                }) { Text("Aç") }
             },
-            onDeleteProfile = { profile ->
-                scope.launch {
-                    container.localProfile.deleteProfile(profile.id)
-                }
-            },
-            onEditProfile = { profile, name, avatar, isChild, pin ->
-                scope.launch {
-                    container.localProfile.updateProfile(profile.id, name, avatar, isChild, pin)
-                }
-            }
+            dismissButton = { TextButton(onClick = { pinProfile = null }) { Text("İptal") } },
         )
-        return
     }
 
     fun openTab(tab: Tab) {
+        // Profil kapısı açıkken NavHost gizlidir; bu sırada gezinme grafiği henüz kurulmamış olabilir.
+        if (backStack == null) return
         if (tab == Tab.Home) {
             val popped = navController.popBackStack(Tab.Home.route, inclusive = false)
             if (!popped) {
@@ -279,35 +349,59 @@ fun PlayRoot() {
     // Eklentiler ekranı Ayarlar sekmesine aittir: nereden gelinirse gelinsin önce o sekmeye geçilir,
     // yoksa ekran çağıran sekmenin yığınına girer ve o sekme hep onu açar.
     fun openAddons(startAdding: Boolean) {
+        if (backStack == null) return
         openTab(Tab.Settings)
         navController.navigate(addonsRoute(startAdding)) { launchSingleTop = true }
     }
 
     // https eklenti bağlantısıyla açılınca (MainActivity -> pendingAddonUrl) ekleme ekranına git.
     val pendingAddonUrl by container.pendingAddonUrl.collectAsStateWithLifecycle()
-    LaunchedEffect(pendingAddonUrl) {
-        if (pendingAddonUrl != null) openAddons(startAdding = false)
+    var routedAddonUrl by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(pendingAddonUrl, profileGate, showProfileSetup, backStack) {
+        val url = pendingAddonUrl
+        if (url == null) {
+            routedAddonUrl = null
+        } else if (url != routedAddonUrl && !profileGate && !showProfileSetup && backStack != null) {
+            routedAddonUrl = url
+            openAddons(startAdding = false)
+        }
     }
 
-    // play://add deep link onayından sonra ilgili bölüme otomatik geçiş
+    // play://add onayından sonra ilgili bölüme geç. Onay, NavHost görünmeden önce tamamlanabilir;
+    // sonucu sıraya alıp profil kapısı ve başlangıç rotası hazır olduğunda uygula.
     LaunchedEffect(container.deepLinks) {
         container.deepLinks.events.collect { event ->
-            if (event is DeepLinkEvent.Added) {
-                openTab(Tab.Settings)
-                when (event.result) {
-                    is AddResult.CsRepo -> navController.navigate(CS_REPOS_ROUTE) { launchSingleTop = true }
-                    is AddResult.Addon -> navController.navigate(NUVIO_REPOS_ROUTE) { launchSingleTop = true }
-                    is AddResult.PluginRepo -> navController.navigate(NUVIO_PLUGINS_ROUTE) { launchSingleTop = true }
-                }
-            }
+            if (event is DeepLinkEvent.Added) pendingAddedNavigation = event.result
+        }
+    }
+    LaunchedEffect(pendingAddedNavigation, profileGate, showProfileSetup, backStack) {
+        val result = pendingAddedNavigation ?: return@LaunchedEffect
+        if (profileGate || showProfileSetup || backStack == null) return@LaunchedEffect
+        pendingAddedNavigation = null
+        openTab(Tab.Settings)
+        when (result) {
+            is AddResult.CsRepo -> navController.navigate(CS_REPOS_ROUTE) { launchSingleTop = true }
+            is AddResult.Addon -> navController.navigate(NUVIO_REPOS_ROUTE) { launchSingleTop = true }
+            is AddResult.PluginRepo -> navController.navigate(NUVIO_PLUGINS_ROUTE) { launchSingleTop = true }
         }
     }
 
     // Oynat: aktif eklenti yoksa tek yol eklenti eklemektir. Aynı içerik yarım izlenmişse önce
-    // "devam / baştan" sorulur ([startAtMs] verilmişse sorulmaz); sonra kaynak seçimi, sonra oynatıcı.
+    // "devam / baştan" sorulur ([startAtMs] verilmişse soru sorulmaz); sonra kaynak seçimi, sonra oynatıcı.
     var sourcesFor by remember { mutableStateOf<PlayStart?>(null) }
+    var downloadFor by remember { mutableStateOf<PlayTarget?>(null) }
     var resumePrompt by remember { mutableStateOf<ResumeAsk?>(null) }
     val context = LocalContext.current
+    val activityWindow = (context as? Activity)?.window
+    val defaultSoftInputMode = remember(activityWindow) {
+        activityWindow?.attributes?.softInputMode ?: WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED
+    }
+    SideEffect {
+        activityWindow?.setSoftInputMode(
+            if (profileGate || showProfileSetup) WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+            else defaultSoftInputMode,
+        )
+    }
 
     // Kaynak seçimi yerine indirilmiş kopyadan (çevrimdışı) oynatır: aynı hedef, aynı geçmiş satırı.
     fun playOffline(download: DownloadEntity, startMs: Long, autoResumed: Boolean) {
@@ -318,6 +412,14 @@ fun PlayRoot() {
     // atlanır. Aynı içerik yarım izlenmişse önce "devam / baştan" sorulur ([startAtMs] verilmişse sorulmaz).
     fun play(target: PlayTarget, startAtMs: Long? = null, autoResumed: Boolean = false, download: DownloadEntity? = null) {
         scope.launch {
+            if (container.localProfile.activeProfile()?.isChild == true) {
+                val request = target.request
+                val allowed = request.tmdbId > 0 && container.tmdb.isAllowedForCurrentProfile(request.type, request.tmdbId)
+                if (!allowed) {
+                    Toast.makeText(context, "Bu içerik çocuk profiline uygun değil veya yaş bilgisi doğrulanamadı.", Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+            }
             if (download == null && target.request.pluginId == null && !container.hasEnabledSources()) {
                 openAddons(startAdding = true)
                 return@launch
@@ -451,65 +553,40 @@ fun PlayRoot() {
     }
 
     val layout = rememberPlayLayout()
-    // Detay tam ekran: alt menü/yan menü gizli.
-    val showNav = currentRoute != DETAIL_ROUTE
-    val navColors = NavigationBarItemDefaults.colors(
-        selectedIconColor = MaterialTheme.colorScheme.primary,
-        selectedTextColor = MaterialTheme.colorScheme.primary,
-        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
-        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-    val railColors = NavigationRailItemDefaults.colors(
-        selectedIconColor = MaterialTheme.colorScheme.primary,
-        selectedTextColor = MaterialTheme.colorScheme.primary,
-        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
-        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    val isSubScreen = currentRoute == DETAIL_ROUTE ||
+        currentRoute == PROVIDER_DETAIL_ROUTE ||
+        currentRoute?.startsWith("detail/") == true ||
+        currentRoute?.startsWith("provider_detail/") == true ||
+        currentRoute?.startsWith("home/category") == true ||
+        currentRoute?.startsWith("settings/") == true
+    val showNav = !isSubScreen
+    val currentProfile = localProfiles.firstOrNull { it.id == activeProfileId }
+    val avatarKey = currentProfile?.avatar ?: "space_astro"
+
     fun selected(tab: Tab) = currentRoute == tab.route || currentRoute?.startsWith(tab.route + "/") == true || currentRoute?.startsWith(tab.route + "?") == true
 
-    // Ana sayfa (kapak karuseli) ve Detay (arka plan görseli) durum çubuğunun arkasına kadar uzanır; diğer ekranlar altına girmez.
-    val bleedsUnderStatusBar = currentRoute == Tab.Home.route || currentRoute == DETAIL_ROUTE
-    Scaffold(
+    // Ana sayfa ve NuvioTopBar durum çubuğunun arkasına uzanır; tüm sekmelerde üst menü sabit konumda kalır.
+    val bleedsUnderStatusBar = showNav || currentRoute == Tab.Home.route || currentRoute == DETAIL_ROUTE
+    if (!profileGate && !showProfileSetup) {
+        Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = if (bleedsUnderStatusBar) {
             WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
         } else {
             ScaffoldDefaults.contentWindowInsets
         },
-        bottomBar = {
-            // Telefon (ve alçak yatay telefon): alt menü. Geniş ekranda yan menü kullanılır.
-            if (showNav && !layout.useRail) CappedFontScale {
-                NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                    Tab.entries.forEach { tab ->
-                        NavigationBarItem(
-                            selected = selected(tab),
-                            onClick = { openTab(tab) },
-                            icon = { Icon(tab.icon, contentDescription = stringResource(tab.label)) },
-                            alwaysShowLabel = true,
-                            label = { Text(stringResource(tab.label), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                            colors = navColors,
-                            modifier = Modifier.focusRing(RoundedCornerShape(16.dp)),
-                        )
-                    }
-                }
-            }
-        },
+        bottomBar = {},
     ) { padding ->
-        val railCollapsedWidth = PlayLayout.RAIL_COLLAPSED_WIDTH_DP.dp
-        val railExpandedWidth = PlayLayout.RAIL_EXPANDED_WIDTH_DP.dp
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
         ) {
-            // İçerik alanı: menü açılırken sıkışmasın diye her zaman dar şeride göre yerleşir
+            // İçerik alanı: tüm genişliği kullanır
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = if (showNav && layout.useRail) railCollapsedWidth else 0.dp),
+                    .padding(top = if (showNav && currentRoute != Tab.Home.route) 58.dp else 0.dp),
             ) {
                 NavHost(
                     navController = navController,
@@ -522,17 +599,34 @@ fun PlayRoot() {
                     onOpenProviderDetail = ::openProviderDetail,
                     onOpenCategory = { navController.navigate(categoryRoute(it)) },
                     onContinue = ::continueWatching,
+                    onPlayHistory = { entry ->
+                        val isSeries = entry.type == MediaType.Tv
+                        val startAt = if (WatchRules.isWatched(entry.positionMs, entry.durationMs)) 0L else entry.positionMs
+                        playEntry(entry, entry.season.takeIf { isSeries }, entry.episode.takeIf { isSeries }, startAt)
+                    },
                     onAddAddon = { openAddons(startAdding = true) },
                     onOpenSearch = { query ->
                         navController.navigate("search?q=${Uri.encode(query)}") {
                             launchSingleTop = true
                         }
                     },
+                    onOpenProfile = {
+                        profileGate = true
+                        managingProfiles = false
+                    },
+                    contentFocusRequester = homeFocusRequester,
+                    topBarFocusRequester = topBarFocusRequester,
                 )
             }
 
             composable(Tab.Tv.route) {
-                ReadableWidth { TvScreen(onPlay = ::playLiveChannel) }
+                ReadableWidth {
+                    TvScreen(
+                        onPlay = ::playLiveChannel,
+                        contentFocusRequester = tvFocusRequester,
+                        topBarFocusRequester = topBarFocusRequester,
+                    )
+                }
             }
 
             composable(
@@ -549,10 +643,24 @@ fun PlayRoot() {
                 arguments = listOf(navArgument("q") { type = NavType.StringType; nullable = true; defaultValue = null }),
             ) { entry ->
                 val q = entry.arguments?.getString("q")
-                ReadableWidth(PlayLayout.GRID_WIDTH_DP.dp) { SearchScreen(initialQuery = q, onOpenDetail = ::openDetail) }
+                ReadableWidth(PlayLayout.GRID_WIDTH_DP.dp) {
+                    SearchScreen(
+                        initialQuery = q,
+                        onOpenDetail = ::openDetail,
+                        contentFocusRequester = searchFocusRequester,
+                        topBarFocusRequester = topBarFocusRequester,
+                    )
+                }
             }
             composable(Tab.Library.route) {
-                ReadableWidth(PlayLayout.GRID_WIDTH_DP.dp) { LibraryScreen(onOpenDetail = ::openDetail, onPlayEntry = ::playHistory, onPlayDownload = ::playDownload) }
+                ReadableWidth(PlayLayout.GRID_WIDTH_DP.dp) {
+                    LibraryScreen(
+                        onOpenDetail = ::openDetail,
+                        onPlayDownload = ::playDownload,
+                        contentFocusRequester = libraryFocusRequester,
+                        topBarFocusRequester = topBarFocusRequester,
+                    )
+                }
             }
             composable(Tab.Settings.route) {
                 ReadableWidth {
@@ -560,13 +668,22 @@ fun PlayRoot() {
                         onOpenAddons = { navController.navigate(addonsRoute(false)) },
                         onOpenPlayer = { navController.navigate(PLAYER_SETTINGS_ROUTE) },
                         onOpenSpeedTest = { navController.navigate(SPEED_TEST_ROUTE) },
-                        onOpenProfile = { profileGate = true },
+                        onOpenProfile = {
+                            managingProfiles = false
+                            showProfileSetup = false
+                            profileGate = true
+                        },
                         onOpenSync = { navController.navigate(SYNC_ROUTE) },
                         onOpenAbout = { navController.navigate(ABOUT_ROUTE) },
+                        contentFocusRequester = settingsFocusRequester,
+                        topBarFocusRequester = topBarFocusRequester,
                     )
                 }
             }
             composable(PLAYER_SETTINGS_ROUTE) { ReadableWidth { PlayerSettingsScreen(onBack = { navController.popBackStack() }) } }
+            composable(SPEED_TEST_ROUTE) { ReadableWidth { SpeedTestScreen(onBack = { navController.popBackStack() }) } }
+            composable(PROFILE_ROUTE) { ReadableWidth { ProfileScreen(onBack = { navController.popBackStack() }) } }
+            composable(SYNC_ROUTE) { ReadableWidth { SyncScreen(onBack = { navController.popBackStack() }) } }
             composable(
                 route = ADDONS_ROUTE,
                 arguments = listOf(navArgument("add") { type = NavType.BoolType; defaultValue = false }),
@@ -578,9 +695,9 @@ fun PlayRoot() {
                         onOpenRepos = { navController.navigate(ADDONS_REPOS_ROUTE) },
                         onOpenInstalled = { navController.navigate(ADDONS_INSTALLED_ROUTE) },
                         onOpenCsRepos = { navController.navigate(CS_REPOS_ROUTE) },
+                        onOpenRepoManagerCatalog = { navController.navigate(REPO_MANAGER_CATALOG_ROUTE) },
                         onOpenNuvioRepos = { navController.navigate(NUVIO_REPOS_ROUTE) },
                         onOpenNuvioPlugins = { navController.navigate(NUVIO_PLUGINS_ROUTE) },
-                        onOpenCatalog = { navController.navigate(REPO_MANAGER_CATALOG_ROUTE) },
                     )
                 }
             }
@@ -593,6 +710,9 @@ fun PlayRoot() {
                 }
             }
             composable(CS_REPOS_ROUTE) { ReadableWidth { CsReposScreen(onBack = { navController.popBackStack() }, container = rememberContainer()) } }
+            composable(REPO_MANAGER_CATALOG_ROUTE) {
+                ReadableWidth { RepoManagerCatalogScreen(onBack = { navController.popBackStack() }, container = rememberContainer()) }
+            }
             composable(NUVIO_REPOS_ROUTE) {
                 ReadableWidth {
                     NuvioReposScreen(
@@ -641,29 +761,6 @@ fun PlayRoot() {
                 }
             }
             composable(ABOUT_ROUTE) { ReadableWidth { AboutScreen(onBack = { navController.popBackStack() }) } }
-            composable(SPEED_TEST_ROUTE) {
-                ReadableWidth {
-                    SpeedTestScreen(onBack = { navController.popBackStack() })
-                }
-            }
-            composable(PROFILE_ROUTE) {
-                ReadableWidth {
-                    ProfileScreen(onBack = { navController.popBackStack() })
-                }
-            }
-            composable(SYNC_ROUTE) {
-                ReadableWidth {
-                    SyncScreen(onBack = { navController.popBackStack() })
-                }
-            }
-            composable(REPO_MANAGER_CATALOG_ROUTE) {
-                ReadableWidth {
-                    RepoManagerCatalogScreen(
-                        onBack = { navController.popBackStack() },
-                        container = container,
-                    )
-                }
-            }
             composable(
                 route = DETAIL_ROUTE,
                 arguments = listOf(
@@ -680,6 +777,7 @@ fun PlayRoot() {
                     onOpenSimilar = ::openDetail,
                     onOpenActor = { name -> navController.navigate("search?q=${Uri.encode(name)}") },
                     onPlay = { target -> play(target) },
+                    onDownload = { target -> downloadFor = target },
                 )
             }
             composable(
@@ -697,140 +795,111 @@ fun PlayRoot() {
                 } catch (_: Exception) {
                     Uri.decode(b64)
                 }
-                ProviderDetailScreen(
+                if (activeProfileIsChild) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Çocuk profillerinde yalnızca yaş derecesi doğrulanmış aile içerikleri kullanılabilir.")
+                    }
+                } else ProviderDetailScreen(
                     providerId = providerId,
                     url = rawUrl,
                     onBack = { navController.popBackStack() },
                     onPlay = { target -> play(target) },
+                    onDownload = { target -> downloadFor = target },
                 )
             }
         }
             }
 
-            // Yan menü (Geniş ekran / TV): içeriğin üstüne biner (overlay)
-            if (showNav && layout.useRail) CappedFontScale {
-                val inputModeManager = LocalInputModeManager.current
-                val keyboard = inputModeManager.inputMode == InputMode.Keyboard
-                var isMenuFocused by remember { mutableStateOf(false) }
-                val isExpanded = isMenuFocused && keyboard
-
-                val currentWidth by animateDpAsState(
-                    targetValue = if (isExpanded) railExpandedWidth else railCollapsedWidth,
-                    animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
-                    label = "railWidth",
-                )
-
-                val railFocusMemory = rememberFocusMemory()
-
-                Row(
+            // Nuvio Tarzı Yüzen Üst Menü (Floating Pill Top Bar)
+            if (showNav) {
+                NuvioTopBar(
+                    currentRoute = currentRoute,
+                    avatarKey = avatarKey,
+                    onOpenTab = ::openTab,
+                    onOpenProfile = {
+                        profileGate = true
+                        managingProfiles = false
+                    },
+                    contentFocusRequester = currentContentFocusRequester,
+                    topBarFocusRequester = topBarFocusRequester,
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .width(currentWidth)
-                        .background(MaterialTheme.colorScheme.surface)
-                        .onFocusChanged { isMenuFocused = it.hasFocus },
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .padding(horizontal = 8.dp),
-                    ) {
-                        // Logo
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    start = if (isExpanded) 8.dp else 0.dp,
-                                    top = 24.dp,
-                                    bottom = 28.dp,
-                                ),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = if (isExpanded) Arrangement.Start else Arrangement.Center,
-                        ) {
-                            Icon(
-                                imageVector = PlayIcons.PlayTriangle,
-                                contentDescription = "Play",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(28.dp),
-                            )
-                            if (isExpanded) {
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Text(
-                                    text = "Play",
-                                    style = MaterialTheme.typography.titleLarge.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 22.sp,
-                                    ),
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    maxLines = 1,
-                                    softWrap = false,
-                                )
-                            }
-                        }
-
-                        // Menü öğeleri
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Tab.entries.forEach { tab ->
-                                val isSelected = selected(tab)
-                                val shape = MaterialTheme.shapes.medium
-                                Surface(
-                                    onClick = { openTab(tab) },
-                                    shape = shape,
-                                    color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-                                    border = if (isSelected) BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary) else null,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .focusMemory(railFocusMemory, tab.name, isDefault = isSelected)
-                                        .focusRing(shape),
-                                ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(
-                                                start = if (isExpanded) 14.dp else 16.dp,
-                                                end = if (isExpanded) 14.dp else 16.dp,
-                                                top = 12.dp,
-                                                bottom = 12.dp,
-                                            ),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = if (isExpanded) Arrangement.Start else Arrangement.Center,
-                                    ) {
-                                        Icon(
-                                            imageVector = tab.icon,
-                                            contentDescription = stringResource(tab.label),
-                                            tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                            modifier = Modifier.size(24.dp),
-                                        )
-                                        if (isExpanded) {
-                                            Spacer(modifier = Modifier.width(14.dp))
-                                            Text(
-                                                text = stringResource(tab.label),
-                                                style = MaterialTheme.typography.bodyMedium.copy(
-                                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                                                ),
-                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Clip,
-                                                softWrap = false,
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    VerticalDivider(
-                        color = Color(0xFF1E3A5F),
-                        thickness = 1.dp,
-                        modifier = Modifier.fillMaxHeight(),
-                    )
-                }
+                        .align(Alignment.TopCenter)
+                        .statusBarsPadding()
+                        .padding(top = 10.dp)
+                        .zIndex(100f),
+                )
             }
         }
+        }
+    }
+
+    // Profil ekranlarını aynı Activity içinde tam ekran çiz: IME yeni pencere oluşturup arka planı açığa çıkaramaz.
+    if (showProfileSetup) {
+        ProfileSetupScreen(
+            onCreate = { name, avatar, child, pin ->
+                scope.launch {
+                    val created = container.localProfile.createProfile(name, avatar, child, pin)
+                    container.localProfile.setActiveProfile(created)
+                    container.localProfile.completeProfileSetup(created.id)
+                    activateProfile(created)
+                    profileGate = false
+                    managingProfiles = false
+                    showProfileSetup = false
+                }
+            },
+            onCancel = {
+                if (localProfiles.isNotEmpty() && profileSetupComplete) {
+                    showProfileSetup = false
+                }
+            },
+        )
+    } else if (profileGate) {
+        ProfileChooserScreen(
+            profiles = localProfiles.takeIf { profileSetupComplete } ?: emptyList(),
+            onSelect = { profile ->
+                if (profile.pinHash.isNullOrBlank()) scope.launch { activateProfile(profile) }
+                else { pinProfile = profile; pinDraft = ""; pinError = false }
+            },
+            isAdmin = activeProfileIsAdmin || !profileSetupComplete,
+            managingProfiles = managingProfiles && (activeProfileIsAdmin || !profileSetupComplete),
+            onToggleManage = { if (activeProfileIsAdmin || !profileSetupComplete) managingProfiles = !managingProfiles },
+            onCreateProfile = { showProfileSetup = true },
+            onToggleHidden = { profile ->
+                scope.launch { runCatching { container.localProfile.setProfileHidden(profile.id, !profile.isHidden) } }
+            },
+            onDeleteProfile = { profile ->
+                scope.launch {
+                    val user = container.localProfile.ensureUserId()
+                    container.database.watchHistoryDao().clear(user, profile.id)
+                    container.database.favoriteDao().clear(user, profile.id)
+                    container.localProfile.deleteProfile(profile.id)
+                }
+            },
+            onEditProfile = { profile, name, avatar, child, pin ->
+                scope.launch {
+                    container.localProfile.renameProfile(profile.id, name)
+                    container.localProfile.setProfileAvatar(profile.id, avatar)
+                    container.localProfile.setProfileChild(profile.id, child)
+                    if (pin.isNotBlank()) container.localProfile.setProfilePin(profile.id, pin)
+                }
+            },
+            onClose = if (profileSetupComplete && localProfiles.any { it.id == activeProfileId }) {
+                { profileGate = false; managingProfiles = false }
+            } else null,
+        )
     }
 
     sourcesFor?.let { start ->
         SourcesSheet(target = start.target, onDismiss = { sourcesFor = null }, onPicked = ::onSourcePicked)
+    }
+
+    downloadFor?.let { target ->
+        SourcesSheet(
+            target = target,
+            onDismiss = { downloadFor = null },
+            onPicked = {},
+            downloadOnly = true,
+        )
     }
 
     resumePrompt?.let { (target, positionMs, download) ->
@@ -851,6 +920,210 @@ fun PlayRoot() {
                     Text(stringResource(R.string.resume_restart))
                 }
             },
+        )
+    }
+}
+
+/**
+ * Nuvio tarzı ekranın üst ortasında yüzen (floating pill) yatay kapsül menü.
+ * Sırasıyla: Ana Sayfa, Arama, Canlı TV, Kütüphane, Ayarlar ve Profil Avatarı.
+ * D-Pad ile sağa-sola geçiş ve içerik alanına aşağı-yukarı odak köprüsü (FocusRequester / focusProperties) tam uyumludur.
+ */
+@Composable
+fun NuvioTopBar(
+    currentRoute: String?,
+    avatarKey: String,
+    onOpenTab: (Tab) -> Unit,
+    onOpenProfile: () -> Unit,
+    contentFocusRequester: FocusRequester,
+    topBarFocusRequester: FocusRequester,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier
+            .shadow(12.dp, CircleShape),
+        shape = CircleShape,
+        color = Color(0xE60A131F),
+        border = BorderStroke(1.dp, Color(0x33FFFFFF)),
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+                .focusProperties {
+                    down = contentFocusRequester
+                },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            // 1. Ana Sayfa (Home)
+            val isHomeSelected = currentRoute == Tab.Home.route || currentRoute == null
+            NuvioTopBarItem(
+                icon = PlayIcons.Home,
+                contentDescription = stringResource(R.string.tab_home),
+                selected = isHomeSelected,
+                contentFocusRequester = contentFocusRequester,
+                itemFocusRequester = if (isHomeSelected) topBarFocusRequester else null,
+                onClick = { onOpenTab(Tab.Home) },
+            )
+
+            // 2. Arama (Search)
+            val isSearchSelected = currentRoute == Tab.Search.route || currentRoute?.startsWith("search") == true
+            NuvioTopBarItem(
+                icon = PlayIcons.Search,
+                contentDescription = stringResource(R.string.tab_search),
+                selected = isSearchSelected,
+                contentFocusRequester = contentFocusRequester,
+                itemFocusRequester = if (isSearchSelected) topBarFocusRequester else null,
+                onClick = { onOpenTab(Tab.Search) },
+            )
+
+            // 3. Canlı TV (TV / Live TV rotası)
+            val isTvSelected = currentRoute == Tab.Tv.route || currentRoute?.startsWith("tv") == true
+            NuvioTopBarItem(
+                icon = PlayIcons.Tv,
+                contentDescription = stringResource(R.string.tab_tv),
+                selected = isTvSelected,
+                contentFocusRequester = contentFocusRequester,
+                itemFocusRequester = if (isTvSelected) topBarFocusRequester else null,
+                onClick = { onOpenTab(Tab.Tv) },
+            )
+
+            // 4. Kütüphane (Library)
+            val isLibrarySelected = currentRoute == Tab.Library.route || currentRoute?.startsWith("library") == true
+            NuvioTopBarItem(
+                icon = PlayIcons.Folder,
+                contentDescription = stringResource(R.string.tab_library),
+                selected = isLibrarySelected,
+                contentFocusRequester = contentFocusRequester,
+                itemFocusRequester = if (isLibrarySelected) topBarFocusRequester else null,
+                onClick = { onOpenTab(Tab.Library) },
+            )
+
+            // 5. Ayarlar (Settings - Dişli çark)
+            val isSettingsSelected = currentRoute == Tab.Settings.route || currentRoute?.startsWith("settings") == true
+            NuvioTopBarItem(
+                icon = PlayIcons.Gear,
+                contentDescription = stringResource(R.string.tab_settings),
+                selected = isSettingsSelected,
+                contentFocusRequester = contentFocusRequester,
+                itemFocusRequester = if (isSettingsSelected) topBarFocusRequester else null,
+                onClick = { onOpenTab(Tab.Settings) },
+            )
+
+            // 6. Profil Avatarı (En sağda, Ayarlar ikonunun hemen yanında)
+            NuvioTopBarAvatar(
+                avatarKey = avatarKey,
+                contentFocusRequester = contentFocusRequester,
+                onClick = onOpenProfile,
+            )
+        }
+    }
+}
+
+@Composable
+private fun NuvioTopBarItem(
+    icon: ImageVector,
+    contentDescription: String,
+    selected: Boolean,
+    contentFocusRequester: FocusRequester,
+    itemFocusRequester: FocusRequester? = null,
+    onClick: () -> Unit,
+) {
+    var isBoxFocused by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isInteractionFocused by interactionSource.collectIsFocusedAsState()
+    val isFocused = isBoxFocused || isInteractionFocused
+
+    val iconTint = when {
+        isFocused -> Color(0xFF00E5FF)
+        selected -> Color(0xFF00E5FF)
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(42.dp)
+            .then(if (itemFocusRequester != null) Modifier.focusRequester(itemFocusRequester) else Modifier)
+            .focusProperties {
+                down = contentFocusRequester
+            }
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
+                    val handled = runCatching { contentFocusRequester.requestFocus() }.getOrDefault(false)
+                    handled
+                } else {
+                    false
+                }
+            }
+            .onFocusChanged { isBoxFocused = it.isFocused }
+            .tvFocusableScaleGlow(
+                scale = 1.15f,
+                glowColor = Color(0xFF00E5FF),
+                shape = CircleShape,
+                isFocused = isFocused,
+                zIndex = 10f,
+                fillGlowAlpha = 0.20f,
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+            ),
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = iconTint,
+            modifier = Modifier.size(22.dp),
+        )
+    }
+}
+
+@Composable
+private fun NuvioTopBarAvatar(
+    avatarKey: String,
+    contentFocusRequester: FocusRequester,
+    onClick: () -> Unit,
+) {
+    var isBoxFocused by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isInteractionFocused by interactionSource.collectIsFocusedAsState()
+    val isFocused = isBoxFocused || isInteractionFocused
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(42.dp)
+            .focusProperties {
+                down = contentFocusRequester
+            }
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
+                    val handled = runCatching { contentFocusRequester.requestFocus() }.getOrDefault(false)
+                    handled
+                } else {
+                    false
+                }
+            }
+            .onFocusChanged { isBoxFocused = it.isFocused }
+            .tvFocusableScaleGlow(
+                scale = 1.15f,
+                glowColor = Color(0xFF00E5FF),
+                shape = CircleShape,
+                isFocused = isFocused,
+                zIndex = 10f,
+                fillGlowAlpha = 0.20f,
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+            ),
+    ) {
+        ProfileAvatar(
+            avatar = avatarKey,
+            size = 34,
         )
     }
 }

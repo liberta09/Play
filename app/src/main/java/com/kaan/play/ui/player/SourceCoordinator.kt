@@ -115,6 +115,7 @@ class SourceCoordinator(
     /** Medya içeriği yoklaması (HTML/sahte kaynak engeli; oynatmayı en çok 2 sn geciktirebilir). */
     private val sourceProbe: (suspend (PlayableStream) -> Probe)? = null,
     private val rankingDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val sourceDispatcher: CoroutineDispatcher? = null,
 ) {
     var phase by mutableStateOf(SourcePhase.Idle)
         private set
@@ -195,9 +196,11 @@ class SourceCoordinator(
     private val durationChecked = HashSet<String>()
     private val queue = ArrayDeque<PlayableStream>()
     private val probed = HashSet<String>()
-    private val probeGate = Semaphore(PROBE_PARALLEL)
-    private var sizeProbeJob: Job? = null
     private val pendingSizeProbes = LinkedHashMap<String, PlayableStream>()
+    private var sizeProbeJob: Job? = null
+    private val probeGate = Semaphore(PROBE_PARALLEL)
+    private var rankedCache: List<PlayableStream>? = null
+    internal var rankComputationCount = 0
 
     val isLive: Boolean
         get() = request.addonType in listOf("tv", "channel")
@@ -211,10 +214,6 @@ class SourceCoordinator(
             isSlowHost = { url -> SlowHostMemory.isSlow(url, clock()) },
             isLive = isLive,
         )
-
-    @Volatile
-    private var rankedCache: List<PlayableStream>? = null
-    internal var rankComputationCount = 0
 
     /** Önerilen sıra (başlangıç sırası). */
     fun ranked(): List<PlayableStream> {
@@ -232,13 +231,6 @@ class SourceCoordinator(
 
     fun sizeOf(stream: PlayableStream): Long? = SourceRanking.sizeOf(stream, sizes)
 
-    fun cancelSizeProbes() {
-        sizeProbeJob?.cancel()
-        sizeProbeJob = null
-        pendingSizeProbes.clear()
-    }
-
-
     // ---- başlatma ----
 
     /**
@@ -246,7 +238,6 @@ class SourceCoordinator(
      * ([autoSource]) kaynaklar aranıp uygun ilki seçilir. [startMs]: kaldığı konum.
      */
     fun start(initial: PlayableStream?, fallbacks: List<PlayableStream>, startMs: Long) {
-        cancelSizeProbes()
         lastStartMs = startMs
         queue.clear()
         queue.addAll(fallbacks.filter(::acceptable))
@@ -329,13 +320,10 @@ class SourceCoordinator(
                     answered = answered + result.source.addonId
                     when (result) {
                         is StreamResult.Found -> {
-                            val acc = result.streams.filter(::acceptable)
-                            handleStreamResult(acc)
+                            handleStreamResult(result.streams.filter(::acceptable))
                         }
                         is StreamResult.Failed -> {
-                            if (failedSources.none { it.addonId == result.source.addonId }) {
-                                failedSources = failedSources + result.source
-                            }
+                            failedSources = failedSources + result.source
                             onChange()
                         }
                     }
@@ -350,19 +338,19 @@ class SourceCoordinator(
         if (!autoSource) return false
         if (!preferDub) return true
         if (stream.dubbed) return true
-        if (matchesPreference(stream, preference)) return true
+        if (preference != null && stream.source.addonId == preference?.addonId) return true
         return false
     }
-
-    private fun matchesPreference(stream: PlayableStream, pref: SourcePref?): Boolean =
-        pref != null && stream.source.addonId == pref.addonId
 
     private fun handleStreamResult(acc: List<PlayableStream>) {
         if (acc.isEmpty()) {
             onChange()
             return
         }
-        val updated = (streams + acc).distinctBy { it.url }
+        // Kötü eklentilerin binlerce sonucu UI belleğini ve sıralamayı büyütmesin.
+        val updated = (streams + acc)
+            .distinctBy { it.url }
+            .take(SourceRanking.MAX_UI_SOURCES)
         if (updated.size == streams.size) {
             onChange()
             return
@@ -378,23 +366,19 @@ class SourceCoordinator(
             pendingOnChangeJob = null
             lastOnChangeClock = now
             onChange()
-        } else {
-            if (pendingOnChangeJob == null || !pendingOnChangeJob!!.isActive) {
-                pendingOnChangeJob = scope.launch {
-                    delay(BATCH_WINDOW_MS)
-                    pendingOnChangeJob = null
-                    lastOnChangeClock = clock()
-                    val currentStreams = streams
-                    val currentCtx = ctx
+        } else if (pendingOnChangeJob == null || !pendingOnChangeJob!!.isActive) {
+            pendingOnChangeJob = scope.launch(rankingDispatcher) {
+                delay(BATCH_WINDOW_MS)
+                pendingOnChangeJob = null
+                lastOnChangeClock = clock()
+                if (rankedCache == null) {
                     val computed = withContext(rankingDispatcher) {
-                        SourceRanking.recommended(currentStreams, currentCtx)
+                        SourceRanking.recommended(streams, ctx)
                     }
-                    if (rankedCache == null && streams === currentStreams) {
-                        rankComputationCount++
-                        rankedCache = computed
-                    }
-                    onChange()
+                    rankComputationCount++
+                    rankedCache = computed
                 }
+                onChange()
             }
         }
     }
@@ -402,7 +386,6 @@ class SourceCoordinator(
     // ---- olaylar ----
 
     private fun onChange() {
-        probeSizes()
         when (phase) {
             SourcePhase.Resolving -> {
                 // Daha önce denenip başarısız olan kaynaklar tekrar seçilmez.
@@ -424,6 +407,8 @@ class SourceCoordinator(
             SourcePhase.Playing -> maybeSuggestDub()
             SourcePhase.Failed, SourcePhase.Idle, SourcePhase.Starting -> Unit
         }
+        // Boyut HEAD'leri yalnızca kaynak seçimi beklerken çalışsın; oynatıcı açılır açılmaz mevcut akışa ağ önceliği ver.
+        if (phase == SourcePhase.Resolving) probeSizes() else cancelSizeProbes()
     }
 
     private fun begin(stream: PlayableStream, startMs: Long) {
@@ -433,12 +418,11 @@ class SourceCoordinator(
         current = stream
         attempted += stream.url
         phase = SourcePhase.Starting
+        cancelSizeProbes()
         Log.d(TAG, "kaynak başlatılıyor: ${stream.source.addonName} (${StreamLog.hostOf(stream.url)})")
 
         val probe = sourceProbe
-        val isManifest = SourceMediaRules.isStreamingManifest(stream.url, stream.mimeType) ||
-            stream.url.lowercase(java.util.Locale.ROOT).contains(".m3u8")
-        if (probe == null || TorrentLinks.isMagnet(stream.url) || isManifest) {
+        if (probe == null || TorrentLinks.isMagnet(stream.url)) {
             startPlayback(stream, startMs)
             return
         }
@@ -462,19 +446,14 @@ class SourceCoordinator(
             if (result != null) {
                 when (result) {
                     is Probe.Rejected -> {
-                        // NotMedia (HTML hata sayfası / JSON) elenmeli; ancak HLS/DASH manifestleri ya da akış bağlantıları
-                        // (ör. iframe/embed veya Range reddedenler) erken elenmemeli, doğrudan oynatıcıya devredilmelidir.
-                        val isManifest = SourceMediaRules.isStreamingManifest(stream.url, stream.mimeType)
-                        if (result.reason == Probe.Reason.NotMedia && !isManifest) {
+                        if (result.reason == Probe.Reason.NotMedia || result.reason == Probe.Reason.Http) {
                             Log.d(TAG, "kaynak yoklamada elendi (${result.reason}): ${stream.source.addonName} (${StreamLog.hostOf(stream.url)})")
                             eliminate = true
-                        } else {
-                            Log.d(TAG, "kaynak yoklama uyarısı (${result.reason}), oynatıcıya devrediliyor: ${stream.source.addonName}")
                         }
                     }
                     is Probe.Ok -> {
                         result.lengthBytes?.let { len ->
-                            if (!isLive && !SourceMediaRules.isAcceptableSize(len, isMovie, stream.url, stream.mimeType)) {
+                            if (!isLive && !SourceMediaRules.isAcceptableSize(len, isMovie)) {
                                 Log.d(TAG, "kaynak yoklamada elendi (boyut yetersiz: $len bayt): ${stream.source.addonName}")
                                 eliminate = true
                             } else {
@@ -518,7 +497,6 @@ class SourceCoordinator(
         if (phase != SourcePhase.Starting) return
         firstFrameJob?.cancel()
         probeJob?.cancel()
-        cancelSizeProbes()
         phase = SourcePhase.Playing
         switching = false
         revertTo = null
@@ -526,10 +504,6 @@ class SourceCoordinator(
         onChange()
     }
 
-    /**
-     * Oynatıcı hata verdi. İlk kare gelmeden önceyse sıradaki kaynağa geçilir / önceki kaynağa dönülür ve true döner (hata ekranı
-     * gösterilmez); oynarken gelen hata arayüze bırakılır (false).
-     */
     private fun stopSourceDiscoveryForPlayback() {
         val job = collectJob ?: return
         if (!job.isActive) return
@@ -537,12 +511,22 @@ class SourceCoordinator(
         discoveryStopJob = scope.launch {
             delay(PLAYBACK_DISCOVERY_GRACE_MS)
             if (phase != SourcePhase.Playing || collectJob !== job || !job.isActive) return@launch
+            // Altyazılı başladıysak Türkçe dublajı sonradan bulabilmek için kaynak aramasını sürdür.
+            // Sağlayıcıların kendi zaman aşımı/Flow tamamlanması aramayı doğal olarak sonlandırır.
+            if (autoSource && preferDub && !userPicked && current?.dubbed != true) {
+                Log.d(TAG, "altyazılı oynatma sırasında Türkçe dublaj araması sürüyor")
+                return@launch
+            }
             playbackPriorityCancelledDiscovery = true
             Log.d(TAG, "kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden ${PLAYBACK_DISCOVERY_GRACE_MS}ms sonra)")
             job.cancel()
         }
     }
 
+    /**
+     * Oynatıcı hata verdi. İlk kare gelmeden önceyse sıradaki kaynağa geçilir / önceki kaynağa dönülür ve true döner (hata ekranı
+     * gösterilmez); oynarken gelen hata arayüze bırakılır (false).
+     */
     fun onFailure(detail: String): Boolean {
         Log.d(TAG, "oynatıcı hatası: ${current?.source?.addonName} (faz=$phase) $detail")
         if (phase != SourcePhase.Starting) return false
@@ -553,7 +537,6 @@ class SourceCoordinator(
     }
 
     private fun startFailed(detail: String, mismatch: Boolean = false) {
-        discoveryStopJob?.cancel()
         if (phase == SourcePhase.Playing) {
             Log.d(TAG, "startFailed yok sayıldı (zaten Playing durumunda): $detail")
             return
@@ -608,7 +591,7 @@ class SourceCoordinator(
         val isLive = request.addonType in listOf("tv", "channel")
         return StreamOwnership.belongs(stream, request) &&
             !verdicts.isRejected(requestKey, stream.url) &&
-            (isLive || SourceMediaRules.isAcceptableSize(size, isMovie, stream.url, stream.mimeType))
+            (isLive || SourceMediaRules.isAcceptableSize(size, isMovie))
     }
 
     /**
@@ -672,7 +655,6 @@ class SourceCoordinator(
         userPicked = true
         dubSuggestion = null
         notice = null
-        discoveryStopJob?.cancel()
         fallbackDubWaitJob?.cancel()
         activeDubWaitMs = StartPolicy.DUB_WAIT_MS
         scope.launch {
@@ -716,8 +698,7 @@ class SourceCoordinator(
         sizes = sizes + (url to bytes)
         val isMovie = request.type == MediaType.Movie
         val isLive = request.addonType in listOf("tv", "channel")
-        val mimeType = streams.firstOrNull { it.url == url }?.mimeType
-        if (!isLive && !SourceMediaRules.isAcceptableSize(bytes, isMovie, url, mimeType)) {
+        if (!isLive && !SourceMediaRules.isAcceptableSize(bytes, isMovie)) {
             Log.d(TAG, "kaynak boyutu çok küçük (sahte kaynak): $url (${bytes}B)")
             verdicts.reject(requestKey, url)
             streams = streams.filterNot { it.url == url }
@@ -732,10 +713,17 @@ class SourceCoordinator(
     // ---- iç işler ----
 
     private fun maybeSuggestDub() {
-        if (!autoSource || !preferDub || userPicked || suggestionDismissed || dubSuggestion != null) return
+        if (!autoSource || !preferDub || userPicked) return
         val playing = current ?: return
         if (playing.dubbed) return
-        dubSuggestion = ranked().firstOrNull { it.dubbed && !SourceRanking.isTooHeavy(it, ctx) && it.url != playing.url && it.url !in attempted }
+        val dubbed = ranked().firstOrNull {
+            it.dubbed && !SourceRanking.isTooHeavy(it, ctx) && it.url != playing.url && it.url !in attempted
+        } ?: return
+        Log.d(TAG, "Türkçe dublajlı kaynak bulundu; kaldığı konumdan otomatik geçiliyor: ${dubbed.source.addonName}")
+        // pick() mevcut konumu korur ve başarısız olursa önceki çalışan kaynağa döner.
+        pick(dubbed)
+        // Bu otomatik geçiş kullanıcı seçimi değildir; gelecekte geç gelen dub kaynakları da değerlendirilebilsin.
+        userPicked = false
     }
 
     private fun probeSizes() {
@@ -748,23 +736,31 @@ class SourceCoordinator(
             addAll(ranked())
         }.distinctBy { it.url }.take(PROBE_LIMIT)
         for (stream in targets) {
-            if (SourceRanking.sizeOf(stream, sizes) != null || probed.contains(stream.url)) continue
+            if (SourceRanking.sizeOf(stream, sizes) != null || stream.url in probed) continue
             if (!SizeProbing.isProbeable(stream.url, stream.mimeType)) continue
             probed.add(stream.url)
             pendingSizeProbes[stream.url] = stream
         }
-        if (sizeProbeJob?.isActive != true && pendingSizeProbes.isNotEmpty()) {
-            sizeProbeJob = scope.launch {
-                val toProbe = pendingSizeProbes.values.toList()
-                pendingSizeProbes.clear()
-                for (stream in toProbe) {
-                    launch {
-                        val bytes = probeGate.withPermit { withTimeoutOrNull(PROBE_TIMEOUT_MS) { sizeProbe(stream) } }
-                        if (bytes != null) reportSize(stream.url, bytes)
+        if (sizeProbeJob?.isActive == true || pendingSizeProbes.isEmpty()) return
+        val targetDispatcher = sourceDispatcher ?: rankingDispatcher
+        sizeProbeJob = scope.launch(targetDispatcher) {
+            val batch = pendingSizeProbes.values.toList()
+            pendingSizeProbes.clear()
+            batch.forEach { stream ->
+                launch(targetDispatcher) {
+                    val bytes = probeGate.withPermit {
+                        withTimeoutOrNull(PROBE_TIMEOUT_MS) { sizeProbe(stream) }
                     }
+                    if (phase == SourcePhase.Resolving && bytes != null) reportSize(stream.url, bytes)
                 }
             }
         }
+    }
+
+    private fun cancelSizeProbes() {
+        sizeProbeJob?.cancel()
+        sizeProbeJob = null
+        pendingSizeProbes.clear()
     }
 
     /**
@@ -843,13 +839,13 @@ class SourceCoordinator(
         private const val TAG = "PlayMatch"
         /** Kaynak değişiminden sonra bu süre içinde gelen ilk kare olayı eski kaynağa aittir. */
         const val STALE_FRAME_GUARD_MS = 300L
-        const val PLAY_PROBE_TIMEOUT_MS = 1_500L
+        const val PLAY_PROBE_TIMEOUT_MS = 2_000L
         const val FIRST_FRAME_TIMEOUT_MS = 10_000L
 
         /** Torrentte üst bilgi ve ilk parçalar için eş bulmak gerekir: 10 sn çoğu zaman yetmez. */
         const val TORRENT_FIRST_FRAME_TIMEOUT_MS = 40_000L
         const val BATCH_WINDOW_MS = 200L
-        const val FALLBACK_DUB_WAIT_MS = 3_500L
+        const val FALLBACK_DUB_WAIT_MS = 6_000L
         const val PROBE_LIMIT = 24
         const val PROBE_PARALLEL = 6
         const val PROBE_TIMEOUT_MS = 8_000L

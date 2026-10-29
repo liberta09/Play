@@ -36,17 +36,6 @@ class CsDexLoader(private val context: Context) : PluginDexLoader {
     private val loadLock = Mutex()
 
     override suspend fun loadPlugin(dexFile: File, className: String, pluginId: String): CsApiResult = loadLock.withLock {
-        val isTrakt = pluginId.contains("traktsync", ignoreCase = true) ||
-            className.contains("traktsync", ignoreCase = true) ||
-            className.contains("com.pltmustafa", ignoreCase = true) ||
-            className.contains("TraktAuthManager", ignoreCase = true) ||
-            className.contains("WatchlistSyncService", ignoreCase = true)
-        if (isTrakt) {
-            Log.w(TAG, "TraktSync eklentisi kara listede (engellendi): $pluginId ($className)")
-            runCatching { dexFile.delete() }
-            return@withLock CsApiResult.LoadFailed("TraktSyncDisabled", pluginId)
-        }
-
         if (!dexFile.exists()) {
             val failure = CsApiResult.DexFileMissing(pluginId)
             Log.w(TAG, formatCsLog(failure))
@@ -73,25 +62,10 @@ class CsDexLoader(private val context: Context) : PluginDexLoader {
                         try {
                             plugin.load(context)
                         } catch (_: NoSuchMethodError) {
-                            try {
-                                plugin.load()
-                            } catch (t: Throwable) {
-                                Log.w(TAG, "plugin.load() hatasi [${pluginId}]: ${t.javaClass.simpleName}: ${t.message}")
-                            }
-                        } catch (t: Throwable) {
-                            Log.w(TAG, "plugin.load(context) hatasi [${pluginId}]: ${t.javaClass.simpleName}: ${t.message}")
-                            try {
-                                plugin.load()
-                            } catch (t2: Throwable) {
-                                Log.w(TAG, "plugin.load() fallback hatasi [${pluginId}]: ${t2.javaClass.simpleName}: ${t2.message}")
-                            }
+                            plugin.load()
                         }
                     } else {
-                        try {
-                            plugin.load()
-                        } catch (t: Throwable) {
-                            Log.w(TAG, "plugin.load() hatasi [${pluginId}]: ${t.javaClass.simpleName}: ${t.message}")
-                        }
+                        plugin.load()
                     }
                     APIHolder.allProviders.drop(beforeCount).distinctBy { it.name }
                 }

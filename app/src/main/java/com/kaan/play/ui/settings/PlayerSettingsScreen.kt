@@ -110,7 +110,6 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
                     onClick = { pickCountdown = true },
                 )
             }
-            // İntro/özet/jenerik/önizleme atlama (TheIntroDB + chapter): düğmeler açık, otomatik atlama kapalı gelir.
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
             SwitchRow(stringResource(R.string.settings_skip_buttons), skipSettings.showButtons) {
                 scope.launch { container.settings.setSkipButtonsEnabled(it) }

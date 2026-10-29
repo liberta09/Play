@@ -74,4 +74,14 @@ class AutoNextSettingsTest {
         store.edit { it[intPreferencesKey("auto_next_seconds")] = 99 }
         assertEquals(SettingsRepository.DEFAULT_AUTO_NEXT_SECONDS, repo.autoNextSeconds.first())
     }
+
+    @Test
+    fun skipButtonsDefaultOnAutoSkipDefaultsOffAndCategoryCanBeDisabled() = runBlocking {
+        val defaults = repo.skipPlayback.first()
+        assertTrue(defaults.showButtons)
+        assertFalse(defaults.autoSkip)
+        assertTrue(defaults.isEnabled(SkipCategory.Intro))
+        repo.setSkipCategoryEnabled(SkipCategory.Intro, false)
+        assertFalse(repo.skipPlayback.first().isEnabled(SkipCategory.Intro))
+    }
 }

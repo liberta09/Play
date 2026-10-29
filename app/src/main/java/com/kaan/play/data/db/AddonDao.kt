@@ -40,4 +40,5 @@ interface AddonDao {
 
     @Query("SELECT * FROM addons WHERE id = :id")
     suspend fun byId(id: Long): AddonEntity?
+
 }

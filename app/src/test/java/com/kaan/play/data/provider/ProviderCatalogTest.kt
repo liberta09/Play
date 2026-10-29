@@ -16,6 +16,7 @@ import com.lagradost.cloudstream3.MainPageRequest
 import com.lagradost.cloudstream3.MovieSearchResponse
 import com.lagradost.cloudstream3.TvType
 import com.lagradost.cloudstream3.newHomePageResponse
+import com.lagradost.cloudstream3.newLiveSearchResponse
 import com.lagradost.cloudstream3.newMovieSearchResponse
 
 import kotlinx.coroutines.flow.first
@@ -78,6 +79,12 @@ class ProviderCatalogTest {
         cache.put("cs:2", sampleRows)
         cache.clear("cs:2")
         assertNull(cache.get("cs:2"))
+
+        cache.put("partial-live", sampleRows, ttlMs = 1000L)
+        currentTime += 999L
+        assertNotNull(cache.get("partial-live"))
+        currentTime += 2L
+        assertNull(cache.get("partial-live"))
     }
 
     @Test
@@ -130,6 +137,40 @@ class ProviderCatalogTest {
     }
 
     @Test
+    fun csRuntimeCanSkipUnrelatedSectionsAndReachLiveSectionBeyondLimit(): Unit = runBlocking {
+        val requested = mutableListOf<String>()
+        val liveSectionName = "Canlı TV Kanalları"
+        val fakeApi = object : MainAPI() {
+            override var name = "LiveProvider"
+            override var mainUrl = "https://live.provider"
+            override val mainPage: List<MainPageData> = listOf(
+                MainPageData("Filmler", "movies"),
+                MainPageData("Diziler", "series"),
+                MainPageData(liveSectionName, "live"),
+            )
+
+            override suspend fun getMainPage(page: Int, request: MainPageRequest): HomePageResponse? {
+                requested += request.name
+                return newHomePageResponse(
+                    request,
+                    listOf(newLiveSearchResponse("Haber TV", "https://live.provider/news", TvType.Live)),
+                    false,
+                )
+            }
+        }
+
+        val rows = CsRuntime().mainPage(
+            api = fakeApi,
+            maxSectionsPerApi = 1,
+            sectionNameFilter = { it.contains("Canlı") },
+        )
+
+        assertEquals(listOf(liveSectionName), requested)
+        assertEquals(liveSectionName, rows.single().title)
+        assertEquals("Haber TV", rows.single().items.single().name)
+    }
+
+    @Test
     fun csRuntimeHandlesSectionFailureWithoutCrashing(): Unit = runBlocking {
         val runtime = CsRuntime()
         val fakeApi = object : MainAPI() {
@@ -159,6 +200,27 @@ class ProviderCatalogTest {
         assertEquals(1, sections.size)
         assertEquals("Çalışan Satır", sections[0].title)
         assertEquals("Başarılı Film", sections[0].items[0].name)
+    }
+
+    @Test
+    fun csRuntimeLiveSearchFallbackKeepsOnlyLiveResponses(): Unit = runBlocking {
+        val runtime = CsRuntime()
+        val fakeApi = object : MainAPI() {
+            override var name = "FakeLiveProvider"
+            override var mainUrl = "https://live.provider"
+            override val supportedTypes = setOf(TvType.Live)
+
+            override suspend fun search(query: String): List<com.lagradost.cloudstream3.SearchResponse> = listOf(
+                newLiveSearchResponse("Spor TV", "https://live.provider/channel-1", TvType.Live),
+                newMovieSearchResponse("A film", "https://live.provider/movie-1", TvType.Movie),
+            )
+        }
+
+        val rows = runtime.liveSearch(listOf(fakeApi), queries = listOf("live"))
+
+        assertEquals(1, rows.size)
+        assertEquals(1, rows.single().items.size)
+        assertEquals("Spor TV", rows.single().items.single().name)
     }
 
     @Test

@@ -35,9 +35,11 @@ fun ScreenHeader(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     initialFocus: Boolean = true,
+    backFocusRequester: androidx.compose.ui.focus.FocusRequester? = null,
+    backModifier: Modifier = Modifier,
     action: (@Composable () -> Unit)? = null,
 ) {
-    val focus = rememberInitialFocus(enabled = initialFocus)
+    val focus = rememberInitialFocus(enabled = initialFocus && backFocusRequester == null)
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -48,10 +50,15 @@ fun ScreenHeader(
             onClick = onBack,
             shape = CircleShape,
             color = MaterialTheme.colorScheme.surfaceVariant,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
+            border = null,
             modifier = Modifier
                 .size(40.dp)
-                .then(if (initialFocus) Modifier.focusRequester(focus) else Modifier)
+                .then(
+                    if (backFocusRequester != null) Modifier.focusRequester(backFocusRequester)
+                    else if (initialFocus) Modifier.focusRequester(focus)
+                    else Modifier
+                )
+                .then(backModifier)
                 .focusRing(CircleShape),
         ) {
             Box(contentAlignment = Alignment.Center) {

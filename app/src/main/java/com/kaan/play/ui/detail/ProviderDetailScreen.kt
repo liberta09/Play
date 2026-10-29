@@ -131,6 +131,7 @@ fun ProviderDetailScreen(
     url: String,
     onBack: () -> Unit,
     onPlay: (PlayTarget) -> Unit,
+    onDownload: (PlayTarget) -> Unit = {},
 ) {
     val container = rememberContainer()
     val layout = rememberPlayLayout()
@@ -446,6 +447,36 @@ fun ProviderDetailScreen(
                     }
                 } else {
                     emptyList()
+            }
+
+                fun targetFor(season: Int?, episode: Int?): PlayTarget {
+                    val dataUrl = if (s.isSeries) {
+                        val sNum = season ?: selectedSeason ?: 1
+                        val ep = s.episodes.firstOrNull {
+                            (it.season ?: 1) == sNum && (it.episode == episode || episode == null)
+                        } ?: s.episodes.firstOrNull()
+                        ep?.data ?: url
+                    } else {
+                        s.movieDataUrl ?: url
+                    }
+                    return PlayTarget(
+                        request = StreamRequest(
+                            tmdbId = s.detail.summary.id,
+                            imdbId = s.detail.imdbId,
+                            type = if (s.isSeries || s.addonType in listOf("tv", "channel")) MediaType.Tv else s.detail.summary.type,
+                            season = if (s.isSeries) (season ?: selectedSeason) else null,
+                            episode = if (s.isSeries) episode else null,
+                            pluginId = providerId,
+                            dataUrl = dataUrl,
+                            contentUrl = url,
+                            title = s.detail.summary.title,
+                            year = s.detail.summary.year,
+                            addonType = s.addonType,
+                            addonContentId = s.addonContentId ?: if (!s.isSeries) (s.movieDataUrl ?: dataUrl) else null,
+                        ),
+                        title = s.detail.summary.title,
+                        posterPath = s.detail.summary.posterPath,
+                    )
                 }
 
                 DetailContent(
@@ -456,40 +487,12 @@ fun ProviderDetailScreen(
                     twoPane = layout.twoPane,
                     screenHeight = layout.heightDp.dp,
                     isSeries = s.isSeries,
+                    allowDownloads = s.addonType !in listOf("tv", "channel"),
                     onToggleFavorite = { /* Favori */ },
                     onSelectSeason = { sNum -> selectedSeason = sNum },
                     onRetryEpisodes = { refreshKey++ },
-                    onPlay = { season, episode ->
-                        val dataUrl = if (s.isSeries) {
-                            val sNum = season ?: selectedSeason ?: 1
-                            val ep = s.episodes.firstOrNull {
-                                (it.season ?: 1) == sNum && (it.episode == episode || (episode == null))
-                            } ?: s.episodes.firstOrNull()
-                            ep?.data ?: url
-                        } else {
-                            s.movieDataUrl ?: url
-                        }
-
-                        val target = PlayTarget(
-                            request = StreamRequest(
-                                tmdbId = s.detail.summary.id,
-                                imdbId = s.detail.imdbId,
-                                type = if (s.isSeries || s.addonType in listOf("tv", "channel")) MediaType.Tv else s.detail.summary.type,
-                                season = if (s.isSeries) (season ?: selectedSeason) else null,
-                                episode = if (s.isSeries) episode else null,
-                                pluginId = providerId,
-                                dataUrl = dataUrl,
-                                contentUrl = url,
-                                title = s.detail.summary.title,
-                                year = s.detail.summary.year,
-                                addonType = s.addonType,
-                                addonContentId = s.addonContentId ?: if (!s.isSeries) (s.movieDataUrl ?: dataUrl) else null,
-                            ),
-                            title = s.detail.summary.title,
-                            posterPath = s.detail.summary.posterPath,
-                        )
-                        onPlay(target)
-                    },
+                    onPlay = { season, episode -> onPlay(targetFor(season, episode)) },
+                    onDownload = { season, episode -> onDownload(targetFor(season, episode)) },
                 )
             }
         }

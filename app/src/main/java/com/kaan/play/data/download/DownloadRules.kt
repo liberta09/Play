@@ -1,11 +1,14 @@
 package com.kaan.play.data.download
 
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.offline.Download
 import androidx.media3.exoplayer.scheduler.Requirements
 import com.kaan.play.data.db.DownloadEntity
 import com.kaan.play.data.db.DownloadStatus
 
 /** İndirmenin durum geçişleri, ağ koşulu, alan denetimi ve açılıştaki uzlaştırma kuralları (Android'den bağımsız, birim testli). */
+@OptIn(UnstableApi::class)
 object DownloadRules {
 
     /** Kullanıcı duraklatınca Media3 `stopReason` değeri (0 = durdurulmadı). */
@@ -33,17 +36,6 @@ object DownloadRules {
         entry == null || entry.sourceUrl != url -> DownloadBadge.None
         entry.status == DownloadStatus.Completed -> DownloadBadge.Done
         entry.status == DownloadStatus.Failed -> DownloadBadge.Failed
-        else -> DownloadBadge.Active
-    }
-
-    /**
-     * Detay'daki (film/bölüm) indir düğmesinin durumu: kaynak adresine bakılmaz, içeriğin indirme satırı belirler
-     * (aynı film/bölüm tek indirme olur).
-     */
-    fun contentBadge(entry: DownloadEntity?): DownloadBadge = when (entry?.status) {
-        null -> DownloadBadge.None
-        DownloadStatus.Completed -> DownloadBadge.Done
-        DownloadStatus.Failed -> DownloadBadge.Failed
         else -> DownloadBadge.Active
     }
 

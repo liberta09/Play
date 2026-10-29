@@ -14,6 +14,7 @@ import mockwebserver3.Dispatcher
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import mockwebserver3.RecordedRequest
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -290,6 +291,25 @@ class PluginRuntimeTest {
         handler = { req -> json("c=" + (req.headers["Cookie"] ?: "none")) }
         val second = (run("module.exports = { getStreams: async () => { var r = await fetch('${base()}/read'); return [{ url: 'https://t.example/v', title: await r.text() }]; } };") as PluginOutcome.Success)
         assertEquals("c=none", second.streams.single().title) // başka çalıştırmaya sızmaz
+    }
+
+    @Test
+    fun successfulOutcomeCarriesOnlyMemorySessionCookiesForMatchingMediaUrl() {
+        handler = { req ->
+            if (req.url.encodedPath == "/set") json("ok", 200, "Set-Cookie" to "sid=play-session; Path=/") else json("ok")
+        }
+        val mediaUrl = "${base()}/media/master.m3u8"
+        val code = """
+            module.exports = { getStreams: async function () {
+              await fetch('${base()}/set');
+              return [{ url: '$mediaUrl' }];
+            } };
+        """.trimIndent()
+
+        val outcome = run(code) as PluginOutcome.Success
+        assertEquals("sid", outcome.sessionCookies.single().name)
+        assertTrue(outcome.sessionCookies.single().matches(mediaUrl.toHttpUrl()))
+        assertFalse(outcome.toString().contains("play-session"))
     }
 
     @Test

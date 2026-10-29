@@ -125,7 +125,7 @@ fun ProviderCategoryScreen(
                     tmdbId = item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(item.id, item.rawUrl, item.posterUrl),
                     mediaType = item.mediaType,
                     onClick = {
-                        if (!item.rawUrl.isNullOrBlank() && item.providerId.startsWith("cs:")) {
+                        if (!item.rawUrl.isNullOrBlank() && (item.providerId.startsWith("cs:") || item.providerId.startsWith("nuvio_addon:"))) {
                             onOpenProviderDetail(item.providerId, item.rawUrl)
                         } else {
                             scope.launch {

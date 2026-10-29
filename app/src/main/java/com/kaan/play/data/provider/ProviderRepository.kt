@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.shareIn
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Sağlayıcıların (yalnızca kataloğu olan CloudStream ve Nuvio sağlayıcıları) listesini ve
+ * Etkin CloudStream ve Nuvio eklentilerinin listesini ve
  * seçili/sabitlenmiş durumlarını DataStore üzerinden yöneten depo.
  */
 class ProviderRepository(
@@ -72,11 +72,11 @@ class ProviderRepository(
         plugins to repos
     }.map { (plugins, repos) ->
         val repoMap = repos.associateBy { it.id }
-        plugins.filter { it.enabled && csPluginHasCatalog(it.id) }.map { p ->
+        plugins.filter { it.enabled }.map { p ->
             val repoName = repoMap[p.repoId]?.name.orEmpty()
             val sub = if (repoName.isNotBlank()) "CloudStream · $repoName" else "CloudStream"
             val id = "cs:${p.id}"
-            ProviderItem(id = id, name = p.name, subtitle = sub, kind = ProviderKind.CloudStream)
+            ProviderItem(id = id, name = p.name, subtitle = sub, kind = ProviderKind.CloudStream, hasHomeCatalog = csPluginHasCatalog(p.id))
         }
     }
         // DEX yükleme ana iş parçacığında değil; listeyi toplayan her ekran ayrı ayrı yeniden hesaplamasın.
@@ -84,15 +84,14 @@ class ProviderRepository(
         .let { flow -> scope?.let { flow.shareIn(it, SharingStarted.WhileSubscribed(5_000), replay = 1) } ?: flow }
 
     /**
-     * Katalog veren Nuvio sağlayıcıları: addon'lar ve manifestinde `catalogs` olan plugin depoları
-     * ([ProviderRules.nuvioCatalogProviders]). Plugin deposu manifesti addon manifesti olarak okunamıyorsa
-     * (yalnızca `scrapers` listesi) katalog sunmaz sayılır.
+     * Etkin tüm Nuvio addon/plugin depoları. Katalog yeteneği olmayanlar da seçicide görünür;
+     * seçilemez olarak işaretlenmeleri için [ProviderItem.hasHomeCatalog] değeri taşınır.
      */
     private val nuvioProviders: Flow<List<ProviderItem>> = combine(
         addonDao.observeOfType(AddonType.NUVIO_ADDON),
         addonDao.observeOfType(AddonType.NUVIO_PLUGIN_REPO),
     ) { addons, pluginRepos ->
-        ProviderRules.nuvioCatalogProviders(
+        ProviderRules.nuvioProviders(
             (addons + pluginRepos).map { a ->
                 NuvioSource(
                     rowId = a.id,
@@ -106,8 +105,8 @@ class ProviderRepository(
     }
 
     /**
-     * Açık (enabled=true) olan tüm CloudStream ve Nuvio sağlayıcılarının birleşik listesi.
-     * Sabitlenenler en üstte, ardından alfabetik sıralı gelir.
+     * Açık olan tüm CloudStream ve Nuvio eklentilerinin birleşik listesi. Kataloğu olmayanlar
+     * da seçicide gösterilir; sabitlenenler en üstte, ardından alfabetik sıralı gelir.
      */
     val allProviders: Flow<List<ProviderItem>> = combine(
         csProviders,

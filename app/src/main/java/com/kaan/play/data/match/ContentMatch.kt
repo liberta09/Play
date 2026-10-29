@@ -19,6 +19,8 @@ data class ContentIdentity(
     val runtimeMinutes: Int? = null,
     val season: Int? = null,
     val episode: Int? = null,
+    /** TMDB Animation türünden türetilir; bilinmiyorsa null kalır. */
+    val isAnimation: Boolean? = null,
 ) {
     /** Eklentiye sorulacak arama sorguları (en çok [max]; aynı sorgu katlanmış biçimde bir kez). */
     fun searchQueries(max: Int = MAX_QUERIES): List<String> =
@@ -44,6 +46,7 @@ data class ContentIdentity(
             season: Int? = null,
             episode: Int? = null,
             extra: Int = 6,
+            isAnimation: Boolean? = null,
         ): ContentIdentity {
             val ordered = buildList {
                 add(title)
@@ -51,7 +54,17 @@ data class ContentIdentity(
                 addAll(alternatives.take(extra * 4))
             }.map(String::trim).filter { TitleText.fold(it).isNotEmpty() }
             val titles = ordered.distinctBy(TitleText::fold).take(2 + extra)
-            return ContentIdentity(kind, titles, year, tmdbId, imdbId?.takeIf { it.startsWith("tt") }, runtimeMinutes?.takeIf { it > 0 }, season, episode)
+            return ContentIdentity(
+                kind = kind,
+                titles = titles,
+                year = year,
+                tmdbId = tmdbId,
+                imdbId = imdbId?.takeIf { it.startsWith("tt") },
+                runtimeMinutes = runtimeMinutes?.takeIf { it > 0 },
+                season = season,
+                episode = episode,
+                isAnimation = isAnimation,
+            )
         }
     }
 }
@@ -139,6 +152,7 @@ data class MatchCandidate(
     val kind: ContentKind? = null,
     /** Başlığın diğer adları (ör. anime `otherName`). */
     val otherNames: List<String> = emptyList(),
+    val isAnimation: Boolean? = null,
 )
 
 data class ScoredCandidate(val candidate: MatchCandidate, val score: Double, val yearExact: Boolean)
@@ -184,6 +198,12 @@ object CsMatchRules {
 
     /** (puanlı aday, null) ya da (null, ret sebebi). */
     private fun evaluate(candidate: MatchCandidate, identity: ContentIdentity): Pair<ScoredCandidate?, String> {
+        if (candidate.kind != null && candidate.kind != identity.kind) {
+            return null to "içerik türü farklı (${candidate.kind} ≠ ${identity.kind})"
+        }
+        if (candidate.isAnimation != null && identity.isAnimation != null && candidate.isAnimation != identity.isAnimation) {
+            return null to "animasyon/canlı aksiyon türü farklı"
+        }
         val candidateYear = candidate.year ?: TitleText.yearIn(candidate.name)
         val wantedYear = identity.year
         if (candidateYear != null && wantedYear != null && abs(candidateYear - wantedYear) > 1) {
@@ -212,6 +232,8 @@ object CsMatchRules {
         val imdbId: String?,
         val tmdbId: String?,
         val durationMinutes: Int?,
+        val kind: ContentKind? = null,
+        val isAnimation: Boolean? = null,
     )
 
     /**
@@ -226,6 +248,12 @@ object CsMatchRules {
         val imdb = info.imdbId?.trim()?.lowercase()?.takeIf { it.startsWith("tt") }
         if (imdb != null && identity.imdbId != null) {
             return if (imdb == identity.imdbId.lowercase()) Verdict.Ok else Verdict.Reject("IMDb kimliği farklı")
+        }
+        if (info.kind != null && info.kind != identity.kind) {
+            return Verdict.Reject("yüklenen medya türü farklı (${info.kind} ≠ ${identity.kind})")
+        }
+        if (info.isAnimation != null && identity.isAnimation != null && info.isAnimation != identity.isAnimation) {
+            return Verdict.Reject("yüklenen içerik animasyon/canlı aksiyon türü farklı")
         }
         val wantedYear = identity.year
         if (info.year != null && wantedYear != null && abs(info.year - wantedYear) > 1) {

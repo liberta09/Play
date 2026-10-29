@@ -23,6 +23,15 @@ data class CsRepoRoot(
     val manifestVersion: Int = 1,
     @SerialName("pluginLists")
     val pluginLists: List<String>,
+    val subRepositories: List<CsRepoReference> = emptyList(),
+)
+
+@Serializable
+data class CsRepoReference(
+    val url: String,
+    val name: String = "",
+    val description: String? = null,
+    val discoveredFrom: List<String> = emptyList(),
 )
 
 /**
@@ -91,7 +100,7 @@ object CsRepoManifestParser {
      * Her `pluginLists` adresi indirilip birleştirilir (paralel değil; hata tek tek atlanır).
      * @throws AddonException
      */
-    fun parseRoot(raw: String): CsRepoRoot {
+    fun parseRoot(raw: String, baseUrl: String? = null): CsRepoRoot {
         val root = try {
             PlayJson.decodeFromString<JsonElement>(raw)
         } catch (e: SerializationException) {
@@ -103,13 +112,54 @@ object CsRepoManifestParser {
 
         // pluginLists dizisi zorunludur
         val listsEl = root["pluginLists"] as? JsonArray ?: throw AddonException(Kind.MissingField, "pluginLists")
+        val base = baseUrl?.toHttpUrlOrNull()
         val pluginLists = listsEl.mapNotNull { (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.content?.trim() }
+            .mapNotNull { resolveUrl(it, base) }
         if (pluginLists.isEmpty()) throw AddonException(Kind.NoPlugins)
 
         val name = (root["name"] as? JsonPrimitive)?.content?.trim() ?: "CloudStream Repo"
         val description = (root["description"] as? JsonPrimitive)?.content?.trim()
+        val subRepositories = listOf("subRepositories", "repositories", "repos", "repoLists")
+            .flatMap { key -> parseRepoReferences(root[key], base) }
+            .distinctBy { it.url }
+            .map { it.copy(discoveredFrom = listOfNotNull(baseUrl)) }
 
-        return CsRepoRoot(name = name, description = description, pluginLists = pluginLists)
+        return CsRepoRoot(name = name, description = description, pluginLists = pluginLists, subRepositories = subRepositories)
+    }
+
+    /** MegaRepo repos-db.json biçimi: URL dizisi veya `{url, verified}` nesneleri. */
+    fun parseRepoIndex(raw: String, baseUrl: String? = null): List<CsRepoReference> {
+        val parsed = runCatching { PlayJson.decodeFromString<JsonElement>(raw) }.getOrNull() as? JsonArray
+            ?: return emptyList()
+        val base = baseUrl?.toHttpUrlOrNull()
+        return parsed.mapNotNull { item ->
+            val (rawUrl, name, description) = when (item) {
+                is JsonPrimitive -> if (item.isString) Triple(item.content.trim(), "", null) else return@mapNotNull null
+                is JsonObject -> Triple(
+                    item.str("url") ?: item.str("repoUrl") ?: item.str("repositoryUrl") ?: return@mapNotNull null,
+                    item.str("name").orEmpty(),
+                    item.str("description"),
+                )
+                else -> return@mapNotNull null
+            }
+            resolveUrl(rawUrl, base)?.let { CsRepoReference(it, name, description) }
+        }.distinctBy { it.url }
+    }
+
+    private fun parseRepoReferences(element: JsonElement?, base: okhttp3.HttpUrl?): List<CsRepoReference> {
+        val array = element as? JsonArray ?: return emptyList()
+        return array.mapNotNull { item ->
+            val (rawUrl, name, description) = when (item) {
+                is JsonPrimitive -> if (item.isString) Triple(item.content.trim(), "", null) else return@mapNotNull null
+                is JsonObject -> Triple(
+                    item.str("url") ?: item.str("repoUrl") ?: item.str("repositoryUrl") ?: return@mapNotNull null,
+                    item.str("name").orEmpty(),
+                    item.str("description"),
+                )
+                else -> return@mapNotNull null
+            }
+            resolveUrl(rawUrl, base)?.let { CsRepoReference(it, name, description) }
+        }
     }
 
     /** `plugins.json` içeriğini eklenti listesine dönüştürür; bozuk girişler atlanır. */
@@ -141,14 +191,6 @@ object CsRepoManifestParser {
         val internalName = obj.str("internalName") ?: return null
         val rawUrl = obj.str("url") ?: return null
         val url = resolveUrl(rawUrl, base) ?: return null
-
-        if (internalName.contains("traktsync", ignoreCase = true) ||
-            name.contains("traktsync", ignoreCase = true) ||
-            url.contains("traktsync", ignoreCase = true) ||
-            internalName.contains("pltmustafa", ignoreCase = true)
-        ) {
-            return null
-        }
 
         return CsPluginEntry(
             name = name,

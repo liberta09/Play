@@ -39,13 +39,13 @@ class ContentDurationCheckTest {
     }
 
     @Test
-    fun episode_onlyClearMismatchIsEliminated() {
+    fun episode_halfLengthWrongSeriesAndExtremeDurationsAreEliminated() {
         assertEquals(Result.Ok, ContentDurationCheck.check(42 * min, 45, ContentKind.Tv))
-        assertEquals(Result.Ok, ContentDurationCheck.check(80 * min, 45, ContentKind.Tv)) // uzun bolum
-        assertEquals(Result.Ok, ContentDurationCheck.check(20 * min, 45, ContentKind.Tv))
-        assertEquals(Result.Ok, ContentDurationCheck.check(135 * min, 45, ContentKind.Tv)) // tam 3 kat
-        assertEquals(Result.Mismatch, ContentDurationCheck.check(136 * min, 45, ContentKind.Tv))
-        assertEquals(Result.Mismatch, ContentDurationCheck.check(14 * min, 45, ContentKind.Tv)) // < 1/3
+        assertEquals(Result.Ok, ContentDurationCheck.check(30 * min, 45, ContentKind.Tv)) // %66.7 alt sınırın içinde
+        assertEquals(Result.Ok, ContentDurationCheck.check(67 * min, 45, ContentKind.Tv)) // yaklaşık %149
+        assertEquals(Result.Mismatch, ContentDurationCheck.check(20 * min, 45, ContentKind.Tv)) // Lupin gibi yarı süreli yanlış bölüm
+        assertEquals(Result.Mismatch, ContentDurationCheck.check(80 * min, 45, ContentKind.Tv)) // > 1.5 kat
+        assertEquals(Result.Mismatch, ContentDurationCheck.check(14 * min, 45, ContentKind.Tv)) // < %65
         assertEquals(Result.Mismatch, ContentDurationCheck.check(180 * min, 22, ContentKind.Tv)) // film uzunlugunda video
     }
 }

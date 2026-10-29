@@ -72,11 +72,11 @@ class SettingsRepository(val store: DataStore<Preferences>) {
     /** Açıkken yarım kalan içerik soru sorulmadan kaldığı yerden başlar. Varsayılan açık. */
     val alwaysResume: Flow<Boolean> = store.data.map { it[ALWAYS_RESUME] ?: DEFAULT_ALWAYS_RESUME }
 
-    val rememberLastProfile: Flow<Boolean> =
-        store.data.map { it[REMEMBER_LAST_PROFILE] ?: DEFAULT_REMEMBER_LAST_PROFILE }.distinctUntilChanged()
+    /** Açıkken uygulama açılışında son aktif profil otomatik seçilir; varsayılan kapalıdır. */
+    val rememberLastProfile: Flow<Boolean> = store.data.map { it[REMEMBER_LAST_PROFILE] ?: DEFAULT_REMEMBER_LAST_PROFILE }.distinctUntilChanged()
 
-    suspend fun setRememberLastProfile(remember: Boolean) {
-        store.edit { it[REMEMBER_LAST_PROFILE] = remember }
+    suspend fun setRememberLastProfile(enabled: Boolean) {
+        store.edit { it[REMEMBER_LAST_PROFILE] = enabled }
     }
 
     /** Açıkken film/bölüm açılınca kaynak listesi beklenmez: uygun ilk kaynakla oynatma başlar. Varsayılan açık. */
@@ -118,7 +118,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         prefs[AUTO_NEXT_SECONDS]?.takeIf { it in AUTO_NEXT_OPTIONS } ?: DEFAULT_AUTO_NEXT_SECONDS
     }.distinctUntilChanged()
 
-    /** Atlama düğmeleri varsayılan açık; otomatik atlama isteğe bağlı ve varsayılan kapalı; dört tür ayrı ayrı. */
+    /** Skip controls are on by default; automatic seeking remains opt-in and off by default. */
     val skipPlayback: Flow<SkipPlaybackSettings> = store.data.map { prefs ->
         val defaults = SkipPlaybackSettings.Default
         val enabled = prefs[SKIP_ENABLED_CATEGORIES]?.mapNotNull { value ->
@@ -270,7 +270,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         val DEFAULT_THEME = ThemeMode.Dark
         const val DEFAULT_TIMEOUT_SECONDS = 15
         const val DEFAULT_ALWAYS_RESUME = true
-        const val DEFAULT_REMEMBER_LAST_PROFILE = true
+        const val DEFAULT_REMEMBER_LAST_PROFILE = false
         const val DEFAULT_DOWNLOAD_WIFI_ONLY = true
         const val DEFAULT_AUTO_NEXT = true
         const val DEFAULT_AUTO_TRANSLATE_SUBS = true
@@ -286,7 +286,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val POSTER_URL_TEMPLATE = stringPreferencesKey("poster_url_template")
         private val TIMEOUT = intPreferencesKey("source_timeout_seconds")
         private val ALWAYS_RESUME = booleanPreferencesKey("always_resume")
-        private val REMEMBER_LAST_PROFILE = booleanPreferencesKey("remember_last_profile")
+        // v2: Önceki sürümlerde açık kalan değer, güncelleme sonrası ilk açılışta profil ekranını atlamasın.
+        private val REMEMBER_LAST_PROFILE = booleanPreferencesKey("remember_last_profile_v2")
         private val TORRENT_SERVER = stringPreferencesKey("torrent_server")
         private val DOWNLOAD_WIFI_ONLY = booleanPreferencesKey("download_wifi_only")
         private val AUTO_NEXT = booleanPreferencesKey("auto_next")

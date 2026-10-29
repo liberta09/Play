@@ -41,10 +41,9 @@ internal class TmdbService(
     suspend fun images(type: String, id: Int, language: String, imageLanguages: String): ImagesDto =
         get("$type/$id/images", ImagesDto.serializer(), language, "include_image_language" to imageLanguages)
 
-    /** [kind]: `multi` (film + dizi + kişi), `movie` ya da `tv`. */
-    suspend fun search(query: String, language: String, page: Int, kind: String = "multi"): ListDto =
+    suspend fun search(query: String, language: String, page: Int): ListDto =
         get(
-            "search/$kind", ListDto.serializer(), language,
+            "search/multi", ListDto.serializer(), language,
             "query" to query, "page" to page.toString(), "include_adult" to "false",
         )
 

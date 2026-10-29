@@ -1,19 +1,18 @@
 package com.kaan.play.ui.player
 
 import android.content.Context
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Color as AndroidColor
 import com.kaan.play.BuildConfig
 import android.net.Uri
+import android.os.Build
 import android.os.SystemClock
-import android.graphics.SurfaceTexture
-import android.view.TextureView
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.runtime.mutableLongStateOf
 import android.provider.OpenableColumns
 import android.view.ViewGroup
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -23,7 +22,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
@@ -133,7 +131,7 @@ private const val SKIP_INITIAL_VISIBILITY_MS = 20_000L
 
 /**
  * Tam ekran oynatıcı. Üst çubuk: geri, çalan kaynağın adı · çözünürlüğü · dosya boyutu, altında film adı. Ortada 10 sn geri / oynat-duraklat /
- * 10 sn ileri; altta arama çubuğu ve düğmeler: Kilitle, Yeniden boyutlandır, Altyazı senkronu (altyazı seçiliyken), Kaynak, Parçalar.
+ * 10 sn ileri; altta arama çubuğu ve düğmeler: Kilitle, Yeniden boyutlandır, Altyazı senkronu (altyazı seçiliyken), Kaynak, Parçalar, İndir.
  * Hepsi dokunmayla ve yön tuşlarıyla (D-pad/klavye/kumanda) kullanılır: kontroller gizliyken Orta/Enter oynat-duraklatır... Kaynak/altyazı
  * ve Parçalar iki sütunlu panellerdir (Uygula / İptal). Kilitliyken dokunma ve jestler kapanır, yalnızca açma simgesi görünür.
  */
@@ -154,6 +152,15 @@ fun PlayerScreen(
     onAutoNextCancel: () -> Unit = {},
     /** Dizide sonraki bölüm düğmesine basıldığında çağrılır; null: sonraki bölüm düğmesi yok (film). */
     onNextEpisode: (() -> Unit)? = null,
+    /** Jenerik algısı için yalnızca ekran içindeki video TextureView’ını etkinlik katmanına verir. */
+    onVideoTextureView: (android.view.TextureView?) -> Unit = {},
+    /** Kapanış yazılarının kaydığı doğrulandığında üstte gösterilen manuel sonraki bölüm düğmesi. */
+    creditsNextVisible: Boolean = false,
+    /** Şu anki medya konumunda topluluk/chapter metadata'sıyla doğrulanan atlanabilir bölümler. */
+    skipSegments: List<SkipSegment> = emptyList(),
+    onSkipSegment: (SkipSegment) -> Unit = {},
+    /** Devam bildirimi üzerinden baştan başlatıldığında resume atlama koruması kaldırılır. */
+    onRestartFromBeginning: () -> Unit = {},
     /** Kaynak seçimi (çevrimiçi); null: indirilmiş kopya. */
     coordinator: SourceCoordinator? = null,
     /** İndirilmiş kopyanın kaynak bilgisi (üst çubuk için). */
@@ -162,14 +169,15 @@ fun PlayerScreen(
     embeddedDub: Boolean = false,
     /** Kullanıcı sesi Parçalar panelinden seçti. */
     onAudioChosen: (Int) -> Unit = {},
-    /** İntro/özet/jenerik/önizleme atlama düğmeleri; null: yok. */
-    skips: SkipController? = null,
+    /** Geçerli akışı indirmeye başlatır; ikinci değer bildirim izninin bulunmadığını belirtir. */
+    onDownload: ((PlayableStream, Boolean) -> Unit)? = null,
     onBack: () -> Unit,
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
     val subtitleStyle by container.settings.subtitleStyle.collectAsStateWithLifecycle(initialValue = SubtitleStyle())
     val resize by container.settings.resizeMode.collectAsStateWithLifecycle(initialValue = ResizeMode.Fit)
+    val skipPlayback by container.settings.skipPlayback.collectAsStateWithLifecycle(initialValue = SkipPlaybackSettings.Default)
     val locale = remember { Locale.forLanguageTag(AppLanguage.effective().iso) }
 
     val ui = controller.ui
@@ -179,6 +187,9 @@ fun PlayerScreen(
     var showTracks by remember { mutableStateOf(false) }
     var showAppearance by remember { mutableStateOf(false) }
     var showSync by remember { mutableStateOf(false) }
+    var downloadPrompt by remember { mutableStateOf<PlayableStream?>(null) }
+    var showDownloadSources by remember { mutableStateOf(false) }
+    var pendingDownloadStream by remember { mutableStateOf<PlayableStream?>(null) }
     var locked by remember { mutableStateOf(false) }
     val lockHint = remember { LockHintState() }
     var lockHintVisible by remember { mutableStateOf(false) }
@@ -222,6 +233,20 @@ fun PlayerScreen(
         if (resumeAfterPick) controller.player.play()
         resumeAfterPick = false
     }
+    val downloadPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        pendingDownloadStream?.let { onDownload?.invoke(it, !granted) }
+        pendingDownloadStream = null
+    }
+    fun requestDownload(stream: PlayableStream) {
+        val needsPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        if (needsPermission) {
+            pendingDownloadStream = stream
+            downloadPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            onDownload?.invoke(stream, false)
+        }
+    }
 
     val phase = coordinator?.phase ?: SourcePhase.Playing
     val resolving = phase == SourcePhase.Resolving
@@ -237,20 +262,13 @@ fun PlayerScreen(
     val dubVisible = dubOffer != null && !cardActive && !locked && ui.error == null
     val dubFocus = remember { FocusRequester() }
     var dubFocused by remember { mutableStateOf(false) }
+    val enabledSkipSegments = if (skipPlayback.showButtons) skipSegments.filter { skipPlayback.isEnabled(it.category) } else emptyList()
+    val skipVisible = enabledSkipSegments.isNotEmpty() && !cardActive && !locked && ui.error == null && !creditsNextVisible
 
-    val dialogOpen = showPanel || showTracks || showAppearance || showSync || autoNext?.picking == true
+    val dialogOpen = showPanel || showTracks || showAppearance || showSync || downloadPrompt != null || showDownloadSources || autoNext?.picking == true
     // Senkron paneli açıkken kontroller gizlenir: altyazı (altta) ilerleme çubuğunun altında kalmasın.
     // Kaynaklar aranırken ve hiçbiri açılmadığında geri düğmesi ve kontroller görünür kalır.
     val showControls = !locked && ((controlsVisible && !showSync) || ui.error != null || resolving || sourcesFailed)
-    // Atlama düğmeleri (sağ altta): segmentin ilk 20 sn'sinde kontroller gizliyken de, sonra kontroller açılınca görünür.
-    val skipSettings = skips?.settings ?: SkipPlaybackSettings.Default
-    val skipPosition = skips?.positionMs ?: 0L
-    val shownSkipSegments = if (skips != null && skipSettings.showButtons) {
-        skips.active.filter { skipSettings.isEnabled(it.category) && (showControls || skipPosition - it.startMs < SKIP_INITIAL_VISIBILITY_MS) }
-    } else emptyList()
-    val skipVisible = shownSkipSegments.isNotEmpty() && !cardActive && !locked && ui.error == null
-    val skipFocus = remember { FocusRequester() }
-    var skipFocused by remember { mutableStateOf(false) }
 
     fun bump() { interaction++ }
     fun reveal() { controlsVisible = true; bump() }
@@ -262,6 +280,7 @@ fun PlayerScreen(
     fun seekFromGesture(deltaMs: Long) {
         controller.seekBy(deltaMs)
         position = controller.positionMs()
+        // Dokunmatik ileri/geri sarma, oynat/duraklat kontrollerini açmasın; yalnız SeekIndicator görünsün.
         controlsVisible = false
         resumeNotice = false
     }
@@ -350,28 +369,25 @@ fun PlayerScreen(
     }
     LaunchedEffect(cardActive) { if (!cardActive) cardFocused = false }
     LaunchedEffect(dubVisible) { if (!dubVisible) dubFocused = false }
-    LaunchedEffect(skipVisible) { if (!skipVisible) skipFocused = false }
     // Odak: kilitliyken ve simge görünürken açma simgesinde; kilitli ve simge gizliyken kök yüzeyde;
     // hata/kaynak yokken hata düğmesinde; sonraki bölüm kartında; kontroller açıkken ilerleme
     // çubuğunda; gizliyken kök yüzeyde (yön tuşları orada yakalanır).
-    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, dubVisible, skipVisible, keyboard) {
+    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, dubVisible, keyboard) {
         when {
             locked && lockHintVisible -> unlockFocus.requestWhenAttached()
             locked -> runCatching { rootFocus.requestFocus() }
             ui.error != null || sourcesFailed -> runCatching { playFocus.requestFocus() }
             cardActive -> cardFocus.requestWhenAttached()
             dubVisible && keyboard -> dubFocus.requestWhenAttached()
-            // Atlama düğmesi görünürken kumandada odak ondadır: Tamam = atla.
-            skipVisible && keyboard -> skipFocus.requestWhenAttached()
             controlsVisible && keyboard -> barFocus.requestWhenAttached()
             else -> runCatching { rootFocus.requestFocus() }
         }
     }
-    LaunchedEffect(showControls) {
-        while (showControls) {
+    LaunchedEffect(showControls, enabledSkipSegments) {
+        while (showControls || enabledSkipSegments.isNotEmpty()) {
             position = controller.positionMs()
             duration = controller.durationMs()
-            delay(500)
+            delay(400)
         }
     }
 
@@ -390,10 +406,8 @@ fun PlayerScreen(
                     if (event.type == KeyEventType.KeyUp) {
                         when {
                             locked -> locked = false
-                            dubVisible -> coordinator?.dismissDubSuggestion()
+                            dubVisible -> coordinator.dismissDubSuggestion()
                             cardActive -> onAutoNextCancel()
-                            // Atlama düğmesi odaktayken Geri düğmeyi kapatır, oynatıcıdan çıkarmaz.
-                            skipVisible && skipFocused -> skips?.dismiss(shownSkipSegments)
                             else -> onBack()
                         }
                     }
@@ -442,7 +456,6 @@ fun PlayerScreen(
                     }
                 }
                 if (dubVisible && dubFocused && event.key in CARD_KEYS) return@onPreviewKeyEvent false
-                if (skipVisible && skipFocused && event.key in CARD_KEYS) return@onPreviewKeyEvent false
                 val repeat = event.nativeKeyEvent.repeatCount
                 // Sarma sürerken (basılı tutma) kontroller açılsa da Sol/Sağ sarmaya devam eder, odağı gezdirmez.
                 val seeking = SystemClock.uptimeMillis() - lastSeekKeyAt < SEEK_HOLD_MS
@@ -457,18 +470,11 @@ fun PlayerScreen(
                     PlayerKeyAction.LeaveBarUp -> focusManager.moveFocus(FocusDirection.Up)
                 }
             }
-            // Açık focusable(): clickable dokunmatik modda odak almaz; gizli kontrollerde tuşlar buraya gelmeli.
+            // Video üzerindeki dokunma şeffaf katmanda yakalanır; kök clickable çift dokunmayı bölmez.
             .focusable()
-            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                if (locked) {
-                    showUnlockHint()
-                } else {
-                    controlsVisible = !controlsVisible
-                    bump()
-                }
-            }
-            // clickable'dan sonra: eşik aşılınca olayı tüketir, dokunuş tıklama sayılmaz. Kilitliyken jest yok.
-            .levelGestures(effectiveLevels, zones, levelIndicator),
+            .levelGestures(effectiveLevels, zones, levelIndicator)
+            // Video üzerinde parmakla yatay kaydırma: sağa ileri, sola geri. Kontrol düğmelerinde çalışmaz.
+            .horizontalSeekGesture(!locked, zones, ::seekFromGesture, seekIndicator, seekGestureState),
     ) {
         // Görüntü: sığdır / doldur (kırp) / uzat; 16:9 ve 4:3'te görüntü o oranda bir alana uzatılır.
         BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -484,86 +490,35 @@ fun PlayerScreen(
             }
             AndroidView(
                 factory = { ctx ->
-                    val view = try {
-                        android.view.LayoutInflater.from(ctx).inflate(R.layout.view_player, null, false) as PlayerView
-                    } catch (t: Throwable) {
-                        PlayerView(ctx).apply {
-                            useController = false
-                            setShutterBackgroundColor(android.graphics.Color.BLACK)
-                        }
-                    }
+                    val view = android.view.LayoutInflater.from(ctx).inflate(R.layout.view_player, null, false) as PlayerView
                     view.apply {
                         player = controller.player
                         isFocusable = false
                         descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
-
-                        // View ağacı eklendiğinde child görünümlere eriş
-                        post {
-                            try {
-                                subtitles.attach { cues ->
-                                    try {
-                                        subtitleView?.setCues(SubtitleCues.toCues(cues))
-                                    } catch (t: Throwable) {
-                                        android.util.Log.w("PlayerScreen", "subtitleView.setCues hatası: ${t.message}")
-                                    }
-                                }
-
-                                val textureView = videoSurfaceView as? TextureView
-                                if (textureView != null) {
-                                    if (textureView.isAvailable) {
-                                        controller.onSurfaceReady()
-                                    }
-                                    val existingListener = textureView.surfaceTextureListener
-                                    textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-                                        override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-                                            existingListener?.onSurfaceTextureAvailable(surface, width, height)
-                                            controller.onSurfaceReady()
-                                        }
-                                        override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
-                                            existingListener?.onSurfaceTextureSizeChanged(surface, width, height)
-                                        }
-                                        override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-                                            controller.onSurfaceDestroyed()
-                                            return existingListener?.onSurfaceTextureDestroyed(surface) ?: true
-                                        }
-                                        override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
-                                            existingListener?.onSurfaceTextureUpdated(surface)
-                                        }
-                                    }
-                                } else {
-                                    controller.onSurfaceReady()
-                                }
-                            } catch (t: Throwable) {
-                                android.util.Log.w("PlayerScreen", "PlayerView post-attach hatası: ${t.message}")
-                            }
-                        }
+                        subtitles.attach { cues -> subtitleView?.setCues(SubtitleCues.toCues(cues)) }
                     }
+                    onVideoTextureView(view.videoSurfaceView as? android.view.TextureView)
+                    view
                 },
                 // Ayar değişince anında uygulanır; oynatma kesilmez.
                 update = { view ->
-                    try {
-                        view.resizeMode = when (resize) {
-                            ResizeMode.Fit -> AspectRatioFrameLayout.RESIZE_MODE_FIT
-                            ResizeMode.Fill -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-                            else -> AspectRatioFrameLayout.RESIZE_MODE_FILL
-                        }
-                        view.subtitleView?.let { SubtitleStyling.apply(it, subtitleStyle) }
-                    } catch (t: Throwable) {
-                        android.util.Log.w("PlayerScreen", "PlayerView update hatası: ${t.message}")
+                    view.resizeMode = when (resize) {
+                        ResizeMode.Fit -> AspectRatioFrameLayout.RESIZE_MODE_FIT
+                        ResizeMode.Fill -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                        else -> AspectRatioFrameLayout.RESIZE_MODE_FILL
                     }
+                    view.subtitleView?.let { SubtitleStyling.apply(it, subtitleStyle) }
                 },
                 onRelease = { view ->
-                    try {
-                        controller.onSurfaceDestroyed()
-                        subtitles.attach(null)
-                        view.player = null
-                    } catch (t: Throwable) {
-                        android.util.Log.w("PlayerScreen", "PlayerView onRelease hatası: ${t.message}")
-                    }
+                    subtitles.attach(null)
+                    onVideoTextureView(null)
+                    view.player = null
                 },
                 modifier = viewModifier,
             )
-            // Video dokunmatik hareket katmanı: çift tık 10sn geri/ileri, yatay sürükleme 5sn sarma
+            // Android PlayerView dokunma olayını kendisi tükettiği için Compose kökündeki clickable video
+            // yüzeyine ulaşmıyordu. Bu şeffaf katman PlayerView'in üzerinde tek dokunmayı doğrudan yakalar.
+            // Kontrol bileşenleri bu katmandan sonra çizildiği için düğmelere dokunmak normal çalışmaya devam eder.
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -647,7 +602,18 @@ fun PlayerScreen(
                 if (canSync) add(BarAction(PlayIcons.SubtitleSync, stringResource(R.string.player_btn_sync)) { showSync = true })
                 add(BarAction(PlayIcons.SwitchSource, stringResource(R.string.player_btn_source), ::openPanel))
                 add(BarAction(PlayIcons.Tracks, stringResource(R.string.player_btn_tracks)) { showTracks = true; bump() })
-                val canShowNext = onNextEpisode != null && AutoNextRules.canShowNextEpisodeButton(target.request.type, target.request.season, target.request.episode, target.request.addonType, duration)
+                val downloadable = coordinator?.current?.takeIf {
+                    onDownload != null && target.request.addonType !in listOf("tv", "channel")
+                }
+                if (downloadable != null) {
+                    add(BarAction(PlayIcons.Download, stringResource(R.string.player_btn_download)) {
+                        downloadPrompt = downloadable
+                        bump()
+                    })
+                }
+                val canShowNext = onNextEpisode != null && autoNext?.manualNextEnabled == true &&
+                    AutoNextRules.canShowNextEpisodeButton(target.request.type, target.request.season, target.request.episode, target.request.addonType, duration) &&
+                    AutoNextRules.inPrefetchWindow(position, duration)
                 if (canShowNext) {
                     add(BarAction(PlayIcons.NextEpisode, stringResource(R.string.player_btn_next_episode)) {
                         onNextEpisode()
@@ -679,9 +645,36 @@ fun PlayerScreen(
             )
         }
 
+        AnimatedVisibility(
+            visible = skipVisible && enabledSkipSegments.any { showControls || position - it.startMs < SKIP_INITIAL_VISIBILITY_MS },
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding()
+                .padding(end = 24.dp, bottom = 156.dp).gestureZone(zones, "skip"),
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.End) {
+                enabledSkipSegments.forEach { segment ->
+                    if (showControls || position - segment.startMs < SKIP_INITIAL_VISIBILITY_MS) {
+                        SkipSegmentButton(segment = segment, onClick = { onSkipSegment(segment) })
+                    }
+                }
+            }
+        }
+
+        if (creditsNextVisible && onNextEpisode != null && ui.error == null && !locked && autoNext?.picking != true) {
+            CreditsNextEpisodeButton(
+                onClick = { onNextEpisode(); bump() },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .statusBarsPadding()
+                    .padding(top = 88.dp, end = 24.dp)
+                    .gestureZone(zones, "skip"),
+            )
+        }
+
         if (resumeNotice && ui.error == null && !locked) {
             ResumeNotice(
-                onRestart = { skips?.restartFromBeginning(); controller.seekTo(0L); position = 0L; resumeNotice = false; bump() },
+                onRestart = { onRestartFromBeginning(); controller.seekTo(0L); position = 0L; resumeNotice = false; bump() },
                 focus = noticeFocus,
                 upFocus = playFocus,
                 onFocusChange = { noticeFocused = it },
@@ -699,25 +692,6 @@ fun PlayerScreen(
                     .gestureZone(zones, "next")
                     .onFocusChanged { cardFocused = it.hasFocus },
             )
-        }
-
-        AnimatedVisibility(
-            visible = skipVisible,
-            enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(end = 24.dp, bottom = 156.dp)
-                .gestureZone(zones, "skip")
-                .onFocusChanged { skipFocused = it.hasFocus },
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.End) {
-                shownSkipSegments.forEachIndexed { index, segment ->
-                    SkipSegmentButton(
-                        segment = segment,
-                        onClick = { skips?.skip(segment); bump() },
-                        modifier = if (index == 0) Modifier.focusRequester(skipFocus) else Modifier,
-                    )
-                }
-            }
         }
 
         if (coordinator != null && dubVisible) {
@@ -845,6 +819,39 @@ fun PlayerScreen(
                 }
             },
             confirmButton = { TextButton(onClick = { showAppearance = false }) { Text(stringResource(R.string.common_done)) } },
+        )
+    }
+
+    downloadPrompt?.let { stream ->
+        val resolution = stream.resolution?.let { "${it}p" } ?: stringResource(R.string.download_quality_best)
+        AlertDialog(
+            onDismissRequest = { downloadPrompt = null },
+            title = { Text(stringResource(R.string.download_action)) },
+            text = { Text(stringResource(R.string.download_current_source_message, stream.source.addonName, resolution)) },
+            confirmButton = {
+                TextButton(onClick = { downloadPrompt = null; requestDownload(stream) }) {
+                    Text(stringResource(R.string.download_now))
+                }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(onClick = { downloadPrompt = null; showDownloadSources = true }) {
+                        Text(stringResource(R.string.download_choose_quality))
+                    }
+                    TextButton(onClick = { downloadPrompt = null }) {
+                        Text(stringResource(R.string.common_cancel))
+                    }
+                }
+            },
+        )
+    }
+
+    if (showDownloadSources) {
+        SourcesSheet(
+            target = target,
+            onDismiss = { showDownloadSources = false },
+            onPicked = {},
+            downloadOnly = true,
         )
     }
 
@@ -1019,7 +1026,7 @@ private fun NextEpisodeCard(
     }
 }
 
-/** Doğrulanmış intro/özet/jenerik/önizleme aralığını tek dokunuşla (kumandada Tamam) atlar. */
+/** Kaynağın açık bölüm işaretinden doğrulanan parçayı tek dokunuşla atlar. */
 @Composable
 private fun SkipSegmentButton(
     segment: SkipSegment,
@@ -1035,9 +1042,20 @@ private fun SkipSegmentButton(
         },
     )
     Button(onClick = onClick, modifier = modifier) {
-        Icon(PlayIcons.SeekForward, contentDescription = null, modifier = Modifier.size(20.dp))
-        Spacer(Modifier.width(8.dp))
-        Text(label)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Icon(PlayIcons.SeekForward, contentDescription = null, modifier = Modifier.size(20.dp))
+            Text(label)
+        }
+    }
+}
+
+@Composable
+private fun CreditsNextEpisodeButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Button(onClick = onClick, modifier = modifier) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Icon(PlayIcons.NextEpisode, contentDescription = null, modifier = Modifier.size(20.dp))
+            Text(stringResource(R.string.player_next_episode_credits))
+        }
     }
 }
 

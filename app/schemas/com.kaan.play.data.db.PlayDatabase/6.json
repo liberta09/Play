@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 6,
-    "identityHash": "2662e22161fd1388cfbb734d600b2987",
+    "identityHash": "aa42a6d65dd50ac83f6e3fce1d04df6c",
     "entities": [
       {
         "tableName": "addons",
@@ -226,7 +226,7 @@
       },
       {
         "tableName": "watch_history",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tmdbId` INTEGER NOT NULL, `type` TEXT NOT NULL, `userId` TEXT NOT NULL, `profileId` TEXT NOT NULL, `season` INTEGER NOT NULL, `episode` INTEGER NOT NULL, `positionMs` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `lastWatchedAt` INTEGER NOT NULL, `title` TEXT NOT NULL, `posterPath` TEXT, `pluginId` TEXT, `dataUrl` TEXT, `contentUrl` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `tmdbId` INTEGER NOT NULL, `type` TEXT NOT NULL, `season` INTEGER NOT NULL, `episode` INTEGER NOT NULL, `positionMs` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `lastWatchedAt` INTEGER NOT NULL, `title` TEXT NOT NULL, `posterPath` TEXT, `pluginId` TEXT, `dataUrl` TEXT, `contentUrl` TEXT, `userId` TEXT NOT NULL DEFAULT 'legacy-user', `profileId` TEXT NOT NULL DEFAULT 'legacy-profile')",
         "fields": [
           {
             "fieldPath": "id",
@@ -243,18 +243,6 @@
           {
             "fieldPath": "type",
             "columnName": "type",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "userId",
-            "columnName": "userId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "profileId",
-            "columnName": "profileId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -313,6 +301,20 @@
             "fieldPath": "contentUrl",
             "columnName": "contentUrl",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'legacy-user'"
+          },
+          {
+            "fieldPath": "profileId",
+            "columnName": "profileId",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'legacy-profile'"
           }
         ],
         "primaryKey": {
@@ -351,7 +353,7 @@
       },
       {
         "tableName": "favorites",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tmdbId` INTEGER NOT NULL, `type` TEXT NOT NULL, `userId` TEXT NOT NULL, `profileId` TEXT NOT NULL, `title` TEXT NOT NULL, `posterPath` TEXT, `addedAt` INTEGER NOT NULL, PRIMARY KEY(`userId`, `profileId`, `tmdbId`, `type`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tmdbId` INTEGER NOT NULL, `type` TEXT NOT NULL, `title` TEXT NOT NULL, `posterPath` TEXT, `addedAt` INTEGER NOT NULL, `userId` TEXT NOT NULL DEFAULT 'legacy-user', `profileId` TEXT NOT NULL DEFAULT 'legacy-profile', PRIMARY KEY(`userId`, `profileId`, `tmdbId`, `type`))",
         "fields": [
           {
             "fieldPath": "tmdbId",
@@ -362,18 +364,6 @@
           {
             "fieldPath": "type",
             "columnName": "type",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "userId",
-            "columnName": "userId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "profileId",
-            "columnName": "profileId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -393,6 +383,20 @@
             "columnName": "addedAt",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'legacy-user'"
+          },
+          {
+            "fieldPath": "profileId",
+            "columnName": "profileId",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'legacy-profile'"
           }
         ],
         "primaryKey": {
@@ -615,7 +619,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2662e22161fd1388cfbb734d600b2987')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'aa42a6d65dd50ac83f6e3fce1d04df6c')"
     ]
   }
 }

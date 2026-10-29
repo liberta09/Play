@@ -26,6 +26,12 @@
     <string name="home_empty_message">No addons yet.</string>
     <string name="home_empty_action">Add an addon to get started</string>
     <string name="home_row_continue">Continue watching</string>
+    <string name="home_continue_sort_action">Sort</string>
+    <string name="home_continue_sort_recent">Most recent</string>
+    <string name="home_continue_sort_oldest">Oldest first</string>
+    <string name="home_continue_sort_movies">Movies first</string>
+    <string name="home_continue_sort_series">Series first</string>
+    <string name="home_continue_sort_title">Title A–Z</string>
     <string name="home_row_trending_movies">Trending movies</string>
     <string name="home_row_trending_series">Trending series</string>
     <string name="home_hero_details">See details</string>
@@ -42,6 +48,11 @@
     <string name="search_clear">Clear</string>
     <string name="search_idle">Type something to search.</string>
     <string name="search_no_results">No results for “%1$s”.</string>
+    <string name="search_filter_all">All</string>
+    <string name="search_filter_movies">Movies</string>
+    <string name="search_filter_series">Series</string>
+    <string name="search_filtered_no_results_movies">No movies found for “%1$s”.</string>
+    <string name="search_filtered_no_results_series">No series found for “%1$s”.</string>
 
     <!-- Detay -->
     <string name="detail_play">Play</string>
@@ -162,6 +173,27 @@
     </plurals>
     <string name="addons_empty">No addons installed.</string>
     <string name="addons_add">Add addon</string>
+    <string name="repo_manager_catalog_title">Plugin catalogue</string>
+    <string name="repo_manager_catalog_subtitle">Browse and install plugins from the live CloudStream Repo Manager catalogue</string>
+    <string name="repo_manager_catalog_count">%1$d entries</string>
+    <string name="repo_manager_catalog_refresh">Refresh</string>
+    <string name="repo_manager_catalog_search">Search name, category, or URL</string>
+    <string name="repo_manager_catalog_error">Catalogue or install error: %1$s</string>
+    <string name="repo_manager_catalog_empty">No compatible entries were found in the online catalogue.</string>
+    <string name="repo_manager_catalog_no_results">No matching entries.</string>
+    <string name="repo_manager_catalog_success">%1$s added.</string>
+    <string name="repo_manager_catalog_installed">Installed</string>
+    <string name="repo_manager_catalog_install">Install</string>
+    <string name="repo_manager_catalog_remove">Remove</string>
+    <string name="repo_manager_catalog_remove_title">Remove installed item?</string>
+    <string name="repo_manager_catalog_remove_message">“%1$s” and its installed data or plugins will be removed from this app.</string>
+    <string name="repo_manager_catalog_remove_success">“%1$s” was removed.</string>
+    <string name="repo_manager_catalog_remove_missing">“%1$s” is no longer installed.</string>
+    <string name="repo_manager_catalog_remove_error">Could not remove the item: %1$s</string>
+    <string name="repo_manager_catalog_meta">%1$s · %2$s</string>
+    <string name="repo_manager_platform_cloudstream">CloudStream</string>
+    <string name="repo_manager_platform_nuvio_addon">Nuvio addon</string>
+    <string name="repo_manager_platform_nuvio_plugin">Nuvio plugin</string>
     <string name="addons_repos">All installed repositories</string>
     <string name="addons_repos_empty">No repositories installed.</string>
     <string name="repos_section_nuvio">Nuvio</string>
@@ -283,16 +315,43 @@
     <string name="library_favorites_empty">No favorites yet. Tap the heart on a title to add it here.</string>
     <string name="library_history">History</string>
     <string name="library_history_empty">Nothing watched yet.</string>
-    <string name="library_watched">Watched</string>
+    <string name="library_watched">Watched movies and series</string>
+    <string name="library_watched_empty">Titles you mark as watched will appear here.</string>
     <string name="library_episode_watched">S%1$d E%2$d · Watched</string>
     <string name="library_remove_history">Remove from history</string>
     <string name="library_clear_history">Clear all</string>
     <string name="library_clear_title">Clear history?</string>
     <string name="library_clear_message">Everything you\'ve watched will be removed from this list. Your favorites aren\'t affected.</string>
     <string name="library_clear_confirm">Clear</string>
+    <string name="history_actions_hint">Choose an action for this title.</string>
+    <string name="history_action_favorite">Add to favorites</string>
+    <string name="history_action_watched">Mark as watched</string>
+    <string name="history_action_remove">Remove from history</string>
+    <string name="history_added_favorite">Added to favorites</string>
+    <string name="history_marked_watched">Marked as watched and moved to Library</string>
+    <string name="history_mark_watched_unavailable">Can\'t mark watched because the runtime is unknown.</string>
+    <string name="history_removed">Removed from history</string>
+    <string name="history_action_failed">Couldn\'t complete that action. Please try again.</string>
 
     <!-- Ayarlar: oynatıcı ve altyazı görünümü -->
     <string name="settings_player">Player</string>
+    <string name="settings_speed_test">Internet speed test</string>
+    <string name="settings_speed_test_summary">Measure your current download speed</string>
+    <string name="speed_test_description">Measure download speed and ping using Cloudflare’s network. Results can vary with your Wi-Fi or mobile signal.</string>
+    <string name="speed_test_start">Start speed test</string>
+    <string name="speed_test_running">Testing connection…</string>
+    <string name="speed_test_error">The test could not finish. Check your connection and try again.</string>
+    <string name="speed_test_error_network">Could not reach the speed test server. Check your internet connection, VPN, or Private DNS.</string>
+    <string name="speed_test_error_timeout">The speed test server took too long to respond. Try again on a stronger connection.</string>
+    <string name="speed_test_error_server">The speed test server returned HTTP %1$d. Try again later.</string>
+    <string name="speed_test_error_detail">The speed test failed: %1$s</string>
+    <string name="speed_test_data_note">Uses up to about 9 MB of data. This measures your connection to the test server, not a particular video source.</string>
+    <string name="speed_test_result_title">Your result</string>
+    <string name="speed_test_download_label">Download speed</string>
+    <string name="speed_test_download_value">%1$.1f Mbps</string>
+    <string name="speed_test_ping_label">Ping</string>
+    <string name="speed_test_ping_value">%1$d ms</string>
+    <string name="speed_test_result_hint">Use Mbps as a guide when choosing a source. Playback also depends on the source’s quality and network stability.</string>
     <string name="settings_always_resume">Always resume where I left off</string>
     <string name="common_done">Done</string>
     <string name="subtitle_preview">This is how your subtitles will look.</string>
@@ -351,7 +410,6 @@
     <string name="web_refresh">Refresh</string>
     <string name="web_load_failed">The page couldn\'t be opened. Check your connection and refresh.</string>
     <string name="about_web_blocking">Website view blocks known ads and pop-ups; it may not catch every ad.</string>
-    <string name="about_introdb_privacy">Skip buttons ask TheIntroDB for intro and credits times; only the TMDB ID, season/episode and video length are sent, and TheIntroDB sees your IP address and which title you are watching.</string>
 
     <!-- Faz 4/B: indirme -->
     <string name="download_channel_name">Downloads</string>
@@ -370,6 +428,11 @@
     <string name="download_state_paused">Paused</string>
     <string name="download_state_failed">Failed. The source may have expired.</string>
     <string name="download_action">Download</string>
+    <string name="download_choose_source">Choose a source to download</string>
+    <string name="download_now">Download now</string>
+    <string name="download_choose_quality">Choose quality</string>
+    <string name="download_quality_best">Best available</string>
+    <string name="download_current_source_message">Current source: %1$s · %2$s. Download it now or choose another source/quality.</string>
     <string name="download_in_progress">Downloading</string>
     <string name="download_done">Downloaded</string>
     <string name="download_pause">Pause download</string>
@@ -392,6 +455,11 @@
     <string name="cs_repos_title">CloudStream Repos</string>
     <string name="cs_repos_subtitle">Add .cs3 plugin repos</string>
     <string name="cs_repos_empty">No CloudStream repos added yet.</string>
+    <string name="cs_repos_tab_installed">Installed</string>
+    <string name="cs_repos_tab_discovered">Sub-repositories</string>
+    <string name="cs_repos_discovered_empty">No sub-repositories discovered yet. Add MegaRepo or a repo manifest that declares sub-repositories.</string>
+    <string name="cs_repos_discovered_note">Discovered repositories are not installed automatically. Choose Install to add one; plugins are not bulk-downloaded from every repository.</string>
+    <string name="cs_repo_install">Install</string>
     <string name="cs_repo_remove_title">Remove repo</string>
     <string name="cs_repo_remove_body">Remove "%1$s" and all its plugins?</string>
     <string name="add_done_cs_repo">CloudStream repo added.</string>
@@ -439,10 +507,6 @@
     <string name="settings_skip_recap">Recap</string>
     <string name="settings_skip_credits">Credits</string>
     <string name="settings_skip_preview">Preview</string>
-    <string name="player_skip_intro">Skip intro</string>
-    <string name="player_skip_recap">Skip recap</string>
-    <string name="player_skip_credits">Skip credits</string>
-    <string name="player_skip_preview">Skip preview</string>
 
     <!-- Güncelleme indirmesi: bildirimler -->
     <string name="update_channel_name">App updates</string>
@@ -459,7 +523,14 @@
     <string name="player_btn_sync">Subtitle sync</string>
     <string name="player_btn_source">Source</string>
     <string name="player_btn_tracks">Tracks</string>
+    <string name="player_btn_download">Download</string>
     <string name="player_btn_next_episode">Next episode</string>
+    <string name="player_next_episode_credits">Go to next episode</string>
+    <string name="player_skip_intro">Skip intro</string>
+    <string name="player_skip_recap">Skip recap</string>
+    <string name="player_skip_outro">Skip outro</string>
+    <string name="player_skip_credits">Skip credits</string>
+    <string name="player_skip_preview">Skip preview</string>
     <string name="player_no_next_episode">No next episode found</string>
     <string name="resize_fit">Fit</string>
     <string name="resize_fill">Fill (crop)</string>
@@ -514,7 +585,7 @@
     <string name="provider_pill_select">Select extension</string>
     <string name="provider_pill_multiple">%1$s +%2$d</string>
     <string name="provider_selector_title">Select an extension</string>
-    <string name="provider_selector_desc">Choose a provider to feed the home catalog</string>
+    <string name="provider_selector_desc">All enabled extensions are shown; only ones with a home catalog can be selected.</string>
     <string name="provider_search_hint">Search extensions…</string>
     <string name="provider_search_clear">Clear search</string>
     <string name="provider_tab_all">All</string>
@@ -531,6 +602,8 @@
     <string name="provider_selected_count">%1$d selected</string>
     <string name="provider_empty_message">No provider extensions found.</string>
     <string name="provider_empty_action">Add extension</string>
+    <string name="provider_no_home_catalog">This extension has no home catalog</string>
+    <string name="provider_loading">Loading installed extensions…</string>
     <string name="provider_catalog_coming_soon">Catalog coming soon</string>
     <string name="provider_catalog_coming_soon_desc">Catalog support for this provider will be added in the next phase.</string>
     <string name="provider_catalog_no_catalog">This extension does not provide a catalog</string>
@@ -554,78 +627,4 @@
     <string name="provider_error_meta_not_found">Meta information not found</string>
     <string name="provider_error_content_load_failed">Content could not be loaded</string>
     <string name="provider_error_unexpected">Unexpected error</string>
-    <string name="settings_speed_test">Internet speed test</string>
-    <string name="settings_speed_test_summary">Measure your current download speed</string>
-    <string name="speed_test_failed">The test couldn\'t finish: %1$s</string>
-    <string name="speed_test_error_unreachable">Couldn\'t reach the server</string>
-    <string name="speed_test_error_timeout">Timed out</string>
-    <string name="download_pick_title">Choose a source to download</string>
-    <string name="download_pick_checking">Checking which sources can be downloaded…</string>
-    <string name="download_pick_empty_episode">No downloadable source found for this episode</string>
-    <string name="download_pick_empty_movie">No downloadable source found for this movie</string>
-    <string name="wifi_sync_title">Wi-Fi sync · Local</string>
-    <string name="wifi_sync_description">Profiles, history, addon repositories and addon states are synced</string>
-    <string name="wifi_sync_code">Code: %1$s</string>
-    <string name="wifi_sync_code_hint">On the other device, enter this code in the \'Other device\'s code\' box. It\'s valid for 3 minutes.</string>
-    <string name="wifi_sync_peer_code">Other device\'s code</string>
-    <string name="wifi_sync_connect">Connect</string>
-    <string name="wifi_sync_debug_address">Device address (debug)</string>
-    <string name="wifi_sync_new_code">New code</string>
-    <string name="wifi_sync_expired">The code is no longer valid.</string>
-    <string name="wifi_sync_searching">Looking for the device…</string>
-    <string name="wifi_sync_connecting">Connecting…</string>
-    <string name="wifi_sync_syncing">Syncing…</string>
-    <string name="wifi_sync_result">Synced: %1$s, %2$s, %3$s, %4$s</string>
-    <plurals name="wifi_sync_profiles">
-        <item quantity="one">%d profile</item>
-        <item quantity="other">%d profiles</item>
-    </plurals>
-    <plurals name="wifi_sync_history">
-        <item quantity="one">%d history item</item>
-        <item quantity="other">%d history items</item>
-    </plurals>
-    <plurals name="wifi_sync_addons">
-        <item quantity="one">%d addon</item>
-        <item quantity="other">%d addons</item>
-    </plurals>
-    <plurals name="wifi_sync_repos">
-        <item quantity="one">%d repository</item>
-        <item quantity="other">%d repositories</item>
-    </plurals>
-    <string name="wifi_sync_error_not_found">Device not found. Are both devices on the same Wi-Fi?</string>
-    <string name="wifi_sync_error_wrong_code">Wrong code.</string>
-    <string name="wifi_sync_error_invalid_code">Enter the 6-digit code.</string>
-    <string name="wifi_sync_error_unreachable">Couldn\'t connect to the device.</string>
-    <string name="wifi_sync_error_locked">Too many wrong attempts. A new code is needed.</string>
-    <string name="wifi_sync_error_port">Sync couldn\'t start on this device.</string>
-    <string name="wifi_sync_error_failed">Sync failed.</string>
-    <string name="wifi_sync_error_permission">Local network access is needed.</string>
-    <string name="wifi_sync_add_title">Add these?</string>
-    <string name="wifi_sync_add_all">Add all</string>
-    <string name="wifi_sync_add_selected">Add selected</string>
-    <string name="wifi_sync_add_skip">Not now</string>
-    <string name="wifi_sync_installing">Adding…</string>
-    <plurals name="wifi_sync_install_failed">
-        <item quantity="one">%d source couldn\'t be added.</item>
-        <item quantity="other">%d sources couldn\'t be added.</item>
-    </plurals>
-    <string name="cloud_sync_scope">Profiles, watch history, favorites and addons (repositories, on/off states, settings) are synced with this account. Addon files aren\'t copied; each device downloads them itself.</string>
-    <string name="search_filter_all">All</string>
-    <string name="search_filter_movies">Movies</string>
-    <string name="search_filter_series">Series</string>
-    <!-- Repository catalog (Settings > Addons > Repository catalog) -->
-    <string name="repo_catalog_title">Repository catalog</string>
-    <string name="repo_catalog_subtitle">Discover community repositories and install in one tap</string>
-    <string name="repo_catalog_search_hint">Search repositories or categories…</string>
-    <string name="repo_catalog_empty">No repositories found</string>
-    <string name="repo_catalog_no_results">No results found</string>
-    <string name="repo_catalog_load_failed">Could not load the catalog</string>
-    <string name="repo_catalog_error_generic">Something went wrong</string>
-    <string name="repo_catalog_install">Install</string>
-    <string name="repo_catalog_installed">Installed</string>
-    <string name="repo_catalog_install_success">Repository added</string>
-    <string name="repo_catalog_install_failure">Error: %1$s</string>
-    <string name="repo_catalog_type_cloudstream" translatable="false">CloudStream</string>
-    <string name="repo_catalog_type_nuvio_repo">Nuvio repo</string>
-    <string name="repo_catalog_type_nuvio_plugin">Nuvio plugin</string>
 </resources>

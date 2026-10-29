@@ -181,7 +181,7 @@ class ProviderRulesTest {
     )
 
     @Test
-    fun nuvioCatalogProvidersKeepOnlyEnabledSourcesWithCatalogs() {
+    fun nuvioProvidersShowAllEnabledSourcesAndMarkCatalogSupport() {
         val sources = listOf(
             NuvioSource(1, "İzlemeli.com Katalog", "izlemeli", enabled = true, manifest = manifest("izlemeli", 3)),
             NuvioSource(2, "Torrentio", "torrentio", enabled = true, manifest = manifest("torrentio", 0, "stream")),
@@ -192,9 +192,11 @@ class ProviderRulesTest {
             // Manifestinde catalogs olan plugin deposu: aynı addon katalog yolundan gösterilir.
             NuvioSource(6, "Katalog Deposu", "repo.catalogs", enabled = true, manifest = manifest("repo.catalogs", 1)),
         )
-        val items = ProviderRules.nuvioCatalogProviders(sources)
-        assertEquals(listOf("nuvio_addon:1", "nuvio_addon:6"), items.map { it.id })
+        val items = ProviderRules.nuvioProviders(sources)
+        assertEquals(listOf("nuvio_addon:1", "nuvio_addon:2", "nuvio_addon:3", "nuvio_addon:5", "nuvio_addon:6"), items.map { it.id })
         assertTrue(items.all { it.kind == ProviderKind.NuvioAddon })
+        assertTrue(items.filter { it.id in setOf("nuvio_addon:1", "nuvio_addon:6") }.all { it.hasHomeCatalog })
+        assertTrue(items.filter { it.id in setOf("nuvio_addon:2", "nuvio_addon:3", "nuvio_addon:5") }.none { it.hasHomeCatalog })
     }
 
     // --- Seçim uygulanmıyordu (kullanıcı bildirimi 2026-10-21): Nuvio "izlelan" seçiliyken CloudStream eklentisi seçildi ---
@@ -246,5 +248,20 @@ class ProviderRulesTest {
         assertEquals(setOf("cs:7"), none.stale)
         // "Tüm sağlayıcılar"
         assertTrue(ProviderRules.resolveSelection(emptySet(), switchProviders).showAll)
+    }
+
+    @Test
+    fun cataloglessInstalledExtensionIsVisibleButCannotBeSelectedForHome() {
+        val providers = switchProviders + ProviderItem(
+            id = "nuvio_addon:30", name = "Torrent add-on", subtitle = "Nuvio", kind = ProviderKind.NuvioAddon,
+            hasHomeCatalog = false,
+        )
+
+        val selection = ProviderRules.resolveSelection(setOf("nuvio_addon:30"), providers)
+
+        assertTrue(selection.showAll)
+        assertTrue(selection.valid.isEmpty())
+        assertEquals(setOf("nuvio_addon:30"), selection.stale)
+        assertTrue(ProviderRules.selectorSections(providers, ProviderTab.All, "").flatMap { it.items }.any { it.id == "nuvio_addon:30" })
     }
 }

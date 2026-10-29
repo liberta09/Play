@@ -25,10 +25,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
@@ -38,7 +36,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,10 +50,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -67,9 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.kaan.play.R
-import com.kaan.play.data.db.DownloadEntity
-import com.kaan.play.data.download.DownloadBadge
-import com.kaan.play.data.download.DownloadRules
 import com.kaan.play.data.model.CastMember
 import com.kaan.play.data.model.Episode
 import com.kaan.play.data.model.MediaDetail
@@ -77,6 +68,7 @@ import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.model.SeasonInfo
 import com.kaan.play.data.stream.PlayTarget
 import com.kaan.play.data.stream.StreamRequest
+import com.kaan.play.data.sync.AgeRatingPolicy
 import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.i18n.AppLanguage
@@ -96,8 +88,6 @@ import com.kaan.play.ui.components.TitleOrLogo
 import com.kaan.play.ui.containerViewModel
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.nav.PlayIcons
-import com.kaan.play.ui.sources.DownloadStateIcon
-import com.kaan.play.ui.sources.SourcesSheet
 import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.rememberInitialFocus
 import com.kaan.play.ui.tv.rememberPlayLayout
@@ -105,7 +95,7 @@ import com.kaan.play.ui.tv.rememberPlayLayout
 private val Gutter = 20.dp
 
 /**
- * Detay. Film: tek ana iş "Oynat". Dizi: ana iş bölüm seçmek (sezon seçici + bölüm listesi).
+ * Detay. Film: "Oynat" ve indirme. Dizi: bölüm seçmek ve bölüm bazında indirmek.
  * [onPlay]: kaynak isteğiyle çağrılır (film: sezon/bölüm yok; dizi: seçilen bölüm).
  */
 @Composable
@@ -116,6 +106,7 @@ fun DetailScreen(
     onOpenSimilar: (MediaType, Int) -> Unit = { _, _ -> },
     onOpenActor: (String) -> Unit = {},
     onPlay: (PlayTarget) -> Unit,
+    onDownload: (PlayTarget) -> Unit = {},
 ) {
     val vm = containerViewModel(key = "detail-${type.tmdbPath}-$id-${AppLanguage.effective().iso}") {
         DetailViewModel(it.tmdb, it.library, type, id)
@@ -125,51 +116,53 @@ fun DetailScreen(
     val episodes by vm.episodes.collectAsStateWithLifecycle()
     val isFavorite by vm.isFavorite.collectAsStateWithLifecycle()
     val layout = rememberPlayLayout()
-    val downloads by rememberContainer().downloads.rows.collectAsStateWithLifecycle(initialValue = emptyList())
-    // Detay'daki indir düğmesi: kaynak listesi indirme modunda açılır (yalnızca indirilebilir doğrudan kaynaklar).
-    var downloadFor by remember { mutableStateOf<PlayTarget?>(null) }
-    val listState = rememberLazyListState()
+    val profileContainer = rememberContainer()
+    val activeProfileId by profileContainer.localProfile.id.collectAsStateWithLifecycle(initialValue = "")
+    val profiles by profileContainer.localProfile.profiles.collectAsStateWithLifecycle(initialValue = emptyList())
+    val childProfile = profiles.firstOrNull { it.id == activeProfileId }?.isChild == true
 
     Box(Modifier.fillMaxSize()) {
         when (val d = detail) {
             Loadable.Loading -> CenteredLoading()
             is Loadable.Failed -> ErrorMessage(d.error, onRetry = vm::loadDetail, modifier = Modifier.align(Alignment.Center))
-            is Loadable.Ready -> DetailContent(
-                detail = d.value,
-                twoPane = layout.twoPane,
-                screenHeight = layout.heightDp.dp,
-                isFavorite = isFavorite,
-                selectedSeason = season,
-                episodes = episodes,
-                onToggleFavorite = vm::toggleFavorite,
-                onSelectSeason = vm::selectSeason,
-                onRetryEpisodes = vm::retryEpisodes,
-                onOpenSimilar = onOpenSimilar,
-                onOpenActor = onOpenActor,
-                onPlay = { s, e ->
+            is Loadable.Ready -> if (childProfile && (
+                    !AgeRatingPolicy.allowsChild(d.value.certification) ||
+                        !AgeRatingPolicy.allowsChildGenres(type, d.value.summary.genreIds, d.value.summary.adult)
+                    )) {
+                RestrictedContent()
+            } else {
+                val targetFor: (Int?, Int?) -> PlayTarget = { s, e ->
                     val media = d.value.summary
-                    onPlay(PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath))
-                },
-                downloads = downloads,
-                onDownload = { s, e ->
-                    val media = d.value.summary
-                    downloadFor = PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath)
-                },
-                listState = listState,
-            )
-        }
-        // Sayfa kayınca geri düğmesinin arkasına zemin rengi şerit gelir: afiş/bölüm kartları düğmenin altında
-        // görünmez, düğmeyle üst üste binmez.
-        val scrolledPx = with(LocalDensity.current) { BackBarAfter.toPx() }
-        val scrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > scrolledPx } }
-        if (scrolled) {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.97f))
-                    .statusBarsPadding()
-                    .height(64.dp),
-            )
+                    PlayTarget(
+                        StreamRequest(
+                            tmdbId = media.id,
+                            imdbId = d.value.imdbId,
+                            type = media.type,
+                            season = s,
+                            episode = e,
+                            title = media.title,
+                            year = media.year,
+                        ),
+                        media.title,
+                        media.posterPath,
+                    )
+                }
+                DetailContent(
+                    detail = d.value,
+                    twoPane = layout.twoPane,
+                    screenHeight = layout.heightDp.dp,
+                    isFavorite = isFavorite,
+                    selectedSeason = season,
+                    episodes = episodes,
+                    onToggleFavorite = vm::toggleFavorite,
+                    onSelectSeason = vm::selectSeason,
+                    onRetryEpisodes = vm::retryEpisodes,
+                    onOpenSimilar = onOpenSimilar,
+                    onOpenActor = onOpenActor,
+                    onPlay = { s, e -> onPlay(targetFor(s, e)) },
+                    onDownload = { s, e -> onDownload(targetFor(s, e)) },
+                )
+            }
         }
         StatusBarScrim()
         // Geri oku: kapağın üstünde de okunsun diye yarı saydam daire içinde modern buton.
@@ -177,7 +170,7 @@ fun DetailScreen(
             onClick = onBack,
             shape = CircleShape,
             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
+            border = null,
             modifier = Modifier
                 .statusBarsPadding()
                 .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -194,19 +187,17 @@ fun DetailScreen(
             }
         }
     }
-    downloadFor?.let { target ->
-        SourcesSheet(target = target, onDismiss = { downloadFor = null }, onPicked = {}, downloadMode = true)
-    }
 }
 
-/** Bu kadar kaydırılınca geri düğmesinin arkasına şerit gelir. */
-private val BackBarAfter = 120.dp
-
-/** Bu film/bölümün indirme satırı (yoksa null). */
-private fun List<DownloadEntity>.of(detail: MediaDetail, season: Int?, episode: Int?): DownloadEntity? =
-    firstOrNull {
-        it.tmdbId == detail.summary.id && it.type == detail.summary.type && it.season == (season ?: 0) && it.episode == (episode ?: 0)
+@Composable
+private fun RestrictedContent() {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
+            Text("Bu içerik çocuk profili için uygun değil", style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
+            Text("Yaş derecelendirmesi 12 yaş sınırını aşıyor veya TMDB’de bulunamadı.", textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp))
+        }
     }
+}
 
 @Composable
 internal fun DetailContent(
@@ -217,16 +208,14 @@ internal fun DetailContent(
     twoPane: Boolean,
     screenHeight: Dp,
     isSeries: Boolean = detail.summary.type == MediaType.Tv,
+    allowDownloads: Boolean = true,
     onToggleFavorite: () -> Unit,
     onSelectSeason: (Int) -> Unit,
     onRetryEpisodes: () -> Unit,
     onOpenSimilar: (MediaType, Int) -> Unit = { _, _ -> },
     onOpenActor: (String) -> Unit = {},
     onPlay: (Int?, Int?) -> Unit,
-    downloads: List<DownloadEntity> = emptyList(),
-    /** Verilmezse (ör. sağlayıcı detayı) indir düğmeleri görünmez. */
-    onDownload: ((Int?, Int?) -> Unit)? = null,
-    listState: LazyListState = rememberLazyListState(),
+    onDownload: (Int?, Int?) -> Unit = { _, _ -> },
 ) {
     val media = detail.summary
     val posterTemplate by rememberContainer().settings.posterUrlTemplate.collectAsStateWithLifecycle(initialValue = PosterUrlTemplate.DEFAULT)
@@ -235,12 +224,8 @@ internal fun DetailContent(
         ?: media.posterPath
     // Kumanda: başlangıç odağı ana işte (film: Oynat, dizi: sezon seçici).
     val primaryFocus = rememberInitialFocus()
-    val movieDownload = if (isSeries) null else onDownload?.let { download ->
-        val entry = downloads.of(detail, null, null)
-        DownloadAction(DownloadRules.contentBadge(entry), entry) { download(null, null) }
-    }
     val header: @Composable (Dp) -> Unit = { padding ->
-        HeaderBlock(detail, isFavorite, selectedSeason, primaryFocus, padding, isSeries, onToggleFavorite, onSelectSeason, onPlay, movieDownload)
+        HeaderBlock(detail, isFavorite, selectedSeason, primaryFocus, padding, isSeries, allowDownloads, onToggleFavorite, onSelectSeason, onPlay, onDownload)
     }
 
     if (twoPane) {
@@ -248,7 +233,6 @@ internal fun DetailContent(
         BoxWithConstraints(Modifier.fillMaxSize()) {
             WideBackdrop(preferredPoster)
             LazyColumn(
-                state = listState,
                 modifier = Modifier.fillMaxHeight().width(minOf(maxWidth * 0.62f, 680.dp)),
                 contentPadding = PaddingValues(start = 24.dp, end = 16.dp, top = 56.dp, bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -258,14 +242,13 @@ internal fun DetailContent(
                 trailerSection(detail.trailerKey)
                 similarSection(detail.similar, detail.summary.type, 0.dp, onOpenSimilar)
                 castSection(detail.cast, horizontalPadding = 0.dp, onOpenActor = onOpenActor)
-                if (isSeries) episodeSection(episodes, selectedSeason, 8.dp, onRetryEpisodes, onPlay, episodeDownload(detail, downloads, selectedSeason, onDownload))
+                if (isSeries) episodeSection(episodes, selectedSeason, 8.dp, onRetryEpisodes, onPlay, onDownload, allowDownloads)
             }
         }
     } else {
         // Dik telefon: kapak görseli sayfayla birlikte kayar; başlık ve ana işler görselin alt kenarına biner.
         val headerHeight = (screenHeight * 0.58f).coerceIn(300.dp, 520.dp)
         LazyColumn(
-            state = listState,
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -285,31 +268,12 @@ internal fun DetailContent(
             trailerSection(detail.trailerKey)
             similarSection(detail.similar, detail.summary.type, Gutter, onOpenSimilar)
             castSection(detail.cast, horizontalPadding = Gutter, onOpenActor = onOpenActor)
-            if (isSeries) episodeSection(episodes, selectedSeason, Gutter, onRetryEpisodes, onPlay, episodeDownload(detail, downloads, selectedSeason, onDownload))
+            if (isSeries) episodeSection(episodes, selectedSeason, Gutter, onRetryEpisodes, onPlay, onDownload, allowDownloads)
         }
     }
 }
 
-/** Detay'daki yuvarlak indir düğmesinin durumu ve işi. */
-private class DownloadAction(val badge: DownloadBadge, val entry: DownloadEntity?, val onClick: () -> Unit) {
-    val fraction: Float? get() = entry?.let { DownloadRules.fraction(it.downloadedBytes, it.totalBytes) }
-}
-
-/** Dizide bölüm numarasından o bölümün indir düğmesi; [onDownload] yoksa null (düğme gösterilmez). */
-private fun episodeDownload(
-    detail: MediaDetail,
-    downloads: List<DownloadEntity>,
-    selectedSeason: Int?,
-    onDownload: ((Int?, Int?) -> Unit)?,
-): ((Int) -> DownloadAction)? = onDownload?.let { download ->
-    { number ->
-        val season = selectedSeason ?: 1
-        val entry = downloads.of(detail, season, number)
-        DownloadAction(DownloadRules.contentBadge(entry), entry) { download(season, number) }
-    }
-}
-
-/** Başlık (logo ya da metin), tür satırı ve ana işler (film: Oynat + indir + ⋯; dizi: sezon seçici + ⋯). */
+/** Başlık (logo ya da metin), tür satırı ve ana işler (film: Oynat + ⋯; dizi: sezon seçici + ⋯). */
 @Composable
 private fun HeaderBlock(
     detail: MediaDetail,
@@ -318,10 +282,11 @@ private fun HeaderBlock(
     primaryFocus: FocusRequester,
     horizontalPadding: Dp,
     isSeries: Boolean = detail.summary.type == MediaType.Tv,
+    allowDownloads: Boolean,
     onToggleFavorite: () -> Unit,
     onSelectSeason: (Int) -> Unit,
     onPlay: (Int?, Int?) -> Unit,
-    movieDownload: DownloadAction? = null,
+    onDownload: (Int?, Int?) -> Unit,
 ) {
     val media = detail.summary
     Column(Modifier.padding(horizontal = horizontalPadding), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -346,7 +311,14 @@ private fun HeaderBlock(
                     Icon(PlayIcons.PlayTriangle, contentDescription = null, modifier = Modifier.size(22.dp))
                     Text(stringResource(R.string.detail_play), modifier = Modifier.padding(start = 8.dp))
                 }
-                movieDownload?.let { DetailDownloadButton(it, Modifier.size(52.dp)) }
+                if (allowDownloads) {
+                    OutlinedIconButton(
+                        onClick = { onDownload(null, null) },
+                        modifier = Modifier.size(52.dp),
+                    ) {
+                        Icon(PlayIcons.Download, contentDescription = stringResource(R.string.download_action))
+                    }
+                }
             }
             MoreButton(isFavorite, onToggleFavorite)
         }
@@ -544,7 +516,8 @@ private fun LazyListScope.episodeSection(
     horizontalPadding: Dp,
     onRetryEpisodes: () -> Unit,
     onPlay: (Int?, Int?) -> Unit,
-    downloadOf: ((Int) -> DownloadAction)? = null,
+    onDownload: (Int?, Int?) -> Unit,
+    allowDownloads: Boolean,
 ) {
     when (episodes) {
         Loadable.Loading -> item { CenteredLoadingRow() }
@@ -562,7 +535,13 @@ private fun LazyListScope.episodeSection(
             }
         } else {
             items(episodes.value, key = { it.number }) { episode ->
-                EpisodeRow(episode, horizontalPadding, downloadOf?.invoke(episode.number)) { onPlay(selectedSeason ?: 1, episode.number) }
+                EpisodeRow(
+                    episode,
+                    horizontalPadding,
+                    onClick = { onPlay(selectedSeason ?: 1, episode.number) },
+                    onDownload = { onDownload(selectedSeason ?: 1, episode.number) },
+                    allowDownload = allowDownloads,
+                )
             }
         }
     }
@@ -659,33 +638,28 @@ private fun SeasonPicker(
 }
 
 @Composable
-private fun EpisodeRow(episode: Episode, horizontalPadding: Dp, download: DownloadAction?, onClick: () -> Unit) {
-    // Satır (oynatır) ve sağındaki yuvarlak indir düğmesi kumandada ayrı ayrı odaklanır (Sağ tuşu düğmeye geçer).
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = horizontalPadding, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        EpisodeCard(episode, Modifier.weight(1f), onClick)
-        download?.let { DetailDownloadButton(it, Modifier.size(48.dp)) }
+private fun EpisodeRow(
+    episode: Episode,
+    horizontalPadding: Dp,
+    onClick: () -> Unit,
+    onDownload: () -> Unit = {},
+    allowDownload: Boolean = true,
+) {
+    val title = if (episode.name.isBlank()) {
+        stringResource(R.string.detail_episode_fallback, episode.number)
+    } else {
+        stringResource(R.string.detail_episode_title, episode.number, episode.name)
     }
-}
-
-@Composable
-private fun EpisodeCard(episode: Episode, modifier: Modifier, onClick: () -> Unit) {
-    // TMDB adı yalnızca "1. Bölüm" gibi numaradan ibaretse ya da boşsa "1. Bölüm"; numara asla iki kez yazılmaz.
-    val title = EpisodeTitles.displayName(episode.number, episode.name)
-        ?.let { stringResource(R.string.detail_episode_title, episode.number, it) }
-        ?: stringResource(R.string.detail_episode_fallback, episode.number)
     val shape = MaterialTheme.shapes.medium
     Surface(
         onClick = onClick,
         shape = shape,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)),
-        modifier = modifier.focusRing(shape),
+        border = null,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = horizontalPadding, vertical = 4.dp)
+            .focusRing(shape),
     ) {
         Row(
             modifier = Modifier
@@ -720,29 +694,12 @@ private fun EpisodeCard(episode: Episode, modifier: Modifier, onClick: () -> Uni
                     )
                 }
             }
+            if (allowDownload) {
+                OutlinedIconButton(onClick = onDownload, modifier = Modifier.size(48.dp)) {
+                    Icon(PlayIcons.Download, contentDescription = stringResource(R.string.download_action))
+                }
+            }
         }
-    }
-}
-
-/**
- * Yuvarlak indir düğmesi (film: Oynat'ın yanında; dizi: bölüm satırının sağında). İndirilmemiş: aşağı ok; sürüyor:
- * ilerleme halkası; indirildi: tik; başarısız: hata renginde ok (dokununca yeniden). Dokununca kaynak listesi indirme
- * modunda açılır; sürerken ya da indirilmişken bir şey yapmaz (yönetim Kütüphane > İndirilenler'de).
- */
-@Composable
-private fun DetailDownloadButton(action: DownloadAction, modifier: Modifier = Modifier) {
-    val label = stringResource(
-        when (action.badge) {
-            DownloadBadge.None, DownloadBadge.Failed -> R.string.download_action
-            DownloadBadge.Active -> R.string.download_in_progress
-            DownloadBadge.Done -> R.string.download_done
-        },
-    )
-    OutlinedIconButton(
-        onClick = { if (action.badge == DownloadBadge.None || action.badge == DownloadBadge.Failed) action.onClick() },
-        modifier = modifier.semantics { contentDescription = label },
-    ) {
-        DownloadStateIcon(action.badge, action.fraction)
     }
 }
 

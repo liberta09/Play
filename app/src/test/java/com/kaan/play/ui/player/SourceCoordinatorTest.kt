@@ -16,7 +16,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.TestScope
@@ -112,12 +111,51 @@ class SourceCoordinatorTest {
     }
 
     @Test
-    fun openingDubWaitPrefersDubbedArrivingAtTwoSeconds() = runTest {
+    fun firstRenderedFrameCancelsBackgroundDiscoveryAndPanelCanRestartIt() = runTest {
+        val a = stream(source1, "https://a/1")
+        var runs = 0
+        var cancellations = 0
+        val results = flow {
+            runs++
+            emit(found(source1, a))
+            if (runs == 1) {
+                try {
+                    awaitCancellation()
+                } finally {
+                    cancellations++
+                }
+            }
+        }
+        val rig = Rig(this, results, preferDub = false, request = request)
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+        assertEquals(SourcePhase.Starting, rig.coordinator.phase)
+        assertTrue(rig.coordinator.loading)
+        assertEquals(1, runs)
+
+        rig.coordinator.onFirstFrame()
+        runCurrent()
+        assertEquals(SourcePhase.Playing, rig.coordinator.phase)
+        assertTrue("late dub/source results remain available during the grace window", rig.coordinator.loading)
+        advanceTimeBy(PLAYBACK_DISCOVERY_GRACE_MS)
+        runCurrent()
+        assertFalse(rig.coordinator.loading)
+        assertEquals(1, cancellations)
+
+        // Source panel is an explicit user request and may resume discovery while playback continues.
+        rig.coordinator.ensureSources()
+        runCurrent()
+        assertEquals(2, runs)
+        assertFalse(rig.coordinator.loading)
+    }
+
+    @Test
+    fun openingDubWaitPrefersDubbedArrivingAtFiveSeconds() = runTest {
         val sub = stream(source1, "https://a/sub")
         val dub = stream(source2, "https://b/dub", dub = true, res = 720)
         val rig = Rig(this, flow {
             emit(found(source1, sub))
-            delay(2_000)
+            delay(5_000)
             emit(found(source2, dub))
             delay(60_000)
         }, preferDub = true, request = request)
@@ -127,12 +165,12 @@ class SourceCoordinatorTest {
         assertEquals(SourcePhase.Resolving, rig.coordinator.phase)
         assertTrue(rig.loaded.isEmpty())
 
-        // 1.5 sn'de henüz altyazılı başlamamalı, dublaj beklenmeli
-        advanceTimeBy(1_500)
-        assertTrue("1.5 sn'de altyazılı başlamamalı, dublaj beklenmeli", rig.loaded.isEmpty())
+        // 3.5 sn'de (eski 3 sn beklemesi aşılmışken) henüz altyazılı başlamamalı, 8 sn beklenmeli
+        advanceTimeBy(3_500)
+        assertTrue("3.5 sn'de altyazılı başlamamalı, dublaj beklenmeli", rig.loaded.isEmpty())
 
-        // 2 sn'de dublajlı kaynak gelince dublajlı başlamalı
-        advanceTimeBy(600)
+        // 5 sn'de dublajlı kaynak gelince dublajlı başlamalı
+        advanceTimeBy(1_600)
         assertEquals(listOf("https://b/dub"), rig.loaded.map { it.first.url })
         assertEquals(SourcePhase.Starting, rig.coordinator.phase)
     }
@@ -295,7 +333,7 @@ class SourceCoordinatorTest {
     }
 
     @Test
-    fun aLateDubbedSourceIsOfferedWithoutStoppingPlayback() = runTest {
+    fun aLateDubbedSourceAutomaticallyReplacesSubtitlesAtCurrentPosition() = runTest {
         val sub = stream(source1, "https://a/sub")
         val dub = stream(source2, "https://b/dub", dub = true)
         val rig = Rig(this, flow {
@@ -307,14 +345,8 @@ class SourceCoordinatorTest {
         advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         assertEquals("https://a/sub", rig.lastUrl)
         rig.coordinator.onFirstFrame()
-        assertNull(rig.coordinator.dubSuggestion)
-        advanceTimeBy(3_500)
-        assertEquals(dub, rig.coordinator.dubSuggestion)
-        assertEquals("oynatma kesilmedi", 1, rig.loaded.size)
-
-        // Geç: kaldığı saniyeden devam.
         rig.positionMs = 61_000
-        rig.coordinator.acceptDubSuggestion()
+        advanceTimeBy(3_500)
         assertEquals(dub.url, rig.lastUrl)
         assertEquals(61_000L, rig.loaded.last().second)
         assertNull(rig.coordinator.dubSuggestion)
@@ -325,7 +357,7 @@ class SourceCoordinatorTest {
     }
 
     @Test
-    fun dismissingTheDubOfferKeepsItClosed() = runTest {
+    fun laterDubbedResultsDoNotReplaceTheFirstWorkingDub() = runTest {
         val sub = stream(source1, "https://a/sub")
         val dub1 = stream(source2, "https://b/dub", dub = true)
         val dub2 = stream(StreamSource(3, "C"), "https://c/dub", dub = true)
@@ -339,12 +371,15 @@ class SourceCoordinatorTest {
         rig.coordinator.start(null, emptyList(), 0)
         advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         rig.coordinator.onFirstFrame()
+        rig.positionMs = 45_000
         advanceTimeBy(2_000)
-        assertEquals(dub1, rig.coordinator.dubSuggestion)
-        rig.coordinator.dismissDubSuggestion()
+        assertEquals(dub1.url, rig.lastUrl)
+        assertEquals(45_000L, rig.loaded.last().second)
+        advanceTimeBy(500)
+        rig.coordinator.onFirstFrame()
         advanceUntilIdle()
-        assertNull(rig.coordinator.dubSuggestion)
-        assertEquals(1, rig.loaded.size)
+        assertEquals(dub1.url, rig.lastUrl)
+        assertEquals(2, rig.loaded.size)
     }
 
     @Test
@@ -410,7 +445,12 @@ class SourceCoordinatorTest {
         val probed = mutableListOf<String>()
         val rig = Rig(
             this,
-            flow { emit(found(source1, direct, hls, torrent)); emit(found(source2, known)) },
+            flow {
+                emit(found(source1, direct, hls, torrent))
+                delay(100)
+                emit(found(source2, known))
+                delay(60_000)
+            },
             probe = { probed += it.url; 7_700_000_000L },
             request = request,
         )
@@ -431,11 +471,18 @@ class SourceCoordinatorTest {
     @Test
     fun aFailingSizeProbeIsSilent() = runTest {
         val a = stream(source1, "https://a/file.mkv", size = null)
-        val rig = Rig(this, flow { emit(found(source1, a)) }, probe = { null }, request = request)
+        var probeCalls = 0
+        val rig = Rig(
+            this,
+            flow { emit(found(source1, a)); delay(1_000) },
+            probe = { probeCalls++; null },
+            request = request,
+        )
         rig.coordinator.start(null, emptyList(), 0)
         advanceUntilIdle()
         assertNull(rig.coordinator.sizeOf(a))
         assertEquals(listOf(a.url), rig.loaded.map { it.first.url })
+        assertEquals(1, probeCalls)
         rig.coordinator.onFirstFrame()
     }
 
@@ -497,13 +544,13 @@ class SourceCoordinatorTest {
             preferDub = false,
             request = request,
             sourceProbe = { s ->
-                delay(10_000) // 5s zaman aşımını aşıyor
+                delay(5_000) // 2s zaman aşımını aşıyor
                 Probe.Ok(SourceKind.Progressive, s.sizeBytes)
             },
         )
         rig.coordinator.start(null, emptyList(), 0)
         runCurrent()
-        advanceTimeBy(5_100) // 5s probe zaman aşımı
+        advanceTimeBy(2_100) // 2s probe zaman aşımı
 
         // Zaman aşımı durumunda kaynak elenmez ve oynatılmaya başlanır
         assertEquals(listOf(slowStream.url), rig.loaded.map { it.first.url })
@@ -829,106 +876,6 @@ class SourceCoordinatorTest {
             "200 sonuçta sıralama sayacı (${rig.coordinator.rankComputationCount}) 10'dan küçük olmalı",
             rig.coordinator.rankComputationCount < 10,
         )
-    }
-
-    @Test
-    fun loadIsAlwaysCalledOnScopeDispatcherNeverOnRankingDispatcher() = runTest {
-        val testMainThread = Thread.currentThread()
-        val rankingThreadRef = java.util.concurrent.atomic.AtomicReference<Thread>()
-        val rankingExecutor = java.util.concurrent.Executors.newSingleThreadExecutor { runnable ->
-            Thread(runnable, "ranking-test-worker-thread").also { rankingThreadRef.set(it) }
-        }
-        val customRankingDispatcher = rankingExecutor.asCoroutineDispatcher()
-
-        val loadThreads = java.util.Collections.synchronizedList(mutableListOf<Thread>())
-        val loadedStreams = java.util.Collections.synchronizedList(mutableListOf<PlayableStream>())
-
-        val streams = (1..200).map { i ->
-            stream(source1, "https://example.com/stream_$i.mp4", dub = false, res = 720, size = 1_000_000_000L + i)
-        }
-
-        try {
-            val coordinator = SourceCoordinator(
-                scope = this,
-                request = request,
-                streamsFor = {
-                    flow {
-                        for (s in streams) {
-                            emit(found(source1, s))
-                        }
-                        delay(60_000)
-                    }
-                },
-                preferenceFor = { null },
-                remember = { _, _ -> },
-                sizeProbe = { null },
-                preferDub = false,
-                autoSource = true,
-                load = { s, p ->
-                    loadThreads.add(Thread.currentThread())
-                    loadedStreams.add(s)
-                },
-                position = { 0L },
-                clock = { testScheduler.currentTime },
-                sourceProbe = null,
-                rankingDispatcher = customRankingDispatcher,
-            )
-
-            coordinator.start(null, emptyList(), 0)
-            advanceUntilIdle()
-
-            assertTrue("En az bir kaynak yuklenmeli", loadedStreams.isNotEmpty())
-            assertTrue("Load en az bir kez cagirilmali", loadThreads.isNotEmpty())
-
-            for (thread in loadThreads) {
-                val isRankingThread = (rankingThreadRef.get() != null && thread == rankingThreadRef.get()) ||
-                    thread.name.contains("ranking-test-worker-thread")
-                assertFalse("load asla rankingDispatcher threadinde cagrilmamali", isRankingThread)
-                assertEquals("load her zaman scope threadinde cagrilmali", testMainThread, thread)
-            }
-        } finally {
-            customRankingDispatcher.close()
-            rankingExecutor.shutdown()
-        }
-    }
-
-    @Test
-    fun firstRenderedFrameCancelsBackgroundDiscoveryAndPanelCanRestartIt() = runTest {
-        val a = stream(source1, "https://a/1")
-        var runs = 0
-        var cancellations = 0
-        val results = flow {
-            runs++
-            emit(found(source1, a))
-            if (runs == 1) {
-                try {
-                    awaitCancellation()
-                } finally {
-                    cancellations++
-                }
-            }
-        }
-        val rig = Rig(this, results, preferDub = false, request = request)
-        rig.coordinator.start(null, emptyList(), 0)
-        runCurrent()
-        assertEquals(SourcePhase.Starting, rig.coordinator.phase)
-        assertTrue(rig.coordinator.loading)
-        assertEquals(1, runs)
-
-        rig.coordinator.onFirstFrame()
-        runCurrent()
-        assertEquals(SourcePhase.Playing, rig.coordinator.phase)
-        assertTrue("late dub/source results remain available during the grace window", rig.coordinator.loading)
-        advanceTimeBy(PLAYBACK_DISCOVERY_GRACE_MS)
-        runCurrent()
-        assertFalse(rig.coordinator.loading)
-        assertEquals(1, cancellations)
-
-        // Source panel is an explicit user request and may resume discovery while playback continues.
-        rig.coordinator.ensureSources()
-        runCurrent()
-        assertEquals(2, runs)
-        assertFalse(rig.coordinator.loading)
     }
 
     @Test

@@ -3,6 +3,8 @@ package com.kaan.play.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.material3.ripple
@@ -38,6 +40,8 @@ import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.ui.rememberContainer
 import java.util.concurrent.ConcurrentHashMap
+import androidx.compose.ui.zIndex
+import com.kaan.play.ui.tv.tvFocusableScaleGlow
 
 private data class CachedImdbId(val value: String?, val checkedAtMs: Long)
 private val tmdbImdbCache = ConcurrentHashMap<String, CachedImdbId>()
@@ -49,6 +53,7 @@ private const val EMPTY_IMDB_CACHE_TTL_MS = 2 * 60 * 1_000L
  * [overlay]: afişin üstüne çizilen küçük eylem (ör. favoriden çıkar düğmesi).
  */
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 fun PosterCard(
     title: String,
     subtitle: String?,
@@ -62,6 +67,7 @@ fun PosterCard(
     tmdbId: Int? = null,
     mediaType: MediaType? = null,
     overlay: @Composable BoxScope.() -> Unit = {},
+    onLongClick: (() -> Unit)? = null,
 ) {
     val resolvedImageUrl = resolvePosterImageUrl(imageUrl, posterId, tmdbId, mediaType)
     val shape = MaterialTheme.shapes.medium
@@ -69,18 +75,25 @@ fun PosterCard(
     val interaction = remember { MutableInteractionSource() }
     val focused by interaction.collectIsFocusedAsState()
     // Tüm sütunu yuvarlak kırpmayız: alt satırın ilk harfini keserdi. Yalnızca afiş kırpılır.
-    Column(modifier = modifier.clickable(interactionSource = interaction, indication = ripple(), onClick = onClick)) {
+    val clickModifier = if (onLongClick != null) {
+        modifier.combinedClickable(interactionSource = interaction, indication = ripple(), onClick = onClick, onLongClick = onLongClick)
+    } else {
+        modifier.clickable(interactionSource = interaction, indication = ripple(), onClick = onClick)
+    }
+    Column(modifier = clickModifier.zIndex(if (focused) 10f else 0f)) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(2f / 3f)
-                .clip(shape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .border(
-                    width = if (focused) 3.dp else 1.dp,
-                    color = if (focused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                .tvFocusableScaleGlow(
+                    scale = 1.06f,
+                    glowColor = Color(0xFF00E5FF),
                     shape = shape,
-                ),
+                    isFocused = focused,
+                    zIndex = 10f,
+                )
+                .clip(shape)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
             if (resolvedImageUrl != null) {
                 AsyncImage(

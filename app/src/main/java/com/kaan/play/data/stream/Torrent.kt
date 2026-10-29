@@ -106,7 +106,11 @@ class TorrentStreamProvider(
         if (result !is StreamResult.Found || result.streams.none { TorrentLinks.isMagnet(it.url) }) return@map result
         val base = TorrentLinks.normalizeServer(server())
         if (base == null) {
-            onBuiltIn()
+            try {
+                onBuiltIn()
+            } catch (t: Throwable) {
+                android.util.Log.w("PlayTorrent", "onBuiltIn warmUp hatası (zırhlandı): ${t.message}", t)
+            }
             return@map result
         }
         result.copy(streams = result.streams.map { s ->

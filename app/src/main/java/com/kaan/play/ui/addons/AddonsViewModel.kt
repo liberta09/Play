@@ -6,6 +6,8 @@ import com.kaan.play.data.addon.Addon
 import com.kaan.play.data.addon.AddonException
 import com.kaan.play.data.addon.AddonRepository
 import com.kaan.play.data.cloudstream.CsRepo
+import com.kaan.play.data.cloudstream.CsRepoCatalogStore
+import com.kaan.play.data.cloudstream.CsRepoReference
 import com.kaan.play.data.cloudstream.CsRepository
 import com.kaan.play.data.cloudstream.InstalledCsPlugin
 import com.kaan.play.data.plugin.AddResult
@@ -167,7 +169,9 @@ class InstalledAddonsViewModel(
 
     val csGroups: StateFlow<List<CsPluginGroup>?> =
         combine(csRepos.repos, csRepos.plugins) { repos, all ->
-            repos.mapNotNull { r -> all.filter { it.repoId == r.id }.takeIf { it.isNotEmpty() }?.let { CsPluginGroup(r, it) } }
+            // Depo satırını daima göster: Mega alt depoları, eklentileri kısmen/hiç indirilemese bile eklenenler ekranında
+            // görünür kalır; en az bir plugin varsa grup anahtarıyla tümü açılıp kapatılabilir.
+            repos.map { r -> CsPluginGroup(r, all.filter { it.repoId == r.id }) }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     fun setEnabled(addon: Addon, enabled: Boolean) {
@@ -204,14 +208,46 @@ class InstalledAddonsViewModel(
 }
 
 /** CloudStream depo yönetimi: listele ve kaldır. */
-class CsReposViewModel(private val csRepos: CsRepository) : ViewModel() {
+class CsReposViewModel(
+    private val csRepos: CsRepository,
+    private val catalog: CsRepoCatalogStore,
+) : ViewModel() {
 
     val repos: StateFlow<List<CsRepo>?> =
         csRepos.repos.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    val subRepositories: StateFlow<List<CsRepoReference>> =
+        combine(csRepos.repos, catalog.entries) { installed, discovered ->
+            val installedUrls = installed.map { canonicalRepoUrl(it.sourceUrl) }.toSet()
+            discovered.filterNot { canonicalRepoUrl(it.url) in installedUrls }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    private val _installingUrl = MutableStateFlow<String?>(null)
+    val installingUrl: StateFlow<String?> = _installingUrl.asStateFlow()
+    private val _installMessage = MutableStateFlow<String?>(null)
+    val installMessage: StateFlow<String?> = _installMessage.asStateFlow()
+
     fun remove(repo: CsRepo) {
         viewModelScope.launch { csRepos.remove(repo.id) }
     }
+
+    fun install(item: CsRepoReference) {
+        if (_installingUrl.value != null) return
+        _installingUrl.value = item.url
+        _installMessage.value = null
+        viewModelScope.launch {
+            try {
+                csRepos.add(item.url)
+                catalog.remove(item.url)
+            } catch (e: Exception) {
+                _installMessage.value = "Kurulum başarısız: ${e.message ?: e.javaClass.simpleName}"
+            } finally {
+                _installingUrl.value = null
+            }
+        }
+    }
+
+    private fun canonicalRepoUrl(url: String): String = url.trim().removeSuffix("/").lowercase()
 }
 
 /** Bir güncelleme denetiminin ya da işleminin sonucu (tek seferlik bildirim). */

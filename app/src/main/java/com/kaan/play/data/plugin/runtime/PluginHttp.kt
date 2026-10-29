@@ -1,5 +1,6 @@
 package com.kaan.play.data.plugin.runtime
 
+import android.util.Base64
 import com.kaan.play.data.plugin.BlockedAddressException
 import com.kaan.play.data.plugin.NetworkPolicy
 import kotlinx.serialization.json.Json
@@ -19,7 +20,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
-import java.util.Base64
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
@@ -42,7 +42,8 @@ data class PluginLimits(
  * Eklentinin `fetch`'inin yerel tarafı (docs/nuvio-plugin-format.md §3.2/§3.4). Kurallar:
  * - Yalnızca http/https; yerel/özel ağ adresleri reddedilir ([NetworkPolicy]); yönlendirmeler her adımda denetlenir.
  * - Yanıt gövdesi [PluginLimits.maxResponseBytes] ile kırpılır (`truncated`); toplam bayt ve istek sayısı bütçelidir.
- * - Çerezler bu çağrıya özeldir (bellek içi, çağrı bitince atılır): eklentiler arası ve çağrılar arası paylaşım yok.
+ * - Çerezler çağrıya özeldir ve bellekte kalır; yalnızca aynı çağrının döndürdüğü medya URL'siyle eşleşenler kısa ömürlü
+ *   oynatıcı oturumuna aktarılır. Kalıcı depoya, başka eklenti/çağrıya ya da WebView'e paylaşılmaz.
  * - **TMDB anahtarı:** eklentiye yalnızca yer tutucu verilir; `https://api.themoviedb.org` isteklerinin sorgusundaki yer tutucu
  *   burada gerçek anahtarla değiştirilir (anahtar yalnızca bu sınıfın içinde yaşar). Başka bir ana makineye giden isteklerde
  *   yer tutucu aynen kalır. Anahtarlı istekte yönlendirme izlenmez (anahtar başka bir adrese sızmasın).
@@ -57,10 +58,14 @@ internal class PluginHttp(
     private val tmdbHttpsOnly: Boolean = true,
     private val notes: PluginHttpNotes = PluginHttpNotes(),
 ) {
+    private val cookieJar = MemoryCookieJar()
     private val client: OkHttpClient = policy.apply(base.newBuilder())
-        .cookieJar(MemoryCookieJar())
+        .cookieJar(cookieJar)
         .callTimeout(limits.requestTimeoutMs, TimeUnit.MILLISECONDS)
         .build()
+
+    /** Session cookies remain memory-only and are handed to the player only through URL-scoped matching. */
+    fun sessionCookies(): List<Cookie> = cookieJar.snapshot()
 
     private val requests = AtomicInteger()
     private val totalBytes = AtomicLong()
@@ -117,7 +122,7 @@ internal class PluginHttp(
                     put("redirected", response.request.url != url && !usesTmdbKey)
                     put("headers", headers)
                     put("body", String(bytes, charset))
-                    put("bodyBase64", Base64.getEncoder().encodeToString(bytes))
+                    put("bodyBase64", Base64.encodeToString(bytes, Base64.NO_WRAP))
                     put("truncated", truncated)
                 }.toString()
             }
@@ -177,7 +182,7 @@ internal class PluginHttp(
         val payload: ByteArray? = when (kind) {
             "text" -> opts.str("body").orEmpty().toByteArray(Charsets.UTF_8)
             "base64" -> try {
-                Base64.getDecoder().decode(opts.str("body").orEmpty())
+                Base64.decode(opts.str("body").orEmpty(), Base64.DEFAULT)
             } catch (_: IllegalArgumentException) {
                 throw IllegalArgumentException("bad body")
             }
@@ -221,8 +226,8 @@ internal class PluginHttp(
 }
 
 /**
- * Bellek içi çerez kavanozu. Her çalıştırma kendi kavanozunu kurar ve atar: kalıcı depoya yazılmaz, uygulamanın başka
- * çerezleriyle (Web görünümü dahil) ve diğer eklentilerle paylaşılmaz.
+ * Bellek içi çerez kavanozu. Her çalıştırma kendi kavanozunu kurar; orijinal kavanoz çağrı bitince atılır. Yalnızca
+ * PluginRuntime'ın döndürdüğü snapshot, medya URL'siyle eşleşirse ayrı ve kısa ömürlü oynatıcı oturumuna kopyalanır.
  */
 internal class MemoryCookieJar : CookieJar {
     private val store = ArrayList<Cookie>()
@@ -241,6 +246,12 @@ internal class MemoryCookieJar : CookieJar {
         val now = System.currentTimeMillis()
         store.removeAll { it.expiresAt <= now }
         return store.filter { it.matches(url) }
+    }
+
+    @Synchronized
+    fun snapshot(): List<Cookie> {
+        store.removeAll { it.expiresAt <= System.currentTimeMillis() }
+        return store.toList()
     }
 }
 

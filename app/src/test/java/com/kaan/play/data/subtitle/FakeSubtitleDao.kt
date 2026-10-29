@@ -34,29 +34,4 @@ class FakeSubtitleDao : SubtitleDao {
         val newest = offsets.values.sortedByDescending { it.updatedAt }.take(keep).map { it.contentKey to it.subtitleKey }.toSet()
         offsets.keys.retainAll(newest)
     }
-
-    override suspend fun pruneLanguages(keep: Int) {
-        val newest = languages.values.sortedByDescending { it.updatedAt }.take(keep).map { it.contentKey }.toSet()
-        languages.keys.retainAll(newest)
-    }
-
-    override suspend fun clearOffsets() {
-        writes++
-        offsets.clear()
-    }
-
-    override suspend fun clearLanguages() {
-        writes++
-        languages.clear()
-    }
-
-    override suspend fun clearAll() {
-        writes++
-        offsets.clear()
-        languages.clear()
-    }
-
-    override suspend fun deleteAll() {
-        clearAll()
-    }
 }

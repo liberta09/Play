@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.selection.selectable
@@ -222,8 +221,8 @@ fun SourcePanel(
     val noneFound = stringResource(R.string.subs_first_none)
     val otherLanguage = stringResource(R.string.subtitle_language_other)
 
-    // Panel açılınca kaynaklar (henüz yüklenmediyse) yüklenir.
-    LaunchedEffect(coordinator) { coordinator?.ensureSources() }
+    // Panel açıkken oynatma ilk kareye ulaşırsa arka plan araması kesilir; loading değişimiyle panel aramayı yeniden başlatır.
+    LaunchedEffect(coordinator, coordinator?.loading) { coordinator?.ensureSources() }
     LaunchedEffect(message) {
         if (message != null) {
             delay(4_000)
@@ -305,10 +304,7 @@ fun SourcePanel(
                 if (coordinator.loading) {
                     item(key = "loading") { SoftText(stringResource(R.string.sources_checking_more) + if (pending.isNotEmpty()) " (${pending.joinToString { it.addonName }})" else "") }
                 }
-                val uniqueFailed = coordinator.failedSources.distinctBy { it.addonId }
-                itemsIndexed(uniqueFailed, key = { index, item -> "f-${item.addonId}_$index" }) { _, it ->
-                    SoftText(stringResource(R.string.sources_failed, it.addonName))
-                }
+                items(coordinator.failedSources, key = { "f-${it.addonId}" }) { SoftText(stringResource(R.string.sources_failed, it.addonName)) }
                 if (!coordinator.loading && shown.isEmpty()) item(key = "empty") { SoftText(stringResource(R.string.sources_empty)) }
             }
         }

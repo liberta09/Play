@@ -50,6 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.AppContainer
 import com.kaan.play.R
 import com.kaan.play.data.addon.Addon
+import com.kaan.play.data.addon.AddonUrl
 import com.kaan.play.data.addon.CatalogVisibility
 import com.kaan.play.data.addon.ManifestCatalog
 import com.kaan.play.data.model.MediaType
@@ -61,16 +62,12 @@ import com.kaan.play.ui.components.ScreenHeader
 import com.kaan.play.ui.home.ProviderCategoryScreen
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.tv.focusRing
-import com.kaan.play.ui.tv.rememberRowControls
-import com.kaan.play.ui.tv.rowControl
-import com.kaan.play.ui.tv.rowControlsHost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import kotlin.time.Duration.Companion.seconds
 
 private sealed interface CatalogCountState {
@@ -158,8 +155,7 @@ private fun AddonDetailContent(
                 semaphore.withPermit {
                     withContext(Dispatchers.IO) {
                         try {
-                            val urlString = "${addon.baseUrl}/catalog/${cat.type}/${cat.id}.json"
-                            val httpUrl = urlString.toHttpUrlOrNull()
+                            val httpUrl = AddonUrl.endpoint(addon.sourceUrl, "catalog", cat.type, "${cat.id}.json")
                             if (httpUrl == null) {
                                 catalogCounts[key] = CatalogCountState.Error
                                 return@withContext
@@ -277,7 +273,7 @@ private fun AddonDetailContent(
                     val isEnabled = CatalogVisibility.isVisible(addon.id, cat.type, cat.id, disabledCatalogs)
                     val countState = catalogCounts[key]
                     val catTitle = cat.name ?: when (cat.id) {
-                        "top" -> stringResource(if (cat.type == "series") R.string.home_row_popular_series else R.string.home_row_popular_movies)
+                        "top" -> if (cat.type == "series") "Popüler Diziler" else "Popüler Filmler"
                         else -> cat.id.replaceFirstChar { it.uppercase() }
                     }
 
@@ -337,7 +333,6 @@ private fun CatalogManageRow(
     onClick: () -> Unit,
 ) {
     val shape = RoundedCornerShape(14.dp)
-    val controls = rememberRowControls(1)
     Surface(
         onClick = onClick,
         shape = shape,
@@ -345,7 +340,6 @@ private fun CatalogManageRow(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier
             .fillMaxWidth()
-            .rowControlsHost(controls)
             .focusRing(shape),
     ) {
         Row(
@@ -422,7 +416,6 @@ private fun CatalogManageRow(
                     checkedTrackColor = MaterialTheme.colorScheme.primary,
                 ),
                 modifier = Modifier
-                    .rowControl(controls, 0)
                     .focusRing(CircleShape)
                     .semantics { contentDescription = title },
             )
