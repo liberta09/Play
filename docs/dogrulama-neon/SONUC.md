@@ -137,3 +137,38 @@ BULUNAMADI denemelerinin günlükleri (yalnızca olgu):
 - dal 1: `istek` + ağ satırları; hdfilmcehennemi.mobi yanıtı ≈12,7 sn sonra; akış satırı yok.
 - Üç denemede de (ve 20 denemenin hiçbirinde) günlükte `JobCancellationException`, "iptal", zaman aşımı ya da `timeout` satırı **yok**. Ekranda mesajın görüldüğü an (≈17,9 sn) ile günlük akışı arasındaki ilişki yorumlanmadı.
 - Başlangıcı uzun olan iki BULUNDU denemesinde (dal 3: 13,0 sn; dal 8: 12,2 sn) günlükte hdfilmcehennemi.nl satırlarından sonra ≈12 sn boşluk, sonra hdfilmcehennemi.mobi yanıtı ve akış satırı var; aynı ≈12 sn boşluk BULUNAMADI olan taban 9 ve dal 1 günlüklerinde de görülür (taban 6'da .mobi satırı hiç yok). Hızlı BULUNDU denemelerinde (≈1–2 sn) boşluk yok. Nedeni araştırılmadı.
+
+---
+
+# 4. tur (2026-10-30): açılış profil kapısı zamanlama yarışı
+
+## Sorun ve düzeltme
+- Eski kod (`PlayRoot`): `profiles`/`activeProfile` `collectAsStateWithLifecycle(initialValue = emptyList()/null)` ile okunuyordu; `LaunchedEffect(profiles, rememberLastProfile)` ilk kompozisyonda liste henüz boşken `profiles.isEmpty()` dalına girip kapıyı açıyor ve `initialGateChecked = true` yapıyordu (kapı sonradan kapanmıyordu). `activeProfile` efekt anahtarında da yoktu. d247b96'da (1.2.0) aynı kod var.
+- Akışların ilk emisyonu gerçek veridir: üçü de `DataStore.data.map { … }` (`LocalProfileRepository.profiles` / `activeProfile`, `SettingsRepository.rememberLastProfile`); `first()` DataStore'dan okunan ilk değeri verir, başlangıç değeri değil.
+- Şimdi: `LaunchedEffect(Unit)` üç akışın `first()` değerlerini bekler, `shouldShowProfileGate(profileCount, hasActive, rememberLast)` ile tek seferde karar verir (`ui/nav/ProfileGateRules.kt`; profil yok / ayar kapalı / aktif yok → AÇIK, hepsi uygun → KAPALI). Karar verilene kadar yalnızca tema zemin rengi çizilir (ne profil seçimi ne ana sayfa). Profil seçim ekranı, kurulum, ayar anahtarı ve `data/**` değişmedi.
+- Birim test: `ProfileGateRulesTest` (4 test, 6 durum).
+
+## Doğrulama (PlayNeon, emulator-5556; index 0'a dokunulmadı)
+Test derlemesi: `versionCode=99` init betiğiyle (`build.gradle` değişmedi: 27 / 1.2.0), `adb install -r -t -d`. Her açılış: `force-stop` + `am start`, 3 sn sonra ekran görüntüsü + `uiautomator dump`. Kanıtlar bu klasörün altında `profil-kapisi/`.
+
+| Koşul | Deneme | Sonuç |
+|---|---|---|
+| "Son profili hatırla" AÇIK | 5 | **5/5 doğrudan ana sayfa** (`acik-1..5.png`, beşi de bayt bayt aynı ana sayfa görüntüsü) |
+| Ayar KAPALI | 2 | **2/2 profil seçimi** (`kapali-1..2.png`) |
+| Ayar tekrar AÇIK (eski hal) | – | "Uygulama açılışında son profil otomatik seçilir" geri geldi (`ayar-tekrar-acik.png`) |
+| Yavaş cihaz: 8 sonsuz döngü, cihaz %600 CPU doygun, ayar AÇIK | 3 + 3 | **6/6 ana sayfa, 0 profil seçimi** |
+
+Yük denemeleri ayrıntısı:
+- İlk 3 (`yuk-1..3`): 3. sn ekran görüntüsünde düz koyu zemin (bekleme/ilk çizim), hemen ardından alınan `uiautomator dump`'ta ana sayfa ("Eklenti seç") görüldü. Bu 3 denemenin ana sayfa görüntüsü yok (dump'a dayanır).
+- Sonraki 3 (`yuk2-1..3`, yük gerçekten çalışırken: `top` %604 user): 3. sn düz koyu zemin, 12. sn ana sayfa (`yuk2-N-3sn.png`, `yuk2-N-12sn.png`). Hiçbirinde profil seçimi çıkmadı.
+
+## GÖRÜLENLER
+- 5/5 (ayar açık), 2/2 (ayar kapalı), 6/6 (yük altında) beklenen ekran.
+- Yük altında 3. snde ekranda ne profil seçimi ne ana sayfa var, yalnızca koyu zemin; sonra ana sayfa.
+- `gradlew testDebugUnitTest assembleDebug` yeşil.
+
+## GÖRÜLMEYENLER
+- Eski kodla **karşılaştırma yapılmadı**: aynı yük altında eski APK'nın hatayı gösterdiği denenmedi, yani bu ortamda yarışın eski kodda tetiklendiği kanıtlanmadı. Düzeltme kod okumasına (yukarıdaki neden) dayanır; deneyler yalnızca yeni kodun yük altında doğru davrandığını gösterir.
+- Bekleme durumunun yanıp sönme olmadığı kare kare ölçülmedi (yalnızca 3. sn görüntüleri var).
+- Gerçek yavaş telefon/TV kutusunda denenmedi; yalnızca LDPlayer + CPU doygunluğu.
+- "Profil yok" (ilk kurulum) yolu cihazda denenmedi; yalnızca birim testte.
