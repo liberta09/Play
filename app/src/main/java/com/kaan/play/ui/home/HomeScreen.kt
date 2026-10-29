@@ -44,7 +44,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.ui.graphics.Brush
+import com.kaan.play.ui.theme.homeBackdropBrush
 import androidx.compose.ui.graphics.Color
 import com.kaan.play.ui.tv.categoryHeaderFocusable
 import androidx.compose.ui.res.stringResource
@@ -162,12 +162,7 @@ fun HomeScreen(
     Box(
         Modifier
             .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(Color(0xFF1A1A24), Color(0xFF0A0D14), Color(0xFF040508)),
-                    radius = 1500f,
-                ),
-            ),
+            .background(homeBackdropBrush()),
     ) {
         when {
             hasSource == null -> Box(Modifier.fillMaxSize())

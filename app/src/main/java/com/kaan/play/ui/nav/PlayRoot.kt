@@ -48,6 +48,8 @@ import androidx.compose.foundation.background
 import androidx.compose.material3.Surface
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.ui.graphics.Color
+import com.kaan.play.ui.theme.topBarBorderColor
+import com.kaan.play.ui.theme.topBarSurfaceColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.NavigationRail
@@ -817,8 +819,8 @@ fun PlayTopBar(
     Surface(
         modifier = modifier.shadow(12.dp, CircleShape),
         shape = CircleShape,
-        color = Color(0xE60A131F),
-        border = BorderStroke(1.dp, Color(0x33FFFFFF)),
+        color = topBarSurfaceColor(),
+        border = BorderStroke(1.dp, topBarBorderColor()),
     ) {
         Row(
             modifier = Modifier
@@ -857,7 +859,7 @@ private fun PlayTopBarItem(
     val interactionSource = remember { MutableInteractionSource() }
     val interactionFocused by interactionSource.collectIsFocusedAsState()
     val focused = boxFocused || interactionFocused
-    val tint = if (focused || selected) Color(0xFF00E5FF) else MaterialTheme.colorScheme.onSurfaceVariant
+    val tint = if (focused || selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
 
     Box(
         contentAlignment = Alignment.Center,
@@ -878,7 +880,7 @@ private fun PlayTopBarItem(
             .onFocusChanged { boxFocused = it.isFocused }
             .tvFocusableScaleGlow(
                 scale = 1.15f,
-                glowColor = Color(0xFF00E5FF),
+                glowColor = MaterialTheme.colorScheme.primary,
                 shape = CircleShape,
                 isFocused = focused,
                 zIndex = 10f,

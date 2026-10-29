@@ -93,6 +93,7 @@ import com.kaan.play.ui.components.RatingBadge
 import com.kaan.play.ui.components.StatusBarScrim
 import com.kaan.play.ui.components.TextButton
 import com.kaan.play.ui.components.TitleOrLogo
+import com.kaan.play.ui.theme.isDarkScheme
 import com.kaan.play.ui.containerViewModel
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.nav.PlayIcons
@@ -325,7 +326,7 @@ private fun HeaderBlock(
 ) {
     val media = detail.summary
     Column(Modifier.padding(horizontal = horizontalPadding), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        TitleOrLogo(title = media.title, logoPath = detail.logoPath, logoHeight = 72.dp)
+        TitleOrLogo(title = media.title, logoPath = detail.logoPath, logoHeight = 72.dp, logoVisible = isDarkScheme())
         genreLine(detail)?.let {
             Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
