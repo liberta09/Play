@@ -1,5 +1,17 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.2.1] — 2026-10-30
+
+### Türkçe
+- **Yeni neon arayüz:** Koyu zemin üzerinde camgöbeği vurgulu, odakta parlayan yeni görünüm.
+- **D-pad / kumanda düzeltmeleri:** Menü, ana sayfa, ayarlar ve oynatıcı panellerinde kumanda ile gezinme ve odak halkası düzeltildi.
+- **Profil seçimi:** "Son profili hatırla" açıkken uygulama açılışında profil seçim ekranının gereksiz çıkması düzeltildi.
+
+### English
+- **New neon interface:** Dark background with a cyan accent and glowing focus highlights.
+- **D-pad / remote fixes:** Remote navigation and focus ring fixed across the menu, home, settings and player panels.
+- **Profile picker:** Fixed the profile picker appearing unnecessarily at startup when "Remember last profile" is on.
+
 ## [1.1.20] — 2026-10-28
 
 ### Türkçe
