@@ -55,6 +55,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.InputMode
@@ -116,7 +118,7 @@ private class RingNode(
 @Composable
 fun Modifier.tvFocusableScaleGlow(
     scale: Float = 1.06f,
-    glowColor: Color = Color(0xFF00E5FF),
+    glowColor: Color = MaterialTheme.colorScheme.primary,
     shape: Shape = RoundedCornerShape(12.dp),
     isFocused: Boolean? = null,
     onFocusChange: ((Boolean) -> Unit)? = null,
@@ -124,6 +126,7 @@ fun Modifier.tvFocusableScaleGlow(
     haloSpread: Dp = 0.dp,
     strokeWidth: Dp = 0.dp,
     fillGlowAlpha: Float = 0f,
+    strong: Boolean = false,
 ): Modifier {
     var internalFocused by remember { mutableStateOf(false) }
     val currentFocused = isFocused ?: internalFocused
@@ -143,10 +146,12 @@ fun Modifier.tvFocusableScaleGlow(
         label = "tv_focus_progress",
     )
 
+    // İç çizgi: açık renklerde (turkuaz) rengin beyaza yarım karışımı, koyu renklerde (dolu düğmedeki ters renk) rengin kendisi.
+    val innerColor = if (glowColor.luminance() > 0.5f) lerp(glowColor, Color.White, 0.5f) else glowColor
     val borderModifier = if (focusProgress > 0.01f) {
         Modifier
-            .border(width = 3.dp, color = Color(0xFF00E5FF).copy(alpha = 0.25f * focusProgress), shape = shape)
-            .border(width = 1.dp, color = Color(0xFF80F2FF).copy(alpha = 0.85f * focusProgress), shape = shape)
+            .border(width = if (strong) 4.dp else 3.dp, color = glowColor.copy(alpha = (if (strong) 0.5f else 0.25f) * focusProgress), shape = shape)
+            .border(width = if (strong) 2.dp else 1.dp, color = innerColor.copy(alpha = (if (strong) 1f else 0.85f) * focusProgress), shape = shape)
     } else {
         Modifier
     }
@@ -174,7 +179,7 @@ fun Modifier.tvFocusableScaleGlow(
                         else -> CornerRadius(12.dp.toPx(), 12.dp.toPx())
                     }
                     drawRoundRect(
-                        color = Color(0xFF00E5FF).copy(alpha = fillGlowAlpha * focusProgress),
+                        color = glowColor.copy(alpha = fillGlowAlpha * focusProgress),
                         topLeft = Offset.Zero,
                         size = size,
                         cornerRadius = cornerRadius,
@@ -198,7 +203,7 @@ fun Modifier.categoryHeaderFocusable(
     interactionSource: MutableInteractionSource,
     onClick: (() -> Unit)? = null,
     scale: Float = 1.02f,
-    glowColor: Color = Color(0xFF00E5FF),
+    glowColor: Color = MaterialTheme.colorScheme.primary,
 ): Modifier {
     val isFocused by interactionSource.collectIsFocusedAsState()
     val shape = RoundedCornerShape(10.dp)
@@ -229,17 +234,21 @@ fun Modifier.categoryHeaderFocusable(
 /**
  * `Modifier.focusRing`: Artık basit ve sert border yerine merkezi `tvFocusableScaleGlow` motorunu kullanır.
  * Böylece tüm mevcut `focusRing` çağrıları otomatik olarak pürüzsüz büyüme ve neon glow efekti kazanır.
+ * [color] halka/parlama rengidir; verilmezse temanın vurgusu (turkuaz). Dolu turkuaz düğmelerde ters renk verilir ve
+ * [strong] ile halka kalınlaşır (ters renk ince çizgide dolgudan ayırt edilmez).
  */
 @Composable
 fun Modifier.focusRing(
     shape: Shape = RoundedCornerShape(12.dp),
-    color: Color = Color(0xFF00E5FF),
+    color: Color = MaterialTheme.colorScheme.primary,
     scale: Float = 1.02f,
+    strong: Boolean = false,
 ): Modifier {
     return this.tvFocusableScaleGlow(
         scale = scale,
         glowColor = color,
         shape = shape,
+        strong = strong,
     )
 }
 
