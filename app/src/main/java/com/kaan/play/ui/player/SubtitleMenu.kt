@@ -1,6 +1,7 @@
 package com.kaan.play.ui.player
 
 import android.view.Gravity
+import com.kaan.play.ui.tv.focusRing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.draw.clip
@@ -244,6 +245,7 @@ private fun OptionRow(selected: Boolean, label: String, indented: Boolean, modif
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .background(bg)
+            .focusRing(RoundedCornerShape(10.dp))
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
             .padding(start = if (indented) 16.dp else 8.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -270,7 +272,7 @@ private fun OptionRow(selected: Boolean, label: String, indented: Boolean, modif
 @Composable
 private fun GroupHeader(name: String, count: Int, open: Boolean, highlighted: Boolean, onClick: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 10.dp),
+        modifier = Modifier.fillMaxWidth().focusRing(RoundedCornerShape(10.dp)).clickable(onClick = onClick).padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -297,7 +299,7 @@ private fun GroupHeader(name: String, count: Int, open: Boolean, highlighted: Bo
 @Composable
 private fun ActionRow(label: String, onClick: () -> Unit, trailing: String? = null) {
     Row(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 12.dp),
+        modifier = Modifier.fillMaxWidth().focusRing(RoundedCornerShape(10.dp)).clickable(onClick = onClick).padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(

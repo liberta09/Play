@@ -1,6 +1,7 @@
 package com.kaan.play.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import com.kaan.play.ui.tv.focusRing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
@@ -71,6 +72,7 @@ fun FilterPill(text: String, selected: Boolean, onClick: () -> Unit, modifier: M
             .clip(shape)
             .background(if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
             .border(1.dp, if (selected) accent else MaterialTheme.colorScheme.outline.copy(alpha = 0.6f), shape)
+            .focusRing(shape)
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 8.dp),
     )

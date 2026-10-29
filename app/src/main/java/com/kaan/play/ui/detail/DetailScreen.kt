@@ -93,6 +93,7 @@ import com.kaan.play.ui.components.RatingBadge
 import com.kaan.play.ui.components.StatusBarScrim
 import com.kaan.play.ui.components.TextButton
 import com.kaan.play.ui.components.TitleOrLogo
+import com.kaan.play.ui.theme.isDarkScheme
 import com.kaan.play.ui.containerViewModel
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.nav.PlayIcons
@@ -177,7 +178,7 @@ fun DetailScreen(
             onClick = onBack,
             shape = CircleShape,
             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
+            border = null,
             modifier = Modifier
                 .statusBarsPadding()
                 .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -325,7 +326,7 @@ private fun HeaderBlock(
 ) {
     val media = detail.summary
     Column(Modifier.padding(horizontal = horizontalPadding), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        TitleOrLogo(title = media.title, logoPath = detail.logoPath, logoHeight = 72.dp)
+        TitleOrLogo(title = media.title, logoPath = detail.logoPath, logoHeight = 72.dp, logoVisible = isDarkScheme())
         genreLine(detail)?.let {
             Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
@@ -684,7 +685,7 @@ private fun EpisodeCard(episode: Episode, modifier: Modifier, onClick: () -> Uni
         onClick = onClick,
         shape = shape,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)),
+        border = null,
         modifier = modifier.focusRing(shape),
     ) {
         Row(

@@ -1,6 +1,7 @@
 package com.kaan.play.ui.settings
 
 import android.widget.Toast
+import com.kaan.play.ui.tv.focusRing
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,13 +20,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import com.kaan.play.ui.components.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.kaan.play.ui.components.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -96,7 +97,7 @@ fun ProfileScreen(onBack: () -> Unit) {
                     ProfileAvatar(
                         avatar = profile.avatar,
                         size = 64,
-                        modifier = Modifier.clickable { showAvatarDialog = true },
+                        modifier = Modifier.focusRing(androidx.compose.foundation.shape.CircleShape).clickable { showAvatarDialog = true },
                     )
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
@@ -294,7 +295,7 @@ fun ProfileScreen(onBack: () -> Unit) {
                             avatar = av,
                             selected = av == activeProfile?.avatar,
                             size = 56,
-                            modifier = Modifier.clickable {
+                            modifier = Modifier.focusRing(androidx.compose.foundation.shape.CircleShape).clickable {
                                 scope.launch { container.localProfile.setAvatar(av) }
                                 showAvatarDialog = false
                             },

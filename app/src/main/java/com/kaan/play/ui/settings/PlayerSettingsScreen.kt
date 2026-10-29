@@ -1,6 +1,7 @@
 package com.kaan.play.ui.settings
 
 import androidx.compose.foundation.clickable
+import com.kaan.play.ui.tv.focusRing
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -196,6 +197,7 @@ private fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> Un
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .focusRing(androidx.compose.foundation.shape.RoundedCornerShape(14.dp))
                 .toggleable(value = checked, role = Role.Switch, onValueChange = onChange)
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,

@@ -1,0 +1,52 @@
+[
+ {
+  "surum": "dal",
+  "deneme": 1,
+  "sonuc": "BULUNAMADI",
+  "sn_tap": 17.9,
+  "sn_istek_basla": null,
+  "istek_logda": true,
+  "zaman_asimi_45sn": false,
+  "iptal_zaman_asimi_satiri": []
+ },
+ {
+  "surum": "dal",
+  "deneme": 2,
+  "sonuc": "BULUNDU",
+  "sn_tap": 15.6,
+  "sn_istek_basla": 2.4,
+  "istek_logda": true,
+  "zaman_asimi_45sn": false,
+  "iptal_zaman_asimi_satiri": []
+ },
+ {
+  "surum": "dal",
+  "deneme": 3,
+  "sonuc": "BULUNDU",
+  "sn_tap": 16.5,
+  "sn_istek_basla": 13.0,
+  "istek_logda": true,
+  "zaman_asimi_45sn": false,
+  "iptal_zaman_asimi_satiri": []
+ },
+ {
+  "surum": "dal",
+  "deneme": 4,
+  "sonuc": "BULUNDU",
+  "sn_tap": 3.3,
+  "sn_istek_basla": 1.4,
+  "istek_logda": true,
+  "zaman_asimi_45sn": false,
+  "iptal_zaman_asimi_satiri": []
+ },
+ {
+  "surum": "dal",
+  "deneme": 5,
+  "sonuc": "BULUNDU",
+  "sn_tap": 3.4,
+  "sn_istek_basla": 1.6,
+  "istek_logda": true,
+  "zaman_asimi_45sn": false,
+  "iptal_zaman_asimi_satiri": []
+ }
+]

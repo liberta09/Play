@@ -18,9 +18,9 @@ import androidx.compose.material3.OutlinedButton as M3OutlinedButton
 import androidx.compose.material3.OutlinedIconButton as M3OutlinedIconButton
 import androidx.compose.material3.TextButton as M3TextButton
 
-/** Turkuaz dolgulu düğmede turkuaz halka görünmez: ters (ana yazı) renk. */
+/** Turkuaz dolgulu düğmede turkuaz halka görünmez: ters renk (koyu temada OnAccent, açıkta beyaz). */
 @Composable
-private fun onFilled(): Color = MaterialTheme.colorScheme.onBackground
+private fun onFilled(): Color = MaterialTheme.colorScheme.onPrimary
 
 /*
  * Material düğmelerinin ince sarmalayıcıları (aynı adlar, aynı kullanım): tek fark, kumanda/klavye odağında Play'in
@@ -30,7 +30,7 @@ private fun onFilled(): Color = MaterialTheme.colorScheme.onBackground
 
 @Composable
 fun Button(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable RowScope.() -> Unit) =
-    M3Button(onClick = onClick, modifier = modifier.focusRing(CircleShape, onFilled()), enabled = enabled, content = content)
+    M3Button(onClick = onClick, modifier = modifier.focusRing(CircleShape, onFilled(), scale = 1.10f, strong = true), enabled = enabled, content = content)
 
 /** Özel köşe/iç boşluklu düğme: halka düğmenin kendi biçimini izler. */
 @Composable
@@ -43,7 +43,7 @@ fun Button(
     content: @Composable RowScope.() -> Unit,
 ) = M3Button(
     onClick = onClick,
-    modifier = modifier.focusRing(shape, onFilled()),
+    modifier = modifier.focusRing(shape, onFilled(), strong = true),
     enabled = enabled,
     shape = shape,
     contentPadding = contentPadding,
@@ -52,19 +52,19 @@ fun Button(
 
 @Composable
 fun OutlinedButton(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable RowScope.() -> Unit) =
-    M3OutlinedButton(onClick = onClick, modifier = modifier.focusRing(CircleShape), enabled = enabled, content = content)
+    M3OutlinedButton(onClick = onClick, modifier = modifier.focusRing(CircleShape, scale = 1.10f), enabled = enabled, content = content)
 
 @Composable
 fun TextButton(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable RowScope.() -> Unit) =
-    M3TextButton(onClick = onClick, modifier = modifier.focusRing(CircleShape), enabled = enabled, content = content)
+    M3TextButton(onClick = onClick, modifier = modifier.focusRing(CircleShape, scale = 1.10f), enabled = enabled, content = content)
 
 @Composable
 fun IconButton(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable () -> Unit) =
-    M3IconButton(onClick = onClick, modifier = modifier.focusRing(CircleShape), enabled = enabled, content = content)
+    M3IconButton(onClick = onClick, modifier = modifier.focusRing(CircleShape, scale = 1.10f), enabled = enabled, content = content)
 
 @Composable
 fun OutlinedIconButton(onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable () -> Unit) =
-    M3OutlinedIconButton(onClick = onClick, modifier = modifier.focusRing(CircleShape), enabled = enabled, content = content)
+    M3OutlinedIconButton(onClick = onClick, modifier = modifier.focusRing(CircleShape, scale = 1.10f), enabled = enabled, content = content)
 
 @Composable
 fun FilledIconButton(
@@ -73,4 +73,4 @@ fun FilledIconButton(
     enabled: Boolean = true,
     colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
     content: @Composable () -> Unit,
-) = M3FilledIconButton(onClick = onClick, modifier = modifier.focusRing(CircleShape, onFilled()), enabled = enabled, colors = colors, content = content)
+) = M3FilledIconButton(onClick = onClick, modifier = modifier.focusRing(CircleShape, onFilled(), scale = 1.10f, strong = true), enabled = enabled, colors = colors, content = content)

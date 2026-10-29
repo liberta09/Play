@@ -1,0 +1,13 @@
+--------- beginning of main
+--------- beginning of system
+10-29 23:52:59.373 27544 27792 D PlayCs  : streams: 0 açık CS eklentisi
+10-29 23:52:59.502 27544 27544 D PlayPlugin: HDFilmCehennemi: istek tmdbId=969681 tür=movie sezon=null bölüm=null
+10-29 23:52:59.876 27544 27634 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=2003 charset=UTF-8
+10-29 23:53:00.248 27544 27603 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1880 charset=UTF-8
+10-29 23:53:00.336 27544 27793 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=138486 charset=UTF-8
+10-29 23:53:11.448 27544 27634 D PlayPluginNet: hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31763 charset=UTF-8
+10-29 23:53:11.723 27544 27634 D PlayPluginNet: srv9.cdnimages2788.cyou GET -> 200 ctype=application/vnd.apple.mpegurl len=359 charset=UTF-8
+10-29 23:53:11.740 27544 27544 D PlayPlugin: HDFilmCehennemi: akış https://srv9.cdnimages2788.cyou/hls/<68>/txt/master.txt?s=#91a30e(len56)
+10-29 23:53:11.744 27544 27544 D PlayMatch: kaynak başlatılıyor: HDFilmCehennemi (srv9.cdnimages2788.cyou)
+10-29 23:53:12.867 27544 27544 D PlayMatch: ilk kare: HDFilmCehennemi (faz=Starting)
+10-29 23:53:13.317 27544 27544 D PlayMatch: süre kontrolü kaynak=HDFilmCehennemi (srv9.cdnimages2788.cyou) süre=145.0 dk beklenen=145 dk tür=Movie -> Ok

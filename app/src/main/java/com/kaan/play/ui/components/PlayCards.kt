@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kaan.play.ui.nav.PlayIcons
@@ -51,10 +52,10 @@ fun PlayCard(
             onClick = onClick,
             shape = shape,
             color = containerColor,
-            border = BorderStroke(borderWidth.dp, borderColor),
+            border = null,
             modifier = modifier
                 .fillMaxWidth()
-                .focusRing(shape),
+                .focusRing(shape, scale = 1.02f),
         ) {
             Box(modifier = Modifier.fillMaxWidth(), content = content)
         }
@@ -62,7 +63,7 @@ fun PlayCard(
         Surface(
             shape = shape,
             color = containerColor,
-            border = BorderStroke(borderWidth.dp, borderColor),
+            border = null,
             modifier = modifier.fillMaxWidth(),
         ) {
             Box(modifier = Modifier.fillMaxWidth(), content = content)
@@ -93,13 +94,10 @@ fun PlayCardRow(
         onClick = onClick,
         shape = shape,
         color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f),
-        border = BorderStroke(
-            if (selected) 1.5.dp else 1.dp,
-            if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.55f),
-        ),
+        border = null,
         modifier = modifier
             .fillMaxWidth()
-            .focusRing(shape),
+            .focusRing(shape, scale = 1.02f),
     ) {
         Row(
             modifier = Modifier
@@ -116,7 +114,9 @@ fun PlayCardRow(
                 )
                 Spacer(modifier = Modifier.width(16.dp))
             }
-            Column(modifier = Modifier.weight(1f)) {
+            // Değer varken ağırlıklar 0,8 : 1,2: uzun değer büyük yazıda başlığı ezmesin, kısa değer sağa yaslı kalır.
+            val hasValue = badge.isNullOrEmpty() && !value.isNullOrEmpty()
+            Column(modifier = Modifier.weight(if (hasValue) 0.8f else 1f)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
@@ -143,7 +143,8 @@ fun PlayCardRow(
                     text = value,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(end = 10.dp),
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.weight(1.2f).padding(start = 8.dp, end = 10.dp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

@@ -57,6 +57,9 @@ import com.kaan.play.ui.components.PosterCard
 import com.kaan.play.ui.components.resolvePosterImageUrl
 import com.kaan.play.ui.containerViewModel
 import com.kaan.play.ui.nav.PlayIcons
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.rememberFocusMemory
 
@@ -72,6 +75,8 @@ fun LibraryScreen(
     onOpenDetail: (MediaType, Int) -> Unit,
     onPlayEntry: (WatchHistoryEntity) -> Unit,
     onPlayDownload: (DownloadEntity) -> Unit,
+    contentFocusRequester: FocusRequester? = null,
+    topBarFocusRequester: FocusRequester? = null,
 ) {
     val vm = containerViewModel { LibraryViewModel(it.library, it.downloads, it.settings) }
     val favorites by vm.favorites.collectAsStateWithLifecycle()
@@ -116,7 +121,10 @@ fun LibraryScreen(
                     tmdbId = fav.tmdbId,
                     mediaType = fav.type,
                     onClick = { onOpenDetail(fav.type, fav.tmdbId) },
-                    modifier = Modifier.focusMemory(focus, "fav-${fav.type}-${fav.tmdbId}", isDefault = fav == favs.first()),
+                    modifier = Modifier
+                        .let { if (fav == favs.first() && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                        .let { if (fav == favs.first() && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                        .focusMemory(focus, "fav-${fav.type}-${fav.tmdbId}", isDefault = fav == favs.first()),
                     overlay = {
                         IconButton(
                             onClick = { vm.removeFavorite(fav) },
@@ -153,7 +161,10 @@ fun LibraryScreen(
                     entry,
                     onClick = { onPlayEntry(entry) },
                     onRemove = { vm.removeHistory(entry) },
-                    modifier = Modifier.focusMemory(focus, "hist-${entry.id}", isDefault = !firstIsFavorite && entry == hist.first()),
+                    modifier = Modifier
+                        .let { if (!firstIsFavorite && entry == hist.first() && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                        .let { if (!firstIsFavorite && entry == hist.first() && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                        .focusMemory(focus, "hist-${entry.id}", isDefault = !firstIsFavorite && entry == hist.first()),
                 )
             }
         }

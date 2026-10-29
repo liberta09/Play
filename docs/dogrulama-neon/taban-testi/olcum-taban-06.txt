@@ -1,0 +1,7 @@
+--------- beginning of main
+--------- beginning of system
+10-29 23:14:09.903 19157 19157 D PlayPlugin: HDFilmCehennemi: istek tmdbId=969681 tür=movie sezon=null bölüm=null
+10-29 23:14:09.990 19157 19226 D PlayCs  : streams: 0 açık CS eklentisi
+10-29 23:14:10.179 19157 19370 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=2003 charset=UTF-8
+10-29 23:14:10.398 19157 19201 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1880 charset=UTF-8
+10-29 23:14:10.471 19157 19370 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=138486 charset=UTF-8

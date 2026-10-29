@@ -13,12 +13,10 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,7 +28,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.kaan.play.ui.components.Button
 import com.kaan.play.ui.components.ScreenHeader
+import com.kaan.play.ui.components.TextButton
+import com.kaan.play.ui.tv.dpadLeavesTextField
+import com.kaan.play.ui.tv.focusRing
+import androidx.compose.foundation.shape.CircleShape
 
 @Composable
 fun ProfileSetupScreen(
@@ -57,6 +60,7 @@ fun ProfileSetupScreen(
         Text(
             text = "Avatar Seçin",
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onBackground,
         )
 
         LazyRow(
@@ -68,7 +72,7 @@ fun ProfileSetupScreen(
                     avatar = av,
                     selected = av == selectedAvatar,
                     size = 56,
-                    modifier = Modifier.clickable { selectedAvatar = av },
+                    modifier = Modifier.focusRing(CircleShape).clickable { selectedAvatar = av },
                 )
             }
         }
@@ -79,7 +83,7 @@ fun ProfileSetupScreen(
             label = { Text("Profil Adı") },
             placeholder = { Text("Örn: Kaan") },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().dpadLeavesTextField(),
         )
 
         Row(
@@ -91,6 +95,7 @@ fun ProfileSetupScreen(
                 Text(
                     text = "Çocuk profili",
                     style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
                 Text(
                     text = "Yetişkin içerikleri gizler ve yalnızca çocuklara uygun içerikleri listeler.",
@@ -101,6 +106,7 @@ fun ProfileSetupScreen(
             Switch(
                 checked = isChild,
                 onCheckedChange = { isChild = it },
+                modifier = Modifier.focusRing(CircleShape),
             )
         }
 
@@ -112,7 +118,7 @@ fun ProfileSetupScreen(
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().dpadLeavesTextField(),
             supportingText = {
                 Text("Profil girişinde veya çocuk profilinden çıkarken sorulur.")
             },

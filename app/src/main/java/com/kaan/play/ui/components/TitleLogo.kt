@@ -18,10 +18,13 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.kaan.play.data.tmdb.TmdbImages
 
-/** Başlık logosu (TMDB); yoksa ya da yüklenemezse metin başlık. */
+/**
+ * Başlık logosu (TMDB); yoksa, yüklenemezse ya da [logoVisible] false ise metin başlık. TMDB logoları çoğunlukla
+ * beyazdır; aydınlık zeminde görünmez olacağı için oradaki çağıran [logoVisible] = false verir.
+ */
 @Composable
-fun TitleOrLogo(title: String, logoPath: String?, modifier: Modifier = Modifier, logoHeight: Dp = 64.dp) {
-    val url = TmdbImages.url(logoPath, TmdbImages.Size.Logo)
+fun TitleOrLogo(title: String, logoPath: String?, modifier: Modifier = Modifier, logoHeight: Dp = 64.dp, logoVisible: Boolean = true) {
+    val url = TmdbImages.url(logoPath, TmdbImages.Size.Logo).takeIf { logoVisible }
     var failed by remember(url) { mutableStateOf(false) }
     if (url != null && !failed) {
         AsyncImage(

@@ -1,0 +1,12 @@
+# 2. deneme (aynı film, Oynat'a yeniden basıldı). 1. denemede günlük satırı hiç yazılmadı ve ekran 'Bu içerik için kaynak bulunamadı' gösterdi (35c).
+10-29 18:40:58.955  8161  8161 D PlayPlugin: HDFilmCehennemi: istek tmdbId=969681 tür=movie sezon=null bölüm=null
+10-29 18:40:59.004  8161  9024 D PlayCs  : streams: 0 açık CS eklentisi
+10-29 18:40:59.330  8161  9024 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=2003 charset=UTF-8
+10-29 18:40:59.518  8161  8614 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1880 charset=UTF-8
+10-29 18:40:59.580  8161  9292 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=138531 charset=UTF-8
+10-29 18:41:11.568  8161  9292 D PlayPluginNet: hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=32063 charset=UTF-8
+10-29 18:41:11.907  8161  9025 D PlayPluginNet: srv9.cdnimages2463.cyou GET -> 200 ctype=application/vnd.apple.mpegurl len=359 charset=UTF-8
+10-29 18:41:11.916  8161  8161 D PlayPlugin: HDFilmCehennemi: akış https://srv9.cdnimages2463.cyou/hls/<68>/txt/master.txt?s=#165f0c(len56)
+10-29 18:41:11.919  8161  8161 D PlayMatch: kaynak başlatılıyor: HDFilmCehennemi (srv9.cdnimages2463.cyou)
+10-29 18:41:13.230  8161  8161 D PlayMatch: ilk kare: HDFilmCehennemi (faz=Starting)
+10-29 18:41:13.453  8161  8161 D PlayMatch: süre kontrolü kaynak=HDFilmCehennemi (srv9.cdnimages2463.cyou) süre=145.0 dk beklenen=145 dk tür=Movie -> Ok

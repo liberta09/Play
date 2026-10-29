@@ -37,6 +37,8 @@ import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.ui.rememberContainer
+import com.kaan.play.ui.tv.tvFocusableScaleGlow
+import androidx.compose.ui.zIndex
 import java.util.concurrent.ConcurrentHashMap
 
 private data class CachedImdbId(val value: String?, val checkedAtMs: Long)
@@ -69,18 +71,20 @@ fun PosterCard(
     val interaction = remember { MutableInteractionSource() }
     val focused by interaction.collectIsFocusedAsState()
     // Tüm sütunu yuvarlak kırpmayız: alt satırın ilk harfini keserdi. Yalnızca afiş kırpılır.
-    Column(modifier = modifier.clickable(interactionSource = interaction, indication = ripple(), onClick = onClick)) {
+    Column(modifier = modifier.clickable(interactionSource = interaction, indication = ripple(), onClick = onClick).zIndex(if (focused) 10f else 0f)) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(2f / 3f)
-                .clip(shape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .border(
-                    width = if (focused) 3.dp else 1.dp,
-                    color = if (focused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                .tvFocusableScaleGlow(
+                    scale = 1.06f,
+                    glowColor = Color(0xFF00E5FF),
                     shape = shape,
-                ),
+                    isFocused = focused,
+                    zIndex = 10f,
+                )
+                .clip(shape)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
             if (resolvedImageUrl != null) {
                 AsyncImage(

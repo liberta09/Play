@@ -1,5 +1,23 @@
 package com.kaan.play.ui.nav
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.zIndex
+import com.kaan.play.ui.settings.ProfileAvatar
+import com.kaan.play.ui.tv.tvFocusableScaleGlow
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -30,6 +48,8 @@ import androidx.compose.foundation.background
 import androidx.compose.material3.Surface
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.ui.graphics.Color
+import com.kaan.play.ui.theme.topBarBorderColor
+import com.kaan.play.ui.theme.topBarSurfaceColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.NavigationRail
@@ -185,24 +205,46 @@ fun PlayRoot() {
     val backStack by navController.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
 
+    // Kumanda: üst menü ile içerik arasındaki odak köprüleri (her sekmenin kendi içerik hedefi var).
+    val homeFocusRequester = remember { FocusRequester() }
+    val tvFocusRequester = remember { FocusRequester() }
+    val searchFocusRequester = remember { FocusRequester() }
+    val libraryFocusRequester = remember { FocusRequester() }
+    val settingsFocusRequester = remember { FocusRequester() }
+    val topBarFocusRequester = remember { FocusRequester() }
+    // Ana sayfada: profil simgesi SAĞ → "Eklenti seç" hapı, hapta SOL → profil simgesi.
+    val profileFocusRequester = remember { FocusRequester() }
+    val pillFocusRequester = remember { FocusRequester() }
+    var topBarHasFocus by remember { mutableStateOf(false) }
+    val currentContentFocusRequester = when {
+        currentRoute == Tab.Tv.route -> tvFocusRequester
+        currentRoute == Tab.Search.route || currentRoute?.startsWith("search") == true -> searchFocusRequester
+        currentRoute == Tab.Library.route -> libraryFocusRequester
+        currentRoute == Tab.Settings.route -> settingsFocusRequester
+        else -> homeFocusRequester
+    }
+
     val profiles by container.localProfile.profiles.collectAsStateWithLifecycle(initialValue = emptyList())
     val activeProfile by container.localProfile.activeProfile.collectAsStateWithLifecycle(initialValue = null)
     val rememberLastProfile by container.settings.rememberLastProfile.collectAsStateWithLifecycle(initialValue = true)
     var profileGate by remember { mutableStateOf(false) }
-    var initialGateChecked by remember { mutableStateOf(false) }
+    var gateDecided by remember { mutableStateOf(false) }
     var showProfileSetup by remember { mutableStateOf(false) }
     var managingProfiles by remember { mutableStateOf(false) }
 
-    LaunchedEffect(profiles, rememberLastProfile) {
-        if (!initialGateChecked && profiles.isNotEmpty()) {
-            if (!rememberLastProfile || activeProfile == null) {
-                profileGate = true
-            }
-            initialGateChecked = true
-        } else if (!initialGateChecked && profiles.isEmpty()) {
-            profileGate = true
-            initialGateChecked = true
-        }
+    // Üç akış da DataStore'dan gelir; collectAsState başlangıç değerleri (boş liste/null) gerçek değil.
+    // Kapı kararı, her akışın ilk gerçek değeri gelene kadar bekler ve tek seferde verilir.
+    LaunchedEffect(Unit) {
+        val loadedProfiles = container.localProfile.profiles.first()
+        val loadedActive = container.localProfile.activeProfile.first()
+        val loadedRemember = container.settings.rememberLastProfile.first()
+        profileGate = shouldShowProfileGate(loadedProfiles.size, loadedActive != null, loadedRemember)
+        gateDecided = true
+    }
+
+    if (!gateDecided) {
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
+        return
     }
 
     if (showProfileSetup) {
@@ -451,26 +493,24 @@ fun PlayRoot() {
     }
 
     val layout = rememberPlayLayout()
-    // Detay tam ekran: alt menü/yan menü gizli.
-    val showNav = currentRoute != DETAIL_ROUTE
-    val navColors = NavigationBarItemDefaults.colors(
-        selectedIconColor = MaterialTheme.colorScheme.primary,
-        selectedTextColor = MaterialTheme.colorScheme.primary,
-        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
-        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-    val railColors = NavigationRailItemDefaults.colors(
-        selectedIconColor = MaterialTheme.colorScheme.primary,
-        selectedTextColor = MaterialTheme.colorScheme.primary,
-        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
-        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    // Alt sayfalarda (detay, kategori, ayar alt ekranları) üst menü gizli; yalnızca ana sekmelerde görünür.
+    val isSubScreen = currentRoute == DETAIL_ROUTE ||
+        currentRoute == PROVIDER_DETAIL_ROUTE ||
+        currentRoute?.startsWith("detail/") == true ||
+        currentRoute?.startsWith("provider_detail/") == true ||
+        currentRoute?.startsWith("home/category") == true ||
+        currentRoute?.startsWith("settings/") == true
+    val showNav = !isSubScreen
+
+    // Kumanda: odak üst menüdeyken Geri uygulamadan çıkarmaz, odağı içeriğe döndürür.
+    BackHandler(enabled = topBarHasFocus && !isSubScreen) {
+        runCatching { currentContentFocusRequester.requestFocus() }
+    }
+    val avatarKey = activeProfile?.avatar ?: "space_astro"
     fun selected(tab: Tab) = currentRoute == tab.route || currentRoute?.startsWith(tab.route + "/") == true || currentRoute?.startsWith(tab.route + "?") == true
 
-    // Ana sayfa (kapak karuseli) ve Detay (arka plan görseli) durum çubuğunun arkasına kadar uzanır; diğer ekranlar altına girmez.
-    val bleedsUnderStatusBar = currentRoute == Tab.Home.route || currentRoute == DETAIL_ROUTE
+    // Ana sayfa, Detay ve yüzen üst menü durum çubuğunun arkasına uzanır.
+    val bleedsUnderStatusBar = showNav || currentRoute == Tab.Home.route || currentRoute == DETAIL_ROUTE
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = if (bleedsUnderStatusBar) {
@@ -478,38 +518,18 @@ fun PlayRoot() {
         } else {
             ScaffoldDefaults.contentWindowInsets
         },
-        bottomBar = {
-            // Telefon (ve alçak yatay telefon): alt menü. Geniş ekranda yan menü kullanılır.
-            if (showNav && !layout.useRail) CappedFontScale {
-                NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                    Tab.entries.forEach { tab ->
-                        NavigationBarItem(
-                            selected = selected(tab),
-                            onClick = { openTab(tab) },
-                            icon = { Icon(tab.icon, contentDescription = stringResource(tab.label)) },
-                            alwaysShowLabel = true,
-                            label = { Text(stringResource(tab.label), maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                            colors = navColors,
-                            modifier = Modifier.focusRing(RoundedCornerShape(16.dp)),
-                        )
-                    }
-                }
-            }
-        },
+        bottomBar = {},
     ) { padding ->
-        val railCollapsedWidth = PlayLayout.RAIL_COLLAPSED_WIDTH_DP.dp
-        val railExpandedWidth = PlayLayout.RAIL_EXPANDED_WIDTH_DP.dp
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
         ) {
-            // İçerik alanı: menü açılırken sıkışmasın diye her zaman dar şeride göre yerleşir
+            // İçerik alanı: tüm genişliği kullanır; Ana sayfa dışında yüzen üst menünün altından başlar
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = if (showNav && layout.useRail) railCollapsedWidth else 0.dp),
+                    .padding(top = if (showNav && currentRoute != Tab.Home.route) 58.dp else 0.dp),
             ) {
                 NavHost(
                     navController = navController,
@@ -528,11 +548,21 @@ fun PlayRoot() {
                             launchSingleTop = true
                         }
                     },
+                    contentFocusRequester = homeFocusRequester,
+                    topBarFocusRequester = topBarFocusRequester,
+                    pillFocusRequester = pillFocusRequester,
+                    profileFocusRequester = profileFocusRequester,
                 )
             }
 
             composable(Tab.Tv.route) {
-                ReadableWidth { TvScreen(onPlay = ::playLiveChannel) }
+                ReadableWidth {
+                    TvScreen(
+                        onPlay = ::playLiveChannel,
+                        contentFocusRequester = tvFocusRequester,
+                        topBarFocusRequester = topBarFocusRequester,
+                    )
+                }
             }
 
             composable(
@@ -549,10 +579,25 @@ fun PlayRoot() {
                 arguments = listOf(navArgument("q") { type = NavType.StringType; nullable = true; defaultValue = null }),
             ) { entry ->
                 val q = entry.arguments?.getString("q")
-                ReadableWidth(PlayLayout.GRID_WIDTH_DP.dp) { SearchScreen(initialQuery = q, onOpenDetail = ::openDetail) }
+                ReadableWidth(PlayLayout.GRID_WIDTH_DP.dp) {
+                    SearchScreen(
+                        initialQuery = q,
+                        onOpenDetail = ::openDetail,
+                        contentFocusRequester = searchFocusRequester,
+                        topBarFocusRequester = topBarFocusRequester,
+                    )
+                }
             }
             composable(Tab.Library.route) {
-                ReadableWidth(PlayLayout.GRID_WIDTH_DP.dp) { LibraryScreen(onOpenDetail = ::openDetail, onPlayEntry = ::playHistory, onPlayDownload = ::playDownload) }
+                ReadableWidth(PlayLayout.GRID_WIDTH_DP.dp) {
+                    LibraryScreen(
+                        onOpenDetail = ::openDetail,
+                        onPlayEntry = ::playHistory,
+                        onPlayDownload = ::playDownload,
+                        contentFocusRequester = libraryFocusRequester,
+                        topBarFocusRequester = topBarFocusRequester,
+                    )
+                }
             }
             composable(Tab.Settings.route) {
                 ReadableWidth {
@@ -563,6 +608,8 @@ fun PlayRoot() {
                         onOpenProfile = { profileGate = true },
                         onOpenSync = { navController.navigate(SYNC_ROUTE) },
                         onOpenAbout = { navController.navigate(ABOUT_ROUTE) },
+                        contentFocusRequester = settingsFocusRequester,
+                        topBarFocusRequester = topBarFocusRequester,
                     )
                 }
             }
@@ -707,124 +754,24 @@ fun PlayRoot() {
         }
             }
 
-            // Yan menü (Geniş ekran / TV): içeriğin üstüne biner (overlay)
-            if (showNav && layout.useRail) CappedFontScale {
-                val inputModeManager = LocalInputModeManager.current
-                val keyboard = inputModeManager.inputMode == InputMode.Keyboard
-                var isMenuFocused by remember { mutableStateOf(false) }
-                val isExpanded = isMenuFocused && keyboard
-
-                val currentWidth by animateDpAsState(
-                    targetValue = if (isExpanded) railExpandedWidth else railCollapsedWidth,
-                    animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
-                    label = "railWidth",
-                )
-
-                val railFocusMemory = rememberFocusMemory()
-
-                Row(
+            // Yüzen üst menü (hap): ana sekmeler + profil. Kumandayla sağ-sol gezilir, aşağı içeriğe iner.
+            if (showNav) {
+                PlayTopBar(
+                    currentRoute = currentRoute,
+                    avatarKey = avatarKey,
+                    onOpenTab = ::openTab,
+                    onOpenProfile = { profileGate = true },
+                    contentFocusRequester = currentContentFocusRequester,
+                    topBarFocusRequester = topBarFocusRequester,
+                    profileFocusRequester = profileFocusRequester,
+                    pillFocusRequester = pillFocusRequester.takeIf { currentRoute == Tab.Home.route || currentRoute == null },
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .width(currentWidth)
-                        .background(MaterialTheme.colorScheme.surface)
-                        .onFocusChanged { isMenuFocused = it.hasFocus },
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .padding(horizontal = 8.dp),
-                    ) {
-                        // Logo
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    start = if (isExpanded) 8.dp else 0.dp,
-                                    top = 24.dp,
-                                    bottom = 28.dp,
-                                ),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = if (isExpanded) Arrangement.Start else Arrangement.Center,
-                        ) {
-                            Icon(
-                                imageVector = PlayIcons.PlayTriangle,
-                                contentDescription = "Play",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(28.dp),
-                            )
-                            if (isExpanded) {
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Text(
-                                    text = "Play",
-                                    style = MaterialTheme.typography.titleLarge.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 22.sp,
-                                    ),
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    maxLines = 1,
-                                    softWrap = false,
-                                )
-                            }
-                        }
-
-                        // Menü öğeleri
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Tab.entries.forEach { tab ->
-                                val isSelected = selected(tab)
-                                val shape = MaterialTheme.shapes.medium
-                                Surface(
-                                    onClick = { openTab(tab) },
-                                    shape = shape,
-                                    color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-                                    border = if (isSelected) BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary) else null,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .focusMemory(railFocusMemory, tab.name, isDefault = isSelected)
-                                        .focusRing(shape),
-                                ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(
-                                                start = if (isExpanded) 14.dp else 16.dp,
-                                                end = if (isExpanded) 14.dp else 16.dp,
-                                                top = 12.dp,
-                                                bottom = 12.dp,
-                                            ),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = if (isExpanded) Arrangement.Start else Arrangement.Center,
-                                    ) {
-                                        Icon(
-                                            imageVector = tab.icon,
-                                            contentDescription = stringResource(tab.label),
-                                            tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                            modifier = Modifier.size(24.dp),
-                                        )
-                                        if (isExpanded) {
-                                            Spacer(modifier = Modifier.width(14.dp))
-                                            Text(
-                                                text = stringResource(tab.label),
-                                                style = MaterialTheme.typography.bodyMedium.copy(
-                                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                                                ),
-                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Clip,
-                                                softWrap = false,
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    VerticalDivider(
-                        color = Color(0xFF1E3A5F),
-                        thickness = 1.dp,
-                        modifier = Modifier.fillMaxHeight(),
-                    )
-                }
+                        .onFocusChanged { topBarHasFocus = it.hasFocus }
+                        .align(Alignment.TopCenter)
+                        .statusBarsPadding()
+                        .padding(top = 10.dp)
+                        .zIndex(100f),
+                )
             }
         }
     }
@@ -852,5 +799,102 @@ fun PlayRoot() {
                 }
             },
         )
+    }
+}
+
+/**
+ * Ekranın üstünde yüzen hap menü: Ana sayfa, Ara, Canlı TV, Kütüphane, Ayarlar ve profil avatarı.
+ * Kumanda: sağ-sol öğeler arasında gezer, aşağı (ve içerik tarafında yukarı) [contentFocusRequester] / [topBarFocusRequester]
+ * köprüsüyle içerik ile menü arasında geçer.
+ */
+@Composable
+fun PlayTopBar(
+    currentRoute: String?,
+    avatarKey: String,
+    onOpenTab: (Tab) -> Unit,
+    onOpenProfile: () -> Unit,
+    contentFocusRequester: FocusRequester,
+    topBarFocusRequester: FocusRequester,
+    profileFocusRequester: FocusRequester,
+    pillFocusRequester: FocusRequester?,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.shadow(12.dp, CircleShape),
+        shape = CircleShape,
+        color = topBarSurfaceColor(),
+        border = BorderStroke(1.dp, topBarBorderColor()),
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+                .focusProperties { down = contentFocusRequester },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            val homeSelected = currentRoute == Tab.Home.route || currentRoute == null
+            val searchSelected = currentRoute == Tab.Search.route || currentRoute?.startsWith("search") == true
+            val tvSelected = currentRoute == Tab.Tv.route || currentRoute?.startsWith("tv") == true
+            val librarySelected = currentRoute == Tab.Library.route || currentRoute?.startsWith("library") == true
+            val settingsSelected = currentRoute == Tab.Settings.route || currentRoute?.startsWith("settings") == true
+            PlayTopBarItem(PlayIcons.Home, stringResource(R.string.tab_home), homeSelected, contentFocusRequester, topBarFocusRequester.takeIf { homeSelected }) { onOpenTab(Tab.Home) }
+            PlayTopBarItem(PlayIcons.Search, stringResource(R.string.tab_search), searchSelected, contentFocusRequester, topBarFocusRequester.takeIf { searchSelected }) { onOpenTab(Tab.Search) }
+            PlayTopBarItem(PlayIcons.Tv, stringResource(R.string.tab_tv), tvSelected, contentFocusRequester, topBarFocusRequester.takeIf { tvSelected }) { onOpenTab(Tab.Tv) }
+            PlayTopBarItem(PlayIcons.Folder, stringResource(R.string.tab_library), librarySelected, contentFocusRequester, topBarFocusRequester.takeIf { librarySelected }) { onOpenTab(Tab.Library) }
+            PlayTopBarItem(PlayIcons.Gear, stringResource(R.string.tab_settings), settingsSelected, contentFocusRequester, topBarFocusRequester.takeIf { settingsSelected }) { onOpenTab(Tab.Settings) }
+            PlayTopBarItem(null, stringResource(R.string.tab_profile), false, contentFocusRequester, profileFocusRequester, avatarKey = avatarKey, rightFocusRequester = pillFocusRequester, onClick = onOpenProfile)
+        }
+    }
+}
+
+@Composable
+private fun PlayTopBarItem(
+    icon: ImageVector?,
+    contentDescription: String,
+    selected: Boolean,
+    contentFocusRequester: FocusRequester,
+    itemFocusRequester: FocusRequester?,
+    avatarKey: String? = null,
+    rightFocusRequester: FocusRequester? = null,
+    onClick: () -> Unit,
+) {
+    var boxFocused by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val interactionFocused by interactionSource.collectIsFocusedAsState()
+    val focused = boxFocused || interactionFocused
+    val tint = if (focused || selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(42.dp)
+            .then(if (itemFocusRequester != null) Modifier.focusRequester(itemFocusRequester) else Modifier)
+            .focusProperties {
+                down = contentFocusRequester
+                if (rightFocusRequester != null) right = rightFocusRequester
+            }
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
+                    runCatching { contentFocusRequester.requestFocus() }.getOrDefault(false)
+                } else {
+                    false
+                }
+            }
+            .onFocusChanged { boxFocused = it.isFocused }
+            .tvFocusableScaleGlow(
+                scale = 1.15f,
+                glowColor = MaterialTheme.colorScheme.primary,
+                shape = CircleShape,
+                isFocused = focused,
+                zIndex = 10f,
+                fillGlowAlpha = 0.20f,
+            )
+            .clickable(interactionSource = interactionSource, indication = null, onClick = onClick),
+    ) {
+        if (avatarKey != null) {
+            ProfileAvatar(avatar = avatarKey, size = 34)
+        } else if (icon != null) {
+            Icon(imageVector = icon, contentDescription = contentDescription, tint = tint, modifier = Modifier.size(22.dp))
+        }
     }
 }

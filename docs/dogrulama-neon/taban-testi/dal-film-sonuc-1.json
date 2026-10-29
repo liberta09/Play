@@ -1,0 +1,29 @@
+[
+ {
+  "surum": "dal",
+  "deneme": 1,
+  "gecerli": true,
+  "sonuc": "bulunamadı",
+  "sn": 5,
+  "plugin_istegi_logda": true,
+  "kaynak_basladi_logda": false
+ },
+ {
+  "surum": "dal",
+  "deneme": 2,
+  "gecerli": true,
+  "sonuc": "bulundu",
+  "sn": 14,
+  "plugin_istegi_logda": true,
+  "kaynak_basladi_logda": true
+ },
+ {
+  "surum": "dal",
+  "deneme": 3,
+  "gecerli": true,
+  "sonuc": "bulundu",
+  "sn": 14,
+  "plugin_istegi_logda": true,
+  "kaynak_basladi_logda": true
+ }
+]

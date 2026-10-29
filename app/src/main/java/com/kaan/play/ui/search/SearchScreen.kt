@@ -61,6 +61,8 @@ import kotlinx.coroutines.flow.filter
 fun SearchScreen(
     initialQuery: String? = null,
     onOpenDetail: (MediaType, Int) -> Unit,
+    contentFocusRequester: FocusRequester? = null,
+    topBarFocusRequester: FocusRequester? = null,
 ) {
     val vm = containerViewModel(key = "search-${AppLanguage.effective().iso}") { SearchViewModel(it.tmdb) }
     val state by vm.state.collectAsStateWithLifecycle()
@@ -107,8 +109,13 @@ fun SearchScreen(
             // Kumanda/klavye ile odaklanınca klavye kendiliğinden açılmaz; Tamam/dokunma açar. Ara: sonucu gösterir, klavyeyi kapatır.
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, showKeyboardOnFocus = false),
             keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp).focusRequester(fieldFocus)
-                .focusProperties { down = chipFocus }
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp)
+                .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                .focusRequester(fieldFocus)
+                .focusProperties {
+                    down = chipFocus
+                    if (topBarFocusRequester != null) up = topBarFocusRequester
+                }
                 .dpadLeavesTextField(field),
         )
 

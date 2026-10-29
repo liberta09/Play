@@ -1,0 +1,8 @@
+--------- beginning of main
+--------- beginning of system
+10-29 22:01:26.285  1075  1137 D PlayCs  : streams: 0 açık CS eklentisi
+10-29 22:01:26.383  1075  1075 D PlayPlugin: HDFilmCehennemi: istek tmdbId=969681 tür=movie sezon=null bölüm=null
+10-29 22:01:27.808  1075  1075 D PlayPlugin: HDFilmCehennemi: akış https://srv9.cdnimages2562.cyou/hls/<68>/txt/master.txt?s=#97ccc4(len56)
+10-29 22:01:27.815  1075  1075 D PlayMatch: kaynak başlatılıyor: HDFilmCehennemi (srv9.cdnimages2562.cyou)
+10-29 22:01:29.631  1075  1075 D PlayMatch: ilk kare: HDFilmCehennemi (faz=Starting)
+10-29 22:01:29.633  1075  1075 D PlayMatch: süre kontrolü kaynak=HDFilmCehennemi (srv9.cdnimages2562.cyou) süre=145.0 dk beklenen=145 dk tür=Movie -> Ok

@@ -1,0 +1,4 @@
+--------- beginning of main
+--------- beginning of system
+10-29 21:55:12.825 32183 32402 D PlayCs  : streams: 0 açık CS eklentisi
+10-29 21:55:12.833 32183 32183 D PlayPlugin: HDFilmCehennemi: istek tmdbId=969681 tür=movie sezon=null bölüm=null
