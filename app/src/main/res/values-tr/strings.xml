@@ -5,6 +5,7 @@
     <string name="tab_tv">TV</string>
     <string name="tab_library">Kütüphane</string>
     <string name="tab_settings">Ayarlar</string>
+    <string name="tab_profile">Profil</string>
 
     <string name="common_back">Geri</string>
     <string name="common_cancel">İptal</string>
