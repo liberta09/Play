@@ -32,3 +32,15 @@ fun topBarSurfaceColor(): Color =
 @Composable
 fun topBarBorderColor(): Color =
     if (isDarkScheme()) Color(0x33FFFFFF) else MaterialTheme.colorScheme.outline
+
+/** Profil seçimi ekranının zemini; koyu temada sabit, açık temada colorScheme'den. */
+@Composable
+fun profileBackdropBrush(): Brush {
+    val scheme = MaterialTheme.colorScheme
+    val colors = if (isDarkScheme()) {
+        listOf(Color(0xFF3A1027), Color(0xFF190B14), Color(0xFF050505))
+    } else {
+        listOf(scheme.surfaceContainer, scheme.background, scheme.background)
+    }
+    return Brush.verticalGradient(colors)
+}

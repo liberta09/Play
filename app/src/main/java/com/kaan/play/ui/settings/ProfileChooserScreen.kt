@@ -71,7 +71,7 @@ import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.rememberFocusMemory
-import androidx.compose.ui.graphics.Brush
+import com.kaan.play.ui.theme.profileBackdropBrush
 import com.kaan.play.ui.rememberContainer
 import kotlinx.coroutines.launch
 
@@ -106,7 +106,7 @@ fun ProfileChooserScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF3A1027), Color(0xFF190B14), Color(0xFF050505))))
+            .background(profileBackdropBrush())
             .statusBarsPadding()
             .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
