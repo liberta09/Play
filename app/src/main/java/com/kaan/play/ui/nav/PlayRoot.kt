@@ -1,5 +1,6 @@
 package com.kaan.play.ui.nav
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -212,6 +213,7 @@ fun PlayRoot() {
     // Ana sayfada: profil simgesi SAĞ → "Eklenti seç" hapı, hapta SOL → profil simgesi.
     val profileFocusRequester = remember { FocusRequester() }
     val pillFocusRequester = remember { FocusRequester() }
+    var topBarHasFocus by remember { mutableStateOf(false) }
     val currentContentFocusRequester = when {
         currentRoute == Tab.Tv.route -> tvFocusRequester
         currentRoute == Tab.Search.route || currentRoute?.startsWith("search") == true -> searchFocusRequester
@@ -494,6 +496,11 @@ fun PlayRoot() {
         currentRoute?.startsWith("home/category") == true ||
         currentRoute?.startsWith("settings/") == true
     val showNav = !isSubScreen
+
+    // Kumanda: odak üst menüdeyken Geri uygulamadan çıkarmaz, odağı içeriğe döndürür.
+    BackHandler(enabled = topBarHasFocus && !isSubScreen) {
+        runCatching { currentContentFocusRequester.requestFocus() }
+    }
     val avatarKey = activeProfile?.avatar ?: "space_astro"
     fun selected(tab: Tab) = currentRoute == tab.route || currentRoute?.startsWith(tab.route + "/") == true || currentRoute?.startsWith(tab.route + "?") == true
 
@@ -754,6 +761,7 @@ fun PlayRoot() {
                     profileFocusRequester = profileFocusRequester,
                     pillFocusRequester = pillFocusRequester.takeIf { currentRoute == Tab.Home.route || currentRoute == null },
                     modifier = Modifier
+                        .onFocusChanged { topBarHasFocus = it.hasFocus }
                         .align(Alignment.TopCenter)
                         .statusBarsPadding()
                         .padding(top = 10.dp)
