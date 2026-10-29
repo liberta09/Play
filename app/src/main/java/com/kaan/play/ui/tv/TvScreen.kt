@@ -1,6 +1,7 @@
 package com.kaan.play.ui.tv
 
 import androidx.compose.foundation.background
+import com.kaan.play.ui.tv.focusRing
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,7 +26,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import com.kaan.play.ui.components.Button
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
@@ -33,7 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.kaan.play.ui.components.TextButton
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -292,6 +293,7 @@ private fun LiveChannelCard(channel: LiveChannelGroup, onClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .focusRing(shape, scale = 1.04f)
             .clickable(interactionSource = interaction, indication = ripple(), onClick = onClick)
             .padding(3.dp),
     ) {

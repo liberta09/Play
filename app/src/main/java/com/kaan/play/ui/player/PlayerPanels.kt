@@ -153,7 +153,7 @@ private fun SoftText(text: String, modifier: Modifier = Modifier) {
 @Composable
 private fun ActionRow(label: String, onClick: () -> Unit, emphasized: Boolean = false, busy: Boolean = false, modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.fillMaxWidth().selectable(selected = false, role = Role.Button, onClick = onClick).padding(vertical = 12.dp),
+        modifier = modifier.fillMaxWidth().focusRing(androidx.compose.foundation.shape.RoundedCornerShape(10.dp)).selectable(selected = false, role = Role.Button, onClick = onClick).padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -322,7 +322,7 @@ fun SourcePanel(
 
             if (onlineView && online) {
                 item(key = "back") {
-                    Row(Modifier.fillMaxWidth().selectable(false, role = Role.Button, onClick = { onlineView = false }).padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.fillMaxWidth().focusRing(androidx.compose.foundation.shape.RoundedCornerShape(10.dp)).selectable(false, role = Role.Button, onClick = { onlineView = false }).padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(PlayIcons.Back, contentDescription = stringResource(R.string.common_back), tint = MaterialTheme.colorScheme.primary)
                         Text(stringResource(R.string.subs_load_online), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(start = 8.dp))
                     }

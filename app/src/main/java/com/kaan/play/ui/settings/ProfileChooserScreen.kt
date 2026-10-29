@@ -282,7 +282,7 @@ fun ProfileChooserScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text("Çocuk Profili")
-                        Switch(checked = editChild, onCheckedChange = { editChild = it })
+                        Switch(checked = editChild, onCheckedChange = { editChild = it }, modifier = Modifier.focusRing(CircleShape))
                     }
 
                     OutlinedTextField(

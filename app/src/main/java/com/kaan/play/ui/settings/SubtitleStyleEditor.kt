@@ -154,6 +154,7 @@ private fun SwitchRow(title: String, checked: Boolean, onChange: (Boolean) -> Un
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .focusRing(androidx.compose.foundation.shape.RoundedCornerShape(14.dp))
                 .toggleable(value = checked, role = Role.Switch, onValueChange = onChange)
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
