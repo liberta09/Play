@@ -1,0 +1,24 @@
+--------- beginning of main
+--------- beginning of system
+10-29 18:37:48.423  8161  8161 D PlayPlugin: HDFilmCehennemi: istek tmdbId=247718 tür=tv sezon=1 bölüm=1
+10-29 18:37:48.423  8161  8161 D PlayPlugin: DiziBOX TV: istek tmdbId=247718 tür=series sezon=1 bölüm=1
+10-29 18:37:48.431  8161  8195 D PlayCs  : streams: 0 açık CS eklentisi
+10-29 18:37:48.722  8161  8195 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=3902 charset=UTF-8
+10-29 18:37:48.729  8161  8213 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=4121 charset=UTF-8
+10-29 18:37:48.991  8161  8213 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1637 charset=UTF-8
+10-29 18:37:49.050  8161  8195 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=155626 charset=UTF-8
+10-29 18:37:49.064  8161  8215 D PlayPluginNet: www.dizibox.live GET -> 200 ctype=text/html len=983662 charset=UTF-8
+10-29 18:37:49.133  8161  8213 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=144604 charset=UTF-8
+10-29 18:37:49.833  8161  8195 D PlayPluginNet: www.dizibox.live GET -> 200 ctype=text/html len=871587 charset=UTF-8
+10-29 18:37:51.673  8161  8215 D PlayPluginNet: www.dizibox.live GET -> 200 ctype=text/html len=873169 charset=UTF-8
+10-29 18:37:52.017  8161  8215 D PlayPluginNet: www.dizibox.live GET -> 200 ctype=text/html len=2247 charset=UTF-8
+10-29 18:37:52.328  8161  8213 D PlayPluginNet: dbx.molystream.org GET -> 200 ctype=text/html len=17425 charset=UTF-8
+10-29 18:37:52.441  8161  8195 D PlayPluginNet: dbx.molystream.org GET -> 200 ctype=text/html len=150 charset=UTF-8
+10-29 18:37:52.655  8161  8161 D PlayPlugin: DiziBOX TV: akış https://dbx.molystream.org/embed/sheila/<30>
+10-29 18:37:52.658  8161  8161 D PlayMatch: kaynak başlatılıyor: DiziBOX TV (dbx.molystream.org)
+10-29 18:37:53.401  8161  8161 D PlayMatch: ilk kare: DiziBOX TV (faz=Starting)
+10-29 18:37:53.431  8161  8161 D PlayMatch: süre kontrolü kaynak=DiziBOX TV (dbx.molystream.org) süre=59.3 dk beklenen=60 dk tür=Tv -> Ok
+10-29 18:38:03.402  8161  8161 D PlayMatch: kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)
+10-29 18:38:03.405  8161  8161 E PlayPlugin: HDFilmCehennemi eklenti hatası: StandaloneCoroutine was cancelled
+10-29 18:38:03.405  8161  8161 E PlayPlugin: kotlinx.coroutines.JobCancellationException: StandaloneCoroutine was cancelled; job=StandaloneCoroutine{Cancelling}@c735df8
+10-29 18:38:14.159  8161  8161 D PlayMatch: takılma-ayrıntı kaynak=DiziBOX TV bitHızı=5.00 Mbps bantTahmini=8.00 Mbps tampon=0.2 sn

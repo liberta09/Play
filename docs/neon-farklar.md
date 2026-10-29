@@ -37,7 +37,14 @@ Kural: `data/**` değişmedi, yalnızca `ui/**` ve iki satır string kaynağı.
 
 517469a'nın ek kalemleri (Hız testi, Poster URL, Profil seçimi, Son profili hatırla, Bulut hesabı, Hakkında) **zaten d247b96'da var**; hiçbiri eklenmedi ya da silinmedi. Ayarlar'a yeni kalem yok.
 
+## Cihaz taramasından sonra eklenenler (517469a'da olmayan düzeltmeler)
+
+- `PlayIndication` artık halka çizmediği için `focusRing` almayan satırlar kumandada görünmez kalıyordu; eklendi: `FilterPill` (`Badges.kt`), Oynatıcı ve altyazı stili anahtar satırları, `ProfileScreen` avatarları, `TvScreen` kanal kartı, oynatıcı paneli (`PlayerPanels`, `SubtitleMenu`) satırları, `ProfileChooserScreen` anahtarı. Doğrudan Material3 `Button/TextButton/IconButton` kullanan 5 dosya (`ProviderDetailScreen`, `ProfileScreen`, `SettingsScreen`, `SpeedTestScreen`, `TvScreen`) odak halkalı `ui/components` sürümlerine geçti.
+- Profil kurulumunda ad ve PIN alanından kumandayla çıkılamıyordu (`dpadLeavesTextField` yoktu); eklendi. Aynı ekranda "Avatar Seçin" / "Çocuk profili" ve profil seçicide profil adı koyu zeminde siyah yazılıyordu; renk verildi.
+- Ana sayfada profil simgesi ↔ "Eklenti seç" hapı arasında açık odak geçişi (`profileFocusRequester`, `pillFocusRequester`).
+- Odak üst menüdeyken Geri uygulamadan çıkıyordu; artık odağı içeriğe döndürür (`BackHandler`).
+
 ## Bilinen açıklar
 
-- `RingNode` (`PlayIndication`) artık odakta halka **çizmez** (517469a'daki gibi). Odak halkası yalnızca `focusRing` / `tvFocusableScaleGlow` kullanan öğelerde görünür. `focusRing` almayan, yalnızca `clickable` olan bir öğe kumandayla odaklanınca ripple dışında belirti vermez; cihaz taramasında bulunanlar buraya eklenecek.
+- `RingNode` (`PlayIndication`) artık odakta halka **çizmez** (517469a'daki gibi). Odak halkası yalnızca `focusRing` / `tvFocusableScaleGlow` kullanan öğelerde görünür. Yeni bir `clickable/selectable/toggleable` eklenirse `focusRing` de eklenmelidir. Statik tarama yapıldı (yukarıdaki liste), ama tüm ekranlar cihazda gezilmedi (bkz. `dogrulama-neon/SONUC.md`).
 - Profil ekranlarındaki gömülü Türkçe metinler (önceden vardı) bu işte çevrilmedi.
