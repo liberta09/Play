@@ -97,3 +97,43 @@ Ayrıntı:
 - Detay'da yatay ekranda Oynat düğmesinin sola kayması / çok genişlemesi (`34`, `29b`, `38c`).
 - "Eklenti seç" hapının "Tümünü göster"i (ve kart altyazılarını) örtmesi (`23-asagi-03`, dikeyde de).
 - Sezon menüsü seçimi sonrası odağın ~3 tuş görünmemesi (`29g`, `29h`).
+
+---
+
+# 3. tur (2026-10-29/30): Örümcek-Adam · HDFilmCehennemi, 10'ar deneme
+
+Yalnızca HDFilmCehennemi açık (DiziBOX kapalı). Sıra: taban 1–5, dal 1–5, taban 6–10, dal 6–10; her blokta ilgili APK `adb install -r -t -d` ile kuruldu (`versionCode=99` test derlemesi; taban = saf `d247b96`, dal = `ozellik/neon-dpad-1.2.1` kodu). Her denemede uygulama `force-stop` ile kapatılıp açıldı, arama → Detay → Oynat; Oynat'tan sonra en çok 45 sn beklendi; her deneme için Oynat anından başlayan 60 sn'lik `adb logcat -s PlayCs PlayMatch PlayPlugin PlayPluginNet` kaydı `taban-testi/olcum-<sürüm>-<no>.txt` dosyalarında, ham sonuçlar `olcum-*.json`.
+
+Ölçütler: **BULUNDU** = günlükte `kaynak başlatılıyor` satırı; **BULUNAMADI** = ekranda "Bu içerik için kaynak bulunamadı." (45 sn içinde ne akış ne mesaj olsaydı yine BULUNAMADI/zaman aşımı yazılacaktı; olmadı); **GEÇERSİZ** = Detay açılmadı / otomasyon hatası (sayılmaz; bu turda **0** geçersiz). "Saniye (istek→başlama)": günlükte `istek` satırı ile `kaynak başlatılıyor` satırı arası. "Ekran sn": Oynat'a basıştan, uiautomator yoklaması sonucunda sonucun görüldüğü ana kadar (yoklama yavaştır, kaba değerdir).
+
+| Sürüm | Deneme | Sonuç | Saniye (istek→başlama) | Ekran sn |
+|---|---|---|---|---|
+| taban | 1 | BULUNDU | 1,8 | 15,6 |
+| taban | 2 | BULUNDU | 1,1 | 3,3 |
+| taban | 3 | BULUNDU | 1,7 | 6,8 |
+| taban | 4 | BULUNDU | 1,5 | 3,3 |
+| taban | 5 | BULUNDU | 1,9 | 7,8 |
+| taban | 6 | BULUNAMADI | – | 17,9 |
+| taban | 7 | BULUNDU | 1,5 | 3,4 |
+| taban | 8 | BULUNDU | 1,8 | 7,3 |
+| taban | 9 | BULUNAMADI | – | 17,9 |
+| taban | 10 | BULUNDU | 1,6 | 6,6 |
+| dal | 1 | BULUNAMADI | – | 17,9 |
+| dal | 2 | BULUNDU | 2,4 | 15,6 |
+| dal | 3 | BULUNDU | 13,0 | 16,5 |
+| dal | 4 | BULUNDU | 1,4 | 3,3 |
+| dal | 5 | BULUNDU | 1,6 | 3,4 |
+| dal | 6 | BULUNDU | 1,7 | 3,4 |
+| dal | 7 | BULUNDU | 1,8 | 7,3 |
+| dal | 8 | BULUNDU | 12,2 | 25,4 |
+| dal | 9 | BULUNDU | 1,5 | 3,3 |
+| dal | 10 | BULUNDU | 1,4 | 3,3 |
+
+Özet: taban **8 BULUNDU / 2 BULUNAMADI**; dal **9 BULUNDU / 1 BULUNAMADI**; geçersiz 0. Dalın BULUNAMADI oranı tabandan kötü değil (eşik 7/10), bu yüzden istenen ek `git diff --stat` / iptal edebilecek değişiklik listesi **çıkarılmadı**.
+
+BULUNAMADI denemelerinin günlükleri (yalnızca olgu):
+- taban 6: `istek` + `PlayCs` + 3 ağ satırı (TMDB, hdfilmcehennemi.nl ×2); 60 sn boyunca başka satır yok; akış satırı yok.
+- taban 9: `istek` + ağ satırları; hdfilmcehennemi.mobi'ye ilk yanıt ≈12,6 sn sonra, ikincisi ≈15,8 sn sonra; akış satırı yok.
+- dal 1: `istek` + ağ satırları; hdfilmcehennemi.mobi yanıtı ≈12,7 sn sonra; akış satırı yok.
+- Üç denemede de (ve 20 denemenin hiçbirinde) günlükte `JobCancellationException`, "iptal", zaman aşımı ya da `timeout` satırı **yok**. Ekranda mesajın görüldüğü an (≈17,9 sn) ile günlük akışı arasındaki ilişki yorumlanmadı.
+- Başlangıcı uzun olan iki BULUNDU denemesinde (dal 3: 13,0 sn; dal 8: 12,2 sn) günlükte hdfilmcehennemi.nl satırlarından sonra ≈12 sn boşluk, sonra hdfilmcehennemi.mobi yanıtı ve akış satırı var; aynı ≈12 sn boşluk BULUNAMADI olan taban 9 ve dal 1 günlüklerinde de görülür (taban 6'da .mobi satırı hiç yok). Hızlı BULUNDU denemelerinde (≈1–2 sn) boşluk yok. Nedeni araştırılmadı.
