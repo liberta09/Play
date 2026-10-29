@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.kaan.play.ui.components.Button
 import com.kaan.play.ui.components.ScreenHeader
 import com.kaan.play.ui.components.TextButton
+import com.kaan.play.ui.tv.dpadLeavesTextField
 import com.kaan.play.ui.tv.focusRing
 import androidx.compose.foundation.shape.CircleShape
 
@@ -59,6 +60,7 @@ fun ProfileSetupScreen(
         Text(
             text = "Avatar Seçin",
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onBackground,
         )
 
         LazyRow(
@@ -81,7 +83,7 @@ fun ProfileSetupScreen(
             label = { Text("Profil Adı") },
             placeholder = { Text("Örn: Kaan") },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().dpadLeavesTextField(),
         )
 
         Row(
@@ -93,6 +95,7 @@ fun ProfileSetupScreen(
                 Text(
                     text = "Çocuk profili",
                     style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
                 Text(
                     text = "Yetişkin içerikleri gizler ve yalnızca çocuklara uygun içerikleri listeler.",
@@ -115,7 +118,7 @@ fun ProfileSetupScreen(
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().dpadLeavesTextField(),
             supportingText = {
                 Text("Profil girişinde veya çocuk profilinden çıkarken sorulur.")
             },
