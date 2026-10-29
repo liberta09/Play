@@ -209,6 +209,9 @@ fun PlayRoot() {
     val libraryFocusRequester = remember { FocusRequester() }
     val settingsFocusRequester = remember { FocusRequester() }
     val topBarFocusRequester = remember { FocusRequester() }
+    // Ana sayfada: profil simgesi SAĞ → "Eklenti seç" hapı, hapta SOL → profil simgesi.
+    val profileFocusRequester = remember { FocusRequester() }
+    val pillFocusRequester = remember { FocusRequester() }
     val currentContentFocusRequester = when {
         currentRoute == Tab.Tv.route -> tvFocusRequester
         currentRoute == Tab.Search.route || currentRoute?.startsWith("search") == true -> searchFocusRequester
@@ -535,6 +538,8 @@ fun PlayRoot() {
                     },
                     contentFocusRequester = homeFocusRequester,
                     topBarFocusRequester = topBarFocusRequester,
+                    pillFocusRequester = pillFocusRequester,
+                    profileFocusRequester = profileFocusRequester,
                 )
             }
 
@@ -746,6 +751,8 @@ fun PlayRoot() {
                     onOpenProfile = { profileGate = true },
                     contentFocusRequester = currentContentFocusRequester,
                     topBarFocusRequester = topBarFocusRequester,
+                    profileFocusRequester = profileFocusRequester,
+                    pillFocusRequester = pillFocusRequester.takeIf { currentRoute == Tab.Home.route || currentRoute == null },
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .statusBarsPadding()
@@ -795,6 +802,8 @@ fun PlayTopBar(
     onOpenProfile: () -> Unit,
     contentFocusRequester: FocusRequester,
     topBarFocusRequester: FocusRequester,
+    profileFocusRequester: FocusRequester,
+    pillFocusRequester: FocusRequester?,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -820,7 +829,7 @@ fun PlayTopBar(
             PlayTopBarItem(PlayIcons.Tv, stringResource(R.string.tab_tv), tvSelected, contentFocusRequester, topBarFocusRequester.takeIf { tvSelected }) { onOpenTab(Tab.Tv) }
             PlayTopBarItem(PlayIcons.Folder, stringResource(R.string.tab_library), librarySelected, contentFocusRequester, topBarFocusRequester.takeIf { librarySelected }) { onOpenTab(Tab.Library) }
             PlayTopBarItem(PlayIcons.Gear, stringResource(R.string.tab_settings), settingsSelected, contentFocusRequester, topBarFocusRequester.takeIf { settingsSelected }) { onOpenTab(Tab.Settings) }
-            PlayTopBarItem(null, stringResource(R.string.tab_profile), false, contentFocusRequester, null, avatarKey = avatarKey, onClick = onOpenProfile)
+            PlayTopBarItem(null, stringResource(R.string.tab_profile), false, contentFocusRequester, profileFocusRequester, avatarKey = avatarKey, rightFocusRequester = pillFocusRequester, onClick = onOpenProfile)
         }
     }
 }
@@ -833,6 +842,7 @@ private fun PlayTopBarItem(
     contentFocusRequester: FocusRequester,
     itemFocusRequester: FocusRequester?,
     avatarKey: String? = null,
+    rightFocusRequester: FocusRequester? = null,
     onClick: () -> Unit,
 ) {
     var boxFocused by remember { mutableStateOf(false) }
@@ -846,7 +856,10 @@ private fun PlayTopBarItem(
         modifier = Modifier
             .size(42.dp)
             .then(if (itemFocusRequester != null) Modifier.focusRequester(itemFocusRequester) else Modifier)
-            .focusProperties { down = contentFocusRequester }
+            .focusProperties {
+                down = contentFocusRequester
+                if (rightFocusRequester != null) right = rightFocusRequester
+            }
             .onPreviewKeyEvent { event ->
                 if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
                     runCatching { contentFocusRequester.requestFocus() }.getOrDefault(false)

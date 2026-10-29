@@ -114,6 +114,8 @@ fun HomeScreen(
     onOpenProviderDetail: (providerId: String, url: String) -> Unit = { _, _ -> },
     contentFocusRequester: FocusRequester? = null,
     topBarFocusRequester: FocusRequester? = null,
+    pillFocusRequester: FocusRequester? = null,
+    profileFocusRequester: FocusRequester? = null,
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
@@ -207,7 +209,9 @@ fun HomeScreen(
             onClick = { showProviderSelector = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 20.dp, bottom = 20.dp),
+                .padding(end = 20.dp, bottom = 20.dp)
+                .let { if (pillFocusRequester != null) it.focusRequester(pillFocusRequester) else it }
+                .let { if (profileFocusRequester != null) it.focusProperties { left = profileFocusRequester } else it },
         )
 
         if (showProviderSelector) {
