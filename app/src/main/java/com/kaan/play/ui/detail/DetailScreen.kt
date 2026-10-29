@@ -177,7 +177,7 @@ fun DetailScreen(
             onClick = onBack,
             shape = CircleShape,
             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)),
+            border = null,
             modifier = Modifier
                 .statusBarsPadding()
                 .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -684,7 +684,7 @@ private fun EpisodeCard(episode: Episode, modifier: Modifier, onClick: () -> Uni
         onClick = onClick,
         shape = shape,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)),
+        border = null,
         modifier = modifier.focusRing(shape),
     ) {
         Row(
