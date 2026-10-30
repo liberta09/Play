@@ -1,0 +1,53 @@
+10-31 02:32:27.951 D/PlayAddon(29095): Torrentio: istek tür=movie kimlik=tt27369017
+10-31 02:32:27.953 D/PlayPlugin(29095): HDFilmCehennemi: istek tmdbId=1058424 tür=movie sezon=null bölüm=null
+10-31 02:32:28.253 D/PlayPluginNet(29095): api.themoviedb.org GET -> 200 ctype=application/json len=1870 charset=UTF-8
+10-31 02:32:28.350 D/PlayTorrent(29095): libtorrent oturumu başlıyor (ABI=x86_64, x86, arm64-v8a, armeabi-v7a, armeabi, dizin=/storage/emulated/0/Android/data/com.kaan.play/cache/torrents)
+10-31 02:32:28.360 D/PlayTorrent(29095): libtorrent oturumu başladı
+10-31 02:32:28.361 D/PlayTorrent(29095): alert LISTEN_FAILED: listening on 0.0.0.0:0 (device: ) failed: [enum_route] [TCP] Operation not supported on transport endpoint
+10-31 02:32:28.362 D/PlayTorrent(29095): alert LISTEN_SUCCEEDED: successfully listening on [TCP] 0.0.0.0:6881
+10-31 02:32:28.362 D/PlayTorrent(29095): alert LISTEN_SUCCEEDED: successfully listening on [uTP] 0.0.0.0:6881
+10-31 02:32:28.362 D/PlayTorrent(29095): alert LISTEN_SUCCEEDED: successfully listening on [TCP] [::]:6881
+10-31 02:32:28.362 D/PlayTorrent(29095): alert LISTEN_SUCCEEDED: successfully listening on [uTP] [::]:6881
+10-31 02:32:28.532 D/PlayTorrent(29095): alert EXTERNAL_IP: external IP received: 78.185.129.235
+10-31 02:32:28.562 D/PlayPluginNet(29095): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1652 charset=UTF-8
+10-31 02:32:28.665 D/PlayPluginNet(29095): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=96570 charset=UTF-8
+10-31 02:32:28.706 D/PlayPlugin(29095): HDFilmCehennemi: eklenti 0 akış döndürdü, listeye 0 girdi
+10-31 02:32:28.707 D/PlayMatch(29095): kaynak başlatılıyor: Torrentio (?)
+10-31 02:32:28.708 D/PlayTorrent(29095): oynatıcıya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=0 başlıklar=[] mime=null
+10-31 02:32:28.723 D/PlayTorrent(29095): yerel sunucu isteği: GET range=null hedefOk=true
+10-31 02:32:28.723 D/PlayTorrent(29095): motor open: hash=9777892b2d14bf8fa7f4715f0c74facd74a76ad1 fileHint=0
+10-31 02:32:28.725 D/PlayTorrent(29095): alert STATE_CHANGED: 977789: state changed to: dl metadata
+10-31 02:32:28.725 D/PlayTorrent(29095): alert ADD_TORRENT: added torrent: 9777892b2d14bf8fa7f4715f0c74facd74a76ad1
+10-31 02:32:28.863 D/PlayTorrent(29095): alert TORRENT_RESUMED: 977789 resumed
+10-31 02:32:28.864 D/PlayTorrent(29095): alert TRACKER_ANNOUNCE: 977789 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+10-31 02:32:28.864 D/PlayTorrent(29095): alert TRACKER_ANNOUNCE: 977789 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+10-31 02:32:28.868 D/PlayTorrent(29095): alert TRACKER_ERROR: 977789 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+10-31 02:32:28.868 D/PlayTorrent(29095): alert TRACKER_ANNOUNCE: 977789 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+10-31 02:32:28.869 D/PlayTorrent(29095): alert TRACKER_ERROR: 977789 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 02:32:28.869 D/PlayTorrent(29095): alert TRACKER_ANNOUNCE: 977789 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+10-31 02:32:28.870 D/PlayTorrent(29095): alert TRACKER_ERROR: 977789 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 02:32:28.870 D/PlayTorrent(29095): alert TRACKER_ANNOUNCE: 977789 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+10-31 02:32:28.872 D/PlayTorrent(29095): alert TRACKER_ERROR: 977789 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 02:32:28.872 D/PlayTorrent(29095): alert TRACKER_ANNOUNCE: 977789 (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] sending announce (started)
+10-31 02:32:28.872 D/PlayTorrent(29095): alert TRACKER_ERROR: 977789 (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 02:32:28.872 D/PlayTorrent(29095): alert TRACKER_ANNOUNCE: 977789 (udp://explodie.org:6969/announce)[[::]:6881-v1] sending announce (started)
+10-31 02:32:28.873 D/PlayTorrent(29095): alert TRACKER_ERROR: 977789 (udp://explodie.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 02:32:29.009 D/PlayTorrent(29095): alert TRACKER_REPLY: 977789 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 200
+10-31 02:32:31.017 D/PlayTorrent(29095): alert METADATA_RECEIVED: 977789 metadata successfully received
+10-31 02:32:31.017 D/PlayTorrent(29095): alert STATE_CHANGED: 977789: state changed to: checking (r)
+10-31 02:32:31.017 D/PlayTorrent(29095): alert STATE_CHANGED: 977789: state changed to: downloading
+10-31 02:32:31.017 D/PlayTorrent(29095): alert TORRENT_CHECKED: 977789 checked
+10-31 02:32:31.236 D/PlayTorrent(29095): torrent açıldı: hash=9777892b2d14bf8fa7f4715f0c74facd74a76ad1 dosya[0]=Hope 2026 1080p Korean WEB-DL HEVC x265 5.1 BONE.mkv boyut=2138579194 parça=2097152 (dosya sayısı 1, ipucu=0)
+10-31 02:32:31.236 D/PlayTorrent(29095): alert FILE_PRIO: 977789 file priorities updated
+10-31 02:32:31.237 D/PlayTorrent(29095): yerel sunucu yanıtı: 200 Hope 2026 1080p Korean WEB-DL HEVC x265 5.1 BONE.mkv 0-2138579193/2138579194
+10-31 02:32:33.133 D/AndroidRuntime(29235): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 02:32:33.163 D/AndroidRuntime(29235): Calling main entry com.android.commands.input.Input
+10-31 02:32:33.182 D/AndroidRuntime(29235): Shutting down VM
+10-31 02:32:33.247 D/PlayTorrent(29095): bekleniyor: parça=0 süre=2sn eş=5 tohum=5 hız=212KB/s inen=0KB durum=DOWNLOADING
+10-31 02:32:33.628 D/PlayMatch(29095): takılma kaynak=Torrentio sayı=0 toplam=0.0 sn oynama=0 dk
+10-31 02:32:33.628 D/PlayMatch(29095): takılma-ayrıntı kaynak=Torrentio bitHızı=bilinmiyor bantTahmini=3.20 Mbps tampon=0.0 sn
+10-31 02:32:33.630 D/PlayTorrent(29095): oynatıcı kapandı: oturum 10 dk boşta açık kalacak
+10-31 02:32:33.631 D/PlayTorrent(29095): alert TRACKER_ANNOUNCE: 977789 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+10-31 02:32:33.631 D/PlayTorrent(29095): alert TORRENT_DELETED: ------ deleted
+10-31 02:32:33.631 D/PlayTorrent(29095): alert TORRENT_REMOVED: ------ removed
+10-31 02:32:33.649 D/PlayTorrent(29095): yerel sunucu bağlantısı bitti: IOException torrent closed

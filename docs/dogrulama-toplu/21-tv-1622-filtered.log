@@ -1,0 +1,39 @@
+10-31 02:35:28.613 D/PlayAddon(32599): Torrentio: istek tür=series kimlik=tt0460681:1:1
+10-31 02:35:28.630 D/PlayPlugin(32599): DiziBOX TV: istek tmdbId=1622 tür=series sezon=1 bölüm=1
+10-31 02:35:28.630 D/PlayPlugin(32599): HDFilmCehennemi: istek tmdbId=1622 tür=tv sezon=1 bölüm=1
+10-31 02:35:28.874 D/PlayPluginNet(32599): api.themoviedb.org GET -> 200 ctype=application/json len=6850 charset=UTF-8
+10-31 02:35:28.901 D/PlayPluginNet(32599): api.themoviedb.org GET -> 200 ctype=application/json len=7081 charset=UTF-8
+10-31 02:35:28.995 D/PlayTorrent(32599): libtorrent oturumu başlıyor (ABI=x86_64, x86, arm64-v8a, armeabi-v7a, armeabi, dizin=/storage/emulated/0/Android/data/com.kaan.play/cache/torrents)
+10-31 02:35:29.007 D/PlayTorrent(32599): libtorrent oturumu başladı
+10-31 02:35:29.008 D/PlayTorrent(32599): alert LISTEN_FAILED: listening on 0.0.0.0:0 (device: ) failed: [enum_route] [TCP] Operation not supported on transport endpoint
+10-31 02:35:29.009 D/PlayTorrent(32599): alert LISTEN_SUCCEEDED: successfully listening on [TCP] 0.0.0.0:6881
+10-31 02:35:29.009 D/PlayTorrent(32599): alert LISTEN_SUCCEEDED: successfully listening on [uTP] 0.0.0.0:6881
+10-31 02:35:29.009 D/PlayTorrent(32599): alert LISTEN_SUCCEEDED: successfully listening on [TCP] [::]:6881
+10-31 02:35:29.009 D/PlayTorrent(32599): alert LISTEN_SUCCEEDED: successfully listening on [uTP] [::]:6881
+10-31 02:35:29.089 D/PlayTorrent(32599): alert EXTERNAL_IP: external IP received: 78.185.129.235
+10-31 02:35:29.216 D/PlayPluginNet(32599): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1717 charset=UTF-8
+10-31 02:35:29.280 D/PlayPluginNet(32599): www.dizibox.live GET -> 200 ctype=text/html len=984336 charset=UTF-8
+10-31 02:35:29.329 D/PlayPluginNet(32599): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=782887 charset=UTF-8
+10-31 02:35:30.011 D/PlayPluginNet(32599): www.dizibox.live GET -> 200 ctype=text/html len=892986 charset=UTF-8
+10-31 02:35:30.366 D/PlayPluginNet(32599): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=696857 charset=UTF-8
+10-31 02:35:30.547 D/PlayPluginNet(32599): www.dizibox.live GET -> 200 ctype=text/html len=886671 charset=UTF-8
+10-31 02:35:30.814 D/PlayPluginNet(32599): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31368 charset=UTF-8
+10-31 02:35:30.817 D/PlayPluginNet(32599): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31360 charset=UTF-8
+10-31 02:35:30.889 D/PlayPluginNet(32599): www.dizibox.live GET -> 200 ctype=text/html len=2247 charset=UTF-8
+10-31 02:35:31.185 D/PlayPluginNet(32599): hls8.playmix.uno GET -> 404 ctype=application/vnd.apple.mpegurl len=10 charset=UTF-8
+10-31 02:35:31.186 D/PlayPluginNet(32599): hls8.playmix.uno GET -> 404 ctype=application/vnd.apple.mpegurl len=10 charset=UTF-8
+10-31 02:35:31.189 D/PlayPlugin(32599): HDFilmCehennemi: eklenti 0 akış döndürdü, listeye 0 girdi
+10-31 02:35:31.197 D/PlayPluginNet(32599): dbx.molystream.org GET -> 200 ctype=text/html len=17425 charset=UTF-8
+10-31 02:35:31.310 D/PlayPluginNet(32599): dbx.molystream.org GET -> 200 ctype=text/html len=150 charset=UTF-8
+10-31 02:35:31.597 D/PlayPlugin(32599): DiziBOX TV: eklenti 1 akış döndürdü, listeye 1 girdi
+10-31 02:35:31.597 D/PlayPlugin(32599): DiziBOX TV: akış https://dbx.molystream.org/embed/sheila/<30>
+10-31 02:35:31.600 D/PlayMatch(32599): kaynak başlatılıyor: DiziBOX TV (dbx.molystream.org)
+10-31 02:35:31.601 D/PlayTorrent(32599): oynatıcıya veriliyor: kaynak=DiziBOX TV https://dbx.molystream.org/ torrent=false fileIdx=null başlıklar=[Referer, Origin, User-Agent] mime=application/x-mpegURL
+10-31 02:35:32.527 D/PlayMatch(32599): ilk kare: DiziBOX TV (faz=Starting)
+10-31 02:35:32.842 D/PlayMatch(32599): süre kontrolü kaynak=DiziBOX TV (dbx.molystream.org) süre=46.4 dk beklenen=46 dk tür=Tv -> Ok
+10-31 02:35:36.063 D/AndroidRuntime(32761): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 02:35:36.098 D/AndroidRuntime(32761): Calling main entry com.android.commands.input.Input
+10-31 02:35:36.118 D/AndroidRuntime(32761): Shutting down VM
+10-31 02:35:36.554 D/PlayMatch(32599): takılma kaynak=DiziBOX TV sayı=0 toplam=0.0 sn oynama=0 dk
+10-31 02:35:36.555 D/PlayMatch(32599): takılma-ayrıntı kaynak=DiziBOX TV bitHızı=5.00 Mbps bantTahmini=14.29 Mbps tampon=10.6 sn
+10-31 02:35:36.571 D/PlayTorrent(32599): oynatıcı kapandı: oturum 10 dk boşta açık kalacak

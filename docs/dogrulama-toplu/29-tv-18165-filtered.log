@@ -1,0 +1,39 @@
+10-31 02:36:55.260 D/PlayAddon( 2204): Torrentio: istek tür=series kimlik=tt1405406:1:1
+10-31 02:36:55.261 D/PlayPlugin( 2204): DiziBOX TV: istek tmdbId=18165 tür=series sezon=1 bölüm=1
+10-31 02:36:55.261 D/PlayPlugin( 2204): HDFilmCehennemi: istek tmdbId=18165 tür=tv sezon=1 bölüm=1
+10-31 02:36:55.587 D/PlayTorrent( 2204): libtorrent oturumu başlıyor (ABI=x86_64, x86, arm64-v8a, armeabi-v7a, armeabi, dizin=/storage/emulated/0/Android/data/com.kaan.play/cache/torrents)
+10-31 02:36:55.602 D/PlayTorrent( 2204): libtorrent oturumu başladı
+10-31 02:36:55.605 D/PlayTorrent( 2204): alert LISTEN_FAILED: listening on 0.0.0.0:0 (device: ) failed: [enum_route] [TCP] Operation not supported on transport endpoint
+10-31 02:36:55.605 D/PlayTorrent( 2204): alert LISTEN_SUCCEEDED: successfully listening on [TCP] 0.0.0.0:6881
+10-31 02:36:55.606 D/PlayTorrent( 2204): alert LISTEN_SUCCEEDED: successfully listening on [uTP] 0.0.0.0:6881
+10-31 02:36:55.606 D/PlayTorrent( 2204): alert LISTEN_SUCCEEDED: successfully listening on [TCP] [::]:6881
+10-31 02:36:55.606 D/PlayTorrent( 2204): alert LISTEN_SUCCEEDED: successfully listening on [uTP] [::]:6881
+10-31 02:36:55.647 D/PlayPluginNet( 2204): api.themoviedb.org GET -> 200 ctype=application/json len=5182 charset=UTF-8
+10-31 02:36:55.673 D/PlayPluginNet( 2204): api.themoviedb.org GET -> 200 ctype=application/json len=4958 charset=UTF-8
+10-31 02:36:55.682 D/PlayTorrent( 2204): alert EXTERNAL_IP: external IP received: 78.185.129.235
+10-31 02:36:55.881 D/PlayPluginNet( 2204): www.dizibox.live GET -> 200 ctype=text/html len=984336 charset=UTF-8
+10-31 02:36:55.923 D/PlayPluginNet( 2204): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1779 charset=UTF-8
+10-31 02:36:56.057 D/PlayPluginNet( 2204): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=486462 charset=UTF-8
+10-31 02:36:56.229 D/PlayPluginNet( 2204): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=427491 charset=UTF-8
+10-31 02:36:56.617 D/PlayPluginNet( 2204): www.dizibox.live GET -> 200 ctype=text/html len=909425 charset=UTF-8
+10-31 02:36:56.641 D/PlayPluginNet( 2204): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31427 charset=UTF-8
+10-31 02:36:56.648 D/PlayPluginNet( 2204): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31449 charset=UTF-8
+10-31 02:36:57.059 D/PlayPluginNet( 2204): srv12.cdnimages2123.cyou GET -> 200 ctype=application/vnd.apple.mpegurl len=360 charset=UTF-8
+10-31 02:36:57.067 D/PlayPlugin( 2204): HDFilmCehennemi: eklenti 1 akış döndürdü, listeye 1 girdi
+10-31 02:36:57.068 D/PlayPlugin( 2204): HDFilmCehennemi: akış https://srv12.cdnimages2123.cyou/hls/<53>/txt/master.txt?s=<masked>
+10-31 02:36:57.117 D/PlayPluginNet( 2204): www.dizibox.live GET -> 200 ctype=text/html len=893405 charset=UTF-8
+10-31 02:36:57.462 D/PlayPluginNet( 2204): www.dizibox.live GET -> 200 ctype=text/html len=2247 charset=UTF-8
+10-31 02:36:57.797 D/PlayPluginNet( 2204): dbx.molystream.org GET -> 200 ctype=text/html len=17425 charset=UTF-8
+10-31 02:36:57.928 D/PlayPluginNet( 2204): dbx.molystream.org GET -> 200 ctype=text/html len=150 charset=UTF-8
+10-31 02:36:58.213 D/PlayPlugin( 2204): DiziBOX TV: eklenti 1 akış döndürdü, listeye 1 girdi
+10-31 02:36:58.213 D/PlayPlugin( 2204): DiziBOX TV: akış https://dbx.molystream.org/embed/sheila/<30>
+10-31 02:36:58.215 D/PlayMatch( 2204): kaynak başlatılıyor: HDFilmCehennemi (srv12.cdnimages2123.cyou)
+10-31 02:36:58.216 D/PlayTorrent( 2204): oynatıcıya veriliyor: kaynak=HDFilmCehennemi https://srv12.cdnimages2123.cyou/<masked_path>.txt torrent=false fileIdx=null başlıklar=[Referer, Origin, User-Agent] mime=application/x-mpegURL
+10-31 02:36:59.177 D/PlayMatch( 2204): ilk kare: HDFilmCehennemi (faz=Starting)
+10-31 02:36:59.386 D/PlayMatch( 2204): süre kontrolü kaynak=HDFilmCehennemi (srv12.cdnimages2123.cyou) süre=42.3 dk beklenen=43 dk tür=Tv -> Ok
+10-31 02:37:02.931 D/AndroidRuntime( 2400): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 02:37:02.964 D/AndroidRuntime( 2400): Calling main entry com.android.commands.input.Input
+10-31 02:37:02.984 D/AndroidRuntime( 2400): Shutting down VM
+10-31 02:37:03.404 D/PlayMatch( 2204): takılma kaynak=HDFilmCehennemi sayı=0 toplam=0.0 sn oynama=0 dk
+10-31 02:37:03.404 D/PlayMatch( 2204): takılma-ayrıntı kaynak=HDFilmCehennemi bitHızı=3.94 Mbps bantTahmini=34.05 Mbps tampon=31.1 sn
+10-31 02:37:03.423 D/PlayTorrent( 2204): oynatıcı kapandı: oturum 10 dk boşta açık kalacak

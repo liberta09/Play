@@ -1,0 +1,44 @@
+10-31 02:36:45.733 D/PlayPlugin( 1887): DiziBOX TV: istek tmdbId=2398 tür=series sezon=1 bölüm=1
+10-31 02:36:45.734 D/PlayPlugin( 1887): HDFilmCehennemi: istek tmdbId=2398 tür=tv sezon=1 bölüm=1
+10-31 02:36:45.746 D/PlayAddon( 1887): Torrentio: istek tür=series kimlik=tt0247102:1:1
+10-31 02:36:46.018 D/PlayTorrent( 1887): libtorrent oturumu başlıyor (ABI=x86_64, x86, arm64-v8a, armeabi-v7a, armeabi, dizin=/storage/emulated/0/Android/data/com.kaan.play/cache/torrents)
+10-31 02:36:46.033 D/PlayTorrent( 1887): libtorrent oturumu başladı
+10-31 02:36:46.035 D/PlayTorrent( 1887): alert LISTEN_FAILED: listening on 0.0.0.0:0 (device: ) failed: [enum_route] [TCP] Operation not supported on transport endpoint
+10-31 02:36:46.036 D/PlayTorrent( 1887): alert LISTEN_SUCCEEDED: successfully listening on [TCP] 0.0.0.0:6881
+10-31 02:36:46.037 D/PlayTorrent( 1887): alert LISTEN_SUCCEEDED: successfully listening on [uTP] 0.0.0.0:6881
+10-31 02:36:46.037 D/PlayTorrent( 1887): alert LISTEN_SUCCEEDED: successfully listening on [TCP] [::]:6881
+10-31 02:36:46.037 D/PlayTorrent( 1887): alert LISTEN_SUCCEEDED: successfully listening on [uTP] [::]:6881
+10-31 02:36:46.170 D/PlayTorrent( 1887): alert EXTERNAL_IP: external IP received: 78.185.129.235
+10-31 02:36:46.178 D/PlayPluginNet( 1887): api.themoviedb.org GET -> 200 ctype=application/json len=3163 charset=UTF-8
+10-31 02:36:46.198 D/PlayPluginNet( 1887): api.themoviedb.org GET -> 200 ctype=application/json len=2950 charset=UTF-8
+10-31 02:36:46.447 D/PlayPluginNet( 1887): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=514 charset=UTF-8
+10-31 02:36:46.449 D/PlayPluginNet( 1887): www.dizibox.live GET -> 200 ctype=text/html len=984336 charset=UTF-8
+10-31 02:36:46.559 D/PlayPluginNet( 1887): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=2965 charset=UTF-8
+10-31 02:36:46.562 D/PlayPlugin( 1887): HDFilmCehennemi: eklenti 0 akış döndürdü, listeye 0 girdi
+10-31 02:36:46.869 D/PlayPlugin( 1887): DiziBOX TV: eklenti 0 akış döndürdü, listeye 0 girdi
+10-31 02:36:46.870 D/PlayMatch( 1887): kaynak başlatılıyor: Torrentio (?)
+10-31 02:36:46.871 D/PlayTorrent( 1887): oynatıcıya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=null başlıklar=[] mime=null
+10-31 02:36:46.887 D/PlayTorrent( 1887): yerel sunucu isteği: GET range=null hedefOk=true
+10-31 02:36:46.887 D/PlayTorrent( 1887): motor open: hash=d2785b576012e57423838a46fc7fde0ce3e14a6a fileHint=null
+10-31 02:36:46.890 D/PlayTorrent( 1887): alert STATE_CHANGED: d2785b: state changed to: dl metadata
+10-31 02:36:46.890 D/PlayTorrent( 1887): alert ADD_TORRENT: added torrent: d2785b576012e57423838a46fc7fde0ce3e14a6a
+10-31 02:36:47.537 D/PlayTorrent( 1887): alert TORRENT_RESUMED: d2785b resumed
+10-31 02:36:47.539 D/PlayTorrent( 1887): alert TRACKER_ANNOUNCE: d2785b (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+10-31 02:36:47.539 D/PlayTorrent( 1887): alert TRACKER_ANNOUNCE: d2785b (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+10-31 02:36:47.542 D/PlayTorrent( 1887): alert TRACKER_ERROR: d2785b (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+10-31 02:36:47.542 D/PlayTorrent( 1887): alert TRACKER_ANNOUNCE: d2785b (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+10-31 02:36:47.543 D/PlayTorrent( 1887): alert TRACKER_ERROR: d2785b (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 02:36:47.543 D/PlayTorrent( 1887): alert TRACKER_ANNOUNCE: d2785b (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+10-31 02:36:47.605 D/PlayTorrent( 1887): alert TRACKER_ERROR: d2785b (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 02:36:47.605 D/PlayTorrent( 1887): alert TRACKER_ANNOUNCE: d2785b (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+10-31 02:36:47.661 D/PlayTorrent( 1887): alert TRACKER_REPLY: d2785b (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 3
+10-31 02:36:47.675 D/PlayTorrent( 1887): alert TRACKER_ERROR: d2785b (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 02:36:47.675 D/PlayTorrent( 1887): alert TRACKER_ANNOUNCE: d2785b (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] sending announce (started)
+10-31 02:36:47.676 D/PlayTorrent( 1887): alert TRACKER_ERROR: d2785b (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 02:36:47.677 D/PlayTorrent( 1887): alert TRACKER_ANNOUNCE: d2785b (udp://explodie.org:6969/announce)[[::]:6881-v1] sending announce (started)
+10-31 02:36:47.678 D/PlayTorrent( 1887): alert TRACKER_ERROR: d2785b (udp://explodie.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 02:36:50.758 D/AndroidRuntime( 2136): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 02:36:50.790 D/AndroidRuntime( 2136): Calling main entry com.android.commands.input.Input
+10-31 02:36:50.810 D/AndroidRuntime( 2136): Shutting down VM
+10-31 02:36:51.184 D/PlayMatch( 1887): takılma kaynak=Torrentio sayı=0 toplam=0.0 sn oynama=0 dk
+10-31 02:36:51.184 D/PlayMatch( 1887): takılma-ayrıntı kaynak=Torrentio bitHızı=bilinmiyor bantTahmini=1.00 Mbps tampon=0.0 sn

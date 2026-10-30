@@ -1,0 +1,1112 @@
+[
+  {
+    "index": 1,
+    "title": "Kara Şövalye",
+    "type": "movie",
+    "tmdb_id": 155,
+    "imdb_id": "tt0468569",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:37:45.227",
+        "res_time": "02:37:46.738",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.51,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 2.43,
+    "active_source": "HDFilmCehennemi",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "01-movie-155"
+  },
+  {
+    "index": 2,
+    "title": "Vahşi Orman",
+    "type": "movie",
+    "tmdb_id": 791523,
+    "imdb_id": "tt2056785",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:32:18.299",
+        "res_time": "02:32:19.306",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 1.01,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış)",
+    "slug": "02-movie-791523"
+  },
+  {
+    "index": 3,
+    "title": "Umut",
+    "type": "movie",
+    "tmdb_id": 1058424,
+    "imdb_id": "tt27369017",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:32:27.953",
+        "res_time": "02:32:28.706",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.75,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış)",
+    "slug": "03-movie-1058424"
+  },
+  {
+    "index": 4,
+    "title": "Örümcek-Adam: Yepyeni Bir Gün",
+    "type": "movie",
+    "tmdb_id": 969681,
+    "imdb_id": "tt22084616",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:32:37.501",
+        "res_time": "02:32:39.116",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.61,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 2.68,
+    "active_source": "HDFilmCehennemi",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "04-movie-969681"
+  },
+  {
+    "index": 5,
+    "title": "Sürüş - Yalancılar",
+    "type": "movie",
+    "tmdb_id": 1596275,
+    "imdb_id": "tt37180686",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:32:48.111",
+        "res_time": "02:32:49.799",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.69,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 2.64,
+    "active_source": "HDFilmCehennemi",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "05-movie-1596275"
+  },
+  {
+    "index": 6,
+    "title": "Fall 2: Ölümcül Tırmanış",
+    "type": "movie",
+    "tmdb_id": 1101412,
+    "imdb_id": "tt31192372",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:32:58.741",
+        "res_time": "02:32:59.460",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.72,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış)",
+    "slug": "06-movie-1101412"
+  },
+  {
+    "index": 7,
+    "title": "Clayface",
+    "type": "movie",
+    "tmdb_id": 1400940,
+    "imdb_id": "tt34890576",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:33:08.386",
+        "res_time": "02:33:09.103",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.72,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış)",
+    "slug": "07-movie-1400940"
+  },
+  {
+    "index": 8,
+    "title": "Odyssey",
+    "type": "movie",
+    "tmdb_id": 1368337,
+    "imdb_id": "tt33764258",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:33:18.127",
+        "res_time": "02:33:20.005",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.88,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 2.73,
+    "active_source": "HDFilmCehennemi",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "08-movie-1368337"
+  },
+  {
+    "index": 9,
+    "title": "Verity: Gerçeğin Diğer Kıyısı",
+    "type": "movie",
+    "tmdb_id": 1283515,
+    "imdb_id": "tt32261958",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:33:28.850",
+        "res_time": "02:33:30.285",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.43,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 2.39,
+    "active_source": "HDFilmCehennemi",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "09-movie-1283515"
+  },
+  {
+    "index": 10,
+    "title": "El despertar",
+    "type": "movie",
+    "tmdb_id": 1657630,
+    "imdb_id": "tt39120306",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:33:39.332",
+        "res_time": "02:33:40.117",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.78,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama isteği (hdfilmcehennemi.nl aramasında sonuç dönmedi, boş dizi/film)",
+    "slug": "10-movie-1657630"
+  },
+  {
+    "index": 11,
+    "title": "Buddy",
+    "type": "movie",
+    "tmdb_id": 1514026,
+    "imdb_id": "tt37281055",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:33:48.857",
+        "res_time": "02:33:50.423",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.57,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 2.45,
+    "active_source": "HDFilmCehennemi",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "11-movie-1514026"
+  },
+  {
+    "index": 12,
+    "title": "Köpek ve Yıldızlar",
+    "type": "movie",
+    "tmdb_id": 1384216,
+    "imdb_id": "tt21285562",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:33:59.427",
+        "res_time": "02:34:01.123",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.7,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 2.58,
+    "active_source": "HDFilmCehennemi",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "12-movie-1384216"
+  },
+  {
+    "index": 13,
+    "title": "Ruhlar Bölgesi: Aramızdalar",
+    "type": "movie",
+    "tmdb_id": 1291595,
+    "imdb_id": "tt32393988",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:34:10.072",
+        "res_time": "02:34:11.658",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.59,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 2.32,
+    "active_source": "HDFilmCehennemi",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "13-movie-1291595"
+  },
+  {
+    "index": 14,
+    "title": "Pinokyo: Kanlı Masal",
+    "type": "movie",
+    "tmdb_id": 1232569,
+    "imdb_id": "tt30887701",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:34:20.666",
+        "res_time": "02:34:22.191",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.53,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 2.1,
+    "active_source": "HDFilmCehennemi",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "14-movie-1232569"
+  },
+  {
+    "index": 15,
+    "title": "Mongoose",
+    "type": "movie",
+    "tmdb_id": 1294189,
+    "imdb_id": "tt13611778",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:34:31.158",
+        "res_time": "02:34:32.752",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.59,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": false,
+        "req_time": null,
+        "res_time": null,
+        "stream_line": "-",
+        "req_to_res_s": null,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Çağrılmadı",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 2.17,
+    "active_source": "HDFilmCehennemi",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "15-movie-1294189"
+  },
+  {
+    "index": 16,
+    "title": "Tulsa King",
+    "type": "tv",
+    "tmdb_id": 153312,
+    "imdb_id": "tt16358384",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:34:41.392",
+        "res_time": "02:34:42.029",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.64,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:34:41.393",
+        "res_time": "02:34:42.864",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 1.47,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama isteği (hdfilmcehennemi.nl aramasında sonuç dönmedi, boş dizi/film); DiziBOX TV: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış)",
+    "slug": "16-tv-153312"
+  },
+  {
+    "index": 17,
+    "title": "Law & Order: Special Victims Unit",
+    "type": "tv",
+    "tmdb_id": 2734,
+    "imdb_id": "tt0203259",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:34:50.749",
+        "res_time": "02:34:51.616",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.87,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:34:50.749",
+        "res_time": "02:34:51.837",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 1.09,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış); DiziBOX TV: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış)",
+    "slug": "17-tv-2734"
+  },
+  {
+    "index": 18,
+    "title": "Family Guy",
+    "type": "tv",
+    "tmdb_id": 1434,
+    "imdb_id": "tt0182576",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:35:00.241",
+        "res_time": "02:35:01.090",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.85,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:35:00.241",
+        "res_time": "02:35:01.311",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 1.07,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış); DiziBOX TV: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış)",
+    "slug": "18-tv-1434"
+  },
+  {
+    "index": 19,
+    "title": "Criminal Minds",
+    "type": "tv",
+    "tmdb_id": 4057,
+    "imdb_id": "tt0452046",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:39:17.314",
+        "res_time": "02:39:17.956",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.64,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:39:17.314",
+        "res_time": "02:39:20.321",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 3.01,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 3.78,
+    "active_source": "DiziBOX TV",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "19-tv-4057"
+  },
+  {
+    "index": 20,
+    "title": "Simpsonlar",
+    "type": "tv",
+    "tmdb_id": 456,
+    "imdb_id": "tt0096697",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:35:19.150",
+        "res_time": "02:35:19.864",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.71,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:35:19.150",
+        "res_time": "02:35:20.770",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 1.62,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış); DiziBOX TV: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış)",
+    "slug": "20-tv-456"
+  },
+  {
+    "index": 21,
+    "title": "Supernatural",
+    "type": "tv",
+    "tmdb_id": 1622,
+    "imdb_id": "tt0460681",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:35:28.630",
+        "res_time": "02:35:31.189",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 2.56,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:35:28.630",
+        "res_time": "02:35:31.597",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 2.97,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 3.9,
+    "active_source": "DiziBOX TV",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "21-tv-1622"
+  },
+  {
+    "index": 22,
+    "title": "Grey's Anatomy",
+    "type": "tv",
+    "tmdb_id": 1416,
+    "imdb_id": "tt0413573",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:35:40.737",
+        "res_time": "02:35:41.544",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.81,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:35:40.732",
+        "res_time": "02:35:43.011",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 2.28,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış); DiziBOX TV: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış)",
+    "slug": "22-tv-1416"
+  },
+  {
+    "index": 23,
+    "title": "Sıkı Dostlar",
+    "type": "tv",
+    "tmdb_id": 1668,
+    "imdb_id": "tt0108778",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:35:50.105",
+        "res_time": "02:35:51.104",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 1.0,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:35:50.100",
+        "res_time": "02:35:53.106",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 3.01,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 3.94,
+    "active_source": "DiziBOX TV",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "23-tv-1668"
+  },
+  {
+    "index": 24,
+    "title": "Güzelleştiğim O Yaz",
+    "type": "tv",
+    "tmdb_id": 194766,
+    "imdb_id": "tt14016500",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:36:02.374",
+        "res_time": "02:36:03.358",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.98,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:36:02.374",
+        "res_time": "02:36:03.443",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 1.07,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış); DiziBOX TV: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış)",
+    "slug": "24-tv-194766"
+  },
+  {
+    "index": 25,
+    "title": "Sahil Güvenlik",
+    "type": "tv",
+    "tmdb_id": 4386,
+    "imdb_id": "tt0096542",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:36:11.856",
+        "res_time": "02:36:12.782",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.93,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:36:11.856",
+        "res_time": "02:36:13.006",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 1.15,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış); DiziBOX TV: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış)",
+    "slug": "25-tv-4386"
+  },
+  {
+    "index": 26,
+    "title": "‎Ofis‎",
+    "type": "tv",
+    "tmdb_id": 2316,
+    "imdb_id": "tt0386676",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:36:21.344",
+        "res_time": "02:36:23.293",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.95,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:36:21.344",
+        "res_time": "02:36:24.512",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 3.17,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 3.79,
+    "active_source": "HDFilmCehennemi",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "26-tv-2316"
+  },
+  {
+    "index": 27,
+    "title": "Malcolm in the Middle",
+    "type": "tv",
+    "tmdb_id": 2004,
+    "imdb_id": "tt0212671",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:36:33.782",
+        "res_time": "02:36:34.615",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.83,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:36:33.782",
+        "res_time": "02:36:36.933",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 3.15,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 4.03,
+    "active_source": "DiziBOX TV",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "27-tv-2004"
+  },
+  {
+    "index": 28,
+    "title": "Girlfriends",
+    "type": "tv",
+    "tmdb_id": 2398,
+    "imdb_id": "tt0247102",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:36:45.734",
+        "res_time": "02:36:46.562",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 0.83,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:36:45.733",
+        "res_time": "02:36:46.869",
+        "stream_line": "eklenti 0 akış döndürdü, listeye 0 girdi",
+        "req_to_res_s": 1.14,
+        "returned_streams": 0,
+        "entered_streams": 0,
+        "stage": "Arama sonucu boş (0 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": null,
+    "active_source": "Torrentio",
+    "result_status": "KAYNAK YOK",
+    "error_bang": "-",
+    "failure_analysis": "HDFilmCehennemi: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış); DiziBOX TV: Çağrıldı=EVET, Aşama: Arama sonucu boş (0 akış)",
+    "slug": "28-tv-2398"
+  },
+  {
+    "index": 29,
+    "title": "Vampir Günlükleri",
+    "type": "tv",
+    "tmdb_id": 18165,
+    "imdb_id": "tt1405406",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:36:55.261",
+        "res_time": "02:36:57.067",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.81,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:36:55.261",
+        "res_time": "02:36:58.213",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 2.95,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 3.92,
+    "active_source": "HDFilmCehennemi",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "29-tv-18165"
+  },
+  {
+    "index": 30,
+    "title": "The Flash",
+    "type": "tv",
+    "tmdb_id": 60735,
+    "imdb_id": "tt3107288",
+    "plugins": {
+      "HDFilmCehennemi": {
+        "called": true,
+        "req_time": "02:37:07.552",
+        "res_time": "02:37:09.427",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 1.88,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      },
+      "DiziBOX TV": {
+        "called": true,
+        "req_time": "02:37:07.552",
+        "res_time": "02:37:10.654",
+        "stream_line": "eklenti 1 akış döndürdü, listeye 1 girdi",
+        "req_to_res_s": 3.1,
+        "returned_streams": 1,
+        "entered_streams": 1,
+        "stage": "Akış listeye girdi (1 akış)",
+        "net_error": "-"
+      }
+    },
+    "first_frame_s": 3.99,
+    "active_source": "DiziBOX TV",
+    "result_status": "AÇILDI",
+    "error_bang": "-",
+    "failure_analysis": "-",
+    "slug": "30-tv-60735"
+  }
+]

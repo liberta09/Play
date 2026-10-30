@@ -1,0 +1,34 @@
+10-31 02:39:17.314 D/PlayPlugin( 3338): DiziBOX TV: istek tmdbId=4057 tür=series sezon=1 bölüm=1
+10-31 02:39:17.314 D/PlayPlugin( 3338): HDFilmCehennemi: istek tmdbId=4057 tür=tv sezon=1 bölüm=1
+10-31 02:39:17.389 D/PlayAddon( 3338): Torrentio: istek tür=series kimlik=tt0452046:1:1
+10-31 02:39:17.555 D/PlayPluginNet( 3338): api.themoviedb.org GET -> 200 ctype=application/json len=6667 charset=UTF-8
+10-31 02:39:17.556 D/PlayPluginNet( 3338): api.themoviedb.org GET -> 200 ctype=application/json len=6915 charset=UTF-8
+10-31 02:39:17.756 D/PlayTorrent( 3338): libtorrent oturumu başlıyor (ABI=x86_64, x86, arm64-v8a, armeabi-v7a, armeabi, dizin=/storage/emulated/0/Android/data/com.kaan.play/cache/torrents)
+10-31 02:39:17.767 D/PlayTorrent( 3338): libtorrent oturumu başladı
+10-31 02:39:17.769 D/PlayTorrent( 3338): alert LISTEN_FAILED: listening on 0.0.0.0:0 (device: ) failed: [enum_route] [TCP] Operation not supported on transport endpoint
+10-31 02:39:17.770 D/PlayTorrent( 3338): alert LISTEN_SUCCEEDED: successfully listening on [TCP] 0.0.0.0:6881
+10-31 02:39:17.770 D/PlayTorrent( 3338): alert LISTEN_SUCCEEDED: successfully listening on [uTP] 0.0.0.0:6881
+10-31 02:39:17.770 D/PlayTorrent( 3338): alert LISTEN_SUCCEEDED: successfully listening on [TCP] [::]:6881
+10-31 02:39:17.770 D/PlayTorrent( 3338): alert LISTEN_SUCCEEDED: successfully listening on [uTP] [::]:6881
+10-31 02:39:17.834 D/PlayPluginNet( 3338): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=514 charset=UTF-8
+10-31 02:39:17.949 D/PlayPluginNet( 3338): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=3066 charset=UTF-8
+10-31 02:39:17.956 D/PlayPlugin( 3338): HDFilmCehennemi: eklenti 0 akış döndürdü, listeye 0 girdi
+10-31 02:39:18.018 D/PlayTorrent( 3338): alert EXTERNAL_IP: external IP received: 78.185.129.235
+10-31 02:39:18.063 D/PlayPluginNet( 3338): www.dizibox.live GET -> 200 ctype=text/html len=984336 charset=UTF-8
+10-31 02:39:18.774 D/PlayPluginNet( 3338): www.dizibox.live GET -> 200 ctype=text/html len=874799 charset=UTF-8
+10-31 02:39:19.260 D/PlayPluginNet( 3338): www.dizibox.live GET -> 200 ctype=text/html len=864081 charset=UTF-8
+10-31 02:39:19.601 D/PlayPluginNet( 3338): www.dizibox.live GET -> 200 ctype=text/html len=2247 charset=UTF-8
+10-31 02:39:19.917 D/PlayPluginNet( 3338): dbx.molystream.org GET -> 200 ctype=text/html len=17425 charset=UTF-8
+10-31 02:39:20.038 D/PlayPluginNet( 3338): dbx.molystream.org GET -> 200 ctype=text/html len=149 charset=UTF-8
+10-31 02:39:20.321 D/PlayPlugin( 3338): DiziBOX TV: eklenti 1 akış döndürdü, listeye 1 girdi
+10-31 02:39:20.322 D/PlayPlugin( 3338): DiziBOX TV: akış https://dbx.molystream.org/embed/sheila/<30>
+10-31 02:39:20.324 D/PlayMatch( 3338): kaynak başlatılıyor: DiziBOX TV (dbx.molystream.org)
+10-31 02:39:20.326 D/PlayTorrent( 3338): oynatıcıya veriliyor: kaynak=DiziBOX TV https://dbx.molystream.org/ torrent=false fileIdx=null başlıklar=[Referer, Origin, User-Agent] mime=application/x-mpegURL
+10-31 02:39:21.099 D/PlayMatch( 3338): ilk kare: DiziBOX TV (faz=Starting)
+10-31 02:39:21.206 D/PlayMatch( 3338): süre kontrolü kaynak=DiziBOX TV (dbx.molystream.org) süre=41.7 dk beklenen=40 dk tür=Tv -> Ok
+10-31 02:39:25.132 D/AndroidRuntime( 3505): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 02:39:25.203 D/AndroidRuntime( 3505): Calling main entry com.android.commands.input.Input
+10-31 02:39:25.223 D/AndroidRuntime( 3505): Shutting down VM
+10-31 02:39:25.640 D/PlayMatch( 3338): takılma kaynak=DiziBOX TV sayı=0 toplam=0.0 sn oynama=0 dk
+10-31 02:39:25.640 D/PlayMatch( 3338): takılma-ayrıntı kaynak=DiziBOX TV bitHızı=2.80 Mbps bantTahmini=14.44 Mbps tampon=16.8 sn
+10-31 02:39:25.657 D/PlayTorrent( 3338): oynatıcı kapandı: oturum 10 dk boşta açık kalacak

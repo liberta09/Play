@@ -1,0 +1,29 @@
+10-31 02:34:10.071 D/PlayAddon(31050): Torrentio: istek tür=movie kimlik=tt32393988
+10-31 02:34:10.072 D/PlayPlugin(31050): HDFilmCehennemi: istek tmdbId=1291595 tür=movie sezon=null bölüm=null
+10-31 02:34:10.360 D/PlayPluginNet(31050): api.themoviedb.org GET -> 200 ctype=application/json len=2053 charset=UTF-8
+10-31 02:34:10.438 D/PlayTorrent(31050): libtorrent oturumu başlıyor (ABI=x86_64, x86, arm64-v8a, armeabi-v7a, armeabi, dizin=/storage/emulated/0/Android/data/com.kaan.play/cache/torrents)
+10-31 02:34:10.451 D/PlayTorrent(31050): libtorrent oturumu başladı
+10-31 02:34:10.452 D/PlayTorrent(31050): alert LISTEN_FAILED: listening on 0.0.0.0:0 (device: ) failed: [enum_route] [TCP] Operation not supported on transport endpoint
+10-31 02:34:10.452 D/PlayTorrent(31050): alert LISTEN_SUCCEEDED: successfully listening on [TCP] 0.0.0.0:6881
+10-31 02:34:10.453 D/PlayTorrent(31050): alert LISTEN_SUCCEEDED: successfully listening on [uTP] 0.0.0.0:6881
+10-31 02:34:10.453 D/PlayTorrent(31050): alert LISTEN_SUCCEEDED: successfully listening on [TCP] [::]:6881
+10-31 02:34:10.453 D/PlayTorrent(31050): alert LISTEN_SUCCEEDED: successfully listening on [uTP] [::]:6881
+10-31 02:34:10.536 D/PlayTorrent(31050): alert EXTERNAL_IP: external IP received: 78.185.129.235
+10-31 02:34:10.664 D/PlayPluginNet(31050): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1899 charset=UTF-8
+10-31 02:34:10.768 D/PlayPluginNet(31050): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=140614 charset=UTF-8
+10-31 02:34:11.168 D/PlayPluginNet(31050): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=33973 charset=UTF-8
+10-31 02:34:11.175 D/PlayPluginNet(31050): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=34451 charset=UTF-8
+10-31 02:34:11.621 D/PlayPluginNet(31050): srv9.cdnimages1912.cyou GET -> 200 ctype=application/vnd.apple.mpegurl len=120504 charset=UTF-8
+10-31 02:34:11.625 D/PlayPluginNet(31050): srv9.cdnimages890.cyou GET -> 200 ctype=application/vnd.apple.mpegurl len=120504 charset=UTF-8
+10-31 02:34:11.658 D/PlayPlugin(31050): HDFilmCehennemi: eklenti 1 akış döndürdü, listeye 1 girdi
+10-31 02:34:11.659 D/PlayPlugin(31050): HDFilmCehennemi: akış https://srv9.cdnimages1912.cyou/hls/<65>/txt/master.txt?s=<masked>
+10-31 02:34:11.663 D/PlayMatch(31050): kaynak başlatılıyor: HDFilmCehennemi (srv9.cdnimages1912.cyou)
+10-31 02:34:11.665 D/PlayTorrent(31050): oynatıcıya veriliyor: kaynak=HDFilmCehennemi https://srv9.cdnimages1912.cyou/<masked_path>.txt torrent=false fileIdx=null başlıklar=[Referer, Origin, User-Agent] mime=application/x-mpegURL
+10-31 02:34:12.392 D/PlayMatch(31050): ilk kare: HDFilmCehennemi (faz=Starting)
+10-31 02:34:12.415 D/PlayMatch(31050): süre kontrolü kaynak=HDFilmCehennemi (srv9.cdnimages1912.cyou) süre=106.0 dk beklenen=106 dk tür=Movie -> Ok
+10-31 02:34:16.019 D/AndroidRuntime(31194): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 02:34:16.051 D/AndroidRuntime(31194): Calling main entry com.android.commands.input.Input
+10-31 02:34:16.070 D/AndroidRuntime(31194): Shutting down VM
+10-31 02:34:16.486 D/PlayMatch(31050): takılma kaynak=HDFilmCehennemi sayı=0 toplam=0.0 sn oynama=0 dk
+10-31 02:34:16.487 D/PlayMatch(31050): takılma-ayrıntı kaynak=HDFilmCehennemi bitHızı=bilinmiyor bantTahmini=28.81 Mbps tampon=31.0 sn
+10-31 02:34:16.505 D/PlayTorrent(31050): oynatıcı kapandı: oturum 10 dk boşta açık kalacak
