@@ -1,0 +1,21 @@
+--------- beginning of main
+10-30 01:35:10.931 D/AndroidRuntime( 3634): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:35:10.960 D/AndroidRuntime( 3634): Calling main entry com.android.commands.input.Input
+10-30 01:35:10.975 D/AndroidRuntime( 3634): Shutting down VM
+--------- beginning of system
+10-30 01:35:11.063 D/PlayPlugin( 2990): HDFilmCehennemi: istek tmdbId=475557 tür=movie sezon=null bölüm=null
+10-30 01:35:11.122 D/PlayCs  ( 2990): streams: 0 açık CS eklentisi
+10-30 01:35:11.306 D/PlayPluginNet( 2990): api.themoviedb.org GET -> 200 ctype=application/json len=2504 charset=UTF-8
+10-30 01:35:11.617 D/PlayPluginNet( 2990): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1681 charset=UTF-8
+10-30 01:35:11.726 D/PlayPluginNet( 2990): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=143032 charset=UTF-8
+10-30 01:35:12.070 D/PlayPluginNet( 2990): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31489 charset=UTF-8
+10-30 01:35:12.074 D/PlayPluginNet( 2990): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31524 charset=UTF-8
+10-30 01:35:12.461 D/PlayPluginNet( 2990): srv12.cdnimages1157.shop GET -> 200 ctype=application/vnd.apple.mpegurl len=360 charset=UTF-8
+10-30 01:35:12.474 D/PlayPlugin( 2990): HDFilmCehennemi: akış https://srv12.cdnimages1157.shop/hls/<43>/txt/master.txt?s=#f9b55c(len56)
+10-30 01:35:12.476 D/PlayMatch( 2990): kaynak başlatılıyor: HDFilmCehennemi (srv12.cdnimages1157.shop)
+10-30 01:35:12.821 D/PlayMatch( 2990): oynatıcı hatası: HDFilmCehennemi (faz=Starting) ERROR_CODE_PARSING_MANIFEST_MALFORMED (3002)
+10-30 01:36:09.724 D/AndroidRuntime( 3678): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:36:09.754 D/AndroidRuntime( 3678): Calling main entry com.android.commands.input.Input
+10-30 01:36:09.770 D/AndroidRuntime( 3678): Shutting down VM
+10-30 01:36:09.867 D/PlayMatch( 2990): takılma kaynak=HDFilmCehennemi sayı=0 toplam=0.0 sn oynama=0 dk
+10-30 01:36:09.867 D/PlayMatch( 2990): takılma-ayrıntı kaynak=HDFilmCehennemi bitHızı=bilinmiyor bantTahmini=28.39 Mbps tampon=0.0 sn

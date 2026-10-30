@@ -1,0 +1,26 @@
+--------- beginning of main
+10-30 01:32:04.263 D/AndroidRuntime( 3102): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:32:04.292 D/AndroidRuntime( 3102): Calling main entry com.android.commands.input.Input
+10-30 01:32:04.708 D/AndroidRuntime( 3102): Shutting down VM
+10-30 01:32:06.586 D/AndroidRuntime( 3116): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:32:06.617 D/AndroidRuntime( 3116): Calling main entry com.android.commands.input.Input
+10-30 01:32:07.040 D/AndroidRuntime( 3116): Shutting down VM
+10-30 01:32:16.827 D/AndroidRuntime( 3133): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:32:16.858 D/AndroidRuntime( 3133): Calling main entry com.android.commands.input.Input
+10-30 01:32:16.875 D/AndroidRuntime( 3133): Shutting down VM
+--------- beginning of system
+10-30 01:32:20.260 D/AndroidRuntime( 3150): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:32:20.290 D/AndroidRuntime( 3150): Calling main entry com.android.commands.input.Input
+10-30 01:32:20.310 D/AndroidRuntime( 3150): Shutting down VM
+10-30 01:32:23.154 D/AndroidRuntime( 3164): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:32:23.183 D/AndroidRuntime( 3164): Calling main entry com.android.commands.input.Input
+10-30 01:32:23.196 D/AndroidRuntime( 3164): Shutting down VM
+10-30 01:32:33.671 D/AndroidRuntime( 3179): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:32:33.701 D/AndroidRuntime( 3179): Calling main entry com.android.commands.input.Input
+10-30 01:32:33.716 D/AndroidRuntime( 3179): Shutting down VM
+10-30 01:32:36.822 D/AndroidRuntime( 3189): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:32:36.850 D/AndroidRuntime( 3189): Calling main entry com.android.commands.input.Input
+10-30 01:32:37.275 D/AndroidRuntime( 3189): Shutting down VM
+10-30 01:32:38.893 D/AndroidRuntime( 3199): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:32:38.924 D/AndroidRuntime( 3199): Calling main entry com.android.commands.input.Input
+10-30 01:32:38.942 D/AndroidRuntime( 3199): Shutting down VM

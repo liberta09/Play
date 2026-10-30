@@ -1,0 +1,88 @@
+--------- beginning of main
+10-30 02:30:15.048  6423  6423 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:15.087  6423  6423 D AndroidRuntime: Calling main entry com.android.commands.monkey.Monkey
+--------- beginning of system
+10-30 02:30:15.179  6423  6423 I AndroidRuntime: VM exiting with result code 0.
+10-30 02:30:24.572  6514  6514 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:24.602  6514  6514 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:30:25.646  6514  6514 D AndroidRuntime: Shutting down VM
+10-30 02:30:25.736  6528  6528 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:25.765  6528  6528 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:25.782  6528  6528 D AndroidRuntime: Shutting down VM
+10-30 02:30:27.167  6540  6540 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:27.196  6540  6540 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:30:28.237  6540  6540 D AndroidRuntime: Shutting down VM
+10-30 02:30:28.531  6557  6557 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:28.562  6557  6557 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:30:29.605  6557  6557 D AndroidRuntime: Shutting down VM
+10-30 02:30:29.696  6571  6571 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:29.726  6571  6571 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:29.741  6571  6571 D AndroidRuntime: Shutting down VM
+10-30 02:30:36.027  6652  6652 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:36.089  6652  6652 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:30:37.133  6652  6652 D AndroidRuntime: Shutting down VM
+10-30 02:30:38.461  6669  6669 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:38.491  6669  6669 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:30:39.532  6669  6669 D AndroidRuntime: Shutting down VM
+10-30 02:30:39.624  6683  6683 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:39.653  6683  6683 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:39.672  6683  6683 D AndroidRuntime: Shutting down VM
+10-30 02:30:42.073  6696  6696 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:42.103  6696  6696 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:30:43.132  6696  6696 D AndroidRuntime: Shutting down VM
+10-30 02:30:43.397  6710  6710 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:43.427  6710  6710 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:43.444  6710  6710 D AndroidRuntime: Shutting down VM
+10-30 02:30:43.524  6720  6720 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:43.562  6720  6720 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:43.591  6720  6720 D AndroidRuntime: Shutting down VM
+10-30 02:30:43.680  6737  6737 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:43.711  6737  6737 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:43.734  6737  6737 D AndroidRuntime: Shutting down VM
+10-30 02:30:43.839  6748  6748 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:43.876  6748  6748 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:43.909  6748  6748 D AndroidRuntime: Shutting down VM
+10-30 02:30:43.994  6759  6759 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:44.026  6759  6759 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:44.043  6759  6759 D AndroidRuntime: Shutting down VM
+10-30 02:30:44.129  6769  6769 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:44.162  6769  6769 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:44.179  6769  6769 D AndroidRuntime: Shutting down VM
+10-30 02:30:44.253  6779  6779 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:44.284  6779  6779 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:44.300  6779  6779 D AndroidRuntime: Shutting down VM
+10-30 02:30:44.381  6790  6790 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:44.416  6790  6790 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:44.430  6790  6790 D AndroidRuntime: Shutting down VM
+10-30 02:30:44.508  6800  6800 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:44.539  6800  6800 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:44.554  6800  6800 D AndroidRuntime: Shutting down VM
+10-30 02:30:44.642  6811  6811 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:44.680  6811  6811 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:44.693  6811  6811 D AndroidRuntime: Shutting down VM
+10-30 02:30:48.804  6821  6821 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:48.833  6821  6821 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:48.858  6821  6821 D AndroidRuntime: Shutting down VM
+10-30 02:30:53.664  6840  6840 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:53.694  6840  6840 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:30:54.736  6840  6840 D AndroidRuntime: Shutting down VM
+10-30 02:30:55.042  6856  6856 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:55.073  6856  6856 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:30:56.110  6856  6856 D AndroidRuntime: Shutting down VM
+10-30 02:30:56.196  6870  6870 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:30:56.225  6870  6870 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:30:56.240  6870  6870 D AndroidRuntime: Shutting down VM
+10-30 02:30:56.348  6435  6435 D PlayPlugin: HDFilmCehennemi: istek tmdbId=475557 tür=movie sezon=null bölüm=null
+10-30 02:30:56.452  6435  6606 D PlayCs  : streams: 0 açık CS eklentisi
+10-30 02:30:56.533  6435  6606 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=2504 charset=UTF-8
+10-30 02:30:56.882  6435  6601 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1681 charset=UTF-8
+10-30 02:30:56.988  6435  6606 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=143032 charset=UTF-8
+10-30 02:30:57.410  6435  6601 D PlayPluginNet: hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31372 charset=UTF-8
+10-30 02:30:57.413  6435  6633 D PlayPluginNet: hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31389 charset=UTF-8
+10-30 02:30:57.795  6435  6601 D PlayPluginNet: srv12.cdnimages1144.shop GET -> 200 ctype=application/vnd.apple.mpegurl len=360 charset=UTF-8
+10-30 02:30:57.805  6435  6435 D PlayPlugin: HDFilmCehennemi: akış https://srv12.cdnimages1144.shop/hls/<43>/txt/master.txt?s=#8ea6c1(len56)
+10-30 02:30:57.806  6435  6435 D PlayMatch: kaynak başlatılıyor: HDFilmCehennemi (srv12.cdnimages1144.shop)
+10-30 02:30:58.188  6435  6435 D PlayMatch: oynatıcı hatası: HDFilmCehennemi (faz=Starting) ERROR_CODE_PARSING_MANIFEST_MALFORMED (3002)
+10-30 02:31:40.661  6930  6930 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:31:40.692  6930  6930 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:31:41.720  6930  6930 D AndroidRuntime: Shutting down VM

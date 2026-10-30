@@ -1,0 +1,62 @@
+--------- beginning of system
+--------- beginning of main
+10-30 02:45:21.596 10434 10434 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:45:21.630 10434 10434 D AndroidRuntime: Calling main entry com.android.commands.monkey.Monkey
+10-30 02:45:21.723 10434 10434 I AndroidRuntime: VM exiting with result code 0.
+10-30 02:48:00.491 10557 10557 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:00.524 10557 10557 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:48:01.545 10557 10557 D AndroidRuntime: Shutting down VM
+10-30 02:48:02.938 10573 10573 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:02.974 10573 10573 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:48:04.012 10573 10573 D AndroidRuntime: Shutting down VM
+10-30 02:48:04.367 10589 10589 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:04.397 10589 10589 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:48:05.418 10589 10589 D AndroidRuntime: Shutting down VM
+10-30 02:48:06.785 10605 10605 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:06.816 10605 10605 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:48:07.843 10605 10605 D AndroidRuntime: Shutting down VM
+10-30 02:48:10.183 10621 10621 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:10.213 10621 10621 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:48:11.240 10621 10621 D AndroidRuntime: Shutting down VM
+10-30 02:48:11.583 10635 10635 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:11.612 10635 10635 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:48:11.613 10635 10635 D AndroidRuntime: Shutting down VM
+10-30 02:48:11.686 10645 10645 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:11.717 10645 10645 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:48:28.785 10645 10645 D AndroidRuntime: Shutting down VM
+10-30 02:48:28.889 10662 10662 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:28.918 10662 10662 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:48:28.918 10662 10662 D AndroidRuntime: Shutting down VM
+10-30 02:48:28.988 10672 10672 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:29.017 10672 10672 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:48:47.052 10672 10672 D AndroidRuntime: Shutting down VM
+10-30 02:48:47.136 10685 10685 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:47.173 10685 10685 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:48:47.174 10685 10685 D AndroidRuntime: Shutting down VM
+10-30 02:48:47.253 10695 10695 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:47.300 10695 10695 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:48:58.766 10695 10695 D AndroidRuntime: Shutting down VM
+10-30 02:48:58.872 10705 10705 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:58.901 10705 10705 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:48:58.902 10705 10705 D AndroidRuntime: Shutting down VM
+10-30 02:48:58.981 10715 10715 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:48:59.011 10715 10715 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:49:17.036 10715 10715 D AndroidRuntime: Shutting down VM
+10-30 02:49:17.127 10727 10727 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:49:17.159 10727 10727 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:49:17.160 10727 10727 D AndroidRuntime: Shutting down VM
+10-30 02:49:17.228 10737 10737 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:49:17.258 10737 10737 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:49:28.766 10737 10737 D AndroidRuntime: Shutting down VM
+10-30 02:49:32.903 10747 10747 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:49:32.934 10747 10747 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-30 02:49:32.948 10747 10747 D AndroidRuntime: Shutting down VM
+10-30 02:49:37.547 10763 10763 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:49:37.578 10763 10763 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:49:38.598 10763 10763 D AndroidRuntime: Shutting down VM
+10-30 02:49:38.966 10779 10779 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:49:38.998 10779 10779 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:49:40.018 10779 10779 D AndroidRuntime: Shutting down VM
+10-30 02:50:24.454 10818 10818 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 02:50:24.485 10818 10818 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-30 02:50:25.504 10818 10818 D AndroidRuntime: Shutting down VM

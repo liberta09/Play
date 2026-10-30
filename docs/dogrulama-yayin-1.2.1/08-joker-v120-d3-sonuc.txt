@@ -1,0 +1,27 @@
+== 08-joker-v120-d3 02:34:56
+pidof ONCE: []
+pidof force-stop SONRA: []
+pidof BASLAT SONRA: []
+OK 1002 527 'Tamam'
+profil kapisi: KAAAN secildi
+OK 130 556 'KAAAN'
+NOTFOUND
+OK 53 240 'Ara'
+(36, 120, 251, 228) '' 'Joker' 
+(36, 397, 183, 421) '2019 · 2 sa 2 dk' '' 
+(36, 530, 968, 614) "Joker, başarısız bir komedyen olan Arthur Fleck'in hayatına odaklanıyor. Toplum tarafından dışlanan bir adam olan Arthur, hayatta yapayalnızdır. Sürekli bir bağ kurma arayışında olan Arthur, yaşamını taktığı iki maske ile geçirir. Gündüzleri, geçimini sağlamak için palyaço maskesini yüzüne takan Arthur, geceleri ise asla üzerinden silip atamayacağı bir maske takar. Babasız büyüyen Arthur’u en yakın arkadaşı olan annesi Happy adıyla çağırır. Bu lakap, Arthur’un içindeki acıyı gizlemesine yardımcı olur. Ancak maruz kaldığı zorbalıklar, onun gitgide toluma aykırı bir adam haline gelmesine neden olur. Yavaş yavaş psikolojik olarak tekinsiz sulara yelken açılan Arthur, bir süre sonra kendisini Gotham Şehri’nde suç ve kaosun içinde bulur. Arthur, zamanla kendi kimliğinden uzaklaşıp Joker karakterine bürünür." '' 
+OK 428 327 'Oynat'
+OYNAT basildi 02:35:39
+t=10 focus:   mCurrentFocus=null
+com.kaan.play/com.kaan.play.ui.player.PlayerActivity}
+t=30 focus:   mCurrentFocus=null
+com.kaan.play/com.kaan.play.ui.player.PlayerActivity}
+t=45 focus:   mCurrentFocus=null
+com.kaan.play/com.kaan.play.ui.player.PlayerActivity}
+--- ekran metinleri t=45
+(30, 30, 66, 66) '' 'Geri' 
+(96, 22, 296, 50) 'HDFilmCehennemi' '' 
+(96, 50, 149, 74) 'Joker' '' 
+(688, 387, 914, 411) 'Hiçbir kaynak açılamadı.' '' 
+(704, 461, 897, 494) 'Başka kaynak seç' '' 
+FATAL EXCEPTION satir: 0

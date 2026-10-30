@@ -1,0 +1,137 @@
+== 08-joker-v121-d2 02:45:19
+pidof ONCE: [9907]
+pidof force-stop SONRA: []
+pidof BASLAT SONRA: []
+acilis bekleme: 150 sn
+NODUMP
+NODUMP
+NODUMP
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+ValueError: not enough values to unpack (expected 4, got 0)
+Error: Invalid arguments for command: tap
+Usage: input [<source>] <command> [<arg>...]
+
+The sources are: 
+      dpad
+      keyboard
+      mouse
+      touchpad
+      gamepad
+      touchnavigation
+      joystick
+      touchscreen
+      stylus
+      trackball
+
+The commands and default sources are:
+      text <string> (Default: touchscreen)
+      keyevent [--longpress] <key code number or name> ... (Default: keyboard)
+      tap <x> <y> (Default: touchscreen)
+      swipe <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      draganddrop <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      press (Default: trackball)
+      roll <dx> <dy> (Default: trackball)
+Error: Invalid arguments for command: tap
+Usage: input [<source>] <command> [<arg>...]
+
+The sources are: 
+      dpad
+      keyboard
+      mouse
+      touchpad
+      gamepad
+      touchnavigation
+      joystick
+      touchscreen
+      stylus
+      trackball
+
+The commands and default sources are:
+      text <string> (Default: touchscreen)
+      keyevent [--longpress] <key code number or name> ... (Default: keyboard)
+      tap <x> <y> (Default: touchscreen)
+      swipe <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      draganddrop <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      press (Default: trackball)
+      roll <dx> <dy> (Default: trackball)
+Error: Invalid arguments for command: tap
+Usage: input [<source>] <command> [<arg>...]
+
+The sources are: 
+      dpad
+      keyboard
+      mouse
+      touchpad
+      gamepad
+      touchnavigation
+      joystick
+      touchscreen
+      stylus
+      trackball
+
+The commands and default sources are:
+      text <string> (Default: touchscreen)
+      keyevent [--longpress] <key code number or name> ... (Default: keyboard)
+      tap <x> <y> (Default: touchscreen)
+      swipe <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      draganddrop <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      press (Default: trackball)
+      roll <dx> <dy> (Default: trackball)
+Error: Invalid arguments for command: tap
+Usage: input [<source>] <command> [<arg>...]
+
+The sources are: 
+      dpad
+      keyboard
+      mouse
+      touchpad
+      gamepad
+      touchnavigation
+      joystick
+      touchscreen
+      stylus
+      trackball
+
+The commands and default sources are:
+      text <string> (Default: touchscreen)
+      keyevent [--longpress] <key code number or name> ... (Default: keyboard)
+      tap <x> <y> (Default: touchscreen)
+      swipe <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      draganddrop <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      press (Default: trackball)
+      roll <dx> <dy> (Default: trackball)
+Error: Invalid arguments for command: tap
+Usage: input [<source>] <command> [<arg>...]
+
+The sources are: 
+      dpad
+      keyboard
+      mouse
+      touchpad
+      gamepad
+      touchnavigation
+      joystick
+      touchscreen
+      stylus
+      trackball
+
+The commands and default sources are:
+      text <string> (Default: touchscreen)
+      keyevent [--longpress] <key code number or name> ... (Default: keyboard)
+      tap <x> <y> (Default: touchscreen)
+      swipe <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      draganddrop <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      press (Default: trackball)
+      roll <dx> <dy> (Default: trackball)
+NODUMP
+OYNAT basildi 02:49:39
+t=10 focus:   mCurrentFocus=null
+  mCurrentFocus=null
+t=30 focus:   mCurrentFocus=null
+  mCurrentFocus=null
+t=45 focus:   mCurrentFocus=null
+  mCurrentFocus=null
+--- ekran metinleri t=45
+NODUMP
+FATAL EXCEPTION satir: 0

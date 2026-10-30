@@ -1,0 +1,16 @@
+--------- beginning of main
+10-30 01:38:02.300 D/AndroidRuntime( 4238): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:38:02.330 D/AndroidRuntime( 4238): Calling main entry com.android.commands.input.Input
+10-30 01:38:02.347 D/AndroidRuntime( 4238): Shutting down VM
+--------- beginning of system
+10-30 01:38:02.659 D/PlayPlugin( 3828): HDFilmCehennemi: istek tmdbId=475557 tür=movie sezon=null bölüm=null
+10-30 01:38:02.721 D/PlayCs  ( 3828): streams: 0 açık CS eklentisi
+10-30 01:38:02.869 D/PlayPluginNet( 3828): api.themoviedb.org GET -> 200 ctype=application/json len=2504 charset=UTF-8
+10-30 01:38:03.178 D/PlayPluginNet( 3828): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1681 charset=UTF-8
+10-30 01:38:03.312 D/PlayPluginNet( 3828): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=143032 charset=UTF-8
+10-30 01:38:03.752 D/PlayPluginNet( 3828): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31579 charset=UTF-8
+10-30 01:38:03.756 D/PlayPluginNet( 3828): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31524 charset=UTF-8
+10-30 01:38:04.178 D/PlayPluginNet( 3828): srv12.cdnimages1157.shop GET -> 200 ctype=application/vnd.apple.mpegurl len=360 charset=UTF-8
+10-30 01:38:04.188 D/PlayPlugin( 3828): HDFilmCehennemi: akış https://srv12.cdnimages1157.shop/hls/<43>/txt/master.txt?s=#e94ca6(len56)
+10-30 01:38:04.192 D/PlayMatch( 3828): kaynak başlatılıyor: HDFilmCehennemi (srv12.cdnimages1157.shop)
+10-30 01:38:04.656 D/PlayMatch( 3828): oynatıcı hatası: HDFilmCehennemi (faz=Starting) ERROR_CODE_PARSING_MANIFEST_MALFORMED (3002)

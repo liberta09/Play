@@ -1,0 +1,4 @@
+--------- beginning of main
+10-30 01:42:29.735 D/AndroidRuntime( 4864): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:42:29.765 D/AndroidRuntime( 4864): Calling main entry com.android.commands.input.Input
+10-30 01:42:29.779 D/AndroidRuntime( 4864): Shutting down VM

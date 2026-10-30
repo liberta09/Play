@@ -1,0 +1,23 @@
+--------- beginning of main
+10-30 01:33:25.339 D/AndroidRuntime( 3362): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:33:25.372 D/AndroidRuntime( 3362): Calling main entry com.android.commands.input.Input
+10-30 01:33:25.389 D/AndroidRuntime( 3362): Shutting down VM
+--------- beginning of system
+10-30 01:33:25.629 D/PlayPlugin( 2990): HDFilmCehennemi: istek tmdbId=969681 tür=movie sezon=null bölüm=null
+10-30 01:33:25.630 D/PlayCs  ( 2990): streams: 0 açık CS eklentisi
+10-30 01:33:25.985 D/PlayPluginNet( 2990): api.themoviedb.org GET -> 200 ctype=application/json len=2003 charset=UTF-8
+10-30 01:33:26.332 D/PlayPluginNet( 2990): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1880 charset=UTF-8
+10-30 01:33:26.428 D/PlayPluginNet( 2990): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=138469 charset=UTF-8
+10-30 01:33:26.837 D/PlayPluginNet( 2990): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=32081 charset=UTF-8
+10-30 01:33:26.840 D/PlayPluginNet( 2990): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31821 charset=UTF-8
+10-30 01:33:27.218 D/PlayPluginNet( 2990): srv9.cdnimages2333.cyou GET -> 200 ctype=application/vnd.apple.mpegurl len=359 charset=UTF-8
+10-30 01:33:27.220 D/PlayPluginNet( 2990): srv9.cdnimages2333.cyou GET -> 200 ctype=application/vnd.apple.mpegurl len=359 charset=UTF-8
+10-30 01:33:27.226 D/PlayPlugin( 2990): HDFilmCehennemi: akış https://srv9.cdnimages2333.cyou/hls/<68>/txt/master.txt?s=#8de20f(len56)
+10-30 01:33:27.229 D/PlayMatch( 2990): kaynak başlatılıyor: HDFilmCehennemi (srv9.cdnimages2333.cyou)
+10-30 01:33:28.099 D/PlayMatch( 2990): ilk kare: HDFilmCehennemi (faz=Starting)
+10-30 01:33:28.329 D/PlayMatch( 2990): süre kontrolü kaynak=HDFilmCehennemi (srv9.cdnimages2333.cyou) süre=145.0 dk beklenen=145 dk tür=Movie -> Ok
+10-30 01:34:30.940 D/AndroidRuntime( 3447): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-30 01:34:30.975 D/AndroidRuntime( 3447): Calling main entry com.android.commands.input.Input
+10-30 01:34:30.990 D/AndroidRuntime( 3447): Shutting down VM
+10-30 01:34:31.175 D/PlayMatch( 2990): takılma kaynak=HDFilmCehennemi sayı=0 toplam=0.0 sn oynama=1 dk
+10-30 01:34:31.175 D/PlayMatch( 2990): takılma-ayrıntı kaynak=HDFilmCehennemi bitHızı=1.84 Mbps bantTahmini=28.39 Mbps tampon=33.3 sn

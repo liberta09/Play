@@ -1,0 +1,139 @@
+== 08-joker-v120-d2 02:36:58
+pidof ONCE: [7450]
+pidof force-stop SONRA: []
+pidof BASLAT SONRA: []
+NODUMP
+NODUMP
+NODUMP
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+ValueError: not enough values to unpack (expected 4, got 0)
+Error: Invalid arguments for command: tap
+Usage: input [<source>] <command> [<arg>...]
+
+The sources are: 
+      dpad
+      keyboard
+      mouse
+      touchpad
+      gamepad
+      touchnavigation
+      joystick
+      touchscreen
+      stylus
+      trackball
+
+The commands and default sources are:
+      text <string> (Default: touchscreen)
+      keyevent [--longpress] <key code number or name> ... (Default: keyboard)
+      tap <x> <y> (Default: touchscreen)
+      swipe <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      draganddrop <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      press (Default: trackball)
+      roll <dx> <dy> (Default: trackball)
+Error: Invalid arguments for command: tap
+Usage: input [<source>] <command> [<arg>...]
+
+The sources are: 
+      dpad
+      keyboard
+      mouse
+      touchpad
+      gamepad
+      touchnavigation
+      joystick
+      touchscreen
+      stylus
+      trackball
+
+The commands and default sources are:
+      text <string> (Default: touchscreen)
+      keyevent [--longpress] <key code number or name> ... (Default: keyboard)
+      tap <x> <y> (Default: touchscreen)
+      swipe <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      draganddrop <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      press (Default: trackball)
+      roll <dx> <dy> (Default: trackball)
+Error: Invalid arguments for command: tap
+Usage: input [<source>] <command> [<arg>...]
+
+The sources are: 
+      dpad
+      keyboard
+      mouse
+      touchpad
+      gamepad
+      touchnavigation
+      joystick
+      touchscreen
+      stylus
+      trackball
+
+The commands and default sources are:
+      text <string> (Default: touchscreen)
+      keyevent [--longpress] <key code number or name> ... (Default: keyboard)
+      tap <x> <y> (Default: touchscreen)
+      swipe <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      draganddrop <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      press (Default: trackball)
+      roll <dx> <dy> (Default: trackball)
+Error: Invalid arguments for command: tap
+Usage: input [<source>] <command> [<arg>...]
+
+The sources are: 
+      dpad
+      keyboard
+      mouse
+      touchpad
+      gamepad
+      touchnavigation
+      joystick
+      touchscreen
+      stylus
+      trackball
+
+The commands and default sources are:
+      text <string> (Default: touchscreen)
+      keyevent [--longpress] <key code number or name> ... (Default: keyboard)
+      tap <x> <y> (Default: touchscreen)
+      swipe <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      draganddrop <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      press (Default: trackball)
+      roll <dx> <dy> (Default: trackball)
+Error: Invalid arguments for command: tap
+Usage: input [<source>] <command> [<arg>...]
+
+The sources are: 
+      dpad
+      keyboard
+      mouse
+      touchpad
+      gamepad
+      touchnavigation
+      joystick
+      touchscreen
+      stylus
+      trackball
+
+The commands and default sources are:
+      text <string> (Default: touchscreen)
+      keyevent [--longpress] <key code number or name> ... (Default: keyboard)
+      tap <x> <y> (Default: touchscreen)
+      swipe <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      draganddrop <x1> <y1> <x2> <y2> [duration(ms)] (Default: touchscreen)
+      press (Default: trackball)
+      roll <dx> <dy> (Default: trackball)
+NODUMP
+OYNAT basildi 02:38:50
+t=10 focus:   mCurrentFocus=null
+  mCurrentFocus=null
+t=30 focus:   mCurrentFocus=null
+  mCurrentFocus=null
+t=45 focus:   mCurrentFocus=null
+com.kaan.play/com.kaan.play.MainActivity}
+--- ekran metinleri t=45
+(539, 207, 804, 242) '🎉 Play yayında! 🚀' '' 
+(539, 266, 1061, 620) "Beklenen an geldi! 🔥 Play artık sizlerle! 🎬🍿\n\n✨ Öne çıkan özellikler:\n✅ CloudStream entegrasyonu\n✅ Nuvio entegrasyonu\n✅ Repo Manager desteği\n✅ Kolay ve kullanıcı dostu arayüz\n\n📢 Duyurular ve destek için Telegram kanalımıza katılın!\n\n📲 Play'i keşfetmeye hazır mısınız?\n❤️ Desteğiniz için teşekkürler. Herkese iyi seyirler! 🍿🎬" '' 
+(831, 676, 860, 709) 'Aç' '' 
+(944, 676, 1025, 709) 'Tamam' '' 
+FATAL EXCEPTION satir: 0

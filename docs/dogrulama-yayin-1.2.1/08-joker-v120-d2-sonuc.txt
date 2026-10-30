@@ -1,0 +1,25 @@
+== 08-joker-v120-d2 02:40:12
+pidof ONCE: [8330]
+pidof force-stop SONRA: []
+pidof BASLAT SONRA: [8603]
+acilis bekleme: 10 sn
+OK 984 692 'Tamam'
+profil kapisi: KAAAN secildi
+OK 130 556 'KAAAN'
+NOTFOUND
+OK 53 240 'Ara'
+OK 428 327 'Oynat'
+OYNAT basildi 02:40:57
+t=10 focus:   mCurrentFocus=null
+com.kaan.play/com.kaan.play.ui.player.PlayerActivity}
+t=30 focus:   mCurrentFocus=null
+com.kaan.play/com.kaan.play.ui.player.PlayerActivity}
+t=45 focus:   mCurrentFocus=null
+com.kaan.play/com.kaan.play.ui.player.PlayerActivity}
+--- ekran metinleri t=45
+(30, 30, 66, 66) '' 'Geri' 
+(96, 22, 296, 50) 'HDFilmCehennemi' '' 
+(96, 50, 149, 74) 'Joker' '' 
+(688, 387, 914, 411) 'Hiçbir kaynak açılamadı.' '' 
+(704, 461, 897, 494) 'Başka kaynak seç' '' 
+FATAL EXCEPTION satir: 0
