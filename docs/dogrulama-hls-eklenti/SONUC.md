@@ -50,3 +50,25 @@ Nuvio'da olup Play'de olmayan 4 madde, dublaj/kaynak sıralama dosyalarına (Sou
 4. **Torrent oturumu boşta açık** (`TorrentIdleRules`, `TorrentEngine`): torrent verisi hemen silinir, oturum 10 dk bekler.
 Eklenmeyenler (onay bekliyor): ikinci oynatıcı motoru (MPV), paralel aralıklı indirme.
 Doğrulama: kurallar Python karşılığıyla denendi; Gradle derlemesi ve cihaz testi bu oturumda yapılamadı (SDK/Maven erişimi yok), ajan yapacak.
+
+## Cihaz sonuçları (PlayNeon-130 / emulator-5558)
+
+Derleme ve birim testler: `testDebugUnitTest assembleDebug` 1120 test (1118 geçti, 0 hata, 2 atlandı).
+
+| İçerik | Deneme | Eklenti / Kaynak | İstek → Akış | İlk Kare | Hata Kodu | 60 sn Konum | Dublaj | Geri / Odak | FATAL |
+|---|---|---|---|---|---|---|---|---|---|
+| Joker (2019) | 1 | HDFilmCehennemi (`srv12.cdnimages1159.shop`) | 1.95 sn | 2.88 sn | YOK (3002 yok) | 0:58 (58.9 sn) | Altyazılı | MainActivity | 0 |
+| Joker (2019) | 2 | HDFilmCehennemi (`srv12.cdnimages1159.shop`) | 1.83 sn | 2.64 sn | YOK (3002 yok) | 0:58 (58.7 sn) | Altyazılı | MainActivity | 0 |
+| Joker (2019) | 3 | HDFilmCehennemi (`srv12.cdnimages1159.shop`) | 1.51 sn | 2.47 sn | YOK (3002 yok) | 0:58 (58.9 sn) | Altyazılı | MainActivity | 0 |
+| MobLand S2 B7 | 1 | Kaynak bulunamadı (HDFilmCehennemi / DiziBOX) | - | - | YOK (Oynatıcı hatası yok) | - | - | MainActivity | 0 |
+| Örümcek-Adam: Yepyeni Bir Gün | 1 | HDFilmCehennemi (`srv9.cdnimages2426.cyou`) | 1.77 sn | 2.85 sn | YOK (3002 yok) | 1 dk (58.8 sn) | Altyazılı | MainActivity | 0 |
+| Criminal Minds S1 B2 | 1 | DiziBOX TV (`dbx.molystream.org`) | 3.81 sn | 4.81 sn | YOK (3002 yok) | 1 dk (59.1 sn) | Altyazılı | MainActivity | 0 |
+| TRT 1 HD (Canlı TV) | 1 | Anthology — Canlı TV (`trt.daioncdn.net`) | 0.01 sn | 0.88 sn | YOK (3002 yok) | Canlı (1 dk) | Orijinal (TR) | MainActivity | 0 |
+
+### Gözlemler ve Teşhis Notları:
+1. **Joker (2019) 3002 Hatası:** 3 denemenin 3'ünde de `ERROR_CODE_PARSING_MANIFEST_MALFORMED (3002)` tamamen kayboldu (0/3 hata). İlk kare 2.47–2.88 sn aralığında geldi, 60 sn boyunca kesintisiz (0 sn takılma) oynadı, süre kontrolü (121.8 dk / 122 dk) doğrulandı.
+2. **MobLand S2 B7:** HDFilmCehennemi bölüm sayfasını (`https://www.hdfilmcehennemi.nl/dizi/mobland-70/sezon-2/bolum-7/`) 200 ile indirdi ancak sitedeki oynatıcı iframe'i `/rplayer/` URL yapısında olduğundan JS eklentisi (yalnızca `/embed/` eşlediği için) akış çıkaramadı. DiziBOX ise `Network request failed` verdi. Bütçe aşımı ("yanıt vermedi") çıkmadı. Ekranda "Bu içerik için kaynak bulunamadı." bildirildi, çökme veya oynatıcı hatası oluşmadı.
+3. **Örümcek-Adam:** HDFilmCehennemi üzerinden 1.77 sn akış süresi ve 2.85 sn ilk kare süresi ile sorunsuz oynadı, 60 sn kesintisiz (0 sn takılma, tampon 29.7 sn) devam etti. Regresyon yok.
+4. **Criminal Minds S1 B2:** DiziBOX TV üzerinden 3.81 sn akış süresi ve 4.81 sn ilk kare süresi ile sorunsuz açıldı, 60 sn kesintisiz (0 sn takılma, tampon 32.5 sn) oynadı.
+5. **Canlı TV (TRT 1 HD):** Anthology — Canlı TV eklentisiyle HLS m3u8 akışı 0.88 sn'de ilk kareye ulaştı. 60 sn boyunca 0 takılma, 21.0 sn tampon ve 86.95 Mbps bant genişliği ile kesintisiz oynadı.
+6. **Oynatıcı Sağlamlığı:** Hiçbir denemede "tür yoklaması" veya "çözücü hatası" satırı tetiklenmedi (akışlar doğrudan düzgün MIME ile çözüldü). Geri tuşu tüm denemelerde `MainActivity`'ye sorunsuz döndürdü, arka planda çökme (FATAL EXCEPTION) 0.

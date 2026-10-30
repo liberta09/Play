@@ -1,0 +1,19 @@
+--------- beginning of system
+--------- beginning of main
+10-31 00:10:26.938 D/AndroidRuntime(11823): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 00:10:26.987 D/AndroidRuntime(11823): Calling main entry com.android.commands.input.Input
+10-31 00:10:27.026 D/AndroidRuntime(11823): Shutting down VM
+10-31 00:10:29.126 D/AndroidRuntime(11836): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 00:10:29.169 D/AndroidRuntime(11836): Calling main entry com.android.commands.input.Input
+10-31 00:10:29.195 D/AndroidRuntime(11836): Shutting down VM
+10-31 00:10:29.956 D/PlayMatch(11745): kaynak başlatılıyor: Anthology — Canlı TV (trt.daioncdn.net)
+10-31 00:10:29.960 D/PlayTorrent(11745): oynatıcıya veriliyor: kaynak=Anthology — Canlı TV https://trt.daioncdn.net/.m3u8 torrent=false fileIdx=null başlıklar=[] mime=application/x-mpegURL
+10-31 00:10:30.833 D/PlayMatch(11745): ilk kare: Anthology — Canlı TV (faz=Starting)
+10-31 00:11:31.671 D/AndroidRuntime(11900): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 00:11:31.723 D/AndroidRuntime(11900): Calling main entry com.android.commands.input.Input
+10-31 00:11:31.761 D/AndroidRuntime(11900): Shutting down VM
+10-31 00:11:33.681 D/AndroidRuntime(11920): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 00:11:33.729 D/AndroidRuntime(11920): Calling main entry com.android.commands.input.Input
+10-31 00:11:33.760 D/AndroidRuntime(11920): Shutting down VM
+10-31 00:11:33.992 D/PlayMatch(11745): takılma kaynak=Anthology — Canlı TV sayı=0 toplam=0.0 sn oynama=1 dk
+10-31 00:11:33.992 D/PlayMatch(11745): takılma-ayrıntı kaynak=Anthology — Canlı TV bitHızı=6.97 Mbps bantTahmini=86.95 Mbps tampon=21.0 sn
