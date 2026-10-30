@@ -676,37 +676,17 @@ private class TsSniffingDataSource(private val upstream: DataSource) : DataSourc
         val readBytes = upstream.read(temp, 0, temp.size)
         if (readBytes <= 0) return readBytes
 
-        if (temp[0] == 0x47.toByte()) {
-            headerSkipped = true
-            System.arraycopy(temp, 0, buffer, offset, readBytes)
-            return readBytes
-        }
-
-        var syncIdx = -1
-        for (i in 0 until readBytes) {
-            if (temp[i] == 0x47.toByte()) {
-                if (i + 188 < readBytes) {
-                    if (temp[i + 188] == 0x47.toByte()) {
-                        syncIdx = i
-                        break
-                    }
-                } else {
-                    syncIdx = i
-                    break
-                }
-            }
-        }
-
         headerSkipped = true
-        return if (syncIdx >= 0) {
-            val validLen = readBytes - syncIdx
-            System.arraycopy(temp, syncIdx, buffer, offset, validLen)
-            validLen
-        } else {
-            System.arraycopy(temp, 0, buffer, offset, readBytes)
-            readBytes
-        }
+        // Oynatma listesi/manifest (ör. …/hls/…/master.txt) asla kırpılmaz: bkz. [TsSniff].
+        val skip = TsSniff.trimFor(temp, readBytes, contentType())
+        val validLen = readBytes - skip
+        System.arraycopy(temp, skip, buffer, offset, validLen)
+        return validLen
     }
+
+    private fun contentType(): String? = runCatching {
+        upstream.responseHeaders.entries.firstOrNull { it.key.equals("Content-Type", ignoreCase = true) }?.value?.firstOrNull()
+    }.getOrNull()
 
     override fun getUri(): android.net.Uri? = upstream.uri
 

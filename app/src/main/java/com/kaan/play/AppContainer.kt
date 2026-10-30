@@ -531,7 +531,8 @@ class AppContainer(context: Context) {
                     code = plugins::loadCode,
                     runner = { code, request, scraperId, timeoutMs, saved -> pluginRuntime.run(code, request, scraperId, timeoutMs, saved) },
                     settings = pluginSettings::get,
-                    timeout = sourceTimeout,
+                    // Eklentiler kendi 45 sn bütçeleriyle yazılır; kaynak zaman aşımı ayarı (vars. 15 sn) onları erken öldürmesin.
+                    timeout = { PluginStreamProvider.runBudget(sourceTimeout()) },
                     maxParallel = 6,
                 ),
                 CsStreamProvider(
@@ -556,7 +557,10 @@ class AppContainer(context: Context) {
                             } else null
                         }
                     },
+                    // Toplam bütçe: arama + detay + bağlantı adımlarının her biri 30 sn'ye kadar sürebilir; önceki toplam 30 sn,
+                    // yavaş sitelerde bulunan bağlantıları da atıyordu (Nuvio dış sınırı 120 sn).
                     timeoutMs = 30_000L,
+                    totalBudgetMs = 90_000L,
                 ),
             ),
             verdicts = streamVerdicts,

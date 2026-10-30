@@ -23,6 +23,7 @@ import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.JsonElement
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /** Bir kazıyıcıyı çalıştıran şey ([com.kaan.play.data.plugin.runtime.PluginRuntime]); testlerde sahte uygulanır. */
 fun interface PluginRunner {
@@ -166,6 +167,17 @@ class PluginStreamProvider(
 
         /** Aynı anda en çok çalışan eklenti sayısı (bellek/işlemci koruması: her biri ayrı bir QuickJS örneğidir). */
         const val MAX_PARALLEL = 6
+
+        /**
+         * Bir eklenti çalıştırmasının en az süresi. Kök neden (2026-10-30, "HDFilmCehennemi/DiziBOX bazen bulmuyor"): eklentiler
+         * 45 sn'lik iç bütçeyle yazılır (istek başına ≤12 sn + bir yeniden deneme; site yönlendirmesi ya da yavaş yanıt tek
+         * başına 10+ sn sürebilir); kaynak zaman aşımı ayarı (varsayılan 15 sn) onları yarıda öldürüp "yanıt vermedi"
+         * diyordu. Sonuçlar hazır oldukça aktığı için diğer kaynaklar bunu beklemez.
+         */
+        val MIN_RUN_BUDGET: Duration = 50.seconds
+
+        /** Kullanıcının kaynak zaman aşımı ayarı daha uzunsa o, değilse [MIN_RUN_BUDGET]. */
+        fun runBudget(setting: Duration): Duration = maxOf(setting, MIN_RUN_BUDGET)
 
         /**
          * Eklentiye verilecek tür: `movie`/`tv`; manifest `series` bildiriyorsa ve sezon+bölüm varsa `series`

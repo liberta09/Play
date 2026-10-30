@@ -33,6 +33,8 @@ class CsStreamProvider(
     private val runtime: CsRuntime,
     private val identityResolver: suspend (request: StreamRequest) -> ContentIdentity?,
     private val timeoutMs: Long = 30_000L,
+    /** Bir eklentinin arama→detay→bağlantı akışının toplam sınırı ([timeoutMs] adım başınadır). */
+    private val totalBudgetMs: Long = timeoutMs,
 ) : StreamProvider {
 
     override fun streams(request: StreamRequest): Flow<StreamResult> = channelFlow {
@@ -86,7 +88,7 @@ class CsStreamProvider(
                 gate.withPermit {
                     val source = StreamSource(addonId = plugin.id, addonName = plugin.name)
                     try {
-                        val streams: List<PlayableStream> = withTimeoutOrNull(timeoutMs) {
+                        val streams: List<PlayableStream> = withTimeoutOrNull(totalBudgetMs) {
                             val apis = repository.loadApis(plugin.id).apisOrEmpty()
                             Log.d(TAG, "${plugin.name}: ${apis.size} MainAPI yüklendi")
                             if (apis.isEmpty()) {

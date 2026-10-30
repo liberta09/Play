@@ -35,6 +35,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * CloudStream eklentisi çalıştırıcısı. Yüklenmiş [MainAPI] örnekleriyle şu akışı izler:
@@ -223,14 +224,16 @@ class CsRuntime {
             }
         }
 
-        val links = mutableListOf<ExtractorLink>()
-        val subs = mutableListOf<SubtitleFile>()
-        withTimeout(timeoutMs) {
+        // Eklentiler bağlantıları farklı iş parçacıklarından bildirebilir; süre dolarsa o ana kadar gelenler atılmaz
+        // (önceden withTimeout tüm listeyi çöpe atıyordu).
+        val links = java.util.Collections.synchronizedList(mutableListOf<ExtractorLink>())
+        val subSink = java.util.Collections.synchronizedList(mutableListOf<SubtitleFile>())
+        val finished = withTimeoutOrNull(timeoutMs) {
             try {
                 api.loadLinks(
                     data = data,
                     isCasting = false,
-                    subtitleCallback = { subs += it },
+                    subtitleCallback = { subSink += it },
                     callback = { link ->
                         registerLoopbackPortIfAny(link.url)
                         links += link
@@ -242,10 +245,14 @@ class CsRuntime {
                 Log.d(TAG, "${api.name}: loadLinks hata ${t.javaClass.simpleName}: ${t.message}", t)
             }
         }
-        Log.d(TAG, "${api.name}: loadLinks ${links.size} ExtractorLink, ${subs.size} SubtitleFile " +
-            links.map { "${it.name}/${it.type}/${it.quality}@${runCatching { java.net.URI(it.url).host }.getOrNull()}" })
+        if (finished == null) Log.d(TAG, "${api.name}: loadLinks ${timeoutMs} ms'de bitmedi, o ana kadar gelen ${links.size} bağlantı kullanılıyor")
+        // Geç gelen bildirimler listeyi değiştirmesin: anlık kopya üzerinden çalışılır.
+        val collected = synchronized(links) { links.toList() }
+        val subs = synchronized(subSink) { subSink.toList() }
+        Log.d(TAG, "${api.name}: loadLinks ${collected.size} ExtractorLink, ${subs.size} SubtitleFile " +
+            collected.map { "${it.name}/${it.type}/${it.quality}@${runCatching { java.net.URI(it.url).host }.getOrNull()}" })
 
-        return links.map { link ->
+        return collected.map { link ->
             PlayableStream(
                 source = source,
                 url = link.url,
