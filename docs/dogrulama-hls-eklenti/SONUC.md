@@ -22,8 +22,8 @@ Gemini'nin değiştirdiği `.cs3` bu yola hiç girmiyor, sonucun değişmemesi b
 İki eklenti de 45 sn iç bütçeyle yazılmış: istek başına ≤12 sn ve bir yeniden deneme (`session(){deadline: now+45000}`).
 Play, eklenti çalıştırmasını kaynak zaman aşımı ayarıyla kesiyordu (varsayılan **15 sn**). Site yönlendirmesi
 (.nl → .mobi) ya da tek bir yavaş yanıt bunu aşınca "yanıt vermedi" çıkıyordu. Nuvio aynı eklentilere 60 sn veriyor.
-- Düzeltme: `PluginStreamProvider.runBudget` = max(ayar, 50 sn). Sonuçlar hazır oldukça aktığı için hızlı kaynaklar beklemez.
-  Bedeli: hiçbir eklenti bulamazsa "kaynak bulunamadı" ekranı en geç ~50 sn'de gelir (önce 15 sn).
+- Düzeltme: `PluginStreamProvider.runBudget` = max(ayar, 25 sn) (önce 50 sn denenmişti, "kimse 50 sn beklemez" itirazıyla 25 sn yapıldı; 15 sn üstü başarılı bir yanıt ölçülmedi). Sonuçlar hazır oldukça aktığı için hızlı kaynaklar beklemez.
+  Bedeli: hiçbir eklenti bulamazsa "kaynak bulunamadı" ekranı en geç ~25 sn'de gelir (önce 15 sn).
 
 ## Aynı türden CloudStream hatası
 `CsStreamProvider` arama, detay ve bağlantı adımlarının hepsine toplam 30 sn veriyordu. `CsRuntime.loadLinksDirect` süre

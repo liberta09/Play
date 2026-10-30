@@ -174,7 +174,7 @@ class PluginStreamProvider(
          * başına 10+ sn sürebilir); kaynak zaman aşımı ayarı (varsayılan 15 sn) onları yarıda öldürüp "yanıt vermedi"
          * diyordu. Sonuçlar hazır oldukça aktığı için diğer kaynaklar bunu beklemez.
          */
-        val MIN_RUN_BUDGET: Duration = 50.seconds
+        val MIN_RUN_BUDGET: Duration = 25.seconds
 
         /** Kullanıcının kaynak zaman aşımı ayarı daha uzunsa o, değilse [MIN_RUN_BUDGET]. */
         fun runBudget(setting: Duration): Duration = maxOf(setting, MIN_RUN_BUDGET)
