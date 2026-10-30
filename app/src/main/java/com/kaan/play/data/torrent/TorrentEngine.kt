@@ -88,8 +88,11 @@ class TorrentEngine(private val dir: File) {
             val sha1 = Sha1Hash.parseHex(hash)
             var handle = s.find(sha1)
             if (handle == null || !handle.isValid) {
-                // Dosyalar varsayılan olarak indirilmez: üst bilgi gelince yalnızca seçilen dosya açılır.
-                s.download(magnet, dir, TorrentFlags.DEFAULT_DONT_DOWNLOAD)
+                // DEFAULT_DONT_DOWNLOAD KULLANILMAZ (2026-10-31 ölçümü): üst bilgi gelince tüm dosyalar "indirme" olur, torrent anında
+                // "bitti" sayılır ve libtorrent tohum eşleri "gereksiz bağlantı" diye koparır; yeniden bağlanma uzun sürdüğü için soğuk
+                // açılışlarda 40 sn boyunca eş=0 kalıp ilk kare gelmiyordu (5 denemenin 4'ü). Şimdi dosyalar varsayılan önceliktedir;
+                // oynatılmayanlar üst bilgi gelir gelmez aşağıda IGNORE yapılır (en çok ~0,1 sn'lik boşluk, veri sonunda silinir).
+                s.download(magnet, dir, TorrentFlags.SEQUENTIAL_DOWNLOAD)
                 handle = waitFor(METADATA_TIMEOUT_MS) { s.find(sha1)?.takeIf { it.isValid } }
                     ?: throw TorrentException(TorrentException.Reason.Engine, "torrent not added")
                 PUBLIC_TRACKERS.forEach { runCatching { handle.addTracker(AnnounceEntry(it)) } }
