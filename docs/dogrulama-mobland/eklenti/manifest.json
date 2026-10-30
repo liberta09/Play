@@ -1,0 +1,19 @@
+{
+  "name": "HDFilmCehennemi for Nuvio",
+  "version": "1.0.3",
+  "scrapers": [
+    {
+      "id": "hdfilmcehennemi",
+      "name": "HDFilmCehennemi",
+      "description": "Movie and TV playback sources from hdfilmcehennemi.nl, with alternative players and available subtitles.",
+      "version": "1.0.3",
+      "filename": "hdfilmcehennemi.js",
+      "supportedTypes": ["movie", "tv"],
+      "contentLanguage": ["tr"],
+      "formats": ["m3u8", "mp4", "mkv", "mpd", "webm", "mov", "m4v"],
+      "enabled": true,
+      "hasSettings": true,
+      "supportsExternalPlayer": true
+    }
+  ]
+}
