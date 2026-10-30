@@ -1,0 +1,837 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+	<meta name="robots" content="noindex,nofollow" />
+	<style>
+ html,body {background: #000; width: 100%; height: 100%;font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";-webkit-font-smoothing: subpixel-antialiased;}
+ * {margin: 0; padding: 0;-webkit-font-smoothing: subpixel-antialiased;}
+ #player {height: 100% !important; width: 100% !important;}
+ 
+ .jw-settings-submenu-audioTracks .jw-reset.jw-settings-submenu-items:before,
+ .jw-settings-submenu-captions .jw-reset.jw-settings-submenu-items:before,
+ .jw-settings-submenu-playbackRates .jw-reset.jw-settings-submenu-items:before,
+ .jw-settings-submenu-quality .jw-reset.jw-settings-submenu-items:before {
+ color: #fff;
+ font-weight: bold;
+ padding: 10px;
+ display: block;
+ }
+ .jw-settings-submenu-audioTracks .jw-reset.jw-settings-submenu-items:before {
+ content: 'Seslendirme';
+ }
+ .jw-settings-submenu-captions .jw-reset.jw-settings-submenu-items:before {
+ content: 'Altyazı';
+ }
+ .jw-settings-submenu-playbackRates .jw-reset.jw-settings-submenu-items:before {
+ content: 'Oynatma Hızı';
+ }
+ .jw-settings-submenu-quality .jw-reset.jw-settings-submenu-items:before {
+ content: 'Kalite';
+ }
+ .jw-settings-submenu-items {
+ flex: 1;
+ }
+ .jw-settings-submenu.jw-settings-submenu-active {
+ display: flex !important;
+ flex-direction: column-reverse;
+ }
+
+ .jw-breakpoint-4 .jw-settings-menu,
+ .jw-breakpoint-3 .jw-settings-menu {
+ height: 250px !important;
+ max-height: 250px !important;
+ }
+
+ .jw-settings-topbar .jw-settings-topbar-buttons {
+ display: flex;
+ }
+
+ .jw-settings-quality.jw-submenu-quality {
+ order: 3;
+ }
+ .jw-settings-captions.jw-submenu-captions {
+ order: 2;
+ }
+ .jw-settings-playbackRates.jw-submenu-playbackRates {
+ order: 4;
+ }
+ .jw-settings-audioTracks.jw-submenu-audioTracks {
+ order: 1;
+ }
+ .jw-settings-close {
+ order: 5;
+ }
+ 
+ .jwplayer .jw-rightclick.jw-open { display:none !important; }
+
+ /* ileri sarma butonu yalnizca masaustunde gosterilsin (mobilde zaten var, cift olmasin) */
+ @media (max-width: 768px) {
+ #forward-btn { display: none !important; }
+ }
+
+
+ .humane,.humane-flatty{position:fixed;-moz-transition:all .4s ease-in-out;-webkit-transition:all .4s ease-in-out;-ms-transition:all .4s ease-in-out;-o-transition:all .4s ease-in-out;transition:all .4s ease-in-out;z-index:100000}.humane,.humane-flatty{font-size:16px;top:0;left:0;opacity:0;width:100%;color:#000;padding:15px;text-align:center;background-color:$aqua-marine;-moz-transform:translateY(-100px);-webkit-transform:translateY(-100px);-ms-transform:translateY(-100px);-o-transform:translateY(-100px);transform:translateY(-100px)}.humane p,.humane ul,.humane-flatty p,.humane-flatty ul{margin:0;padding:0}.humane ul,.humane-flatty ul{list-style:none}.humane-flatty.humane-info,.humane.humane-info{background-color:#3498db;color:#fff}.humane-flatty.humane-success,.humane.humane-success{background-color:#fbc607;color:#000}.humane-flatty.humane-error,.humane.humane-error{background-color:#f83b31;color:#fff}.humane-animate,.humane-flatty.humane-flatty-animate{opacity:1;-moz-transform:translateY(0);-webkit-transform:translateY(0);-ms-transform:translateY(0);-o-transform:translateY(0);transform:translateY(0)}.humane-animate:hover,.humane-flatty.humane-flatty-animate:hover{opacity:.7}.humane-flatty.humane-flatty-js-animate,.humane-js-animate{opacity:1;-moz-transform:translateY(0);-webkit-transform:translateY(0);-ms-transform:translateY(0);-o-transform:translateY(0);transform:translateY(0)}.humane-flatty.humane-flatty-js-animate:hover,.humane-js-animate:hover{opacity:.7}
+
+ .btn-warning {
+ color: #111;
+ background-color: #ffc107;
+ border-color: #ffc107;
+ }
+ .btn-warning:hover {
+ background: #ffdf6d;
+ }
+ .btn {
+ font: 15px Tahoma;
+ margin-top: 3px;
+ margin-bottom: 5px;
+ padding: 2px 5px;
+ text-decoration: none;
+ }
+ .btn {
+ display: inline-block;
+ font-weight: 400;
+ text-align: center;
+ white-space: nowrap;
+ vertical-align: middle;
+ -webkit-user-select: none;
+ -moz-user-select: none;
+ -ms-user-select: none;
+ user-select: none;
+ border: 1px solid transparent;
+ padding: .375rem .75rem;
+ font-size: 1rem;
+ line-height: 1.5;
+ border-radius: .25rem;
+ transition: background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+ }
+
+ .btn-download {
+ position: absolute;
+ top: 10px;
+ right: 10px;
+ z-index: 2;
+ }
+ 
+ .btn-help {
+ position: absolute;
+ top: 10px;
+ right: 80px;
+ z-index: 2;
+
+ color: #fff;
+ background-color: #dc3545;
+ border-color: #dc3545;
+ }
+ .btn-help:hover { background:#c82333 }
+
+ .btn-vip {
+ position: absolute;
+ top: 10px;
+ right: 170px;
+ z-index: 2;
+
+ color: #1a1203;
+ background: linear-gradient(135deg, #ffd700 0%, #ffb300 35%, #ff8f00 70%, #ff6f00 100%);
+ border: 2px solid #fff3b0;
+ font-weight: bold;
+ box-shadow: 0 0 18px rgba(255, 193, 7, 0.75), 0 4px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.5);
+ animation: btn-vip-pulse 1.6s ease-in-out infinite;
+ text-decoration: none;
+ transition: transform .15s ease, box-shadow .15s ease;
+ }
+ .btn-vip:hover {
+ color: #1a1203;
+ transform: scale(1.06);
+ background: linear-gradient(135deg, #fff3b0 0%, #ffd700 40%, #ff8f00 100%);
+ box-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 4px 18px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.6);
+ animation: none;
+ }
+ .btn-vip .vip-star {
+ display: inline-block;
+ margin-right: 4px;
+ animation: btn-vip-star 1.2s linear infinite;
+ }
+ @keyframes btn-vip-pulse {
+ 0%, 100% { box-shadow: 0 0 14px rgba(255, 193, 7, 0.6), 0 4px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.5); }
+ 50%      { box-shadow: 0 0 28px rgba(255, 235, 59, 0.95), 0 4px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.6); }
+ }
+ @keyframes btn-vip-star {
+ 0%, 100% { transform: rotate(0deg) scale(1); }
+ 50%      { transform: rotate(18deg) scale(1.15); }
+ }
+ @media (max-width: 768px) {
+ .btn-vip {
+ right: 165px;
+ }
+ }
+
+ /* Geçici duyuru bandı (DC arıza vb.) */
+ .player-notice {
+ position: absolute;
+ top: 10px;
+ right: 170px;
+ z-index: 2;
+
+ color: #1a1203;
+ background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 50%, #ff9800 100%);
+ border: 2px solid #fff;
+ font-weight: bold;
+ padding: .375rem .75rem;
+ font-size: 14px;
+ line-height: 1.5;
+ border-radius: .25rem;
+ box-shadow: 0 0 14px rgba(255, 152, 0, 0.7), 0 4px 14px rgba(0,0,0,0.5);
+ animation: player-notice-blink 1.5s ease-in-out infinite;
+ white-space: nowrap;
+ }
+ @keyframes player-notice-blink {
+ 0%, 100% { box-shadow: 0 0 14px rgba(255, 152, 0, 0.7), 0 4px 14px rgba(0,0,0,0.5); }
+ 50%      { box-shadow: 0 0 28px rgba(244, 67, 54, 0.95), 0 4px 14px rgba(0,0,0,0.5); }
+ }
+ @media (max-width: 768px) {
+ .player-notice {
+ top: 55px;
+ right: 10px;
+ left: 10px;
+ font-size: 11px;
+ padding: .3rem .5rem;
+ white-space: normal;
+ text-align: center;
+ }
+ }
+
+ .btn-sm {
+ padding: .25rem .5rem;
+ font-size: .875rem;
+ border-radius: .2rem;
+ }
+
+ .btn-outline {
+ color: #cacaca;
+ background-color: transparent;
+ border-color: #cacaca;
+ }
+ .btn-outline:hover {
+ color: #fff;
+ border-color: #fff;
+ }
+
+ .label {
+ padding: 2px 6px;
+ }
+
+ .video-presets {
+ position: absolute;
+ bottom: 100%;
+ z-index: 9;
+ }
+
+ /* tooltip bilgilendirme */
+ .tooltip-info {
+ width: 200px;
+ background: #1f2022;
+ cursor: pointer;
+ color: #fff;
+ border-radius: 5px;
+ padding: 10px 12px;
+ position: absolute;
+ z-index: 9999;
+ bottom: 60px;
+ font-size: 13px !important;
+ line-height: 1.4;
+ box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+ animation: tooltip-fadein 0.35s ease-out;
+ }
+ .tooltip-info::after {
+ content: "";
+ position: absolute;
+ top: 100%;
+ left: 50%;
+ margin-left: 42px;
+ border-width: 6px 5px 0 5px;
+ border-style: solid;
+ border-color: #1f2022 transparent transparent transparent;
+ }
+ .tooltip-info .fl {
+ display: inline-block;
+ width: calc(100% - 20px);
+ vertical-align: top;
+ }
+ .tooltip-info i {
+ float: right;
+ font-weight: bold;
+ font-style: normal;
+ padding: 0 4px;
+ opacity: 0.7;
+ cursor: pointer;
+ }
+ .tooltip-info i:hover { opacity: 1; }
+ .tooltip-info.dual-info { right: 160px; }
+ .tooltip-info.sub-info { right: 110px; display: none; }
+ @keyframes tooltip-fadein {
+ from { opacity: 0; transform: translateY(6px); }
+ to   { opacity: 1; transform: translateY(0); }
+ }
+ @media (max-width: 768px) {
+ .tooltip-info { width: 160px; font-size: 11px !important; padding: 6px 10px; bottom: 55px; }
+ .tooltip-info.dual-info { right: 175px; }
+ .tooltip-info.sub-info  { right: 130px; }
+ }
+
+ @media (max-width: 768px) {
+ .hidden-xs {
+ display: none !important;
+ }
+ .btn-sm {
+ padding: .10rem .3rem;
+ font-size: .625rem;
+ }
+ }
+
+ .jw-flag-user-inactive .btn-download, .jw-flag-user-inactive .btn-help, .jw-flag-user-inactive .btn-vip, .jw-flag-user-inactive .player-notice {
+ display: none;
+ }
+
+ .jw-breakpoint-2 .jw-settings-open.jw-controls, .jw-flag-small-player .jw-settings-open.jw-controls, .jw-flag-touch .jw-settings-open.jw-controls
+ {
+ z-index: 3 !important;
+ }
+
+ .prophet{z-index: 100002;position:fixed;font-family:'Source Sans Pro',HelveticaNeue-Light,"Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;right:10px;transition:margin .1s cubic-bezier(.07,.99,.93,.97)}.prophet>li{margin-bottom:0;list-style-type:none;min-width:100px;font-family:Assistant,sans-serif;opacity:0;background-color:#323232;color:#fafafa;z-index:99;margin-top:20px;cursor:pointer;border-radius:2px;padding:20px;vertical-align:middle;max-width:200px;text-align:center;webkit-box-shadow:1px 1px 1px 0 rgba(0,0,0,.3);-moz-box-shadow:1px 1px 1px 0 rgba(0,0,0,.3);box-shadow:1px 1px 1px 0 rgba(0,0,0,.3);-webkit-transition:all .4s cubic-bezier(.07,.99,.93,.97);-moz-transition:all .2s cubic-bezier(.07,.99,.93,.97);-o-transition:all .2s cubic-bezier(.07,.99,.93,.97);transition:all .2s cubic-bezier(.07,.99,.93,.97)}.prophet>.prophet-message-active{margin-top:10px;margin-bottom:0;opacity:1;-webkit-transition:all .1s cubic-bezier(.07,.99,.93,.97);-moz-transition:all .1s cubic-bezier(.07,.99,.93,.97);-o-transition:all .1s cubic-bezier(.07,.99,.93,.97);transition:all .1s cubic-bezier(.07,.99,.93,.97)}@media only screen and (min-width:240px){ul.prophet{margin-left:10px}}@media only screen and (min-width:240px) and (max-width:320px){ul.prophet{right:10px}}@media only screen and (min-width:320px) and (max-width:480px){ul.prophet{right:10px}}@media only screen and (min-width:480px) and (max-width:600px){ul.prophet{right:10px}}@media only screen and (min-width:600px) and (max-width:720px){ul.prophet{right:10px}}@media only screen and (min-width:720px) and (max-width:1024px){ul.prophet{right:10px}}@media only screen and (min-width:1024px){ul.prophet{right:10px}}
+	
+	</style>
+</head>
+<body>
+
+	<script src="https://www.hdfilmcehennemi.nl/assets/front/js/devtools-console-detectv2-rapid.js?v=1.01"></script>
+
+<ul class="prophet"></ul>
+<div id="player"></div>
+
+<script src="https://www.hdfilmcehennemi.nl/assets/front/js/jquery-3.5.1.min.js"></script>
+<script src='https://ssl.p.jwpcdn.com/player/v/8.41.0/jwplayer.js'></script>
+<script type="text/javascript">jwplayer.key="Y8nORY7CUY5RnlN/f8onh+AXI1ZWodkujMJAXBwpcAnDG5N4";</script>
+<script>Date.now||(Date.now=function(){return(new Date).getTime()}),Array.prototype.map||(Array.prototype.map=function(t,e){var n,i,r;if(null==this)throw new TypeError(" this is null or not defined");var o=Object(this),s=o.length>>>0;if("function"!=typeof t)throw new TypeError(t+" is not a function");for(arguments.length>1&&(n=e),i=new Array(s),r=0;r<s;){var c,a;r in o&&(c=o[r],a=t.call(n,c,r,o),i[r]=a),r++}return i}),Object.defineProperty&&Object.getOwnPropertyDescriptor&&Object.getOwnPropertyDescriptor(Element.prototype,"textContent")&&!Object.getOwnPropertyDescriptor(Element.prototype,"textContent").get&&!function(){var t=Object.getOwnPropertyDescriptor(Element.prototype,"innerText");Object.defineProperty(Element.prototype,"textContent",{get:function(){return t.get.call(this)},set:function(e){return t.set.call(this,e)}})}();var Message=function(){function t(e,n,i){return this._text=e||"Awesome!",this._id=t.idGen(),this._type="default",this._duration=4e3,this._class=" ",n&&(this.cb=i,"function"==typeof n?this.cb=n:"object"!=typeof n||Array.isArray(n)||(this._type=n.type||this._type,this._id=n.id||this._id,this._duration=n.duration||this._duration,this._class=n.class||this._class)),this.cb="function"==typeof n?n:i,t.Stack[t.Stack.length]=this,this.init(),this}return t.idGen=function(){return Date.now()%1e4},t.clearAll=function(){for(var e=document.querySelectorAll("ul.prophet > li"),n=0,i=e.length;n<i;n++)e[n].classList.remove("prophet-message-active"),t.parent.removeChild(e[n])},t.prototype.init=function(){var e=this;this.cbFired=!1,this.toast=document.createElement("li");var n=this.toast;i=["message "+this._class,this._text],n.className=i[0],n.textContent=i[1],this.stylize(),n.addEventListener("click",function(){n.classList.remove("prophet-message-active"),e.cb&&(e.cb(e._id),e.cbFired=!0),setTimeout(function(){t.parent.removeChild(n)},60)});var i},t.prototype.show=function(){var e=this,n=this.toast;return t.parent.appendChild(this.toast),setTimeout(function(){n.classList.add("prophet-message-active")},10),setTimeout(function(){n.classList.remove("prophet-message-active"),e.cbFired||e.cb&&e.cb(e._id),setTimeout(function(){try{t.parent.removeChild(n)}catch(t){}},30)},this._duration),this},t.prototype.stylize=function(){var e=t.Util.find(t.stylePresets,this._type);e!==-1&&(this.toast.style.backgroundColor=t.stylePresets[e].backgroundColor,this.toast.style.color=t.stylePresets[e].color)},t.Util={find:function(t,e){return t.map(function(t){return t.type}).indexOf(e)},toDash:function(t){return t.replace(/([A-Z])/g,function(t){return"-"+t.toLowerCase()})},getSizes:function(){var t,e;return"undefined"!=typeof window.innerWidth?(t=window.innerWidth,e=window.innerHeight):"undefined"!=typeof document.documentElement&&"undefined"!=typeof document.documentElement.clientWidth&&0!=document.documentElement.clientWidth?(t=document.documentElement.clientWidth,e=document.documentElement.clientHeight):(t=document.getElementsByTagName("body")[0].clientWidth,e=document.getElementsByTagName("body")[0].clientHeight),{width:t,height:e}},rePosition:function(){var e=t.Util.getSizes().width,n=(t.Util.getSizes().height,document.getElementsByClassName("prophet")[0]);e<240?n.style.marginLeft="10px":e>240&&e<320?n.style.marginLeft=.3*e+"px":e>320&&e<480?n.style.marginLeft=.35*e+"px":e>480&&e<600?n.style.marginLeft=.5*e+"px":e>600&&e<720?n.style.marginLeft=.6*e+"px":e>720&&e<1024?n.style.marginLeft=.7*e+"px":e>1024?n.style.marginLeft=.75*e+"px":e>1024&&(n.style.marginLeft=.75*e+"px")}},t.Dbg={stackTrace:function(){return console.dir(t.Stack)},presets:function(){return console.dir(t.stylePresets)}},t.parent=document.getElementsByClassName("prophet")[0],t.stylePresets=[{type:"default",backgroundColor:"#1c2e2d",color:"#FAFAFA"},{type:"success",backgroundColor:"#4daf7c",color:"#FAFAFA"},{type:"error",backgroundColor:"#D45A43",color:"#FAFAFA"}],t.config={types:function(e){e=[].concat(e);for(var n,i=0,r=e.length;i<r;i++){var o=t.Util.find(t.stylePresets,e[i].type);if(n=e[i],o!==-1)for(var s in n)t.stylePresets[o][s]=n[s];else t.stylePresets[t.stylePresets.length]=n}}},t.Stack=[],t}();</script>
+<script>
+ window.lastCheckPoint = 0;
+ function getNotification(status,value){
+ 
+ }
+
+ (() => {
+ var sources = [];
+ var err = 0;
+ var tr = true;
+ var autoQuality = 1;
+ var freezeCnt = 0;
+ var audioLoaded = 0;
+ var defAudioTrack = -1;
+ var defAudioSelected = 0;
+ var played = 0;
+ var audioTracks = [];
+ var curCaptions = [];
+ var currentAudioTrackIndex = 0;
+ var curCaptionIndex = 0;
+ var forcedCaption = false;
+ var trAltyazi = false;
+
+ var tooltipShown = false;
+ var autopl = false;
+  autopl = true; // true olacak
+  
+ eval(function(p,a,c,k,e,d){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('p 1q(1b){9 d=1b.n(\'\');9 P="3w";9 1a="3v";9 z=0,F=0,6,q;f(6=0;6<P.e;6++){q=P.h(6);z=(z*31+q)%1l;F=(F^(q+6))&1m}9 1u=(z+F)%l,1t=(z%13)+3,O=((z*l+F)%3u)+1;i(1b.e>3t){d=A(d)}i(P.e>1g){d=d.Y(/[a-X-Z]/g,\'0\')}9 E,18;f(6=1a.e-1;6>=0;6--){E=1a.1k(6);i(E===\'b\'){d=A(d)}L i(E===\'v\'){d=d.s(\'\').10().n(\'\')}L{18=(26-((E.h(0)-3s)%26))%26;d=d.Y(/[a-X-Z]/g,p(1v){9 19=1v.h(0),17=(19<=1i)?1h:T;j H.G((19-17+18)%26+17)})}}9 16=d.e,15=[],r,N,14;f(6=16-1;6>=1;6--){O=(O*3r+3q)%3p;15[6]=O%(6+1)}r=d.s(\'\');f(6=1;6<16;6++){N=15[6];14=r[6];r[6]=r[N];r[N]=14}d=r.n(\'\');9 y=1u,12=\'\';f(6=0;6<d.e;6++){q=d.h(6);y=(y+1t)%l;12+=H.G(q^y);y=(y+q)%l}j 12}p 3o(){j 3n(\'x\'+1s.1r())}p 3m(){j A(\'3l\')}p 3k(){j\'3j\'+1s.1r().3i(36).3h(2)}9 3g=1q(["3f","3e","3d","3c","3b","3a","39","38","35","34","33","32","30","2Z","2Y","2X","2W","2V","2U","2T","2S","2R","2Q","2P","2O","2N","2M","2L","2K","2J","2I","2H","2G","2F","2E","2D","2C","2B","2A","2z","2y","2x","2w","2v","2u","2t","2s","2r","2q","2p","2o","2n","2m","2l","2k","2j","2i","2h","2g","2f","2e","2d"]);9 1c=p(D){9 u=D.e-2,1n=u%7,1p=8+(u%5);9 M=D.1o(1p,1)[0],K=D.1o(1n,1)[0];9 c=D.n(\'\');i(M.e>2c){c=c.s(\'\').10().n(\'\')}9 C=0,w=0,4,m;f(4=0;4<K.e;4++){m=K.h(4);C=(C*37+m)%2b;w=(w+((m<<1)^4))&1m}9 1e=(C*3+w)%l,1d=(w%11)+5,J=((w*1l+C)%1f)+1;9 B,V;f(4=M.e-1;4>=0;4--){B=M.1k(4);i(B===\'7\'){c=A(c)}L i(B===\'3\'){c=c.s(\'\').10().n(\'\')}L{V=(26-((B.h(0)-2a)%26))%26;c=c.Y(/[a-X-Z]/g,p(1j){9 W=1j.h(0),U=(W<=1i)?1h:T;j H.G((W-U+V)%26+U)})}}i(K.e>1g){c=A(c)}u=c.e;9 S=[],o,I,R;f(4=u-1;4>=1;4--){J=(J*T+29)%1f;S[4]=J%(4+1)}o=c.s(\'\');f(4=1;4<u;4++){I=S[4];R=o[4];o[4]=o[I];o[I]=R}c=o.n(\'\');9 t=1e,Q=\'\';f(4=0;4<c.e;4++){m=c.h(4);t=(t*5+1d)%l;Q+=H.G(m^t);t=(t+m)%l}j Q};9 28=1c("27#25#24#23#22#21#20#1Z#1Y#1X#1W#1V#1U#1T+k#1S#/1R#1Q#1P#1O#k+1N#1M#1L#/1K+#+1J#1I#1H#1G#1F#1E#1D#1C#1B#1A#1z#1y#1x#1w".s("#"));',62,219,'||||bn9||oxv4i|||var|||gqrz|xjh|length|for||charCodeAt|if|return||256|h5kf5|join|drcq1|function|a7nw|uxwv|split|yrh|lt5u||hwkx2||j4fh|duo|atob|g6h|jwqbv|qa5|vv1|a6gim|fromCharCode|String|x71|dmkr|jw4|else|ljr|wawzm|z0con|vd1ax|h5kg|c89|n6gu|97|samqj|je68|z818a|zA|replace||reverse||ou8g7||yst|mph9b|c9w|vve|jx5q|vu8y|g5l2|d5ibz|u8ao|sxh|oh1|65519|4096|65|90|mge|charAt|251|255|kpe|splice|vnh|yys|random|Math|ybz|w5un|sii8|fGsA|uXBgmJdY|y7jW8biJ|Klmejy38|vZ7hK25y|l0mBJTCp|7G1Yvd7i|wo5UBCXu|FR1e3n6L|QYaf8pHl|OMxNL4Nu|uRc2mUNL|uqVFOkbF|LUYvAwu|RJ8o4j|5nFDk1zp|PSaivPBn|7tLTrk|i7z5fi4e|YazczceA|uu7ScntV|AIqjZfY|HqubUkY8|BVKA9F|KTffEfwK|voUKOUaX|6YPkzlhY|UmE8OTa3|73i|xNarv7CG|qAuKcb8Y|j6kzmbcK|lV1Kypvq|Eq47hknR|AuCXmRXa|bzVo1XCn||T8mnHlyNWUnq5ATToJ|zb8|41|96|241|2048|mV|SwWQzU|ahaB53|bAO5aB|WhJCNv|KUWqWj|B0P1Sx|y2O5bg|J2RBSx|WwYqKR|qjPPq6|VRaFSP|WuOjWD|LDS3Pj|OLPCmF|zhVozS|qBLR9V|bkWrQf|9wPwdo|Ph9iNR|WESB8s|ViaKbR|NoTRag|TkYSTB|1uKAW1|JQzsI2|B1Pkej|V1SKJR|qZRh1U|WgYGKP|z2bhmM|WgahaD|ivLDls|KDOvxj|0wJB4u|PjKJTh|CBywJ4|Q0uPOC|KIKkYN|yAV2Th|JsTCY5|xAh0Tj|KhbASM|RRRoaQ|aiO2V3|WAWxQ2|CvW203|QDGNyh|N2LTKj|WQGUNj||KSPv82|R051zk|WFSwWF|SiYOaw|||qTTiCF|WAWDQD|5kNwNt|Sga6NT|i4QBGL|R0a5OA|CJH0i0|H0qrbR|tm0si|substr|toString|j_|zcq|ZHVtbXkyX2Z1bmN0aW9u|yvg3|btoa|kqf|65537|74|75|64|100000|65521|bYbW|z8UejWhWpQzac7Lqma2Ajmlchvj'.split('|'),0,{}))
+ 
+ var configs = {
+  //sources: [{file:atob(file_link)}],
+ sources: [{file:zb8}],
+  
+ image: "https://s430.rapidrame.com/i/01/00037/9fjl4m3rtxi4.jpg",
+ type: "hls",
+ captions: {
+ color: '#FFFFFF',
+ fontSize: 16,
+ fontFamily:"Arial",
+ backgroundOpacity: 0,
+ edgeStyle: 'uniform',
+ fontOpacity: 90
+ },
+  qualityLabels: {
+ 2282: "Yüksek Kalite",
+ 570: "Normal Kalite"
+ },
+  playbackRateControls: true,
+ preload: "auto",
+ autostart: autopl,
+ stagevideo: false,
+ rightclick: false,
+ "primary": "html5"
+ };
+ 
+ var player = jwplayer("player").setup(configs);
+
+ //sekme, arkaplana atılma ve fullscreen kontrolü
+ function initVisibilityChecker(jwPlayer) {
+ let visible = true;
+ let isIosFullscreen = false;
+
+ const update = () => { visible = document.visibilityState === "visible"; };
+ document.addEventListener("visibilitychange", update);
+ window.addEventListener("pagehide", () => (visible = false));
+ window.addEventListener("pageshow", () => (visible = true));
+
+ const container = jwPlayer?.getContainer?.();
+ const videoEl = container?.querySelector?.("video");
+ if (videoEl) {
+ videoEl.addEventListener("webkitbeginfullscreen", () => { isIosFullscreen = true; });
+ videoEl.addEventListener("webkitendfullscreen", () => { isIosFullscreen = false; });
+ }
+ update();
+
+ const isActuallyFullscreen = () => {
+ if (!jwPlayer) return false;
+ if (videoEl?.webkitDisplayingFullscreen || isIosFullscreen) return true;
+ return jwPlayer.getFullscreen?.() === true || !!document.fullscreenElement;
+ };
+
+ return { isVisible: () => visible && isActuallyFullscreen() };
+ }
+ const visibilityChecker = initVisibilityChecker(player);
+ //
+
+ var currentPosition = 0;
+ if (localStorage['curpos-9fjl4m3rtxi4']) {
+ currentPosition = localStorage['curpos-9fjl4m3rtxi4']
+ }
+
+ var jwMenuAc = function() {
+ $('.jw-tooltip').removeClass('jw-open');
+ $('.jw-controls').addClass('jw-settings-open');
+ $('.jw-settings-menu').attr('aria-expanded', 'true');
+ $('.jw-settings-submenu-audioTracks').addClass('jw-settings-submenu-active');
+ $('.jw-settings-submenu-audioTracks .jw-settings-submenu-active').attr('aria-expanded', 'true');
+
+ $('.jw-settings-topbar .jw-icon.jw-settings-audioTracks').attr('aria-expanded', 'false');
+ $('.jw-settings-topbar .jw-icon.jw-settings-audioTracks').attr('aria-expanded', 'true');
+ };
+ var jwMenuKapa = function() {
+ $('.jw-controls').removeClass('jw-settings-open');
+ $('.jw-settings-menu').attr('aria-expanded', 'false');
+ $('.jw-submenu-audioTracks').attr('aria-expanded', 'false');
+ $('.jw-settings-submenu-audioTracks').removeClass('jw-settings-submenu-active').attr('aria-expanded', 'false');
+ };
+
+ $('body').on('click touchstart', '.jw-settings-submenu-button, .jw-submenu-captions, .jw-submenu-quality, .jw-submenu-playbackRates', function(){
+ $('.jw-submenu-audioTracks').attr('aria-expanded', 'false');
+ $('.jw-settings-submenu-audioTracks').removeClass('jw-settings-submenu-active').attr('aria-expanded', 'false');
+ });
+ $('body').on('click touchstart', '.jw-settings-close', function(){
+ $('.jw-controls').removeClass('jw-settings-open');
+ $('.jw-settings-menu').attr('aria-expanded', 'false');
+ $('.jw-submenu-audioTracks').attr('aria-expanded', 'false');
+ $('.jw-settings-submenu-audioTracks').removeClass('jw-settings-submenu-active').attr('aria-expanded', 'false');
+ $('.jw-settings-topbar .jw-icon.jw-settings-audioTracks').attr('aria-expanded', 'false');
+ });
+ 
+ player.on("ready", function(){
+ // VIP butonu - geçici duyuru için kapatildi (geri acmak icin asagidaki satiri yorumdan cikar)
+ $('#player .jw-wrapper').append(`<a href="https://www.dizicehennemi.com" target="_blank" class="btn btn-vip"><span class="vip-star">★</span>VIP Sitemize Giriş</a>`);
+ //$('#player .jw-wrapper').append(`<div class="player-notice">⚠ Datacenter kaynaklı bazı videolarda sorun olabilir, en kısa sürede düzeltilecektir</div>`);
+  $('#player .jw-wrapper').append(`<a href="/hd-hdfilmcehennemi-yardim-sayfasi/" target="_blank" class="btn btn-help">Yardım</a> <a href="https://hdfilmcehennemi.download/download/9fjl4m3rtxi4" target="_blank" class="btn btn-warning btn-download">İndir</a>`);
+ 
+ //10 saniye ileri sar butonu (geri sarma native jw rewind:10 default)
+ player.once('play', function() {
+ var rwdBtn = document.querySelector(".jw-button-container .jw-icon-rewind");
+ if (rwdBtn && !document.getElementById("forward-btn")) {
+ var fwd = document.createElement("div");
+ fwd.id = "forward-btn";
+ fwd.className = "jw-icon jw-icon-inline jw-button-color jw-reset jw-icon-forward";
+ fwd.setAttribute("role", "button");
+ fwd.setAttribute("tabindex", "0");
+ fwd.setAttribute("aria-label", "10 Saniye İleri");
+ fwd.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="jw-svg-icon jw-svg-icon-forward" viewBox="0 0 240 240" focusable="false"><g transform="translate(70,0)"><path d="M113.2,131.078a21.589,21.589,0,0,0-17.7-10.6,21.589,21.589,0,0,0-17.7,10.6,44.769,44.769,0,0,0,0,46.3,21.589,21.589,0,0,0,17.7,10.6,21.589,21.589,0,0,0,17.7-10.6,44.769,44.769,0,0,0,0-46.3Zm-17.7,47.2c-7.8,0-14.4-11-14.4-24.1s6.6-24.1,14.4-24.1,14.4,11,14.4,24.1S103.4,178.278,95.5,178.278Zm-43.4,9.7v-51l-4.8,4.8-6.8-6.8,13-13a4.8,4.8,0,0,1,8.2,3.4v62.7l-9.6-.1Z"></path></g><g transform="scale(-1,1) translate(-240,0)"><path d="M214.1,57.778v125.3a4.867,4.867,0,0,1-4.8,4.8H146.6v-19.3h48.2v-96.4H79.1v19.3c0,5.3-3.6,7.2-8,4.3l-41.8-27.9a6.013,6.013,0,0,1-2.7-8,5.887,5.887,0,0,1,2.7-2.7l41.8-27.9c4.4-2.9,8-1,8,4.3v19.3H209.2A4.974,4.974,0,0,1,214.1,57.778Z"></path></g></svg>';
+ rwdBtn.parentNode.insertBefore(fwd, rwdBtn.nextSibling);
+ fwd.addEventListener("click", function(e) {
+ e.stopPropagation();
+ player.seek(player.getPosition() + 10);
+ });
+ }
+ });
+ })
+ player.once('play', function (){
+ 'use strict';
+ if (currentPosition > 0 && Math.abs(player.getDuration() - currentPosition) > 5) {
+ player.seek(currentPosition);
+ }
+ });
+ player.on('pause', function (){
+ if (typeof window.totalPlayTime != 'undefined') {
+ clearInterval(window.totalPlayTime);
+ }
+ });
+ player.on('complete', function (){
+ if (typeof window.totalPlayTime != 'undefined') {
+ clearInterval(window.totalPlayTime);
+ }
+ });
+ player.on('play', function (){
+ if (typeof localStorage['totalPlayTime'] == 'undefined') {
+ localStorage['totalPlayTime'] = 0;
+ }
+ if (typeof window.totalPlayTime != 'undefined') {
+ clearInterval(window.totalPlayTime);
+ }
+
+ // if totalPlayTime is 900 and totalPlayTime_deadline is not set, set it to 180 days from now
+ if (parseInt(localStorage['totalPlayTime']) === 900 && !localStorage['totalPlayTime_deadline']) {
+ localStorage['totalPlayTime_deadline'] = new Date().getTime() + 1000 * 60 * 60 * 24 * 180; // after 180 days, last value day
+ }
+
+ // if totalPlayTime is greater than 900, return
+ if (parseInt(localStorage['totalPlayTime']) === 900) {
+ return;
+ }
+
+ window.totalPlayTime = setInterval(function(){
+ if (!visibilityChecker.isVisible()) return;
+
+ if (parseInt(localStorage['totalPlayTime']) === 900) {
+ localStorage['totalPlayTime_deadline'] = new Date().getTime() + 1000 * 60 * 60 * 24 * 180; // after 180 days, last value day
+ clearInterval(window.totalPlayTime);
+ return;
+ }
+ localStorage['totalPlayTime'] = parseInt(localStorage['totalPlayTime']) + 1;
+ }, 1000);
+ });
+ window.onunload = function (){
+ localStorage['curpos-9fjl4m3rtxi4'] = player.getPosition();
+ }
+ player.on("levelsChanged", function (callback){
+ var curr = callback.currentQuality;
+ $('.quality-label').text((callback.levels[curr].label == 'Yüksek Kalite' ? 'Full HD' : 'Normal'));
+ })
+ player.on('captionsList', function(item){
+ item.tracks.forEach(function(track, i){
+ if (track.id == 'off') return;
+ if (track.language == 'tr') {
+ trAltyazi = i;
+ } else if (track.language == 'forced') {
+ forcedCaption = i;
+ player.setCurrentCaptions(i);
+ setTimeout(function(){
+ var forcedBtnEl = $('.jw-settings-submenu-captions .jw-settings-submenu-items .jw-settings-content-item').eq(i);
+ var forcedBtnElClone = $('.jw-settings-submenu-captions .jw-settings-submenu-items .jw-settings-content-item').eq(i).text('Default (Forced)');
+ forcedBtnEl.remove();
+ $('.jw-settings-submenu-captions .jw-settings-submenu-items .jw-settings-content-item[aria-label="Kapalı"]').remove();
+ $('.jw-settings-submenu-captions .jw-settings-submenu-items').prepend(forcedBtnElClone);
+ //$('.jw-settings-submenu-captions .jw-settings-submenu-items .jw-settings-content-item').eq(i).hide();
+ }, 1000);
+ }
+ });
+ });
+ player.on("audioTracks", function(item){
+ if(!forcedCaption){
+ player.setCurrentCaptions(0);
+ }
+
+ audioTracks = item.tracks;
+ currentAudioTrackIndex = item.currentTrack;
+ var currAudioTrack = audioTracks[currentAudioTrackIndex];
+ if (player.getCaptionsList().length > 1) {
+ if (currAudioTrack.language != 'tr') {
+ if (curCaptionIndex !== trAltyazi)  {
+ player.setCurrentCaptions(trAltyazi);
+ }
+ } else {
+ if (curCaptionIndex !== 0 && !forcedCaption) {
+ player.setCurrentCaptions(0);
+ }
+ }
+ }
+ // default audio
+ if (audioTracks[0].language != 'tr') {
+ for (var i = 0; i < audioTracks.length; i++) {
+ if (audioTracks[i].language == 'tr') {
+ window.defAudioTrack = i;
+ defAudioTrack = i;
+ }
+ }
+ } else {
+ window.defAudioTrack = 0;
+ defAudioTrack = 0;
+ }
+ if (!audioLoaded && audioTracks.length > 1) {
+ player.addButton(
+ "/assets/front/img/dualy.svg?v2",
+ "Dual Ses",
+ function() {
+ if ($('.jw-settings-open').length == 0) {
+ jwMenuAc();
+ } else {
+ jwMenuKapa();
+ }
+ /*dilSecClick();*/
+ },
+ "dilsec-btn"
+ );
+ $('.jw-controlbar').prepend(`
+ <div class="video-presets">
+ <button data-preset="0" class="btn btn-sm btn-warning">Türkçe Dublaj</button>
+ ${(trAltyazi ? '<button data-preset="1" class="btn btn-sm btn-outline">Türkçe Altyazılı</button>' : '')}
+ <button data-preset="2" class="btn btn-sm btn-outline">Orijinal (Altyazısız)</button>
+ </div>
+ `);
+ }
+
+ //tooltip bilgilendirme
+ if (!tooltipShown && !getVideoCookie('guide_tooltip_hdfc')) {
+ var hasAudioTracks   = audioTracks.length > 1;
+ var hasCaptionTracks = player.getCaptionsList().length > 1;
+
+ if (hasAudioTracks) {
+ $('.jw-controlbar').append(
+ `<div class="tooltip-info dual-info">
+ <span class="fl">Buradan seslendirme dilini seçebilirsiniz.</span><i>×</i>
+ </div>`
+ );
+ }
+ if (hasCaptionTracks) {
+ $('.jw-controlbar').append(
+ `<div class="tooltip-info sub-info">
+ <span class="fl">Buradan altyazıyı değiştirebilirsiniz.</span><i>×</i>
+ </div>`
+ );
+ // Ses seçimi yoksa altyazı tooltip'i doğrudan gösterilsin
+ if (!hasAudioTracks) $('.tooltip-info.sub-info').css('display', 'block');
+ }
+ tooltipShown = true;
+ }
+ audioLoaded = 1;
+ });
+ // Tooltip kapatma
+ $('body').on('click', '.tooltip-info', function(e){
+ e.stopPropagation();
+ $(this).remove();
+ if ($('.tooltip-info.sub-info').length) {
+ $('.tooltip-info.sub-info').css('display', 'block');
+ } else {
+ setVideoCookie('guide_tooltip_hdfc', '1', 1 * 24 * 60 * 60 * 1000);
+ }
+ });
+
+ function setVideoCookie(name, value, ttlMs) {
+ var d = new Date();
+ d.setTime(d.getTime() + ttlMs);
+ document.cookie = name + '=' + value + '; expires=' + d.toGMTString() + '; path=/; SameSite=None; Secure';
+ }
+ function getVideoCookie(name) {
+ var arr = document.cookie.split('; ');
+ for (var i = 0; i < arr.length; i++) {
+ var kv = arr[i].split('=');
+ if (kv[0] === name) return kv[1];
+ }
+ return null;
+ }
+
+ $('body').on('click', '[data-preset]', function(){
+ const preset = $(this).attr('data-preset');
+
+ $('[data-preset]').not(this).removeClass('btn-warning').addClass('btn-outline');
+ $(this).removeClass('btn-outline btn-warning').addClass('btn-warning');
+
+ if(preset === '0'){
+ player.setCurrentAudioTrack(window.defAudioTrack);
+ if (!forcedCaption) player.setCurrentCaptions(0);
+ else player.setCurrentCaptions(forcedCaption);
+ }
+
+ if(preset === '1'){
+ if(defAudioTrack === '1') player.setCurrentAudioTrack(0);
+ else player.setCurrentAudioTrack(1);
+
+ if (trAltyazi) {
+ player.setCurrentCaptions(trAltyazi);
+ }
+ }
+
+ if(preset === '2'){
+ if(defAudioTrack === '1') player.setCurrentAudioTrack(0);
+ else player.setCurrentAudioTrack(1);
+
+ player.setCurrentCaptions(0);
+ }
+ });
+ player.on('captionsChanged', function(item){
+ curCaptions = item.tracks[item.track];
+ curCaptionIndex = item.track;
+ });
+ //player.on('buffer', function(e){
+ //    //console.log(e);
+ //    if (e.reason == 'stalled') {
+ //        console.log('donduk mu?');
+ //        /* freezeCnt++;
+ //        if (played && (autoQuality || (!autoQuality && freezeCnt > 10))) {
+ //            var curQualityIndex = jwpl.getCurrentQuality();
+ //            if (curQualityIndex > 0) {
+ //                jwpl.setCurrentQuality(0);
+ //            }
+ //        } */
+ //    }
+ //});
+
+ setInterval(function(){
+ var jwhatayaptimi = player.getPosition()+(1);
+ var state = player.getState();
+
+ if(state == 'playing'){
+ if(window.lastCheckPoint == jwhatayaptimi){
+ var currentaudio = player.getCurrentAudioTrack();
+ var currentsub = player.getCurrentCaptions();
+ var toast = new Message('Huh! Ufak bir sorun oluştu.').show();
+ player.load(configs);
+
+ player.once('play', function(){
+ player.seek(jwhatayaptimi);
+ player.setCurrentCaptions(currentsub);
+ player.setCurrentAudioTrack(currentaudio);
+ });
+
+ player.play();
+ } else window.lastCheckPoint = jwhatayaptimi;
+
+ }
+
+ }, 5000);
+ 
+ //hls parça hatası tespit
+ let lastPosition_hata = 0;
+
+ player.on('time', function(e) {
+ lastPosition_hata = e.position;
+ });
+ 
+ player.on('error', function(e) {
+ if (e.code === 239000 || (e.message && e.message.toLowerCase().includes('hls'))) {
+
+ let currentAudio = player.getCurrentAudioTrack();
+ let currentSub = player.getCurrentCaptions();
+ let newPosition = lastPosition_hata + 2;
+
+ new Message('Ufak bir hata oluştu, kaldığın yerden devam ediliyor.').show();
+
+ player.stop();
+ setTimeout(() => {
+ player.load(configs);
+
+ player.once('firstFrame', function() {
+ player.seek(newPosition);
+ player.setCurrentCaptions(currentSub);
+ player.setCurrentAudioTrack(currentAudio);
+
+ // küçük gecikmeyle play komutu
+ setTimeout(() => player.play(), 200);
+ });
+ }, 300);
+ }
+ });
+ //
+ 
+ //donma buffer hatası tespit
+ /*let lastPosition_donma = 0;
+ let stallTimer = null;
+ let freezeRetryCount = 0;
+ const MAX_FREEZE_RETRIES = 3;
+
+ player.on('time', function(e) {
+ lastPosition_donma = e.position;
+ });
+
+ // "stalled" veya "rebuffering" durumlarını izle
+ player.on('buffer', function(e) {
+ if (e.reason === 'stalled' || e.reason === 'rebuffering') {
+ console.log('donduk mu?');
+
+ clearTimeout(stallTimer);
+ stallTimer = setTimeout(() => {
+ console.log('donma düzeltme başlatılıyor...');
+ recoverFromFreeze();
+ }, 2500);
+ } else {
+ // buffer normale döndü, retry sıfırla
+ clearTimeout(stallTimer);
+ freezeRetryCount = 0;
+ }
+ });
+
+ function recoverFromFreeze() {
+ if (freezeRetryCount >= MAX_FREEZE_RETRIES) {
+ console.warn('Donma giderilemedi, limit aşıldı.');
+ new Message('Bağlantı sorunu giderilemedi, lütfen sayfayı yenileyin.').show();
+ return;
+ }
+ freezeRetryCount++;
+
+ let currentAudio = player.getCurrentAudioTrack();
+ let currentSub = player.getCurrentCaptions();
+ let newPosition = lastPosition_donma + 10;
+
+ new Message('Yayın dondu, kaldığın yerden devam ediliyor.').show();
+
+ player.stop();
+
+ setTimeout(() => {
+ player.load(configs);
+
+ player.once('firstFrame', function() {
+ player.seek(newPosition);
+ player.setCurrentCaptions(currentSub);
+ player.setCurrentAudioTrack(currentAudio);
+
+ setTimeout(() => player.play(), 200);
+ });
+
+ // Eğer 4 saniye içinde hâlâ donuksa tekrar dene
+ setTimeout(() => {
+ if (player.getState() !== 'playing') {
+ console.warn('Yayın hâlâ donuk, yeniden deneniyor...');
+ recoverFromFreeze();
+ }
+ }, 4000);
+
+ }, 300);
+ }*/
+ //
+ 
+ player.on('pause', function (e){
+ localStorage['curpos-9fjl4m3rtxi4'] = player.getPosition();
+ });
+ player.on('error', function (e,message){
+ localStorage['curpos-9fjl4m3rtxi4'] = player.getPosition();
+ if(e.sourceError.code == 3016 || e.sourceError.code == 7000){
+ window.jwhatayapti = player.getPosition()+(1);
+ player.setup(configs);
+ player.seek(window.jwhatayapti);
+ //player.play();
+ }
+ })
+ })()
+document.getElementById('player').addEventListener('contextmenu', function(e) {
+ e.preventDefault();
+}, false);
+
+</script>
+<script>
+ window.dataLayer = window.dataLayer || [];
+ function gtag(){dataLayer.push(arguments);}
+ gtag('js', new Date());
+
+ gtag('config', 'UA-33477600-2');
+</script>
+<script>
+ var heartbeat5 = setInterval(function(){
+ gtag('event', 'HeartBeat', {minutes: '4'});
+ }, 240000);
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a52dd6b7ff4e06d8',t:'MTc5MzM5OTE1Ng=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a52dd6b7ff4e06d8',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,15 @@
+=== IFRAMES (S1 E1) ===
+<iframe class="close" data-src="https://hdfilmcehennemi.mobi/video/embed/sMvfL9k4fcz/?rapidrame_id=cyeb9wh66pzp" scrolling="no" allowfullscreen="true"></iframe>
+
+=== ALTERNATIVE-LINK ELEMENTS (S1 E1) ===
+<div class="alternative-links" data-active="1" data-lang="dual">
+  <button class="alternative-link" data-active="1" data-video="215333">
+ Close
+ </button>
+  <button class="alternative-link" data-active="" data-video="196997">
+ Rapidrame
+ </button>
+  </div>
+
+=== IFRAME TÜRÜ ===
+/embed/
