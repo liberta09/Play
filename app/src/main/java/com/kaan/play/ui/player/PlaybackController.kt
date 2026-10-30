@@ -141,6 +141,7 @@ class PlaybackController(
     private fun createOnlineSource(session: PlaybackHttpSession): ResolvingDataSource.Factory = ResolvingDataSource.Factory(
         DataSource.Factory {
             val okHttpClient = client.newBuilder()
+                .dns(com.kaan.play.data.net.Ipv4FirstDns)
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(15, TimeUnit.SECONDS)
                 .followRedirects(true)
@@ -215,6 +216,13 @@ class PlaybackController(
     private var seekWatchdogRunnable: Runnable? = null
     private var isSeeking = false
     private var recoveryAttempts = 0
+
+    // Hata sonrası kurtarma (her yükleme için en çok bir kez): geçici çözücü hatasında yeniden hazırlama; ayrıştırma hatasında
+    // adresin gerçek türünü ağdan yoklayıp yeniden deneme.
+    private var decoderRetried = false
+    private var mimeProbed = false
+    private var lastStream: PlayableStream? = null
+    private var lastMime: String? = null
 
     private fun startSeekWatchdog() {
         cancelSeekWatchdog()
@@ -321,8 +329,39 @@ class PlaybackController(
                         player.prepare()
                         return
                     }
-                    if (onFailure?.invoke(failureDetail(error, http?.responseCode)) == true) return
-                    ui = ui.copy(error = errorOf(error), buffering = false)
+                    // Çözücü hataları çoğu cihazda geçicidir (duraklatma/devam sonrası): kaynağı atmadan önce bir kez yeniden hazırla.
+                    if (!decoderRetried && !released && !torrent && isTransientDecoderError(error.errorCode)) {
+                        decoderRetried = true
+                        TorrentDiag.d("çözücü hatası: bir kez yeniden hazırlanıyor (${error.errorCodeName})")
+                        val pos = player.currentPosition
+                        player.seekTo(pos)
+                        player.prepare()
+                        player.play()
+                        return
+                    }
+                    val failNow = {
+                        if (onFailure?.invoke(failureDetail(error, http?.responseCode)) != true) {
+                            ui = ui.copy(error = errorOf(error), buffering = false)
+                        }
+                    }
+                    // Ayrıştırma hatasında adresten tahmin ettiğimiz tür yanlış olabilir: ilk baytlara bakıp bir kez doğru türle dene.
+                    val stream = lastStream
+                    if (!mimeProbed && !released && !torrent && stream != null && MimeSniff.isParsingErrorCode(error.errorCode)) {
+                        mimeProbed = true
+                        val usedMime = lastMime
+                        val startMs = player.currentPosition
+                        probeMime(stream) { sniffed ->
+                            if (released || lastStream !== stream) return@probeMime
+                            if (sniffed != null && sniffed != (usedMime ?: MimeSniff.PROGRESSIVE)) {
+                                TorrentDiag.d("tür yoklaması: ${usedMime ?: "yok"} → ${sniffed.ifEmpty { "düz dosya" }}; yeniden deneniyor")
+                                load(stream, startMs, forcedMime = sniffed)
+                            } else {
+                                failNow()
+                            }
+                        }
+                        return
+                    }
+                    failNow()
                 } catch (t: Throwable) {
                     android.util.Log.e("PlaybackController", "onPlayerError içinde hata yakalandı: ${t.message}", t)
                     ui = ui.copy(error = errorOf(error), buffering = false)
@@ -360,11 +399,17 @@ class PlaybackController(
     }
 
     /** [startMs] konumundan oynatmaya başlar. Önceki hata temizlenir. */
-    fun load(stream: PlayableStream, startMs: Long) {
+    fun load(stream: PlayableStream, startMs: Long, forcedMime: String? = null) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            Handler(Looper.getMainLooper()).post { load(stream, startMs) }
+            Handler(Looper.getMainLooper()).post { load(stream, startMs, forcedMime) }
             return
         }
+        // Türü yoklamayla zorlanan yeniden yükleme aynı kaynağın devamıdır: kurtarma bayrakları yalnızca yeni kaynakta sıfırlanır.
+        if (forcedMime == null) {
+            decoderRetried = false
+            mimeProbed = false
+        }
+        lastStream = stream
         if (!isSurfaceReady) {
             Log.d("PlaybackController", "Yüzey henüz hazır değil; erken arabelleğe alma (optimistic buffering) ile ExoPlayer hazırlanıyor.")
         }
@@ -400,7 +445,12 @@ class PlaybackController(
             return
         }
 
-        val mime = if (torrent) null else stream.mimeType ?: streamMimeType(stream.url)
+        val mime = when {
+            torrent -> null
+            forcedMime != null -> forcedMime.ifEmpty { null }
+            else -> stream.mimeType ?: streamMimeType(stream.url)
+        }
+        lastMime = mime
         StreamLog.opening(stream.url, mime)
         // Yalnızca şema/host/uzantı: tam adres, magnet ve yerel sunucu belirteci loglanmaz.
         TorrentDiag.d(
@@ -598,9 +648,38 @@ class PlaybackController(
         }
     }
 
+    /** Adresin ilk baytlarına bakar (ağ, arka plan iş parçacığı) ve sonucu ana iş parçacığında [done]'a verir; hata → null. */
+    private fun probeMime(stream: PlayableStream, done: (String?) -> Unit) {
+        val session = activeHttpSession
+        Thread({
+            val sniffed = runCatching {
+                val builder = okhttp3.Request.Builder().url(stream.url).header("Range", "bytes=0-2047")
+                if (session.headers.keys.none { it.equals("User-Agent", ignoreCase = true) }) builder.header("User-Agent", DEFAULT_USER_AGENT)
+                session.headers.forEach { (k, v) -> builder.header(k, v) }
+                client.newBuilder()
+                    .dns(com.kaan.play.data.net.Ipv4FirstDns)
+                    .cookieJar(session.cookieJar)
+                    .callTimeout(8, TimeUnit.SECONDS)
+                    .build()
+                    .newCall(builder.build())
+                    .execute()
+                    .use { response ->
+                        val buffer = ByteArray(2048)
+                        val n = response.body?.byteStream()?.read(buffer) ?: -1
+                        if (n <= 0) null else MimeSniff.fromHead(buffer, n)
+                    }
+            }.getOrNull()
+            mainHandler.post { done(sniffed) }
+        }, "mime-probe").apply { isDaemon = true }.start()
+    }
+
     companion object {
         const val DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         private const val TORRENT_READ_TIMEOUT_S = 120L
+
+        /** Çözücü başlatma/çözme hataları (geçici olabilir): kaynak atılmadan önce bir kez yeniden hazırlanır. */
+        internal fun isTransientDecoderError(code: Int): Boolean =
+            code == PlaybackException.ERROR_CODE_DECODER_INIT_FAILED || code == PlaybackException.ERROR_CODE_DECODING_FAILED
 
         /** Kaynağın başlıklarıyla gönderilen istek 4xx aldıysa başlıksız bir kez daha denenir (başlıksız istek yeniden denenmez). */
         internal fun retryWithoutHeaders(responseCode: Int?, headersSent: Boolean): Boolean =

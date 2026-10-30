@@ -41,3 +41,12 @@ dolunca o ana kadar gelen bağlantıları da atıyordu. Nuvio toplamda 120 sn ve
 - Kural testleri: `TsSniffTest` (7), `PluginRunBudgetTest` (2). Beklenen değerler kuralın birebir Python karşılığıyla
   doğrulandı. Bu oturumda Android SDK/Maven erişimi yok, Gradle derlemesini ve cihaz denemesini ajan yapacak.
 - Cihaz: (ajan dolduracak) Joker, MobLand S2 B7, Örümcek-Adam, Criminal Minds, bir canlı kanal. Her biri 60 sn, Geri, çökme günlüğü.
+
+## Dal 2: `duzeltme/oynatici-saglamlik` (Nuvio karşılaştırmasından, 2026-10-30)
+Nuvio'da olup Play'de olmayan 4 madde, dublaj/kaynak sıralama dosyalarına (SourceLogic, SourceCoordinator, SourceMemory) DOKUNMADAN:
+1. **IPv4 öncelikli DNS** (`data/net/Ipv4FirstDns.kt`): yalnızca oynatma istemcisinde; IPv6 yedek olarak kalır, adres silinmez.
+2. **Ayrıştırma hatasında tür yoklaması** (`ui/player/MimeSniff.kt`, `PlaybackController`): 3001–3004 hatasında, bir kez, ilk 2 KB'a bakılır (HLS/DASH/düz dosya); tür tahminden farklıysa doğru türle yeniden denenir, değilse eski davranış (sıradaki kaynak).
+3. **Geçici çözücü hatasında yeniden hazırlama**: DECODER_INIT_FAILED/DECODING_FAILED için kaynak atılmadan önce bir kez `prepare()`.
+4. **Torrent oturumu boşta açık** (`TorrentIdleRules`, `TorrentEngine`): torrent verisi hemen silinir, oturum 10 dk bekler.
+Eklenmeyenler (onay bekliyor): ikinci oynatıcı motoru (MPV), paralel aralıklı indirme.
+Doğrulama: kurallar Python karşılığıyla denendi; Gradle derlemesi ve cihaz testi bu oturumda yapılamadı (SDK/Maven erişimi yok), ajan yapacak.

@@ -52,10 +52,23 @@ class TorrentEngine(private val dir: File) {
     @Volatile private var active: Opened? = null
     private val users = AtomicInteger()
     private val background = Executors.newSingleThreadExecutor { r -> Thread(r, "torrent-engine").apply { isDaemon = true } }
+    private val idleTimer = Executors.newSingleThreadScheduledExecutor { r -> Thread(r, "torrent-idle").apply { isDaemon = true } }
+
+    /** Oturumun en son boşa düştüğü an (açık torrent yok, oynatıcı yok); [TorrentIdleRules]. Kilit altında okunur/yazılır. */
+    private var idleSince: Long? = null
 
     /** Kaynak listesinde torrent görünce oturumu önceden başlatır (DHT ısınsın, açılış hızlansın). */
     fun warmUp() {
-        background.execute { runCatching { synchronized(lock) { ensureSession() } } }
+        background.execute {
+            runCatching {
+                synchronized(lock) {
+                    ensureSession()
+                    // Isıtma da bir kullanımdır: hiç oynatılmasa bile boşta süresi dolunca oturum kapanır.
+                    if (users.get() == 0 && active == null) idleSince = System.currentTimeMillis()
+                }
+            }
+            idleTimer.schedule({ stopIfIdle() }, TorrentIdleRules.IDLE_MS + IDLE_SLACK_MS, java.util.concurrent.TimeUnit.MILLISECONDS)
+        }
     }
 
     /**
@@ -67,6 +80,7 @@ class TorrentEngine(private val dir: File) {
         TorrentDiag.d("motor open: hash=$hash fileHint=$fileHint")
         synchronized(lock) {
             active?.let { if (it.hash == hash && it.fileHint == fileHint && it.handle.isValid) return it }
+            idleSince = null
             val s = ensureSession()
             active?.let { removeLocked(s, it) }
 
@@ -179,10 +193,26 @@ class TorrentEngine(private val dir: File) {
             synchronized(lock) {
                 if (users.get() > 0) return@synchronized
                 val s = session ?: return@synchronized
+                // Açık torrent hemen kapanır, verisi silinir; oturum ise boşta bekler (DHT sıcak kalsın): bkz. [TorrentIdleRules].
                 active?.let { removeLocked(s, it) }
+                idleSince = System.currentTimeMillis()
+                TorrentDiag.d("oynatıcı kapandı: oturum ${TorrentIdleRules.IDLE_MS / 60_000} dk boşta açık kalacak")
+            }
+            idleTimer.schedule({ stopIfIdle() }, TorrentIdleRules.IDLE_MS + IDLE_SLACK_MS, java.util.concurrent.TimeUnit.MILLISECONDS)
+        }
+    }
+
+    /** Boşta süresi dolduysa oturumu durdurur ve dizini siler; arada kullanıldıysa hiçbir şey yapmaz. */
+    private fun stopIfIdle() {
+        background.execute {
+            synchronized(lock) {
+                val s = session ?: return@synchronized
+                if (!TorrentIdleRules.shouldStop(users.get(), active != null, idleSince, System.currentTimeMillis())) return@synchronized
                 runCatching { s.stop() }
                 session = null
+                idleSince = null
                 dir.deleteRecursively()
+                TorrentDiag.d("boşta oturum kapatıldı")
             }
         }
     }
@@ -259,6 +289,9 @@ class TorrentEngine(private val dir: File) {
         const val REPRIORITIZE_MS = 2_000L
         const val DEADLINE_STEP_MS = 250
         const val CONNECTIONS = 200
+
+        /** Zamanlayıcı ile kural arasındaki saat/zamanlama farkı payı. */
+        const val IDLE_SLACK_MS = 1_000L
         const val SPACE_MARGIN = 200L * 1024 * 1024
 
         /** Yalnızca infoHash veren kaynaklarda eş bulmayı hızlandıran, herkese açık bilinen izleyiciler. */
