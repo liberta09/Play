@@ -1,0 +1,26 @@
+{
+  "name": "DiziBOX DEBUG (gecici)",
+  "version": "1.0.1",
+  "scrapers": [
+    {
+      "id": "dizibox-debug",
+      "name": "DiziBOX DEBUG",
+      "description": "Gecici tani kopyasi; kullanimdan sonra silinecek.",
+      "version": "1.0.1",
+      "filename": "dizibox.js",
+      "supportedTypes": [
+        "tv",
+        "series"
+      ],
+      "contentLanguage": [
+        "tr"
+      ],
+      "formats": [
+        "m3u8"
+      ],
+      "enabled": true,
+      "hasSettings": true,
+      "supportsExternalPlayer": true
+    }
+  ]
+}
