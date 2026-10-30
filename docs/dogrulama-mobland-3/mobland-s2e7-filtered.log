@@ -1,0 +1,39 @@
+10-31 02:08:12.269 D/PlayPlugin(21982): DiziBOX TV: istek tmdbId=247718 tür=series sezon=2 bölüm=7
+10-31 02:08:12.269 D/PlayPlugin(21982): HDFilmCehennemi: istek tmdbId=247718 tür=tv sezon=2 bölüm=7
+10-31 02:08:12.596 D/PlayPluginNet(21982): api.themoviedb.org GET -> 200 ctype=application/json len=3903 charset=UTF-8
+10-31 02:08:12.625 D/PlayPluginNet(21982): api.themoviedb.org GET -> 200 ctype=application/json len=4122 charset=UTF-8
+10-31 02:08:12.746 D/PlayTorrent(21982): libtorrent oturumu başlıyor (ABI=x86_64, x86, arm64-v8a, armeabi-v7a, armeabi, dizin=/storage/emulated/0/Android/data/com.kaan.play/cache/torrents)
+10-31 02:08:12.760 D/PlayTorrent(21982): libtorrent oturumu başladı
+10-31 02:08:12.761 D/PlayTorrent(21982): alert LISTEN_FAILED: listening on 0.0.0.0:0 (device: ) failed: [enum_route] [TCP] Operation not supported on transport endpoint
+10-31 02:08:12.762 D/PlayTorrent(21982): alert LISTEN_SUCCEEDED: successfully listening on [TCP] 0.0.0.0:6881
+10-31 02:08:12.762 D/PlayTorrent(21982): alert LISTEN_SUCCEEDED: successfully listening on [uTP] 0.0.0.0:6881
+10-31 02:08:12.762 D/PlayTorrent(21982): alert LISTEN_SUCCEEDED: successfully listening on [TCP] [::]:6881
+10-31 02:08:12.762 D/PlayTorrent(21982): alert LISTEN_SUCCEEDED: successfully listening on [uTP] [::]:6881
+10-31 02:08:13.193 D/PlayPluginNet(21982): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1637 charset=UTF-8
+10-31 02:08:13.303 D/PlayPluginNet(21982): www.dizibox.live GET -> 200 ctype=text/html len=984336 charset=UTF-8
+10-31 02:08:13.324 D/PlayPluginNet(21982): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=154100 charset=UTF-8
+10-31 02:08:13.445 D/PlayPluginNet(21982): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=143998 charset=UTF-8
+10-31 02:08:13.652 D/PlayTorrent(21982): alert EXTERNAL_IP: external IP received: 78.185.129.235
+10-31 02:08:13.715 D/PlayPluginNet(21982): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=37195 charset=UTF-8
+10-31 02:08:14.045 D/PlayPluginNet(21982): www.dizibox.live GET -> 200 ctype=text/html len=872429 charset=UTF-8
+10-31 02:08:14.063 D/PlayPluginNet(21982): s231.rapidrame.com GET -> 200 ctype=application/vnd.apple.mpegurl len=1096 charset=UTF-8
+10-31 02:08:14.071 D/PlayPlugin(21982): HDFilmCehennemi: akış https://s231.rapidrame.com/hls2/01/00037/<25>/master.m3u8?t=#0ca073(len43) s=1793401694 e=14400 f=186861 srv=#feaf20(len4) i=#8aed64(len3) sp=0 n=#cf87f3(len16) p1=#4effc7(len4) p2=#4effc7(len4)
+10-31 02:08:14.602 D/PlayPluginNet(21982): www.dizibox.live GET -> 200 ctype=text/html len=794272 charset=UTF-8
+10-31 02:08:15.156 D/PlayPluginNet(21982): www.dizibox.live GET -> 200 ctype=text/html len=847557 charset=UTF-8
+10-31 02:08:15.500 D/PlayPluginNet(21982): www.dizibox.live GET -> 200 ctype=text/html len=847557 charset=UTF-8
+10-31 02:08:15.529 D/PlayPlugin(21982): [warn] [DiziBOX TV] Network request failed: https://www.dizibox.live
+10-31 02:08:15.532 D/PlayMatch(21982): kaynak başlatılıyor: HDFilmCehennemi (s231.rapidrame.com)
+10-31 02:08:15.535 D/PlayStreamUrl(21982): oynatılıyor https://s231.rapidrame.com/<masked_path>.m3u8 mime=application/x-mpegURL
+10-31 02:08:15.535 D/PlayTorrent(21982): oynatıcıya veriliyor: kaynak=HDFilmCehennemi https://s231.rapidrame.com/<masked_path>.m3u8 torrent=false fileIdx=null başlıklar=[Referer, Origin, User-Agent] mime=application/x-mpegURL
+10-31 02:08:16.110 D/PlayMatch(21982): ilk kare: HDFilmCehennemi (faz=Starting)
+10-31 02:08:16.425 D/PlayMatch(21982): süre kontrolü kaynak=HDFilmCehennemi (s231.rapidrame.com) süre=53.5 dk beklenen=54 dk tür=Tv -> Ok
+10-31 02:09:11.491 D/AndroidRuntime(22141): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 02:09:11.525 D/AndroidRuntime(22141): Calling main entry com.android.commands.input.Input
+10-31 02:09:11.553 D/AndroidRuntime(22141): Shutting down VM
+10-31 02:09:12.631 D/AndroidRuntime(22161): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 02:09:12.666 D/AndroidRuntime(22161): Calling main entry com.android.commands.input.Input
+10-31 02:09:12.686 D/AndroidRuntime(22161): Shutting down VM
+10-31 02:09:13.139 D/PlayMatch(21982): takılma kaynak=HDFilmCehennemi sayı=0 toplam=0.0 sn oynama=0 dk
+10-31 02:09:13.139 D/PlayMatch(21982): takılma-ayrıntı kaynak=HDFilmCehennemi bitHızı=1.96 Mbps bantTahmini=95.58 Mbps tampon=23.6 sn
+10-31 02:09:13.158 D/PlayTorrent(21982): oynatıcı kapandı: oturum 10 dk boşta açık kalacak
+10-31 02:09:13.164 D/PlayMatch(21982): kare düşmesi: dropped=7 elapsed=56640ms pos=56530ms
