@@ -1,0 +1,819 @@
+[
+  {
+    "trial_name": "Soğuk Deneme 1",
+    "label": "torrent-soguk-1",
+    "is_cold": true,
+    "press_time": "00:52:55.132",
+    "torrent_req_time": "00:52:57.958",
+    "torrent_opened_time": "00:52:59.767",
+    "torrent_opened_diff_s": 1.81,
+    "first_frame_time": null,
+    "first_frame_diff_s": null,
+    "peer_count": 24,
+    "stalls_60s": 0,
+    "stall_duration_s": 0.0,
+    "buffer_s": 0.0,
+    "pos_60s": "0",
+    "timeout_occurred": false,
+    "waiting_count": 27,
+    "waiting_lines": [
+      {
+        "time": "00:53:01.791",
+        "text": "bekleniyor: parça=0 süre=2sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:01.791 D/PlayTorrent(14729): bekleniyor: parça=0 süre=2sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:03.808",
+        "text": "bekleniyor: parça=0 süre=4sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:03.808 D/PlayTorrent(14729): bekleniyor: parça=0 süre=4sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:05.823",
+        "text": "bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:05.823 D/PlayTorrent(14729): bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:07.839",
+        "text": "bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:07.839 D/PlayTorrent(14729): bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:09.855",
+        "text": "bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:09.855 D/PlayTorrent(14729): bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:11.869",
+        "text": "bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:11.869 D/PlayTorrent(14729): bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:13.880",
+        "text": "bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:13.880 D/PlayTorrent(14729): bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:15.890",
+        "text": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:15.890 D/PlayTorrent(14729): bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:17.895",
+        "text": "bekleniyor: parça=0 süre=18sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:17.895 D/PlayTorrent(14729): bekleniyor: parça=0 süre=18sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:19.913",
+        "text": "bekleniyor: parça=0 süre=20sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:19.913 D/PlayTorrent(14729): bekleniyor: parça=0 süre=20sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:21.929",
+        "text": "bekleniyor: parça=0 süre=22sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:21.929 D/PlayTorrent(14729): bekleniyor: parça=0 süre=22sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:23.948",
+        "text": "bekleniyor: parça=0 süre=24sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:23.948 D/PlayTorrent(14729): bekleniyor: parça=0 süre=24sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:25.959",
+        "text": "bekleniyor: parça=0 süre=26sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:25.959 D/PlayTorrent(14729): bekleniyor: parça=0 süre=26sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:27.964",
+        "text": "bekleniyor: parça=0 süre=28sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:27.964 D/PlayTorrent(14729): bekleniyor: parça=0 süre=28sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:29.968",
+        "text": "bekleniyor: parça=0 süre=30sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:29.968 D/PlayTorrent(14729): bekleniyor: parça=0 süre=30sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:31.973",
+        "text": "bekleniyor: parça=0 süre=32sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:31.973 D/PlayTorrent(14729): bekleniyor: parça=0 süre=32sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:33.979",
+        "text": "bekleniyor: parça=0 süre=34sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:33.979 D/PlayTorrent(14729): bekleniyor: parça=0 süre=34sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:35.983",
+        "text": "bekleniyor: parça=0 süre=36sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:35.983 D/PlayTorrent(14729): bekleniyor: parça=0 süre=36sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:37.988",
+        "text": "bekleniyor: parça=0 süre=38sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:37.988 D/PlayTorrent(14729): bekleniyor: parça=0 süre=38sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:43.274",
+        "text": "bekleniyor: parça=0 süre=2sn eş=1 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:43.274 D/PlayTorrent(14729): bekleniyor: parça=0 süre=2sn eş=1 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:45.287",
+        "text": "bekleniyor: parça=0 süre=4sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:45.287 D/PlayTorrent(14729): bekleniyor: parça=0 süre=4sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:47.302",
+        "text": "bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:47.302 D/PlayTorrent(14729): bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:49.317",
+        "text": "bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:49.317 D/PlayTorrent(14729): bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:51.335",
+        "text": "bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:51.335 D/PlayTorrent(14729): bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:53.349",
+        "text": "bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:53.349 D/PlayTorrent(14729): bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:55.363",
+        "text": "bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:55.363 D/PlayTorrent(14729): bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:53:57.373",
+        "text": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:53:57.373 D/PlayTorrent(14729): bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      }
+    ],
+    "last_waiting": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+    "closed_idle_line": "10-31 00:53:57.753 D/PlayTorrent(14729): oynatıcı kapandı: oturum 10 dk boşta açık kalacak"
+  },
+  {
+    "trial_name": "Soğuk Deneme 2",
+    "label": "torrent-soguk-2",
+    "is_cold": true,
+    "press_time": "00:54:04.617",
+    "torrent_req_time": "00:54:07.110",
+    "torrent_opened_time": "00:54:08.826",
+    "torrent_opened_diff_s": 1.72,
+    "first_frame_time": null,
+    "first_frame_diff_s": null,
+    "peer_count": 24,
+    "stalls_60s": 0,
+    "stall_duration_s": 0.0,
+    "buffer_s": 0.0,
+    "pos_60s": "0",
+    "timeout_occurred": false,
+    "waiting_count": 27,
+    "waiting_lines": [
+      {
+        "time": "00:54:10.842",
+        "text": "bekleniyor: parça=0 süre=2sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:10.842 D/PlayTorrent(14970): bekleniyor: parça=0 süre=2sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:12.867",
+        "text": "bekleniyor: parça=0 süre=4sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:12.867 D/PlayTorrent(14970): bekleniyor: parça=0 süre=4sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:14.880",
+        "text": "bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:14.880 D/PlayTorrent(14970): bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:16.893",
+        "text": "bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:16.893 D/PlayTorrent(14970): bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:18.902",
+        "text": "bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:18.902 D/PlayTorrent(14970): bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:20.914",
+        "text": "bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:20.914 D/PlayTorrent(14970): bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:22.927",
+        "text": "bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:22.927 D/PlayTorrent(14970): bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:24.942",
+        "text": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:24.942 D/PlayTorrent(14970): bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:26.952",
+        "text": "bekleniyor: parça=0 süre=18sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:26.952 D/PlayTorrent(14970): bekleniyor: parça=0 süre=18sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:28.964",
+        "text": "bekleniyor: parça=0 süre=20sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:28.964 D/PlayTorrent(14970): bekleniyor: parça=0 süre=20sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:30.981",
+        "text": "bekleniyor: parça=0 süre=22sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:30.981 D/PlayTorrent(14970): bekleniyor: parça=0 süre=22sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:32.992",
+        "text": "bekleniyor: parça=0 süre=24sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:32.992 D/PlayTorrent(14970): bekleniyor: parça=0 süre=24sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:35.004",
+        "text": "bekleniyor: parça=0 süre=26sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:35.004 D/PlayTorrent(14970): bekleniyor: parça=0 süre=26sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:37.018",
+        "text": "bekleniyor: parça=0 süre=28sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:37.018 D/PlayTorrent(14970): bekleniyor: parça=0 süre=28sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:39.032",
+        "text": "bekleniyor: parça=0 süre=30sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:39.032 D/PlayTorrent(14970): bekleniyor: parça=0 süre=30sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:41.046",
+        "text": "bekleniyor: parça=0 süre=32sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:41.046 D/PlayTorrent(14970): bekleniyor: parça=0 süre=32sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:43.057",
+        "text": "bekleniyor: parça=0 süre=34sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:43.057 D/PlayTorrent(14970): bekleniyor: parça=0 süre=34sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:45.070",
+        "text": "bekleniyor: parça=0 süre=36sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:45.070 D/PlayTorrent(14970): bekleniyor: parça=0 süre=36sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:47.084",
+        "text": "bekleniyor: parça=0 süre=38sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:47.084 D/PlayTorrent(14970): bekleniyor: parça=0 süre=38sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:52.324",
+        "text": "bekleniyor: parça=0 süre=2sn eş=3 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:52.324 D/PlayTorrent(14970): bekleniyor: parça=0 süre=2sn eş=3 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:54.329",
+        "text": "bekleniyor: parça=0 süre=4sn eş=2 tohum=2 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:54.329 D/PlayTorrent(14970): bekleniyor: parça=0 süre=4sn eş=2 tohum=2 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:56.335",
+        "text": "bekleniyor: parça=0 süre=6sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:56.335 D/PlayTorrent(14970): bekleniyor: parça=0 süre=6sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:54:58.340",
+        "text": "bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:54:58.340 D/PlayTorrent(14970): bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:00.349",
+        "text": "bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:00.349 D/PlayTorrent(14970): bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:02.354",
+        "text": "bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:02.354 D/PlayTorrent(14970): bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:04.359",
+        "text": "bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:04.359 D/PlayTorrent(14970): bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:06.364",
+        "text": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:06.364 D/PlayTorrent(14970): bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      }
+    ],
+    "last_waiting": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+    "closed_idle_line": "10-31 00:55:07.135 D/PlayTorrent(14970): oynatıcı kapandı: oturum 10 dk boşta açık kalacak"
+  },
+  {
+    "trial_name": "Soğuk Deneme 3",
+    "label": "torrent-soguk-3",
+    "is_cold": true,
+    "press_time": "00:55:13.936",
+    "torrent_req_time": "00:55:16.503",
+    "torrent_opened_time": "00:55:18.211",
+    "torrent_opened_diff_s": 1.71,
+    "first_frame_time": null,
+    "first_frame_diff_s": null,
+    "peer_count": 24,
+    "stalls_60s": 0,
+    "stall_duration_s": 0.0,
+    "buffer_s": 0.0,
+    "pos_60s": "0",
+    "timeout_occurred": false,
+    "waiting_count": 27,
+    "waiting_lines": [
+      {
+        "time": "00:55:20.229",
+        "text": "bekleniyor: parça=0 süre=2sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:20.229 D/PlayTorrent(15209): bekleniyor: parça=0 süre=2sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:22.238",
+        "text": "bekleniyor: parça=0 süre=4sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:22.238 D/PlayTorrent(15209): bekleniyor: parça=0 süre=4sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:24.251",
+        "text": "bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:24.251 D/PlayTorrent(15209): bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:26.261",
+        "text": "bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:26.261 D/PlayTorrent(15209): bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:28.269",
+        "text": "bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:28.269 D/PlayTorrent(15209): bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:30.280",
+        "text": "bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:30.280 D/PlayTorrent(15209): bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:32.288",
+        "text": "bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:32.288 D/PlayTorrent(15209): bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:34.296",
+        "text": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:34.296 D/PlayTorrent(15209): bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:36.310",
+        "text": "bekleniyor: parça=0 süre=18sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:36.310 D/PlayTorrent(15209): bekleniyor: parça=0 süre=18sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:38.327",
+        "text": "bekleniyor: parça=0 süre=20sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:38.327 D/PlayTorrent(15209): bekleniyor: parça=0 süre=20sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:40.346",
+        "text": "bekleniyor: parça=0 süre=22sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:40.346 D/PlayTorrent(15209): bekleniyor: parça=0 süre=22sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:42.363",
+        "text": "bekleniyor: parça=0 süre=24sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:42.363 D/PlayTorrent(15209): bekleniyor: parça=0 süre=24sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:44.378",
+        "text": "bekleniyor: parça=0 süre=26sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:44.378 D/PlayTorrent(15209): bekleniyor: parça=0 süre=26sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:46.393",
+        "text": "bekleniyor: parça=0 süre=28sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:46.393 D/PlayTorrent(15209): bekleniyor: parça=0 süre=28sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:48.409",
+        "text": "bekleniyor: parça=0 süre=30sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:48.409 D/PlayTorrent(15209): bekleniyor: parça=0 süre=30sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:50.427",
+        "text": "bekleniyor: parça=0 süre=32sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:50.427 D/PlayTorrent(15209): bekleniyor: parça=0 süre=32sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:52.443",
+        "text": "bekleniyor: parça=0 süre=34sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:52.443 D/PlayTorrent(15209): bekleniyor: parça=0 süre=34sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:54.449",
+        "text": "bekleniyor: parça=0 süre=36sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:54.449 D/PlayTorrent(15209): bekleniyor: parça=0 süre=36sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:55:56.456",
+        "text": "bekleniyor: parça=0 süre=38sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:55:56.456 D/PlayTorrent(15209): bekleniyor: parça=0 süre=38sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:01.722",
+        "text": "bekleniyor: parça=0 süre=2sn eş=2 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:01.722 D/PlayTorrent(15209): bekleniyor: parça=0 süre=2sn eş=2 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:03.727",
+        "text": "bekleniyor: parça=0 süre=4sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:03.727 D/PlayTorrent(15209): bekleniyor: parça=0 süre=4sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:05.733",
+        "text": "bekleniyor: parça=0 süre=6sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:05.733 D/PlayTorrent(15209): bekleniyor: parça=0 süre=6sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:07.738",
+        "text": "bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:07.738 D/PlayTorrent(15209): bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:09.743",
+        "text": "bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:09.743 D/PlayTorrent(15209): bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:11.749",
+        "text": "bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:11.749 D/PlayTorrent(15209): bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:13.754",
+        "text": "bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:13.754 D/PlayTorrent(15209): bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:15.758",
+        "text": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:15.758 D/PlayTorrent(15209): bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      }
+    ],
+    "last_waiting": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+    "closed_idle_line": "10-31 00:56:16.306 D/PlayTorrent(15209): oynatıcı kapandı: oturum 10 dk boşta açık kalacak"
+  },
+  {
+    "trial_name": "Soğuk Deneme 4",
+    "label": "torrent-soguk-4",
+    "is_cold": true,
+    "press_time": "00:56:23.278",
+    "torrent_req_time": "00:56:25.798",
+    "torrent_opened_time": "00:56:27.580",
+    "torrent_opened_diff_s": 1.78,
+    "first_frame_time": null,
+    "first_frame_diff_s": null,
+    "peer_count": 24,
+    "stalls_60s": 0,
+    "stall_duration_s": 0.0,
+    "buffer_s": 0.0,
+    "pos_60s": "0",
+    "timeout_occurred": false,
+    "waiting_count": 27,
+    "waiting_lines": [
+      {
+        "time": "00:56:29.602",
+        "text": "bekleniyor: parça=0 süre=2sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:29.602 D/PlayTorrent(15444): bekleniyor: parça=0 süre=2sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:31.624",
+        "text": "bekleniyor: parça=0 süre=4sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:31.624 D/PlayTorrent(15444): bekleniyor: parça=0 süre=4sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:33.647",
+        "text": "bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:33.647 D/PlayTorrent(15444): bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:35.663",
+        "text": "bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:35.663 D/PlayTorrent(15444): bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:37.680",
+        "text": "bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:37.680 D/PlayTorrent(15444): bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:39.696",
+        "text": "bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:39.696 D/PlayTorrent(15444): bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:41.714",
+        "text": "bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:41.714 D/PlayTorrent(15444): bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:43.736",
+        "text": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:43.736 D/PlayTorrent(15444): bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:45.749",
+        "text": "bekleniyor: parça=0 süre=18sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:45.749 D/PlayTorrent(15444): bekleniyor: parça=0 süre=18sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:47.763",
+        "text": "bekleniyor: parça=0 süre=20sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:47.763 D/PlayTorrent(15444): bekleniyor: parça=0 süre=20sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:49.780",
+        "text": "bekleniyor: parça=0 süre=22sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:49.780 D/PlayTorrent(15444): bekleniyor: parça=0 süre=22sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:51.796",
+        "text": "bekleniyor: parça=0 süre=24sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:51.796 D/PlayTorrent(15444): bekleniyor: parça=0 süre=24sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:53.807",
+        "text": "bekleniyor: parça=0 süre=26sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:53.807 D/PlayTorrent(15444): bekleniyor: parça=0 süre=26sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:55.812",
+        "text": "bekleniyor: parça=0 süre=28sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:55.812 D/PlayTorrent(15444): bekleniyor: parça=0 süre=28sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:57.817",
+        "text": "bekleniyor: parça=0 süre=30sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:57.817 D/PlayTorrent(15444): bekleniyor: parça=0 süre=30sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:56:59.822",
+        "text": "bekleniyor: parça=0 süre=32sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:56:59.822 D/PlayTorrent(15444): bekleniyor: parça=0 süre=32sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:57:01.829",
+        "text": "bekleniyor: parça=0 süre=34sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:01.829 D/PlayTorrent(15444): bekleniyor: parça=0 süre=34sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:57:03.836",
+        "text": "bekleniyor: parça=0 süre=36sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:03.836 D/PlayTorrent(15444): bekleniyor: parça=0 süre=36sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:57:05.841",
+        "text": "bekleniyor: parça=0 süre=38sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:05.841 D/PlayTorrent(15444): bekleniyor: parça=0 süre=38sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:57:11.581",
+        "text": "bekleniyor: parça=0 süre=2sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:11.581 D/PlayTorrent(15444): bekleniyor: parça=0 süre=2sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:57:13.585",
+        "text": "bekleniyor: parça=0 süre=4sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:13.585 D/PlayTorrent(15444): bekleniyor: parça=0 süre=4sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:57:15.589",
+        "text": "bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:15.589 D/PlayTorrent(15444): bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:57:17.591",
+        "text": "bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:17.591 D/PlayTorrent(15444): bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:57:19.597",
+        "text": "bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:19.597 D/PlayTorrent(15444): bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:57:21.601",
+        "text": "bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:21.601 D/PlayTorrent(15444): bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:57:23.607",
+        "text": "bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:23.607 D/PlayTorrent(15444): bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:57:25.610",
+        "text": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:25.610 D/PlayTorrent(15444): bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      }
+    ],
+    "last_waiting": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+    "closed_idle_line": "10-31 00:57:25.885 D/PlayTorrent(15444): oynatıcı kapandı: oturum 10 dk boşta açık kalacak"
+  },
+  {
+    "trial_name": "Soğuk Deneme 5",
+    "label": "torrent-soguk-5",
+    "is_cold": true,
+    "press_time": "00:57:32.710",
+    "torrent_req_time": "00:57:35.245",
+    "torrent_opened_time": "00:57:36.910",
+    "torrent_opened_diff_s": 1.66,
+    "first_frame_time": "00:57:39.531",
+    "first_frame_diff_s": 4.29,
+    "peer_count": 24,
+    "stalls_60s": 0,
+    "stall_duration_s": 0.0,
+    "buffer_s": 18.3,
+    "pos_60s": "0",
+    "timeout_occurred": false,
+    "waiting_count": 2,
+    "waiting_lines": [
+      {
+        "time": "00:57:38.934",
+        "text": "bekleniyor: parça=0 süre=2sn eş=2 tohum=2 hız=4KB/s inen=512KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:38.934 D/PlayTorrent(15665): bekleniyor: parça=0 süre=2sn eş=2 tohum=2 hız=4KB/s inen=512KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:57:41.565",
+        "text": "bekleniyor: parça=2 süre=2sn eş=2 tohum=2 hız=1107KB/s inen=6144KB durum=DOWNLOADING",
+        "full_line": "10-31 00:57:41.565 D/PlayTorrent(15665): bekleniyor: parça=2 süre=2sn eş=2 tohum=2 hız=1107KB/s inen=6144KB durum=DOWNLOADING"
+      }
+    ],
+    "last_waiting": "bekleniyor: parça=2 süre=2sn eş=2 tohum=2 hız=1107KB/s inen=6144KB durum=DOWNLOADING",
+    "closed_idle_line": "10-31 00:58:36.732 D/PlayTorrent(15665): oynatıcı kapandı: oturum 10 dk boşta açık kalacak"
+  },
+  {
+    "trial_name": "Sıcak Deneme",
+    "label": "torrent-sicak",
+    "is_cold": false,
+    "press_time": "00:58:50.282",
+    "torrent_req_time": "00:58:50.972",
+    "torrent_opened_time": "00:58:52.806",
+    "torrent_opened_diff_s": 1.83,
+    "first_frame_time": null,
+    "first_frame_diff_s": null,
+    "peer_count": 24,
+    "stalls_60s": 0,
+    "stall_duration_s": 0.0,
+    "buffer_s": 0.0,
+    "pos_60s": "0",
+    "timeout_occurred": false,
+    "waiting_count": 27,
+    "waiting_lines": [
+      {
+        "time": "00:58:54.826",
+        "text": "bekleniyor: parça=0 süre=2sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:58:54.826 D/PlayTorrent(15665): bekleniyor: parça=0 süre=2sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:58:56.842",
+        "text": "bekleniyor: parça=0 süre=4sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:58:56.842 D/PlayTorrent(15665): bekleniyor: parça=0 süre=4sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:58:58.848",
+        "text": "bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:58:58.848 D/PlayTorrent(15665): bekleniyor: parça=0 süre=6sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:00.854",
+        "text": "bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:00.854 D/PlayTorrent(15665): bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:02.860",
+        "text": "bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:02.860 D/PlayTorrent(15665): bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:04.865",
+        "text": "bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:04.865 D/PlayTorrent(15665): bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:06.871",
+        "text": "bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:06.871 D/PlayTorrent(15665): bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:08.877",
+        "text": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:08.877 D/PlayTorrent(15665): bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:10.886",
+        "text": "bekleniyor: parça=0 süre=18sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:10.886 D/PlayTorrent(15665): bekleniyor: parça=0 süre=18sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:12.895",
+        "text": "bekleniyor: parça=0 süre=20sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:12.895 D/PlayTorrent(15665): bekleniyor: parça=0 süre=20sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:14.898",
+        "text": "bekleniyor: parça=0 süre=22sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:14.898 D/PlayTorrent(15665): bekleniyor: parça=0 süre=22sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:16.903",
+        "text": "bekleniyor: parça=0 süre=24sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:16.903 D/PlayTorrent(15665): bekleniyor: parça=0 süre=24sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:18.910",
+        "text": "bekleniyor: parça=0 süre=26sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:18.910 D/PlayTorrent(15665): bekleniyor: parça=0 süre=26sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:20.915",
+        "text": "bekleniyor: parça=0 süre=28sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:20.915 D/PlayTorrent(15665): bekleniyor: parça=0 süre=28sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:22.919",
+        "text": "bekleniyor: parça=0 süre=30sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:22.919 D/PlayTorrent(15665): bekleniyor: parça=0 süre=30sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:24.925",
+        "text": "bekleniyor: parça=0 süre=32sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:24.925 D/PlayTorrent(15665): bekleniyor: parça=0 süre=32sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:26.932",
+        "text": "bekleniyor: parça=0 süre=34sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:26.932 D/PlayTorrent(15665): bekleniyor: parça=0 süre=34sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:28.938",
+        "text": "bekleniyor: parça=0 süre=36sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:28.938 D/PlayTorrent(15665): bekleniyor: parça=0 süre=36sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:30.945",
+        "text": "bekleniyor: parça=0 süre=38sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:30.945 D/PlayTorrent(15665): bekleniyor: parça=0 süre=38sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:36.843",
+        "text": "bekleniyor: parça=0 süre=2sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:36.843 D/PlayTorrent(15665): bekleniyor: parça=0 süre=2sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:38.858",
+        "text": "bekleniyor: parça=0 süre=4sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:38.858 D/PlayTorrent(15665): bekleniyor: parça=0 süre=4sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:40.876",
+        "text": "bekleniyor: parça=0 süre=6sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:40.876 D/PlayTorrent(15665): bekleniyor: parça=0 süre=6sn eş=1 tohum=1 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:42.887",
+        "text": "bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:42.887 D/PlayTorrent(15665): bekleniyor: parça=0 süre=8sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:44.904",
+        "text": "bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:44.904 D/PlayTorrent(15665): bekleniyor: parça=0 süre=10sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:46.919",
+        "text": "bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:46.919 D/PlayTorrent(15665): bekleniyor: parça=0 süre=12sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:48.935",
+        "text": "bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:48.935 D/PlayTorrent(15665): bekleniyor: parça=0 süre=14sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      },
+      {
+        "time": "00:59:50.949",
+        "text": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+        "full_line": "10-31 00:59:50.949 D/PlayTorrent(15665): bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING"
+      }
+    ],
+    "last_waiting": "bekleniyor: parça=0 süre=16sn eş=0 tohum=0 hız=0KB/s inen=0KB durum=DOWNLOADING",
+    "closed_idle_line": "10-31 00:59:52.548 D/PlayTorrent(15665): oynatıcı kapandı: oturum 10 dk boşta açık kalacak"
+  }
+]
