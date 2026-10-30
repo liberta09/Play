@@ -1,6 +1,13 @@
 {
   "announcements": [
     {
+      "id": "2026-10-30-play-121",
+      "title": "🎉 Play 1.2.1 yayında!",
+      "message": "✨ Yenilikler:\n✅ Yeni neon arayüz: koyu zemin, camgöbeği vurgu ve odakta parlayan öğeler\n✅ Menü artık tüm ekranlarda üstte yüzen hap şeklinde\n✅ Kumanda ile menüde, ayarlarda ve oynatıcı panellerinde rahat gezinme\n✅ Uygulama açılışında profil seçiminin gereksiz çıkması düzeltildi 🍿🎬",
+      "link": "https://github.com/liberta09/Play/releases/download/v1.2.1/Play-1.2.1.apk",
+      "until": "2026-12-31"
+    },
+    {
       "id": "2026-10-28-play-120",
       "title": "🎉 Play 1.2.0 yayında!",
       "message": "✨ Yenilikler:\n✅ Wi-Fi senkronizasyonu: aynı ağdaki iki cihaz arasında profil, izleme geçmişi, favori ve eklentiler eşitlenir\n✅ Bulut hesabı artık eklentilerinizi de eşitliyor\n✅ İntro, özet ve jenerik atlama (verisi olan bölümlerde)\n✅ Arama ekranında Tümü / Filmler / Diziler filtresi\n✅ Detay ekranında bölüm indirme düğmeleri\n✅ Kumanda ile Depo Kataloğu ve Eklentiler sayfalarında rahat gezinme\n✅ Hız testi ve büyük yazı boyutunda TV sekmesi düzeltmeleri 🍿🎬",
