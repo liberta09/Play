@@ -116,7 +116,9 @@ class PluginStreamProvider(
                     stream.url.contains("vidmoly", ignoreCase = true)
                 if (isEmbed) {
                     try {
-                        com.lagradost.cloudstream3.utils.loadExtractor(
+                        // Zaman sınırı: yavaş/takılan bir çıkarıcı eklentinin tüm sonucunu (ve kaynak listesini) bekletmesin.
+                        // Sınıra kadar gelen bağlantılar korunur; hiç gelmediyse eklentinin kendi akışı kalır.
+                        withTimeoutOrNull(EXTRACT_TIMEOUT) { com.lagradost.cloudstream3.utils.loadExtractor(
                             url = stream.url,
                             referer = stream.headers["Referer"] ?: stream.url,
                             subtitleCallback = {},
@@ -141,7 +143,7 @@ class PluginStreamProvider(
                                     )
                                 )
                             }
-                        )
+                        ) }
                     } catch (t: Throwable) {
                         Log.d(TAG, "${plugin.name}: loadExtractor hata ${t.message}")
                     }
@@ -150,6 +152,7 @@ class PluginStreamProvider(
                     resolvedStreams.add(stream)
                 }
             }
+            Log.d(TAG, "${plugin.name}: eklenti ${outcome.streams.size} akış döndürdü, listeye ${resolvedStreams.size} girdi")
             resolvedStreams.take(3).forEach { Log.d(TAG, "${plugin.name}: akış ${StreamLog.fingerprint(it.url)}") }
             if (resolvedStreams.isNotEmpty()) cache.put(key, resolvedStreams)
             return found(source, resolvedStreams)
@@ -175,6 +178,9 @@ class PluginStreamProvider(
          * diyordu. Sonuçlar hazır oldukça aktığı için diğer kaynaklar bunu beklemez.
          */
         val MIN_RUN_BUDGET: Duration = 25.seconds
+
+        /** Gömülü oynatıcı çıkarıcısının (loadExtractor) akış başına en çok süresi. */
+        val EXTRACT_TIMEOUT: Duration = 8.seconds
 
         /** Kullanıcının kaynak zaman aşımı ayarı daha uzunsa o, değilse [MIN_RUN_BUDGET]. */
         fun runBudget(setting: Duration): Duration = maxOf(setting, MIN_RUN_BUDGET)
