@@ -1,0 +1,82 @@
+10-31 01:18:31.345 D/PlayAddon(17802): Torrentio: istek tür=series kimlik=tt0903747:1:1
+10-31 01:18:31.725 D/PlayTorrent(17802): libtorrent oturumu başlıyor (ABI=x86_64, x86, arm64-v8a, armeabi-v7a, armeabi, dizin=/storage/emulated/0/Android/data/com.kaan.play/cache/torrents)
+10-31 01:18:31.740 D/PlayTorrent(17802): libtorrent oturumu başladı
+10-31 01:18:31.741 D/PlayTorrent(17802): alert LISTEN_FAILED: listening on 0.0.0.0:0 (device: ) failed: [enum_route] [TCP] Operation not supported on transport endpoint
+10-31 01:18:31.742 D/PlayTorrent(17802): alert LISTEN_SUCCEEDED: successfully listening on [TCP] 0.0.0.0:6881
+10-31 01:18:31.742 D/PlayTorrent(17802): alert LISTEN_SUCCEEDED: successfully listening on [uTP] 0.0.0.0:6881
+10-31 01:18:31.742 D/PlayTorrent(17802): alert LISTEN_SUCCEEDED: successfully listening on [TCP] [::]:6881
+10-31 01:18:31.742 D/PlayTorrent(17802): alert LISTEN_SUCCEEDED: successfully listening on [uTP] [::]:6881
+10-31 01:18:32.178 D/PlayTorrent(17802): alert EXTERNAL_IP: external IP received: 78.185.129.235
+10-31 01:18:34.702 D/PlayMatch(17802): kaynak başlatılıyor: Torrentio (?)
+10-31 01:18:34.704 D/PlayTorrent(17802): oynatıcıya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=0 başlıklar=[] mime=null
+10-31 01:18:34.725 D/PlayTorrent(17802): yerel sunucu isteği: GET range=null hedefOk=true
+10-31 01:18:34.725 D/PlayTorrent(17802): motor open: hash=7d94188c57989c8c2e71c23208b6662a1e2de988 fileHint=0
+10-31 01:18:34.728 D/PlayTorrent(17802): alert STATE_CHANGED: 7d9418: state changed to: dl metadata
+10-31 01:18:34.729 D/PlayTorrent(17802): alert ADD_TORRENT: added torrent: 7d94188c57989c8c2e71c23208b6662a1e2de988
+10-31 01:18:34.729 D/PlayTorrent(17802): alert TORRENT_RESUMED: 7d9418 resumed
+10-31 01:18:34.730 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+10-31 01:18:34.730 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:18:34.872 D/PlayTorrent(17802): alert TRACKER_ERROR: 7d9418 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+10-31 01:18:34.872 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:18:34.873 D/PlayTorrent(17802): alert TRACKER_ERROR: 7d9418 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 01:18:34.874 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:18:34.874 D/PlayTorrent(17802): alert TRACKER_ERROR: 7d9418 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 01:18:34.874 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:18:35.036 D/PlayTorrent(17802): alert TRACKER_REPLY: 7d9418 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 40
+10-31 01:18:35.038 D/PlayTorrent(17802): alert TRACKER_ERROR: 7d9418 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 01:18:35.038 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:18:35.526 D/PlayTorrent(17802): alert TRACKER_ERROR: 7d9418 (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 01:18:35.527 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://explodie.org:6969/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:18:35.528 D/PlayTorrent(17802): alert TRACKER_ERROR: 7d9418 (udp://explodie.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 01:18:35.886 D/PlayTorrent(17802): alert METADATA_RECEIVED: 7d9418 metadata successfully received
+10-31 01:18:35.886 D/PlayTorrent(17802): alert STATE_CHANGED: 7d9418: state changed to: checking (r)
+10-31 01:18:35.888 D/PlayTorrent(17802): alert STATE_CHANGED: 7d9418: state changed to: downloading
+10-31 01:18:35.888 D/PlayTorrent(17802): alert TORRENT_CHECKED: 7d9418 checked
+10-31 01:18:36.239 D/PlayTorrent(17802): torrent açıldı: hash=7d94188c57989c8c2e71c23208b6662a1e2de988 dosya[0]=Breaking Bad - S01E01 - Pilot.m4v boyut=477409223 parça=4194304 (dosya sayısı 62, ipucu=0)
+10-31 01:18:36.240 D/PlayTorrent(17802): alert FILE_PRIO: 7d9418 file priorities updated
+10-31 01:18:36.240 D/PlayTorrent(17802): yerel sunucu yanıtı: 200 Breaking Bad - S01E01 - Pilot.m4v 0-477409222/477409223
+10-31 01:18:38.267 D/PlayTorrent(17802): bekleniyor: parça=0 süre=2sn eş=6 tohum=4 hız=0KB/s inen=0KB durum=DOWNLOADING
+10-31 01:18:40.288 D/PlayTorrent(17802): bekleniyor: parça=0 süre=4sn eş=4 tohum=4 hız=108KB/s inen=0KB durum=DOWNLOADING
+10-31 01:18:42.294 D/PlayTorrent(17802): bekleniyor: parça=0 süre=6sn eş=4 tohum=4 hız=578KB/s inen=0KB durum=DOWNLOADING
+10-31 01:18:44.304 D/PlayTorrent(17802): bekleniyor: parça=0 süre=8sn eş=4 tohum=4 hız=863KB/s inen=0KB durum=DOWNLOADING
+10-31 01:18:46.309 D/PlayTorrent(17802): bekleniyor: parça=0 süre=10sn eş=5 tohum=4 hız=1100KB/s inen=4096KB durum=DOWNLOADING
+10-31 01:18:46.650 D/PlayTorrent(17802): yerel sunucu isteği: GET range=bytes=475152468- hedefOk=true
+10-31 01:18:46.650 D/PlayTorrent(17802): motor open: hash=7d94188c57989c8c2e71c23208b6662a1e2de988 fileHint=0
+10-31 01:18:46.650 D/PlayTorrent(17802): yerel sunucu yanıtı: 206 Breaking Bad - S01E01 - Pilot.m4v 475152468-477409222/477409223
+10-31 01:18:48.576 D/PlayTorrent(17802): bekleniyor: parça=2 süre=2sn eş=5 tohum=4 hız=1458KB/s inen=8192KB durum=DOWNLOADING
+10-31 01:18:48.659 D/PlayTorrent(17802): bekleniyor: parça=113 süre=2sn eş=5 tohum=4 hız=1458KB/s inen=8192KB durum=DOWNLOADING
+10-31 01:18:49.023 D/PlayTorrent(17802): yerel sunucu isteği: GET range=bytes=475152330- hedefOk=true
+10-31 01:18:49.023 D/PlayTorrent(17802): motor open: hash=7d94188c57989c8c2e71c23208b6662a1e2de988 fileHint=0
+10-31 01:18:49.024 D/PlayTorrent(17802): yerel sunucu yanıtı: 206 Breaking Bad - S01E01 - Pilot.m4v 475152330-477409222/477409223
+10-31 01:18:49.031 D/PlayTorrent(17802): yerel sunucu isteği: GET range=bytes=44- hedefOk=true
+10-31 01:18:49.031 D/PlayTorrent(17802): motor open: hash=7d94188c57989c8c2e71c23208b6662a1e2de988 fileHint=0
+10-31 01:18:49.031 D/PlayTorrent(17802): yerel sunucu yanıtı: 206 Breaking Bad - S01E01 - Pilot.m4v 44-477409222/477409223
+10-31 01:18:49.147 D/PlayMatch(17802): ilk kare: Torrentio (faz=Starting)
+10-31 01:18:49.173 D/PlayMatch(17802): süre kontrolü kaynak=Torrentio (?) süre=58.1 dk beklenen=59 dk tür=Tv -> Ok
+10-31 01:18:50.595 D/PlayTorrent(17802): bekleniyor: parça=2 süre=4sn eş=5 tohum=4 hız=1931KB/s inen=12288KB durum=DOWNLOADING
+10-31 01:18:52.100 D/PlayTorrent(17802): yerel sunucu bağlantısı bitti: SocketException Broken pipe
+10-31 01:19:04.438 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:19:04.438 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:19:04.438 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:19:04.439 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:19:04.439 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:19:04.439 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://explodie.org:6969/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:19:04.439 D/PlayTorrent(17802): alert TRACKER_ERROR: 7d9418 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+10-31 01:19:04.440 D/PlayTorrent(17802): alert TRACKER_ERROR: 7d9418 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (2)
+10-31 01:19:04.440 D/PlayTorrent(17802): alert TRACKER_ERROR: 7d9418 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (2)
+10-31 01:19:04.440 D/PlayTorrent(17802): alert TRACKER_ERROR: 7d9418 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (2)
+10-31 01:19:04.440 D/PlayTorrent(17802): alert TRACKER_ERROR: 7d9418 (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+10-31 01:19:04.440 D/PlayTorrent(17802): alert TRACKER_ERROR: 7d9418 (udp://explodie.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+10-31 01:19:30.493 D/AndroidRuntime(17966): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 01:19:30.541 D/AndroidRuntime(17966): Calling main entry com.android.commands.input.Input
+10-31 01:19:30.573 D/AndroidRuntime(17966): Shutting down VM
+10-31 01:19:31.647 D/AndroidRuntime(17987): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 01:19:31.679 D/AndroidRuntime(17987): Calling main entry com.android.commands.input.Input
+10-31 01:19:31.701 D/AndroidRuntime(17987): Shutting down VM
+10-31 01:19:32.049 D/PlayMatch(17802): takılma kaynak=Torrentio sayı=0 toplam=0.0 sn oynama=0 dk
+10-31 01:19:32.049 D/PlayMatch(17802): takılma-ayrıntı kaynak=Torrentio bitHızı=0.90 Mbps bantTahmini=306.00 Mbps tampon=23.3 sn
+10-31 01:19:32.074 D/PlayTorrent(17802): oynatıcı kapandı: oturum 10 dk boşta açık kalacak
+10-31 01:19:32.074 D/PlayTorrent(17802): alert TRACKER_ANNOUNCE: 7d9418 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+10-31 01:19:32.081 D/PlayTorrent(17802): yerel sunucu bağlantısı bitti: IOException torrent closed
+10-31 01:19:32.082 D/PlayTorrent(17802): alert TORRENT_DELETED: ------ deleted
+10-31 01:19:32.082 D/PlayTorrent(17802): alert TORRENT_REMOVED: ------ removed

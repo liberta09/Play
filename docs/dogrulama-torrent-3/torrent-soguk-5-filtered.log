@@ -1,0 +1,67 @@
+10-31 01:14:56.750 D/PlayAddon(17194): Torrentio: istek tür=movie kimlik=tt1254207
+10-31 01:14:57.010 D/PlayTorrent(17194): libtorrent oturumu başlıyor (ABI=x86_64, x86, arm64-v8a, armeabi-v7a, armeabi, dizin=/storage/emulated/0/Android/data/com.kaan.play/cache/torrents)
+10-31 01:14:57.022 D/PlayTorrent(17194): libtorrent oturumu başladı
+10-31 01:14:57.023 D/PlayTorrent(17194): alert LISTEN_FAILED: listening on 0.0.0.0:0 (device: ) failed: [enum_route] [TCP] Operation not supported on transport endpoint
+10-31 01:14:57.023 D/PlayTorrent(17194): alert LISTEN_SUCCEEDED: successfully listening on [TCP] 0.0.0.0:6881
+10-31 01:14:57.024 D/PlayTorrent(17194): alert LISTEN_SUCCEEDED: successfully listening on [uTP] 0.0.0.0:6881
+10-31 01:14:57.024 D/PlayTorrent(17194): alert LISTEN_SUCCEEDED: successfully listening on [TCP] [::]:6881
+10-31 01:14:57.024 D/PlayTorrent(17194): alert LISTEN_SUCCEEDED: successfully listening on [uTP] [::]:6881
+10-31 01:14:57.161 D/PlayTorrent(17194): alert EXTERNAL_IP: external IP received: 78.185.129.235
+10-31 01:14:57.464 D/PlayMatch(17194): kaynak başlatılıyor: Torrentio (?)
+10-31 01:14:57.465 D/PlayTorrent(17194): oynatıcıya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=0 başlıklar=[] mime=null
+10-31 01:14:57.480 D/PlayTorrent(17194): yerel sunucu isteği: GET range=null hedefOk=true
+10-31 01:14:57.481 D/PlayTorrent(17194): motor open: hash=88594aaacbde40ef3e2510c47374ec0aa396c08e fileHint=0
+10-31 01:14:57.485 D/PlayTorrent(17194): alert STATE_CHANGED: 88594a: state changed to: dl metadata
+10-31 01:14:57.485 D/PlayTorrent(17194): alert ADD_TORRENT: added torrent: 88594aaacbde40ef3e2510c47374ec0aa396c08e
+10-31 01:14:57.524 D/PlayTorrent(17194): alert TORRENT_RESUMED: 88594a resumed
+10-31 01:14:57.525 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+10-31 01:14:57.525 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:14:57.583 D/PlayTorrent(17194): alert TRACKER_ERROR: 88594a (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+10-31 01:14:57.583 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:14:57.583 D/PlayTorrent(17194): alert TRACKER_ERROR: 88594a (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 01:14:57.583 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:14:57.583 D/PlayTorrent(17194): alert TRACKER_ERROR: 88594a (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 01:14:57.584 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:14:57.645 D/PlayTorrent(17194): alert TRACKER_ERROR: 88594a (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 01:14:57.645 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:14:57.694 D/PlayTorrent(17194): alert TRACKER_REPLY: 88594a (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 25
+10-31 01:14:57.880 D/PlayTorrent(17194): alert TRACKER_ERROR: 88594a (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 01:14:57.880 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://explodie.org:6969/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:14:57.880 D/PlayTorrent(17194): alert TRACKER_ERROR: 88594a (udp://explodie.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+10-31 01:14:58.274 D/PlayTorrent(17194): alert METADATA_RECEIVED: 88594a metadata successfully received
+10-31 01:14:58.274 D/PlayTorrent(17194): alert STATE_CHANGED: 88594a: state changed to: checking (r)
+10-31 01:14:58.274 D/PlayTorrent(17194): alert STATE_CHANGED: 88594a: state changed to: downloading
+10-31 01:14:58.274 D/PlayTorrent(17194): alert TORRENT_CHECKED: 88594a checked
+10-31 01:14:58.491 D/PlayTorrent(17194): torrent açıldı: hash=88594aaacbde40ef3e2510c47374ec0aa396c08e dosya[0]=bbb_sunflower_1080p_30fps_normal.mp4 boyut=276134947 parça=524288 (dosya sayısı 1, ipucu=0)
+10-31 01:14:58.491 D/PlayTorrent(17194): alert FILE_PRIO: 88594a file priorities updated
+10-31 01:14:58.491 D/PlayTorrent(17194): yerel sunucu yanıtı: 200 bbb_sunflower_1080p_30fps_normal.mp4 0-276134946/276134947
+10-31 01:15:00.502 D/PlayTorrent(17194): bekleniyor: parça=0 süre=2sn eş=2 tohum=2 hız=18KB/s inen=0KB durum=DOWNLOADING
+10-31 01:15:02.513 D/PlayTorrent(17194): bekleniyor: parça=0 süre=4sn eş=2 tohum=2 hız=197KB/s inen=1024KB durum=DOWNLOADING
+10-31 01:15:03.098 D/PlayMatch(17194): ilk kare: Torrentio (faz=Starting)
+10-31 01:15:03.101 D/PlayMatch(17194): süre kontrolü kaynak=Torrentio (?) süre=10.6 dk beklenen=8 dk tür=Movie -> Unknown
+10-31 01:15:05.340 D/PlayTorrent(17194): bekleniyor: parça=3 süre=2sn eş=2 tohum=2 hız=640KB/s inen=4608KB durum=DOWNLOADING
+10-31 01:15:27.438 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:15:27.439 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:15:27.439 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:15:27.439 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:15:27.439 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:15:27.439 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: 88594a (udp://explodie.org:6969/announce)[[::]:6881-v1] sending announce (started)
+10-31 01:15:27.439 D/PlayTorrent(17194): alert TRACKER_ERROR: 88594a (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+10-31 01:15:27.439 D/PlayTorrent(17194): alert TRACKER_ERROR: 88594a (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (2)
+10-31 01:15:27.439 D/PlayTorrent(17194): alert TRACKER_ERROR: 88594a (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (2)
+10-31 01:15:27.439 D/PlayTorrent(17194): alert TRACKER_ERROR: 88594a (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (2)
+10-31 01:15:27.439 D/PlayTorrent(17194): alert TRACKER_ERROR: 88594a (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+10-31 01:15:27.439 D/PlayTorrent(17194): alert TRACKER_ERROR: 88594a (udp://explodie.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+10-31 01:15:55.930 D/AndroidRuntime(17341): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 01:15:55.962 D/AndroidRuntime(17341): Calling main entry com.android.commands.input.Input
+10-31 01:15:55.987 D/AndroidRuntime(17341): Shutting down VM
+10-31 01:15:57.433 D/AndroidRuntime(17361): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 01:15:57.465 D/AndroidRuntime(17361): Calling main entry com.android.commands.input.Input
+10-31 01:15:57.484 D/AndroidRuntime(17361): Shutting down VM
+10-31 01:15:57.800 D/PlayMatch(17194): takılma kaynak=Torrentio sayı=0 toplam=0.0 sn oynama=0 dk
+10-31 01:15:57.800 D/PlayMatch(17194): takılma-ayrıntı kaynak=Torrentio bitHızı=16.72 Mbps bantTahmini=3.20 Mbps tampon=29.4 sn
+10-31 01:15:57.818 D/PlayTorrent(17194): oynatıcı kapandı: oturum 10 dk boşta açık kalacak
+10-31 01:15:57.819 D/PlayTorrent(17194): alert TRACKER_ANNOUNCE: ------ (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+10-31 01:15:57.819 D/PlayTorrent(17194): alert TORRENT_DELETED: ------ deleted
+10-31 01:15:57.819 D/PlayTorrent(17194): alert TORRENT_REMOVED: ------ removed
+10-31 01:15:57.823 D/PlayTorrent(17194): yerel sunucu bağlantısı bitti: IOException torrent closed
