@@ -1,6 +1,7 @@
 package com.kaan.play.data.torrent
 
 import android.util.Log
+import com.kaan.play.BuildConfig
 import com.kaan.play.data.stream.TorrentLinks
 import org.libtorrent4j.AlertListener
 import org.libtorrent4j.AnnounceEntry
@@ -159,12 +160,35 @@ class TorrentEngine(private val dir: File) {
             prioritize(file, piece)
         }
         var waited = 0L
-        while (!file.handle.havePiece(piece)) {
+        while (!haveOrClosed(file, piece)) {
             if (active !== file || !file.handle.isValid) throw IOException("torrent closed")
             if (waited >= PIECE_TIMEOUT_MS) throw IOException("piece timeout")
             Thread.sleep(POLL_MS)
             waited += POLL_MS
-            if (waited % REPRIORITIZE_MS == 0L) prioritize(file, piece)
+            if (waited % REPRIORITIZE_MS == 0L) {
+                prioritize(file, piece)
+                logWait(file, piece, waited)
+            }
+        }
+    }
+
+    /** Kapatılmış (geçersiz) tutamakta [TorrentHandle.havePiece] RuntimeException atar; bunu "torrent closed" olarak çevirir. */
+    private fun haveOrClosed(file: Opened, piece: Int): Boolean =
+        try {
+            file.handle.havePiece(piece)
+        } catch (e: RuntimeException) {
+            throw IOException("torrent closed", e)
+        }
+
+    /** Teşhis (yalnızca debug): parça gelmeyi beklerken eş sayısı, hız ve durum; "neden geç açılıyor" ölçümü için. */
+    private fun logWait(file: Opened, piece: Int, waitedMs: Long) {
+        if (!BuildConfig.DEBUG) return
+        runCatching {
+            val st = file.handle.status()
+            TorrentDiag.d(
+                "bekleniyor: parça=$piece süre=${waitedMs / 1000}sn eş=${st.numPeers()} tohum=${st.numSeeds()} " +
+                    "hız=${st.downloadPayloadRate() / 1024}KB/s inen=${st.totalDone() / 1024}KB durum=${st.state()}",
+            )
         }
     }
 
