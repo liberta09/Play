@@ -1,0 +1,483 @@
+--------- beginning of system
+10-31 01:56:38.201 I/ActivityManager( 1597): START u0 {flg=0x10000000 cmp=com.kaan.play/.MainActivity (has extras)} from uid 2000
+--------- beginning of main
+10-31 01:56:38.214 I/ldinit  (21079): type=1400 audit(0.0:5575): avc: denied { execute } for name="sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-31 01:56:38.214 I/ldinit  (21079): type=1400 audit(0.0:5576): avc: denied { read open } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-31 01:56:38.214 I/ldinit  (21079): type=1400 audit(0.0:5577): avc: denied { execute_no_trans } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-31 01:56:38.216 W/SchedPolicy( 1597): add_tid_to_cgroup failed to write '20455' (No space left on device); fd=24
+10-31 01:56:38.217 I/sh      (21079): type=1400 audit(0.0:5578): avc: denied { getattr } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-31 01:56:38.217 I/sh      (21079): type=1400 audit(0.0:5579): avc: denied { execute_no_trans } for path="/system/bin/am" dev="sda2" ino=1703 scontext=u:r:ldinit:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+10-31 01:56:38.217 W/ContextImpl( 2292): Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:45 android.app.ActivityThread.handleReceiver:3424 
+10-31 01:56:38.218 D/libnativeloader( 1433): CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+10-31 01:56:38.219 I/Zygote  ( 1433): IsCopy  libcrashcatcher: 0
+10-31 01:56:38.219 D/ldinit  ( 1477): ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.android.ld.appstore -f 32 --es package com.kaan.play --es pos pc
+10-31 01:56:38.219 D/ldinit  ( 1477): result:
+10-31 01:56:38.219 D/libnativeloader( 1433): INJECT Failed to open gspd.json
+10-31 01:56:38.224 I/servicemanager( 1378): type=1400 audit(0.0:5580): avc: denied { getattr } for scontext=u:r:servicemanager:s0 tcontext=u:r:ldinit:s0 tclass=process permissive=1
+10-31 01:56:38.227 I/ActivityManager( 1597): Start proc 21080:com.kaan.play/u0a191 for activity com.kaan.play/.MainActivity
+10-31 01:56:38.229 D/ldinit  ( 1477): Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+10-31 01:56:38.229 I/AppStartReceiver( 5888): onReceive, action = com.ldmnq.APP_FOREGROUND, extras = Bundle[{package=com.kaan.play, pos=pc}]
+10-31 01:56:38.230 D/ldinit  ( 1477): Broadcast completed: result=0
+10-31 01:56:38.234 D/ldinit  ( 1477): ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.ldmnq.launcher3 -f 32 --es package com.kaan.play --es pos pc
+10-31 01:56:38.234 D/ldinit  ( 1477): result:
+10-31 01:56:38.241 I/com.ldmnq.launcher3(20455): type=1400 audit(0.0:5581): avc: denied { open } for comm=4D6561737572656D656E7420576F72 path="/data/local/cfg-ineyg/android7" dev="sdb2" ino=394371 scontext=u:r:untrusted_app:s0:c42,c256,c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+10-31 01:56:38.244 D/ldinit  ( 1477): Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+10-31 01:56:38.247 D/AppStartReceiver(20455): action = com.ldmnq.APP_FOREGROUND, packageName = com.kaan.play, pos = pc
+10-31 01:56:38.251 D/ldinit  ( 1477): Broadcast completed: result=0
+10-31 01:56:38.253 W/nativebridge(21080): Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: Not a directory
+10-31 01:56:38.254 I/Zygote  (21080): seccomp disabled by setenforce 0
+10-31 01:56:38.254 I/com.kaan.play(21080): Late-enabling -Xcheck:jni
+10-31 01:56:38.257 I/allocator@2.0-s( 1467): type=1400 audit(0.0:5582): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=5176 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:56:38.263 D/nativebridge(21080): call UnloadNativeBridge! state=1
+10-31 01:56:38.270 W/SchedPolicy( 1597): add_tid_to_cgroup failed to write '21080' (No space left on device); fd=27
+10-31 01:56:38.274 D/AdvertisingIdClient( 5587): AdvertisingIdClient already created.
+10-31 01:56:38.274 D/AdvertisingIdClient( 5587): AdvertisingIdClient is not bounded. Starting to bind it...
+10-31 01:56:38.287 D/AdvertisingIdClient( 5587): AdvertisingIdClient is bounded
+10-31 01:56:38.292 I/AdvertisingIdClient( 5587): shouldSendLog 10113661
+10-31 01:56:38.292 I/AdvertisingIdClient( 5587): GetInfoInternal elapse 18ms
+10-31 01:56:38.294 D/BoundBrokerSvc( 5587): onRebind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+10-31 01:56:38.294 D/BoundBrokerSvc( 5587): onRebind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+10-31 01:56:38.312 W/ContextImpl( 2292): Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+10-31 01:56:38.316 I/oid.coreservic( 2292): Waiting for a blocking GC ProfileSaver
+10-31 01:56:38.318 D/ldinit  ( 1477): ld_exec_cmd am broadcast -a com.ldmnq.APP_START -p com.android.ld.appstore -f 32 --es package com.kaan.play --es pos pc
+10-31 01:56:38.318 D/ldinit  ( 1477): result:
+10-31 01:56:38.326 D/ldinit  ( 1477): Broadcasting: Intent { act=com.ldmnq.APP_START flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+10-31 01:56:38.327 I/AppStartReceiver( 5888): onReceive, action = com.ldmnq.APP_START, extras = Bundle[{package=com.kaan.play, pos=pc}]
+10-31 01:56:38.333 D/ldinit  ( 1477): Broadcast completed: result=0
+10-31 01:56:38.338 W/System  ( 1597): A resource failed to call close. 
+10-31 01:56:38.338 I/chatty  ( 1597): uid=1000(system) FinalizerDaemon identical 14 lines
+10-31 01:56:38.340 W/System  ( 1597): A resource failed to call close. 
+10-31 01:56:38.340 D/ldinit  ( 1477): ld_exec_cmd am broadcast -a com.ldmnq.APP_START -p com.ldmnq.launcher3 -f 32 --es package com.kaan.play --es pos pc
+10-31 01:56:38.340 D/ldinit  ( 1477): result:
+10-31 01:56:38.340 W/System  ( 1597): A resource failed to call close. 
+10-31 01:56:38.340 I/chatty  ( 1597): uid=1000(system) FinalizerDaemon identical 20 lines
+10-31 01:56:38.340 W/System  ( 1597): A resource failed to call close. 
+10-31 01:56:38.349 D/ldinit  ( 1477): Broadcasting: Intent { act=com.ldmnq.APP_START flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+10-31 01:56:38.355 D/AppStartReceiver(20455): action = com.ldmnq.APP_START, packageName = com.kaan.play, pos = pc
+10-31 01:56:38.355 D/ldinit  ( 1477): Broadcast completed: result=0
+10-31 01:56:38.574 I/LDShopManager( 5888): tryShowLDShopRechargePopup success, packageName = com.kaan.play, canPopup = false
+10-31 01:56:39.058 D/libnativeloader(21080): INJECT Failed to open gspd.json
+10-31 01:56:39.059 D/libnativeloader(21080): CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+10-31 01:56:39.075 W/com.kaan.play(21080): Accessing hidden field Landroid/os/Trace;->TRACE_TAG_APP:J (light greylist, reflection)
+10-31 01:56:39.075 W/com.kaan.play(21080): Accessing hidden method Landroid/os/Trace;->isTagEnabled(J)Z (light greylist, reflection)
+10-31 01:56:39.080 W/com.kaan.play(21080): Accessing hidden method Lcom/android/org/conscrypt/OpenSSLSocketImpl;->setUseSessionTickets(Z)V (light greylist, reflection)
+10-31 01:56:39.080 W/com.kaan.play(21080): Accessing hidden method Lcom/android/org/conscrypt/OpenSSLSocketImpl;->setHostname(Ljava/lang/String;)V (light greylist, reflection)
+10-31 01:56:39.080 W/com.kaan.play(21080): Accessing hidden method Lcom/android/org/conscrypt/OpenSSLSocketImpl;->getAlpnSelectedProtocol()[B (light greylist, reflection)
+10-31 01:56:39.080 W/com.kaan.play(21080): Accessing hidden method Lcom/android/org/conscrypt/OpenSSLSocketImpl;->setAlpnProtocols([B)V (light greylist, reflection)
+10-31 01:56:39.118 D/NetworkSecurityConfig(21080): No Network Security Config specified, using platform default
+10-31 01:56:39.172 D/AdHideLoader(21080): adhide.txt yuklendi: 0 genel, 11 alan kurali (3 ms)
+10-31 01:56:39.236 D/Ethernet( 1597): got request NetworkRequest [ TRACK_DEFAULT id=165, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10191] ] with score 60
+10-31 01:56:39.236 D/WIFI_AWARE_FACTORY( 1597): got request NetworkRequest [ TRACK_DEFAULT id=165, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10191] ] with score 60
+10-31 01:56:39.236 D/WIFI    ( 1597): got request NetworkRequest [ TRACK_DEFAULT id=165, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10191] ] with score 60
+10-31 01:56:39.236 D/WIFI_UT ( 1597): got request NetworkRequest [ TRACK_DEFAULT id=165, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10191] ] with score 60
+10-31 01:56:39.237 D/PhoneSwitcherNetworkRequstListener( 1928): got request NetworkRequest [ TRACK_DEFAULT id=165, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10191] ] with score 60
+10-31 01:56:39.237 D/AdHostLoader(21080): adhosts.txt yuklendi: 52061 alan adi (69 ms)
+10-31 01:56:39.250 W/com.kaan.play(21080): Accessing hidden field Ljava/nio/Buffer;->address:J (light greylist, reflection)
+10-31 01:56:39.277 D/WIFI    ( 1597): got request NetworkRequest [ TRACK_DEFAULT id=166, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10191] ] with score 60
+10-31 01:56:39.277 D/WIFI_UT ( 1597): got request NetworkRequest [ TRACK_DEFAULT id=166, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10191] ] with score 60
+10-31 01:56:39.277 D/Ethernet( 1597): got request NetworkRequest [ TRACK_DEFAULT id=166, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10191] ] with score 60
+10-31 01:56:39.277 D/WIFI_AWARE_FACTORY( 1597): got request NetworkRequest [ TRACK_DEFAULT id=166, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10191] ] with score 60
+10-31 01:56:39.277 D/PhoneSwitcherNetworkRequstListener( 1928): got request NetworkRequest [ TRACK_DEFAULT id=166, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10191] ] with score 60
+10-31 01:56:39.317 W/com.kaan.play(21080): Accessing hidden method Landroid/content/Context;->getOpPackageName()Ljava/lang/String; (light greylist, linking)
+10-31 01:56:39.317 W/com.kaan.play(21080): Accessing hidden field Landroid/graphics/Insets;->left:I (light greylist, linking)
+10-31 01:56:39.317 W/com.kaan.play(21080): Accessing hidden field Landroid/graphics/Insets;->top:I (light greylist, linking)
+10-31 01:56:39.317 W/com.kaan.play(21080): Accessing hidden field Landroid/graphics/Insets;->right:I (light greylist, linking)
+10-31 01:56:39.317 W/com.kaan.play(21080): Accessing hidden field Landroid/graphics/Insets;->bottom:I (light greylist, linking)
+10-31 01:56:39.326 I/ActivityManager( 1597): START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10191
+10-31 01:56:39.333 W/ContextImpl( 2292): Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:45 android.app.ActivityThread.handleReceiver:3424 
+10-31 01:56:39.334 D/ldinit  ( 1477): ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.android.ld.appstore -f 32 --es package com.kaan.play --es pos pc
+10-31 01:56:39.334 D/ldinit  ( 1477): result:
+10-31 01:56:39.345 D/ldinit  ( 1477): Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+10-31 01:56:39.346 I/AppStartReceiver( 5888): onReceive, action = com.ldmnq.APP_FOREGROUND, extras = Bundle[{package=com.kaan.play, pos=pc}]
+10-31 01:56:39.354 D/ldinit  ( 1477): Broadcast completed: result=0
+10-31 01:56:39.360 W/com.kaan.play(21080): Accessing hidden method Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V (light greylist, reflection)
+10-31 01:56:39.360 D/ldinit  ( 1477): ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.ldmnq.launcher3 -f 32 --es package com.kaan.play --es pos pc
+10-31 01:56:39.360 D/ldinit  ( 1477): result:
+10-31 01:56:39.368 D/ldinit  ( 1477): Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+10-31 01:56:39.371 D/AppStartReceiver(20455): action = com.ldmnq.APP_FOREGROUND, packageName = com.kaan.play, pos = pc
+10-31 01:56:39.372 D/ldinit  ( 1477): Broadcast completed: result=0
+10-31 01:56:39.374 W/ContextImpl( 2292): Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+10-31 01:56:39.374 D/OpenGLRenderer(21080): Skia GL Pipeline
+10-31 01:56:39.393 W/System  ( 1597): A resource failed to call close. 
+10-31 01:56:39.394 I/chatty  ( 1597): uid=1000(system) FinalizerDaemon identical 33 lines
+10-31 01:56:39.394 W/System  ( 1597): A resource failed to call close. 
+10-31 01:56:39.473 W/com.kaan.play(21080): Accessing hidden field Landroid/view/WindowInsets;->CONSUMED:Landroid/view/WindowInsets; (light greylist, reflection)
+10-31 01:56:39.474 W/com.kaan.play(21080): Accessing hidden method Landroid/view/View;->getViewRootImpl()Landroid/view/ViewRootImpl; (light greylist, reflection)
+10-31 01:56:39.474 W/com.kaan.play(21080): Accessing hidden field Landroid/view/View$AttachInfo;->mVisibleInsets:Landroid/graphics/Rect; (light greylist, reflection)
+10-31 01:56:39.474 W/com.kaan.play(21080): Accessing hidden field Landroid/view/ViewRootImpl;->mAttachInfo:Landroid/view/View$AttachInfo; (light greylist, reflection)
+10-31 01:56:39.567 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->create(Ljava/lang/String;Landroid/view/View;)Landroid/view/RenderNode; (light greylist, linking)
+10-31 01:56:39.567 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+10-31 01:56:39.567 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setClipToBounds(Z)Z (light greylist, linking)
+10-31 01:56:39.567 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setClipToOutline(Z)Z (dark greylist, linking)
+10-31 01:56:39.568 I/chatty  (21080): uid=10191(com.kaan.play) identical 1 line
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setClipToOutline(Z)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setLayerType(I)Z (dark greylist, linking)
+10-31 01:56:39.568 I/chatty  (21080): uid=10191(com.kaan.play) identical 1 line
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setLayerType(I)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setLeftTopRightBottom(IIII)Z (light greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->getMatrix(Landroid/graphics/Matrix;)V (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/DisplayListCanvas;->drawRenderNode(Landroid/view/RenderNode;)V (light greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->isValid()Z (light greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->start(II)Landroid/view/DisplayListCanvas; (light greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->end(Landroid/view/DisplayListCanvas;)V (light greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setAlpha(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setCameraDistance(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setLayerPaint(Landroid/graphics/Paint;)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setOutline(Landroid/graphics/Outline;)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setRotationX(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setRotationY(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setRotation(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setScaleX(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setScaleY(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setElevation(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setTranslationX(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->setTranslationY(F)Z (dark greylist, linking)
+10-31 01:56:39.568 W/com.kaan.play(21080): Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+10-31 01:56:39.572 I/        (21080): fastpipe: Connect success
+10-31 01:56:39.576 I/        (21080): fastpipe: Connect success
+10-31 01:56:39.580 D/HostConnection(21080): HostRPC::connect sucess: app=com.kaan.play, pid=21080, tid=21145, this=0x76386ee59040
+10-31 01:56:39.581 D/HostConnection(21080): queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+10-31 01:56:39.597 I/ConfigStore(21080): android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+10-31 01:56:39.597 I/ConfigStore(21080): android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+10-31 01:56:39.597 I/OpenGLRenderer(21080): Initialized EGL, version 1.4
+10-31 01:56:39.597 D/OpenGLRenderer(21080): Swap behavior 1
+10-31 01:56:39.600 D/EGL_emulation(21080): eglCreateContext: 0x76388be60980: maj 3 min 1 rcv 4
+10-31 01:56:39.617 E/eglCodecCommon(21080): glUtilsParamSize: unknow param 0x000082da
+10-31 01:56:39.617 E/eglCodecCommon(21080): glUtilsParamSize: unknow param 0x000082e5
+10-31 01:56:39.621 D/HostConnection(21080): ExtendedRCEncoderContext GL_VERSION return OpenGL ES 3.1 v1
+10-31 01:56:39.623 E/eglCodecCommon(21080): glUtilsParamSize: unknow param 0x00008c29
+10-31 01:56:39.624 E/eglCodecCommon(21080): glUtilsParamSize: unknow param 0x000087fe
+10-31 01:56:39.624 D/skia    (21080): force disable skia program binary by wb!
+10-31 01:56:39.629 D/vndksupport(21080): Loading /vendor/lib64/hw/android.hardware.graphics.mapper@2.0-impl.so from current namespace instead of sphal namespace.
+10-31 01:56:39.629 D/vndksupport(21080): Loading /vendor/lib64/hw/gralloc.default.so from current namespace instead of sphal namespace.
+10-31 01:56:39.632 E/EGL_emulation(21080): tid 21145: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+10-31 01:56:39.632 W/OpenGLRenderer(21080): Failed to set EGL_SWAP_BEHAVIOR on surface 0x76386eff2300, error=EGL_BAD_MATCH
+10-31 01:56:39.758 W/com.kaan.play(21080): Accessing hidden method Landroid/text/SpannableStringInternal;->length()I (light greylist, linking)
+10-31 01:56:39.866 W/ActivityThread(21080): handleWindowVisibility: no activity for token android.os.BinderProxy@438a0bc
+10-31 01:56:39.900 I/ExoPlayerImpl(21080): Init 243b0ec [AndroidXMedia3/1.11.1] [star2qltechn, ASUS_AI2401_A, ROG, 28]
+10-31 01:56:39.908 W/com.kaan.play(21080): Accessing hidden method Landroid/media/AudioTrack$Builder;->setOffloadedPlayback(Z)Landroid/media/AudioTrack$Builder; (dark greylist, linking)
+10-31 01:56:39.938 D/PlaySubs(21080): videonun içindeki altyazılar: []
+10-31 01:56:39.938 D/PlaySubs(21080): seçim: kapalı
+10-31 01:56:39.952 W/VideoCapabilities(21080): Unrecognized profile 4 for video/hevc
+10-31 01:56:39.953 W/VideoCapabilities(21080): Unrecognized profile 4 for video/hevc
+10-31 01:56:39.956 I/VideoCapabilities(21080): Unsupported profile 4 for video/mp4v-es
+10-31 01:56:39.965 I//system/bin/netd( 1432): gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-31 01:56:39.971 W/ContextImpl( 2292): Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+10-31 01:56:40.032 W/System  ( 1597): A resource failed to call close. 
+10-31 01:56:40.032 I/chatty  ( 1597): uid=1000(system) FinalizerDaemon identical 38 lines
+10-31 01:56:40.032 W/System  ( 1597): A resource failed to call close. 
+10-31 01:56:40.110 W/com.kaan.play(21080): Accessing hidden method Landroid/graphics/FontFamily;-><init>()V (light greylist, reflection)
+10-31 01:56:40.110 W/com.kaan.play(21080): Accessing hidden method Landroid/graphics/FontFamily;->addFontFromAssetManager(Landroid/content/res/AssetManager;Ljava/lang/String;IZIII[Landroid/graphics/fonts/FontVariationAxis;)Z (light greylist, reflection)
+10-31 01:56:40.110 W/com.kaan.play(21080): Accessing hidden method Landroid/graphics/FontFamily;->addFontFromBuffer(Ljava/nio/ByteBuffer;I[Landroid/graphics/fonts/FontVariationAxis;II)Z (light greylist, reflection)
+10-31 01:56:40.110 W/com.kaan.play(21080): Accessing hidden method Landroid/graphics/FontFamily;->freeze()Z (light greylist, reflection)
+10-31 01:56:40.110 W/com.kaan.play(21080): Accessing hidden method Landroid/graphics/FontFamily;->abortCreation()V (light greylist, reflection)
+10-31 01:56:40.110 W/com.kaan.play(21080): Accessing hidden method Landroid/graphics/Typeface;->createFromFamiliesWithDefault([Landroid/graphics/FontFamily;Ljava/lang/String;II)Landroid/graphics/Typeface; (light greylist, reflection)
+10-31 01:56:40.169 E/EGL_emulation(21080): tid 21145: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+10-31 01:56:40.169 W/OpenGLRenderer(21080): Failed to set EGL_SWAP_BEHAVIOR on surface 0x76386eff2300, error=EGL_BAD_MATCH
+10-31 01:56:40.175 W/com.kaan.play(21080): Accessing hidden method Landroid/os/Trace;->asyncTraceBegin(JLjava/lang/String;I)V (light greylist, reflection)
+10-31 01:56:40.175 W/com.kaan.play(21080): Accessing hidden method Landroid/os/Trace;->asyncTraceEnd(JLjava/lang/String;I)V (light greylist, reflection)
+10-31 01:56:40.178 W/com.kaan.play(21080): Accessing hidden method Landroid/os/Trace;->traceCounter(JLjava/lang/String;I)V (light greylist, reflection)
+10-31 01:56:40.184 I/FontLog ( 5587): (REDACTED) Received query %s, URI %s
+10-31 01:56:40.184 I/FontLog ( 5587): (REDACTED) Query [%s] resolved to %s
+10-31 01:56:40.184 I/FontLog ( 5587): (REDACTED) Fetch %s end status %s
+10-31 01:56:40.185 I/FontLog ( 5587): (REDACTED) Pulling font file for id = %d, cache size = %d
+10-31 01:56:40.189 I/FontLog ( 5587): (REDACTED) Pulling font file for id = %d, cache size = %d
+10-31 01:56:40.203 D/PlayAddon(21080): Torrentio: istek tür=movie kimlik=tt10872600
+10-31 01:56:40.204 D/PlaySubs(21080): kaynak=OpenSubtitles içerik=tt10872600 sonuç=12 diller={tr=8, en=4}
+10-31 01:56:40.208 D/PlaySubs(21080): seçim: Online OpenSubtitles dil=tr
+10-31 01:56:40.273 I/FA      (20455): Application backgrounded at: timestamp_millis: 1793400998272
+10-31 01:56:40.281 I/oid.coreservice( 2292): type=1400 audit(0.0:5593): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=5176 ioctlcmd=6867 scontext=u:r:system_app:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:56:40.282 D/PlaybackController(21080): Video yüzeyi (TextureView) hazır bildirildi.
+10-31 01:56:40.283 I/ActivityManager( 1597): Displayed com.kaan.play/.ui.player.PlayerActivity: +2s82ms
+10-31 01:56:40.284 W/ContextImpl( 2292): Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+10-31 01:56:40.285 I/chatty  ( 2292): uid=1000(system) com.android.coreservice identical 1 line
+10-31 01:56:40.308 W/SurfaceFlinger( 1480): Attempting to set client state on removed layer: Splash Screen com.kaan.play#0
+10-31 01:56:40.308 W/SurfaceFlinger( 1480): Attempting to destroy on removed layer: Splash Screen com.kaan.play#0
+10-31 01:56:40.325 D/PlayCs  (21080): streams: 0 açık CS eklentisi
+10-31 01:56:40.400 W/InputMethodManager(21080): Ignoring onBind: cur seq=231, given seq=230
+10-31 01:56:40.401 W/ContextImpl( 2292): Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+10-31 01:56:40.420 D/PlayPlugin(21080): HDFilmCehennemi: istek tmdbId=634649 tür=movie sezon=null bölüm=null
+10-31 01:56:40.421 D/PlaySubs(21080): yüklendi tür=Online kaynak=OpenSubtitles dil=tr satır=1933 kodlama=UTF-8 önbellek=true
+10-31 01:56:40.509 E/PlayCatalog(21080): Nuvio addon katalog hatası (nuvio_addon:3): The coroutine scope left the composition
+10-31 01:56:40.509 E/PlayCatalog(21080): androidx.compose.runtime.LeftCompositionCancellationException: The coroutine scope left the composition
+10-31 01:56:40.545 D/PlaySubs(21080): kaynak=AltyazıDB içerik=tt10872600 sonuç=5 diller={tr=5}
+10-31 01:56:40.614 D/PlaySubs(21080): seçim: Source AltyazıDB dil=tr
+10-31 01:56:40.637 W/SchedPolicy( 1597): add_tid_to_cgroup failed to write '20455' (No space left on device); fd=25
+10-31 01:56:40.637 W/SchedPolicy( 1597): add_tid_to_cgroup failed to write '5587' (No space left on device); fd=25
+10-31 01:56:40.637 W/SchedPolicy( 1597): add_tid_to_cgroup failed to write '5689' (No space left on device); fd=25
+10-31 01:56:40.645 D/PlayTorrent(21080): libtorrent oturumu başlıyor (ABI=x86_64, x86, arm64-v8a, armeabi-v7a, armeabi, dizin=/storage/emulated/0/Android/data/com.kaan.play/cache/torrents)
+10-31 01:56:40.666 D/PlayTorrent(21080): libtorrent oturumu başladı
+10-31 01:56:40.667 I//system/bin/netd( 1432): gethostby*.getanswer: asked for "dht.libtorrent.org IN AAAA", got type "RRSIG"
+10-31 01:56:40.667 I//system/bin/netd( 1432): gethostby*.getanswer: asked for "dht.libtorrent.org IN A", got type "RRSIG"
+10-31 01:56:40.674 D/PlayTorrent(21080): alert LISTEN_FAILED: listening on 0.0.0.0:0 (device: ) failed: [enum_route] [TCP] Operation not supported on transport endpoint
+10-31 01:56:40.675 D/PlayTorrent(21080): alert LISTEN_SUCCEEDED: successfully listening on [TCP] 0.0.0.0:6881
+10-31 01:56:40.675 D/PlayTorrent(21080): alert LISTEN_SUCCEEDED: successfully listening on [uTP] 0.0.0.0:6881
+10-31 01:56:40.675 D/PlayTorrent(21080): alert LISTEN_SUCCEEDED: successfully listening on [TCP] [::]:6881
+10-31 01:56:40.675 D/PlayTorrent(21080): alert LISTEN_SUCCEEDED: successfully listening on [uTP] [::]:6881
+10-31 01:56:40.698 D/PlayPluginNet(21080): api.themoviedb.org GET -> 200 ctype=application/json len=1929 charset=UTF-8
+10-31 01:56:40.762 D/PlaySubs(21080): yüklendi tür=Source kaynak=AltyazıDB dil=tr satır=1938 kodlama=UTF-8 önbellek=true
+10-31 01:56:40.785 I//system/bin/netd( 1432): gethostby*.getanswer: asked for "dht.transmissionbt.com IN AAAA", got type "RRSIG"
+10-31 01:56:40.785 I//system/bin/netd( 1432): gethostby*.getanswer: asked for "dht.transmissionbt.com IN A", got type "RRSIG"
+10-31 01:56:40.864 D/PlayTorrent(21080): alert EXTERNAL_IP: external IP received: 78.185.129.235
+10-31 01:56:40.988 D/PlayPluginNet(21080): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1839 charset=UTF-8
+10-31 01:56:41.099 D/PlayPluginNet(21080): www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=141233 charset=UTF-8
+10-31 01:56:41.406 D/PlayPluginNet(21080): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31673 charset=UTF-8
+10-31 01:56:41.416 D/PlaySubs(21080): kaynak=AltyazıTR içerik=tt10872600 sonuç=0 diller={}
+10-31 01:56:41.425 D/PlayPluginNet(21080): hdfilmcehennemi.mobi GET -> 200 ctype=text/html len=31772 charset=UTF-8
+10-31 01:56:41.818 D/PlayPluginNet(21080): srv12.cdnimages2845.cyou GET -> 200 ctype=application/vnd.apple.mpegurl len=359 charset=UTF-8
+10-31 01:56:41.825 D/PlayPlugin(21080): HDFilmCehennemi: akış https://srv12.cdnimages2845.cyou/hls/<56>/txt/master.txt?s=<masked>
+10-31 01:56:41.828 D/PlayMatch(21080): kaynak başlatılıyor: HDFilmCehennemi (srv12.cdnimages2845.cyou)
+10-31 01:56:41.831 D/PlayStreamUrl(21080): oynatılıyor https://srv12.cdnimages2845.cyou/<masked_path>.txt mime=application/x-mpegURL
+10-31 01:56:41.831 D/PlayTorrent(21080): oynatıcıya veriliyor: kaynak=HDFilmCehennemi https://srv12.cdnimages2845.cyou/<masked_path>.txt torrent=false fileIdx=null başlıklar=[Referer, Origin, User-Agent] mime=application/x-mpegURL
+10-31 01:56:41.858 I/com.kaan.play(21080): JIT allocated 67KB for stack maps of void com.kaan.play.ui.player.PlayerScreenKt.Controls(java.lang.String, java.lang.String, java.lang.String, boolean, boolean, long, long, com.kaan.play.ui.player.GestureZones, androidx.compose.ui.focus.FocusRequester, androidx.compose.ui.focus.FocusRequester, androidx.compose.ui.focus.FocusRequester, kotlin.jvm.functions.Function1, androidx.compose.ui.focus.FocusRequester, java.util.List, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function1, kotlin.jvm.functions.Function1, kotlin.jvm.functions.Function0, androidx.compose.runtime.Composer, int, int, int)
+10-31 01:56:41.859 I/com.kaan.play(21080): Compiler allocated 6MB to compile void com.kaan.play.ui.player.PlayerScreenKt.Controls(java.lang.String, java.lang.String, java.lang.String, boolean, boolean, long, long, com.kaan.play.ui.player.GestureZones, androidx.compose.ui.focus.FocusRequester, androidx.compose.ui.focus.FocusRequester, androidx.compose.ui.focus.FocusRequester, kotlin.jvm.functions.Function1, androidx.compose.ui.focus.FocusRequester, java.util.List, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function1, kotlin.jvm.functions.Function1, kotlin.jvm.functions.Function0, androidx.compose.runtime.Composer, int, int, int)
+10-31 01:56:42.652 W/com.kaan.play(21080): Accessing hidden method Landroid/media/MediaFormat;->getInteger(Ljava/lang/String;I)I (dark greylist, linking)
+10-31 01:56:42.653 I/OMXClient(21080): IOmx service obtained
+10-31 01:56:42.654 I/OMXMaster( 1497): makeComponentInstance(OMX.google.h264.decoder) in omx@1.0-service process
+10-31 01:56:42.654 D/LDDec   ( 1497): createSoftOMXComponent OMX.google.h264.decoder
+10-31 01:56:42.654 D/LDDec   ( 1497): LDDec init 0x0 1, 320
+10-31 01:56:42.654 D/SurfaceUtils(21080): connecting to surface 0x7638889d8010, reason connectToSurface
+10-31 01:56:42.654 I/MediaCodec(21080): [OMX.google.h264.decoder] setting surface generation to 21585921
+10-31 01:56:42.654 D/SurfaceUtils(21080): disconnecting from surface 0x7638889d8010, reason connectToSurface(reconnect)
+10-31 01:56:42.654 D/SurfaceUtils(21080): connecting to surface 0x7638889d8010, reason connectToSurface(reconnect)
+10-31 01:56:42.655 W/OMXNodeInstance( 1497): [0xf562c960:google.h264.decoder] component does not support metadata mode; using fallback
+10-31 01:56:42.655 E/ACodec  (21080): [OMX.google.h264.decoder] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+10-31 01:56:42.655 W/OMXNodeInstance( 1497): [0xf562c960:google.h264.decoder] component does not support metadata mode; using fallback
+10-31 01:56:42.655 D/SoftVideoDecoderOMXComponent( 1497): Color Aspects preference: 1 
+10-31 01:56:42.655 E/OMXNodeInstance( 1497): setConfig(0xf562c960:google.h264.decoder, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+10-31 01:56:42.655 I/ACodec  (21080): codec does not support config priority (err -1010)
+10-31 01:56:42.655 E/OMXNodeInstance( 1497): getConfig(0xf562c960:google.h264.decoder, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+10-31 01:56:42.656 E/OMXNodeInstance( 1497): getConfig(0xf562c960:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+10-31 01:56:42.663 W/AshmemAllocator( 1454): ashmem_create_region(2315520) returning hidl_memory(0x76391702c100, 2315520)
+10-31 01:56:42.677 I/le.h264.decoder( 1497): type=1400 audit(0.0:5594): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=5176 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:56:42.679 I/chatty  ( 1454): uid=1000(system) allocator@1.0-s expire 30 lines
+10-31 01:56:42.679 W/AshmemAllocator( 1454): ashmem_create_region(2315520) returning hidl_memory(0x76391702c100, 2315520)
+10-31 01:56:42.680 D/LDDec   ( 1497): initDecoder OMX.google.h264.decoder init
+10-31 01:56:42.688 D/SoftVideoDecoderOMXComponent( 1497): Color Aspects preference: 1 
+10-31 01:56:42.693 E/OMXNodeInstance( 1497): getConfig(0xf562c960:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+10-31 01:56:42.693 E/OMXNodeInstance( 1497): getConfig(0xf562c960:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+10-31 01:56:42.699 D/MediaCodec(21080): [OMX.google.h264.decoder] setting dataspace on output surface to #104
+10-31 01:56:42.703 W/MapperHal(21080): buffer descriptor with invalid usage bits 0x2000
+10-31 01:56:42.704 I/allocator@2.0-s( 1467): type=1400 audit(0.0:5595): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=5176 scontext=u:r:untrusted_app:s0:c191,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:56:42.704 I/MediaCodec_loop(21080): type=1400 audit(0.0:5596): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=5176 scontext=u:r:untrusted_app:s0:c191,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:56:42.704 I/MediaCodec_loop(21080): type=1400 audit(0.0:5597): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=5176 ioctlcmd=6864 scontext=u:r:untrusted_app:s0:c191,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:56:42.706 W/System  ( 1597): A resource failed to call close. 
+10-31 01:56:42.707 I/chatty  ( 1597): uid=1000(system) FinalizerDaemon identical 30 lines
+10-31 01:56:42.707 W/System  ( 1597): A resource failed to call close. 
+10-31 01:56:42.710 I/        (21080): fastpipe: Connect success
+10-31 01:56:42.710 D/HostConnection(21080): HostRPC::connect sucess: app=com.kaan.play, pid=21080, tid=21198, this=0x763869480a80
+10-31 01:56:42.711 D/HostConnection(21080): queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+10-31 01:56:42.725 D/SoftwareRenderer(21080): setting dataspace on output surface to #104
+10-31 01:56:42.732 D/PlayMatch(21080): ilk kare: HDFilmCehennemi (faz=Starting)
+10-31 01:56:42.758 I/OMXClient(21080): IOmx service obtained
+10-31 01:56:42.758 I/OMXMaster( 1497): makeComponentInstance(OMX.google.aac.decoder) in omx@1.0-service process
+10-31 01:56:42.759 E/OMXNodeInstance( 1497): setConfig(0xf562cb40:google.aac.decoder, ConfigPriority(0x6f800002)) ERROR: Undefined(0x80001001)
+10-31 01:56:42.759 I/ACodec  (21080): codec does not support config priority (err -2147483648)
+10-31 01:56:42.759 E/OMXNodeInstance( 1497): getConfig(0xf562cb40:google.aac.decoder, ConfigAndroidVendorExtension(0x6f100004)) ERROR: Undefined(0x80001001)
+10-31 01:56:42.759 W/AshmemAllocator( 1454): ashmem_create_region(8192) returning hidl_memory(0x76391702c100, 8192)
+10-31 01:56:42.759 I/chatty  ( 1454): uid=1000(system) allocator@1.0-s identical 2 lines
+10-31 01:56:42.759 W/AshmemAllocator( 1454): ashmem_create_region(8192) returning hidl_memory(0x76391702c100, 8192)
+10-31 01:56:42.760 W/AshmemAllocator( 1454): ashmem_create_region(32768) returning hidl_memory(0x76391702c100, 32768)
+10-31 01:56:42.760 I/chatty  ( 1454): uid=1000(system) allocator@1.0-s identical 2 lines
+10-31 01:56:42.760 W/AshmemAllocator( 1454): ashmem_create_region(32768) returning hidl_memory(0x76391702c100, 32768)
+10-31 01:56:42.762 I/SoftAAC2( 1497): Reconfiguring decoder: 0->48000 Hz, 0->2 channels
+10-31 01:56:42.763 W/AshmemAllocator( 1454): ashmem_create_region(32768) returning hidl_memory(0x76391702c100, 32768)
+10-31 01:56:42.764 I/chatty  ( 1454): uid=1000(system) allocator@1.0-s identical 2 lines
+10-31 01:56:42.764 W/AshmemAllocator( 1454): ashmem_create_region(32768) returning hidl_memory(0x76391702c100, 32768)
+10-31 01:56:42.777 E/OMXNodeInstance( 1497): setConfig(0xf562cb40:google.aac.decoder, ConfigOperatingRate(0x6f800003)) ERROR: Undefined(0x80001001)
+10-31 01:56:42.777 I/ACodec  (21080): codec does not support config operating rate (err -2147483648)
+10-31 01:56:42.777 W/AudioFlinger( 1478): createTrack_l(): mismatch between requested flags (00000008) and output flags (00000002)
+10-31 01:56:42.777 D/AudioFlinger( 1478): Client defaulted notificationFrames to 12000 for frameCount 24000
+10-31 01:56:42.780 W/com.kaan.play(21080): Accessing hidden method Landroid/media/AudioTrack;->getLatency()I (light greylist, reflection)
+10-31 01:56:42.789 E/bt_btif ( 1735): register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-31 01:56:42.790 I/chatty  ( 1735): uid=1002(bluetooth) BluetoothAvrcpH identical 4 lines
+10-31 01:56:42.790 E/bt_btif ( 1735): register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-31 01:56:42.790 D/audio_hw_hal( 1457): raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+10-31 01:56:42.791 D/PlayMatch(21080): süre kontrolü kaynak=HDFilmCehennemi (srv12.cdnimages2845.cyou) süre=148.2 dk beklenen=148 dk tür=Movie -> Ok
+10-31 01:56:42.855 W/PesReader(21080): Unexpected start code prefix: 2162723
+10-31 01:56:42.860 W/MapperHal(21080): buffer descriptor with invalid usage bits 0x2000
+10-31 01:56:43.003 W/PesReader(21080): Unexpected start code prefix: 2162725
+10-31 01:56:43.047 W/PesReader(21080): Unexpected start code prefix: 2162751
+10-31 01:56:43.202 W/PesReader(21080): Unexpected start code prefix: 2162777
+10-31 01:56:43.407 W/PesReader(21080): Unexpected start code prefix: 2162753
+10-31 01:56:43.499 E/OMXNodeInstance( 1497): setConfig(0xf562c960:google.h264.decoder, ConfigOperatingRate(0x6f800003)) ERROR: UnsupportedIndex(0x8000101a)
+10-31 01:56:43.500 I/ACodec  (21080): codec does not support config operating rate (err -1010)
+10-31 01:56:43.560 W/PesReader(21080): Unexpected start code prefix: 2162805
+10-31 01:56:43.736 W/PesReader(21080): Unexpected start code prefix: 2162781
+10-31 01:56:43.913 W/PesReader(21080): Unexpected start code prefix: 2162833
+10-31 01:56:44.140 W/PesReader(21080): Unexpected start code prefix: 2162811
+10-31 01:56:44.217 D/LdAnalyticsSDK( 5888): responseCode = 200
+10-31 01:56:44.261 W/PesReader(21080): Unexpected start code prefix: 2162861
+10-31 01:56:44.796 W/PesReader(21080): Unexpected start code prefix: 2162833
+10-31 01:56:44.875 D/ProfileInstaller(21080): Installing profile for com.kaan.play
+10-31 01:56:44.989 W/PesReader(21080): Unexpected start code prefix: 2162887
+10-31 01:56:45.043 W/PesReader(21080): Unexpected start code prefix: 2162861
+10-31 01:56:45.327 W/PesReader(21080): Unexpected start code prefix: 2162915
+10-31 01:56:45.392 W/PesReader(21080): Unexpected start code prefix: 2162891
+10-31 01:56:48.254 I/Binder:1480_4( 1480): type=1400 audit(0.0:5598): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=5176 scontext=u:r:shell:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:56:48.257 I/screencap(21216): type=1400 audit(0.0:5599): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=5176 scontext=u:r:shell:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:56:48.257 I/screencap(21216): type=1400 audit(0.0:5600): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=5176 ioctlcmd=6864 scontext=u:r:shell:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:56:48.260 E/cutils-trace(21216): Error opening trace file: No such file or directory (2)
+10-31 01:56:48.260 D/vndksupport(21216): Loading /vendor/lib64/hw/android.hardware.graphics.mapper@2.0-impl.so from current namespace instead of sphal namespace.
+10-31 01:56:48.260 D/vndksupport(21216): Loading /vendor/lib64/hw/gralloc.default.so from current namespace instead of sphal namespace.
+10-31 01:56:48.261 I/screencap(21216): type=1400 audit(0.0:5601): avc: denied { open } for path="/data/local/cfg-ineyg/gl_force" dev="sdb2" ino=394432 scontext=u:r:shell:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+10-31 01:56:48.262 I/        (21216): fastpipe: Connect success
+10-31 01:56:48.263 I/        (21216): fastpipe: Connect success
+10-31 01:56:48.263 D/HostConnection(21216): HostRPC::connect sucess: app=screencap, pid=21216, tid=21216, this=0x763893ee4540
+10-31 01:56:48.264 D/HostConnection(21216): queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:screencap
+10-31 01:56:48.491 E/memtrack( 1597): Couldn't load memtrack module
+10-31 01:56:48.491 W/android.os.Debug( 1597): failed to get memory consumption info: -1
+10-31 01:56:48.491 D/MediaScannerReceiver( 6160): action: android.intent.action.MEDIA_SCANNER_SCAN_FILE path: /storage/emulated/0/temp_screen.png
+10-31 01:56:48.494 I/writer  ( 1457): type=1400 audit(0.0:5602): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=5176 ioctlcmd=6867 scontext=u:r:hal_audio_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:56:50.284 D/BoundBrokerSvc( 5587): onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+10-31 01:56:51.174 D/BoundBrokerSvc( 5587): onUnbind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+10-31 01:56:53.315 D/BoundBrokerSvc( 5587): onUnbind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+10-31 01:56:53.316 D/BoundBrokerSvc( 5587): onUnbind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+10-31 01:56:56.277 I/HwBinder:1468_2( 1468): type=1400 audit(0.0:5603): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=5176 ioctlcmd=6867 scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:56:56.501 I/ldinit  ( 1477): type=1400 audit(0.0:5604): avc: denied { read } for name="partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+10-31 01:56:56.501 I/ldinit  ( 1477): type=1400 audit(0.0:5605): avc: denied { open } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+10-31 01:56:56.501 I/ldinit  ( 1477): type=1400 audit(0.0:5606): avc: denied { getattr } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+10-31 01:56:56.747 I/storaged( 1495): type=1400 audit(0.0:5607): avc: denied { call } for scontext=u:r:storaged:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+10-31 01:56:56.755 E/storaged( 1495): getDiskStats failed with result NOT_SUPPORTED and size 0
+10-31 01:57:00.000 E/memtrack( 1597): Couldn't load memtrack module
+10-31 01:57:00.001 W/android.os.Debug( 1597): failed to get memory consumption info: -1
+10-31 01:57:00.003 W/SchedPolicy( 1597): add_tid_to_cgroup failed to write '20455' (No space left on device); fd=24
+10-31 01:57:00.004 W/SchedPolicy( 1597): add_tid_to_cgroup failed to write '20455' (No space left on device); fd=25
+10-31 01:57:00.014 I/RenderThread( 1749): type=1400 audit(0.0:5609): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=5176 ioctlcmd=6869 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:57:03.530 W/PesReader(21080): Unexpected start code prefix: 2162943
+10-31 01:57:03.689 W/PesReader(21080): Unexpected start code prefix: 2162919
+10-31 01:57:03.825 W/PesReader(21080): Unexpected start code prefix: 2162969
+10-31 01:57:04.661 W/PesReader(21080): Unexpected start code prefix: 2162947
+10-31 01:57:04.838 W/PesReader(21080): Unexpected start code prefix: 2162997
+10-31 01:57:04.874 W/PesReader(21080): Unexpected start code prefix: 2162971
+10-31 01:57:05.059 W/PesReader(21080): Unexpected start code prefix: 2163025
+10-31 01:57:05.197 W/PesReader(21080): Unexpected start code prefix: 2162999
+10-31 01:57:19.931 W/System  ( 1597): A resource failed to call close. 
+10-31 01:57:19.931 I/chatty  ( 1597): uid=1000(system) FinalizerDaemon identical 30 lines
+10-31 01:57:19.931 W/System  ( 1597): A resource failed to call close. 
+10-31 01:57:19.981 I/le.h264.decoder( 1497): type=1400 audit(0.0:5610): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=5176 ioctlcmd=6867 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:57:23.535 W/PesReader(21080): Unexpected start code prefix: 2163027
+10-31 01:57:23.546 W/PesReader(21080): Unexpected start code prefix: 2163053
+10-31 01:57:23.674 W/PesReader(21080): Unexpected start code prefix: 2163081
+10-31 01:57:24.036 W/PesReader(21080): Unexpected start code prefix: 2163057
+10-31 01:57:24.224 W/PesReader(21080): Unexpected start code prefix: 2163107
+10-31 01:57:24.341 W/PesReader(21080): Unexpected start code prefix: 2163085
+10-31 01:57:24.530 W/PesReader(21080): Unexpected start code prefix: 2163135
+10-31 01:57:24.671 W/PesReader(21080): Unexpected start code prefix: 2163109
+10-31 01:57:38.601 I/allocator@2.0-s( 1467): type=1400 audit(0.0:5611): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=5176 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:57:38.604 I/Binder:1480_1( 1480): type=1400 audit(0.0:5612): avc: denied { getattr } for path="/dev/fastpipe" dev="tmpfs" ino=5176 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+10-31 01:57:38.608 E/cutils-trace(21229): Error opening trace file: No such file or directory (2)
+10-31 01:57:38.608 D/vndksupport(21229): Loading /vendor/lib64/hw/android.hardware.graphics.mapper@2.0-impl.so from current namespace instead of sphal namespace.
+10-31 01:57:38.609 D/vndksupport(21229): Loading /vendor/lib64/hw/gralloc.default.so from current namespace instead of sphal namespace.
+10-31 01:57:38.612 I/        (21229): fastpipe: Connect success
+10-31 01:57:38.612 I/        (21229): fastpipe: Connect success
+10-31 01:57:38.613 D/HostConnection(21229): HostRPC::connect sucess: app=screencap, pid=21229, tid=21229, this=0x763893ee4540
+10-31 01:57:38.614 D/HostConnection(21229): queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:screencap
+10-31 01:57:39.098 D/MediaScannerReceiver( 6160): action: android.intent.action.MEDIA_SCANNER_SCAN_FILE path: /storage/emulated/0/temp_screen.png
+10-31 01:57:39.209 I/appproc (21238): app_process main with argv: /system/bin com.android.commands.input.Input tap 800 450 
+10-31 01:57:39.209 D/AndroidRuntime(21238): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 01:57:39.210 E/cutils-trace(21238): Error opening trace file: No such file or directory (2)
+10-31 01:57:39.218 V/libnb   (21238): enter native_bridge2_isCompatibleWith 3
+10-31 01:57:39.224 I/libnb   (21238): Found /system/lib64/libhoudini.so version 3
+10-31 01:57:39.231 I/main    (21238): type=1400 audit(0.0:5613): avc: denied { mounton } for path="/proc/cpuinfo" dev="proc" ino=4026531992 scontext=u:r:shell:s0 tcontext=u:object_r:proc_cpuinfo:s0 tclass=file permissive=1
+10-31 01:57:39.236 I/app_process(21238): The ClassLoaderContext is a special shared library.
+10-31 01:57:39.236 W/app_process(21238): Could not create mount namespace.
+10-31 01:57:39.236 D/nativebridge(21238): PreInitializeNativeBridge name=unknown instruction_set=x86_64
+10-31 01:57:39.236 W/nativebridge(21238): Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+10-31 01:57:39.236 W/nativebridge(21238): Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+10-31 01:57:39.236 D/nativebridge(21238): call UnloadNativeBridge! state=2
+10-31 01:57:39.247 D/AndroidRuntime(21238): Calling main entry com.android.commands.input.Input
+10-31 01:57:39.249 I/Input   (21238): injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=800.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=11326810, downTime=11326810, deviceId=3, source=0x1002 }
+10-31 01:57:39.251 I/InputDispatcher( 1597): type=1400 audit(0.0:5614): avc: denied { call } for scontext=u:r:system_server:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+10-31 01:57:39.266 I/Input   (21238): injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=800.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=11326810, downTime=11326810, deviceId=3, source=0x1002 }
+10-31 01:57:39.275 D/AndroidRuntime(21238): Shutting down VM
+10-31 01:57:39.627 W/MapperHal(21080): buffer descriptor with invalid usage bits 0x2000
+10-31 01:57:39.839 E/cutils-trace(21249): Error opening trace file: No such file or directory (2)
+10-31 01:57:39.839 D/vndksupport(21249): Loading /vendor/lib64/hw/android.hardware.graphics.mapper@2.0-impl.so from current namespace instead of sphal namespace.
+10-31 01:57:39.839 D/vndksupport(21249): Loading /vendor/lib64/hw/gralloc.default.so from current namespace instead of sphal namespace.
+10-31 01:57:39.845 I/        (21249): fastpipe: Connect success
+10-31 01:57:39.848 I/        (21249): fastpipe: Connect success
+10-31 01:57:39.848 D/HostConnection(21249): HostRPC::connect sucess: app=screencap, pid=21249, tid=21249, this=0x763893ee4540
+10-31 01:57:39.849 D/HostConnection(21249): queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:screencap
+10-31 01:57:40.374 D/MediaScannerReceiver( 6160): action: android.intent.action.MEDIA_SCANNER_SCAN_FILE path: /storage/emulated/0/temp_screen.png
+10-31 01:57:40.490 I/appproc (21258): app_process main with argv: /system/bin com.android.commands.input.Input keyevent 4 
+10-31 01:57:40.490 D/AndroidRuntime(21258): >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 01:57:40.492 E/cutils-trace(21258): Error opening trace file: No such file or directory (2)
+10-31 01:57:40.499 V/libnb   (21258): enter native_bridge2_isCompatibleWith 3
+10-31 01:57:40.505 I/libnb   (21258): Found /system/lib64/libhoudini.so version 3
+10-31 01:57:40.520 I/app_process(21258): The ClassLoaderContext is a special shared library.
+10-31 01:57:40.520 W/app_process(21258): Could not create mount namespace.
+10-31 01:57:40.520 D/nativebridge(21258): PreInitializeNativeBridge name=unknown instruction_set=x86_64
+10-31 01:57:40.520 W/nativebridge(21258): Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+10-31 01:57:40.520 W/nativebridge(21258): Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+10-31 01:57:40.520 D/nativebridge(21258): call UnloadNativeBridge! state=2
+10-31 01:57:40.528 D/AndroidRuntime(21258): Calling main entry com.android.commands.input.Input
+10-31 01:57:40.528 I/Input   (21258): injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_BACK, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11328090, downTime=11328090, deviceId=-1, source=0x101 }
+10-31 01:57:40.537 I/Input   (21258): injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_BACK, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11328090, downTime=11328090, deviceId=-1, source=0x101 }
+10-31 01:57:40.547 I/ldinit  (21268): type=1400 audit(0.0:5615): avc: denied { execute } for name="sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-31 01:57:40.547 I/ldinit  (21268): type=1400 audit(0.0:5616): avc: denied { read open } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-31 01:57:40.547 I/ldinit  (21268): type=1400 audit(0.0:5617): avc: denied { execute_no_trans } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-31 01:57:40.547 I/sh      (21268): type=1400 audit(0.0:5618): avc: denied { getattr } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+10-31 01:57:40.547 D/AndroidRuntime(21258): Shutting down VM
+10-31 01:57:40.550 W/ContextImpl( 2292): Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:45 android.app.ActivityThread.handleReceiver:3424 
+10-31 01:57:40.551 I/sh      (21268): type=1400 audit(0.0:5619): avc: denied { execute_no_trans } for path="/system/bin/am" dev="sda2" ino=1703 scontext=u:r:ldinit:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+10-31 01:57:40.552 D/ldinit  ( 1477): ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.android.ld.appstore -f 32 --es package com.kaan.play --es pos pc
+10-31 01:57:40.552 D/ldinit  ( 1477): result:
+10-31 01:57:40.554 W/ContextImpl( 2292): Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+10-31 01:57:40.561 I/servicemanager( 1378): type=1400 audit(0.0:5620): avc: denied { search } for name="21269" dev="proc" ino=356233 scontext=u:r:servicemanager:s0 tcontext=u:r:ldinit:s0 tclass=dir permissive=1
+10-31 01:57:40.561 I/servicemanager( 1378): type=1400 audit(0.0:5621): avc: denied { read } for name="current" dev="proc" ino=356258 scontext=u:r:servicemanager:s0 tcontext=u:r:ldinit:s0 tclass=file permissive=1
+10-31 01:57:40.561 I/servicemanager( 1378): type=1400 audit(0.0:5622): avc: denied { open } for path="/proc/21269/attr/current" dev="proc" ino=356258 scontext=u:r:servicemanager:s0 tcontext=u:r:ldinit:s0 tclass=file permissive=1
+10-31 01:57:40.561 I/servicemanager( 1378): type=1400 audit(0.0:5623): avc: denied { getattr } for scontext=u:r:servicemanager:s0 tcontext=u:r:ldinit:s0 tclass=process permissive=1
+10-31 01:57:40.564 D/ldinit  ( 1477): Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+10-31 01:57:40.570 I/AppStartReceiver( 5888): onReceive, action = com.ldmnq.APP_FOREGROUND, extras = Bundle[{package=com.kaan.play, pos=pc}]
+10-31 01:57:40.570 D/ldinit  ( 1477): Broadcast completed: result=0
+10-31 01:57:40.576 D/ldinit  ( 1477): ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.ldmnq.launcher3 -f 32 --es package com.kaan.play --es pos pc
+10-31 01:57:40.576 D/ldinit  ( 1477): result:
+10-31 01:57:40.584 D/ldinit  ( 1477): Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+10-31 01:57:40.602 E/EGL_emulation(21080): tid 21145: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+10-31 01:57:40.602 W/OpenGLRenderer(21080): Failed to set EGL_SWAP_BEHAVIOR on surface 0x763863dfb180, error=EGL_BAD_MATCH
+10-31 01:57:40.612 D/AppStartReceiver(20455): action = com.ldmnq.APP_FOREGROUND, packageName = com.kaan.play, pos = pc
+10-31 01:57:40.613 D/ldinit  ( 1477): Broadcast completed: result=0
+10-31 01:57:40.614 W/ContextImpl( 2292): Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+10-31 01:57:40.716 W/System  ( 1597): A resource failed to call close. 
+10-31 01:57:40.861 I/chatty  ( 1597): uid=1000(system) FinalizerDaemon identical 65 lines
+10-31 01:57:40.861 W/System  ( 1597): A resource failed to call close. 
+10-31 01:57:40.947 E/bt_btif ( 1735): register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-31 01:57:40.947 I/chatty  ( 1735): uid=1002(bluetooth) BluetoothAvrcpH identical 4 lines
+10-31 01:57:40.947 E/bt_btif ( 1735): register_notification_rsp: Avrcp device is not connected, handle: 0x0
+10-31 01:57:40.954 I/        (21080): fastpipe: Connect success
+10-31 01:57:40.954 D/HostConnection(21080): HostRPC::connect sucess: app=com.kaan.play, pid=21080, tid=21284, this=0x76386895b500
+10-31 01:57:40.955 D/HostConnection(21080): queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+10-31 01:57:40.958 D/EGL_emulation(21080): eglCreateContext: 0x76388be60c80: maj 3 min 1 rcv 4
+10-31 01:57:40.963 I//system/bin/netd( 1432): gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+10-31 01:57:40.978 E/EGL_emulation(21080): eglQueryContext 32c0  EGL_BAD_ATTRIBUTE
+10-31 01:57:40.978 E/EGL_emulation(21080): tid 21284: eglQueryContext(2069): error 0x3004 (EGL_BAD_ATTRIBUTE)
+10-31 01:57:40.978 D/SurfaceUtils(21080): connecting to surface 0x7638927c1010, reason connectToSurface
+10-31 01:57:40.978 I/MediaCodec(21080): [OMX.google.h264.decoder] setting surface generation to 21585922
+10-31 01:57:40.978 D/SurfaceUtils(21080): disconnecting from surface 0x7638927c1010, reason connectToSurface(reconnect)
+10-31 01:57:40.978 D/SurfaceUtils(21080): connecting to surface 0x7638927c1010, reason connectToSurface(reconnect)
+10-31 01:57:40.978 D/SurfaceUtils(21080): disconnecting from surface 0x7638889d8010, reason disconnectFromSurface
+10-31 01:57:40.983 I/        (21080): fastpipe: Connect success
+10-31 01:57:40.984 D/HostConnection(21080): HostRPC::connect sucess: app=com.kaan.play, pid=21080, tid=21080, this=0x763863dc30c0
+10-31 01:57:40.985 D/HostConnection(21080): queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+10-31 01:57:40.993 W/ExoPlayerImpl(21080): SurfaceTextureListener already unset or replaced.
+10-31 01:57:40.995 D/PlayMatch(21080): takılma kaynak=HDFilmCehennemi sayı=0 toplam=0.0 sn oynama=0 dk
+10-31 01:57:40.995 D/PlayMatch(21080): takılma-ayrıntı kaynak=HDFilmCehennemi bitHızı=2.96 Mbps bantTahmini=80.55 Mbps tampon=17.0 sn
+10-31 01:57:40.995 I/ExoPlayerImpl(21080): Release 243b0ec [AndroidXMedia3/1.11.1] [star2qltechn, ASUS_AI2401_A, ROG, 28] [media3.common, media3.database, media3.exoplayer, media3.decoder, media3.ui, media3.exoplayer.hls, media3.datasource, media3.datasource.okhttp, media3.extractor]
+10-31 01:57:41.001 D/LDDec   ( 1497): ~LDDec deinit 0xf5212130 0
+10-31 01:57:41.001 D/SurfaceUtils(21080): disconnecting from surface 0x7638927c1010, reason disconnectFromSurface
+10-31 01:57:41.006 I/        (21080): fastpipe: close connect
+10-31 01:57:41.011 D/PlayTorrent(21080): oynatıcı kapandı: oturum 10 dk boşta açık kalacak
+10-31 01:57:41.012 W/ContextImpl( 2292): Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+10-31 01:57:41.023 I/        (21080): fastpipe: close connect
+10-31 01:57:42.631 E/cutils-trace(21287): Error opening trace file: No such file or directory (2)
+10-31 01:57:42.631 D/vndksupport(21287): Loading /vendor/lib64/hw/android.hardware.graphics.mapper@2.0-impl.so from current namespace instead of sphal namespace.
+10-31 01:57:42.632 D/vndksupport(21287): Loading /vendor/lib64/hw/gralloc.default.so from current namespace instead of sphal namespace.
+10-31 01:57:42.635 I/        (21287): fastpipe: Connect success
+10-31 01:57:42.638 I/        (21287): fastpipe: Connect success
+10-31 01:57:42.639 D/HostConnection(21287): HostRPC::connect sucess: app=screencap, pid=21287, tid=21287, this=0x763893ee4540
+10-31 01:57:42.640 D/HostConnection(21287): queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:screencap
+10-31 01:57:42.968 D/MediaScannerReceiver( 6160): action: android.intent.action.MEDIA_SCANNER_SCAN_FILE path: /storage/emulated/0/temp_screen.png
