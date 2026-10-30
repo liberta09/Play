@@ -1,5 +1,6 @@
 package com.kaan.play.data.plugin.runtime
 
+import com.kaan.play.BuildConfig
 import com.kaan.play.data.plugin.BlockedAddressException
 import com.kaan.play.data.plugin.NetworkPolicy
 import kotlinx.serialization.json.Json
@@ -126,6 +127,8 @@ internal class PluginHttp(
             failure("blocked")
         } catch (e: IOException) {
             notes.add(host, "network error")
+            // Yalnızca debug: hata türü + ana makine (ileti, adres yolu, anahtar yok). "network error"un gerçek nedenini gösterir.
+            if (BuildConfig.DEBUG) android.util.Log.d("PlayPluginNet", "$host ${request.method} !! ${e.javaClass.simpleName}")
             failure("network error")
         } catch (e: IllegalArgumentException) {
             failure("bad request")

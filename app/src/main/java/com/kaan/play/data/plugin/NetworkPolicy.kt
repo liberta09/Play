@@ -129,7 +129,9 @@ class NetworkPolicy(
 
     private inner class PolicyDns : Dns {
         override fun lookup(hostname: String): List<InetAddress> {
-            val all = Dns.SYSTEM.lookup(hostname)
+            // IPv4 önce (IPv6 yedekte kalır): IPv6'sı yanıt vermeyen ağlarda/emülatörlerde ilk bağlantı saniyelerce beklemesin
+            // ya da "network error" ile düşmesin. Yalnızca sıra değişir, adres denetimi aşağıda aynen sürer.
+            val all = com.kaan.play.data.net.Ipv4FirstDns.order(Dns.SYSTEM.lookup(hostname))
             if (allowPrivate || hostname in allowPrivateHosts) return all
             val allowed = all.filterNot { isBlocked(it) }
             if (allowed.isEmpty()) throw UnknownHostException("blocked")
