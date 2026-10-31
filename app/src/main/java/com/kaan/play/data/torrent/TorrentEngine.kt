@@ -14,6 +14,7 @@ import org.libtorrent4j.SettingsPack
 import org.libtorrent4j.Sha1Hash
 import org.libtorrent4j.TorrentFlags
 import org.libtorrent4j.TorrentHandle
+import org.libtorrent4j.swig.settings_pack
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
@@ -242,6 +243,10 @@ class TorrentEngine(private val dir: File) {
         val settings = SettingsPack()
             .connectionsLimit(CONNECTIONS)
             .activeDownloads(2)
+            .apply {
+                setBoolean(settings_pack.bool_types.announce_to_all_trackers.swigValue(), true)
+                setBoolean(settings_pack.bool_types.announce_to_all_tiers.swigValue(), true)
+            }
         val params = SessionParams(settings).apply { setPosixDiskIO() }
         return try {
             TorrentDiag.d("libtorrent oturumu başlıyor (ABI=${android.os.Build.SUPPORTED_ABIS.joinToString()}, dizin=$dir)")
