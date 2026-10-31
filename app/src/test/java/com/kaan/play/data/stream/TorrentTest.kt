@@ -26,6 +26,46 @@ class TorrentTest {
     }
 
     @Test
+    fun appendTrackersAddsMissingTrackersWithoutDuplication() {
+        val base = "magnet:?xt=urn:btih:${hash.lowercase()}&tr=udp%3A%2F%2Ft1.example%3A1337%2Fannounce"
+        val appended = TorrentLinks.appendTrackers(base, listOf("udp://t1.example:1337/announce", "udp://t2.example:1337/announce"))
+        assertEquals(
+            "magnet:?xt=urn:btih:${hash.lowercase()}&tr=udp%3A%2F%2Ft1.example%3A1337%2Fannounce&tr=udp%3A%2F%2Ft2.example%3A1337%2Fannounce",
+            appended,
+        )
+        assertEquals("not-a-magnet", TorrentLinks.appendTrackers("not-a-magnet", listOf("udp://t.example:1337/announce")))
+    }
+
+    @Test
+    fun nuvioTrackersMatchExactly() {
+        val expectedNuvioTrackers = listOf(
+            "udp://zer0day.ch:1337/announce",
+            "udp://tracker.publictracker.xyz:6969/announce",
+            "udp://tracker.opentrackr.org:1337/announce",
+            "udp://open.demonii.com:1337/announce",
+            "udp://open.stealth.si:80/announce",
+            "http://tracker.renfei.net:8080/announce",
+            "udp://udp.tracker.projectk.org:23333/announce",
+            "udp://tracker.tryhackx.org:6969/announce",
+            "udp://tracker.torrent.eu.org:451/announce",
+            "udp://tracker.theoks.net:6969/announce",
+            "udp://tracker.startwork.cv:1337/announce",
+            "udp://tracker.qu.ax:6969/announce",
+            "udp://tracker.plx.im:6969/announce",
+            "udp://tracker.nyaa.vc:6969/announce",
+            "udp://tracker.iperson.xyz:6969/announce",
+            "udp://tracker.gmi.gd:6969/announce",
+            "udp://tracker.fnix.net:6969/announce",
+            "udp://tracker.flatuslifir.is:6969/announce",
+            "udp://tracker.ducks.party:1984/announce",
+            "udp://tracker.bluefrog.pw:2710/announce",
+        )
+        assertEquals(20, expectedNuvioTrackers.size)
+        assertEquals(20, expectedNuvioTrackers.distinct().size)
+        assertEquals(expectedNuvioTrackers, com.kaan.play.data.torrent.TorrentEngine.PUBLIC_TRACKERS)
+    }
+
+    @Test
     fun serverAddressIsNormalizedOrRejected() {
         assertEquals("http://192.168.1.20:8090", TorrentLinks.normalizeServer("192.168.1.20:8090"))
         assertEquals("https://ts.example.com", TorrentLinks.normalizeServer(" https://ts.example.com/ "))
