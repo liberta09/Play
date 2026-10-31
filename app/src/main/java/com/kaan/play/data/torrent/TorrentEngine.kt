@@ -71,7 +71,13 @@ class TorrentEngine(private val dir: File) {
         synchronized(lock) {
             active?.let { if (it.hash == hash && it.fileHint == fileHint && it.filenameHint == filenameHint && it.handle.isValid) return it }
             val s = ensureSession()
-            active?.let { removeLocked(s, it) }
+            active?.let { prev ->
+                if (prev.hash != hash) {
+                    removeLocked(s, prev)
+                } else {
+                    active = null
+                }
+            }
 
             val sha1 = Sha1Hash.parseHex(hash)
             var handle = s.find(sha1)
@@ -116,6 +122,12 @@ class TorrentEngine(private val dir: File) {
             val first = TorrentRules.pieceAt(offset, 0, pieceLength)
             val last = TorrentRules.pieceAt(offset, size - 1, pieceLength)
             listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEach { h.piecePriority(it, Priority.TOP_PRIORITY) }
+            listOf(first, first + 1).filter { it in first..last }.forEachIndexed { idx, p ->
+                if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 250)
+            }
+            listOf(last - 1, last).filter { it in first..last }.forEachIndexed { idx, p ->
+                if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 500)
+            }
 
             TorrentDiag.d("torrent açıldı: hash=$hash dosya[$index]=${files.fileName(index)} boyut=$size parça=$pieceLength (dosya sayısı ${files.numFiles()}, ipucu=$fileHint)")
             return Opened(hash, fileHint, filenameHint, h, files.fileName(index), size, offset, pieceLength, File(h.savePath(), files.filePath(index)))
