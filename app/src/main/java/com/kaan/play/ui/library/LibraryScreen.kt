@@ -62,6 +62,11 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.rememberFocusMemory
+import com.kaan.play.ui.tv.rememberRowControls
+import com.kaan.play.ui.tv.rowControl
+import com.kaan.play.ui.tv.rowControlsHost
+import com.kaan.play.ui.tv.tvFocusableScaleGlow
+import androidx.compose.ui.focus.onFocusChanged
 
 private val CardMinWidth = 132.dp
 private val Gutter = 20.dp
@@ -295,10 +300,21 @@ private fun HistoryRow(entry: WatchHistoryEntity, onClick: () -> Unit, onRemove:
         else -> stringResource(R.string.continue_left_movie, minutesLeft)
     }
     val progress = (entry.positionMs.toFloat() / entry.durationMs.toFloat()).coerceIn(0f, 1f)
+    val rowControls = rememberRowControls(1)
+    val shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp)
+    var isRowFocused by remember { mutableStateOf(false) }
 
     androidx.compose.material3.Surface(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .rowControlsHost(rowControls)
+            .tvFocusableScaleGlow(
+                shape = shape,
+                isFocused = isRowFocused,
+                zIndex = 5f,
+            )
+            .onFocusChanged { isRowFocused = it.isFocused }
+            .fillMaxWidth(),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
@@ -334,7 +350,7 @@ private fun HistoryRow(entry: WatchHistoryEntity, onClick: () -> Unit, onRemove:
                     trackColor = MaterialTheme.colorScheme.outline,
                 )
             }
-            IconButton(onClick = onRemove) {
+            IconButton(onClick = onRemove, modifier = Modifier.rowControl(rowControls, 0)) {
                 Icon(
                     PlayIcons.Close,
                     contentDescription = stringResource(R.string.library_remove_history),
