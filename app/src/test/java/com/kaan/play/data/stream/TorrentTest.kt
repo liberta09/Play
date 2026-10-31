@@ -26,6 +26,17 @@ class TorrentTest {
     }
 
     @Test
+    fun appendTrackersAddsMissingTrackersWithoutDuplication() {
+        val base = "magnet:?xt=urn:btih:${hash.lowercase()}&tr=udp%3A%2F%2Ft1.example%3A1337%2Fannounce"
+        val appended = TorrentLinks.appendTrackers(base, listOf("udp://t1.example:1337/announce", "udp://t2.example:1337/announce"))
+        assertEquals(
+            "magnet:?xt=urn:btih:${hash.lowercase()}&tr=udp%3A%2F%2Ft1.example%3A1337%2Fannounce&tr=udp%3A%2F%2Ft2.example%3A1337%2Fannounce",
+            appended,
+        )
+        assertEquals("not-a-magnet", TorrentLinks.appendTrackers("not-a-magnet", listOf("udp://t.example:1337/announce")))
+    }
+
+    @Test
     fun serverAddressIsNormalizedOrRejected() {
         assertEquals("http://192.168.1.20:8090", TorrentLinks.normalizeServer("192.168.1.20:8090"))
         assertEquals("https://ts.example.com", TorrentLinks.normalizeServer(" https://ts.example.com/ "))

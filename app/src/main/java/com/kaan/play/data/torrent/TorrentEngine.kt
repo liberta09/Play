@@ -78,7 +78,8 @@ class TorrentEngine(private val dir: File) {
                 // "bitti" sayılır ve libtorrent tohum eşleri "gereksiz bağlantı" diye koparır; yeniden bağlanma uzun sürdüğü için soğuk
                 // açılışlarda 40 sn boyunca eş=0 kalıp ilk kare gelmiyordu (5 denemenin 4'ü). Şimdi dosyalar varsayılan önceliktedir;
                 // oynatılmayanlar üst bilgi gelir gelmez aşağıda IGNORE yapılır (en çok ~0,1 sn'lik boşluk, veri sonunda silinir).
-                s.download(magnet, dir, TorrentFlags.SEQUENTIAL_DOWNLOAD)
+                val fullMagnet = TorrentLinks.appendTrackers(magnet, PUBLIC_TRACKERS)
+                s.download(fullMagnet, dir, TorrentFlags.SEQUENTIAL_DOWNLOAD)
                 handle = waitFor(METADATA_TIMEOUT_MS) { s.find(sha1)?.takeIf { it.isValid } }
                     ?: throw TorrentException(TorrentException.Reason.Engine, "torrent not added")
                 PUBLIC_TRACKERS.forEach { runCatching { handle.addTracker(AnnounceEntry(it)) } }
@@ -290,12 +291,26 @@ class TorrentEngine(private val dir: File) {
 
         /** Yalnızca infoHash veren kaynaklarda eş bulmayı hızlandıran, herkese açık bilinen izleyiciler. */
         val PUBLIC_TRACKERS = listOf(
+            "udp://zer0day.ch:1337/announce",
+            "udp://tracker.publictracker.xyz:6969/announce",
             "udp://tracker.opentrackr.org:1337/announce",
             "udp://open.demonii.com:1337/announce",
             "udp://open.stealth.si:80/announce",
+            "http://tracker.renfei.net:8080/announce",
+            "udp://udp.tracker.projectk.org:23333/announce",
+            "udp://tracker.tryhackx.org:6969/announce",
             "udp://tracker.torrent.eu.org:451/announce",
-            "udp://exodus.desync.com:6969/announce",
-            "udp://explodie.org:6969/announce",
+            "udp://tracker.theoks.net:6969/announce",
+            "udp://tracker.startwork.cv:1337/announce",
+            "udp://tracker.qu.ax:6969/announce",
+            "udp://tracker.plx.im:6969/announce",
+            "udp://tracker.nyaa.vc:6969/announce",
+            "udp://tracker.iperson.xyz:6969/announce",
+            "udp://tracker.gmi.gd:6969/announce",
+            "udp://tracker.fnix.net:6969/announce",
+            "udp://tracker.flatuslifir.is:6969/announce",
+            "udp://ducks.party:1984/announce",
+            "udp://tracker.bluefrog.pw:2710/announce",
         )
     }
 }
