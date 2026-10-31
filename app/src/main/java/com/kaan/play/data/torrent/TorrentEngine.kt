@@ -14,6 +14,7 @@ import org.libtorrent4j.SettingsPack
 import org.libtorrent4j.Sha1Hash
 import org.libtorrent4j.TorrentFlags
 import org.libtorrent4j.TorrentHandle
+import org.libtorrent4j.swig.settings_pack
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
@@ -242,7 +243,22 @@ class TorrentEngine(private val dir: File) {
         dir.mkdirs()
         val settings = SettingsPack()
             .connectionsLimit(CONNECTIONS)
-            .activeDownloads(2)
+            .activeDownloads(4)
+            .activeTrackerLimit(32)
+            .activeDhtLimit(32)
+            .maxPeerlistSize(500)
+            .apply {
+                setEnableDht(true)
+                setDhtBootstrapNodes("router.bittorrent.com:6881,router.utorrent.com:6881,dht.transmissionbt.com:6881,dht.libtorrent.org:25401")
+                setBoolean(settings_pack.bool_types.announce_to_all_trackers.swigValue(), true)
+                setBoolean(settings_pack.bool_types.announce_to_all_tiers.swigValue(), true)
+                setBoolean(settings_pack.bool_types.prefer_udp_trackers.swigValue(), true)
+                setBoolean(settings_pack.bool_types.enable_outgoing_utp.swigValue(), true)
+                setBoolean(settings_pack.bool_types.enable_incoming_utp.swigValue(), true)
+                setBoolean(settings_pack.bool_types.allow_multiple_connections_per_ip.swigValue(), true)
+                setInteger(settings_pack.int_types.torrent_connect_boost.swigValue(), 60)
+                setInteger(settings_pack.int_types.connection_speed.swigValue(), 60)
+            }
         val params = SessionParams(settings).apply { setPosixDiskIO() }
         return try {
             TorrentDiag.d("libtorrent oturumu başlıyor (ABI=${android.os.Build.SUPPORTED_ABIS.joinToString()}, dizin=$dir)")
