@@ -167,10 +167,9 @@ class PlaybackController(
 
         // [ADIM 4] TV Box RAM sınırı (b7dab38) + Telefon 4K yüksek bit hızı uyumu (PlayerBufferConfig)
         val targetBufferBytes = PlayerBufferConfig.fromContext(context)
-        val prioritizeTime = PlayerBufferConfig.prioritizeTimeFromContext(context)
         val loadControl = DefaultLoadControl.Builder()
             .setTargetBufferBytes(targetBufferBytes)
-            .setPrioritizeTimeOverSizeThresholds(prioritizeTime)
+            .setPrioritizeTimeOverSizeThresholds(false)
             .setBufferDurationsMs(15000, 30000, 2500, 5000)
             .setBackBuffer(0, false)
             .build()
