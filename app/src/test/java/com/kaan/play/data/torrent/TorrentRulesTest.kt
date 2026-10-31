@@ -23,6 +23,14 @@ class TorrentRulesTest {
     }
 
     @Test
+    fun filenameHintIsUsedWhenHintIsAbsent() {
+        assertEquals(0, TorrentRules.pickFile(files, null, "sample.mkv"))
+        assertEquals(3, TorrentRules.pickFile(files, null, "Movie.2024.1080p.mkv"))
+        assertEquals(1, TorrentRules.pickFile(files, null, "readme.txt"))
+        assertEquals(3, TorrentRules.pickFile(files, null, "nonexistent.mkv"))
+    }
+
+    @Test
     fun largestVideoIsPickedWithoutAValidHint() {
         assertEquals(3, TorrentRules.pickFile(files, null))
         assertEquals(3, TorrentRules.pickFile(files, 2)) // dolgu dosyası

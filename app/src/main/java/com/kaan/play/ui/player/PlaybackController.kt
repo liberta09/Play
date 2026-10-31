@@ -101,7 +101,7 @@ class PlaybackController(
     private val client: OkHttpClient,
     private val offlineCache: Cache? = null,
     /** `magnet:` kaynağın yerleşik torrent motorundaki yerel http adresi (magnet, dosya sırası). */
-    private val torrentUrl: (String, Int?) -> String = { _, _ -> throw IllegalStateException("no torrent engine") },
+    private val torrentUrl: (String, Int?, String?) -> String = { _, _, _ -> throw IllegalStateException("no torrent engine") },
     bigBuffer: Boolean = false,
 ) : SubtitleHost {
 
@@ -426,7 +426,7 @@ class PlaybackController(
         headers = stream.headers
         torrent = TorrentLinks.isMagnet(stream.url)
         // Magnet: yerleşik motorun yerel adresi; tür içerikten çıkarılır (dosya adı üst bilgi gelince belli olur).
-        val uri = if (torrent) torrentUrl(stream.url, stream.torrentFileIdx) else stream.url
+        val uri = if (torrent) torrentUrl(stream.url, stream.torrentFileIdx, stream.torrentFilename) else stream.url
         if (uri.isNullOrBlank()) {
             android.util.Log.e(TAG, "Oynatılacak URI boş veya null!")
             ui = ui.copy(error = PlaybackError.Unavailable, buffering = false)

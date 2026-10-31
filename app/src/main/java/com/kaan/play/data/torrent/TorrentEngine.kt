@@ -37,6 +37,7 @@ class TorrentEngine(private val dir: File) {
     class Opened internal constructor(
         val hash: String,
         val fileHint: Int?,
+        val filenameHint: String?,
         internal val handle: TorrentHandle,
         val name: String,
         val size: Long,
@@ -64,11 +65,11 @@ class TorrentEngine(private val dir: File) {
      * Magnet'i açar (gerekirse üst bilgiyi bekler) ve oynatılacak dosyayı seçer. Aynı torrent+dosya zaten açıksa onu döndürür;
      * başka bir torrent açıksa o kapatılıp dosyaları silinir. Engelleyicidir: arka plan iş parçacığında çağrılır.
      */
-    fun open(magnet: String, fileHint: Int?): Opened {
+    fun open(magnet: String, fileHint: Int?, filenameHint: String? = null): Opened {
         val hash = TorrentLinks.hexHashOf(magnet) ?: throw TorrentException(TorrentException.Reason.BadLink, "bad magnet")
-        TorrentDiag.d("motor open: hash=$hash fileHint=$fileHint")
+        TorrentDiag.d("motor open: hash=$hash fileHint=$fileHint filenameHint=$filenameHint")
         synchronized(lock) {
-            active?.let { if (it.hash == hash && it.fileHint == fileHint && it.handle.isValid) return it }
+            active?.let { if (it.hash == hash && it.fileHint == fileHint && it.filenameHint == filenameHint && it.handle.isValid) return it }
             val s = ensureSession()
             active?.let { removeLocked(s, it) }
 
@@ -97,7 +98,7 @@ class TorrentEngine(private val dir: File) {
             val entries = (0 until files.numFiles()).map {
                 TorrentRules.FileEntry(files.fileName(it), files.fileSize(it), files.padFileAt(it))
             }
-            val index = TorrentRules.pickFile(entries, fileHint) ?: run {
+            val index = TorrentRules.pickFile(entries, fileHint, filenameHint) ?: run {
                 s.remove(h, SessionHandle.DELETE_FILES)
                 throw TorrentException(TorrentException.Reason.NoFile, "no playable file")
             }
@@ -117,7 +118,7 @@ class TorrentEngine(private val dir: File) {
             listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEach { h.piecePriority(it, Priority.TOP_PRIORITY) }
 
             TorrentDiag.d("torrent açıldı: hash=$hash dosya[$index]=${files.fileName(index)} boyut=$size parça=$pieceLength (dosya sayısı ${files.numFiles()}, ipucu=$fileHint)")
-            return Opened(hash, fileHint, h, files.fileName(index), size, offset, pieceLength, File(h.savePath(), files.filePath(index)))
+            return Opened(hash, fileHint, filenameHint, h, files.fileName(index), size, offset, pieceLength, File(h.savePath(), files.filePath(index)))
                 .also { active = it }
         }
     }

@@ -16,9 +16,15 @@ object TorrentRules {
      * Oynatılacak dosya: eklentinin verdiği [hint] geçerliyse o; yoksa en büyük video dosyası; video yoksa en büyük dosya.
      * Hiç dosya yoksa null.
      */
-    fun pickFile(files: List<FileEntry>, hint: Int?): Int? {
+    fun pickFile(files: List<FileEntry>, hint: Int?, filenameHint: String? = null): Int? {
         val usable = files.indices.filter { !files[it].pad && files[it].size > 0 }
         if (hint != null && hint in usable) return hint
+        if (!filenameHint.isNullOrBlank()) {
+            val target = filenameHint.trim().lowercase(Locale.ROOT)
+            val match = usable.firstOrNull { files[it].name.substringAfterLast('/').lowercase(Locale.ROOT) == target }
+                ?: usable.firstOrNull { files[it].name.lowercase(Locale.ROOT).endsWith(target) }
+            if (match != null) return match
+        }
         return usable.filter { isVideo(files[it].name) }.maxByOrNull { files[it].size }
             ?: usable.maxByOrNull { files[it].size }
     }

@@ -30,10 +30,11 @@ class TorrentHttpServer(private val engine: TorrentEngine) {
     @Volatile var onOpened: ((magnet: String, size: Long) -> Unit)? = null
 
     /** Magnet'in yerel oynatma adresi. Sunucu gerekirse burada başlar (yalnızca soket açar; motor ilk istekte başlar). */
-    fun urlFor(magnet: String, fileIdx: Int?): String {
+    fun urlFor(magnet: String, fileIdx: Int?, filename: String? = null): String {
         val port = ensureStarted()
         val index = fileIdx?.let { "&index=$it" }.orEmpty()
-        return "http://127.0.0.1:$port/$token/stream?link=${URLEncoder.encode(magnet, "UTF-8")}$index"
+        val name = filename?.let { "&filename=${URLEncoder.encode(it, "UTF-8")}" }.orEmpty()
+        return "http://127.0.0.1:$port/$token/stream?link=${URLEncoder.encode(magnet, "UTF-8")}$index$name"
     }
 
     @Synchronized
@@ -73,7 +74,7 @@ class TorrentHttpServer(private val engine: TorrentEngine) {
             val magnet = query["link"] ?: return status(out, 400, "Bad Request")
 
             val file = try {
-                engine.open(magnet, query["index"]?.toIntOrNull())
+                engine.open(magnet, query["index"]?.toIntOrNull(), query["filename"])
             } catch (e: TorrentException) {
                 Log.w(TAG, "open failed: ${e.reason}")
                 TorrentDiag.e("motor açamadı: ${e.reason}", e)
