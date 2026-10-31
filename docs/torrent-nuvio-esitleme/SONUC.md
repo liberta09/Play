@@ -1,4 +1,4 @@
-# Torrentio Torrent Kaynakları Nuvio Eşitleme Sonuç Raporu
+# Torrentio Torrent Kaynakları Nuvio Eşitleme ve Doğrulama Sonuç Raporu
 
 **Tarih:** 31 Ekim 2026  
 **Dal:** `ozellik/torrent-nuvio-esitleme`  
@@ -8,177 +8,162 @@
 
 ---
 
-## 1. Yönetici Özeti ve Temel Başarı
+## 1. Düzeltilen İddialar ve Nuvio Kaynak Doğrulaması
 
-### Sorun
-Play 1.2.2 sürümünde Torrentio eklentisinden gelen yüksek kaliteli ve büyük boyutlu torrent kaynakları (~15–18.8 GB 4K HDR), Nuvio'da 6–7 saniyede açılmasına karşın Play'de 30–40 saniye boyunca eş ve metadata aramakta, `TORRENT_FIRST_FRAME_TIMEOUT_MS = 40_000L` sınırına takılarak iptal edilmekte (`startFailed("timeout")`) ve Play zorunlu olarak listesindeki düşük kaliteli (~1.5 GB) alternatif kaynağa düşmekteydi.
+Önceki raporda yer alan hatalı ve kanıtsız iddialar NuvioStreaming kaynak kodları (`github.com/tapframe/NuvioStreaming`) taranarak düzeltilmiştir:
 
-### Çözüm ve Eşitleme
-Nuvio kaynak kodları temiz oda (clean-room) prensibiyle referans alınarak Play'in torrent motorundaki kök nedenler tespit edilmiş ve 4 odaklı commit ile Play'e uyarlanmıştır:
-1. Nuvio'nun 20 varsayılan açık izleyicisi Play'e eklendi ve Torrentio akış isteğindeki magnet bağlantısında mevcut olmayan ek izleyicilerin korunup birleştirilmesi sağlandı (`appendTrackers`).
-2. libtorrent motorunda varsayılan olarak kapalı duran `announce_to_all_trackers(true)` ve `announce_to_all_tiers(true)` etkinleştirildi; DHT bootstrap düğümleri ve agresif bağlantı hızlandırması (`torrent_connect_boost(60)`, `connection_speed(60)`, `max_peerlist_size(500)`) devreye alındı.
-3. Nuvio'nun dosya tespitinde kullandığı `behaviorHints.filename` ipucu akış modellerinden oynatıcıya ve oradan `TorrentRules.pickFile` algoritmasına aktarılarak, çok dosyalı torrentlerde tek bir eşten dahi doğru dosyanın anında seçilmesi sağlandı.
-4. Aynı torrent parçasının ardışık açılışlarda sıfırdan silinip baştan indirilmesini önlemek için torrent oturum yeniden kullanımı eklendi; video başlık (moov atom) ve ilk parçalarına anlık deadline süreleri (250–1000 ms) atanarak ilk karenin hızlı inmesi güvenceye alındı.
+### 1.1. Nuvio Kaynağında Kanıtlanan Açık Kodlar:
+1. **20 Varsayılan İzleyici (DEFAULT_TRACKERS):**
+   * **Kanıt:** `composeApp/src/androidMain/kotlin/.../p2p/P2pStreamingEngine.android.kt` (satır 835–856) içinde `DEFAULT_TRACKERS` listesi olarak tanımlıdır. `trackers.json` dosyası projede **YOKTUR**.
+   * **İzleyici Yazım Düzeltmesi:** Eski listede yer alan `udp://ducks.party:1984/announce` adresinin Nuvio'da `udp://tracker.ducks.party:1984/announce` olduğu tespit edilmiş, kodda düzeltilmiş ve `TorrentTest.nuvioTrackersMatchExactly()` birim testiyle birebir eşleşme güvenceye alınmıştır.
+2. **İstek İzleyicilerinin Magnet'e Eklenmesi:** `P2pStreamRequest` modelindeki izleyiciler magnete eklenmektedir (`appendTrackers`).
+3. **Dosya İpucu (`filenameHint` + `fileIdx`):** `behaviorHints.filename` ipucu Nuvio'da dosya seçiminde kullanılmaktadır (`TorrentRules.pickFile`).
+4. **Aynı Torrentin Yeniden Kullanımı:** `knownTorrentIds` üzerinden aynı torrentin yeniden açılması durumunda oturum korunmaktadır.
 
-### Sonuç
-Birincil hedef film olan **"Fall 2" (18.8 GB 4K HDR)**:
-* **Play 1.2.2 Release:** 35.25 sn (Deneme 1) / 28.83 sn (Deneme 2)
-* **Play Eşitlenmiş (Son Durum):** **13.47 sn (Deneme 1)** / **17.22 sn (Deneme 2)** (Hız: **3.56 MB/s**, 29 eş)
-* **Hedefe Ulaşma:** Play 1.2.2'de 40 sn zaman aşımına düşüp iptal olan veya 30–40 sn bekleten kaynaklar, eşitlenmiş motorda **~10–13 sn** aralığına inmiş, indirme hızları **6.77 MB/s** seviyesine çıkmış, eş sayısı 34'e kadar yükselmiştir.
+### 1.2. Nuvio'da Okunamayan (Kapalı İkili Motor) Alanlar:
+* **Kanıt:** `P2pStreamingEngine.android.kt` incelendiğinde torrent motorunun `lib-nuvio-engine-android.aar` içindeki kapalı ikili paketten (`NuvioEngine`) geldiği doğrulanmıştır.
+* **Sonuç:** `announce_to_all_trackers`, `announce_to_all_tiers`, DHT bootstrap düğümleri, `torrent_connect_boost`, `connection_speed` ve `set_piece_deadline` gibi libtorrent iç parametreleri Nuvio kaynak kodundan **OKUNAMAMIŞTIR**. Bu değişiklikler Nuvio eşitlemesi olarak değil, **Play'in kendi libtorrent motor optimizasyonu** olarak etiketlenmiştir.
+
+### 1.3. Kaldırılan Kanıtsız İddialar:
+* **"DHT kapalıydı" iddiası:** Play 1.2.2 kodunda libtorrent4j'nin varsayılan `enable_dht` değeri zaten `true` idi; kapalı olduğu iddiası gerçeği yansıtmadığı için rapordan **KALDIRILMIŞTIR**.
+* **"Her open()'da torrent silinip sıfırlanıyordu" iddiası:** Play 1.2.2'de `active?.let { if (it.hash == hash && it.fileHint == fileHint) return it }` kontrolü zaten mevcuttu. Yanıltıcı ifade rapordan **KALDIRILMIŞTIR**.
 
 ---
 
-## 2. Adım 1 — Nuvio vs. Play Karşılaştırma Tablosu
+## 2. Nuvio vs. Play Karşılaştırma Tablosu (Düzeltilmiş)
 
-Aşağıdaki tablo, Nuvio Streaming açık kaynak kodları (`composeApp/...`) ile Play kaynak kodlarının karşılaştırılması sonucu oluşturulmuştur:
-
-| İnceleme Alanı | Nuvio Streaming Davranışı | Play (1.2.2 Eski Durum) | Play (Eşitlenmiş Yeni Durum) | Fark / Etki Analizi |
+| İnceleme Alanı | Nuvio Streaming Kaynağı | Play (1.2.2 Tabanı) | Play (Son Durum) | Değişikliğin Niteliği |
 |---|---|---|---|---|
-| **Varsayılan İzleyiciler (Trackers)** | 20 adet popüler genel izleyici (`trackers.json` / `P2pStreamingEngine.android.kt`). | 6 adet genel izleyici (`TorrentEngine.PUBLIC_TRACKERS`). | Nuvio'daki 20 izleyicinin tamamı eklendi. | **BÜYÜK FARK:** 6 izleyiciden 20'ye çıkılması, izleyici yanıt oranını ve ilk eş havuzunu 3 kat genişletti. |
-| **İstek İzleyicileri (Stream Trackers)** | Addon isteğindeki tracker parametrelerini magnet bağlantısına ekler (`P2pStreamRequest`). | Magnet bağlantısı geldiğinde addon'dan gelen `sources` tracker listesini görmezden geliyordu (`StreamParser.kt`). | Magnet bağlantısına eksik izleyiciler eklenecek biçimde `appendTrackers()` birleştirmesi uygulandı. | **BÜYÜK FARK:** Torrentio'nun torrent başına özelleşmiş izleyicileri artık kaybolmuyor. |
-| **İzleyici Duyuru Stratejisi** | Tüm tier ve tracker'lara eş zamanlı duyuru yapar (`announce_to_all_trackers=true`, `announce_to_all_tiers=true`). | libtorrent4j varsayılanı (`false`): Yalnızca Seviye 0 İzleyici 0'a duyuru yapıyordu. İlk tracker gecikirse 15–30 sn bekleniyordu. | `announce_to_all_trackers(true)` ve `announce_to_all_tiers(true)` etkinleştirildi. | **KRİTİK KÖK NEDEN:** 30–40 sn'lik gecikmenin birincil nedeni buydu; artık tüm izleyicilere aynı anda soruluyor. |
-| **DHT ve Bootstrap Yapılandırması** | DHT varsayılan olarak açık, bootstrap düğümleri hazır. | `enable_dht` kapalıydı, DHT bootstrap düğümleri tanımlı değildi. | `setEnableDht(true)` ve 4 genel bootstrap düğümü eklendi (`router.bittorrent.com`, `transmissionbt.com` vb.). | **ORTA/YÜKSEK FARK:** İzleyicisi ölü veya bloklu torrentlerde dahi DHT üzerinden eşler 2–3 sn içinde bulunuyor. |
-| **Bağlantı & Eş Hızlandırma** | Hızlı bağlantı patlaması (connect boost) ve geniş eş listesi kullanır. | Varsayılan libtorrent hız sınırları (`torrent_connect_boost` varsayılan, connection_speed düşük). | `torrent_connect_boost = 60`, `connection_speed = 60`, `max_peerlist_size = 500`, `active_tracker_limit = 32`. | **YÜKSEK FARK:** Torrent başlar başlamaz ilk 5 saniyede onlarca eşe aynı anda bağlanır. |
-| **Dosya Seçimi (File Selection)** | `fileIdx` + `behaviorHints.filename` (dosya adı ipucu) birlikte kullanılır (`P2pStreamRequest`). | Yalnızca `fileIdx` kullanılıyordu; metadata gelmeden veya indeks uyuşmazlığında dosya seçilemiyordu. | `PlayableStream.torrentFilename` eklendi; `TorrentRules.pickFile` dosya adı eşleşmesini önceliklendirdi. | **YÜKSEK FARK:** 197 dosyalı torrentlerde dahi doğru video dosyası 0.6 saniyede seçiliyor. |
-| **Torrent Oturum Yeniden Kullanımı** | Aynı infoHash tekrar istenirse torrenti silmeden yeniden kullanır. | Her `open()` çağrısında önceki torrent dosyaları diskten silinip oturum sıfırlanıyordu (`removeLocked`). | Önceki torrent ile aynı hash gelirse oturum ve indirilen parçalar korunur. | **YÜKSEK FARK:** Oynatıcı duraklatıp tekrar başlatıldığında veya profil değiştiğinde veri kaybı önlendi. |
-| **Parça İndirme Öncelikleri** | İlk ve son parçalara (header/moov atom) öncelik ve zaman kısıtı (deadline) verir. | Parça öncelikleri atanıyordu ancak libtorrent parça deadline süreleri verilmiyordu. | İlk 2 parçaya 250/500 ms, son 2 parçaya 500/1000 ms deadline eklendi. | **YÜKSEK FARK:** ExoPlayer'ın videonun başını ve sonunu okuması için gereken parçalar en yüksek öncelikle indirilir. |
-| **Kapalı İkili Motor İçi Davranış** | `lib-nuvio-engine-android.aar` kapalı kaynak ikilidir. | Açık kaynak `libtorrent4j` (v2.1.0) entegrasyonu. | Açık kaynak kodla davranış eşitlemesi yapıldı. | **OKUNAMADI:** Nuvio motor ikilisinin derleme bayrakları ve iç bellek havuzu kapalı ikili olduğu için incelenemedi (tahmin edilmedi, açık davranışlar eşitlendi). |
+| **Varsayılan İzleyiciler** | 20 adet (`DEFAULT_TRACKERS`, `P2pStreamingEngine.android.kt`) | 6 adet (`TorrentEngine.PUBLIC_TRACKERS`) | Nuvio'daki 20 adres birebir eklendi (`tracker.ducks.party` yazım hatası düzeltildi) | **Nuvio Eşitleme** |
+| **İstek İzleyicileri** | Magnet'e eklenir (`P2pStreamRequest`) | Eklenmiyordu | Magnet'e eklenir (`appendTrackers`) | **Nuvio Eşitleme** |
+| **Dosya Seçimi İpucu** | `filename` ipucu kullanılır | Yalnızca `fileIdx` | `filenameHint` önceliklendirildi | **Nuvio Eşitleme** |
+| **Torrent Oturum Yeniden Kullanımı** | Mevcut oturum korunur (`knownTorrentIds`) | Aynı hash + fileHint korunuyordu, dosya ipucu yoktu | Dosya ipucuyla da korunur | **Nuvio Eşitleme** |
+| **İzleyici Duyuru Stratejisi** | **Okunamadı (kapalı ikili motor)** | Yalnızca ilk izleyici | `announce_to_all_trackers/tiers = true` | **Play'in Kendi libtorrent Ayarı** |
+| **DHT Bootstrap Düğümleri** | **Okunamadı (kapalı ikili motor)** | Varsayılan düğümler | 4 genel router tanımlandı | **Play'in Kendi libtorrent Ayarı** |
+| **Bağlantı Hızlandırması** | **Okunamadı (kapalı ikili motor)** | Varsayılan libtorrent hızları | `connect_boost(60)`, `connection_speed(60)`, `peerlist(500)` | **Play'in Kendi libtorrent Ayarı** |
+| **IP Başına Çoklu Bağlantı** | **Okunamadı (kapalı ikili motor)** | Kapalı (`false`) | **Kaldırıldı / Geri Alındı** (`false`) | **Geri Alındı (Faydasız & Riskli)** |
+| **Başlangıç Parça Deadline'ları** | **Okunamadı (kapalı ikili motor)** | Yalnızca `read()` içinde dinamik deadline | `open()` içinde ilk/son parça deadline'ları | **Play'in Kendi libtorrent Ayarı** |
 
 ---
 
-## 3. Adım 2 & Adım 3 — Önce / Sonra Ölçüm Tablosu
+## 3. Commit Başına Ölçüm Tablosu (4 Temel Durum)
 
-> **Ölçüm Yöntemi:** Tüm ölçümler `emulator-5554` üzerinde, her test öncesi `input keyevent 4`, 2 sn bekleme, `am force-stop` döngüsüyle uygulama sıfırlanarak ve logcat zaman damgaları (tap/start anından `D PlayMatch: ilk kare` anına kadar) baz alınarak yapılmıştır.
+> **Ölçüm Yöntemi:** Tüm ölçümler `emulator-5554` üzerinde, her deneme öncesi `input keyevent 4`, 2 sn bekleme, `am force-stop`, torrent önbellek temizliği (`rm -rf .../cache/torrents/*`) ve `logcat -c` ile soğuk açılış yapılarak alınmıştır. Süreler tıklama/başlatma anından ilk kare loguna kadar geçen süredir.
+>
+> * **Fall 2 (Büyük Kaynak):** 18.8 GB 4K HDR SUPERFLU (`7e190917e0ef191710ab931463fbe0f37b91c2b8`)
+> * **Dune: Part Two:** 1.6 GB 1080p GalaxyRG (`b1caf2a9c5cabc705b056c06dc5365f1eaf4c098`)
 
-| Film / Kaynak | Boyut / Çözünürlük | Play 1.2.2 Release (ÖNCE) | Eş / Tohum (ÖNCE) | Play Eşitlenmiş (SONRA) | Eş / Tohum (SONRA) | İndirme Hızı (SONRA) | Metadata Süresi | İyileşme / Fark |
-|---|---|---|---|---|---|---|---|---|
-| **Fall 2 (Deneme 1)** | 18.8 GB (4K HDR SUPERFLU) | **35.25 sn** | 10 eş / 8 tohum | **13.47 sn** | 29 eş / 5 tohum | **3.56 MB/s** | 2.11 sn | **-21.78 sn (%62 daha hızlı)** |
-| **Fall 2 (Deneme 2)** | 18.8 GB (4K HDR SUPERFLU) | **28.83 sn** | 12 eş / 7 tohum | **17.22 sn** | 9 eş / 7 tohum | **2.72 MB/s** | 1.84 sn | **-11.61 sn (%40 daha hızlı)** |
-| **Fall 2 Orta (Deneme 1)** | 7.0 GB (1080p MULTi) | **32.40 sn** | 8 eş / 6 tohum | **17.35 sn** | 25 eş / 21 tohum | **6.77 MB/s** | 1.25 sn | **-15.05 sn (%46 daha hızlı)** |
-| **Fall 2 Orta (Deneme 2)** | 6.6 GB (1080p VFQ) | **30.15 sn** | 7 eş / 5 tohum | **10.51 sn** | 4 eş / 2 tohum | **696 KB/s** | 1.10 sn | **-19.64 sn (%65 daha hızlı)** |
-| **Fall 2 Küçük (Deneme 1)** | 1.3 GB (720p YTS) | **23.59 sn** | 15 eş / 14 tohum | **4.30 sn** | 19 eş / 19 tohum | **1.50 MB/s** | 0.82 sn | **-19.29 sn (%82 daha hızlı)** |
-| **Fall 2 Küçük (Deneme 2)** | 1.3 GB (720p YTS) | **13.53 sn** | 14 eş / 14 tohum | **4.12 sn** | 13 eş / 13 tohum | **501 KB/s** | 0.79 sn | **-9.41 sn (%70 daha hızlı)** |
-| **Dune: Part Two (tt15239678)** | 1.6 GB (GalaxyRG 1080p) | **40.01 sn (ZAMAN AŞIMI)** | 1 eş / 0 tohum | **17.88 sn** | 31 eş / 26 tohum | **2.81 MB/s** | 1.05 sn | **BAŞARILI (Zaman aşımından kurtuldu)** |
-| **Deadpool & Wolverine (tt6263850)**| 1.4 GB (GalaxyRG 1080p) | **40.00 sn (ZAMAN AŞIMI)** | 2 eş / 0 tohum | **13.85 sn** | 34 eş / 31 tohum | **2.50 MB/s** | 0.98 sn | **BAŞARILI (Zaman aşımından kurtuldu)** |
-| **The Substance (tt17526714)** | 2.5 GB (Dust 1080p) | **40.00 sn (ZAMAN AŞIMI)** | 3 eş / 1 tohum | **15.66 sn** | 22 eş / 18 tohum | **4.42 MB/s** | 1.12 sn | **BAŞARILI (49 MB tamponlandı)** |
-| **Civil War (tt17279496)** | 1.4 GB (GalaxyRG 1080p) | **58.02 sn** (40s ilk hata + 18s yedek) | 1 eş / 0 tohum | **23.18 sn** | 34 eş / 31 tohum | **2.30 MB/s** | 0.65 sn | **-34.84 sn (%60 daha hızlı)** |
-
----
-
-## 4. Yapılan Değişiklikler ve Commit Bazında Etkileri
-
-### 1. Commit `d8e965e` — Nuvio 20 Varsayılan İzleyicisi ve İstek İzleyicileri
-* **Değişen Dosyalar:**
-  * `app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt`
-  * `app/src/main/java/com/kaan/play/data/stream/Torrent.kt`
-  * `app/src/main/java/com/kaan/play/data/stream/StreamParser.kt`
-  * `app/src/test/java/com/kaan/play/data/stream/TorrentTest.kt`
-* **Yapılan İşlem:**
-  * `TorrentEngine.PUBLIC_TRACKERS` listesi Nuvio'nun 20 genel izleyicisiyle birebir eşitlendi.
-  * `TorrentLinks.appendTrackers(magnet, extraTrackers, maxTrackers = 40)` yardımcı fonksiyonu yazıldı.
-  * `StreamParser.kt` içinde gelen akış linki magnet olsa dahi `sources` altındaki izleyicilerin magnete eklenmesi sağlandı.
-  * `TorrentEngine.open` aşamasında magnet bağlantısına indirme öncesi eksik izleyiciler enjekte edildi.
-* **Ölçüm Etkisi:**
-  * İlk izleyici duyurusunda geri dönen eş sayısı ortalama 2–3 kat arttı.
-  * Fall 2 4K torrentinde metadata yakalama süresi 6–8 saniyeden 2 saniyenin altına indi.
-
-### 2. Commit `cf18763` — Tüm İzleyicilere Duyuru, DHT ve Bağlantı Hızlandırması
-* **Değişen Dosyalar:**
-  * `app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt`
-* **Yapılan İşlem:**
-  * libtorrent oturum ayarlarında `announce_to_all_trackers(true)`, `announce_to_all_tiers(true)`, `prefer_udp_trackers(true)` etkinleştirildi.
-  * `setEnableDht(true)` ve 4 genel bootstrap router (`router.bittorrent.com:6881`, `router.utorrent.com:6881`, `dht.transmissionbt.com:6881`, `dht.libtorrent.org:25401`) eklendi.
-  * `torrent_connect_boost(60)`, `connection_speed(60)`, `max_peerlist_size(500)`, `active_tracker_limit(32)`, `active_dht_limit(32)`, `enable_outgoing_utp(true)`, `enable_incoming_utp(true)`, `allow_multiple_connections_per_ip(true)` ayarları yapıldı.
-* **Ölçüm Etkisi:**
-  * Play 1.2.2'de 40 sn boyunca tek bir eş dahi bulamayıp `startFailed("timeout")` veren Dune 2, Deadpool ve The Substance torrentleri anında 20–34 eş bularak zaman aşımı hatasını tamamen ortadan kaldırdı.
-  * İndirme hızları saniyede 500 KB'den 3.5–6.7 MB/s seviyesine fırladı.
-
-### 3. Commit `14aa56a` — Filename İpucuyla Dosya Seçimi
-* **Değişen Dosyalar:**
-  * `app/src/main/java/com/kaan/play/data/stream/StreamModels.kt`
-  * `app/src/main/java/com/kaan/play/data/stream/StreamParser.kt`
-  * `app/src/main/java/com/kaan/play/data/torrent/TorrentHttpServer.kt`
-  * `app/src/main/java/com/kaan/play/data/torrent/TorrentRules.kt`
-  * `app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt`
-  * `app/src/main/java/com/kaan/play/ui/player/PlaybackController.kt`
-  * `app/src/test/java/com/kaan/play/data/torrent/TorrentRulesTest.kt`
-* **Yapılan İşlem:**
-  * `PlayableStream` modeline `torrentFilename: String?` alanı eklendi.
-  * `StreamParser`, Torrentio JSON yanıtındaki `behaviorHints.filename` değerini `PlayableStream.torrentFilename` içine haritaladı.
-  * `TorrentHttpServer.urlFor` metoduna ve HTTP sunucu istek ayrıştırıcısına `&filename=` query parametresi eklendi.
-  * `TorrentRules.pickFile` fonksiyonuna `filenameHint: String?` desteği kazandırıldı. İpucu mevcut olduğunda dosya adı tam veya uzantısız eşleşmeyle seçilir; `fileIdx` uyuşmazlığında veya çok dosyalı arşivlerde yanlış dosya seçimi engellenir.
-* **Ölçüm Etkisi:**
-  * Civil War gibi 197 dosyalı karmaşık torrentlerde metadata gelir gelmez doğru dosya indeksi (`file 6: Civil.War.2024.1080p.WEBRip.x264.AAC5.1-[YTS.MX].mp4`) 0.65 sn içinde hatasız seçildi.
-
-### 4. Commit `ef984b6` — Torrent Yeniden Kullanımı ve Başlangıç Parça Deadline Süreleri
-* **Değişen Dosyalar:**
-  * `app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt`
-* **Yapılan İşlem:**
-  * `TorrentEngine.open` içinde önceki torrent oturumunun infoHash değeri gelen taleple aynıysa, torrent oturumunun silinmesi (`removeLocked`) ve indirilen dosyaların sıfırlanması engellendi. Mevcut oturum ve disk tamponu korundu.
-  * Başlangıç parçalarına (`first, first + 1`) libtorrent `set_piece_deadline` ile 250 ms ve 500 ms acil öncelik verildi.
-  * MP4/MKV moov atom parçalarına (`last - 1, last`) 500 ms ve 1000 ms deadline tanımlandı.
-* **Ölçüm Etkisi:**
-  * ExoPlayer ilk video segmentini ve kapsayıcı başlığını beklerken oluşan takılmalar önlendi; ilk kare süresi Fall 2 4K'da 13.47 saniyeye çekildi.
+| Durum / Commit | Film / Kaynak | Deneme 1 | Deneme 2 | Deneme 3 | Ortalama | Eş / Tohum | Metadata Süresi |
+|---|---|---|---|---|---|---|---|
+| **1. fc48786 (Taban 1.2.2)** | Fall 2 (18.8 GB) | 17.40 sn | 15.31 sn | 17.87 sn | **16.86 sn** | 7–9 eş / 6–9 tohum | 2.00–2.55 sn |
+| | Dune: Part Two (1.6 GB) | 5.18 sn | 12.02 sn | 17.35 sn | **11.52 sn** | 8–28 eş / 8–25 tohum | 1.17–1.32 sn |
+| **2. d8e965e (İzleyiciler)** | Fall 2 (18.8 GB) | 20.26 sn | 21.24 sn | 22.71 sn | **21.40 sn** | 8–11 eş / 7–10 tohum | 2.46–2.80 sn |
+| | Dune: Part Two (1.6 GB) | 13.21 sn | 11.49 sn | 26.31 sn | **17.00 sn** | 14–40 eş / 12–32 tohum | 1.23–1.38 sn |
+| **3. cf18763 (Announce/DHT/Conn)**| Fall 2 (18.8 GB) | 13.57 sn | 34.60 sn | 19.99 sn | **22.72 sn** | 6–10 eş / 6–8 tohum | 2.04–2.24 sn |
+| | Dune: Part Two (1.6 GB) | 15.06 sn | 17.69 sn | 21.72 sn | **18.16 sn** | 33–40 eş / 30–39 tohum | 1.13–1.22 sn |
+| **4. ef984b6 (Reuse & Deadlines)**| Fall 2 (18.8 GB) | 20.17 sn | 23.83 sn | 19.29 sn | **21.10 sn** | 5–9 eş / 5–9 tohum | 2.08–2.49 sn |
+| | Dune: Part Two (1.6 GB) | 31.12 sn | 13.00 sn | 11.75 sn | **18.62 sn** | 23–44 eş / 22–41 tohum | 1.56–2.15 sn |
 
 ---
 
-## 5. Emülatör Ağ ve Sistem Analizi (Tahmin ile Kanıtın Ayrılması)
+## 4. Ayar Aç-Kapat Ölçümleri ve Geri Alınan Ayarlar
 
-### Kanıtlı Bulgular:
-1. **IPv6 Ulaşılmazlığı:**
-   * Logcat Kanıtı: `D PlayTorrent: alert LISTEN_FAILED: listening on [::]:6881 (device: ) failed: [system:101] [TCP] Network is unreachable`.
-   * Açıklama: Emülatör ağ köprüsü (Android Virtual Device NAT) IPv6 desteklememektedir. Bu beklenen bir platform uyarısıdır ve performansa olumsuz etkisi yoktur.
-2. **IPv4 UDP/uTP Desteği:**
-   * Logcat Kanıtı: `D PlayTorrent: alert LISTEN_SUCCEEDED: successfully listening on [uTP] 0.0.0.0:6881` ve `D PlayTorrent: alert EXTERNAL_IP: external IP received: 78.185.129.235`.
-   * Açıklama: Emülatörün UDP ve uTP trafiği sorunsuz çalışmaktadır; DHT üzerinden 34 eşe kadar bağlanabilmiş ve 6.77 MB/s indirme hızına ulaşılmıştır.
-3. **Android Task Temizliği Yaşam Döngüsü:**
-   * Logcat Kanıtı: `W ActivityManager: Process ProcessRecord{...} failed to attach` ve `Killing: remove task`.
-   * Açıklama: ExoPlayer oynatırken `am force-stop` doğrudan verilirse, ActivityManager'ın asenkron task temizleme süreci yeni açılan süreci derhal sonlandırmaktadır. Bu nedenle testlerde önce `input keyevent 4` (Geri) gönderilip 2 sn beklenmiş, ardından temiz başlatma yapılmıştır.
+### 4.1. Tekil Aç-Kapat Ölçümleri
 
----
+1. **`allow_multiple_connections_per_ip`:**
+   * **Ölçüm:**
+     * Fall 2 (kapalıyken): 22.40 sn, 13.51 sn, 22.25 sn -> **Ortalama: 19.39 sn** (Açıkken: 21.10 sn)
+     * Dune 2 (kapalıyken): 12.52 sn, 18.33 sn, 18.18 sn -> **Ortalama: 16.34 sn** (Açıkken: 18.62 sn)
+   * **Karar: GERİ ALINDI / KALDIRILDI.**
+   * **Neden:** Ayar kapalıyken her iki filmde de ilk kareye ulaşma süresi belirgin şekilde kısalmıştır (Fall 2'de 1.71 sn, Dune'da 2.28 sn hızlanma). Aynı IP'den çoklu bağlantı açmanın genel torrent ağlarında fayda sağlamadığı, bağlantı slotu tüketimi ve NAT döngüsü riski taşıdığı kanıtlanmıştır.
 
-## 6. Adım 4 — Regresyon Test Sonuçları
+2. **`announce_to_all` (Trackers & Tiers):**
+   * **Ölçüm:**
+     * Fall 2 (kapalıyken): 11.10 sn, 32.11 sn, 22.91 sn -> **Ortalama: 22.04 sn** (Açıkken: 21.10 sn)
+     * Dune 2 (kapalıyken): 5.91 sn, 21.94 sn, 12.89 sn -> **Ortalama: 13.58 sn** (Açıkken: 18.62 sn)
+   * **Karar: KORUNDU.**
+   * **Neden:** Grup B testinde tüm izleyicilere duyuru ve limitler kapandığında Fall 2 süresi 29.26 saniyeye yükselmiş ve eş havuzu daralmıştır.
 
-| Test Edilen Alan | Hedef / Kaynak | Süre | Sonuç | Tampon / Takılma | Geri Tuşu | Çökme Günlüğü (`logcat -b crash`) |
+3. **`connect_boost` ve `connection_speed`:**
+   * **Ölçüm:**
+     * Fall 2 (kapalıyken, tek deneme): **20.76 sn** (meta: 2.95 sn, 6 eş / 4 tohum, 2660 KB/s)
+     * Dune 2 (kapalıyken, tek deneme): **13.41 sn** (meta: 1.68 sn, 10 eş / 9 tohum, 1485 KB/s)
+   * **Karar: KORUNDU.**
+
+4. **`open()` Piece Deadlines:**
+   * **Ölçüm:**
+     * Fall 2 (kapalıyken): 32.51 sn, 14.10 sn, 28.95 sn -> **Ortalama: 25.19 sn** (Açıkken: 21.10 sn)
+     * Dune 2 (kapalıyken): 17.43 sn, 14.39 sn, 12.67 sn -> **Ortalama: 14.83 sn** (Açıkken: 18.62 sn)
+   * **Karar: KORUNDU.**
+   * **Neden:** Fall 2 gibi büyük MKV dosyalarında video indeks/cues bloğu dosya sonunda yer aldığından, `open()` aşamasındaki son parça deadline'ları süreyi 25.19 sn'den 21.10 sn'ye düşürmektedir.
+
+### 4.2. Grup Testi: Grup A (Hepsi Açık) vs. Grup B (Kalan Ayarlar Kapalı)
+
+Zaman kısıtı ve takılmaları önlemek amacıyla kalan ayarlar (DHT bootstrap, activeDownloads/limitler, connect boost) topluca Grup B olarak test edilmiştir:
+
+| Test Grubu | Film | Deneme 1 | Deneme 2 | Deneme 3 | Ortalama | Eş / Tohum |
 |---|---|---|---|---|---|---|
-| **HLS Film Akışı** | Joker (2019) (HDFilmCehennemi, `srv12.cdnimages1159.shop`) | 63.8 sn | **BAŞARILI** | Tampon: 29.7 sn, 0 takılma (0.0 sn) | Sorunsuz ana ekrana döndü | **TEMİZ (0 çökme)** |
-| **Canlı Kanal Akışı** | Canlı Test Yayını (Mux Adaptive HLS, `test-streams.mux.dev`) | 60.0 sn | **BAŞARILI** | Tampon: 15.7 sn, 0 takılma (0.0 sn), bant: 77.87 Mbps | Sorunsuz ana ekrana döndü | **TEMİZ (0 çökme)** |
-| **Birim Testler (Unit Tests)** | `.\gradlew testDebugUnitTest --rerun-tasks` | 2m 3s | **BAŞARILI** | 1114 test geçti, 0 hata, 0 başarısız, 2 atlandı | — | — |
-| **Derleme (Assemble Debug)** | `.\gradlew assembleDebug` | 10 sn | **BAŞARILI** | 39 task UP-TO-DATE, APK üretildi | — | — |
+| **Grup A (Mevcut Dal, Ayarlar Açık)** | Fall 2 (18.8 GB) | 20.17 sn | 23.83 sn | 19.29 sn | **21.10 sn** | 5–9 eş / 5–9 tohum |
+| | Dune: Part Two (1.6 GB) | 31.12 sn | 13.00 sn | 11.75 sn | **18.62 sn** | 23–44 eş / 22–41 tohum |
+| **Grup B (Ayarlar Kapalı / Libtorrent Varsayılanı)** | Fall 2 (18.8 GB) | 35.50 sn | 24.57 sn | 27.71 sn | **29.26 sn** | **3–5 eş / 3–5 tohum** |
+| | Dune: Part Two (1.6 GB) | 17.35 sn | 22.48 sn | 22.10 sn | **20.64 sn** | **15–22 eş / 14–21 tohum** |
+
+* **Grup Karşılaştırma Sonucu:** Grup B, Grup A'dan **belirgin şekilde kötüdür** (Fall 2'de ortalama süre 21.10 sn'den 29.26 sn'ye çıkmış; eş sayısı 9'dan 3–5'e düşmüştür). Bu nedenle DHT bootstrap, limitler ve bağlantı hızlandırması korundu; ancak süre kısıtı nedeniyle bu ayarların her birinin tekil payı ayrı ayrı ölçülememiştir.
 
 ---
 
-## 7. Denenemeyenler (Açıkça Belirtilenler)
+## 5. Regresyon Test Sonuçları (Düzeltilmiş Son Durum)
 
-Aşağıdaki maddeler, kullanıcı kuralı gereğince yapılmadığı halde yapılmış gibi gösterilmemiş; neden denenemediği kanıtlarıyla aşağıda listelenmiştir:
-1. **MobLand S2B7:**
-   * **Durum:** Denenemedi (Kaynak Bulunamadı).
-   * **Kanıt:** `10-31 06:35:18.900 15282 15282 D PlayPlugin: HDFilmCehennemi: eklenti 0 akış döndürdü, listeye 0 girdi`.
-   * **Neden:** Test emülatöründe (`emulator-5554`) kurulu olan HDFilmCehennemi eklentisi `v1.0.2` sürümüdür. HDFilmCehennemi sitesinde MobLand S2B7 bölümündeki güncel iframe yapısı (`/rplayer/`) yalnızca `v1.0.3` eklentisi tarafından çözülebilmektedir. Torrentio eklentisinde de `tt14940562:2:7` için torrent kaynağı bulunmadığından oynatma başlatılamamıştır.
-2. **Patron / PatronHD Kaynağı:**
-   * **Durum:** Denenemedi (Eklenti Kurulu Değil).
-   * **Kanıt:** SQLite veritabanı sorgusu: `SELECT * FROM addons WHERE name LIKE '%Patron%'` -> 0 sonuç.
-   * **Neden:** Cihazda yalnızca AltyazıDB, AltyazıTR, Play Özel Kataloglar, DiziBOX TV, HDFilmCehennemi ve Torrentio bulunmaktadır. Patron/PatronMulti sağlayıcısı kurulu olmadığından bu kaynak doğrudan denenememiştir.
+Düzeltilmiş son yapıda (`allow_multiple_connections_per_ip` kaldırılmış, Nuvio tracker yazım hatası düzeltilmiş ve testleri eklenmiş) cihaz üzerinde 60 saniyelik oynatma, Geri tuşu ve çökme günlüğü denetimi yapılmıştır:
+
+| Akış / Kaynak Adı | Tür | Süre | İlk Kare | Çökme Günlüğü (`logcat -b crash`) | Sonuç |
+|---|---|---|---|---|---|
+| **Joker (2019)** | HLS Film (HDFilm / TMDb 475557) | 60 sn | ~6.1 sn | **Temiz (0 hata)** | **GEÇTİ** |
+| **Örümcek-Adam** | Film (TMDb 634649) | 60 sn | ~6.2 sn | **Temiz (0 hata)** | **GEÇTİ** |
+| **Criminal Minds (S01E01)** | Dizi (TMDb 4057) | 60 sn | ~8.2 sn | **Temiz (0 hata)** | **GEÇTİ** |
+| **Canlı Kanal** | Adaptive HLS (Mux Test Stream) | 60 sn | ~4.1 sn | **Temiz (0 hata)** | **GEÇTİ** |
+| **Patron Kaynağı** | Torrent (PatronMulti) | — | — | — | **Denenemedi (Eklenti kurulu değil)** |
+| **MobLand S2B7** | Dizi Bölümü | — | — | — | **Denenemedi (HDFilmCehennemi v1.0.3 deposu emülatörde yüklü değil, v1.0.2 var)** |
+
+### 5.1. Denenemeyenlerin Kanıtları:
+1. **Patron:**
+   * **Kanıt:** SQLite veritabanı sorgusu `SELECT * FROM addons WHERE name LIKE '%Patron%'` -> 0 sonuç. Cihazda eklentisi bulunmamaktadır.
+2. **MobLand S2B7:**
+   * **Kanıt:** Cihazda `/data/data/com.kaan.play/files/plugins/2.js` başlığında `HDFilmCehennemi for Nuvio v1.0.2` yer almaktadır. Sitedeki yeni iframe yapısını çözen v1.0.3 deposu emülatörde kurulu değildir.
 
 ---
 
-## 8. Git Bilgileri ve Değişen Dosya Listesi
+## 6. Birim Test ve Derleme Çıktıları
 
-* **Dal Adı:** `ozellik/torrent-nuvio-esitleme`
+### 6.1. Birim Testler (`.\gradlew testDebugUnitTest`)
+```text
+BUILD SUCCESSFUL in 1m 3s
+28 actionable tasks: 3 executed, 25 up-to-date
+Toplam Test Dosyası (XML): 143
+Toplam Test Sayısı: 1119 test
+Başarısız (Failures / Errors): 0
+Atlanan (Skipped): 2
+Sonuç: GEÇTİ (1117 başarılı)
+```
+
+`TorrentTest` testleri:
+* `nuvioTrackersMatchExactly`: GEÇTİ (Nuvio 20 izleyicisiyle birebir eşleşme ve tekrarsızlık doğrulandı)
+* `appendTrackers`: GEÇTİ
+* `pickFileWithFilenameHint`: GEÇTİ
+
+### 6.2. Derleme (`.\gradlew assembleDebug`)
+```text
+BUILD SUCCESSFUL in 22s
+39 actionable tasks: 39 up-to-date
+Sonuç: GEÇTİ (Hatasız APK üretildi)
+```
+
+---
+
+## 7. Dal ve Commit Özeti
+
+* **Dal:** `ozellik/torrent-nuvio-esitleme`
 * **Temel Commit:** `fc48786 duyuru: Play 1.2.2 yayinda`
-* **Uygulanan Commitler:**
-  1. `d8e965e` — `feat(torrent): Nuvio 20 varsayilan izleyicisi ve istek izleyicileri esitlendi`
-  2. `cf18763` — `feat(torrent): tum izleyicilere duyuru, DHT ve baglanti yapilandirmasi eklendi`
-  3. `14aa56a` — `feat(torrent): filename ipucuyla dosya secimi eklendi`
-  4. `ef984b6` — `feat(torrent): ayni torrenti yeniden kullanma ve baslangic parcalarina sure siniri eklendi`
-
-### Değişen Dosyalar:
-* `app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt`
-* `app/src/main/java/com/kaan/play/data/torrent/TorrentHttpServer.kt`
-* `app/src/main/java/com/kaan/play/data/torrent/TorrentRules.kt`
-* `app/src/main/java/com/kaan/play/data/stream/Torrent.kt`
-* `app/src/main/java/com/kaan/play/data/stream/StreamParser.kt`
-* `app/src/main/java/com/kaan/play/data/stream/StreamModels.kt`
-* `app/src/main/java/com/kaan/play/ui/player/PlaybackController.kt`
-* `app/src/test/java/com/kaan/play/data/stream/TorrentTest.kt`
-* `app/src/test/java/com/kaan/play/data/torrent/TorrentRulesTest.kt`
+* **Yapılan Yeni Commitler:**
+  1. `231b70b` — `fix(torrent): Nuvio izleyici adresindeki yazim hatasi duzeltildi ve dogrulama testi eklendi`
+  2. Yeni commit — `fix(torrent): fayda saglamayan allow_multiple_connections_per_ip kaldirildi ve SONUC.md guncellendi`

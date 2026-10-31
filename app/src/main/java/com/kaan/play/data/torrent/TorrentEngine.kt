@@ -268,7 +268,7 @@ class TorrentEngine(private val dir: File) {
                 setBoolean(settings_pack.bool_types.prefer_udp_trackers.swigValue(), true)
                 setBoolean(settings_pack.bool_types.enable_outgoing_utp.swigValue(), true)
                 setBoolean(settings_pack.bool_types.enable_incoming_utp.swigValue(), true)
-                setBoolean(settings_pack.bool_types.allow_multiple_connections_per_ip.swigValue(), true)
+                // allow_multiple_connections_per_ip kaldırıldı (ölçümlerde faydası görülmedi, aksine süreyi artırdı ve NAT/ip riskleri taşır)
                 setInteger(settings_pack.int_types.torrent_connect_boost.swigValue(), 60)
                 setInteger(settings_pack.int_types.connection_speed.swigValue(), 60)
             }
