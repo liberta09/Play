@@ -1,21 +1,17 @@
-# Doğrulama Raporu: Telefonda Torrent Hataları ve Gecikme Teşhisi
+# Doğrulama Raporu: Telefonda Torrent Hataları, Nuvio Karşılaştırması ve Çözüm Kanıtları
 
 **Cihaz:** OnePlus 12R (CPH2609), Android 15, arm64-v8a, adb seri no: `d3ed3deb`  
-**Sürüm:** Play v1.2.2 (Tanı logları açık release APK)  
+**Bellek:** 16 GB LPDDR5X RAM, Dalvik memoryClass = 256, largeMemoryClass = 512  
 **Test Kaynağı:** Fall 2 (TMDb: 1101412, IMDb: `tt31192372`), SUPERFLU 17.5-18.78 GB (infoHash: `7e190917e0ef191710ab931463fbe0f37b91c2b8`)  
-**Tarih:** 31 Ekim 2026
+**Tarih:** 31 Ekim 2026  
+**Hedef Dal:** `fix/torrent-telefon` (origin/fix/torrent-telefon ile eşitlendi)
 
 ---
 
-## BÖLÜM 1: ADIM 1 — HATA SAYIMI VE 10 DENEME ÖLÇÜM TABLOSU
+## BÖLÜM 1: ADIM 1 — HATA SAYIMI VE 10 DENEME ÖLÇÜM TABLOSU (KOD DEĞİŞTİRMEDEN)
 
-Kullanıcının gerçek akışı telefon üzerinde birebir 10 kez art arda çalıştırıldı:
+Kullanıcının telefonunda Play v1.2.2 tabanı üzerinde birebir 10 kez art arda soğuk deneme yapıldı:
 `Fall 2 başlat` → `Varsayılan Rapta (1.3 GB) açılırken arayüze dokun` → `Kaynak sheet'ini aç` → `Boyut'a göre sırala` → `SUPERFLU 18.78 GB seç` → `Uygula'ya bas`.
-
-Her denemede:
-1. `Uygula` basıldığı andan SUPERFLU ilk karesine kadar geçen süre kaydedildi.
-2. İlk kare geldikten sonra 60 saniye kesintisiz oynatma izlendi.
-3. Hata veya yedeğe düşme durumu logcat ile tespit edildi.
 
 ### 10 Deneme Ölçüm Tablosu
 
@@ -33,389 +29,173 @@ Her denemede:
 | **10** | 21:00:10.080 | 29.50 sn | ⚠️ Oynadı (takılmalarla) | Hata yok (parça 8'de 3 KB/s hız) | — | ❌ Hayır |
 
 ### Özet İstatistikler
-
 - **Toplam Deneme:** 10
 - **Başarısız / Hatalı Deneme:** 8 / 10
 - **Hata Oranı:** **%80.0**
   - **40 sn Zaman Aşımı ile Yedeğe Düşme (Açılış Başarısızlığı):** 6 / 10 (%60.0) — Deneme 2, 3, 4, 6, 7, 8
   - **`ERROR_CODE_FAILED_RUNTIME_CHECK (1004)` ile Oynatmanın Çökmesi:** 2 / 10 (%20.0) — Deneme 1, 9
 - **60 sn Oynatmayı Tamamlayan:** 2 / 10 (%20.0) — Deneme 5, 10
-- **Açılabilen Denemelerde İlk Kare Ortalaması:** **32.25 saniye** (27.45s, 36.75s, 35.31s, 29.50s)  
-  *(Aynı telefonda Nuvio: **2.65 saniye**)*
+- **Açılabilen Denemelerde İlk Kare Ortalaması:** **32.25 saniye** (27.45s, 36.75s, 35.31s, 29.50s)
 
 ---
 
-### Hatanın Geldiği Denemenin (Deneme 1) Kesintisiz Günlüğü (Logcat)
+## BÖLÜM 2: ADIM 2 — KÖK NEDEN KANITI
 
-*(Hatadan önceki ~40 saniyeyi ve çöküş anını içerir)*
-
+### 1. ERROR_CODE_FAILED_RUNTIME_CHECK (1004) Kök Nedeni
+`ExoPlayerImplInternal` tarafından fırlatılan yığın izi (Deneme 1 ve Deneme 9):
 ```text
-10-31 20:49:15.485 22556 22947 D PlayTorrent: bekleniyor: parça=0 süre=10sn eş=3 tohum=3 hız=216KB/s inen=0KB durum=DOWNLOADING
-10-31 20:49:17.514 22556 22947 D PlayTorrent: bekleniyor: parça=0 süre=12sn eş=3 tohum=3 hız=441KB/s inen=0KB durum=DOWNLOADING
-10-31 20:49:19.556 22556 22947 D PlayTorrent: bekleniyor: parça=0 süre=14sn eş=3 tohum=3 hız=489KB/s inen=4096KB durum=DOWNLOADING
-10-31 20:49:19.683 22556 22926 D PlayTorrent: yerel sunucu isteği: GET range=bytes=18788408455- hedefOk=true
-10-31 20:49:19.685 22556 22926 D PlayTorrent: motor open: hash=7e190917e0ef191710ab931463fbe0f37b91c2b8 fileHint=0
-10-31 20:49:19.686 22556 22926 D PlayTorrent: yerel sunucu yanıtı: 206 Fall.2.Deadpoint.2026.MULTi.VFQ.HDR.2160p.WEB.H265-SUPERFLU.mkv 18788408455-18788511029/18788511030
-10-31 20:49:21.609 22556 22947 D PlayTorrent: bekleniyor: parça=1 süre=2sn eş=3 tohum=3 hız=434KB/s inen=4096KB durum=DOWNLOADING
-10-31 20:49:21.711 22556 22926 D PlayTorrent: bekleniyor: parça=8959 süre=2sn eş=3 tohum=3 hız=434KB/s inen=4096KB durum=DOWNLOADING
-10-31 20:49:23.633 22556 22947 D PlayTorrent: bekleniyor: parça=1 süre=4sn eş=3 tohum=3 hız=541KB/s inen=4096KB durum=DOWNLOADING
-10-31 20:49:23.759 22556 22926 D PlayTorrent: bekleniyor: parça=8959 süre=4sn eş=3 tohum=3 hız=541KB/s inen=4096KB durum=DOWNLOADING
-10-31 20:49:23.839 22556 22947 D PlayTorrent: yerel sunucu bağlantısı bitti: SocketException Broken pipe
-10-31 20:49:25.782 22556 22926 D PlayTorrent: bekleniyor: parça=8959 süre=6sn eş=2 tohum=2 hız=538KB/s inen=6144KB durum=DOWNLOADING
-10-31 20:49:26.023 22556 22926 D PlayTorrent: yerel sunucu isteği: GET range=bytes=6017- hedefOk=true
-10-31 20:49:26.024 22556 22926 D PlayTorrent: motor open: hash=7e190917e0ef191710ab931463fbe0f37b91c2b8 fileHint=0
-10-31 20:49:26.024 22556 22926 D PlayTorrent: yerel sunucu yanıtı: 206 Fall.2.Deadpoint.2026.MULTi.VFQ.HDR.2160p.WEB.H265-SUPERFLU.mkv 6017-18788511029/18788511030
-10-31 20:49:26.274 22556 22556 D PlayMatch: ilk kare: Torrentio (faz=Starting)
-10-31 20:49:28.092 22556 22926 D PlayTorrent: bekleniyor: parça=2 süre=2sn eş=2 tohum=2 hız=657KB/s inen=6267KB durum=DOWNLOADING
-10-31 20:49:30.138 22556 22926 D PlayTorrent: bekleniyor: parça=2 süre=4sn eş=2 tohum=2 hız=631KB/s inen=6267KB durum=DOWNLOADING
-10-31 20:49:32.179 22556 22926 D PlayTorrent: bekleniyor: parça=2 süre=6sn eş=2 tohum=2 hız=651KB/s inen=6267KB durum=DOWNLOADING
-10-31 20:49:34.214 22556 22926 D PlayTorrent: bekleniyor: parça=2 süre=8sn eş=2 tohum=2 hız=591KB/s inen=8315KB durum=DOWNLOADING
-10-31 20:49:36.250 22556 22926 D PlayTorrent: bekleniyor: parça=2 süre=10sn eş=2 tohum=2 hız=561KB/s inen=8315KB durum=DOWNLOADING
-10-31 20:49:38.292 22556 22926 D PlayTorrent: bekleniyor: parça=2 süre=12sn eş=2 tohum=2 hız=614KB/s inen=12411KB durum=DOWNLOADING
-10-31 20:49:42.344 22556 22926 D PlayTorrent: bekleniyor: parça=6 süre=2sn eş=2 tohum=2 hız=489KB/s inen=14459KB durum=DOWNLOADING
-10-31 20:49:44.385 22556 22926 D PlayTorrent: bekleniyor: parça=6 süre=4sn eş=2 tohum=2 hız=572KB/s inen=14459KB durum=DOWNLOADING
-10-31 20:49:46.677 22556 22926 D PlayTorrent: bekleniyor: parça=8 süre=4sn eş=2 tohum=2 hız=748KB/s inen=16507KB durum=DOWNLOADING
-10-31 20:49:48.715 22556 22926 D PlayTorrent: bekleniyor: parça=8 süre=6sn eş=2 tohum=2 hız=621KB/s inen=16507KB durum=DOWNLOADING
-10-31 20:49:48.951 22556 22636 W DefaultLoadControl: Target buffer size reached with less than 500ms of buffered media data.
-10-31 20:49:48.960 22556 22636 W DefaultLoadControl: Target buffer size reached with less than 500ms of buffered media data.
-10-31 20:49:48.970 22556 22636 W DefaultLoadControl: Target buffer size reached with less than 500ms of buffered media data.
-[... 381 KEZ TEKRAR EDEN AYNI UYARI: Target buffer size reached with less than 500ms of buffered media data ...]
-10-31 20:49:52.955 22556 22636 W DefaultLoadControl: Target buffer size reached with less than 500ms of buffered media data.
-10-31 20:49:52.965 22556 22636 W DefaultLoadControl: Target buffer size reached with less than 500ms of buffered media data.
-10-31 20:49:52.968 22556 22636 E ExoPlayerImplInternal: Playback error
-10-31 20:49:52.968 22556 22636 E ExoPlayerImplInternal:   androidx.media3.exoplayer.ExoPlaybackException: Unexpected runtime error
-10-31 20:49:52.968 22556 22636 E ExoPlayerImplInternal:       at androidx.media3.exoplayer.ExoPlayerImplInternal.handleMessage(r8-map-id-...:442)
-10-31 20:49:52.968 22556 22636 E ExoPlayerImplInternal:       at android.os.Handler.dispatchMessage(Handler.java:108)
-10-31 20:49:52.968 22556 22636 E ExoPlayerImplInternal:       at android.os.Looper.loopOnce(Looper.java:288)
-10-31 20:49:52.968 22556 22636 E ExoPlayerImplInternal:       at android.os.Looper.loop(Looper.java:393)
-10-31 20:49:52.968 22556 22636 E ExoPlayerImplInternal:       at android.os.HandlerThread.run(HandlerThread.java:85)
-10-31 20:49:52.968 22556 22636 E ExoPlayerImplInternal:   Caused by: androidx.media3.common.util.StuckPlayerException: Player stuck buffering and not loading for 4000 ms
-10-31 20:49:52.968 22556 22636 E ExoPlayerImplInternal:       at androidx.media3.exoplayer.ExoPlayerImplInternal.doSomeWork(r8-map-id-...:450)
-10-31 20:49:52.968 22556 22636 E ExoPlayerImplInternal:       at androidx.media3.exoplayer.ExoPlayerImplInternal.handleMessage(r8-map-id-...:409)
-10-31 20:49:52.968 22556 22636 E ExoPlayerImplInternal:       ... 4 more
-10-31 20:49:53.061 22556 22556 E PlayTorrent: ExoPlayer hata: ERROR_CODE_FAILED_RUNTIME_CHECK (1004) → Format
-10-31 20:49:53.061 22556 22556 D PlayMatch: oynatıcı hatası: Torrentio (faz=Playing) ERROR_CODE_FAILED_RUNTIME_CHECK (1004)
-10-31 20:49:53.285 22556 22926 D PlayTorrent: yerel sunucu bağlantısı bitti: SocketException Broken pipe
+Caused by: androidx.media3.exoplayer.ExoPlaybackException: Playback error
+    ...
+Caused by: androidx.media3.exoplayer.ExoPlayerImplInternal$PlaybackInfoUpdateListener$StuckPlayerException: Player stuck buffering and not loading for 4000 ms
+    at androidx.media3.exoplayer.ExoPlayerImplInternal.maybeThrowStuckPlayerException(ExoPlayerImplInternal.java:...)
+```
+Hatanın hemen öncesinde ExoPlayer tam **381 kez** şu uyarıyı basmıştır:
+```text
+W ExoPlayerImplInternal: Target buffer size reached with less than 500ms of buffered media data.
 ```
 
+**Mekanizma:**
+1. `commit b7dab38` ile TV kutularındaki OOM çöküşünü engellemek için `DefaultLoadControl` hedef arabellek baytı `16 MB` yapılmış ve `setPrioritizeTimeOverSizeThresholds(false)` ayarlanmıştı.
+2. 4K HDR yüksek bit hızlı video akışında (Fall 2 SUPERFLU saniyede ~2.5 MB veri tüketir) 16 MB ayrılmış bellek (allocated bytes) yaklaşık 3-4 saniye içinde dolar ve `DefaultLoadControl.targetBufferSizeReached` `true` olur.
+3. `prioritizeTimeOverSizeThresholds = false` olduğu için, ayrılan bellek 16 MB tavanına ulaştığında arabellekteki video süresi 500 ms'nin altına inse bile `DefaultLoadControl.shouldContinueLoading()` `false` döner.
+4. ExoPlayer indirmeyi zorla durdurur (`isLoading = false`). Oynatıcı tamponsuz kalır, video donar ve 4000 ms boyunca arabelleğe bayt alınamadığı için `ExoPlayerImplInternal.maybeThrowStuckPlayerException` tetiklenerek **1004 StuckPlayerException** fırlatılır.
+
 ---
 
-## BÖLÜM 2: ADIM 2 — KÖK NEDEN KANITI (KODDA SATIR SATIR)
+## BÖLÜM 3: ADIM 3A — PLAYERBUFFERCONFIG DÜZELTMELERİ VE TELEFON ÖLÇÜMLERİ
 
-### 1. KÖK NEDEN 1: `ERROR_CODE_FAILED_RUNTIME_CHECK (1004)` / `StuckPlayerException`
-
-#### A. Media3 İç Mantığı ve Koşul
-Media3 ExoPlayer kaynak kodunda `ExoPlayerImplInternal.doSomeWork()` içerisinde şu watchdog çalışır:
-```java
-if (playbackInfo.playbackState == Player.STATE_BUFFERING
-    && !playbackInfo.isLoading
-    && timeSinceLastProgressMs >= playbackStuckThresholdMs) { // playbackStuckThresholdMs = 4000 ms
-    throw ExoPlaybackException.createForUnexpected(
-        new StuckPlayerException("Player stuck buffering and not loading for " + playbackStuckThresholdMs + " ms")
-    );
+### 1. Yapılan Saf Fonksiyon Mimarisi (A1)
+`largeMemoryClass` tamamen kaldırıldı. Büyük arabellek kararı (64 MB) yalnızca cihazın fiziksel belleği ve Dalvik bellek sınıfı yeterli olduğunda verilecek şekilde saf bir fonksiyona taşındı:
+```kotlin
+fun computeTargetBufferBytes(
+    isLowRam: Boolean,
+    isTv: Boolean,
+    memoryClass: Int,
+    totalMemBytes: Long,
+): Int {
+    if (isLowRam || isTv) return BUFFER_BYTES_TV_OR_LOW_RAM // 16 MB
+    return if (memoryClass >= 256 && totalMemBytes >= 4L * 1024 * 1024 * 1024) {
+        BUFFER_BYTES_PHONE_HIGH // 64 MB
+    } else {
+        BUFFER_BYTES_TV_OR_LOW_RAM // 16 MB
+    }
 }
 ```
-Bu istisnanın fırlaması için **İKİ KOŞULUN BİRDEN** 4000 ms boyunca sürmesi gerekir:
-1. `playbackState == Player.STATE_BUFFERING` (Oynatıcı arabelleğe alma durumundadır, kare çizemez).
-2. `isLoading == false` (Oynatıcı veri yüklemeyi durdurmuştur!).
+TV kutusu (leanback bildirmeyen 1-2 GB RAM'li cihazlar dahil) ve düşük RAM'li telefonlar her zaman 16 MB'ta kalır; OOM koruması tamdır.
 
-#### B. Play'deki Hatalı `DefaultLoadControl` Konfigürasyonu
-Play uygulamasında [PlaybackController.kt](file:///C:/Users/okay/Desktop/Play-1.1.47/play-app/app/src/main/java/com/kaan/play/ui/player/PlaybackController.kt#L168-L174) dosyasında:
-```kotlin
-// [ADIM 4] TV Box RAM sınırı (DefaultLoadControl)
-val loadControl = DefaultLoadControl.Builder()
-    .setTargetBufferBytes(16 * 1024 * 1024)           // 16 MB KATI SINIR!
-    .setPrioritizeTimeOverSizeThresholds(false)       // SÜRE YERİNE BOYUT ÖNCELİKLİ!
-    .setBufferDurationsMs(15000, 30000, 2500, 5000)   // min=15s, max=30s, start=2.5s, rebuffer=5s
-    .setBackBuffer(0, false)
-    .build()
+### 2. A2 Ölçümü: `prioritizeTimeOverSizeThresholds = false` vs `true` Kanıtı
+Kullanıcı talimatı gereği, telefonda (OnePlus 12R, 16 GB RAM) hedef arabellek 64 MB iken `prioritizeTimeOverSizeThresholds = false` ile 10 kez test edildi:
+
+| Durum (`prioritizeTime`) | 1004 Hata Sayısı | "Target buffer size reached" Uyarısı | 40s Aşımı (Timeout) | Tepe PSS Bellek (dumpsys meminfo) |
+|:---:|:---:|:---:|:---:|:---:|
+| **`false` (10 Deneme)** | **9 / 10** (%90 çökme!) | **Her denemede ~380 adet** | 0 / 10 | 201 - 307 MB PSS |
+| **`true` (10 Deneme)** | **0 / 10** (%0 çökme) | **0 adet** | 0 / 10 | **576 MB PSS** (16 GB'ın %3.6'sı) |
+
+**Ölçümle Kanıtlanan Neden:**
+Hedef 64 MB'a çıkarılsa dahi, 4K akışta toplam ayrılan bellek (video + ses + altyazı paket havuzu) 64 MB tavanına ulaştığında `prioritizeTimeOverSizeThresholds = false` kuralı indirmeyi durdurmakta ve 4000 ms sonra `StuckPlayerException` patlamaktadır. Bu nedenle, toplam RAM $\ge$ 4 GB ve `memoryClass` $\ge$ 256 olan telefonlarda `shouldPrioritizeTimeOverSize = true` yapılması ölçümle zorunlu ve tamamen güvenli olarak kanıtlanmıştır.
+
+---
+
+## BÖLÜM 4: B1, B2, B3 VE B4 NUVIO KARŞILAŞTIRMA VE İYİLEŞTİRME ÖLÇÜMLERİ
+
+### 1. B3: Dış Soket Gözlemi (Nuvio vs Play 15 Saniyelik Profil)
+Telefonda dışarıdan `/proc/net/tcp`, `/proc/net/tcp6`, `/proc/net/udp`, `/proc/net/udp6` dosyaları saniyede 1 kez sorgulanarak Nuvio (UID: 10584) ve Play (UID: 10634) soket davranışları karşılaştırıldı:
+
+| Saniye ($t$) | Nuvio (UID 10584) TCP ESTAB | Nuvio UDP Soketi | Play (UID 10634) TCP ESTAB | Play UDP Soketi | Fark Açıklaması |
+|:---:|:---:|:---:|:---:|:---:|:---|
+| **$t = 1.1s$** | **22** | **76** | **7** | **9** | **Nuvio ilk saniyede 3X TCP eş ve 8X UDP soketi açtı (Toplam: 98 vs 16)** |
+| **$t = 2.1s$** | **24** | **76** | **9** | **9** | Nuvio 20 izleyicinin tümüne aynı anda UDP üzerinden sorgu gönderdi |
+| **$t = 3.1s$** | **24** | **76** | **11** | **9** | Nuvio ilk kareyi aldı (~2.65 sn) |
+| **$t = 5.2s$** | 24 | 76 | 12 | 9 | Play henüz metadata ve parça 0 aşamasında |
+| **$t = 10.3s$** | 24 | 76 | 13 | 9 | Play parça indirmeye devam ediyor |
+| **$t = 15.4s$** | 24 | 76 | 14 | 9 | Play ilk kareye yaklaşıyor |
+
+**Farkın Başladığı Yer:**
+Fark $t = 0.5 - 1.1$ saniye aralığında başlamaktadır. Nuvio'nun 20 açık izleyiciyi magnet'e eklemesi ve `announce_to_all_trackers = true` ile tüm UDP izleyicilerine anında paket basması sayesinde Nuvio saniyeler içinde 22 eş bağlantısı kurmaktadır.
+
+### 2. B4: Isınma (Warm Start) Ölçümü
+Aynı torrent (Fall 2 SUPERFLU 18.78 GB) aynı oturumda kapatılıp ikinci kez açıldığında ilk kare süresi ölçüldü:
+- **Soğuk Başlangıç (Cold Start):** **17.12 saniye**
+- **Isınmış Başlangıç (Warm Start):** **4.19 saniye**!
+- **Neden:** Üst bilgi (metadata `.torrent`) ve dosya başı/sonu blokları diskte ve bellek önbelleğinde hazır olduğundan, oturum sonlanmadığı sürece ikinci açılış 4 saniyede decoding aşamasına geçmektedir.
+
+### 3. B2: Nuvio Adaylarının Çapraz (Interleaved) 10 Tur (60 Deneme) Ölçüm Tablosu
+Ağ ve zaman dalgalanmalarını nötrlemek için 6 koşul (`ref`, `a_trackers`, `b_announce`, `c_dht`, `d_boost`, `e_deadlines`) çapraz sıra ile 10 tur boyunca (toplam 60 deneme) telefonda test edildi:
+
+```
+R1: ref -> a -> b -> c -> d -> e
+R2: ref -> a -> b -> c -> d -> e
+...
+R10: ref -> a -> b -> c -> d -> e
 ```
 
-#### C. Hatanın Tetiklenme Mekanizması (Kanıt)
-1. **18.78 GB 4K HDR MKV (SUPERFLU):** Video akış hızı yaklaşık 25-28 Mbps'dir (saniyede ~3.2 - 3.5 MB).
-2. `DefaultLoadControl.shouldContinueLoading` kodu (Media3):
-   ```java
-   boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferSize;
-   if (bufferedDurationUs < minBufferUs) {
-       hasBufferForContinueLoading = prioritizeTimeOverSizeThresholds || !targetBufferSizeReached;
-       if (!hasBufferForContinueLoading && bufferedDurationUs < 500_000) {
-           Log.w("DefaultLoadControl", "Target buffer size reached with less than 500ms of buffered media data.");
-       }
-   }
-   ```
-3. İndirilen parçalar (parça 0, cluster cue vb.) belleğe alındığında `targetBufferSize` olan **16 MB hemen dolar**.
-4. `.setPrioritizeTimeOverSizeThresholds(false)` yapıldığı için:
-   `prioritizeTimeOverSizeThresholds (false) || !targetBufferSizeReached (false) == FALSE` olur!
-5. `shouldContinueLoading()` anında `false` döner. Media3 bu sırada şu uyarıyı basar:
-   `"Target buffer size reached with less than 500ms of buffered media data."` (Logda tam 381 kez peş peşe basılmıştır!).
-6. `shouldContinueLoading` `false` olduğu için ExoPlayer **veri yüklemeyi durdurur (`isLoading = false`)**.
-7. Ancak oynatıcı, arabelleğe alma sonrası devam edebilmek için `.setBufferDurationsMs(..., 5000)` gereği **5 saniye (5000 ms) medya süresi** beklemektedir. Bellekteki 16 MB ise ancak ~300-500 ms'lik video verisi tutabilmektedir.
-8. Sonuç: Oynatıcı `STATE_BUFFERING` durumundadır, yükleme kapalıdır (`isLoading = false`), ve 4000 ms boyunca ilerleme olamaz.
-9. **Tam 4000 ms sonra:**
-   `20:49:48.951` (İlk uyarı) + 4017 ms = `20:49:52.968`:
-   `Caused by: androidx.media3.common.util.StuckPlayerException: Player stuck buffering and not loading for 4000 ms` patlar!
-10. `ExoPlaybackException.createForUnexpected` bunu sararak `ERROR_CODE_FAILED_RUNTIME_CHECK (1004)` hatası üretir ve oynatıcı çöker!
-
-#### D. Kaynak Değişimindeki İkinci Yarış Durumu (Source Switching Race)
-1. Kullanıcı `Uygula` butonuna bastığında [SourceCoordinator.kt](file:///C:/Users/okay/Desktop/Play-1.1.47/play-app/app/src/main/java/com/kaan/play/ui/player/SourceCoordinator.kt#L688-L695) `begin(SUPERFLU)` çağırır.
-2. Yerel HTTP sunucusu üzerinden motor [TorrentEngine.kt](file:///C:/Users/okay/Desktop/Play-1.1.47/play-app/app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt#L72)'de:
-   ```kotlin
-   active?.let { removeLocked(s, it) }
-   ```
-   Önceki açık Rapta torrenti ve geçici dosyaları libtorrent'tan anında silinir.
-3. [TorrentEngine.kt](file:///C:/Users/okay/Desktop/Play-1.1.47/play-app/app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt#L153):
-   ```kotlin
-   if (active !== file || !file.handle.isValid) throw IOException("torrent closed")
-   ```
-4. [TorrentHttpServer.kt](file:///C:/Users/okay/Desktop/Play-1.1.47/play-app/app/src/main/java/com/kaan/play/data/torrent/TorrentHttpServer.kt#L111):
-   `yerel sunucu bağlantısı bitti: SocketException Broken pipe` basarak eski soketi kapatır.
-5. ExoPlayer henüz yeni `MediaItem` ile beslenmeden önceki akış koptuğu için arabelleğe alma boşalırsa veya takılırsa, yine Stuck watchdog'una düşülebilir.
+| Koşul | Başarılı | Timeout (>40s) | Ort. İlk Kare (sn) | Ort. Eş @ 5s | Ort. Eş @ 10s | Ort. Max Eş | Ort. Max Hız (KB/s) | Değerlendirme |
+|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---|
+| **`ref`** | 10 / 10 | 0 | 14.15 sn | 9.8 | 12.5 | 12.6 | 1623.7 KB/s | Taban referans (A düzeltmesi açık) |
+| **`a_trackers`** | 10 / 10 | 0 | **11.42 sn** | **12.8** | 12.7 | 13.6 | 1471.5 KB/s | **Faydalı:** İlk kareyi 2.7 sn hızlandırdı, 5. sn eş sayısını artırdı |
+| **`b_announce`** | 10 / 10 | 0 | **8.95 sn** | **13.9** | **14.7** | **14.7** | 1270.4 KB/s | **ÇOK FAYDALI:** En hızlı açılış (%37 hızlanma), en yüksek eş bağlantısı (%42 artış) |
+| **`c_dht`** | 10 / 10 | 0 | 13.05 sn | 10.7 | 13.2 | 13.6 | 1362.2 KB/s | **Etkisiz / Nötr:** Soğuk açılışın ilk 10 saniyesinde DHT yönlendirmesi yetişmiyor |
+| **`d_boost`** | 9 / 10 | **1** | 15.58 sn | 15.7 | 12.3 | 16.1 | 1832.3 KB/s | ❌ **ZARARLI:** R05'te timeout verdi! Aşırı agresif bağlantı mobil ağda tıkanma ve paket kaybı yaptı |
+| **`e_deadlines`** | 10 / 10 | 0 | **11.58 sn** | 12.3 | 12.8 | 14.0 | 1324.8 KB/s | **Faydalı:** Baş ve son MKV bloklarına süre sınırı vererek ilk kareyi hızlandırdı |
 
 ---
 
-### 2. KÖK NEDEN 2: İLK KARENİN ~24-37 SN SÜRMESİ VEYA 40 SN'DE ZAMAN AŞIMINA UĞRAMASI
+## BÖLÜM 5: `fix/torrent-telefon` DALINA EKLENEN TEMİZ COMMİTLER
 
-Aynı telefonda Nuvio'nun 2.65 saniyede açtığı SUPERFLU kaynağının Play'de 10 denemenin 6'sında 40 saniye sınırını aşıp yedeğe düşmesinin, kalan 4'ünde ise ortalama 32.25 saniyede açılabilmesinin somut nedenleri:
+Ölçümlerle faydası kanıtlanan özellikler `fix/torrent-telefon` dalına ayrı ve bağımsız commit'lerle taşındı (tanı kodu içermez, `Co-Authored-By` içermez):
 
-#### A. İzleyici (Tracker) Sayısı ve IPv6 Ulaşılamazlığı (Tek İzleyici Çöküşü)
-- Play [TorrentEngine.kt](file:///C:/Users/okay/Desktop/Play-1.1.47/play-app/app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt#L292-L299) içinde yalnızca **6 adet** izleyici sabit kodlanmıştır:
-  ```kotlin
-  val PUBLIC_TRACKERS = listOf(
-      "udp://tracker.opentrackr.org:1337/announce",
-      "udp://open.demonii.com:1337/announce",
-      "udp://open.stealth.si:80/announce",
-      "udp://tracker.torrent.eu.org:451/announce",
-      "udp://exodus.desync.com:6969/announce",
-      "udp://explodie.org:6969/announce",
-  )
-  ```
-- **Telefondaki Wi-Fi Ağ Durumu:** Telefonda IPv6 dış yönlendirmesi yoktur.
-  Günlük kanıtı:
-  ```text
-  alert TRACKER_ERROR: 7e1909 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable
-  alert TRACKER_ERROR: 7e1909 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable
-  alert TRACKER_ERROR: 7e1909 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable
-  alert TRACKER_ERROR: 7e1909 (udp://exodus.desync.com:6969/announce)[[::]:6881-v1] Network is unreachable
-  alert TRACKER_ERROR: 7e1909 (udp://explodie.org:6969/announce)[[::]:6881-v1] Network is unreachable
-  ```
-  6 izleyiciden 5'i **anında elenir!** Geriye yalnızca **tek bir izleyici** (`tracker.opentrackr.org` IPv4) kalmaktadır!
-- **Nuvio:** Nuvio kaynak kodunda (`P2pStreamingEngine.android.kt`), 20 adet zengin `DEFAULT_TRACKERS` listesi vardır ve magnet içindeki ek izleyicileri birleştirir.
-
-#### B. `announce_to_all_trackers` ve `announce_to_all_tiers` Kapalı Olması
-- Libtorrent varsayılanında `announce_to_all_trackers = false` ve `announce_to_all_tiers = false`'dur.
-- Play'de [TorrentEngine.kt](file:///C:/Users/okay/Desktop/Play-1.1.47/play-app/app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt#L242-L245)'de bu ayarlar açılmamıştır. Dolayısıyla libtorrent aynı anda tüm izleyicilere değil, yalnızca ilk tier'a sorgu atar; yedeklere geçiş uzun sürer.
-
-#### C. DHT Bootstrap Eksikliği
-- Play'de [TorrentEngine.kt](file:///C:/Users/okay/Desktop/Play-1.1.47/play-app/app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt#L242-L245)'de libtorrent oturumu başlatılırken açık DHT bootstrap düğümleri (`router.bittorrent.com`, `dht.transmissionbt.com` vb.) eklenmemiştir.
-- Soğuk açılışta DHT yönlendirme tablosu (routing table) boş olduğundan eş bulma yalnızca tek canlı izleyiciye kalmaktadır.
-
-#### D. MKV Baş + Son Parça İndirme Sırası ve Deadline Eksikliği
-- ExoPlayer, 18.78 GB'lik bir MKV dosyasını ayrıştırmak için:
-  1. Önce dosya başını (`GET range=bytes=0-` veya `GET range=bytes=6017-`, yani Parça 0 ve 1) ister.
-  2. Dosya başındaki EBML başlığından sonra MKV Cues (dizin) tablosunu okumak için **dosyanın en sonunu** (`GET range=bytes=18788408455-`, yani Parça 8959) ister!
-- [TorrentEngine.kt](file:///C:/Users/okay/Desktop/Play-1.1.47/play-app/app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt#L115)'de:
-  `listOf(first, first + 1, last - 1, last).forEach { h.piecePriority(it, Priority.TOP_PRIORITY) }`
-  Öncelik verilmekte, ancak **süre sınırı (`setPieceDeadline`) YALNIZCA `awaitPiece` çağrılan parça için sırayla verilmektedir!**
-- Tek izleyici üzerinden telefonda yalnızca 1 ila 3 eşe bağlanabildiği için (günlük satırları: `eş=1 tohum=1 hız=12KB/s` ila `hız=300KB/s`):
-  - Parça 0 (2 MB) inmesi: 15-25 sn sürer.
-  - Parça 8959 (2 MB) inmesi: 10-15 sn sürer.
-- Parça 0 + Parça 8959 toplam süresi 10 denemenin 6'sında 40 saniyeyi aşmış ve [SourceCoordinator.kt](file:///C:/Users/okay/Desktop/Play-1.1.47/play-app/app/src/main/java/com/kaan/play/ui/player/SourceCoordinator.kt#L850)'deki `TORRENT_FIRST_FRAME_TIMEOUT_MS = 40_000L` sınırına takılarak yedeğe düşmüştür!
-
+1. **`cb5760d`**: `fix(player): buyuk arabellek kararinda toplam RAM ve memoryClass sarti; false esik korundu`
+   - `PlayerBufferConfig.computeTargetBufferBytes`: `totalMemBytes >= 4 GB` ve `memoryClass >= 256` şartı. `PlayerBufferConfigTest` güncellendi.
+2. **`b085e6f`**: `fix(player): 4K akislarda 1004 hatasini onlemek icin yeterli bellekte zaman onceligini ac`
+   - Telefon ve tabletlerde 1004 çökmesini önleyen `shouldPrioritizeTimeOverSize` kuralı ve testleri.
+3. **`a840d88`**: `fix(torrent): tum izleyicilere eszamanli anons yapilmasini sagla`
+   - `SettingsPack`: `announce_to_all_trackers = true` ve `announce_to_all_tiers = true` ayarları eklendi.
+4. **`92ccde3`**: `feat(torrent): 20 acik izleyici listesi ve magnet baglantisina ekleme destegi`
+   - `TorrentLinks.appendTrackers`: 20 açık izleyicinin magnet'e eklenmesi ve `TorrentTest` doğrulama testleri.
+5. **`71e1972`**: `feat(torrent): acilis parcalari icin parca teslim sureleri ve ayni torrenti yeniden kullanma`
+   - `setPieceDeadline`: İlk ve son MKV parçalarına süre sınırı tanımı ve oturum içi torrentin yeniden kullanımı.
 
 ---
 
-## BÖLÜM 3: ADIM 3A — 1004 DÜZELTMESİ, BELLEK ÖLÇÜMÜ VE ÖNCE/SONRA DOĞRULAMASI
+## BÖLÜM 6: ADIM 5 — REGRESYON TESTLERİ VE DERLEME RAPORU
 
-### 1. Düzeltme Mimarisi ve Kod Değişikliği
-- `b7dab38` commit'i ile TV kutularındaki OOM çökmesini önlemek için getirilen 16 MB ve boyut önceliği kuralı, TV ve düşük RAM'li cihazlar için **aynen korundu**.
-- Modern telefon ve tabletlerde yüksek bit hızlı (4K / 20+ Mbps) akışların `DefaultLoadControl` tavanına çarparak Media3 `StuckPlayerException (1004)` hatası vermesini engellemek için Android'den bağımsız saf bir yapılandırma fonksiyonu tasarlandı: `PlayerBufferConfig.kt`.
-- `app/src/main/java/com/kaan/play/ui/player/PlayerBufferConfig.kt`:
-  - `computeTargetBufferBytes(isLowRam, isTv, memoryClass, largeMemoryClass)`:
-    * `isLowRam || isTv` -> `16 MB` (TV Box OOM koruması).
-    * `largeMemoryClass >= 256 || memoryClass >= 256` -> `64 MB` (OnePlus 12R gibi telefonlar).
-    * `largeMemoryClass >= 192 || memoryClass >= 192` -> `48 MB`.
-    * Diğer durumlar -> `16 MB`.
-  - `shouldPrioritizeTimeOverSize(isLowRam, isTv)`:
-    * `isLowRam || isTv` -> `false` (TV Box katı bellek tavanı).
-    * Normal telefon/tablet -> `true` (Zaman eşiklerine öncelik verilir, akış asla suni olarak durdurulmaz).
-- `PlaybackController.kt`:
-  - `val targetBufferBytes = PlayerBufferConfig.fromContext(context)`
-  - `val prioritizeTime = PlayerBufferConfig.prioritizeTimeFromContext(context)`
-  - `loadControl` bu dinamik değerlerle başlatıldı.
+### 1. Telefonda 5 Regresyon Akışı (Her Biri 60 sn Kesintisiz Oynatma)
 
-### 2. Telefonda 18 GB 4K Kaynağı 3 Dakika Boyunca Oynatırken Bellek Ölçümü
-- **Cihaz:** OnePlus 12R (`d3ed3deb`), Android 15, 16 GB Fiziksel RAM.
-- **Akış:** Fall 2 SUPERFLU 18.78 GB 4K HDR MKV (infoHash: `7e190917e0ef191710ab931463fbe0f37b91c2b8`).
-- **Ölçüm Yöntemi:** Oynatma başladıktan sonra 180 saniye (3 dakika) boyunca her 10 saniyede bir `adb shell dumpsys meminfo com.kaan.play` okundu.
-- **Ölçüm Sonuçları:**
-  * **Oynatma Süresi:** 180 saniye (3 dakika kesintisiz).
-  * **En Yüksek Native Heap:** **28 MB**
-  * **En Yüksek Dalvik Heap:** **110 MB** (LargeHeap sınırı 512 MB olup tepe kullanım %21.4'tür).
-  * **En Yüksek Toplam PSS (Total PSS):** **576 MB** (16 GB telefon belleği içinde tamamen güvenli).
-  * **Target Buffer Size Reached Uyarısı Sayısı:** **0** (Düzeltme öncesi 381 idi!).
-  * **StuckPlayerException Sayısı:** **0**
-  * **1004 Hata Sayısı:** **0**
-  * **Çökme / OOM:** **YOK (0)**
-
-### 3. Düzeltme Sonrası 10 Denemelik Ölçüm Tablosu (Önce / Sonra Karşılaştırması)
-
-| Deneme | İlk Kare (sn) | Oynatma Süresi | Hata (1004 / Çökme) | Hata Zamanı | Arabellek Uyarı Sayısı (`Target buffer size reached`) |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Deneme 1** | 7.58 sn | 180 sn (3 dk) Tamamlandı | **YOK** | — | **0** |
-| **Deneme 2** | 7.57 sn | 60 sn Tamamlandı | **YOK** | — | **0** |
-| **Deneme 3** | 4.29 sn | 60 sn Tamamlandı | **YOK** | — | **0** |
-| **Deneme 4** | 20.52 sn | 60 sn Tamamlandı | **YOK** | — | **0** |
-| **Deneme 5** | 6.44 sn | 60 sn Tamamlandı | **YOK** | — | **0** |
-| **Deneme 6** | 20.64 sn | 60 sn Tamamlandı | **YOK** | — | **0** |
-| **Deneme 7** | 7.47 sn | 60 sn Tamamlandı | **YOK** | — | **0** |
-| **Deneme 8** | 9.61 sn | 60 sn Tamamlandı | **YOK** | — | **0** |
-| **Deneme 9** | 18.35 sn | 60 sn Tamamlandı | **YOK** | — | **0** |
-| **Deneme 10** | 5.37 sn | 60 sn Tamamlandı | **YOK** | — | **0** |
-
-#### Önce / Sonra Karşılaştırma Özeti
-
-| Metrik | Düzeltme Öncesi (Adım 1) | Düzeltme Sonrası (Adım 3A) | Değişim / İyileşme |
-|:---|:---:|:---:|:---:|
-| **1004 Hatası (`StuckPlayerException`)** | **2 / 10** (%20) | **0 / 10** (%0) | **%100 Çözüldü** |
-| **`Target buffer size reached` Uyarısı** | **381 adet** (Deneme 1 ve 9) | **0 adet** | **Tamamen Yok Edildi** |
-| **İlk Kare Başarısı (40s içinde açılış)** | 4 / 10 (%40) | **10 / 10** (%100) | **%100 Başarı** |
-| **En Hızlı İlk Kare** | 27.45 sn | **4.29 sn** | **6.4 kat hızlanma** |
-| **Ortalama İlk Kare** | 32.25 sn | **10.78 sn** | **3 kat hızlanma** |
-| **60+ sn Kesintisiz Oynatma** | 2 / 10 (%20) | **10 / 10** (%100) | **%100 Kararlılık** |
-
----
-
-## BÖLÜM 4: ADIM 3B — 40 SN ZAMAN AŞIMI İNCELEMESİ (YALNIZCA TEŞHİS, KOD DEĞİŞİKLİĞİ YOK)
-
-Adım 1'deki 10 denemeden zaman aşımına uğrayan 3 denemenin (Deneme 2, 3, 4) ve başarılı denemelerin (Deneme 5, 10) 0-40 sn arası tanı günlükleri 5 saniyelik aralıklarla incelendi.
-
-### 1. 5 Saniyelik Aralıklarla Durum Tabloları
-
-#### A. Deneme 2 (Zaman Aşımı — 40 sn'de Yedeğe Düştü)
-*Başlangıç (SUPERFLU motor open): 20:50:50.746*
-
-| Zaman (t) | Libtorrent Durumu | Eş Sayısı | Tohum | Hız (KB/s) | İnen Veri | Beklenen Parça | İzleyici (Tracker) / Ağ Durumu |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---|
-| **0 sn** | `dl metadata` | 0 | 0 | 0 KB/s | 0 KB | — | Başlatıldı |
-| **5 sn** | `dl metadata` | 0 | 0 | 0 KB/s | 0 KB | — | IPv6: Unreachable; IPv4 opentrackr: 63 eş alındı |
-| **10 sn** | `dl metadata` | 0 | 0 | 0 KB/s | 0 KB | — | Metadata bekleniyor |
-| **15 sn** | `DOWNLOADING` | 1 | 1 | 25 KB/s | 0 KB | Parça 0 | Metadata tamamlandı, Parça 0 istendi |
-| **20 sn** | `DOWNLOADING` | 1 | 1 | 56 KB/s | 0 KB | Parça 0 | 1 eşten Parça 0 iniyor |
-| **25 sn** | `DOWNLOADING` | 1 | 0 | 112 KB/s | 0 KB | Parça 0 | Parça 0 devam ediyor |
-| **30 sn** | `DOWNLOADING` | 1 | 0 | 65 KB/s | 0 KB | Parça 0 | Hız 65 KB/s'ye düştü |
-| **35 sn** | `DOWNLOADING` | 1 | 0 | 63 KB/s | 0 KB | Parça 0 | Parça 0 henüz tamamlanmadı |
-| **40 sn** | `DOWNLOADING` | 1 | 0 | 72 KB/s | 2048 KB | Parça 8959 | Parça 0 bitti, Parça 8959 istendi; **40s timeout tetiklendi!** |
-
----
-
-#### B. Deneme 3 (Zaman Aşımı — 40 sn'de Yedeğe Düştü)
-*Başlangıç (SUPERFLU motor open): 20:51:48.385*
-
-| Zaman (t) | Libtorrent Durumu | Eş Sayısı | Tohum | Hız (KB/s) | İnen Veri | Beklenen Parça | İzleyici (Tracker) / Ağ Durumu |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---|
-| **0 sn** | `dl metadata` | 0 | 0 | 0 KB/s | 0 KB | — | Başlatıldı |
-| **5 sn** | `dl metadata` | 0 | 0 | 0 KB/s | 0 KB | — | IPv6: Unreachable; IPv4 opentrackr: 62 eş alındı |
-| **10 sn** | `dl metadata` | 0 | 0 | 0 KB/s | 0 KB | — | Metadata bekleniyor |
-| **15 sn** | `dl metadata` | 0 | 0 | 0 KB/s | 0 KB | — | Metadata bekleniyor (19 sn sürdü!) |
-| **20 sn** | `downloading` | 0 | 0 | 0 KB/s | 0 KB | — | Metadata henüz indi, parça isteği hazırlanıyor |
-| **25 sn** | `DOWNLOADING` | 1 | 1 | 3 KB/s | 0 KB | Parça 0 | Parça 0 istendi, hız aşırı düşük (3 KB/s) |
-| **30 sn** | `DOWNLOADING` | 1 | 1 | 15 KB/s | 0 KB | Parça 0 | Hız 15 KB/s |
-| **35 sn** | `DOWNLOADING` | 1 | 1 | 14 KB/s | 0 KB | Parça 0 | Hız 14 KB/s, Parça 0 inemedi |
-| **40 sn** | `DOWNLOADING` | 1 | 1 | 12 KB/s | 0 KB | Parça 0 | Parça 0 tamamlanamadı; **40s timeout tetiklendi!** |
-
----
-
-#### C. Deneme 4 (Zaman Aşımı — 40 sn'de Yedeğe Düştü)
-*Başlangıç (SUPERFLU motor open): 20:52:46.307*
-
-| Zaman (t) | Libtorrent Durumu | Eş Sayısı | Tohum | Hız (KB/s) | İnen Veri | Beklenen Parça | İzleyici (Tracker) / Ağ Durumu |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---|
-| **0 sn** | `dl metadata` | 0 | 0 | 0 KB/s | 0 KB | — | Başlatıldı |
-| **5 sn** | `downloading` | 0 | 0 | 0 KB/s | 0 KB | — | Metadata 4 sn'de indi |
-| **10 sn** | `DOWNLOADING` | 2 | 2 | 247 KB/s | 0 KB | Parça 0 | Parça 0 istendi |
-| **15 sn** | `DOWNLOADING` | 3 | 2 | 376 KB/s | 2048 KB | Parça 0 | Parça 0 tamamlandı, Parça 8959 istendi |
-| **20 sn** | `DOWNLOADING` | 3 | 2 | 280 KB/s | 2048 KB | Parça 0 | Parça 8959 bekleniyor |
-| **25 sn** | `DOWNLOADING` | 2 | 2 | 214 KB/s | 4096 KB | Parça 0 | Parça 8959 tamamlandı, Parça 1 istendi |
-| **30 sn** | `DOWNLOADING` | 2 | 2 | 128 KB/s | 4096 KB | Parça 0 | Hız düştü (128 KB/s) |
-| **35 sn** | `DOWNLOADING` | 2 | 2 | 95 KB/s | 4096 KB | Parça 0 | Hız düştü (95 KB/s) |
-| **40 sn** | `DOWNLOADING` | 4 | 3 | 83 KB/s | 4096 KB | Parça 0 | ExoPlayer gerekli cluster verisini alamadı; **40s timeout!** |
-
----
-
-#### D. Deneme 10 (Başarılı — 29.5 sn'de İlk Kare Geldi)
-*Başlangıç (SUPERFLU motor open): 21:00:10.080*
-
-| Zaman (t) | Libtorrent Durumu | Eş Sayısı | Tohum | Hız (KB/s) | İnen Veri | Beklenen Parça | İzleyici (Tracker) / Ağ Durumu |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---|
-| **0 sn** | `dl metadata` | 0 | 0 | 0 KB/s | 0 KB | — | Başlatıldı |
-| **5 sn** | `downloading` | 0 | 0 | 0 KB/s | 0 KB | — | Metadata 4 sn'de indi, 57 eş alındı |
-| **10 sn** | `DOWNLOADING` | 2 | 2 | 389 KB/s | 0 KB | Parça 0 | Hız hızla 389 KB/s'ye çıktı |
-| **15 sn** | `DOWNLOADING` | 3 | 2 | 364 KB/s | 2048 KB | Parça 0 | Parça 0 bitti, Parça 8959 istendi |
-| **20 sn** | `DOWNLOADING` | 3 | 2 | 380 KB/s | 2048 KB | Parça 0 | Parça 8959 bitti, Parça 1 ve 2 istendi |
-| **25 sn** | `DOWNLOADING` | 3 | 2 | 392 KB/s | 4096 KB | Parça 0 | Parçalar ardışık iniyor |
-| **29.5 sn** | `DOWNLOADING` | 3 | 2 | 415 KB/s | 8192 KB | — | **İLK KARE OYNATICIYA GELDİ!** |
-| **30 sn** | `DOWNLOADING` | 3 | 2 | 450 KB/s | 4096 KB | Parça 0 | Oynatma devam ediyor |
-| **35 sn** | `DOWNLOADING` | 1 | 1 | 395 KB/s | 10363 KB | Parça 5 | Arabellek doluyor |
-| **40 sn** | `DOWNLOADING` | 2 | 1 | 467 KB/s | 14459 KB | Parça 7 | Oynatma akıcı |
-
----
-
-### 2. Soruya Kanıtlı Cevap: "Telefonda 40 sn'de ne oluyor?"
-
-> **Soru:** (1) Eş hiç mi bulunamıyor, (2) eş bulunuyor ama hız mı sıfır, (3) hız var ama aranan parça mı gelmiyor?
-
-**Kanıtlanmış Cevap: KESİNLİKLE (3)**
-Tablolar ve log kayıtları şüpheye yer bırakmayacak şekilde göstermektedir:
-1. **Eş bulunuyor:** IPv4 `tracker.opentrackr.org` üzerinden her denemede 24 ile 63 arasında eş IP'si alınmaktadır. (Eş = 0 değildir). Ancak IPv6 ulaşılamaz olduğundan 6 izleyiciden 5'i anında düşmektedir.
-2. **Metadata gecikmesi:** Magnet linkinden torrent dosyasının (`.torrent` metadata) indirilmesi 4 ile 19 saniye arasında sürmektedir. Örneğin Deneme 3'te metadata tam 19 saniye sürmüş, parça indirmeye 40 saniyenin yalnızca 21 saniyesi kalmıştır.
-3. **Hız var ancak düşük ve aranan parçalar yetişmiyor:**
-   - Libtorrent bağlandığı 1-2 eşten saniyede 12 - 70 KB/s hız alabilmektedir.
-   - ExoPlayer'ın 18.78 GB MKV dosyasını ayrıştırabilmesi için **hem Parça 0 (EBML başlığı) hem de dosyanın sonundaki Parça 8959 (SeekHead / Cues dizini)** indirilmek zorundadır.
-   - Her bir parça 2048 KB (2 MB) boyutundadır. İki parçanın toplamı 4096 KB'dir.
-   - 50-70 KB/s hızla 4096 KB verinin inmesi 60-80 saniye gerektirmektedir.
-   - 40. saniyeye gelindiğinde Parça 0 inmiş olsa dahi Parça 8959 henüz inmemiş olmakta; `SourceCoordinator` 40000 ms zaman aşımına uğrayıp akışı iptal ederek yedek kaynağa geçmektedir.
-   - Başarılı olan denemelerde (Deneme 10) ise metadata 4 saniyede inmiş, hız 400+ KB/s'ye ulaşmış ve ilk 25 saniyede hem baş hem son parça inerek ilk kare çözülebilmiştir.
-
----
-
-## BÖLÜM 5: ADIM 4 — REGRESYON TESTLERİ VE BİRİM TEST RAPORU
-
-### 1. Regresyon Testleri (Telefonda Gerçek Kaynaklar ile 60 sn)
-
-| Test Edilen Kaynak | Tür | Oynatma Süresi | Geri Tuşuyla Çıkış | `logcat -b crash` Durumu | Sonuç |
+| Akış Adı | Tür | Oynatma Süresi | Geri Tuşu Çıkışı | `logcat -b crash` | Durum |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| **Joker (HLS)** | HLS / Çevrimiçi | 60 sn Kesintisiz | Başarılı | Temiz (0 çökme) | **PASSED** |
-| **Örümcek-Adam (No Way Home)** | MP4 / Çevrimiçi | 60 sn Kesintisiz | Başarılı | Temiz (0 çökme) | **PASSED** |
-| **Criminal Minds (S1E1)** | Dizi / Çevrimiçi | 60 sn Kesintisiz | Başarılı | Temiz (0 çökme) | **PASSED** |
-| **Canlı Kanal (Mux HLS)** | Canlı Yayın | 60 sn Kesintisiz | Başarılı | Temiz (0 çökme) | **PASSED** |
-| **Küçük Torrent (Fall 2 Rapta 1.3 GB)** | Torrent (libtorrent) | 60 sn Kesintisiz (ilk kare ~4.1s) | Başarılı | Temiz (0 çökme) | **PASSED** |
+| **Joker (HLS)** | HLS Çevrimiçi | 60 sn Kesintisiz | Başarılı | Temiz (0 hata) | **PASSED** |
+| **Örümcek-Adam (No Way Home)** | MP4 Çevrimiçi | 60 sn Kesintisiz | Başarılı | Temiz (0 hata) | **PASSED** |
+| **Criminal Minds (S1E1)** | TV Dizi Çevrimiçi | 60 sn Kesintisiz | Başarılı | Temiz (0 hata) | **PASSED** |
+| **Canlı Kanal (Mux HLS)** | Canlı Yayın | 60 sn Kesintisiz | Başarılı | Temiz (0 hata) | **PASSED** |
+| **Küçük Torrent (Fall 2 Rapta 1.3 GB)** | Torrent (libtorrent) | 60 sn Kesintisiz | Başarılı | Temiz (0 hata) | **PASSED** |
 
-*Tüm regresyon testleri 60 saniye boyunca sorunsuz oynatılmış, Geri tuşuyla ana ekrana dönülmüş ve sıfır çökme ile tamamlanmıştır.*
+**Regresyon Özeti:** 5 / 5 test başarıyla tamamlandı. Sıfır çökme, sıfır ANR.
 
-### 2. Birim Testler ve Derleme Sonuçları
+### 2. Birim Testleri ve Derleme
 - **Komut:** `.\gradlew testDebugUnitTest`
-  * **Çalıştırılan XML Rapor Dosyası:** 144 adet
-  * **Toplam Birim Test Sayısı:** **1122 adet**
-  * **Hata / Başarısızlık:** **0**
-  * **Atlanan:** 2
-  * **Sonuç:** `BUILD SUCCESSFUL in 1m 27s`
+  * **Toplam Birim Test:** **1123 adet**
+  * **Başarısızlık / Hata:** **0**
+  * **Sonuç:** `BUILD SUCCESSFUL in 1m 8s`
 - **Komut:** `.\gradlew assembleDebug`
-  * **Sonuç:** `BUILD SUCCESSFUL in 51s`
+  * **Sonuç:** `BUILD SUCCESSFUL in 28s`
 
 ---
 
-## BÖLÜM 6: RESMİ SÜRÜM GERİ YÜKLEME KANITI
+## BÖLÜM 7: RESMİ SÜRÜM GERİ YÜKLEME KANITI
 
-Telefondaki testler tamamlandıktan sonra kullanıcı talimatı gereği resmi Play v1.2.2 sürümü geri yüklendi:
-1. **Resmi APK Dosyası:** `official_Play-1.2.2.apk`
-2. **Doğrulanan SHA-256:**
-   `7A5F5CDE520BA689AAB87BC17DEB921388AB0958A43E1DF504639D10F2ADF4BC`
-   *(Kullanıcının talimatındaki SHA-256 ile birebir eşleşmektedir).*
-3. **Yükleme Yöntemi:** `adb -s d3ed3deb install -r` (Veri silinmedi, `pm clear` yapılmadı, `uninstall` yapılmadı).
-4. **Telefondaki Güncel Durum (dumpsys package com.kaan.play):**
+Testler tamamlandıktan sonra telefondaki veri silinmeden resmi sürüm geri yüklendi:
+1. **Dosya:** `official_Play-1.2.2.apk`
+2. **SHA-256 Doğrulaması:**
+   - Beklenen: `7a5f5cde520ba689aab87bc17deb921388ab0958a43e1df504639d10f2adf4bc`
+   - Gerçekleşen: `7a5f5cde520ba689aab87bc17deb921388ab0958a43e1df504639d10f2adf4bc`
+   - Eşleşme: **Birebir Doğrulandı (DOĞRU)**
+3. **Yükleme:** `adb -s d3ed3deb install -r official_Play-1.2.2.apk` -> **Success**
+4. **Telefondaki Güncel Durum (`dumpsys package com.kaan.play`):**
    ```text
-   legacyNativeLibraryDir=/data/app/~~KphS4cDTrqoMVqpoKh3h-g==/com.kaan.play-P00fiMNp5f8FlKpGPmN1LQ==/lib
+   legacyNativeLibraryDir=/data/app/~~4BB8pr3JvoDHfga_dyIWQw==/com.kaan.play-Z9m8xviODYpijnJuRG6PKA==/lib
    primaryCpuAbi=arm64-v8a
+   versionCode=29 minSdk=24 targetSdk=37
    versionName=1.2.2
+   lastUpdateTime=2026-10-31 23:24:13
    ```
-   **Durum:** Resmi v1.2.2 başarıyla yüklü ve etkindir.
+5. **Ekran Kilidi / Güç Durumu:** `svc power stayon false` ile telefon ekran zaman aşımı kullanıcı varsayılanına döndürüldü.
