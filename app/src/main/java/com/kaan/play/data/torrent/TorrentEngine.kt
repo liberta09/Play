@@ -305,7 +305,7 @@ class TorrentEngine(private val dir: File) {
         return probe()
     }
 
-    private companion object {
+    companion object {
         const val TAG = "PlayTorrent"
 
         /** Teşhis logunda atlanan, çok sık gelen alert türleri. */
@@ -338,7 +338,7 @@ class TorrentEngine(private val dir: File) {
             "udp://tracker.gmi.gd:6969/announce",
             "udp://tracker.fnix.net:6969/announce",
             "udp://tracker.flatuslifir.is:6969/announce",
-            "udp://ducks.party:1984/announce",
+            "udp://tracker.ducks.party:1984/announce",
             "udp://tracker.bluefrog.pw:2710/announce",
         )
     }
