@@ -114,6 +114,8 @@ class SourceCoordinator(
     private val clock: () -> Long,
     /** Medya içeriği yoklaması (HTML/sahte kaynak engeli; oynatmayı en çok 2 sn geciktirebilir). */
     private val sourceProbe: (suspend (PlayableStream) -> Probe)? = null,
+    /** En iyi torrent adayını kullanıcı Oynat demeden önce ısıtmak için çağrılır. */
+    private val prewarmTorrent: ((magnet: String, fileHint: Int?) -> Unit)? = null,
     private val rankingDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) {
     var phase by mutableStateOf(SourcePhase.Idle)
@@ -401,8 +403,20 @@ class SourceCoordinator(
 
     // ---- olaylar ----
 
+    private var lastPrewarmedKey: Pair<String, Int?>? = null
+
     private fun onChange() {
         probeSizes()
+        if (autoSource) {
+            val topTorrent = ranked().firstOrNull { TorrentLinks.isMagnet(it.url) }
+            if (topTorrent != null) {
+                val key = topTorrent.url to topTorrent.torrentFileIdx
+                if (lastPrewarmedKey != key) {
+                    lastPrewarmedKey = key
+                    prewarmTorrent?.invoke(topTorrent.url, topTorrent.torrentFileIdx)
+                }
+            }
+        }
         when (phase) {
             SourcePhase.Resolving -> {
                 // Daha önce denenip başarısız olan kaynaklar tekrar seçilmez.

@@ -52,12 +52,57 @@ class TorrentEngine(private val dir: File) {
     private val lock = Any()
     private var session: SessionManager? = null
     @Volatile private var active: Opened? = null
+    @Volatile private var warmingHash: String? = null
     private val users = AtomicInteger()
     private val background = Executors.newSingleThreadExecutor { r -> Thread(r, "torrent-engine").apply { isDaemon = true } }
 
     /** Kaynak listesinde torrent görünce oturumu önceden başlatır (DHT ısınsın, açılış hızlansın). */
     fun warmUp() {
         background.execute { runCatching { synchronized(lock) { ensureSession() } } }
+    }
+
+    /**
+     * Kaynak listesi gelirken en iyi torrent adayının üst bilgisini ve ilk/son parçalarını
+     * kullanıcı Oynat demeden önce arka planda ısıtır. Oynat denince aynı oturumu ve tutamağı kullanır.
+     * Tek torrent kuralı: başka bir torrent oynatılıyorsa ona dokunulmaz.
+     */
+    fun prewarm(magnet: String, fileHint: Int?) {
+        val hash = TorrentLinks.hexHashOf(magnet) ?: return
+        if (users.get() > 0 && active?.hash != hash) return
+        if (warmingHash == hash || (active?.hash == hash && active?.fileHint == fileHint && active?.handle?.isValid == true)) return
+        warmingHash = hash
+        background.execute {
+            try {
+                synchronized(lock) {
+                    if (users.get() > 0 && active?.hash != hash) return@synchronized
+                    if (active?.hash == hash && active?.fileHint == fileHint && active?.handle?.isValid == true) return@synchronized
+                    val s = ensureSession()
+                    val sha1 = Sha1Hash.parseHex(hash)
+                    var handle = s.find(sha1)
+                    if (handle == null || !handle.isValid) {
+                        active?.let { prev ->
+                            if (prev.hash != hash) removeLocked(s, prev)
+                            else active = null
+                        }
+                        val fullMagnet = TorrentLinks.appendTrackers(magnet, PUBLIC_TRACKERS)
+                        s.download(fullMagnet, dir, TorrentFlags.SEQUENTIAL_DOWNLOAD)
+                        handle = waitFor(METADATA_TIMEOUT_MS) { s.find(sha1)?.takeIf { it.isValid } } ?: return@synchronized
+                        PUBLIC_TRACKERS.forEach { runCatching { handle.addTracker(AnnounceEntry(it)) } }
+                    }
+                    val h = handle
+                    waitFor(METADATA_TIMEOUT_MS) { h.takeIf { it.isValid && it.status().hasMetadata() } } ?: return@synchronized
+
+                    prepareHandleLocked(s, h, hash, fileHint)
+                    TorrentDiag.d("ön hazırlık tamamlandı: hash=$hash")
+                }
+            } catch (e: Throwable) {
+                TorrentDiag.e("ön hazırlık hatası", e)
+            } finally {
+                if (warmingHash == hash) {
+                    warmingHash = null
+                }
+            }
+        }
     }
 
     /**
@@ -98,40 +143,46 @@ class TorrentEngine(private val dir: File) {
                     throw TorrentException(TorrentException.Reason.NoMetadata, "no metadata")
                 }
 
-            val info = h.torrentFile()
-            val files = info.files()
-            val entries = (0 until files.numFiles()).map {
-                TorrentRules.FileEntry(files.fileName(it), files.fileSize(it), files.padFileAt(it))
-            }
-            val index = TorrentRules.pickFile(entries, fileHint) ?: run {
-                s.remove(h, SessionHandle.DELETE_FILES)
-                throw TorrentException(TorrentException.Reason.NoFile, "no playable file")
-            }
-            val size = files.fileSize(index)
-            if (dir.usableSpace in 1 until size + SPACE_MARGIN) {
-                s.remove(h, SessionHandle.DELETE_FILES)
-                throw TorrentException(TorrentException.Reason.NoSpace, "not enough space")
-            }
-
-            h.prioritizeFiles(Array(files.numFiles()) { if (it == index) Priority.DEFAULT else Priority.IGNORE })
-            h.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
-            val offset = files.fileOffset(index)
-            val pieceLength = info.pieceLength()
-            // MKV/MP4 dizini çoğu zaman dosyanın sonundadır: baş ve son parçalar önce gelsin.
-            val first = TorrentRules.pieceAt(offset, 0, pieceLength)
-            val last = TorrentRules.pieceAt(offset, size - 1, pieceLength)
-            listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEach { h.piecePriority(it, Priority.TOP_PRIORITY) }
-            listOf(first, first + 1).filter { it in first..last }.forEachIndexed { idx, p ->
-                if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 250)
-            }
-            listOf(last - 1, last).filter { it in first..last }.forEachIndexed { idx, p ->
-                if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 500)
-            }
-
-            TorrentDiag.d("torrent açıldı: hash=$hash dosya[$index]=${files.fileName(index)} boyut=$size parça=$pieceLength (dosya sayısı ${files.numFiles()}, ipucu=$fileHint)")
-            return Opened(hash, fileHint, h, files.fileName(index), size, offset, pieceLength, File(h.savePath(), files.filePath(index)))
-                .also { active = it }
+            return prepareHandleLocked(s, h, hash, fileHint)
         }
+    }
+
+    private fun prepareHandleLocked(s: SessionManager, h: TorrentHandle, hash: String, fileHint: Int?): Opened {
+        val info = h.torrentFile()
+        val files = info.files()
+        val entries = (0 until files.numFiles()).map {
+            TorrentRules.FileEntry(files.fileName(it), files.fileSize(it), files.padFileAt(it))
+        }
+        val index = TorrentRules.pickFile(entries, fileHint) ?: run {
+            s.remove(h, SessionHandle.DELETE_FILES)
+            throw TorrentException(TorrentException.Reason.NoFile, "no playable file")
+        }
+        val size = files.fileSize(index)
+        if (dir.usableSpace in 1 until size + SPACE_MARGIN) {
+            s.remove(h, SessionHandle.DELETE_FILES)
+            throw TorrentException(TorrentException.Reason.NoSpace, "not enough space")
+        }
+
+        h.prioritizeFiles(Array(files.numFiles()) { if (it == index) Priority.DEFAULT else Priority.IGNORE })
+        h.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
+        val offset = files.fileOffset(index)
+        val pieceLength = info.pieceLength()
+        // MKV/MP4 dizini çoğu zaman dosyanın sonundadır: baş ve son parçalar önce gelsin.
+        val first = TorrentRules.pieceAt(offset, 0, pieceLength)
+        val last = TorrentRules.pieceAt(offset, size - 1, pieceLength)
+        val firstPieces = (first..minOf(first + 3, last)).toList()
+        val lastPieces = (maxOf(first, last - 3)..last).toList()
+        (firstPieces + lastPieces).distinct().forEach { h.piecePriority(it, Priority.TOP_PRIORITY) }
+        firstPieces.forEachIndexed { idx, p ->
+            if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 250)
+        }
+        lastPieces.reversed().forEachIndexed { idx, p ->
+            if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 400)
+        }
+
+        TorrentDiag.d("torrent hazırlandı: hash=$hash dosya[$index]=${files.fileName(index)} boyut=$size parça=$pieceLength (dosya sayısı ${files.numFiles()}, ipucu=$fileHint)")
+        return Opened(hash, fileHint, h, files.fileName(index), size, offset, pieceLength, File(h.savePath(), files.filePath(index)))
+            .also { active = it }
     }
 
     /** Yeni bir okuma (HTTP isteği) [position]'dan başlıyor: eski süre sınırları kalkar, bu konumun önü öne alınır. */
@@ -257,8 +308,27 @@ class TorrentEngine(private val dir: File) {
             .connectionsLimit(CONNECTIONS)
             .activeDownloads(2)
             .apply {
+                // Tracker duyurusu
                 setBoolean(settings_pack.bool_types.announce_to_all_trackers.swigValue(), true)
                 setBoolean(settings_pack.bool_types.announce_to_all_tiers.swigValue(), true)
+                setBoolean(settings_pack.bool_types.prefer_udp_trackers.swigValue(), true)
+
+                // Eş keşfi ve yerel ağ protokolleri
+                setBoolean(settings_pack.bool_types.enable_dht.swigValue(), true)
+                setBoolean(settings_pack.bool_types.enable_lsd.swigValue(), true)
+                setBoolean(settings_pack.bool_types.enable_upnp.swigValue(), true)
+                setBoolean(settings_pack.bool_types.enable_natpmp.swigValue(), true)
+                setBoolean(settings_pack.bool_types.enable_outgoing_tcp.swigValue(), true)
+                setBoolean(settings_pack.bool_types.enable_incoming_tcp.swigValue(), true)
+                setBoolean(settings_pack.bool_types.enable_outgoing_utp.swigValue(), true)
+                setBoolean(settings_pack.bool_types.enable_incoming_utp.swigValue(), true)
+
+                // Bağlantı hızı, eş havuzu ve zaman aşımları
+                setInteger(settings_pack.int_types.connection_speed.swigValue(), 120)
+                setInteger(settings_pack.int_types.peer_connect_timeout.swigValue(), 7)
+                setInteger(settings_pack.int_types.request_timeout.swigValue(), 8)
+                setInteger(settings_pack.int_types.inactivity_timeout.swigValue(), 25)
+                setInteger(settings_pack.int_types.max_peerlist_size.swigValue(), 4000)
             }
         val params = SessionParams(settings).apply { setPosixDiskIO() }
         return try {

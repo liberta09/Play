@@ -233,6 +233,7 @@ class PlayerActivity : AppCompatActivity() {
                 sourceProbe = { stream ->
                     container.sourceProbe.probe(stream.url, stream.headers, timeoutMs = 1_500L)
                 },
+                prewarmTorrent = container.torrentEngine::prewarm,
             )
             coordinator = sources
             controller.onFirstFrame = {
@@ -396,6 +397,8 @@ class PlayerActivity : AppCompatActivity() {
         }
         val previous = currentStream
         if (previous != null && previous.url != stream.url && TorrentLinks.isMagnet(previous.url)) {
+            appContainer.torrentEngine.closeActive()
+        } else if (!TorrentLinks.isMagnet(stream.url)) {
             appContainer.torrentEngine.closeActive()
         }
         currentStream = stream

@@ -163,6 +163,15 @@ fun SourcesSheet(target: PlayTarget, onDismiss: () -> Unit, onPicked: (PlayableS
             .onCompletion { cause -> if (cause == null) value = value.finished() }
             .collect { value += it }
     }
+    // Kullanıcı kaynak listesini incelerken en iyi torrent adayının üst bilgisi ve ilk parçaları arka planda ısıtılır.
+    if (!downloadMode) {
+        LaunchedEffect(state.streams) {
+            val topTorrent = state.streams.firstOrNull { TorrentLinks.isMagnet(it.url) }
+            if (topTorrent != null) {
+                container.torrentEngine.prewarm(topTorrent.url, topTorrent.torrentFileIdx)
+            }
+        }
+    }
     // İndirme modu: adaylar geldikçe arka planda yoklanır (aynı adres bir kez); sonuç adres → indirilebilir mi.
     val probed = remember(request, refresh) { mutableStateMapOf<String, Boolean>() }
     if (downloadMode) {

@@ -64,6 +64,7 @@ class SourceCoordinatorTest {
         probe: suspend (PlayableStream) -> Long? = { null },
         request: StreamRequest,
         sourceProbe: (suspend (PlayableStream) -> Probe)? = null,
+        prewarm: ((String, Int?) -> Unit)? = null,
     ) {
         val loaded = mutableListOf<Pair<PlayableStream, Long>>()
         val remembered = mutableListOf<PlayableStream>()
@@ -81,6 +82,7 @@ class SourceCoordinatorTest {
             position = { positionMs },
             clock = { scope.testScheduler.currentTime },
             sourceProbe = sourceProbe,
+            prewarmTorrent = prewarm,
             rankingDispatcher = Dispatchers.Unconfined,
         )
         val lastUrl get() = loaded.lastOrNull()?.first?.url
@@ -958,5 +960,26 @@ class SourceCoordinatorTest {
         assertEquals(SourcePhase.Playing, rig.coordinator.phase)
         assertEquals("Late source should still be listed", listOf(late), rig.coordinator.streams)
         assertEquals("Background HEAD probes must not compete with video traffic", 0, sizeProbeCalls)
+    }
+
+    @Test
+    fun prewarmsTopTorrentCandidateWhenSourcesArrive() = runTest {
+        val magnet = "magnet:?xt=urn:btih:0123456789abcdef0123456789abcdef01234567"
+        val torrentStream = stream(source1, magnet, dub = false, res = 1080)
+        val prewarmed = mutableListOf<Pair<String, Int?>>()
+        val rig = Rig(
+            scope = this,
+            results = flow {
+                emit(found(source1, torrentStream))
+            },
+            request = request,
+            prewarm = { url, idx -> prewarmed += url to idx },
+        )
+
+        rig.coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+
+        assertEquals(1, prewarmed.size)
+        assertEquals(magnet, prewarmed.first().first)
     }
 }
