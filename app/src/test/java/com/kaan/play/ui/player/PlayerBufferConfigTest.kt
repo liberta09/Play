@@ -1,6 +1,8 @@
 package com.kaan.play.ui.player
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PlayerBufferConfigTest {
@@ -23,6 +25,7 @@ class PlayerBufferConfigTest {
             totalMemBytes = gb16,
         )
         assertEquals(mb16, bytesHighMemTv)
+        assertFalse(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = false, isTv = true, memoryClass = 256, totalMemBytes = gb16))
 
         val bytesLowMemTv = PlayerBufferConfig.computeTargetBufferBytes(
             isLowRam = true,
@@ -31,6 +34,7 @@ class PlayerBufferConfigTest {
             totalMemBytes = gb2,
         )
         assertEquals(mb16, bytesLowMemTv)
+        assertFalse(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = true, isTv = true, memoryClass = 128, totalMemBytes = gb2))
     }
 
     @Test
@@ -42,6 +46,7 @@ class PlayerBufferConfigTest {
             totalMemBytes = gb16,
         )
         assertEquals(mb16, bytes)
+        assertFalse(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = true, isTv = false, memoryClass = 256, totalMemBytes = gb16))
     }
 
     @Test
@@ -54,6 +59,7 @@ class PlayerBufferConfigTest {
             totalMemBytes = gb8,
         )
         assertEquals(mb16, bytes)
+        assertFalse(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = false, isTv = false, memoryClass = 128, totalMemBytes = gb8))
     }
 
     @Test
@@ -66,6 +72,7 @@ class PlayerBufferConfigTest {
             totalMemBytes = gb1,
         )
         assertEquals(mb16, bytes1Gb)
+        assertFalse(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = false, isTv = false, memoryClass = 256, totalMemBytes = gb1))
 
         val bytes2Gb = PlayerBufferConfig.computeTargetBufferBytes(
             isLowRam = false,
@@ -74,6 +81,7 @@ class PlayerBufferConfigTest {
             totalMemBytes = gb2,
         )
         assertEquals(mb16, bytes2Gb)
+        assertFalse(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = false, isTv = false, memoryClass = 256, totalMemBytes = gb2))
     }
 
     @Test
@@ -86,6 +94,7 @@ class PlayerBufferConfigTest {
             totalMemBytes = gb4,
         )
         assertEquals(mb64, bytes4Gb)
+        assertTrue(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = false, isTv = false, memoryClass = 256, totalMemBytes = gb4))
 
         // OnePlus 12R: 16 GB RAM ve memoryClass 256 => 64 MB
         val bytesOnePlus = PlayerBufferConfig.computeTargetBufferBytes(
@@ -95,5 +104,6 @@ class PlayerBufferConfigTest {
             totalMemBytes = gb16,
         )
         assertEquals(mb64, bytesOnePlus)
+        assertTrue(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = false, isTv = false, memoryClass = 256, totalMemBytes = gb16))
     }
 }

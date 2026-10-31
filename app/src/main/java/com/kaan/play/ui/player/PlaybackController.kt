@@ -169,7 +169,7 @@ class PlaybackController(
         val targetBufferBytes = PlayerBufferConfig.fromContext(context)
         val loadControl = DefaultLoadControl.Builder()
             .setTargetBufferBytes(targetBufferBytes)
-            .setPrioritizeTimeOverSizeThresholds(false)
+            .setPrioritizeTimeOverSizeThresholds(PlayerBufferConfig.prioritizeTimeFromContext(context))
             .setBufferDurationsMs(15000, 30000, 2500, 5000)
             .setBackBuffer(0, false)
             .build()

@@ -47,6 +47,22 @@ object PlayerBufferConfig {
     }
 
     /**
+     * TV ve düşük bellekli cihazlarda OOM riskini önlemek için boyut sınırı zamana baskın gelir (false).
+     * Yeterli belleğe sahip (memoryClass >= 256 ve totalMem >= 4 GB) telefon/tabletlerde ise
+     * 4K ve yüksek bit hızlı içeriklerde DefaultLoadControl'ün yüklemeyi durdurarak 1004 StuckPlayerException
+     * vermesini önlemek için zaman eşiklerine (minBufferMs) öncelik verilir (true).
+     */
+    fun shouldPrioritizeTimeOverSize(
+        isLowRam: Boolean,
+        isTv: Boolean,
+        memoryClass: Int,
+        totalMemBytes: Long,
+    ): Boolean {
+        if (isLowRam || isTv) return false
+        return memoryClass >= 256 && totalMemBytes >= MIN_TOTAL_MEM_BYTES_FOR_LARGE_BUFFER
+    }
+
+    /**
      * Android Context üzerinden donanım parametrelerini okuyarak hedef arabellek baytını döner.
      */
     fun fromContext(context: Context): Int {
@@ -63,5 +79,24 @@ object PlayerBufferConfig {
             uiMode?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
 
         return computeTargetBufferBytes(isLowRam, isTv, memoryClass, totalMemBytes)
+    }
+
+    /**
+     * Android Context üzerinden zaman önceliği bayrağını belirler.
+     */
+    fun prioritizeTimeFromContext(context: Context): Boolean {
+        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+        val isLowRam = am?.isLowRamDevice ?: false
+        val memoryClass = am?.memoryClass ?: 128
+        val memInfo = ActivityManager.MemoryInfo()
+        am?.getMemoryInfo(memInfo)
+        val totalMemBytes = memInfo.totalMem
+
+        val pm = context.packageManager
+        val uiMode = context.getSystemService(Context.UI_MODE_SERVICE) as? UiModeManager
+        val isTv = pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK) ||
+            uiMode?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+
+        return shouldPrioritizeTimeOverSize(isLowRam, isTv, memoryClass, totalMemBytes)
     }
 }
