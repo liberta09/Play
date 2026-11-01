@@ -1,0 +1,513 @@
+--------- beginning of main
+11-01 23:14:12.270  1597  1597 I Binder:1597_19: type=1400 audit(0.0:5492): avc: denied { call } for scontext=u:r:system_server:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+--------- beginning of system
+11-01 23:14:12.270  1597  2613 I ActivityManager: START u0 {flg=0x10000000 cmp=com.nuvio.app/.MainActivity} from uid 2000
+11-01 23:14:12.277 32586 32586 I ldinit  : type=1400 audit(0.0:5493): avc: denied { execute } for name="sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+11-01 23:14:12.277 32586 32586 I ldinit  : type=1400 audit(0.0:5494): avc: denied { read open } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+11-01 23:14:12.277 32586 32586 I ldinit  : type=1400 audit(0.0:5495): avc: denied { execute_no_trans } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+11-01 23:14:12.277 32586 32586 I sh      : type=1400 audit(0.0:5496): avc: denied { getattr } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+11-01 23:14:12.277  2302  2302 I ScionFrontendAp: type=1400 audit(0.0:5497): avc: denied { open } for path="/data/local/cfg-ineyg/android7" dev="sdb2" ino=394463 scontext=u:r:untrusted_app:s0:c42,c256,c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-01 23:14:12.279  1597  1611 W SchedPolicy: add_tid_to_cgroup failed to write '2302' (No space left on device); fd=24
+11-01 23:14:12.280  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:45 android.app.ActivityThread.handleReceiver:3424 
+11-01 23:14:12.280  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.android.ld.appstore -f 32 --es package com.nuvio.app --es pos pc
+11-01 23:14:12.280  1460  1460 D ldinit  : result:
+11-01 23:14:12.290  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+11-01 23:14:12.294  2813 28037 I AppStartReceiver: onReceive, action = com.ldmnq.APP_FOREGROUND, extras = Bundle[{package=com.nuvio.app, pos=pc}]
+11-01 23:14:12.294  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 23:14:12.296  1433  1433 D libnativeloader: CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+11-01 23:14:12.296  1433  1433 I Zygote  : IsCopy  libcrashcatcher: 0
+11-01 23:14:12.296  1433  1433 D libnativeloader: INJECT Failed to open gspd.json
+11-01 23:14:12.301  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.ldmnq.launcher3 -f 32 --es package com.nuvio.app --es pos pc
+11-01 23:14:12.301  1460  1460 D ldinit  : result:
+11-01 23:14:12.308  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+11-01 23:14:12.315  1597  1613 I ActivityManager: Start proc 32590:com.nuvio.app/u0a64 for activity com.nuvio.app/.MainActivity
+11-01 23:14:12.319  2302 26963 D AppStartReceiver: action = com.ldmnq.APP_FOREGROUND, packageName = com.nuvio.app, pos = pc
+11-01 23:14:12.324  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 23:14:12.328 32590 32590 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: Not a directory
+11-01 23:14:12.329 32590 32590 I Zygote  : seccomp disabled by setenforce 0
+11-01 23:14:12.330 32590 32590 D nativebridge: call UnloadNativeBridge! state=1
+11-01 23:14:12.333 32590 32590 E com.nuvio.app: Not starting debugger since process cannot load the jdwp agent.
+11-01 23:14:12.344  1597  3941 W SchedPolicy: add_tid_to_cgroup failed to write '32590' (No space left on device); fd=27
+11-01 23:14:12.361  2061 32538 D AdvertisingIdClient: AdvertisingIdClient already created.
+11-01 23:14:12.362  2061 32538 D AdvertisingIdClient: AdvertisingIdClient is not bounded. Starting to bind it...
+11-01 23:14:12.367  2061 32538 D AdvertisingIdClient: AdvertisingIdClient is bounded
+11-01 23:14:12.370  2061 32538 I AdvertisingIdClient: shouldSendLog 17379903
+11-01 23:14:12.370  2061 32538 I AdvertisingIdClient: GetInfoInternal elapse 9ms
+11-01 23:14:12.375  2061  2061 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 23:14:12.376  2061  2061 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 23:14:12.377  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+11-01 23:14:12.384  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_START -p com.android.ld.appstore -f 32 --es package com.nuvio.app --es pos pc
+11-01 23:14:12.384  1460  1460 D ldinit  : result:
+11-01 23:14:12.385  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:12.385  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 26 lines
+11-01 23:14:12.385  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:12.386 32590 32590 D libnativeloader: INJECT Failed to open gspd.json
+11-01 23:14:12.387 32590 32590 D libnativeloader: CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+11-01 23:14:12.389  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_START flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+11-01 23:14:12.390  2813 32530 I AppStartReceiver: onReceive, action = com.ldmnq.APP_START, extras = Bundle[{package=com.nuvio.app, pos=pc}]
+11-01 23:14:12.399  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 23:14:12.400  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_START -p com.ldmnq.launcher3 -f 32 --es package com.nuvio.app --es pos pc
+11-01 23:14:12.400  1460  1460 D ldinit  : result:
+11-01 23:14:12.408  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_START flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+11-01 23:14:12.408  2302 32551 D AppStartReceiver: action = com.ldmnq.APP_START, packageName = com.nuvio.app, pos = pc
+11-01 23:14:12.411  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 23:14:12.446 32590 32590 D WM-WrkMgrInitializer: Initializing WorkManager with default configuration.
+11-01 23:14:12.454 32590 32590 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+11-01 23:14:12.454 32590 32590 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+11-01 23:14:12.455 32590 32620 D WM-ForceStopRunnable: The default process name was not specified.
+11-01 23:14:12.455 32590 32620 D WM-ForceStopRunnable: Performing cleanup operations.
+11-01 23:14:12.459 32590 32590 D Sentry  : io.sentry.auto-init read: false
+11-01 23:14:12.463 32590 32620 D WM-ForceStopRunnable: Application was force-stopped, rescheduling.
+11-01 23:14:12.466 32590 32590 D AppCompatDelegate: Checking for metadata for AppLocalesMetadataHolderService : Service not found
+11-01 23:14:12.470 32590 32624 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemalarm.RescheduleReceiver
+11-01 23:14:12.502  1597  1729 D Ethernet: got request NetworkRequest [ TRACK_DEFAULT id=117, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10064] ] with score 60
+11-01 23:14:12.502  1597  1697 D WIFI    : got request NetworkRequest [ TRACK_DEFAULT id=117, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10064] ] with score 60
+11-01 23:14:12.502  1597  1697 D WIFI_UT : got request NetworkRequest [ TRACK_DEFAULT id=117, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10064] ] with score 60
+11-01 23:14:12.505  1597  1728 D WIFI_AWARE_FACTORY: got request NetworkRequest [ TRACK_DEFAULT id=117, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10064] ] with score 60
+11-01 23:14:12.505  1925  1925 D PhoneSwitcherNetworkRequstListener: got request NetworkRequest [ TRACK_DEFAULT id=117, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10064] ] with score 60
+11-01 23:14:12.506 32590 32636 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-01 23:14:12.512 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/graphics/Paint;->getTextBounds(Ljava/lang/CharSequence;IILandroid/graphics/Rect;)V (dark greylist, linking)
+11-01 23:14:12.512 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/content/res/Resources$Theme;->rebase()V (dark greylist, linking)
+11-01 23:14:12.536 32590 32590 D OpenGLRenderer: Skia GL Pipeline
+11-01 23:14:12.536  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+11-01 23:14:12.564 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/graphics/Canvas;->drawPatch(Landroid/graphics/NinePatch;Landroid/graphics/Rect;Landroid/graphics/Paint;)V (dark greylist, linking)
+11-01 23:14:12.565 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/graphics/Canvas;->drawPatch(Landroid/graphics/NinePatch;Landroid/graphics/RectF;Landroid/graphics/Paint;)V (dark greylist, linking)
+11-01 23:14:12.565 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/app/job/JobParameters;->getStopReason()I (dark greylist, linking)
+11-01 23:14:12.588 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+11-01 23:14:12.588 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setScaleX(F)Z (dark greylist, linking)
+11-01 23:14:12.588 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setTranslationX(F)Z (dark greylist, linking)
+11-01 23:14:12.588 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->getMatrix(Landroid/graphics/Matrix;)V (dark greylist, linking)
+11-01 23:14:12.588 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setCameraDistance(F)Z (dark greylist, linking)
+11-01 23:14:12.588 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setClipToOutline(Z)Z (dark greylist, linking)
+11-01 23:14:12.588 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setClipToOutline(Z)Z (dark greylist, linking)
+11-01 23:14:12.588 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setLayerType(I)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 I chatty  : uid=10064(com.nuvio.app) identical 1 line
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setLayerType(I)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setElevation(F)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setRotation(F)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setTranslationY(F)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setOutline(Landroid/graphics/Outline;)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setScaleY(F)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setRotationX(F)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setAlpha(F)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setRotationY(F)Z (dark greylist, linking)
+11-01 23:14:12.589 32590 32590 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+11-01 23:14:12.596 32590 32690 I         : fastpipe: Connect success
+11-01 23:14:12.600 32590 32690 I         : fastpipe: Connect success
+11-01 23:14:12.605 32590 32690 D HostConnection: HostRPC::connect sucess: app=com.nuvio.app, pid=32590, tid=32690, this=0x763888986800
+11-01 23:14:12.606 32590 32690 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.nuvio.app
+11-01 23:14:12.608 32590 32690 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-01 23:14:12.608 32590 32690 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-01 23:14:12.608 32590 32690 I OpenGLRenderer: Initialized EGL, version 1.4
+11-01 23:14:12.608 32590 32690 D OpenGLRenderer: Swap behavior 1
+11-01 23:14:12.610 32590 32690 D EGL_emulation: eglCreateContext: 0x76387594d600: maj 3 min 1 rcv 4
+11-01 23:14:12.621  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:12.622  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 29 lines
+11-01 23:14:12.622  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:12.628 32590 32690 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-01 23:14:12.628 32590 32690 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082e5
+11-01 23:14:12.632 32590 32690 D HostConnection: ExtendedRCEncoderContext GL_VERSION return OpenGL ES 3.1 v1
+11-01 23:14:12.634 32590 32690 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008c29
+11-01 23:14:12.634 32590 32690 E eglCodecCommon: glUtilsParamSize: unknow param 0x000087fe
+11-01 23:14:12.635 32590 32690 D skia    : force disable skia program binary by wb!
+11-01 23:14:12.640 32590 32690 D vndksupport: Loading /vendor/lib64/hw/android.hardware.graphics.mapper@2.0-impl.so from current namespace instead of sphal namespace.
+11-01 23:14:12.640 32590 32690 D vndksupport: Loading /vendor/lib64/hw/gralloc.default.so from current namespace instead of sphal namespace.
+11-01 23:14:12.644 32590 32690 E EGL_emulation: tid 32690: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+11-01 23:14:12.644 32590 32690 W OpenGLRenderer: Failed to set EGL_SWAP_BEHAVIOR on surface 0x763875976f80, error=EGL_BAD_MATCH
+11-01 23:14:12.652 32590 32693 I Supabase-Core: SupabaseClient created! Please report any bugs you find.
+11-01 23:14:12.663 32590 32693 W System.err: SLF4J(W): No SLF4J providers were found.
+11-01 23:14:12.663 32590 32693 W System.err: SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+11-01 23:14:12.663 32590 32693 W System.err: SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+11-01 23:14:12.678  2813 32530 I LDShopManager: tryShowLDShopRechargePopup success, packageName = com.nuvio.app, canPopup = false
+11-01 23:14:12.684  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 23:14:12.685  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 23:14:12.685  1597  1610 I ActivityManager: Displayed com.nuvio.app/.MainActivity: +413ms
+11-01 23:14:12.686 32590 32590 I WatchedRepository: Watched publish source=NUVIO_SYNC provider=nuvio items=1 keys=1 fullyWatchedSeries=0 isLoaded=true hasLoadedRemote=false itemKeys=[series:tt2531336:1:1] fullyWatchedKeys=[]
+11-01 23:14:12.696  1463  1521 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen com.nuvio.app#0
+11-01 23:14:12.696  1463  1521 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen com.nuvio.app#0
+11-01 23:14:12.731 32590 32590 D SimklDiag: snapshot stage=cache-load initialized=false entries=0 movies=0 shows=0 anime=0 completedMovies=0 completedSeries=0 aggregateWatchedEntries=0 aggregateWatchedEpisodes=0 episodeRows=0 exactWatchedEpisodeRows=0 playbackMovies=0 playbackEpisodes=0 missingCanonicalIds=0 hasWatermark=false hasLastChecked=false
+11-01 23:14:12.733 32590 32590 D WatchProgressRepository: Loaded watch progress for profile 1: entries=7 deltaInitialized=false cursor=0 lastPush=0
+11-01 23:14:12.752 32590 32638 I Supabase-Auth: Loading session from storage...
+11-01 23:14:12.752 32590 32638 I Supabase-Auth: No session found in storage.
+11-01 23:14:12.761 32590 32590 D AddonRepository: initialize() â€” loading local addons for profile 1
+11-01 23:14:12.761 32590 32590 D AddonRepository: initialize() â€” local addon count: 2
+11-01 23:14:13.287 32590 32590 I RenderThread: type=1400 audit(0.0:5533): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:untrusted_app:s0:c64,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 23:14:13.311  2061  4245 I FontLog : (REDACTED) Received query %s, URI %s
+11-01 23:14:13.311  2061  4245 I FontLog : (REDACTED) Query [%s] resolved to %s
+11-01 23:14:13.315 32590 32692 I WatchedRepository: Watched source activation unchanged source=NUVIO_SYNC generation=1 items=1 loaded=true
+11-01 23:14:13.315  2061  4245 I FontLog : (REDACTED) Fetch %s end status %s
+11-01 23:14:13.315 32590 32692 I WatchedRepository: Watched source activation unchanged source=NUVIO_SYNC generation=1 items=1 loaded=true
+11-01 23:14:13.315 32590 32692 I WatchedRepository: Watched refresh request profile=1 requestedSource=NUVIO_SYNC effectiveSource=NUVIO_SYNC forceSnapshot=true profileGeneration=1 sourceGeneration=1
+11-01 23:14:13.315 32590 32692 I WatchedRepository: Watched publish source=NUVIO_SYNC provider=nuvio items=1 keys=1 fullyWatchedSeries=0 isLoaded=true hasLoadedRemote=true itemKeys=[series:tt2531336:1:1] fullyWatchedKeys=[]
+11-01 23:14:13.318  2061  4245 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+11-01 23:14:13.320  1463  1463 I Binder:1463_2: type=1400 audit(0.0:5534): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:untrusted_app:s0:c64,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 23:14:13.321  2061  4245 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+11-01 23:14:13.357  1432 32724 I /system/bin/netd: gethostby*.getanswer: asked for "image.tmdb.org IN A", got type "RRSIG"
+11-01 23:14:13.357  1432 32726 I /system/bin/netd: gethostby*.getanswer: asked for "image.tmdb.org IN A", got type "RRSIG"
+11-01 23:14:13.357  1432 32720 I /system/bin/netd: gethostby*.getanswer: asked for "image.tmdb.org IN A", got type "RRSIG"
+11-01 23:14:13.363  1432 32721 I /system/bin/netd: gethostby*.getanswer: asked for "image.tmdb.org IN A", got type "RRSIG"
+11-01 23:14:13.365 32590 32704 I WatchedBadgeBulk: Bulk badge resolution starting: 1 series candidates
+11-01 23:14:13.366 32590 32704 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt2531336.json
+11-01 23:14:13.403 32590 32639 I WatchedBadgeBulk: Bulk badge resolution starting: 1 series candidates
+11-01 23:14:13.403 32590 32639 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt2531336.json
+11-01 23:14:13.423  1597  1597 I Binder:1597_1E: type=1400 audit(0.0:5535): avc: denied { call } for scontext=u:r:system_server:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+11-01 23:14:13.427 32590 32600 I com.nuvio.app: JIT allocated 66KB for stack maps of void hn0.g(n45, boolean, so2, gw2, gw2, gw2, gw2, gw2, b12, uw2, ew2, a51, int)
+11-01 23:14:13.428 32590 32600 I com.nuvio.app: Compiler allocated 11MB to compile void hn0.g(n45, boolean, so2, gw2, gw2, gw2, gw2, gw2, b12, uw2, ew2, a51, int)
+11-01 23:14:13.433  1597  3941 W SchedPolicy: add_tid_to_cgroup failed to write '2302' (No space left on device); fd=25
+11-01 23:14:13.433  1597  3941 W SchedPolicy: add_tid_to_cgroup failed to write '2061' (No space left on device); fd=25
+11-01 23:14:13.520  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:13.520  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 30 lines
+11-01 23:14:13.520  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:13.622 32590 32639 D MetaDetailsRepo: Raw payload length=16444, first 500 chars: {"meta":{"id":"tt2531336","type":"series","name":"Lupin","poster":"https://image.tmdb.org/t/p/w500/sOUWRai0215iUSMackrZx3Y1j05.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/aY7zv2pfk9H0QxaaL3PBjvalbKQ.jpg","logo":"https://image.tmdb.org/t/p/w500/eKGrcJ0ZuBYLLgxhzZMvFpTvLmu.png","description":"Arsen LÃ¼pen'in maceralarÄ±ndan esinlenen kibar hÄ±rsÄ±z Assane Diop, dÃ¼ÅŸmanlarÄ±nÄ± alt edip sevdiklerini korumak iÃ§in zekÃ¢sÄ±nÄ± ve cazibesini kullanÄ±r.","genres":["SuÃ§","Dram","Gizem
+11-01 23:14:13.629 32590 32639 D MetaDetailsRepo: Parsed meta: type=series, name=Lupin, videos=25
+11-01 23:14:13.629 32590 32639 D MetaDetailsRepo: First video: id=tt2531336:1:1 title=No. 1 s=1 e=1 embeddedStreams=0
+11-01 23:14:13.632 32590 32639 I WatchedBadgeBulk: Bulk badge resolution complete: resolved 1/1
+11-01 23:14:13.638 32590 32600 I com.nuvio.app: JIT allocated 74KB for stack maps of void en3.o(st, boolean, gw2, ew2, a51, int, int)
+11-01 23:14:13.640 32590 32600 I com.nuvio.app: Compiler allocated 9MB to compile void en3.o(st, boolean, gw2, ew2, a51, int, int)
+11-01 23:14:13.654  1458  1458 I VibratorService: turn vibrator off
+11-01 23:14:13.655  1597  3941 W VibratorService: Failed to perform effect (2)
+11-01 23:14:13.683 32590 32600 I com.nuvio.app: JIT allocated 66KB for stack maps of void hn0.g(n45, boolean, so2, gw2, gw2, gw2, gw2, gw2, b12, uw2, ew2, a51, int)
+11-01 23:14:13.684 32590 32600 I com.nuvio.app: Compiler allocated 11MB to compile void hn0.g(n45, boolean, so2, gw2, gw2, gw2, gw2, gw2, b12, uw2, ew2, a51, int)
+11-01 23:14:13.736 32590 32600 I com.nuvio.app: Compiler allocated 4MB to compile java.lang.Object jk4.invoke(java.lang.Object, java.lang.Object)
+11-01 23:14:13.783 32590 32600 I com.nuvio.app: Compiler allocated 4MB to compile f05 g05.d(java.lang.String)
+11-01 23:14:13.998 32590 32693 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt0434665.json
+11-01 23:14:13.999 32590 32693 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/movie/tt35511966.json
+11-01 23:14:13.999 32590 32693 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt12590266.json
+11-01 23:14:13.999 32590 32693 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt31510819.json
+11-01 23:14:14.176 32590 32704 D MetaDetailsRepo: Raw payload length=6001, first 500 chars: {"meta":{"id":"tt35511966","type":"movie","name":"La bola negra","poster":"https://image.tmdb.org/t/p/w500/t1azKLExwUxKj6v6m2L535evuRa.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/bDsmYvrzto7xrEwqDpLC3SPhn9A.jpg","logo":"https://image.tmdb.org/t/p/w500/3NLWrdKSkRY9CGkBqQi30txAAPN.png","description":"Las vidas interconectadas de tres hombres en tres Ã©pocas distintas, tres existencias Ã­ntimamente ligadas por la sexualidad y el deseo, el dolor y la herencia.","genres":
+11-01 23:14:14.177 32590 32704 D MetaDetailsRepo: Parsed meta: type=movie, name=La bola negra, videos=0
+11-01 23:14:14.177 32590 32704 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/movie/tt2056785.json
+11-01 23:14:14.187 32590 32693 D MetaDetailsRepo: Raw payload length=13851, first 500 chars: {"meta":{"id":"tt31510819","type":"series","name":"MobLand","poster":"https://image.tmdb.org/t/p/w500/fTlH5NNTXOP96mElp0DaIStRVvK.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/h0OC7ouop8YLwbAVfS3UUE2Lw4T.jpg","logo":"https://image.tmdb.org/t/p/w500/fh6N94BUPuLPN70WpbM0OEgOJbc.png","description":"Ä°ki dÃ¼ÅŸman Londra suÃ§ ailesi olan Harriganâ€™lar ve Stevensonâ€™lar arasÄ±nda, imparatorluklarÄ± yÄ±kma ve hayatlarÄ± mahvetme tehdidi oluÅŸturan Ã¶l ya da Ã¶ldÃ¼r savaÅŸÄ±nda gÃ¼Ã§ ele geÃ§i
+11-01 23:14:14.188 32590 32693 D MetaDetailsRepo: Parsed meta: type=series, name=MobLand, videos=20
+11-01 23:14:14.188 32590 32693 D MetaDetailsRepo: First video: id=tt31510819:1:1 title=Devam mÄ±, Risk mi? s=1 e=1 embeddedStreams=0
+11-01 23:14:14.188 32590 32693 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/movie/tt32261958.json
+11-01 23:14:14.339  2302 32526 I FA      : Application backgrounded at: timestamp_millis: 1793564052335
+11-01 23:14:14.363 32590 32704 D MetaDetailsRepo: Raw payload length=6356, first 500 chars: {"meta":{"id":"tt2056785","type":"movie","name":"VahÅŸi Orman","poster":"https://image.tmdb.org/t/p/w500/snFM00mpNAfUzUtkdEW0uDEvXA0.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/sl5NJ1vtyhP9Vr88bB4blULsJYp.jpg","logo":"https://image.tmdb.org/t/p/w500/g9MoyXHtNgaR1UC2MoztL80iZl3.png","description":"Coraline'i yaratan ellerden... Prue McKeel, kÃ¼Ã§Ã¼k erkek kardeÅŸi bir karga sÃ¼rÃ¼sÃ¼ tarafÄ±ndan kaÃ§Ä±rÄ±ldÄ±ktan sonra Oregon'un hemen Ã¶tesindeki gizli ve bÃ¼yÃ¼lÃ¼ vahÅŸi ormanda umu
+11-01 23:14:14.365 32590 32704 D MetaDetailsRepo: Parsed meta: type=movie, name=VahÅŸi Orman, videos=0
+11-01 23:14:14.366 32590 32704 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt16358384.json
+11-01 23:14:14.398 32590 32693 D MetaDetailsRepo: Raw payload length=5571, first 500 chars: {"meta":{"id":"tt32261958","type":"movie","name":"Verity: GerÃ§eÄŸin DiÄŸer KÄ±yÄ±sÄ±","poster":"https://image.tmdb.org/t/p/w500/yKLBWj6KXJNgRQtzZ9aCgSxyYEC.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/cKetrF2dAnQ0AMV5i4BMOs41I5P.jpg","logo":"https://image.tmdb.org/t/p/w500/fG2vYehyvAyka220NGDUGeuabru.png","description":"Jeremy Crawford, geÃ§irdiÄŸi bir kaza sonucu romanlarÄ±nÄ± tamamlayamadan vefat eden Ã§ok satan yazarÄ± olan eÅŸi Verity'nin romanlarÄ±nÄ± tamamlamasÄ± amacÄ±yla Lo
+11-01 23:14:14.398 32590 32693 D MetaDetailsRepo: Parsed meta: type=movie, name=Verity: GerÃ§eÄŸin DiÄŸer KÄ±yÄ±sÄ±, videos=0
+11-01 23:14:14.398 32590 32693 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt23148340.json
+11-01 23:14:14.509 32590 32694 D MetaDetailsRepo: Raw payload length=13326, first 500 chars: {"meta":{"id":"tt12590266","type":"series","name":"Cyberpunk: Edgerunners","poster":"https://image.tmdb.org/t/p/w500/7jSWOc6jWSw5hZ78HB8Hw3pJxuk.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/w0lU7U89Fm4K8BQD4hJQpQthxu9.jpg","logo":"https://image.tmdb.org/t/p/w500/sNhrCQwDbvu6hGm8yKNQAh3njKf.png","description":"Yolsuzlukla ve sibernetik implantlarla dolu bir distopyada yetenekli ancak umursamaz bir sokak Ã§ocuÄŸu, edgerunner denen kanun kaÃ§aÄŸÄ± paralÄ± askerlerden olmak i
+11-01 23:14:14.511 32590 32694 D MetaDetailsRepo: Parsed meta: type=series, name=Cyberpunk: Edgerunners, videos=20
+11-01 23:14:14.511 32590 32694 D MetaDetailsRepo: First video: id=tt12590266:1:1 title=Seni HÃ¼srana UÄŸratmayacaÄŸÄ±m s=1 e=1 embeddedStreams=0
+11-01 23:14:14.554 32590 32704 D MetaDetailsRepo: Raw payload length=22563, first 500 chars: {"meta":{"id":"tt16358384","type":"series","name":"Tulsa King","poster":"https://image.tmdb.org/t/p/w500/7pPmaSMKk1VVQH0oS7tceROYcZa.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/mNHRGO1gFpR2CYZdANe72kcKq7G.jpg","logo":"https://image.tmdb.org/t/p/w500/xz9iVJuRbNsdD7KZhr9dfi8F7Gs.png","description":"25 yÄ±l hapis cezasÄ±nÄ±n ardÄ±ndan cezaevinden yeni Ã§Ä±kan, \"General\" olarak bilinen eski New York mafya babasÄ± Dwight Manfredi, baÄŸlÄ± olduÄŸu suÃ§ lordu tarafÄ±ndan tÃ¶rensiz b
+11-01 23:14:14.556 32590 32704 D MetaDetailsRepo: Parsed meta: type=series, name=Tulsa King, videos=39
+11-01 23:14:14.556 32590 32704 D MetaDetailsRepo: First video: id=tt16358384:1:1 title=Go West, Old Man s=1 e=1 embeddedStreams=0
+11-01 23:14:14.584 32590 32693 D MetaDetailsRepo: Raw payload length=6537, first 500 chars: {"meta":{"id":"tt23148340","type":"series","name":"Crystal Lake","poster":"https://image.tmdb.org/t/p/w500/3ENhExiD2fcjk5FX0AcAXcvLu9N.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/wxiBsKFEOOFK8eQStWOykNORlXY.jpg","logo":"https://image.tmdb.org/t/p/w500/zMdL06gtSVXZYzZ5HomCFpCxjW7.png","description":"OÄŸlunun Ã¶lÃ¼mÃ¼nden sonra, Pamela Voorhees'in geÃ§miÅŸi ve karanlÄ±k bir sÄ±r ortaya Ã§Ä±kar.","genres":["Dram","Gizem"],"cast":["Linda Cardellini","William Catlett","Gwendolyn 
+11-01 23:14:14.584 32590 32693 D MetaDetailsRepo: Parsed meta: type=series, name=Crystal Lake, videos=8
+11-01 23:14:14.585 32590 32693 D MetaDetailsRepo: First video: id=tt23148340:1:1 title=Crystal KampÄ± s=1 e=1 embeddedStreams=0
+11-01 23:14:14.601 32590 32750 D MetaDetailsRepo: Raw payload length=135378, first 500 chars: {"meta":{"id":"tt0434665","type":"series","name":"Bleach","poster":"https://image.tmdb.org/t/p/w500/mB6h4mlZXufkWtt58Bh1DiVvNgv.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/o0NsbcIvsllg6CJX0FBFY8wWbsn.jpg","logo":"https://image.tmdb.org/t/p/w500/21zm3sP3j6rmpbZR3j0quusRe6h.png","description":"Kurosaki Ichigo 15 yaÅŸÄ±nda normal bir Ã¶ÄŸrencidir ancak Ã¶lÃ¼lerle iletiÅŸim kurma becerisine sahiptir. Ichigo'nun babasÄ± ve kardeÅŸleri aileye ait bir klinik iÅŸletmektedirler.\n\nÃ–
+11-01 23:14:14.607 32590 32750 D MetaDetailsRepo: Parsed meta: type=series, name=Bleach, videos=416
+11-01 23:14:14.607 32590 32750 D MetaDetailsRepo: First video: id=tt0434665:1:1 title=1. BÃ¶lÃ¼m s=1 e=1 embeddedStreams=0
+11-01 23:14:15.391 32751 32751 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 744 250 
+11-01 23:14:15.391 32751 32751 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 23:14:15.394 32751 32751 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 23:14:15.410 32751 32751 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 23:14:15.419 32751 32751 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 23:14:15.443 32751 32751 I main    : type=1400 audit(0.0:5536): avc: denied { open } for path="/data/local/cfg-ineyg/app_xpt" dev="sdb2" ino=394473 scontext=u:r:shell:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-01 23:14:15.443 32751 32751 I main    : type=1400 audit(0.0:5537): avc: denied { mounton } for path="/proc/cpuinfo" dev="proc" ino=4026531992 scontext=u:r:shell:s0 tcontext=u:object_r:proc_cpuinfo:s0 tclass=file permissive=1
+11-01 23:14:15.446 32751 32751 I app_process: The ClassLoaderContext is a special shared library.
+11-01 23:14:15.446 32751 32751 W app_process: Could not create mount namespace.
+11-01 23:14:15.446 32751 32751 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 23:14:15.446 32751 32751 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 23:14:15.446 32751 32751 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 23:14:15.446 32751 32751 D nativebridge: call UnloadNativeBridge! state=2
+11-01 23:14:15.469 32751 32751 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 23:14:15.470 32751 32751 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=744.0, y[0]=250.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=18837442, downTime=18837442, deviceId=3, source=0x1002 }
+11-01 23:14:15.482 32751 32751 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=744.0, y[0]=250.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=18837442, downTime=18837442, deviceId=3, source=0x1002 }
+11-01 23:14:15.489 32751 32751 D AndroidRuntime: Shutting down VM
+11-01 23:14:15.493  1440  1440 I writer  : type=1400 audit(0.0:5538): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6869 scontext=u:r:hal_audio_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 23:14:15.496  1440  3295 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-01 23:14:15.532 32590 32590 D SearchRepository: Discover refresh prepared type=movie catalog=com.nuvio.tmdb.catalogs:movie:trending-movies genre=<all> sources=27
+11-01 23:14:15.532 32590 32590 D SearchRepository: Discover request reset=true addon=Nuvio Catalog Addon type=movie catalogId=trending-movies catalogKey=com.nuvio.tmdb.catalogs:movie:trending-movies genre=<all> skip=0 url=https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/catalog/movie/trending-movies.json
+11-01 23:14:15.536 32590 32749 D SearchRepository: Discover response catalogKey=com.nuvio.tmdb.catalogs:movie:trending-movies returned=20 merged=20 rawItemCount=20 nextSkip=20 sample=[Verity: GerÃ§eÄŸin DiÄŸer KÄ±yÄ±sÄ±, KÃ¶pek ve YÄ±ldÄ±zlar, Clayface, KÄ±yamet Z: Yeni DÃ¼nya, UnutulmuÅŸ Ada, ...]
+11-01 23:14:15.544 32590 32590 D SearchRepository: Discover request reset=false addon=Nuvio Catalog Addon type=movie catalogId=trending-movies catalogKey=com.nuvio.tmdb.catalogs:movie:trending-movies genre=<all> skip=20 url=https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/catalog/movie/trending-movies/skip=20.json
+11-01 23:14:15.770 32590 32749 D SearchRepository: Discover response catalogKey=com.nuvio.tmdb.catalogs:movie:trending-movies returned=20 merged=40 rawItemCount=20 nextSkip=40 sample=[DiÄŸer Anne, Coyote Acme'ye KarÅŸÄ±, Davet, VahÅŸinin Kalbi, KÃ¶tÃ¼ Elmalar, ...]
+11-01 23:14:16.607 32761 32761 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 800 385 
+11-01 23:14:16.607 32761 32761 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 23:14:16.608 32761 32761 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 23:14:16.614 32761 32761 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 23:14:16.619 32761 32761 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 23:14:16.630 32761 32761 I app_process: The ClassLoaderContext is a special shared library.
+11-01 23:14:16.630 32761 32761 W app_process: Could not create mount namespace.
+11-01 23:14:16.630 32761 32761 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 23:14:16.630 32761 32761 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 23:14:16.630 32761 32761 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 23:14:16.630 32761 32761 D nativebridge: call UnloadNativeBridge! state=2
+11-01 23:14:16.637 32761 32761 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 23:14:16.638 32761 32761 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=800.0, y[0]=385.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=18838609, downTime=18838609, deviceId=3, source=0x1002 }
+11-01 23:14:16.647 32761 32761 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=800.0, y[0]=385.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=18838609, downTime=18838609, deviceId=3, source=0x1002 }
+11-01 23:14:16.657  2702  2702 I utmethod.pinyin: type=1400 audit(0.0:5539): avc: denied { open } for path="/data/local/cfg-ineyg/input" dev="sdb2" ino=394485 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-01 23:14:16.658 32761 32761 D AndroidRuntime: Shutting down VM
+11-01 23:14:16.659  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 23:14:16.667  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 23:14:16.675  1597  2147 W SchedPolicy: add_tid_to_cgroup failed to write '2702' (No space left on device); fd=24
+11-01 23:14:16.675 32590 32590 W IInputConnectionWrapper: getCursorCapsMode on inactive InputConnection
+11-01 23:14:16.677  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 23:14:16.688  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:16.688  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 28 lines
+11-01 23:14:16.688  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:16.688  2238  2238 I chatty  : uid=1000(system) com.android.coreservice identical 1 line
+11-01 23:14:16.689  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 23:14:16.690  1597  2613 D NotificationService: notify pkg=android pid=1597
+11-01 23:14:16.693  1597  2613 D NotificationService: notify pkg=android pid=1597
+11-01 23:14:16.700  1463  1463 I Binder:1463_5: type=1400 audit(0.0:5540): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 23:14:16.711  2702  5035 E EGL_emulation: tid 5035: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+11-01 23:14:16.711  2702  5035 W OpenGLRenderer: Failed to set EGL_SWAP_BEHAVIOR on surface 0x76387306f080, error=EGL_BAD_MATCH
+11-01 23:14:16.717  1440  1440 I writer  : type=1400 audit(0.0:5541): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:hal_audio_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 23:14:17.261   310   310 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input keyevent --longpress 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 
+11-01 23:14:17.261   310   310 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 23:14:17.262   310   310 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 23:14:17.263  1460  1460 I ldinit  : type=1400 audit(0.0:5542): avc: denied { read } for name="partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-01 23:14:17.263  1460  1460 I ldinit  : type=1400 audit(0.0:5543): avc: denied { open } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-01 23:14:17.263  1460  1460 I ldinit  : type=1400 audit(0.0:5544): avc: denied { getattr } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-01 23:14:17.269   310   310 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 23:14:17.274   310   310 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 23:14:17.283   310   310 I main    : type=1400 audit(0.0:5545): avc: denied { mounton } for path="/proc/cpuinfo" dev="proc" ino=4026531992 scontext=u:r:shell:s0 tcontext=u:object_r:proc_cpuinfo:s0 tclass=file permissive=1
+11-01 23:14:17.285   310   310 I app_process: The ClassLoaderContext is a special shared library.
+11-01 23:14:17.285   310   310 W app_process: Could not create mount namespace.
+11-01 23:14:17.285   310   310 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 23:14:17.286   310   310 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 23:14:17.286   310   310 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 23:14:17.286   310   310 D nativebridge: call UnloadNativeBridge! state=2
+11-01 23:14:17.292   310   310 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 23:14:17.292   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839265, downTime=18839265, deviceId=-1, source=0x101 }
+11-01 23:14:17.300   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839265, downTime=18839265, deviceId=-1, source=0x101 }
+11-01 23:14:17.306   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839265, downTime=18839265, deviceId=-1, source=0x101 }
+11-01 23:14:17.313   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839285, downTime=18839285, deviceId=-1, source=0x101 }
+11-01 23:14:17.318   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839285, downTime=18839285, deviceId=-1, source=0x101 }
+11-01 23:14:17.324   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839285, downTime=18839285, deviceId=-1, source=0x101 }
+11-01 23:14:17.331   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839304, downTime=18839304, deviceId=-1, source=0x101 }
+11-01 23:14:17.337   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839304, downTime=18839304, deviceId=-1, source=0x101 }
+11-01 23:14:17.343   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839304, downTime=18839304, deviceId=-1, source=0x101 }
+11-01 23:14:17.350   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839322, downTime=18839322, deviceId=-1, source=0x101 }
+11-01 23:14:17.358   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839322, downTime=18839322, deviceId=-1, source=0x101 }
+11-01 23:14:17.364   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839322, downTime=18839322, deviceId=-1, source=0x101 }
+11-01 23:14:17.372   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839344, downTime=18839344, deviceId=-1, source=0x101 }
+11-01 23:14:17.378   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839344, downTime=18839344, deviceId=-1, source=0x101 }
+11-01 23:14:17.384   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839344, downTime=18839344, deviceId=-1, source=0x101 }
+11-01 23:14:17.390  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:17.391  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 29 lines
+11-01 23:14:17.391  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:17.391   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839364, downTime=18839364, deviceId=-1, source=0x101 }
+11-01 23:14:17.397   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839364, downTime=18839364, deviceId=-1, source=0x101 }
+11-01 23:14:17.402   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839364, downTime=18839364, deviceId=-1, source=0x101 }
+11-01 23:14:17.407   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839380, downTime=18839380, deviceId=-1, source=0x101 }
+11-01 23:14:17.414   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839380, downTime=18839380, deviceId=-1, source=0x101 }
+11-01 23:14:17.420   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839380, downTime=18839380, deviceId=-1, source=0x101 }
+11-01 23:14:17.433   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839406, downTime=18839406, deviceId=-1, source=0x101 }
+11-01 23:14:17.443   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839406, downTime=18839406, deviceId=-1, source=0x101 }
+11-01 23:14:17.450   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839406, downTime=18839406, deviceId=-1, source=0x101 }
+11-01 23:14:17.457   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839429, downTime=18839429, deviceId=-1, source=0x101 }
+11-01 23:14:17.464   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839429, downTime=18839429, deviceId=-1, source=0x101 }
+11-01 23:14:17.470   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839429, downTime=18839429, deviceId=-1, source=0x101 }
+11-01 23:14:17.478   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839451, downTime=18839451, deviceId=-1, source=0x101 }
+11-01 23:14:17.485   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839451, downTime=18839451, deviceId=-1, source=0x101 }
+11-01 23:14:17.491   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839451, downTime=18839451, deviceId=-1, source=0x101 }
+11-01 23:14:17.497   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839470, downTime=18839470, deviceId=-1, source=0x101 }
+11-01 23:14:17.499  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:17.499  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 34 lines
+11-01 23:14:17.499  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:17.503   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839470, downTime=18839470, deviceId=-1, source=0x101 }
+11-01 23:14:17.508   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839470, downTime=18839470, deviceId=-1, source=0x101 }
+11-01 23:14:17.514   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839487, downTime=18839487, deviceId=-1, source=0x101 }
+11-01 23:14:17.519   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839487, downTime=18839487, deviceId=-1, source=0x101 }
+11-01 23:14:17.525   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839487, downTime=18839487, deviceId=-1, source=0x101 }
+11-01 23:14:17.530   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839503, downTime=18839503, deviceId=-1, source=0x101 }
+11-01 23:14:17.535   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839503, downTime=18839503, deviceId=-1, source=0x101 }
+11-01 23:14:17.540   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839503, downTime=18839503, deviceId=-1, source=0x101 }
+11-01 23:14:17.546   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839518, downTime=18839518, deviceId=-1, source=0x101 }
+11-01 23:14:17.551   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839518, downTime=18839518, deviceId=-1, source=0x101 }
+11-01 23:14:17.556   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839518, downTime=18839518, deviceId=-1, source=0x101 }
+11-01 23:14:17.563   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839536, downTime=18839536, deviceId=-1, source=0x101 }
+11-01 23:14:17.568   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=18839536, downTime=18839536, deviceId=-1, source=0x101 }
+11-01 23:14:17.577   310   310 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18839536, downTime=18839536, deviceId=-1, source=0x101 }
+11-01 23:14:17.583   310   310 D AndroidRuntime: Shutting down VM
+11-01 23:14:17.608  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:17.608  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 36 lines
+11-01 23:14:17.608  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:17.707  1451  1451 I composer@2.1-se: type=1400 audit(0.0:5546): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 23:14:18.055 32590   321 D ProfileInstaller: Skipping profile installation for com.nuvio.app
+11-01 23:14:18.177   322   322 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input text Civil%sWar 
+11-01 23:14:18.177   322   322 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 23:14:18.178   322   322 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 23:14:18.184   322   322 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 23:14:18.190   322   322 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 23:14:18.201   322   322 I app_process: The ClassLoaderContext is a special shared library.
+11-01 23:14:18.201   322   322 W app_process: Could not create mount namespace.
+11-01 23:14:18.201   322   322 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 23:14:18.201   322   322 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 23:14:18.201   322   322 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 23:14:18.201   322   322 D nativebridge: call UnloadNativeBridge! state=2
+11-01 23:14:18.203  1463  1463 I surfaceflinger: type=1400 audit(0.0:5547): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 23:14:18.209   322   322 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 23:14:18.212  2813  3115 D LdAnalyticsSDK: responseCode = 200
+11-01 23:14:18.213   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.221   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_C, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.230   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_C, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.236   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.262   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_I, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.270   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_I, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.279   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_V, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.287   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_V, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.295   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_I, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.302   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_I, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.311   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_L, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.318   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_L, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.327   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_SPACE, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.333   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_SPACE, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.338   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.344   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_W, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.350   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_W, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.360   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.367   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_A, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.374   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_A, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.380   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_R, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.386   322   322 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_R, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840185, downTime=18840185, deviceId=-1, source=0x101 }
+11-01 23:14:18.388  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:18.390  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 32 lines
+11-01 23:14:18.390  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:18.393   322   322 D AndroidRuntime: Shutting down VM
+11-01 23:14:18.573  1440  1556 D audio_hw_hal: log_func, out_standby
+11-01 23:14:18.574  1440  1556 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-01 23:14:18.574  1440  1556 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-01 23:14:18.970  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:5548): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 23:14:18.970  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:5549): avc: denied { read write } for name="fastpipe" dev="tmpfs" ino=3128 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 23:14:18.970  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:5550): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 23:14:18.989   332   332 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input keyevent 66 
+11-01 23:14:18.989   332   332 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 23:14:18.990   332   332 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 23:14:18.997   332   332 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 23:14:19.003   332   332 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 23:14:19.015   332   332 I app_process: The ClassLoaderContext is a special shared library.
+11-01 23:14:19.015   332   332 W app_process: Could not create mount namespace.
+11-01 23:14:19.015   332   332 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 23:14:19.015   332   332 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 23:14:19.015   332   332 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 23:14:19.015   332   332 D nativebridge: call UnloadNativeBridge! state=2
+11-01 23:14:19.022   332   332 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 23:14:19.022   332   332 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_ENTER, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840995, downTime=18840995, deviceId=-1, source=0x101 }
+11-01 23:14:19.073  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:19.074  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 32 lines
+11-01 23:14:19.074  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:19.106   332   332 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_ENTER, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=18840995, downTime=18840995, deviceId=-1, source=0x101 }
+11-01 23:14:19.118   332   332 D AndroidRuntime: Shutting down VM
+11-01 23:14:19.121  1597  2568 W SchedPolicy: add_tid_to_cgroup failed to write '2702' (No space left on device); fd=25
+11-01 23:14:19.146  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 23:14:22.230   344   344 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 85 700 
+11-01 23:14:22.230   344   344 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 23:14:22.231   344   344 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 23:14:22.237   344   344 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 23:14:22.243   344   344 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 23:14:22.253   344   344 I app_process: The ClassLoaderContext is a special shared library.
+11-01 23:14:22.253   344   344 W app_process: Could not create mount namespace.
+11-01 23:14:22.253   344   344 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 23:14:22.253   344   344 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 23:14:22.253   344   344 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 23:14:22.253   344   344 D nativebridge: call UnloadNativeBridge! state=2
+11-01 23:14:22.260   344   344 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 23:14:22.262   344   344 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=85.0, y[0]=700.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=18844233, downTime=18844233, deviceId=3, source=0x1002 }
+11-01 23:14:22.272   344   344 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=85.0, y[0]=700.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=18844233, downTime=18844233, deviceId=3, source=0x1002 }
+11-01 23:14:22.279   344   344 D AndroidRuntime: Shutting down VM
+11-01 23:14:22.312  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:22.312  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 37 lines
+11-01 23:14:22.312  1597  1604 W System  : A resource failed to call close. 
+11-01 23:14:22.875   354   354 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 85 700 
+11-01 23:14:22.875   354   354 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 23:14:22.876   354   354 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 23:14:22.882   354   354 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 23:14:22.888   354   354 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 23:14:22.898   354   354 I app_process: The ClassLoaderContext is a special shared library.
+11-01 23:14:22.899   354   354 W app_process: Could not create mount namespace.
+11-01 23:14:22.899   354   354 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 23:14:22.899   354   354 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 23:14:22.899   354   354 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 23:14:22.899   354   354 D nativebridge: call UnloadNativeBridge! state=2
+11-01 23:14:22.905   354   354 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 23:14:22.906   354   354 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=85.0, y[0]=700.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=18844878, downTime=18844878, deviceId=3, source=0x1002 }
+11-01 23:14:22.914   354   354 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=85.0, y[0]=700.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=18844878, downTime=18844878, deviceId=3, source=0x1002 }
+11-01 23:14:22.921   354   354 D AndroidRuntime: Shutting down VM
+11-01 23:14:23.855  1480  1480 W wificond: Scan already started
+11-01 23:14:24.129  2702  2712 W System  : A resource failed to call close. 
+11-01 23:14:24.363  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-01 23:14:24.364  1597  1610 E memtrack: Couldn't load memtrack module
+11-01 23:14:24.364  1597  1610 W android.os.Debug: failed to get memory consumption info: -1
+11-01 23:14:24.756 27766 27811 I Finsky  : [463] Stats for Executor: BlockingExecutor yjr@d1737b1[Running, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 77]
+11-01 23:14:24.758 27766 27811 I Finsky  : [463] Stats for Executor: LightweightExecutor yjr@9c0d496[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 429]
+11-01 23:14:24.813 27766 27811 I Finsky  : [463] Stats for Executor: bgExecutor yjr@9e46817[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 1888]
+11-01 23:14:24.856  1597  1608 D WificondControl: Scan result ready event
+11-01 23:14:25.074 27766 27811 I Finsky  : [463] Stats for Executor: GrpcBackgroundExecutor yjr@6c18404[Running, pool size = 1, active threads = 0, queued tasks = 0, completed tasks = 1]
+11-01 23:14:25.331 27885 27908 I Finsky:background: [467] Stats for Executor: bgExecutor yjr@350a37d[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 69]
+11-01 23:14:25.339 27885 27908 I Finsky:background: [467] Stats for Executor: LightweightExecutor yjr@ad3e272[Running, pool size = 4, active threads = 0, queued tasks = 0, completed tasks = 32]
+11-01 23:14:25.415 27885 27908 I Finsky:background: [467] Stats for Executor: BlockingExecutor yjr@16256c3[Running, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 77]
+11-01 23:14:26.011   365   365 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 770 810 
+11-01 23:14:26.011   365   365 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 23:14:26.012   365   365 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 23:14:26.019   365   365 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 23:14:26.024   365   365 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 23:14:26.036   365   365 I app_process: The ClassLoaderContext is a special shared library.
+11-01 23:14:26.036   365   365 W app_process: Could not create mount namespace.
+11-01 23:14:26.036   365   365 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 23:14:26.036   365   365 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 23:14:26.036   365   365 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 23:14:26.036   365   365 D nativebridge: call UnloadNativeBridge! state=2
+11-01 23:14:26.043   365   365 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 23:14:26.044   365   365 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=770.0, y[0]=810.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=18848016, downTime=18848016, deviceId=3, source=0x1002 }
+11-01 23:14:26.054   365   365 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=770.0, y[0]=810.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=18848016, downTime=18848016, deviceId=3, source=0x1002 }
+11-01 23:14:26.061   365   365 D AndroidRuntime: Shutting down VM
+11-01 23:14:27.263  1460  1460 I ldinit  : type=1400 audit(0.0:5551): avc: denied { read } for name="partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-01 23:14:27.263  1460  1460 I ldinit  : type=1400 audit(0.0:5552): avc: denied { open } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-01 23:14:27.263  1460  1460 I ldinit  : type=1400 audit(0.0:5553): avc: denied { getattr } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-01 23:14:27.395  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 23:14:27.397  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 23:14:29.139   375   375 I BENCHMARK: START_PLAY A CivilWar r3
+11-01 23:14:29.208   377   377 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 694 640 
+11-01 23:14:29.208   377   377 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 23:14:29.209   377   377 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 23:14:29.215   377   377 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 23:14:29.220   377   377 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 23:14:29.231   377   377 I app_process: The ClassLoaderContext is a special shared library.
+11-01 23:14:29.232   377   377 W app_process: Could not create mount namespace.
+11-01 23:14:29.232   377   377 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 23:14:29.232   377   377 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 23:14:29.232   377   377 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 23:14:29.232   377   377 D nativebridge: call UnloadNativeBridge! state=2
+11-01 23:14:29.238   377   377 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 23:14:29.239   377   377 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=694.0, y[0]=640.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=18851211, downTime=18851211, deviceId=3, source=0x1002 }
+11-01 23:14:29.248   377   377 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=694.0, y[0]=640.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=18851211, downTime=18851211, deviceId=3, source=0x1002 }
+11-01 23:14:29.256   377   377 D AndroidRuntime: Shutting down VM
+11-01 23:14:29.256  1440  3295 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-01 23:14:29.282 32590 32600 I com.nuvio.app: JIT allocated 74KB for stack maps of void en3.o(st, boolean, gw2, ew2, a51, int, int)
+11-01 23:14:29.283 32590 32600 I com.nuvio.app: Compiler allocated 9MB to compile void en3.o(st, boolean, gw2, ew2, a51, int, int)
+11-01 23:14:29.287 32590 32590 D MetaDetailsRepo: load() called â€” type=movie id=tmdb:1420157
+11-01 23:14:29.306 32590 32600 I com.nuvio.app: Compiler allocated 4MB to compile java.lang.Object jk4.invoke(java.lang.Object, java.lang.Object)
+11-01 23:14:29.333 32590 32600 I com.nuvio.app: JIT allocated 66KB for stack maps of void hn0.g(n45, boolean, so2, gw2, gw2, gw2, gw2, gw2, b12, uw2, ew2, a51, int)
+11-01 23:14:29.334 32590 32600 I com.nuvio.app: Compiler allocated 11MB to compile void hn0.g(n45, boolean, so2, gw2, gw2, gw2, gw2, gw2, b12, uw2, ew2, a51, int)
+11-01 23:14:29.373  1432   392 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 23:14:29.396 32590 32600 I com.nuvio.app: JIT allocated 116KB for stack maps of void b25.e(java.lang.String, java.lang.String, ew2, kw2, kw2, gw2, uw2, uw2, ws7, wl, n45, a51, int)
+11-01 23:14:29.396 32590 32600 I com.nuvio.app: JIT allocated 57KB for compiled code of void b25.e(java.lang.String, java.lang.String, ew2, kw2, kw2, gw2, uw2, uw2, ws7, wl, n45, a51, int)
+11-01 23:14:29.396 32590 32600 I com.nuvio.app: Compiler allocated 15MB to compile void b25.e(java.lang.String, java.lang.String, ew2, kw2, kw2, gw2, uw2, uw2, ws7, wl, n45, a51, int)
+11-01 23:14:29.660 32590 32639 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/movie/tmdb%3A1420157.json
+11-01 23:14:31.070 32590 32639 D MetaDetailsRepo: Raw payload length=3932, first 500 chars: {"meta":{"id":"tmdb:1420157","type":"movie","name":"Civil War","poster":"https://image.tmdb.org/t/p/w500/kD1ic3GTeDtKZc1EDux2dkBLP6C.jpg","posterShape":"poster","description":"After an incident where Jayden spills coke on his friends' new shirt, he loses it. Ethan declares war on his old best friend,  and it gets quite serious.","genres":["Animasyon","Aksiyon","SavaÅŸ","Dram"],"cast":["Jayden Litkie","Ethan Butler","Tyrone Doig","Chad Van Niekerk","Matthew Dâ€™Alton","Dylan Hipener","Justin Smith",
+11-01 23:14:31.071 32590 32639 D MetaDetailsRepo: Parsed meta: type=movie, name=Civil War, videos=0
+11-01 23:14:31.100 32590 32590 I WatchedMarkerDiag: marker state requestedSource=TRAKT content=movie:tmdb:1420157 repositoryLoaded=true remoteLoaded=true repositoryItems=1 posterKey=movie:tmdb:1420157:-1:-1 posterInWatched=false posterInFullyWatched=false videos=0 episodeMarkerMatches=0 completedProgressMatches=0 directItemKeys=[] titleCandidateKeys=[] expectedEpisodeKeys=[] repositoryKeySample=[series:tt2531336:1:1]
+11-01 23:14:31.100 32590 32590 D MetaDetailsRepo: load() called â€” type=movie id=tmdb:1420157
+11-01 23:14:31.108 32590 32600 I com.nuvio.app: Compiler allocated 7MB to compile java.lang.Object o15.invoke(java.lang.Object, java.lang.Object, java.lang.Object)
+11-01 23:14:32.329  1440  1556 D audio_hw_hal: log_func, out_standby
+11-01 23:14:32.330  1440  1556 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-01 23:14:32.330  1440  1556 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-01 23:14:42.374  1597  1610 E memtrack: Couldn't load memtrack module
+11-01 23:14:42.374  1597  1610 W android.os.Debug: failed to get memory consumption info: -1
+11-01 23:15:00.005  1597  1608 W SchedPolicy: add_tid_to_cgroup failed to write '2302' (No space left on device); fd=24
+11-01 23:15:00.007  1597  1608 W SchedPolicy: add_tid_to_cgroup failed to write '2302' (No space left on device); fd=25
+11-01 23:15:00.010  1451  1517 D EmuHWC2 : sent 103 syncs in 60s
+11-01 23:15:07.243  1479  1479 I storaged: type=1400 audit(0.0:5554): avc: denied { call } for scontext=u:r:storaged:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+11-01 23:15:07.247  1479  1488 E storaged: getDiskStats failed with result NOT_SUPPORTED and size 0
+11-01 23:15:09.850  1597  1604 W System  : A resource failed to call close. 
+11-01 23:15:09.850  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 30 lines
+11-01 23:15:09.850  1597  1604 W System  : A resource failed to call close. 
+11-01 23:15:27.062 27766 27831 I Finsky  : [483] AIM: AppInfoManager-Perf > Destroying AppInfoManager ...

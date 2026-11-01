@@ -1,0 +1,50 @@
+[
+  {
+    "t": 1.1,
+    "tcp_estab": 22,
+    "tcp_total": 131,
+    "udp": 6
+  },
+  {
+    "t": 2.5,
+    "tcp_estab": 22,
+    "tcp_total": 131,
+    "udp": 6
+  },
+  {
+    "t": 3.8,
+    "tcp_estab": 22,
+    "tcp_total": 111,
+    "udp": 6
+  },
+  {
+    "t": 5.2,
+    "tcp_estab": 31,
+    "tcp_total": 78,
+    "udp": 6
+  },
+  {
+    "t": 6.6,
+    "tcp_estab": 32,
+    "tcp_total": 85,
+    "udp": 6
+  },
+  {
+    "t": 8.0,
+    "tcp_estab": 32,
+    "tcp_total": 43,
+    "udp": 6
+  },
+  {
+    "t": 9.4,
+    "tcp_estab": 32,
+    "tcp_total": 35,
+    "udp": 6
+  },
+  {
+    "t": 10.9,
+    "tcp_estab": 32,
+    "tcp_total": 35,
+    "udp": 6
+  }
+]

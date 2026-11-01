@@ -1,0 +1,317 @@
+[
+  {
+    "t": 1.1,
+    "tcp_estab": 8,
+    "tcp_total": 26,
+    "udp": 6,
+    "log": "--------- beginning of main"
+  },
+  {
+    "t": 2.1,
+    "tcp_estab": 8,
+    "tcp_total": 26,
+    "udp": 6,
+    "log": "--------- beginning of main"
+  },
+  {
+    "t": 3.5,
+    "tcp_estab": 7,
+    "tcp_total": 10,
+    "udp": 6,
+    "log": "--------- beginning of main"
+  },
+  {
+    "t": 4.9,
+    "tcp_estab": 7,
+    "tcp_total": 10,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:08:53.462 28328 28514 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] received peers: 6"
+  },
+  {
+    "t": 6.4,
+    "tcp_estab": 7,
+    "tcp_total": 10,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:08:54.363 28328 28579 D PlayTorrent: yerel sunucu yan\u00c4\u00b1t\u00c4\u00b1: 200 Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv 0-19775934620/19775934621"
+  },
+  {
+    "t": 7.8,
+    "tcp_estab": 7,
+    "tcp_total": 10,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:08:56.371 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=2sn e\u00c5\u0178=10 tohum=8 h\u00c4\u00b1z=244KB/s inen=0KB durum=DOWNLOADING"
+  },
+  {
+    "t": 9.2,
+    "tcp_estab": 10,
+    "tcp_total": 89,
+    "udp": 6,
+    "log": "--------- beginning of main"
+  },
+  {
+    "t": 10.6,
+    "tcp_estab": 11,
+    "tcp_total": 135,
+    "udp": 6,
+    "log": "--------- beginning of main"
+  },
+  {
+    "t": 12.0,
+    "tcp_estab": 15,
+    "tcp_total": 161,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:00.384 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=6sn e\u00c5\u0178=17 tohum=10 h\u00c4\u00b1z=654KB/s inen=0KB durum=DOWNLOADING"
+  },
+  {
+    "t": 13.4,
+    "tcp_estab": 15,
+    "tcp_total": 155,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:00.384 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=6sn e\u00c5\u0178=17 tohum=10 h\u00c4\u00b1z=654KB/s inen=0KB durum=DOWNLOADING"
+  },
+  {
+    "t": 14.8,
+    "tcp_estab": 16,
+    "tcp_total": 151,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:02.799 28328 28514 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] timed out \"\" (1)"
+  },
+  {
+    "t": 16.2,
+    "tcp_estab": 16,
+    "tcp_total": 83,
+    "udp": 6,
+    "log": "--------- beginning of main"
+  },
+  {
+    "t": 17.6,
+    "tcp_estab": 16,
+    "tcp_total": 73,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:06.399 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=12sn e\u00c5\u0178=18 tohum=12 h\u00c4\u00b1z=1404KB/s inen=0KB durum=DOWNLOADING"
+  },
+  {
+    "t": 19.0,
+    "tcp_estab": 15,
+    "tcp_total": 19,
+    "udp": 6,
+    "log": "--------- beginning of main"
+  },
+  {
+    "t": 20.4,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:09.027 28328 28514 D PlayTorrent: alert TRACKER_ERROR: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable \"\" (2)"
+  },
+  {
+    "t": 21.8,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:10.449 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=16sn e\u00c5\u0178=16 tohum=11 h\u00c4\u00b1z=1935KB/s inen=8192KB durum=DOWNLOADING"
+  },
+  {
+    "t": 23.2,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:10.449 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=16sn e\u00c5\u0178=16 tohum=11 h\u00c4\u00b1z=1935KB/s inen=8192KB durum=DOWNLOADING"
+  },
+  {
+    "t": 24.6,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:12.800 28328 28514 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] timed out \"\" (1)"
+  },
+  {
+    "t": 26.0,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:14.459 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=20sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=2024KB/s inen=8192KB durum=DOWNLOADING"
+  },
+  {
+    "t": 27.4,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:14.459 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=20sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=2024KB/s inen=8192KB durum=DOWNLOADING"
+  },
+  {
+    "t": 28.8,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:16.463 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=22sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=2067KB/s inen=8192KB durum=DOWNLOADING"
+  },
+  {
+    "t": 30.2,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:18.473 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=24sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=2015KB/s inen=16384KB durum=DOWNLOADING"
+  },
+  {
+    "t": 31.6,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:18.473 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=24sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=2015KB/s inen=16384KB durum=DOWNLOADING"
+  },
+  {
+    "t": 33.0,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:20.479 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=26sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=2050KB/s inen=16384KB durum=DOWNLOADING"
+  },
+  {
+    "t": 34.4,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:22.485 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=28sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=2248KB/s inen=16384KB durum=DOWNLOADING"
+  },
+  {
+    "t": 35.9,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:24.494 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=0 s\u00c3\u00bcre=30sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=2187KB/s inen=16384KB durum=DOWNLOADING"
+  },
+  {
+    "t": 37.3,
+    "tcp_estab": 15,
+    "tcp_total": 19,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:26.040 28328 29004 D PlayTorrent: yerel sunucu yan\u00c4\u00b1t\u00c4\u00b1: 206 Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv 19775794270-19775934620/19775934621"
+  },
+  {
+    "t": 38.7,
+    "tcp_estab": 15,
+    "tcp_total": 19,
+    "udp": 6,
+    "log": "--------- beginning of main"
+  },
+  {
+    "t": 40.1,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:28.048 28328 29004 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=2357 s\u00c3\u00bcre=2sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=2539KB/s inen=32768KB durum=DOWNLOADING"
+  },
+  {
+    "t": 41.5,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:30.054 28328 29004 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=2357 s\u00c3\u00bcre=4sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=3257KB/s inen=49152KB durum=DOWNLOADING"
+  },
+  {
+    "t": 42.9,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:30.054 28328 29004 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=2357 s\u00c3\u00bcre=4sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=3257KB/s inen=49152KB durum=DOWNLOADING"
+  },
+  {
+    "t": 44.3,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main"
+  },
+  {
+    "t": 45.7,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:33.496 28328 29004 D PlayTorrent: yerel sunucu ba\u00c4\u0178lant\u00c4\u00b1s\u00c4\u00b1 bitti: SocketException Broken pipe"
+  },
+  {
+    "t": 47.1,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:35.865 28328 28514 D PlayTorrent: alert PERFORMANCE: cf5290: performance warning: max outstanding piece requests reached"
+  },
+  {
+    "t": 48.5,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:37.142 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=46 s\u00c3\u00bcre=4sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=5119KB/s inen=77620KB durum=DOWNLOADING"
+  },
+  {
+    "t": 49.9,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:37.142 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=46 s\u00c3\u00bcre=4sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=5119KB/s inen=77620KB durum=DOWNLOADING"
+  },
+  {
+    "t": 51.3,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main"
+  },
+  {
+    "t": 52.7,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:40.755 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=47 s\u00c3\u00bcre=2sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=4047KB/s inen=85812KB durum=DOWNLOADING"
+  },
+  {
+    "t": 54.2,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:42.763 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=47 s\u00c3\u00bcre=4sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=3691KB/s inen=85812KB durum=DOWNLOADING"
+  },
+  {
+    "t": 55.6,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:42.763 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=47 s\u00c3\u00bcre=4sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=3691KB/s inen=85812KB durum=DOWNLOADING"
+  },
+  {
+    "t": 57.0,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:44.768 28328 28579 D PlayTorrent: bekleniyor: par\u00c3\u00a7a=47 s\u00c3\u00bcre=6sn e\u00c5\u0178=15 tohum=11 h\u00c4\u00b1z=3596KB/s inen=85812KB durum=DOWNLOADING"
+  },
+  {
+    "t": 58.4,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:47.027 28328 28514 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Operation Canceled \"\" (4)"
+  },
+  {
+    "t": 59.8,
+    "tcp_estab": 15,
+    "tcp_total": 18,
+    "udp": 6,
+    "log": "--------- beginning of main\n11-01 23:09:47.027 28328 28514 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Operation Canceled \"\" (4)"
+  },
+  {
+    "t": 61.2,
+    "tcp_estab": 14,
+    "tcp_total": 17,
+    "udp": 6,
+    "log": "--------- beginning of main"
+  },
+  {
+    "t": 62.6,
+    "tcp_estab": 14,
+    "tcp_total": 17,
+    "udp": 6,
+    "log": "--------- beginning of main"
+  }
+]

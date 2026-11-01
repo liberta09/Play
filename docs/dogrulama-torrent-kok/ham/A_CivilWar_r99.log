@@ -1,0 +1,1345 @@
+--------- beginning of system
+11-01 19:54:16.060  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+--------- beginning of main
+11-01 20:06:49.527  1597  1597 I Binder:1597_3: type=1400 audit(0.0:2942): avc: denied { call } for scontext=u:r:system_server:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+11-01 20:06:49.527  1597  1597 I Binder:1597_F: type=1400 audit(0.0:2943): avc: denied { read } for name="Applications" dev="sdcardfs" ino=1441794 scontext=u:r:system_server:s0 tcontext=u:object_r:sdcardfs:s0 tclass=lnk_file permissive=1
+11-01 20:06:49.527  1597  1658 I ActivityManager: START u0 {flg=0x10000000 cmp=com.nuvio.app/.MainActivity} from uid 2000
+11-01 20:06:49.533  1597  1611 W SchedPolicy: add_tid_to_cgroup failed to write '2302' (No space left on device); fd=24
+11-01 20:06:49.534  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:45 android.app.ActivityThread.handleReceiver:3424 
+11-01 20:06:49.547  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.android.ld.appstore -f 32 --es package com.nuvio.app --es pos pc
+11-01 20:06:49.547  1460  1460 D ldinit  : result:
+11-01 20:06:49.549  1433  1433 D libnativeloader: CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+11-01 20:06:49.549  1433  1433 I Zygote  : IsCopy  libcrashcatcher: 0
+11-01 20:06:49.549  1433  1433 D libnativeloader: INJECT Failed to open gspd.json
+11-01 20:06:49.550  1597  1597 I Binder:1597_3: type=1400 audit(0.0:2944): avc: denied { call } for scontext=u:r:system_server:s0 tcontext=u:r:ldinit:s0 tclass=binder permissive=1
+11-01 20:06:49.554  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+11-01 20:06:49.555  2813 14486 I AppStartReceiver: onReceive, action = com.ldmnq.APP_FOREGROUND, extras = Bundle[{package=com.nuvio.app, pos=pc}]
+11-01 20:06:49.560  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 20:06:49.560  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.ldmnq.launcher3 -f 32 --es package com.nuvio.app --es pos pc
+11-01 20:06:49.560  1460  1460 D ldinit  : result:
+11-01 20:06:49.563  1463  1463 I Binder:1463_2: type=1400 audit(0.0:2945): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:system_server:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:06:49.563  1597  1597 I android.anim: type=1400 audit(0.0:2946): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=686e scontext=u:r:system_server:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:06:49.567  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+11-01 20:06:49.572  1597  1613 I ActivityManager: Start proc 15449:com.nuvio.app/u0a64 for activity com.nuvio.app/.MainActivity
+11-01 20:06:49.582  2302 15429 D AppStartReceiver: action = com.ldmnq.APP_FOREGROUND, packageName = com.nuvio.app, pos = pc
+11-01 20:06:49.583  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 20:06:49.586 15449 15449 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: Not a directory
+11-01 20:06:49.586 15449 15449 I Zygote  : seccomp disabled by setenforce 0
+11-01 20:06:49.587 15449 15449 D nativebridge: call UnloadNativeBridge! state=1
+11-01 20:06:49.589 15449 15449 E com.nuvio.app: Not starting debugger since process cannot load the jdwp agent.
+11-01 20:06:49.594  1597  2277 W SchedPolicy: add_tid_to_cgroup failed to write '15449' (No space left on device); fd=27
+11-01 20:06:49.595  2061 15430 D AdvertisingIdClient: AdvertisingIdClient already created.
+11-01 20:06:49.596  2061 15430 D AdvertisingIdClient: AdvertisingIdClient is not bounded. Starting to bind it...
+11-01 20:06:49.597  2061 15430 D AdvertisingIdClient: AdvertisingIdClient is bounded
+11-01 20:06:49.608  2061 15430 I AdvertisingIdClient: shouldSendLog 6135852
+11-01 20:06:49.608  2061 15430 I AdvertisingIdClient: GetInfoInternal elapse 12ms
+11-01 20:06:49.609  2061  2061 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 20:06:49.611  2061  2061 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 20:06:49.616  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+11-01 20:06:49.620 15449 15449 D libnativeloader: INJECT Failed to open gspd.json
+11-01 20:06:49.620  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_START -p com.android.ld.appstore -f 32 --es package com.nuvio.app --es pos pc
+11-01 20:06:49.620  1460  1460 D ldinit  : result:
+11-01 20:06:49.621  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:49.621 15449 15449 D libnativeloader: CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+11-01 20:06:49.621  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon expire 24 lines
+11-01 20:06:49.621  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:49.621  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:49.621  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 4 lines
+11-01 20:06:49.621  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:49.629 15449 15449 D WM-WrkMgrInitializer: Initializing WorkManager with default configuration.
+11-01 20:06:49.629  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_START flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+11-01 20:06:49.629  2813 14402 I AppStartReceiver: onReceive, action = com.ldmnq.APP_START, extras = Bundle[{package=com.nuvio.app, pos=pc}]
+11-01 20:06:49.632 15449 15449 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+11-01 20:06:49.632  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 20:06:49.632 15449 15449 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+11-01 20:06:49.632  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_START -p com.ldmnq.launcher3 -f 32 --es package com.nuvio.app --es pos pc
+11-01 20:06:49.632  1460  1460 D ldinit  : result:
+11-01 20:06:49.633 15449 15478 D WM-ForceStopRunnable: The default process name was not specified.
+11-01 20:06:49.633 15449 15478 D WM-ForceStopRunnable: Performing cleanup operations.
+11-01 20:06:49.636 15449 15449 D Sentry  : io.sentry.auto-init read: false
+11-01 20:06:49.639 15449 15478 D WM-ForceStopRunnable: Application was force-stopped, rescheduling.
+11-01 20:06:49.639  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_START flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+11-01 20:06:49.643  2302 13274 D AppStartReceiver: action = com.ldmnq.APP_START, packageName = com.nuvio.app, pos = pc
+11-01 20:06:49.643  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 20:06:49.646 15449 15449 D AppCompatDelegate: Checking for metadata for AppLocalesMetadataHolderService : Service not found
+11-01 20:06:49.649 15449 15486 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemalarm.RescheduleReceiver
+11-01 20:06:49.700  1597  1697 D WIFI    : got request NetworkRequest [ TRACK_DEFAULT id=69, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10064] ] with score 60
+11-01 20:06:49.700  1597  1697 D WIFI_UT : got request NetworkRequest [ TRACK_DEFAULT id=69, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10064] ] with score 60
+11-01 20:06:49.700  1597  1729 D Ethernet: got request NetworkRequest [ TRACK_DEFAULT id=69, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10064] ] with score 60
+11-01 20:06:49.700  1925  1925 D PhoneSwitcherNetworkRequstListener: got request NetworkRequest [ TRACK_DEFAULT id=69, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10064] ] with score 60
+11-01 20:06:49.700  1597  1728 D WIFI_AWARE_FACTORY: got request NetworkRequest [ TRACK_DEFAULT id=69, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10064] ] with score 60
+11-01 20:06:49.707 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/graphics/Paint;->getTextBounds(Ljava/lang/CharSequence;IILandroid/graphics/Rect;)V (dark greylist, linking)
+11-01 20:06:49.707 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/content/res/Resources$Theme;->rebase()V (dark greylist, linking)
+11-01 20:06:49.712 15449 15498 D NetworkSecurityConfig: Using Network Security Config from resource network_security_config debugBuild: false
+11-01 20:06:49.754  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:49.754  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 28 lines
+11-01 20:06:49.754  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:49.759 15449 15449 D OpenGLRenderer: Skia GL Pipeline
+11-01 20:06:49.759  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+11-01 20:06:49.783 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/graphics/Canvas;->drawPatch(Landroid/graphics/NinePatch;Landroid/graphics/Rect;Landroid/graphics/Paint;)V (dark greylist, linking)
+11-01 20:06:49.784 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/graphics/Canvas;->drawPatch(Landroid/graphics/NinePatch;Landroid/graphics/RectF;Landroid/graphics/Paint;)V (dark greylist, linking)
+11-01 20:06:49.784 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/app/job/JobParameters;->getStopReason()I (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setScaleX(F)Z (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setTranslationX(F)Z (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->getMatrix(Landroid/graphics/Matrix;)V (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setCameraDistance(F)Z (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setClipToOutline(Z)Z (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setClipToOutline(Z)Z (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setLayerType(I)Z (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 I chatty  : uid=10064(com.nuvio.app) identical 1 line
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setLayerType(I)Z (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setElevation(F)Z (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setRotation(F)Z (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setTranslationY(F)Z (dark greylist, linking)
+11-01 20:06:49.804 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setOutline(Landroid/graphics/Outline;)Z (dark greylist, linking)
+11-01 20:06:49.806 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setScaleY(F)Z (dark greylist, linking)
+11-01 20:06:49.806 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+11-01 20:06:49.806 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setRotationX(F)Z (dark greylist, linking)
+11-01 20:06:49.806 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setAlpha(F)Z (dark greylist, linking)
+11-01 20:06:49.806 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->setRotationY(F)Z (dark greylist, linking)
+11-01 20:06:49.806 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+11-01 20:06:49.807 15449 15555 I         : fastpipe: Connect success
+11-01 20:06:49.810 15449 15555 I         : fastpipe: Connect success
+11-01 20:06:49.811 15449 15555 D HostConnection: HostRPC::connect sucess: app=com.nuvio.app, pid=15449, tid=15555, this=0x763871e0e6c0
+11-01 20:06:49.814 15449 15555 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.nuvio.app
+11-01 20:06:49.816 15449 15555 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-01 20:06:49.816 15449 15555 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-01 20:06:49.816 15449 15555 I OpenGLRenderer: Initialized EGL, version 1.4
+11-01 20:06:49.816 15449 15555 D OpenGLRenderer: Swap behavior 1
+11-01 20:06:49.818 15449 15555 D EGL_emulation: eglCreateContext: 0x76388be4c980: maj 3 min 1 rcv 4
+11-01 20:06:49.835 15449 15555 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-01 20:06:49.835 15449 15555 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082e5
+11-01 20:06:49.839 15449 15555 D HostConnection: ExtendedRCEncoderContext GL_VERSION return OpenGL ES 3.1 v1
+11-01 20:06:49.840 15449 15555 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008c29
+11-01 20:06:49.841 15449 15555 E eglCodecCommon: glUtilsParamSize: unknow param 0x000087fe
+11-01 20:06:49.841 15449 15555 D skia    : force disable skia program binary by wb!
+11-01 20:06:49.845 15449 15555 D vndksupport: Loading /vendor/lib64/hw/android.hardware.graphics.mapper@2.0-impl.so from current namespace instead of sphal namespace.
+11-01 20:06:49.846 15449 15555 D vndksupport: Loading /vendor/lib64/hw/gralloc.default.so from current namespace instead of sphal namespace.
+11-01 20:06:49.848 15449 15555 E EGL_emulation: tid 15555: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+11-01 20:06:49.848 15449 15555 W OpenGLRenderer: Failed to set EGL_SWAP_BEHAVIOR on surface 0x76388bf64300, error=EGL_BAD_MATCH
+11-01 20:06:49.852 15449 15499 I Supabase-Core: SupabaseClient created! Please report any bugs you find.
+11-01 20:06:49.866  1597  1610 I ActivityManager: Displayed com.nuvio.app/.MainActivity: +339ms
+11-01 20:06:49.868  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 20:06:49.868  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 20:06:49.869 15449 15499 W System.err: SLF4J(W): No SLF4J providers were found.
+11-01 20:06:49.869 15449 15499 W System.err: SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+11-01 20:06:49.869 15449 15499 W System.err: SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+11-01 20:06:49.870 15449 15449 I WatchedRepository: Watched publish source=NUVIO_SYNC provider=nuvio items=1 keys=1 fullyWatchedSeries=0 isLoaded=true hasLoadedRemote=false itemKeys=[series:tt2531336:1:1] fullyWatchedKeys=[]
+11-01 20:06:49.879  1463  1522 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen com.nuvio.app#0
+11-01 20:06:49.879  1463  1522 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen com.nuvio.app#0
+11-01 20:06:49.915 15449 15449 D SimklDiag: snapshot stage=cache-load initialized=false entries=0 movies=0 shows=0 anime=0 completedMovies=0 completedSeries=0 aggregateWatchedEntries=0 aggregateWatchedEpisodes=0 episodeRows=0 exactWatchedEpisodeRows=0 playbackMovies=0 playbackEpisodes=0 missingCanonicalIds=0 hasWatermark=false hasLastChecked=false
+11-01 20:06:49.916 15449 15449 D WatchProgressRepository: Loaded watch progress for profile 1: entries=7 deltaInitialized=false cursor=0 lastPush=0
+11-01 20:06:49.947 15449 15449 D AddonRepository: initialize() — loading local addons for profile 1
+11-01 20:06:49.947 15449 15449 D AddonRepository: initialize() — local addon count: 2
+11-01 20:06:49.949 15449 15563 I Supabase-Auth: Loading session from storage...
+11-01 20:06:49.949 15449 15563 I Supabase-Auth: No session found in storage.
+11-01 20:06:49.986  2813 14402 I LDShopManager: tryShowLDShopRechargePopup success, packageName = com.nuvio.app, canPopup = false
+11-01 20:06:50.527 15449 15563 I WatchedRepository: Watched source activation unchanged source=NUVIO_SYNC generation=1 items=1 loaded=true
+11-01 20:06:50.528 15449 15563 I WatchedRepository: Watched source activation unchanged source=NUVIO_SYNC generation=1 items=1 loaded=true
+11-01 20:06:50.528 15449 15563 I WatchedRepository: Watched refresh request profile=1 requestedSource=NUVIO_SYNC effectiveSource=NUVIO_SYNC forceSnapshot=true profileGeneration=1 sourceGeneration=1
+11-01 20:06:50.528 15449 15563 I WatchedRepository: Watched publish source=NUVIO_SYNC provider=nuvio items=1 keys=1 fullyWatchedSeries=0 isLoaded=true hasLoadedRemote=true itemKeys=[series:tt2531336:1:1] fullyWatchedKeys=[]
+11-01 20:06:50.536  2061  4245 I FontLog : (REDACTED) Received query %s, URI %s
+11-01 20:06:50.536  2061  4245 I FontLog : (REDACTED) Query [%s] resolved to %s
+11-01 20:06:50.536  2061  4245 I FontLog : (REDACTED) Fetch %s end status %s
+11-01 20:06:50.544  2061  4245 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+11-01 20:06:50.545  2061  4245 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+11-01 20:06:50.563  1432 15590 I /system/bin/netd: gethostby*.getanswer: asked for "image.tmdb.org IN A", got type "RRSIG"
+11-01 20:06:50.563  1432 15589 I /system/bin/netd: gethostby*.getanswer: asked for "image.tmdb.org IN A", got type "RRSIG"
+11-01 20:06:50.563  1432 15584 I /system/bin/netd: gethostby*.getanswer: asked for "image.tmdb.org IN A", got type "RRSIG"
+11-01 20:06:50.576  1432 15586 I /system/bin/netd: gethostby*.getanswer: asked for "image.tmdb.org IN A", got type "RRSIG"
+11-01 20:06:50.580 15449 15556 I WatchedBadgeBulk: Bulk badge resolution starting: 1 series candidates
+11-01 20:06:50.598 15449 15556 I WatchedBadgeBulk: Bulk badge resolution starting: 1 series candidates
+11-01 20:06:50.607 15449 15558 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt2531336.json
+11-01 20:06:50.623  1460  1460 I ldinit  : type=1400 audit(0.0:2982): avc: denied { read } for name="partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-01 20:06:50.623  1460  1460 I ldinit  : type=1400 audit(0.0:2983): avc: denied { open } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-01 20:06:50.623  1460  1460 I ldinit  : type=1400 audit(0.0:2984): avc: denied { getattr } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-01 20:06:50.654 15449 15460 I com.nuvio.app: JIT allocated 66KB for stack maps of void hn0.g(n45, boolean, so2, gw2, gw2, gw2, gw2, gw2, b12, uw2, ew2, a51, int)
+11-01 20:06:50.655 15449 15460 I com.nuvio.app: Compiler allocated 11MB to compile void hn0.g(n45, boolean, so2, gw2, gw2, gw2, gw2, gw2, b12, uw2, ew2, a51, int)
+11-01 20:06:50.727  1597  1607 W SchedPolicy: add_tid_to_cgroup failed to write '2302' (No space left on device); fd=25
+11-01 20:06:50.728  1597  1607 W SchedPolicy: add_tid_to_cgroup failed to write '2061' (No space left on device); fd=25
+11-01 20:06:50.730  2302  2302 I ScionFrontendAp: type=1400 audit(0.0:2985): avc: denied { open } for path="/data/local/cfg-ineyg/android7" dev="sdb2" ino=394463 scontext=u:r:untrusted_app:s0:c42,c256,c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-01 20:06:50.792  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:50.792  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 32 lines
+11-01 20:06:50.792  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:50.827 15449 15558 D MetaDetailsRepo: Raw payload length=16444, first 500 chars: {"meta":{"id":"tt2531336","type":"series","name":"Lupin","poster":"https://image.tmdb.org/t/p/w500/sOUWRai0215iUSMackrZx3Y1j05.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/aY7zv2pfk9H0QxaaL3PBjvalbKQ.jpg","logo":"https://image.tmdb.org/t/p/w500/eKGrcJ0ZuBYLLgxhzZMvFpTvLmu.png","description":"Arsen Lüpen'in maceralarından esinlenen kibar hırsız Assane Diop, düşmanlarını alt edip sevdiklerini korumak için zekâsını ve cazibesini kullanır.","genres":["Suç","Dram","Gizem
+11-01 20:06:50.829 15449 15558 D MetaDetailsRepo: Parsed meta: type=series, name=Lupin, videos=25
+11-01 20:06:50.829 15449 15558 D MetaDetailsRepo: First video: id=tt2531336:1:1 title=No. 1 s=1 e=1 embeddedStreams=0
+11-01 20:06:50.830 15449 15558 I WatchedBadgeBulk: Bulk badge resolution complete: resolved 1/1
+11-01 20:06:50.840 15449 15460 I com.nuvio.app: Compiler allocated 4MB to compile f05 g05.d(java.lang.String)
+11-01 20:06:51.226 15449 15460 I com.nuvio.app: JIT allocated 74KB for stack maps of void en3.o(st, boolean, gw2, ew2, a51, int, int)
+11-01 20:06:51.227 15449 15460 I com.nuvio.app: Compiler allocated 9MB to compile void en3.o(st, boolean, gw2, ew2, a51, int, int)
+11-01 20:06:51.262 15449 15460 I com.nuvio.app: JIT allocated 66KB for stack maps of void hn0.g(n45, boolean, so2, gw2, gw2, gw2, gw2, gw2, b12, uw2, ew2, a51, int)
+11-01 20:06:51.263 15449 15460 I com.nuvio.app: Compiler allocated 11MB to compile void hn0.g(n45, boolean, so2, gw2, gw2, gw2, gw2, gw2, b12, uw2, ew2, a51, int)
+11-01 20:06:51.569 15449 15559 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt0434665.json
+11-01 20:06:51.570 15449 15559 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/movie/tt35511966.json
+11-01 20:06:51.570 15449 15559 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt12590266.json
+11-01 20:06:51.570 15449 15559 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt31510819.json
+11-01 20:06:51.591  2302 15418 I FA      : Application backgrounded at: timestamp_millis: 1793552809589
+11-01 20:06:51.759 15449 15571 D MetaDetailsRepo: Raw payload length=13326, first 500 chars: {"meta":{"id":"tt12590266","type":"series","name":"Cyberpunk: Edgerunners","poster":"https://image.tmdb.org/t/p/w500/7jSWOc6jWSw5hZ78HB8Hw3pJxuk.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/w0lU7U89Fm4K8BQD4hJQpQthxu9.jpg","logo":"https://image.tmdb.org/t/p/w500/sNhrCQwDbvu6hGm8yKNQAh3njKf.png","description":"Yolsuzlukla ve sibernetik implantlarla dolu bir distopyada yetenekli ancak umursamaz bir sokak çocuğu, edgerunner denen kanun kaçağı paralı askerlerden olmak i
+11-01 20:06:51.763 15449 15571 D MetaDetailsRepo: Parsed meta: type=series, name=Cyberpunk: Edgerunners, videos=20
+11-01 20:06:51.763 15449 15571 D MetaDetailsRepo: First video: id=tt12590266:1:1 title=Seni Hüsrana Uğratmayacağım s=1 e=1 embeddedStreams=0
+11-01 20:06:51.763 15449 15571 D MetaDetailsRepo: Raw payload length=13851, first 500 chars: {"meta":{"id":"tt31510819","type":"series","name":"MobLand","poster":"https://image.tmdb.org/t/p/w500/fTlH5NNTXOP96mElp0DaIStRVvK.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/h0OC7ouop8YLwbAVfS3UUE2Lw4T.jpg","logo":"https://image.tmdb.org/t/p/w500/fh6N94BUPuLPN70WpbM0OEgOJbc.png","description":"İki düşman Londra suç ailesi olan Harrigan’lar ve Stevenson’lar arasında, imparatorlukları yıkma ve hayatları mahvetme tehdidi oluşturan öl ya da öldür savaşında güç ele geçi
+11-01 20:06:51.765 15449 15571 D MetaDetailsRepo: Parsed meta: type=series, name=MobLand, videos=20
+11-01 20:06:51.765 15449 15571 D MetaDetailsRepo: First video: id=tt31510819:1:1 title=Devam mı, Risk mi? s=1 e=1 embeddedStreams=0
+11-01 20:06:51.765 15449 15571 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/movie/tt2056785.json
+11-01 20:06:51.765 15449 15571 D MetaDetailsRepo: Raw payload length=135378, first 500 chars: {"meta":{"id":"tt0434665","type":"series","name":"Bleach","poster":"https://image.tmdb.org/t/p/w500/mB6h4mlZXufkWtt58Bh1DiVvNgv.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/o0NsbcIvsllg6CJX0FBFY8wWbsn.jpg","logo":"https://image.tmdb.org/t/p/w500/21zm3sP3j6rmpbZR3j0quusRe6h.png","description":"Kurosaki Ichigo 15 yaşında normal bir öğrencidir ancak ölülerle iletişim kurma becerisine sahiptir. Ichigo'nun babası ve kardeşleri aileye ait bir klinik işletmektedirler.\n\nÖ
+11-01 20:06:51.773 15449 15571 D MetaDetailsRepo: Parsed meta: type=series, name=Bleach, videos=416
+11-01 20:06:51.773 15449 15571 D MetaDetailsRepo: First video: id=tt0434665:1:1 title=1. Bölüm s=1 e=1 embeddedStreams=0
+11-01 20:06:51.773 15449 15571 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/movie/tt32261958.json
+11-01 20:06:51.773 15449 15571 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt16358384.json
+11-01 20:06:51.775 15449 15460 I com.nuvio.app: Compiler allocated 4MB to compile f05 g05.d(java.lang.String)
+11-01 20:06:51.955 15449 15602 D MetaDetailsRepo: Raw payload length=6356, first 500 chars: {"meta":{"id":"tt2056785","type":"movie","name":"Vahşi Orman","poster":"https://image.tmdb.org/t/p/w500/snFM00mpNAfUzUtkdEW0uDEvXA0.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/sl5NJ1vtyhP9Vr88bB4blULsJYp.jpg","logo":"https://image.tmdb.org/t/p/w500/g9MoyXHtNgaR1UC2MoztL80iZl3.png","description":"Coraline'i yaratan ellerden... Prue McKeel, küçük erkek kardeşi bir karga sürüsü tarafından kaçırıldıktan sonra Oregon'un hemen ötesindeki gizli ve büyülü vahşi ormanda umu
+11-01 20:06:51.956 15449 15602 D MetaDetailsRepo: Parsed meta: type=movie, name=Vahşi Orman, videos=0
+11-01 20:06:51.956 15449 15602 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/series/tt23148340.json
+11-01 20:06:51.959 15449 15500 D MetaDetailsRepo: Raw payload length=5571, first 500 chars: {"meta":{"id":"tt32261958","type":"movie","name":"Verity: Gerçeğin Diğer Kıyısı","poster":"https://image.tmdb.org/t/p/w500/yKLBWj6KXJNgRQtzZ9aCgSxyYEC.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/cKetrF2dAnQ0AMV5i4BMOs41I5P.jpg","logo":"https://image.tmdb.org/t/p/w500/fG2vYehyvAyka220NGDUGeuabru.png","description":"Jeremy Crawford, geçirdiği bir kaza sonucu romanlarını tamamlayamadan vefat eden çok satan yazarı olan eşi Verity'nin romanlarını tamamlaması amacıyla Lo
+11-01 20:06:51.963 15449 15500 D MetaDetailsRepo: Parsed meta: type=movie, name=Verity: Gerçeğin Diğer Kıyısı, videos=0
+11-01 20:06:51.963 15449 15500 D MetaDetailsRepo: Raw payload length=22563, first 500 chars: {"meta":{"id":"tt16358384","type":"series","name":"Tulsa King","poster":"https://image.tmdb.org/t/p/w500/7pPmaSMKk1VVQH0oS7tceROYcZa.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/mNHRGO1gFpR2CYZdANe72kcKq7G.jpg","logo":"https://image.tmdb.org/t/p/w500/xz9iVJuRbNsdD7KZhr9dfi8F7Gs.png","description":"25 yıl hapis cezasının ardından cezaevinden yeni çıkan, \"General\" olarak bilinen eski New York mafya babası Dwight Manfredi, bağlı olduğu suç lordu tarafından törensiz b
+11-01 20:06:51.968 15449 15500 D MetaDetailsRepo: Parsed meta: type=series, name=Tulsa King, videos=39
+11-01 20:06:51.968 15449 15500 D MetaDetailsRepo: First video: id=tt16358384:1:1 title=Go West, Old Man s=1 e=1 embeddedStreams=0
+11-01 20:06:51.988 15449 15460 I com.nuvio.app: Compiler allocated 4MB to compile f05 g05.d(java.lang.String)
+11-01 20:06:52.052 15449 15570 D MetaDetailsRepo: Raw payload length=6001, first 500 chars: {"meta":{"id":"tt35511966","type":"movie","name":"La bola negra","poster":"https://image.tmdb.org/t/p/w500/t1azKLExwUxKj6v6m2L535evuRa.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/bDsmYvrzto7xrEwqDpLC3SPhn9A.jpg","logo":"https://image.tmdb.org/t/p/w500/3NLWrdKSkRY9CGkBqQi30txAAPN.png","description":"Las vidas interconectadas de tres hombres en tres épocas distintas, tres existencias íntimamente ligadas por la sexualidad y el deseo, el dolor y la herencia.","genres":
+11-01 20:06:52.054 15449 15570 D MetaDetailsRepo: Parsed meta: type=movie, name=La bola negra, videos=0
+11-01 20:06:52.134 15449 15602 D MetaDetailsRepo: Raw payload length=6537, first 500 chars: {"meta":{"id":"tt23148340","type":"series","name":"Crystal Lake","poster":"https://image.tmdb.org/t/p/w500/3ENhExiD2fcjk5FX0AcAXcvLu9N.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/wxiBsKFEOOFK8eQStWOykNORlXY.jpg","logo":"https://image.tmdb.org/t/p/w500/zMdL06gtSVXZYzZ5HomCFpCxjW7.png","description":"Oğlunun ölümünden sonra, Pamela Voorhees'in geçmişi ve karanlık bir sır ortaya çıkar.","genres":["Dram","Gizem"],"cast":["Linda Cardellini","William Catlett","Gwendolyn 
+11-01 20:06:52.134 15449 15602 D MetaDetailsRepo: Parsed meta: type=series, name=Crystal Lake, videos=8
+11-01 20:06:52.134 15449 15602 D MetaDetailsRepo: First video: id=tt23148340:1:1 title=Crystal Kampı s=1 e=1 embeddedStreams=0
+11-01 20:06:52.648 15608 15608 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 744 250 
+11-01 20:06:52.648 15608 15608 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 20:06:52.650 15608 15608 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 20:06:52.662 15608 15608 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 20:06:52.668 15608 15608 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 20:06:52.680 15608 15608 I main    : type=1400 audit(0.0:2986): avc: denied { open } for path="/data/local/cfg-ineyg/app_xpt" dev="sdb2" ino=394473 scontext=u:r:shell:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-01 20:06:52.680 15608 15608 I main    : type=1400 audit(0.0:2987): avc: denied { mounton } for path="/proc/cpuinfo" dev="proc" ino=4026531992 scontext=u:r:shell:s0 tcontext=u:object_r:proc_cpuinfo:s0 tclass=file permissive=1
+11-01 20:06:52.684 15608 15608 I app_process: The ClassLoaderContext is a special shared library.
+11-01 20:06:52.684 15608 15608 W app_process: Could not create mount namespace.
+11-01 20:06:52.684 15608 15608 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 20:06:52.684 15608 15608 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 20:06:52.684 15608 15608 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 20:06:52.684 15608 15608 D nativebridge: call UnloadNativeBridge! state=2
+11-01 20:06:52.697 15608 15608 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 20:06:52.701 15608 15608 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=744.0, y[0]=250.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7594670, downTime=7594670, deviceId=3, source=0x1002 }
+11-01 20:06:52.711 15608 15608 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=744.0, y[0]=250.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7594670, downTime=7594670, deviceId=3, source=0x1002 }
+11-01 20:06:52.713  1440  1440 I writer  : type=1400 audit(0.0:2988): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6869 scontext=u:r:hal_audio_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:06:52.717 15608 15608 D AndroidRuntime: Shutting down VM
+11-01 20:06:52.718  1440  3295 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-01 20:06:52.753 15449 15449 D SearchRepository: Discover refresh prepared type=movie catalog=com.nuvio.tmdb.catalogs:movie:trending-movies genre=<all> sources=27
+11-01 20:06:52.753 15449 15449 D SearchRepository: Discover request reset=true addon=Nuvio Catalog Addon type=movie catalogId=trending-movies catalogKey=com.nuvio.tmdb.catalogs:movie:trending-movies genre=<all> skip=0 url=https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/catalog/movie/trending-movies.json
+11-01 20:06:52.756 15449 15570 D SearchRepository: Discover response catalogKey=com.nuvio.tmdb.catalogs:movie:trending-movies returned=20 merged=20 rawItemCount=20 nextSkip=20 sample=[Verity: Gerçeğin Diğer Kıyısı, Köpek ve Yıldızlar, Clayface, Kıyamet Z: Yeni Dünya, Unutulmuş Ada, ...]
+11-01 20:06:52.766 15449 15449 D SearchRepository: Discover request reset=false addon=Nuvio Catalog Addon type=movie catalogId=trending-movies catalogKey=com.nuvio.tmdb.catalogs:movie:trending-movies genre=<all> skip=20 url=https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/catalog/movie/trending-movies/skip=20.json
+11-01 20:06:52.968 15449 15604 D SearchRepository: Discover response catalogKey=com.nuvio.tmdb.catalogs:movie:trending-movies returned=20 merged=39 rawItemCount=20 nextSkip=40 sample=[‎La Bataille de Gaulle : J'écris ton nom, Diğer Anne, Araknofobi: Kabus, Primetime, Oak Caddesi'nin Sonu, ...]
+11-01 20:06:53.248  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:53.248  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 36 lines
+11-01 20:06:53.248  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:53.829 15618 15618 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 800 385 
+11-01 20:06:53.829 15618 15618 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 20:06:53.830 15618 15618 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 20:06:53.836 15618 15618 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 20:06:53.842 15618 15618 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 20:06:53.853 15618 15618 I app_process: The ClassLoaderContext is a special shared library.
+11-01 20:06:53.854 15618 15618 W app_process: Could not create mount namespace.
+11-01 20:06:53.854 15618 15618 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 20:06:53.854 15618 15618 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 20:06:53.854 15618 15618 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 20:06:53.854 15618 15618 D nativebridge: call UnloadNativeBridge! state=2
+11-01 20:06:53.861 15618 15618 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 20:06:53.862 15618 15618 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=800.0, y[0]=385.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7595833, downTime=7595833, deviceId=3, source=0x1002 }
+11-01 20:06:53.871 15618 15618 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=800.0, y[0]=385.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7595833, downTime=7595833, deviceId=3, source=0x1002 }
+11-01 20:06:53.877  2702  2702 I utmethod.pinyin: type=1400 audit(0.0:2989): avc: denied { open } for path="/data/local/cfg-ineyg/input" dev="sdb2" ino=394485 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-01 20:06:53.880  2238  2238 I oid.coreservice: type=1400 audit(0.0:2990): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:system_app:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:06:53.881 15618 15618 D AndroidRuntime: Shutting down VM
+11-01 20:06:53.882  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 20:06:53.888  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 20:06:53.907  1597  1871 W SchedPolicy: add_tid_to_cgroup failed to write '2702' (No space left on device); fd=24
+11-01 20:06:53.907 15449 15449 W IInputConnectionWrapper: getCursorCapsMode on inactive InputConnection
+11-01 20:06:53.908  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 20:06:53.918  2238  2238 I chatty  : uid=1000(system) com.android.coreservice identical 1 line
+11-01 20:06:53.918  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 20:06:53.918  1597  1658 D NotificationService: notify pkg=android pid=1597
+11-01 20:06:53.919  1597  1658 D NotificationService: notify pkg=android pid=1597
+11-01 20:06:53.933  1463  1463 I Binder:1463_1: type=1400 audit(0.0:2991): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:06:53.933  2702  2702 I RenderThread: type=1400 audit(0.0:2992): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6869 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:06:53.944  2702  5035 E EGL_emulation: tid 5035: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+11-01 20:06:53.944  2702  5035 W OpenGLRenderer: Failed to set EGL_SWAP_BEHAVIOR on surface 0x76387306f080, error=EGL_BAD_MATCH
+11-01 20:06:54.488 15635 15635 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input keyevent --longpress 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 
+11-01 20:06:54.488 15635 15635 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 20:06:54.489 15635 15635 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 20:06:54.496 15635 15635 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 20:06:54.501 15635 15635 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 20:06:54.513 15635 15635 I app_process: The ClassLoaderContext is a special shared library.
+11-01 20:06:54.513 15635 15635 W app_process: Could not create mount namespace.
+11-01 20:06:54.513 15635 15635 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 20:06:54.513 15635 15635 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 20:06:54.513 15635 15635 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 20:06:54.513 15635 15635 D nativebridge: call UnloadNativeBridge! state=2
+11-01 20:06:54.520 15635 15635 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 20:06:54.520 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596492, downTime=7596492, deviceId=-1, source=0x101 }
+11-01 20:06:54.527 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596492, downTime=7596492, deviceId=-1, source=0x101 }
+11-01 20:06:54.534 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596492, downTime=7596492, deviceId=-1, source=0x101 }
+11-01 20:06:54.541 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596513, downTime=7596513, deviceId=-1, source=0x101 }
+11-01 20:06:54.547 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596513, downTime=7596513, deviceId=-1, source=0x101 }
+11-01 20:06:54.553 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596513, downTime=7596513, deviceId=-1, source=0x101 }
+11-01 20:06:54.560 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596532, downTime=7596532, deviceId=-1, source=0x101 }
+11-01 20:06:54.568 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596532, downTime=7596532, deviceId=-1, source=0x101 }
+11-01 20:06:54.575 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596532, downTime=7596532, deviceId=-1, source=0x101 }
+11-01 20:06:54.583 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596556, downTime=7596556, deviceId=-1, source=0x101 }
+11-01 20:06:54.591 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596556, downTime=7596556, deviceId=-1, source=0x101 }
+11-01 20:06:54.597 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596556, downTime=7596556, deviceId=-1, source=0x101 }
+11-01 20:06:54.603 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596576, downTime=7596576, deviceId=-1, source=0x101 }
+11-01 20:06:54.609  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:54.609  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 28 lines
+11-01 20:06:54.609  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:54.609 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596576, downTime=7596576, deviceId=-1, source=0x101 }
+11-01 20:06:54.615 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596576, downTime=7596576, deviceId=-1, source=0x101 }
+11-01 20:06:54.620 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596593, downTime=7596593, deviceId=-1, source=0x101 }
+11-01 20:06:54.626 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596593, downTime=7596593, deviceId=-1, source=0x101 }
+11-01 20:06:54.631 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596593, downTime=7596593, deviceId=-1, source=0x101 }
+11-01 20:06:54.636 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596609, downTime=7596609, deviceId=-1, source=0x101 }
+11-01 20:06:54.642 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596609, downTime=7596609, deviceId=-1, source=0x101 }
+11-01 20:06:54.647 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596609, downTime=7596609, deviceId=-1, source=0x101 }
+11-01 20:06:54.652 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596625, downTime=7596625, deviceId=-1, source=0x101 }
+11-01 20:06:54.658 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596625, downTime=7596625, deviceId=-1, source=0x101 }
+11-01 20:06:54.669 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596625, downTime=7596625, deviceId=-1, source=0x101 }
+11-01 20:06:54.680 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596653, downTime=7596653, deviceId=-1, source=0x101 }
+11-01 20:06:54.694 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596653, downTime=7596653, deviceId=-1, source=0x101 }
+11-01 20:06:54.702 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596653, downTime=7596653, deviceId=-1, source=0x101 }
+11-01 20:06:54.708 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596680, downTime=7596680, deviceId=-1, source=0x101 }
+11-01 20:06:54.714 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596680, downTime=7596680, deviceId=-1, source=0x101 }
+11-01 20:06:54.720 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596680, downTime=7596680, deviceId=-1, source=0x101 }
+11-01 20:06:54.721  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:54.721  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 33 lines
+11-01 20:06:54.721  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:54.725 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596698, downTime=7596698, deviceId=-1, source=0x101 }
+11-01 20:06:54.731 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596698, downTime=7596698, deviceId=-1, source=0x101 }
+11-01 20:06:54.737 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596698, downTime=7596698, deviceId=-1, source=0x101 }
+11-01 20:06:54.742 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596715, downTime=7596715, deviceId=-1, source=0x101 }
+11-01 20:06:54.748 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596715, downTime=7596715, deviceId=-1, source=0x101 }
+11-01 20:06:54.753 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596715, downTime=7596715, deviceId=-1, source=0x101 }
+11-01 20:06:54.758 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596731, downTime=7596731, deviceId=-1, source=0x101 }
+11-01 20:06:54.764 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596731, downTime=7596731, deviceId=-1, source=0x101 }
+11-01 20:06:54.769 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596731, downTime=7596731, deviceId=-1, source=0x101 }
+11-01 20:06:54.774 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596747, downTime=7596747, deviceId=-1, source=0x101 }
+11-01 20:06:54.780 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596747, downTime=7596747, deviceId=-1, source=0x101 }
+11-01 20:06:54.785 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596747, downTime=7596747, deviceId=-1, source=0x101 }
+11-01 20:06:54.791 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596764, downTime=7596764, deviceId=-1, source=0x101 }
+11-01 20:06:54.800 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=7596764, downTime=7596764, deviceId=-1, source=0x101 }
+11-01 20:06:54.806 15635 15635 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7596764, downTime=7596764, deviceId=-1, source=0x101 }
+11-01 20:06:54.816 15635 15635 D AndroidRuntime: Shutting down VM
+11-01 20:06:54.837  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:54.837  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 39 lines
+11-01 20:06:54.837  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:55.430 15646 15646 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input text Civil%sWar 
+11-01 20:06:55.430 15646 15646 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 20:06:55.431 15646 15646 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 20:06:55.438 15646 15646 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 20:06:55.442  2813  3115 D LdAnalyticsSDK: responseCode = 200
+11-01 20:06:55.443 15646 15646 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 20:06:55.456 15646 15646 I app_process: The ClassLoaderContext is a special shared library.
+11-01 20:06:55.456 15646 15646 W app_process: Could not create mount namespace.
+11-01 20:06:55.456 15646 15646 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 20:06:55.456 15646 15646 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 20:06:55.456 15646 15646 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 20:06:55.456 15646 15646 D nativebridge: call UnloadNativeBridge! state=2
+11-01 20:06:55.463 15646 15646 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 20:06:55.464 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.472 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_C, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.479 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_C, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.485 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.492 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_I, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.516 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_I, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.523 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_V, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.531 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_V, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.537 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_I, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.548 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_I, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.555 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_L, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.565 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_L, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.571 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_SPACE, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.582 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_SPACE, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.588 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.598 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_W, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.605 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_W, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.622 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.630 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_A, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.637 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_A, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.639  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:55.639  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 33 lines
+11-01 20:06:55.639  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:55.642 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_R, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.649 15646 15646 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_R, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7597436, downTime=7597436, deviceId=-1, source=0x101 }
+11-01 20:06:55.655 15646 15646 D AndroidRuntime: Shutting down VM
+11-01 20:06:55.754 15449 15656 D ProfileInstaller: Skipping profile installation for com.nuvio.app
+11-01 20:06:55.797  1440  1557 D audio_hw_hal: log_func, out_standby
+11-01 20:06:55.797  1440  1557 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-01 20:06:55.797  1440  1557 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-01 20:06:56.215  1480  1480 W wificond: Scan already started
+11-01 20:06:56.219  1597  1733 W SchedPolicy: add_tid_to_cgroup failed to write '2061' (No space left on device); fd=24
+11-01 20:06:56.220  1597  1658 W SchedPolicy: add_tid_to_cgroup failed to write '2061' (No space left on device); fd=25
+11-01 20:06:56.267 15660 15660 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input keyevent 66 
+11-01 20:06:56.267 15660 15660 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 20:06:56.269 15660 15660 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 20:06:56.277 15660 15660 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 20:06:56.283 15660 15660 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 20:06:56.296 15660 15660 I app_process: The ClassLoaderContext is a special shared library.
+11-01 20:06:56.296 15660 15660 W app_process: Could not create mount namespace.
+11-01 20:06:56.296 15660 15660 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 20:06:56.296 15660 15660 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 20:06:56.296 15660 15660 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 20:06:56.296 15660 15660 D nativebridge: call UnloadNativeBridge! state=2
+11-01 20:06:56.304 15660 15660 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 20:06:56.306 15660 15660 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_ENTER, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7598277, downTime=7598277, deviceId=-1, source=0x101 }
+11-01 20:06:56.346  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:56.346  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 32 lines
+11-01 20:06:56.346  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:56.381 15660 15660 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_ENTER, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=7598277, downTime=7598277, deviceId=-1, source=0x101 }
+11-01 20:06:56.406  1597  1607 W SchedPolicy: add_tid_to_cgroup failed to write '2702' (No space left on device); fd=25
+11-01 20:06:56.417 15660 15660 D AndroidRuntime: Shutting down VM
+11-01 20:06:56.427  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 20:06:56.431  2061 13947 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-01 20:06:56.434  2061 15659 W GLSUser : [DeviceKeyStore] Cannot load key: Device key file not found.
+11-01 20:06:56.442  8449  8449 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.droidguard.DroidGuardFastRefreshGmsTaskBoundService.ACTION_TASK_READY dat=chimera-action: cmp=com.google.android.gms/.chimera.UnstableInternalBoundBrokerService }
+11-01 20:06:56.442  8449  8449 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.droidguard.DroidGuardFastRefreshGmsTaskBoundService.ACTION_TASK_READY dat=chimera-action: cmp=com.google.android.gms/.chimera.UnstableInternalBoundBrokerService }
+11-01 20:06:56.450  2061  2061 I lowpool[94]: type=1400 audit(0.0:2993): avc: denied { read } for name="Applications" dev="sdcardfs" ino=1441794 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sdcardfs:s0 tclass=lnk_file permissive=1
+11-01 20:06:56.450  2061  2061 I lowpool[94]: type=1400 audit(0.0:2994): avc: denied { search } for name="/" dev="vboxsf" ino=1 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:unlabeled:s0 tclass=dir permissive=1
+11-01 20:06:56.480  2061 15473 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-01 20:06:56.504  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:56.504  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 40 lines
+11-01 20:06:56.504  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:56.521  8449  8509 W FileUtils: Failed to chmod(/data/user/0/com.google.android.gms/app_dg_cache): android.system.ErrnoException: chmod failed: ENOENT (No such file or directory)
+11-01 20:06:56.526  8449  8509 E DGFRR   : FR error [CONTEXT service_id=25 ]
+11-01 20:06:56.526  8449  8509 E DGFRR   : bwsy: Failed to get VM keys.
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at bwtb.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):103)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at bwut.f(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):3)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at bwuc.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):85)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at bwtx.g(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):210)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at com.google.android.gms.droidguard.DroidGuardFastRefreshGmsTaskBoundService.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):49)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at dkjn.call(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):37)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at bqax.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):50)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at bqax.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):5)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at bqax.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):81)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at bqgz.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):8)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at java.lang.Thread.run(Thread.java:764)
+11-01 20:06:56.526  8449  8509 E DGFRR   : Caused by: java.nio.file.NoSuchFileException: /data/user/0/com.google.android.gms/app_dg_cache
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at sun.nio.fs.UnixFileSystemProvider.newDirectoryStream(UnixFileSystemProvider.java:434)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at j$.nio.file.spi.a.r(r8-map-id-fa95ee5151e4a92c29730317b2f899da01d44da53a24384dc28b278dadf49a63:13)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at j$.nio.file.Files.newDirectoryStream(r8-map-id-fa95ee5151e4a92c29730317b2f899da01d44da53a24384dc28b278dadf49a63:7)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	at bwtb.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):14)
+11-01 20:06:56.526  8449  8509 E DGFRR   : 	... 13 more
+11-01 20:06:56.544  8449  8469 W DG      : [flow devicekey] DroidGuardRunner.initSignalCollection() exception [CONTEXT service_id=25 ]
+11-01 20:06:56.544  8449  8469 W DG      : bwte
+11-01 20:06:56.544  8449  8469 W DG      : 	at bwtg.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):122)
+11-01 20:06:56.544  8449  8469 W DG      : 	at bwqw.e(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):59)
+11-01 20:06:56.544  8449  8469 W DG      : 	at bwqw.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):28)
+11-01 20:06:56.544  8449  8469 W DG      : 	at bwst.dispatchTransaction(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):30)
+11-01 20:06:56.544  8449  8469 W DG      : 	at ckxl.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):63)
+11-01 20:06:56.544  8449  8469 W DG      : 	at abjn.onTransact(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):23)
+11-01 20:06:56.544  8449  8469 W DG      : 	at android.os.Binder.transact(Binder.java:667)
+11-01 20:06:56.544  8449  8469 W DG      : 	at ckya.onTransact(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):168)
+11-01 20:06:56.544  8449  8469 W DG      : 	at android.os.Binder.execTransact(Binder.java:731)
+11-01 20:06:56.552  8449  8449 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.droidguard.DroidGuardFastRefreshGmsTaskBoundService.ACTION_TASK_READY dat=chimera-action: cmp=com.google.android.gms/.chimera.UnstableInternalBoundBrokerService }
+11-01 20:06:56.559  2061 13947 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-01 20:06:56.615  1473  1473 I keystore: del USRPKEY_unstable.c7202ece89390c490b1b94d5b71225e1.fallback 10014
+11-01 20:06:56.618  2061 14209 E NFC     : could not retrieve NFC service
+11-01 20:06:56.620  2061 14209 I TapAndPay: NfcAdapter is null while obtaining CardEmulation instance. [CONTEXT service_id=79 ]
+11-01 20:06:56.622  1473  1473 I keystore: del USRCERT_unstable.c7202ece89390c490b1b94d5b71225e1.fallback 10014
+11-01 20:06:56.622  2061  2061 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.common.telemetry.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 20:06:56.622  1473  1473 I keystore: del CACERT_unstable.c7202ece89390c490b1b94d5b71225e1.fallback 10014
+11-01 20:06:56.625  2061 13947 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-01 20:06:56.659  2061 14209 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-01 20:06:56.663 15449 15449 I RenderThread: type=1400 audit(0.0:2995): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:untrusted_app:s0:c64,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:06:56.663  8449  8449 I Binder:8449_3: type=1400 audit(0.0:2996): avc: denied { read } for name="address" dev="sysfs" ino=7109 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+11-01 20:06:56.663  8449  8449 I Binder:8449_3: type=1400 audit(0.0:2997): avc: denied { open } for path="/sys/devices/pci0000:00/0000:00:03.0/virtio0/net/wlan0/address" dev="sysfs" ino=7109 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+11-01 20:06:56.663  8449  8449 I Binder:8449_3: type=1400 audit(0.0:2998): avc: denied { getattr } for path="/sys/devices/pci0000:00/0000:00:03.0/virtio0/net/wlan0/address" dev="sysfs" ino=7109 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+11-01 20:06:56.666  1597  1611 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.DROPBOX_ENTRY_ADDED flg=0x10 (has extras) } to com.google.android.gms/.stats.service.DropBoxEntryAddedReceiver
+11-01 20:06:56.743  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:2999): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:untrusted_app:s0:c64,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:06:56.765  2061 14209 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-01 20:06:56.794  2061 15659 W GmsUrlRequestImpl: [https://android.googleapis.com/auth/devicekey] Content-Type header is overwritten.
+11-01 20:06:57.112  2061 15659 W GLSUser : [AppCertManager] Exception while requesting key: 
+11-01 20:06:57.112  2061 15659 W GLSUser : java.util.concurrent.ExecutionException: dkbi: Parsing Exception
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at gztt.k(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):21)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at gzub.u(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):73)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at apuj.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):416)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at apuh.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):110)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at apud.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):3)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at apuf.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):58)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at apuf.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):17)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at bptp.m(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):13)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at bpuc.g(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):10)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at eunz.i(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):222)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at eunz.k(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):390)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at eunz.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):29)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at bpzp.onPerformSync(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):25)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at android.content.AbstractThreadedSyncAdapter$SyncThread.run(AbstractThreadedSyncAdapter.java:334)
+11-01 20:06:57.112  2061 15659 W GLSUser : Caused by: dkbi: Parsing Exception
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at dkcj.jI(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):15)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at gzwm.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):55)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at bqax.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):50)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at bqax.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):5)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at bqax.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):81)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at bqgz.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):8)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at java.lang.Thread.run(Thread.java:764)
+11-01 20:06:57.112  2061 15659 W GLSUser : Caused by: hwdp: Protocol message end-group tag did not match expected tag.
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at hwfg.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):56)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at hwef.i(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):426)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at hwcr.R(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):22)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at hwcm.q(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):3)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at hwap.e(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):7)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at hwap.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at hwap.m(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at dkci.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):11)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at dkcn.call(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):8)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-01 20:06:57.112  2061 15659 W GLSUser : 	... 7 more
+11-01 20:06:57.113  1597  1597 I Binder:1597_1E: type=1400 audit(0.0:3000): avc: denied { read } for name="Applications" dev="sdcardfs" ino=1441794 scontext=u:r:system_server:s0 tcontext=u:object_r:sdcardfs:s0 tclass=lnk_file permissive=1
+11-01 20:06:57.113  2061 15659 W GLSUser : [DeviceKeyStore] Cannot load key: Device key file not found.
+11-01 20:06:57.216  1597  3941 D WificondControl: Scan result ready event
+11-01 20:06:57.322  2061 13947 W gle.android.gm: Long monitor contention with owner lowpool[97] (15675) at odk obi.a()(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1) waiters=0 in boolean com.google.android.gms.clearcut.uploader.QosUploaderChimeraService.g(java.lang.String) for 557ms
+11-01 20:06:57.337  2061 15675 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-01 20:06:57.349  2061 15675 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-01 20:06:57.394  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:57.394  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 37 lines
+11-01 20:06:57.394  1597  1604 W System  : A resource failed to call close. 
+11-01 20:06:57.396  2061  2061 D BoundBrokerSvc: onBind: Intent { act=com.google.android.contextmanager.service.ContextManagerLogsUploadBoundService.ACTION_TASK_READY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentInternalBoundBrokerService }
+11-01 20:06:57.396  2061  2061 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.contextmanager.service.ContextManagerLogsUploadBoundService.ACTION_TASK_READY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentInternalBoundBrokerService }
+11-01 20:06:57.397  2061 13947 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-01 20:06:57.419  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.contextmanager.service.ContextManagerLogsUploadBoundService.ACTION_TASK_READY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentInternalBoundBrokerService }
+11-01 20:06:57.424  2061 15675 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-01 20:06:57.485  2061 15659 E RemindersSync: NetworkError [T SyncAdapterThread-9:id=650:priority=5:group=main] [CONTEXT service_id=18 ]
+11-01 20:06:57.485  2061 15659 E RemindersSync: irly: UNIMPLEMENTED: HTTP status code 404
+11-01 20:06:57.485  2061 15659 E RemindersSync: invalid content-type: text/html; charset=UTF-8
+11-01 20:06:57.485  2061 15659 E RemindersSync: headers: Metadata(:status=404,content-type=text/html; charset=UTF-8,referrer-policy=no-referrer,content-length=1613,date=Sun, 01 Nov 2026 17:06:57 GMT,alt-svc=h3=":443"; ma=2592000,h3-29=":443"; ma=2592000)
+11-01 20:06:57.485  2061 15659 E RemindersSync: DATA-----------------------------
+11-01 20:06:57.485  2061 15659 E RemindersSync: <!DOCTYPE html>
+11-01 20:06:57.485  2061 15659 E RemindersSync: <html lang=en>
+11-01 20:06:57.485  2061 15659 E RemindersSync:   <meta charset=utf-8>
+11-01 20:06:57.485  2061 15659 E RemindersSync:   <meta name=viewport content="initial-scale=1, minimum-scale=1, width=device-width">
+11-01 20:06:57.485  2061 15659 E RemindersSync:   <title>Error 404 (Not Found)!!1</title>
+11-01 20:06:57.485  2061 15659 E RemindersSync:   <style>
+11-01 20:06:57.485  2061 15659 E RemindersSync:     *{margin:0;padding:0}html,code{font:15px/22px arial,sans-serif}html{background:#fff;color:#222;padding:15px}body{margin:7% auto 0;max-width:390px;min-height:180px;padding:30px 0 15px}* > body{background:url(//www.google.com/images/errors/robot.png) 100% 5px no-repeat;padding-right:205px}p{margin:11px 0 22px;overflow:hidden}ins{color:#777;text-decoration:none}a img{border:0}@media screen and (max-width:772px){body{background:none;margin-top:0;max-width:none;padding-right:0}}#logo{background:url(//www.google.com/images/branding/googlelogo/1x/googlelogo_color_150x54dp.png) no-repeat;margin-left:-5px}@media only screen and (min-resolution:192dpi){#logo{background:url(//www.google.com/images/branding/googlelogo/2x/googlelogo_color_150x54dp.png) no-repeat 0% 0%/100% 100%;-moz-border-image:url(//www.google.com/images/branding/googlelogo/2x/googlelogo_color_150x54dp.png) 0}}@media only screen and (-webkit-min-device-pixel-ratio:2){#logo{background:url(//www.google.com/images/branding/googlelogo/2x/googlelogo_color_150x54dp.png) no-repeat;-webkit-background-size:100% 100%}}#logo{display:inline-block;height:54px;width:150px}
+11-01 20:06:57.485  2061 15659 E RemindersSync:   </style>
+11-01 20:06:57.485  2061 15659 E RemindersSync:   <a href=//www.google.com/><span id=logo aria-label=Google></span></a>
+11-01 20:06:57.485  2061 15659 E RemindersSync:   <p><b>404.</b> <ins>That’s an error.</ins>
+11-01 20:06:57.485  2061 15659 E RemindersSync:   <p>The requested URL <code>/caribou.tasks.service.TasksApiService/GetTaskHistory</code> was not found on this server.  <ins>That’s all we know.</ins>
+11-01 20:06:57.485  2061 15659 E RemindersSync: 
+11-01 20:06:57.485  2061 15659 E RemindersSync: 	at bpuc.s(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):37)
+11-01 20:06:57.485  2061 15659 E RemindersSync: 	at bpuc.g(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):87)
+11-01 20:06:57.485  2061 15659 E RemindersSync: 	at eunz.i(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):222)
+11-01 20:06:57.485  2061 15659 E RemindersSync: 	at eunz.k(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):390)
+11-01 20:06:57.485  2061 15659 E RemindersSync: 	at eunz.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):29)
+11-01 20:06:57.485  2061 15659 E RemindersSync: 	at bpzp.onPerformSync(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):25)
+11-01 20:06:57.485  2061 15659 E RemindersSync: 	at android.content.AbstractThreadedSyncAdapter$SyncThread.run(AbstractThreadedSyncAdapter.java:334)
+11-01 20:06:57.491  1597  1733 W SyncManager: failed sync operation JobId=109579 ***/com.google u0 [com.google.android.gms.reminders] PERIODIC ExpectedIn=-1s Reason=Periodic Retries=8, SyncResult: stats [ numIoExceptions: 1]
+11-01 20:06:58.153  2061  2061 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+11-01 20:07:00.000  1597  1610 E memtrack: Couldn't load memtrack module
+11-01 20:07:00.001  1597  1610 W android.os.Debug: failed to get memory consumption info: -1
+11-01 20:07:00.002  1597  3941 W SchedPolicy: add_tid_to_cgroup failed to write '2302' (No space left on device); fd=24
+11-01 20:07:00.003  1597  3941 W SchedPolicy: add_tid_to_cgroup failed to write '2061' (No space left on device); fd=24
+11-01 20:07:00.003  1597  3941 W SchedPolicy: add_tid_to_cgroup failed to write '8449' (No space left on device); fd=24
+11-01 20:07:00.005  1597  3941 W SchedPolicy: add_tid_to_cgroup failed to write '2302' (No space left on device); fd=25
+11-01 20:07:00.005  1597  3941 W SchedPolicy: add_tid_to_cgroup failed to write '2061' (No space left on device); fd=25
+11-01 20:07:00.005  1597  3941 W SchedPolicy: add_tid_to_cgroup failed to write '8449' (No space left on device); fd=25
+11-01 20:07:00.537 15684 15684 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 85 700 
+11-01 20:07:00.537 15684 15684 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 20:07:00.538 15684 15684 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 20:07:00.545 15684 15684 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 20:07:00.551 15684 15684 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 20:07:00.563 15684 15684 I app_process: The ClassLoaderContext is a special shared library.
+11-01 20:07:00.563 15684 15684 W app_process: Could not create mount namespace.
+11-01 20:07:00.563 15684 15684 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 20:07:00.563 15684 15684 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 20:07:00.563 15684 15684 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 20:07:00.563 15684 15684 D nativebridge: call UnloadNativeBridge! state=2
+11-01 20:07:00.570 15684 15684 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 20:07:00.571 15684 15684 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=85.0, y[0]=700.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7602543, downTime=7602543, deviceId=3, source=0x1002 }
+11-01 20:07:00.573  1597  1597 I InputDispatcher: type=1400 audit(0.0:3001): avc: denied { call } for scontext=u:r:system_server:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+11-01 20:07:00.580 15684 15684 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=85.0, y[0]=700.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7602543, downTime=7602543, deviceId=3, source=0x1002 }
+11-01 20:07:00.588 15684 15684 D AndroidRuntime: Shutting down VM
+11-01 20:07:00.588  1440  3295 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-01 20:07:00.617 15449 15460 I com.nuvio.app: JIT allocated 74KB for stack maps of void en3.o(st, boolean, gw2, ew2, a51, int, int)
+11-01 20:07:00.618 15449 15460 I com.nuvio.app: Compiler allocated 9MB to compile void en3.o(st, boolean, gw2, ew2, a51, int, int)
+11-01 20:07:00.624 15449 15449 D MetaDetailsRepo: load() called — type=movie id=tt17279496
+11-01 20:07:00.625 15449 15571 D MetaDetailsRepo: Fetching meta from: https://catalog.nuvio.tv/%7B%22language%22%3A%22tr-TR%22%2C%22region%22%3A%22TR%22%7D/meta/movie/tt17279496.json
+11-01 20:07:00.653 15449 15460 I com.nuvio.app: JIT allocated 66KB for stack maps of void hn0.g(n45, boolean, so2, gw2, gw2, gw2, gw2, gw2, b12, uw2, ew2, a51, int)
+11-01 20:07:00.654 15449 15460 I com.nuvio.app: Compiler allocated 11MB to compile void hn0.g(n45, boolean, so2, gw2, gw2, gw2, gw2, gw2, b12, uw2, ew2, a51, int)
+11-01 20:07:00.721 15449 15460 I com.nuvio.app: JIT allocated 116KB for stack maps of void b25.e(java.lang.String, java.lang.String, ew2, kw2, kw2, gw2, uw2, uw2, ws7, wl, n45, a51, int)
+11-01 20:07:00.722 15449 15460 I com.nuvio.app: JIT allocated 57KB for compiled code of void b25.e(java.lang.String, java.lang.String, ew2, kw2, kw2, gw2, uw2, uw2, ws7, wl, n45, a51, int)
+11-01 20:07:00.722 15449 15460 I com.nuvio.app: Compiler allocated 15MB to compile void b25.e(java.lang.String, java.lang.String, ew2, kw2, kw2, gw2, uw2, uw2, ws7, wl, n45, a51, int)
+11-01 20:07:01.023 15449 15571 D MetaDetailsRepo: Raw payload length=6367, first 500 chars: {"meta":{"id":"tt17279496","type":"movie","name":"İç Savaş","poster":"https://image.tmdb.org/t/p/w500/6MhvqGiiylncH61BfiX4GwwKDaN.jpg","posterShape":"poster","background":"https://image.tmdb.org/t/p/w1280/en3GU5uGkKaYmSyetHV4csHHiH3.jpg","logo":"https://image.tmdb.org/t/p/w500/bpFneOXBSMdlJkw2zODnUbBj3x9.png","description":"İç Savaş, Amerika Birleşik Devletleri'nin çöküşün eşiğinde olduğu ve yerleşik gazetecilerin hayatlarının en büyük hikayesini anlatmak için yarıştığı yakın bir gelecekte geçiy
+11-01 20:07:01.026 15449 15571 D MetaDetailsRepo: Parsed meta: type=movie, name=İç Savaş, videos=0
+11-01 20:07:01.066 15449 15449 I WatchedMarkerDiag: marker state requestedSource=TRAKT content=movie:tt17279496 repositoryLoaded=true remoteLoaded=true repositoryItems=1 posterKey=movie:tt17279496:-1:-1 posterInWatched=false posterInFullyWatched=false videos=0 episodeMarkerMatches=0 completedProgressMatches=0 directItemKeys=[] titleCandidateKeys=[] expectedEpisodeKeys=[] repositoryKeySample=[series:tt2531336:1:1]
+11-01 20:07:01.066 15449 15449 D MetaDetailsRepo: load() called — type=movie id=tt17279496
+11-01 20:07:01.079 15449 15460 I com.nuvio.app: Compiler allocated 7MB to compile java.lang.Object o15.invoke(java.lang.Object, java.lang.Object, java.lang.Object)
+11-01 20:07:01.110  1597  1604 W System  : A resource failed to call close. 
+11-01 20:07:01.111  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 35 lines
+11-01 20:07:01.111  1597  1604 W System  : A resource failed to call close. 
+11-01 20:07:01.412  2702  2712 W System  : A resource failed to call close. 
+11-01 20:07:01.610  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-01 20:07:01.641  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.common.telemetry.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 20:07:03.656  1440  1557 D audio_hw_hal: log_func, out_standby
+11-01 20:07:03.656  1440  1557 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-01 20:07:03.656  1440  1557 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-01 20:07:03.684 15694 15694 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input swipe 800 600 800 300 200 
+11-01 20:07:03.684 15694 15694 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 20:07:03.685 15694 15694 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 20:07:03.692 15694 15694 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 20:07:03.697 15694 15694 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 20:07:03.708 15694 15694 I app_process: The ClassLoaderContext is a special shared library.
+11-01 20:07:03.709 15694 15694 W app_process: Could not create mount namespace.
+11-01 20:07:03.709 15694 15694 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 20:07:03.709 15694 15694 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 20:07:03.709 15694 15694 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 20:07:03.709 15694 15694 D nativebridge: call UnloadNativeBridge! state=2
+11-01 20:07:03.715 15694 15694 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 20:07:03.716 15694 15694 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=800.0, y[0]=600.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7605688, downTime=7605688, deviceId=3, source=0x1002 }
+11-01 20:07:03.726 15694 15694 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=800.0, y[0]=600.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7605688, downTime=7605688, deviceId=3, source=0x1002 }
+11-01 20:07:03.743  1451  1517 D EmuHWC2 : sent 174 syncs in 61s
+11-01 20:07:03.744 15694 15694 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=800.0, y[0]=558.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7605716, downTime=7605716, deviceId=3, source=0x1002 }
+11-01 20:07:03.761 15694 15694 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=800.0, y[0]=531.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7605734, downTime=7605734, deviceId=3, source=0x1002 }
+11-01 20:07:03.778 15694 15694 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=800.0, y[0]=507.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7605750, downTime=7605750, deviceId=3, source=0x1002 }
+11-01 20:07:03.845 15694 15694 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=800.0, y[0]=406.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7605817, downTime=7605817, deviceId=3, source=0x1002 }
+11-01 20:07:03.860 15694 15694 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=800.0, y[0]=382.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7605833, downTime=7605833, deviceId=3, source=0x1002 }
+11-01 20:07:03.877 15694 15694 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=800.0, y[0]=357.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7605850, downTime=7605850, deviceId=3, source=0x1002 }
+11-01 20:07:03.894 15694 15694 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=800.0, y[0]=331.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7605867, downTime=7605867, deviceId=3, source=0x1002 }
+11-01 20:07:03.900  1597  1604 W System  : A resource failed to call close. 
+11-01 20:07:03.900  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 38 lines
+11-01 20:07:03.900  1597  1604 W System  : A resource failed to call close. 
+11-01 20:07:03.911 15694 15694 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=800.0, y[0]=307.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7605883, downTime=7605883, deviceId=3, source=0x1002 }
+11-01 20:07:03.928 15694 15694 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=800.0, y[0]=300.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7605901, downTime=7605901, deviceId=3, source=0x1002 }
+11-01 20:07:03.943 15694 15694 D AndroidRuntime: Shutting down VM
+11-01 20:07:04.628  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 20:07:04.629  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 20:07:05.053 15705 15705 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 468 280 
+11-01 20:07:05.053 15705 15705 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 20:07:05.054 15705 15705 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 20:07:05.060 15705 15705 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 20:07:05.066 15705 15705 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 20:07:05.077 15705 15705 I app_process: The ClassLoaderContext is a special shared library.
+11-01 20:07:05.077 15705 15705 W app_process: Could not create mount namespace.
+11-01 20:07:05.077 15705 15705 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 20:07:05.077 15705 15705 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 20:07:05.077 15705 15705 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 20:07:05.077 15705 15705 D nativebridge: call UnloadNativeBridge! state=2
+11-01 20:07:05.083 15705 15705 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 20:07:05.084 15705 15705 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=468.0, y[0]=280.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7607056, downTime=7607056, deviceId=3, source=0x1002 }
+11-01 20:07:05.096 15705 15705 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=468.0, y[0]=280.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7607056, downTime=7607056, deviceId=3, source=0x1002 }
+11-01 20:07:05.102 15705 15705 D AndroidRuntime: Shutting down VM
+11-01 20:07:05.102  1440  3295 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-01 20:07:05.130 15449 15460 I com.nuvio.app: JIT allocated 74KB for stack maps of void en3.o(st, boolean, gw2, ew2, a51, int, int)
+11-01 20:07:05.131 15449 15460 I com.nuvio.app: Compiler allocated 9MB to compile void en3.o(st, boolean, gw2, ew2, a51, int, int)
+11-01 20:07:05.145 15449 15449 D StreamsRepo: Found 1 addons for stream type=movie id=tt17279496
+11-01 20:07:05.147 15449 15605 D StreamsRepo: Fetching streams from: https://torrentio.strem.fun/stream/movie/tt17279496.json
+11-01 20:07:05.237 15449 15460 I com.nuvio.app: Compiler allocated 4MB to compile void tq3.r0(qi8, zh5, boolean, uw2, gw2, gw2, a51, int)
+11-01 20:07:05.245  1432 15822 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.245  1432 15826 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.245  1432 15719 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.245  1432 15715 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.245  1432 15716 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.245  1432 15723 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.245  1432 15721 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.245  1432 15797 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.245  1432 15717 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.245  1432 15720 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.246  1432 15725 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.246  1432 15726 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.246  1432 15731 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.246  1432 15718 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.246  1432 15728 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.246  1432 15733 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.246  1432 15734 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.246  1432 15741 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.246  1432 15724 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.246  1432 15827 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.246  1432 15740 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15735 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15744 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15748 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15722 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15742 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15753 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15751 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15763 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15749 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15759 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15764 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15756 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15755 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15776 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15766 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15769 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15782 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.247  1432 15784 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15791 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15778 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15789 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15799 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15801 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15800 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15810 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15804 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15811 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15812 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15802 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15819 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15821 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15823 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15767 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15770 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15818 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15779 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15825 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15824 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.248  1432 15783 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.249  1432 15790 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.249  1432 15785 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.249  1432 15777 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:05.270 15449 15817 D StreamsRepo: Got 76 streams from Torrentio
+11-01 20:07:05.543 15449 15894 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:patron__patron-dort-khd [PatronDortKHD] Istek: movie | TMDB: 929590 | S:undefined E:undefined
+11-01 20:07:05.605 15449 15897 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:patron__patron-jet-filmizle [PatronJetFilmizle] İstek: movie | TMDB: 929590
+11-01 20:07:05.732 15449 15449 I Choreographer: Skipped 33 frames!  The application may be doing too much work on its main thread.
+11-01 20:07:05.753 15449 15898 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:izlelan__gaban [Gaban] Tarama Başlatıldı -> TMDB: 929590, Tür: movie, Sezon: 1, Bölüm: 1 
+11-01 20:07:05.753 15449 15898 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:izlelan__gaban [Gaban] [Adım 1/3] IMDb ID çözümleniyor (929590)... 
+11-01 20:07:05.829 15449 15891 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:patron__patron-jet-filmizle [PatronJetFilmizle] [API] Baslik bulundu: İç Savaş
+11-01 20:07:05.829 15449 15891 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:patron__patron-jet-filmizle [PatronJetFilmizle] TMDB: 929590 | Baslik: İç Savaş
+11-01 20:07:05.830 15449 15891 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:patron__patron-jet-filmizle [PatronJetFilmizle] Aranıyor: "İç Savaş"
+11-01 20:07:05.842 15449 15899 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:patron__patron-dort-khd [PatronDortKHD] TMDB: 929590 | TR: İç Savaş | ORIG: Civil War | SHORT: 
+11-01 20:07:05.863 15449 15465 I com.nuvio.app: Background concurrent copying GC freed 411762(23MB) AllocSpace objects, 55(3MB) LOS objects, 13% free, 155MB/179MB, paused 435us total 332.163ms
+11-01 20:07:05.925 15449 15897 I PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:burhanb3-plugi-n__nuvio-tr-hd-anime [Nuvio TR HD] {"tmdbId":"929590","lane":"anime","configuration":{"version":"1.8.8","tmdbKeyPresent":true,"autoDiscover":true,"includeHls":true,"playImdbEnabled":true,"vixsrcEnabled":true,"hdhubEnabled":true,"archiveEnabled":true,"waploadedEnabled":true,"rarefilmmEnabled":true,"goojaraEnabled":true,"hdrezkaEnabled":true,"hdfilmdelisiEnabled":true,"dizibalEnabled":true,"purstreamEnabled":true,"moviesdriveEnabled":true,"autoSubtitles":true,"subtitleRequired":false,"detailedHlsMetadata":false,"minimumQuality":0,"maxResults":20},"identity":{"reason":"ok","year":2024,"type":"movie"},"sources":[],"rejected":{},"http":{"api.themoviedb.org:200":1},"subtitleText":{},"results":0,"reason":"not_anime","elapsedMs":13}
+11-01 20:07:05.932 15449 15555 I OpenGLRenderer: Davey! duration=755ms; Flags=0, IntendedVsync=7607149182921, Vsync=7607699182899, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=7607705371019, AnimationStart=7607705383901, PerformTraversalsStart=7607789454963, DrawStart=7607789545843, SyncQueued=7607885173598, SyncStart=7607885402159, IssueDrawCommandsStart=7607886664301, SwapBuffers=7607904476936, FrameCompleted=7607905404510, DequeueBufferDuration=15000, QueueBufferDuration=120000, 
+11-01 20:07:06.000 15449 15449 I ReferenceQueueD: type=1400 audit(0.0:3002): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:untrusted_app:s0:c64,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:07:06.011 15449 15462 I         : fastpipe: Connect success
+11-01 20:07:06.011 15449 15462 D HostConnection: HostRPC::connect sucess: app=com.nuvio.app, pid=15449, tid=15462, this=0x76385d312940
+11-01 20:07:06.012 15449 15462 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.nuvio.app
+11-01 20:07:06.139 15449 15896 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:izlelan__gaban [Config] Domainler basariyla cekildi: https://cdn.izlelan.com/domains.json 
+11-01 20:07:06.139 15449 15896 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:izlelan__gaban [Gaban] [Adım 2/3] API sorgulanıyor (tt17279496)... 
+11-01 20:07:06.521 15449 15898 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:patron__patron-jet-filmizle [PatronJetFilmizle] Fallback GET Aranıyor: "İç Savaş"
+11-01 20:07:06.524  1432 15922 I /system/bin/netd: gethostby*.getanswer: asked for "opensubtitles-v3.strem.io IN A", got type "RRSIG"
+11-01 20:07:06.524  1432 15921 I /system/bin/netd: gethostby*.getanswer: asked for "opensubtitles.stremio.homes IN A", got type "RRSIG"
+11-01 20:07:06.909 15449 15899 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:izlelan__gaban [Gaban] [Adım 3/3] TAMAMLANDI: 1 akış hazırlandı (1.16s) [com.dokar.quickjs.binding.JsObject@a0e42ddf]
+11-01 20:07:06.921  1432 15929 I /system/bin/netd: gethostby*.getanswer: asked for "subs5.strem.io IN A", got type "RRSIG"
+11-01 20:07:06.922  1432 15930 I /system/bin/netd: gethostby*.getanswer: asked for "subs5.strem.io IN A", got type "RRSIG"
+11-01 20:07:07.038 15449 15893 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:patron__patron-jet-filmizle [PatronJetFilmizle] Bulunan sonuclar sorguyla eslesmedi, atliyoruz: Ali G: Who Iz I? (2026), absürt mizahı, sıra dışı karakterleri ve toplumun farklı kesimlerine dokunan komedi anlayışıyla... 6.1 JF1.0 Dublaj Altyazı Ali G: Who Iz I? 2026 1s 29dk Ali G: Who Iz I?
+11-01 20:07:07.038 15449 15893 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:patron__patron-jet-filmizle [PatronJetFilmizle] Aranıyor: "Civil War"
+11-01 20:07:07.438 15449 15896 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__anthology-plugi-n__vidlink [Vidlink] Fetching streams for TMDB ID: 929590
+11-01 20:07:07.439  1432 15935 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 20:07:07.522 15449 15895 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__anthology-plugi-n__vidlink [Vidlink] TMDB Info: "Civil War" (2024), Numeric ID: 929590
+11-01 20:07:07.522 15449 15895 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__anthology-plugi-n__vidlink [Vidlink] Encrypting TMDB ID: 929590
+11-01 20:07:07.582 15449 15897 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__justemi-r84-plugin__moviesapi [moviesapi] Found 0 streams
+11-01 20:07:07.901 15449 15898 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__anthology-plugi-n__vidlink [Vidlink] Successfully encrypted TMDB ID (attempt 1)
+11-01 20:07:08.046  1432 15942 I /system/bin/netd: gethostby*.getanswer: asked for "films.waploaded.com IN A", got type "RRSIG"
+11-01 20:07:08.058 15449 15897 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:patron__patron-jet-filmizle [PatronJetFilmizle] Fallback GET Aranıyor: "Civil War"
+11-01 20:07:08.174 15944 15944 I BENCHMARK: START_PLAY A CivilWar r99
+11-01 20:07:08.194 15449 15891 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__anthology-plugi-n__filmmodu [FilmModu] === Başlıyor | TMDB ID: 929590 ===
+11-01 20:07:08.198 15449 15890 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__anthology-plugi-n__filmmodu [FilmModu] Film: Civil War / İç Savaş (2024)
+11-01 20:07:08.198 15449 15890 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__anthology-plugi-n__filmmodu [FilmModu] Aranıyor: https://www.filmmodu.one/film-ara?term=Civil%20War
+11-01 20:07:08.200  1440  1557 D audio_hw_hal: log_func, out_standby
+11-01 20:07:08.200  1440  1557 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-01 20:07:08.200  1440  1557 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-01 20:07:08.268 15946 15946 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 694 640 
+11-01 20:07:08.268 15946 15946 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 20:07:08.269 15946 15946 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 20:07:08.275 15946 15946 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 20:07:08.281 15946 15946 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 20:07:08.286 15449 15892 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__anthology-plugi-n__vidlink [Vidlink] Processing response data
+11-01 20:07:08.292 15946 15946 I app_process: The ClassLoaderContext is a special shared library.
+11-01 20:07:08.292 15946 15946 W app_process: Could not create mount namespace.
+11-01 20:07:08.292 15946 15946 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 20:07:08.293 15946 15946 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 20:07:08.293 15946 15946 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 20:07:08.293 15946 15946 D nativebridge: call UnloadNativeBridge! state=2
+11-01 20:07:08.302 15946 15946 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 20:07:08.303 15946 15946 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=694.0, y[0]=640.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7610275, downTime=7610275, deviceId=3, source=0x1002 }
+11-01 20:07:08.312 15946 15946 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=694.0, y[0]=640.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7610275, downTime=7610275, deviceId=3, source=0x1002 }
+11-01 20:07:08.319  1440  3295 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-01 20:07:08.331 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.331 15449 15571 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 2 lines
+11-01 20:07:08.331 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.332 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.332 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.332 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.332 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.332 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.332 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.333 15449 15571 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 4 lines
+11-01 20:07:08.333 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.333 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.333 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.333 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.333 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.333 15449 15739 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.333 15449 15739 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 1 line
+11-01 20:07:08.333 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.333 15449 15739 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.333 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.333 15449 15780 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.333 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15772 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 14 lines
+11-01 20:07:08.334 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15780 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15571 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 3 lines
+11-01 20:07:08.334 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15780 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15780 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15780 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15762 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15739 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.334 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15762 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15762 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15762 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15762 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15736 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15739 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15765 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 4 lines
+11-01 20:07:08.335 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15736 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15736 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15736 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.335 15449 15736 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.336 15449 15739 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.336 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.336 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.336 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.336 15449 15765 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 2 lines
+11-01 20:07:08.336 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.336 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.336 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.336 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.336 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.336 15449 15729 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 1 line
+11-01 20:07:08.336 15449 15739 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.336 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.337 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.337 15449 15739 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.337 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.337 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.337 15449 15762 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.337 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.337 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.337 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.337 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.337 15449 15762 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.337 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.338 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.338 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.338 15449 15765 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 1 line
+11-01 20:07:08.338 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.338 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.338 15449 15772 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 4 lines
+11-01 20:07:08.338 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.338 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.338 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.338 15449 15772 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 4 lines
+11-01 20:07:08.339 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15798 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 2 lines
+11-01 20:07:08.339 15449 15762 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15762 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15772 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.339 15449 15765 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 1 line
+11-01 20:07:08.340 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.340 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.340 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.340 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.340 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.340 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.340 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.340 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.340 15449 15501 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 3 lines
+11-01 20:07:08.340 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.340 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.340 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.341 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.341 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.341 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.341 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.341 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.341 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.341 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.341 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.341 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.341 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.342 15449 15765 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 4 lines
+11-01 20:07:08.342 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.342 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.342 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.342 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.342 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.342 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.342 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.343 15449 15765 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 4 lines
+11-01 20:07:08.343 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.343 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.343 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.343 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.343 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.343 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.343 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.343 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.343 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.343 15449 15758 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 2 lines
+11-01 20:07:08.343 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.343 15449 15798 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.343 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15765 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 3 lines
+11-01 20:07:08.344 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15774 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15808 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 1 line
+11-01 20:07:08.344 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.344 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.345 15449 15808 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 1 line
+11-01 20:07:08.345 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.345 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.345 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.345 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.345 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.345 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.345 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.345 15449 15765 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 1 line
+11-01 20:07:08.345 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.345 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.345 15449 15808 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 3 lines
+11-01 20:07:08.345 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15774 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15736 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15765 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 4 lines
+11-01 20:07:08.346 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15808 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 3 lines
+11-01 20:07:08.346 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15736 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15736 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15736 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15758 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15736 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15762 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.346 15449 15747 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.349 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.349 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.349 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.349 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.349 15449 15795 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 2 lines
+11-01 20:07:08.349 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.349 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.349 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.349 15449 15808 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch expire 2 lines
+11-01 20:07:08.349 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.349 15449 15780 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.349 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15501 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 4 lines
+11-01 20:07:08.350 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15780 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15795 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch expire 1 line
+11-01 20:07:08.350 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15501 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 1 line
+11-01 20:07:08.350 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15501 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 1 line
+11-01 20:07:08.350 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.350 15449 15563 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 3 lines
+11-01 20:07:08.351 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15780 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15501 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 4 lines
+11-01 20:07:08.351 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.351 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15563 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 2 lines
+11-01 20:07:08.352 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15795 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15729 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15501 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 4 lines
+11-01 20:07:08.352 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15563 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 4 lines
+11-01 20:07:08.352 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15780 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15808 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15765 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15780 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15780 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15780 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.352 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.353 15449 15501 I chatty  : uid=10064(com.nuvio.app) DefaultDispatch identical 5 lines
+11-01 20:07:08.353 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.354 15946 15946 D AndroidRuntime: Shutting down VM
+11-01 20:07:08.363 15449 15501 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.368 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.369 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.383 15449 15890 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__izlelan__mihawk [Mihawk] Tarama Başlatıldı -> TMDB: 929590, Tür: movie 
+11-01 20:07:08.383 15449 15890 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__izlelan__mihawk [Mihawk] [Adım 1/4] TMDB ve Oyuncu bilgileri çözümleniyor (929590)... 
+11-01 20:07:08.384 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.385 15449 15896 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__izlelan__garp [Garp] Tarama Başlatıldı -> TMDB: 929590, Tür: movie 
+11-01 20:07:08.385 15449 15896 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__izlelan__garp [Garp] [Adım 1/4] IMDb ID çözümleniyor (929590)... 
+11-01 20:07:08.388 15449 15563 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.395 15449 15891 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__izlelan__rayleigh [Rayleigh] Tarama Başlatıldı -> TMDB: 929590, Tür: movie, Sezon: 1, Bölüm: 1 
+11-01 20:07:08.395 15449 15893 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__izlelan__lili [Lili] Tarama Başlatıldı -> TMDB: 929590, Tür: movie, Sezon: 1, Bölüm: 1 
+11-01 20:07:08.396 15449 15893 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__izlelan__lili [Lili] [Adım 1/4] TMDB meta verileri ve poster/backdrop bilgisi alınıyor (929590)... 
+11-01 20:07:08.396 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.398 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.399 15449 15899 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__izlelan__shiki [Shiki] Tarama Başlatıldı -> TMDB: 929590, Tür: movie, Sezon: -, Bölüm: - 
+11-01 20:07:08.399 15449 15899 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__izlelan__shiki [Shiki] [Adım 1/4] IMDb ID çözümleniyor (929590)... 
+11-01 20:07:08.402 15449 15892 D PluginRuntime: Plugin:https://raw.githubusercontent.com/liberta09/cloudstreamrepomanager/main/nuvio/manifest.json:mooncrown__izlelan__beckman [Beckman] Tarama Başlatıldı -> TMDB: 929590, Tür: movie, Sezon: 1, Bölüm: 1 
+11-01 20:07:08.402 15449 15679 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.403 15449 15571 D StreamsRepo: Ignoring late stream load completion after channel close
+11-01 20:07:08.424 15449 15460 I com.nuvio.app: JIT allocated 70KB for stack maps of void en3.o(st, boolean, gw2, ew2, a51, int, int)
+11-01 20:07:08.424 15449 15460 I com.nuvio.app: Compiler allocated 9MB to compile void en3.o(st, boolean, gw2, ew2, a51, int, int)
+11-01 20:07:08.463 15449 15501 I NuvioP2PDiag: start request=1 phase=accepted hash=cf5290d3f602 fileIndex=0 filenameHint=true requestTrackers=0
+11-01 20:07:08.463 15449 15501 I NuvioP2PDiag: cleanup synchronous shutdownEngine=false stream=none elapsedMs=0
+11-01 20:07:08.463 15449 15501 I NuvioP2PDiag: start request=1 phase=stop_previous complete elapsedMs=0
+11-01 20:07:08.463 15449 15501 I NuvioP2PDiag: start request=1 phase=build_magnet complete elapsedMs=0
+11-01 20:07:08.463 15449 15501 I NuvioP2PDiag: engine create begin configuration=EngineConfigurationKey(uploadEnabled=true, torrentProfile=BALANCED, diskCacheCapacityBytes=2147483648) replacing=false
+11-01 20:07:08.568 15449 15501 I P2pStreamingEngine: Using Nuvio Engine 0.1.5 (2.0.12.0)
+11-01 20:07:08.568 15449 15501 I NuvioP2PDiag: engine create complete configuration=EngineConfigurationKey(uploadEnabled=true, torrentProfile=BALANCED, diskCacheCapacityBytes=2147483648) elapsedMs=104 version=0.1.5 backend=2.0.12.0
+11-01 20:07:08.568 15449 15501 I NuvioP2PDiag: start request=1 phase=ensure_engine complete elapsedMs=104
+11-01 20:07:08.568 15449 15501 I NuvioP2PDiag: start request=1 phase=add_magnet begin elapsedMs=105 cached=false hash=cf5290d3f602
+11-01 20:07:08.568 15449 15746 I NuvioP2PDiag: startupSample request=1 phase=add_magnet elapsedMs=105 http=0 pendingReads=0 peers=0 seeds=0 known=0 candidates=0 interested=0 unchoked=0 downloading=0 snubbed=0 connecting=0 handshaking=0 pendingBlocks=0 targetBlocks=0 timedOutBlocks=0 downBps=0 upBps=0 payloadDown=0 activeTorrents=0 trackerReplies=0 trackerErrors=0 trackerPeers=0 dhtReplies=0 dhtPeers=0 peerConnects=0 peerDisconnects=0 activeStreams=0 warm=0 quiesced=0
+11-01 20:07:08.588 15449 15815 I NuvioP2PDiag: start request=1 phase=add_magnet complete elapsedMs=125 torrent=cf5290d3f602 cached=false
+11-01 20:07:08.588 15449 15815 I NuvioP2PDiag: start request=1 phase=prepare_stream begin elapsedMs=125 fileIndex=0
+11-01 20:07:08.588 15449 15727 I NuvioP2PDiag: event type=TorrentAdded sequence=1 requestId=1 dropped=0 torrent=cf5290d3f602 stream=none fileIndex=-1 fileBytes=0 message=none
+11-01 20:07:08.588 15449 15727 I NuvioP2PDiag: event type=TorrentMetadataReady sequence=2 requestId=1 dropped=0 torrent=cf5290d3f602 stream=none fileIndex=-1 fileBytes=0 message=metadata_source=restored metadata_elapsed_ms=3
+11-01 20:07:08.608 15449 15746 I NuvioP2PDiag: event type=StreamPrepared sequence=3 requestId=2 dropped=0 torrent=cf5290d3f602 stream=9ef54d7a478b fileIndex=0 fileBytes=19775934621 message=none
+11-01 20:07:08.609 15449 15727 I NuvioP2PDiag: start request=1 phase=prepare_stream complete elapsedMs=145 stream=9ef54d7a478b selectedFile=0 fileBytes=19775934621 url=http://127.0.0.1:41398/…
+11-01 20:07:08.609 15449 15727 I NuvioP2PDiag: start request=1 phase=attach_route complete elapsedMs=145
+11-01 20:07:08.609 15449 15727 I P2pStreamingEngine: Nuvio Engine stream ready: http://127.0.0.1:41398/stream/9ef54d7a478bfb66c0e79fed5de16e8eb64aa0c9932e009b44c173439509c2b3
+11-01 20:07:08.609 15449 15727 I NuvioP2PDiag: start request=1 phase=route_ready elapsedMs=145 generation=2 stream=9ef54d7a478b
+11-01 20:07:08.609 15449 15807 I NuvioP2PDiag: sample request=1 elapsedMs=146 generation=2 stream=9ef54d7a478b http=0 pendingReads=0 peers=0 seeds=0 known=0 candidates=0 interested=0 unchoked=0 downloading=0 snubbed=0 connecting=0 handshaking=0 targetPeers=0 targetUnchoked=0 targetDownloading=0 offTargetDownloading=0 pendingBlocks=0 targetBlocks=0 timedOutBlocks=0 downBps=0 upBps=0 payloadDown=0 trackerReplies=0 trackerErrors=0 trackerPeers=0 dhtReplies=0 dhtPeers=0 peerConnects=0 peerDisconnects=0 disconnectTimeouts=0 disconnectConnectFailures=0 disconnectRedundant=0 disconnectTurnover=0 disconnectOther=0 finishedTransitions=0 contiguous=0 verified=0 delivered=0 demands=0 scheduledPieces=34 blockingPieces=0 blockingPrimary=-1 blockingSecondary=-1 demandPrimary=0-0 demandSecondary=0-0 lastReadyPiece=-1 scheduleRevision=1 fileBytes=19775934621 activeTorrents=0 activeStreams=0 warm=0 quiesced=0 memUsed=0 memHits=0 memMisses=0 diskUsed=0 diskProtected=0 diskOverBudget=false
+11-01 20:07:08.617  1432 15972 I /system/bin/netd: gethostby*.getanswer: asked for "dht.libtorrent.org IN AAAA", got type "RRSIG"
+11-01 20:07:08.617  1432 15972 I /system/bin/netd: gethostby*.getanswer: asked for "dht.libtorrent.org IN A", got type "RRSIG"
+11-01 20:07:08.619 15449 15449 I ExoPlayerImpl: Init d4e150b [AndroidXMedia3/1.8.0] [star2qltechn, SM-X710N, samsung, 28]
+11-01 20:07:08.621 15449 15449 I DefaultRenderersFactory: Loaded Libgav1VideoRenderer.
+11-01 20:07:08.621 15449 15449 W com.nuvio.app: Accessing hidden method Landroid/media/AudioTrack$Builder;->setOffloadedPlayback(Z)Landroid/media/AudioTrack$Builder; (dark greylist, linking)
+11-01 20:07:08.623 15449 15449 I DefaultRenderersFactory: Loaded FfmpegAudioRenderer.
+11-01 20:07:08.623 15449 15449 I DefaultRenderersFactory: Loaded MpeghAudioRenderer.
+11-01 20:07:08.625  1597  2568 D MediaSessionService: Media button session is changed to com.nuvio.app/NuvioNowPlaying (userId=0)
+11-01 20:07:08.629  1738  2053 I Avrcp   : Skipping update due to invalid playback state
+11-01 20:07:08.630  1738  1738 I NewAvrcpMediaPlayerList: onAddressedPlayerChanged: token=com.nuvio.app
+11-01 20:07:08.630  1738  1738 W NewAvrcpMediaPlayerList: com.nuvio.app is already the active player
+11-01 20:07:08.630  1738  1738 V NewAvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 0
+11-01 20:07:08.630  1738  1738 V NewAvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 0
+11-01 20:07:08.630  1738  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+11-01 20:07:08.630  1738  2053 I chatty  : uid=1002(bluetooth) BluetoothAvrcpH identical 4 lines
+11-01 20:07:08.630  1738  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+11-01 20:07:08.631  1738  2053 I Avrcp   : Skipping update due to invalid playback state
+11-01 20:07:08.661 15449 15460 I com.nuvio.app: Compiler allocated 6MB to compile void z66.a(java.lang.String, java.lang.String, java.util.Map, java.util.Map, java.util.List, java.lang.String, boolean, n45, boolean, java.lang.Long, java.lang.String, t86, boolean, uw2, gw2, gw2, gw2, a51, int, int)
+11-01 20:07:08.663 15449 15449 I AssHandler: onSurfaceSizeChanged: width = 0, height = 0
+11-01 20:07:08.689  1597  1604 W System  : A resource failed to call close. 
+11-01 20:07:08.689  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 40 lines
+11-01 20:07:08.689  1597  1604 W System  : A resource failed to call close. 
+11-01 20:07:08.693 15449 15449 I AssHandler: onSurfaceSizeChanged: width = 1600, height = 798
+11-01 20:07:08.694  1463  1680 D SurfaceFlinger: duplicate layer name: changing SurfaceView - com.nuvio.app/com.nuvio.app.MainActivity to SurfaceView - com.nuvio.app/com.nuvio.app.MainActivity#1
+11-01 20:07:08.694  1463  1680 D SurfaceFlinger: duplicate layer name: changing Background for -SurfaceView - com.nuvio.app/com.nuvio.app.MainActivity to Background for -SurfaceView - com.nuvio.app/com.nuvio.app.MainActivity#1
+11-01 20:07:08.714 15449 15978 I         : fastpipe: Connect success
+11-01 20:07:08.714 15449 15449 I NuvioPlayerDiag: prepare begin attempt=1 source=scheme=http,host=127.0.0.1,port=41398,loopback=true audioSource=false mime=auto startPositionMs=251668
+11-01 20:07:08.715 15449 15978 D HostConnection: HostRPC::connect sucess: app=com.nuvio.app, pid=15449, tid=15978, this=0x76385f2b8540
+11-01 20:07:08.715 15449 15449 I AssHandler: onMediaItemTransition: item = androidx.media3.common.MediaItem@cfeeb951, reason = 3
+11-01 20:07:08.716 15449 15449 D NuvioPlayer: onPlaybackStateChanged: BUFFERING
+11-01 20:07:08.716  1432 15974 I /system/bin/netd: gethostby*.getanswer: asked for "zer0day.ch IN A", got type "RRSIG"
+11-01 20:07:08.716 15449 15449 I NuvioPlayerDiag: state=BUFFERING attempt=1 elapsedMs=1 positionMs=251668 bufferedMs=251668 durationMs=0 playWhenReady=true terminalError=none
+11-01 20:07:08.716 15449 15978 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.nuvio.app
+11-01 20:07:08.719 15449 15978 D EGL_emulation: eglCreateContext: 0x763869711540: maj 3 min 1 rcv 4
+11-01 20:07:08.720  1597  1990 I MediaFocusControl: requestAudioFocus() from uid/pid 10064/15449 clientId=android.media.AudioManager@148aa40androidx.media3.exoplayer.c@d946abe callingPack=com.nuvio.app req=1 flags=0x0 sdk=36
+11-01 20:07:08.733 15449 15460 I com.nuvio.app: Compiler allocated 4MB to compile void ba6.c(f96, long, a51, int)
+11-01 20:07:08.734  1738  1738 V NewAvrcpMediaPlayerList: onActiveSessionsChanged: number of controllers: 1
+11-01 20:07:08.735  1738  1738 D NewAvrcpMediaPlayerList: onActiveSessionsChanged: controller: com.nuvio.app
+11-01 20:07:08.735  1738  1738 D NewAvrcpMediaPlayerList: Already have a controller for the player: com.nuvio.app, updating instead
+11-01 20:07:08.736  1738  1738 D NewAvrcpMediaPlayerWrapper: com.nuvio.app: Controller for com.nuvio.app was updated.
+11-01 20:07:08.736  1738  1738 D NewAvrcpMediaPlayerList: sendMediaUpdate
+11-01 20:07:08.736  1738  1738 I NewAvrcpMediaPlayerList: sendMediaUpdate: Creating a one item queue for a player with no queue
+11-01 20:07:08.736  1738  1738 D NewAvrcpTargetService: onMediaUpdated: track_changed=false state=true queue=false
+11-01 20:07:08.736  1738  1738 D NewAvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=true queue=false
+11-01 20:07:08.736  1738  1738 D NewAvrcpTargetJni: sendMediaUpdateNative
+11-01 20:07:08.736  1432 15987 I /system/bin/netd: gethostby*.getanswer: asked for "image.tmdb.org IN A", got type "RRSIG"
+11-01 20:07:08.737  1738  1738 I bt_stack: [INFO:avrcp_service.cc(342)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=1 :  queue=0
+11-01 20:07:08.740  1738  1738 I BluetoothAvrcpH: type=1400 audit(0.0:3003): avc: denied { open } for path="/data/local/cfg-ineyg/android7" dev="sdb2" ino=394463 scontext=u:r:bluetooth:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-01 20:07:08.744  1738  2053 I Avrcp   : Skipping update due to invalid playback state
+11-01 20:07:08.747  1597  1607 D NotificationService: notify pkg=com.nuvio.app pid=1597
+11-01 20:07:08.750  1440  1440 I writer  : type=1400 audit(0.0:3004): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:hal_audio_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:07:08.764  1597  3941 D NotificationService: notify pkg=com.nuvio.app pid=1597
+11-01 20:07:08.765  1597  1611 D NotificationService: notify pkg=com.nuvio.app pid=1597
+11-01 20:07:08.771 15449 15978 E com.nuvio.app: No implementation found for int com.nuvio.tv.libass.AssFrameTimestamps.nativeInit() (tried Java_com_nuvio_tv_libass_AssFrameTimestamps_nativeInit and Java_com_nuvio_tv_libass_AssFrameTimestamps_nativeInit__)
+11-01 20:07:08.771 15449 15978 W AssSurfaceGlThread: frame-timestamp init failed; present timing disabled
+11-01 20:07:08.771 15449 15978 W AssSurfaceGlThread: java.lang.UnsatisfiedLinkError: No implementation found for int com.nuvio.tv.libass.AssFrameTimestamps.nativeInit() (tried Java_com_nuvio_tv_libass_AssFrameTimestamps_nativeInit and Java_com_nuvio_tv_libass_AssFrameTimestamps_nativeInit__)
+11-01 20:07:08.771 15449 15978 W AssSurfaceGlThread: 	at com.nuvio.tv.libass.AssFrameTimestamps.nativeInit(Native Method)
+11-01 20:07:08.771 15449 15978 W AssSurfaceGlThread: 	at wy.c(SourceFile:14)
+11-01 20:07:08.771 15449 15978 W AssSurfaceGlThread: 	at wy.b(SourceFile:93)
+11-01 20:07:08.771 15449 15978 W AssSurfaceGlThread: 	at vy.handleMessage(SourceFile:1308)
+11-01 20:07:08.771 15449 15978 W AssSurfaceGlThread: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+11-01 20:07:08.771 15449 15978 W AssSurfaceGlThread: 	at android.os.Looper.loop(Looper.java:193)
+11-01 20:07:08.771 15449 15978 W AssSurfaceGlThread: 	at android.os.HandlerThread.run(HandlerThread.java:65)
+11-01 20:07:08.850  1752  1752 I ndroid.systemui: type=1400 audit(0.0:3005): avc: denied { read } for name="Applications" dev="sdcardfs" ino=1441794 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:sdcardfs:s0 tclass=lnk_file permissive=1
+11-01 20:07:08.850  1752  1752 I ndroid.systemui: type=1400 audit(0.0:3006): avc: denied { search } for name="/" dev="vboxsf" ino=1 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:unlabeled:s0 tclass=dir permissive=1
+11-01 20:07:08.923  1451  1451 I HwBinder:1451_2: type=1400 audit(0.0:3007): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:07:08.924  1432 15989 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.opentrackr.org IN A", got type "RRSIG"
+11-01 20:07:08.967  1738  1738 V NewAvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.nuvio.app : PlaybackState {state=6, position=251668, buffered position=251668, speed=0.0, updated=7610939, actions=847, custom actions=[], active item id=-1, error=null}
+11-01 20:07:08.967  1738  1738 V NewAvrcpMediaPlayerWrapper: trySendMediaUpdate(): Metadata has been updated for com.nuvio.app
+11-01 20:07:08.967  1738  1738 D NewAvrcpMediaPlayerList: sendMediaUpdate
+11-01 20:07:08.967  1738  1738 I NewAvrcpMediaPlayerList: sendMediaUpdate: Creating a one item queue for a player with no queue
+11-01 20:07:08.967  1738  1738 D NewAvrcpTargetService: onMediaUpdated: track_changed=false state=true queue=false
+11-01 20:07:08.967  1738  1738 D NewAvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=true queue=false
+11-01 20:07:08.967  1738  1738 D NewAvrcpTargetJni: sendMediaUpdateNative
+11-01 20:07:08.967  1738  1738 I bt_stack: [INFO:avrcp_service.cc(342)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=1 :  queue=0
+11-01 20:07:09.231  1597  1658 D NotificationService: notify pkg=com.nuvio.app pid=1597
+11-01 20:07:09.235  1738  1738 V NewAvrcpMediaPlayerWrapper: onMetadataChanged(): com.nuvio.app : { mediaId="currsong" title="İç Savaş" artist="" album="" duration=0 trackPosition=1/1 }
+11-01 20:07:09.239  1738  1738 V NewAvrcpMediaPlayerWrapper: trySendMediaUpdate(): Metadata has been updated for com.nuvio.app
+11-01 20:07:09.239  1738  1738 D NewAvrcpMediaPlayerList: sendMediaUpdate
+11-01 20:07:09.239  1738  1738 I NewAvrcpMediaPlayerList: sendMediaUpdate: Creating a one item queue for a player with no queue
+11-01 20:07:09.239  1738  1738 D NewAvrcpTargetService: onMediaUpdated: track_changed=false state=false queue=false
+11-01 20:07:09.239  1738  1738 D NewAvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=false queue=false
+11-01 20:07:09.239  1738  1738 D NewAvrcpTargetJni: sendMediaUpdateNative
+11-01 20:07:09.239  1738  1738 I bt_stack: [INFO:avrcp_service.cc(342)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=0 :  queue=0
+11-01 20:07:09.316  1432 15996 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.renfei.net IN AAAA", got type "RRSIG"
+11-01 20:07:09.316  1432 15996 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.renfei.net IN A", got type "RRSIG"
+11-01 20:07:09.333  1752  1752 I ndroid.systemui: type=1400 audit(0.0:3008): avc: denied { open } for path="/data/local/cfg-ineyg/android7" dev="sdb2" ino=394463 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-01 20:07:09.373  1463  1463 I surfaceflinger: type=1400 audit(0.0:3009): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:07:09.471  1432 15998 I /system/bin/netd: gethostby*.getanswer: asked for "udp.tracker.projectk.org IN A", got type "RRSIG"
+11-01 20:07:09.570 15449 15983 I AssHandler: setVideoSize: width = 3836, height = 2072
+11-01 20:07:09.611 15449 15571 I NuvioP2PDiag: sample request=1 elapsedMs=1148 generation=2 stream=9ef54d7a478b http=1 pendingReads=1 peers=0 seeds=0 known=0 candidates=0 interested=0 unchoked=0 downloading=0 snubbed=0 connecting=0 handshaking=0 targetPeers=0 targetUnchoked=0 targetDownloading=0 offTargetDownloading=0 pendingBlocks=0 targetBlocks=0 timedOutBlocks=0 downBps=0 upBps=0 payloadDown=0 trackerReplies=3 trackerErrors=9 trackerPeers=366 dhtReplies=0 dhtPeers=0 peerConnects=120 peerDisconnects=3 disconnectTimeouts=0 disconnectConnectFailures=0 disconnectRedundant=0 disconnectTurnover=0 disconnectOther=3 finishedTransitions=0 contiguous=0 verified=0 delivered=0 demands=1 scheduledPieces=34 blockingPieces=1 blockingPrimary=0 blockingSecondary=-1 demandPrimary=0-8388607 demandSecondary=0-0 lastReadyPiece=-1 scheduleRevision=2 fileBytes=19775934621 activeTorrents=1 activeStreams=1 warm=0 quiesced=0 memUsed=0 memHits=0 memMisses=1 diskUsed=0 diskProtected=0 diskOverBudget=false
+11-01 20:07:09.846  1432 16005 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.theoks.net IN AAAA", got type "RRSIG"
+11-01 20:07:09.846  1432 16005 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.theoks.net IN A", got type "RRSIG"
+11-01 20:07:10.070  1432 16007 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.qu.ax IN AAAA", got type "RRSIG"
+11-01 20:07:10.070  1432 16007 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.qu.ax IN A", got type "RRSIG"
+11-01 20:07:10.517  1432 16014 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.gmi.gd IN AAAA", got type "RRSIG"
+11-01 20:07:10.517  1432 16014 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.gmi.gd IN A", got type "RRSIG"
+11-01 20:07:10.518  1432 16015 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.fnix.net IN AAAA", got type "RRSIG"
+11-01 20:07:10.518  1432 16015 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.fnix.net IN A", got type "RRSIG"
+11-01 20:07:10.613 15449 15604 I NuvioP2PDiag: sample request=1 elapsedMs=2150 generation=2 stream=9ef54d7a478b http=1 pendingReads=1 peers=11 seeds=7 known=147 candidates=30 interested=7 unchoked=1 downloading=0 snubbed=0 connecting=106 handshaking=3 targetPeers=7 targetUnchoked=1 targetDownloading=1 offTargetDownloading=0 pendingBlocks=6 targetBlocks=470 timedOutBlocks=0 downBps=0 upBps=0 payloadDown=34809 trackerReplies=7 trackerErrors=17 trackerPeers=522 dhtReplies=8 dhtPeers=39 peerConnects=120 peerDisconnects=3 disconnectTimeouts=0 disconnectConnectFailures=0 disconnectRedundant=0 disconnectTurnover=0 disconnectOther=3 finishedTransitions=0 contiguous=0 verified=0 delivered=54178 demands=1 scheduledPieces=6 blockingPieces=1 blockingPrimary=2357 blockingSecondary=-1 demandPrimary=19775794270-19775934620 demandSecondary=0-0 lastReadyPiece=-1 scheduleRevision=6 fileBytes=19775934621 activeTorrents=1 activeStreams=1 warm=0 quiesced=0 memUsed=0 memHits=0 memMisses=2 diskUsed=0 diskProtected=0 diskOverBudget=false
+11-01 20:07:10.725  1432 16016 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.flatuslifir.is IN AAAA", got type "RRSIG"
+11-01 20:07:10.725  1432 16016 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.flatuslifir.is IN A", got type "RRSIG"
+11-01 20:07:10.935  1432 16020 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.ducks.party IN AAAA", got type "RRSIG"
+11-01 20:07:10.935  1432 16020 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.ducks.party IN A", got type "RRSIG"
+11-01 20:07:11.214 15449 15977 W VideoCapabilities: Unrecognized profile 4 for video/hevc
+11-01 20:07:11.214 15449 15977 W VideoCapabilities: Unrecognized profile 4 for video/hevc
+11-01 20:07:11.215 15449 15977 I VideoCapabilities: Unsupported profile 4 for video/mp4v-es
+11-01 20:07:11.216 15449 15977 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 20:07:11.216 15449 15977 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 20:07:11.217 15449 15977 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 20:07:11.217 15449 15977 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 20:07:11.232  1738  1738 V NewAvrcpMediaPlayerWrapper: onMetadataChanged(): com.nuvio.app : { mediaId="currsong" title="İç Savaş" artist="" album="" duration=6525227 trackPosition=1/1 }
+11-01 20:07:11.234 15449 15449 I AssHandler: onTracksChanged androidx.media3.common.Tracks@5a080652
+11-01 20:07:11.234 15449 15449 I AssHandler: setVideoSize: width = 3836, height = 2072
+11-01 20:07:11.234 15449 15449 I AssHandler: subtitle track disabled
+11-01 20:07:11.234 15449 15449 D NuvioPlayer: onTracksChanged: 5 groups total
+11-01 20:07:11.234 15449 15449 D NuvioPlayer: --- logCurrentTracks (onTracksChanged) ---
+11-01 20:07:11.234 15449 15449 D NuvioPlayer:   textDisabled=true
+11-01 20:07:11.234 15449 15449 D NuvioPlayer:   group type=AUDIO id=2 lang=en label=null selected=true supported=true
+11-01 20:07:11.234 15449 15449 D NuvioPlayer:   group type=TEXT id=3 lang=en label=null selected=false supported=true
+11-01 20:07:11.234 15449 15449 D NuvioPlayer:   group type=TEXT id=4 lang=en label=SDH selected=false supported=true
+11-01 20:07:11.234 15449 15449 D NuvioPlayer:   group type=TEXT id=5 lang=es label=Latin American selected=false supported=true
+11-01 20:07:11.234 15449 15449 D NuvioPlayer: --- end logCurrentTracks ---
+11-01 20:07:11.237  1738  1738 V NewAvrcpMediaPlayerWrapper: trySendMediaUpdate(): Metadata has been updated for com.nuvio.app
+11-01 20:07:11.237  1738  1738 D NewAvrcpMediaPlayerList: sendMediaUpdate
+11-01 20:07:11.237  1738  1738 I NewAvrcpMediaPlayerList: sendMediaUpdate: Creating a one item queue for a player with no queue
+11-01 20:07:11.237  1738  1738 D NewAvrcpTargetService: onMediaUpdated: track_changed=false state=false queue=false
+11-01 20:07:11.237  1738  1738 D NewAvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=false queue=false
+11-01 20:07:11.237  1738  1738 D NewAvrcpTargetJni: sendMediaUpdateNative
+11-01 20:07:11.237  1738  1738 I bt_stack: [INFO:avrcp_service.cc(342)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=0 :  queue=0
+11-01 20:07:11.238  1738  1738 V NewAvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.nuvio.app : PlaybackState {state=6, position=251668, buffered position=251668, speed=0.0, updated=7613203, actions=847, custom actions=[], active item id=-1, error=null}
+11-01 20:07:11.238  1738  1738 W NewAvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.nuvio.app tried to update with no new data
+11-01 20:07:11.339 15449 15977 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 20:07:11.339 15449 15977 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 20:07:11.344 15449 16029 I OMXClient: IOmx service obtained
+11-01 20:07:11.346  1481  7026 I OMXMaster: makeComponentInstance(OMX.qcom.video.decoder.hevc) in omx@1.0-service process
+11-01 20:07:11.360  1481  7026 D LDDec   : createSoftOMXComponent OMX.qcom.video.decoder.hevc
+11-01 20:07:11.360  1481  7026 D LDDec   : LDDec init 0x0 1, 320
+11-01 20:07:11.362 15449 16028 D SurfaceUtils: connecting to surface 0x76386a1ba010, reason connectToSurface
+11-01 20:07:11.362 15449 16028 I MediaCodec: [OMX.qcom.video.decoder.hevc] setting surface generation to 15819777
+11-01 20:07:11.362 15449 16028 D SurfaceUtils: disconnecting from surface 0x76386a1ba010, reason connectToSurface(reconnect)
+11-01 20:07:11.362 15449 16028 D SurfaceUtils: connecting to surface 0x76386a1ba010, reason connectToSurface(reconnect)
+11-01 20:07:11.365  1481  7026 W OMXNodeInstance: [0xf52212a0:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-01 20:07:11.365 15449 16029 E ACodec  : [OMX.qcom.video.decoder.hevc] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+11-01 20:07:11.365  1481  7026 W OMXNodeInstance: [0xf52212a0:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-01 20:07:11.365  1481  7026 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-01 20:07:11.365 15449 16029 I ACodec  : codec does not support config priority (err -1010)
+11-01 20:07:11.365  1481  7026 E OMXNodeInstance: setConfig(0xf52212a0:qcom.decoder.hevc, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+11-01 20:07:11.366  1481  7026 E OMXNodeInstance: getConfig(0xf52212a0:qcom.decoder.hevc, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+11-01 20:07:11.366  1481  7026 E OMXNodeInstance: getConfig(0xf52212a0:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-01 20:07:11.373  1481  1481 I eo.decoder.hevc: type=1400 audit(0.0:3010): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:07:11.373  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-01 20:07:11.378  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 30 lines
+11-01 20:07:11.379  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-01 20:07:11.379  1481 16031 D LDDec   : initDecoder OMX.qcom.video.decoder.hevc init
+11-01 20:07:11.380 15449 15977 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 20:07:11.380 15449 15977 W MediaCodecRenderer: Format exceeds selected codec's capabilities [id=1, mimeType=video/dolby-vision, container=video/x-matroska, codecs=dvhe.08.06, res=3836x2072, language=en, selectionFlags=[default], OMX.qcom.video.decoder.hevc]
+11-01 20:07:11.388  1440  1557 D audio_hw_hal: log_func, out_standby
+11-01 20:07:11.388  1440  1557 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-01 20:07:11.388  1440  1557 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-01 20:07:11.420  1481 16031 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-01 20:07:11.423  1481  7026 E OMXNodeInstance: getConfig(0xf52212a0:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-01 20:07:11.423  1481  7026 E OMXNodeInstance: getConfig(0xf52212a0:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-01 20:07:11.617 15449 15752 I NuvioP2PDiag: sample request=1 elapsedMs=3153 generation=2 stream=9ef54d7a478b http=1 pendingReads=1 peers=11 seeds=9 known=174 candidates=57 interested=9 unchoked=4 downloading=1 snubbed=0 connecting=106 handshaking=1 targetPeers=9 targetUnchoked=3 targetDownloading=2 offTargetDownloading=0 pendingBlocks=31 targetBlocks=484 timedOutBlocks=0 downBps=24220 upBps=0 payloadDown=268626 trackerReplies=9 trackerErrors=24 trackerPeers=532 dhtReplies=11 dhtPeers=289 peerConnects=122 peerDisconnects=4 disconnectTimeouts=0 disconnectConnectFailures=1 disconnectRedundant=0 disconnectTurnover=0 disconnectOther=3 finishedTransitions=0 contiguous=0 verified=0 delivered=264935 demands=1 scheduledPieces=34 blockingPieces=1 blockingPrimary=89 blockingSecondary=-1 demandPrimary=752438635-754974719 demandSecondary=0-0 lastReadyPiece=-1 scheduleRevision=10 fileBytes=19775934621 activeTorrents=1 activeStreams=1 warm=0 quiesced=0 memUsed=0 memHits=0 memMisses=4 diskUsed=0 diskProtected=0 diskOverBudget=false
+11-01 20:07:11.683  1597  1610 E memtrack: Couldn't load memtrack module
+11-01 20:07:11.683  1597  1610 W android.os.Debug: failed to get memory consumption info: -1
+11-01 20:07:12.620 15449 15604 I NuvioP2PDiag: sample request=1 elapsedMs=4156 generation=2 stream=9ef54d7a478b http=1 pendingReads=1 peers=11 seeds=9 known=176 candidates=58 interested=9 unchoked=5 downloading=3 snubbed=0 connecting=107 handshaking=0 targetPeers=9 targetUnchoked=4 targetDownloading=0 offTargetDownloading=2 pendingBlocks=53 targetBlocks=509 timedOutBlocks=0 downBps=73769 upBps=0 payloadDown=599297 trackerReplies=9 trackerErrors=24 trackerPeers=532 dhtReplies=11 dhtPeers=289 peerConnects=125 peerDisconnects=108 disconnectTimeouts=0 disconnectConnectFailures=105 disconnectRedundant=0 disconnectTurnover=0 disconnectOther=3 finishedTransitions=0 contiguous=0 verified=0 delivered=294268 demands=1 scheduledPieces=35 blockingPieces=1 blockingPrimary=89 blockingSecondary=-1 demandPrimary=752438635-754974719 demandSecondary=0-0 lastReadyPiece=-1 scheduleRevision=11 fileBytes=19775934621 activeTorrents=1 activeStreams=1 warm=0 quiesced=0 memUsed=0 memHits=0 memMisses=4 diskUsed=0 diskProtected=0 diskOverBudget=false
+11-01 20:07:13.622 15449 15604 I NuvioP2PDiag: sample request=1 elapsedMs=5158 generation=2 stream=9ef54d7a478b http=1 pendingReads=1 peers=11 seeds=9 known=176 candidates=58 interested=9 unchoked=5 downloading=3 snubbed=0 connecting=107 handshaking=0 targetPeers=9 targetUnchoked=4 targetDownloading=0 offTargetDownloading=2 pendingBlocks=53 targetBlocks=509 timedOutBlocks=0 downBps=73769 upBps=0 payloadDown=599297 trackerReplies=9 trackerErrors=24 trackerPeers=532 dhtReplies=11 dhtPeers=289 peerConnects=125 peerDisconnects=108 disconnectTimeouts=0 disconnectConnectFailures=105 disconnectRedundant=0 disconnectTurnover=0 disconnectOther=3 finishedTransitions=0 contiguous=0 verified=0 delivered=818556 demands=1 scheduledPieces=35 blockingPieces=1 blockingPrimary=89 blockingSecondary=-1 demandPrimary=752438635-754974719 demandSecondary=0-0 lastReadyPiece=-1 scheduleRevision=11 fileBytes=19775934621 activeTorrents=1 activeStreams=1 warm=0 quiesced=0 memUsed=0 memHits=0 memMisses=4 diskUsed=0 diskProtected=0 diskOverBudget=false
+11-01 20:07:14.624 15449 15805 I NuvioP2PDiag: sample request=1 elapsedMs=6161 generation=2 stream=9ef54d7a478b http=1 pendingReads=1 peers=12 seeds=10 known=177 candidates=160 interested=10 unchoked=7 downloading=4 snubbed=0 connecting=5 handshaking=0 targetPeers=10 targetUnchoked=5 targetDownloading=4 offTargetDownloading=0 pendingBlocks=97 targetBlocks=141 timedOutBlocks=0 downBps=161346 upBps=0 payloadDown=1302531 trackerReplies=9 trackerErrors=24 trackerPeers=532 dhtReplies=11 dhtPeers=289 peerConnects=177 peerDisconnects=113 disconnectTimeouts=0 disconnectConnectFailures=108 disconnectRedundant=0 disconnectTurnover=0 disconnectOther=5 finishedTransitions=0 contiguous=0 verified=0 delivered=818556 demands=1 scheduledPieces=35 blockingPieces=1 blockingPrimary=89 blockingSecondary=-1 demandPrimary=752438635-754974719 demandSecondary=0-0 lastReadyPiece=-1 scheduleRevision=11 fileBytes=19775934621 activeTorrents=1 activeStreams=1 warm=0 quiesced=0 memUsed=0 memHits=0 memMisses=4 diskUsed=0 diskProtected=0 diskOverBudget=false
+11-01 20:07:14.936 15449 16028 D MediaCodec: [OMX.qcom.video.decoder.hevc] setting dataspace on output surface to #104
+11-01 20:07:15.058  1461  1555 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000008) and output flags (00000002)
+11-01 20:07:15.058  1461  1555 D AudioFlinger: Client defaulted notificationFrames to 6000 for frameCount 12000
+11-01 20:07:15.607  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:3011): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:07:15.610  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:3012): avc: denied { read write } for name="fastpipe" dev="tmpfs" ino=3128 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:07:15.610  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:3013): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:07:15.610  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:3014): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:07:15.610  1463  1463 I Binder:1463_2: type=1400 audit(0.0:3015): avc: denied { getattr } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:07:15.611  1463  1522 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-01 20:07:15.615 15449 16028 I         : fastpipe: Connect success
+11-01 20:07:15.618 15449 16028 D HostConnection: HostRPC::connect sucess: app=com.nuvio.app, pid=15449, tid=16028, this=0x76385e8454c0
+11-01 20:07:15.619 15449 16028 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.nuvio.app
+11-01 20:07:15.621 15449 16028 D SoftwareRenderer: setting dataspace on output surface to #104
+11-01 20:07:15.622 15449 15449 I AssHandler: onVideoSizeChanged: width = 3836, height = 2072
+11-01 20:07:15.622 15449 15449 I NuvioPlayerDiag: firstFrame attempt=1 elapsedMs=6908 positionMs=251668
+11-01 20:07:15.625 15449 15752 I NuvioP2PDiag: sample request=1 elapsedMs=7162 generation=2 stream=9ef54d7a478b http=1 pendingReads=1 peers=21 seeds=13 known=177 candidates=114 interested=13 unchoked=8 downloading=5 snubbed=0 connecting=42 handshaking=3 targetPeers=13 targetUnchoked=6 targetDownloading=4 offTargetDownloading=1 pendingBlocks=211 targetBlocks=432 timedOutBlocks=0 downBps=346543 upBps=0 payloadDown=3506268 trackerReplies=9 trackerErrors=24 trackerPeers=532 dhtReplies=11 dhtPeers=289 peerConnects=180 peerDisconnects=116 disconnectTimeouts=0 disconnectConnectFailures=110 disconnectRedundant=0 disconnectTurnover=0 disconnectOther=6 finishedTransitions=0 contiguous=0 verified=0 delivered=3538300 demands=1 scheduledPieces=35 blockingPieces=1 blockingPrimary=90 blockingSecondary=-1 demandPrimary=754974720-763363327 demandSecondary=0-0 lastReadyPiece=-1 scheduleRevision=12 fileBytes=19775934621 activeTorrents=1 activeStreams=1 warm=0 quiesced=0 memUsed=0 memHits=0 memMisses=4 diskUsed=4685824 diskProtected=4685824 diskOverBudget=false
+11-01 20:07:15.627  1463  1463 I surfaceflinger: type=1400 audit(0.0:3016): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 20:07:15.627 15449 15449 I AssHandler: onSurfaceSizeChanged: width = 1477, height = 798
+11-01 20:07:15.644 15449 15449 I AssHandler: setOverlaySurfaceSize: width = 1477, height = 798
+11-01 20:07:16.134 15449 15449 D NuvioPlayer: onPlaybackStateChanged: READY
+11-01 20:07:16.134 15449 15449 I NuvioPlayerDiag: state=READY attempt=1 elapsedMs=7420 positionMs=251668 bufferedMs=252544 durationMs=6525227 playWhenReady=true terminalError=none
+11-01 20:07:16.134 15449 15449 D NuvioPlayer: --- logCurrentTracks (STATE_READY) ---
+11-01 20:07:16.134 15449 15449 D NuvioPlayer:   textDisabled=true
+11-01 20:07:16.134 15449 15449 D NuvioPlayer:   group type=AUDIO id=2 lang=en label=null selected=true supported=true
+11-01 20:07:16.134 15449 15449 D NuvioPlayer:   group type=TEXT id=3 lang=en label=null selected=false supported=true
+11-01 20:07:16.134 15449 15449 D NuvioPlayer:   group type=TEXT id=4 lang=en label=SDH selected=false supported=true
+11-01 20:07:16.134 15449 15449 D NuvioPlayer:   group type=TEXT id=5 lang=es label=Latin American selected=false supported=true
+11-01 20:07:16.134 15449 15449 D NuvioPlayer: --- end logCurrentTracks ---
+11-01 20:07:16.134  1738  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+11-01 20:07:16.134  1738  2053 I chatty  : uid=1002(bluetooth) BluetoothAvrcpH identical 4 lines
+11-01 20:07:16.134  1738  2053 E bt_btif : register_notification_rsp: Avrcp device is not connected, handle: 0x0
+11-01 20:07:16.136 15449 15449 D NuvioPlayer: getSubtitleTracks: found 3 tracks
+11-01 20:07:16.136 15449 15449 D NuvioPlayer:   track idx=0 id=3 label='İngilizce (SRT)' lang=en selected=false
+11-01 20:07:16.136 15449 15449 D NuvioPlayer:   track idx=1 id=4 label='İngilizce (SRT) - SDH' lang=en selected=false
+11-01 20:07:16.136 15449 15449 D NuvioPlayer:   track idx=2 id=5 label='İspanyolca (SRT) - Latin American' lang=es selected=false
+11-01 20:07:16.137  1437  1437 W AshmemAllocator: ashmem_create_region(3072) returning hidl_memory(0x76391702c100, 3072)
+11-01 20:07:16.137  1437  1437 W AshmemAllocator: ashmem_create_region(1024) returning hidl_memory(0x76391702c100, 1024)
+11-01 20:07:16.137  1461  1560 E EffectHalHidl: Buffer provider callbacks are not supported
+11-01 20:07:16.139 15449 15449 I NuvioPlayerDiag: isPlaying=true attempt=1 elapsedMs=7424 positionMs=251668
+11-01 20:07:16.139 15449 15449 D NuvioPlayer: getSubtitleTracks: found 3 tracks
+11-01 20:07:16.139 15449 15449 D NuvioPlayer:   track idx=0 id=3 label='İngilizce (SRT)' lang=en selected=false
+11-01 20:07:16.139 15449 15449 D NuvioPlayer:   track idx=1 id=4 label='İngilizce (SRT) - SDH' lang=en selected=false
+11-01 20:07:16.139 15449 15449 D NuvioPlayer:   track idx=2 id=5 label='İspanyolca (SRT) - Latin American' lang=es selected=false
+11-01 20:07:16.140  1597  2568 D NotificationService: notify pkg=com.nuvio.app pid=1597
+11-01 20:07:16.141  1440  3295 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-01 20:07:16.141  1738  1738 V NewAvrcpMediaPlayerWrapper: onPlaybackStateChanged(): com.nuvio.app : PlaybackState {state=3, position=251668, buffered position=252544, speed=1.0, updated=7618110, actions=847, custom actions=[], active item id=-1, error=null}
+11-01 20:07:16.144  1738  1738 V NewAvrcpMediaPlayerWrapper: trySendMediaUpdate(): Metadata has been updated for com.nuvio.app
+11-01 20:07:16.144  1738  1738 D NewAvrcpMediaPlayerList: sendMediaUpdate
+11-01 20:07:16.144  1738  1738 I NewAvrcpMediaPlayerList: sendMediaUpdate: Creating a one item queue for a player with no queue
+11-01 20:07:16.144  1738  1738 D NewAvrcpTargetService: onMediaUpdated: track_changed=false state=true queue=false
+11-01 20:07:16.144  1738  1738 D NewAvrcpNativeInterface: sendMediaUpdate: metadata=false playStatus=true queue=false
+11-01 20:07:16.144  1738  1738 D NewAvrcpTargetJni: sendMediaUpdateNative
+11-01 20:07:16.144  1738  1738 I bt_stack: [INFO:avrcp_service.cc(342)] virtual void bluetooth::avrcp::AvrcpService::SendMediaUpdate(bool, bool, bool) track_changed=0 :  play_state=1 :  queue=0
+11-01 20:07:16.149 15449 15449 D NuvioPlayer: getSubtitleTracks: found 3 tracks
+11-01 20:07:16.149 15449 15449 D NuvioPlayer:   track idx=0 id=3 label='İngilizce (SRT)' lang=en selected=false
+11-01 20:07:16.149 15449 15449 D NuvioPlayer:   track idx=1 id=4 label='İngilizce (SRT) - SDH' lang=en selected=false
+11-01 20:07:16.149 15449 15449 D NuvioPlayer:   track idx=2 id=5 label='İspanyolca (SRT) - Latin American' lang=es selected=false
+11-01 20:07:16.150  1463  1522 W MapperHal: buffer descriptor with invalid usage bits 0x2000

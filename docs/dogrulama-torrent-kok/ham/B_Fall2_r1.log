@@ -1,0 +1,1111 @@
+--------- beginning of system
+11-01 21:06:00.024  1597  4002 I ActivityManager: START u0 {flg=0x10000000 cmp=com.kaan.play/.MainActivity} from uid 2000
+11-01 21:06:00.049  1597  1611 W SchedPolicy: add_tid_to_cgroup failed to write '2302' (No space left on device); fd=24
+11-01 21:06:00.053  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:45 android.app.ActivityThread.handleReceiver:3424 
+--------- beginning of main
+11-01 21:06:00.065  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.android.ld.appstore -f 32 --es package com.kaan.play --es pos pc
+11-01 21:06:00.065  1460  1460 D ldinit  : result:
+11-01 21:06:00.065  1433  1433 D libnativeloader: CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+11-01 21:06:00.065  1433  1433 I Zygote  : IsCopy  libcrashcatcher: 0
+11-01 21:06:00.066  1433  1433 D libnativeloader: INJECT Failed to open gspd.json
+11-01 21:06:00.070  1377  1377 I servicemanager: type=1400 audit(0.0:4174): avc: denied { search } for name="23579" dev="proc" ino=637384 scontext=u:r:servicemanager:s0 tcontext=u:r:ldinit:s0 tclass=dir permissive=1
+11-01 21:06:00.070  1377  1377 I servicemanager: type=1400 audit(0.0:4175): avc: denied { read } for name="current" dev="proc" ino=639266 scontext=u:r:servicemanager:s0 tcontext=u:r:ldinit:s0 tclass=file permissive=1
+11-01 21:06:00.070  1377  1377 I servicemanager: type=1400 audit(0.0:4176): avc: denied { open } for path="/proc/23579/attr/current" dev="proc" ino=639266 scontext=u:r:servicemanager:s0 tcontext=u:r:ldinit:s0 tclass=file permissive=1
+11-01 21:06:00.071  1597  1613 I ActivityManager: Start proc 23573:com.kaan.play/u0a192 for activity com.kaan.play/.MainActivity
+11-01 21:06:00.075  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+11-01 21:06:00.075  1597  1658 W SchedPolicy: add_tid_to_cgroup failed to write '2061' (No space left on device); fd=24
+11-01 21:06:00.076  2061  2061 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-01 21:06:00.076  2061  2061 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-01 21:06:00.077  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:4177): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:00.080  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:4178): avc: denied { read write } for name="fastpipe" dev="tmpfs" ino=3128 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:00.103  2813 20922 I AppStartReceiver: onReceive, action = com.ldmnq.APP_FOREGROUND, extras = Bundle[{package=com.kaan.play, pos=pc}]
+11-01 21:06:00.104  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 21:06:00.110 23573 23573 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: Not a directory
+11-01 21:06:00.111 23573 23573 I Zygote  : seccomp disabled by setenforce 0
+11-01 21:06:00.112 23573 23573 I com.kaan.play: Late-enabling -Xcheck:jni
+11-01 21:06:00.122  2061 22860 D AdvertisingIdClient: AdvertisingIdClient already created.
+11-01 21:06:00.122  2061 22860 D AdvertisingIdClient: AdvertisingIdClient is not bounded. Starting to bind it...
+11-01 21:06:00.125  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.ldmnq.launcher3 -f 32 --es package com.kaan.play --es pos pc
+11-01 21:06:00.125  1460  1460 D ldinit  : result:
+11-01 21:06:00.131 23573 23573 D nativebridge: call UnloadNativeBridge! state=1
+11-01 21:06:00.136  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+11-01 21:06:00.154  2302 18719 D AppStartReceiver: action = com.ldmnq.APP_FOREGROUND, packageName = com.kaan.play, pos = pc
+11-01 21:06:00.154  1597  2292 W SchedPolicy: add_tid_to_cgroup failed to write '23573' (No space left on device); fd=27
+11-01 21:06:00.155  2061 22860 D AdvertisingIdClient: AdvertisingIdClient is bounded
+11-01 21:06:00.156  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 21:06:00.178  2061 22860 I AdvertisingIdClient: shouldSendLog 10413824
+11-01 21:06:00.178  2061 22860 I AdvertisingIdClient: GetInfoInternal elapse 56ms
+11-01 21:06:00.182  2061  2061 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 21:06:00.189  2061  2061 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 21:06:00.201  1752  2002 W ziparchive: Unable to open '/data/app/com.kaan.play-07QcAMjpLSvf6bLjZL6WNg==/base.apk': No such file or directory
+11-01 21:06:00.201  1752  2002 E ndroid.systemu: Failed to open APK '/data/app/com.kaan.play-07QcAMjpLSvf6bLjZL6WNg==/base.apk' I/O error
+11-01 21:06:00.201  1752  2002 E ResourcesManager: failed to add asset path /data/app/com.kaan.play-07QcAMjpLSvf6bLjZL6WNg==/base.apk
+11-01 21:06:00.202  1752  2002 W PackageManager: Failure retrieving resources for com.kaan.play
+11-01 21:06:00.202  1752  2002 W ziparchive: Unable to open '/data/app/com.kaan.play-07QcAMjpLSvf6bLjZL6WNg==/base.apk': No such file or directory
+11-01 21:06:00.202  1752  2002 E ndroid.systemu: Failed to open APK '/data/app/com.kaan.play-07QcAMjpLSvf6bLjZL6WNg==/base.apk' I/O error
+11-01 21:06:00.202  1752  2002 E ResourcesManager: failed to add asset path /data/app/com.kaan.play-07QcAMjpLSvf6bLjZL6WNg==/base.apk
+11-01 21:06:00.202  1752  2002 W PackageManager: Failure retrieving resources for com.kaan.play
+11-01 21:06:00.202  1752  2002 W ziparchive: Unable to open '/data/app/com.kaan.play-07QcAMjpLSvf6bLjZL6WNg==/base.apk': No such file or directory
+11-01 21:06:00.202  1752  2002 E ndroid.systemu: Failed to open APK '/data/app/com.kaan.play-07QcAMjpLSvf6bLjZL6WNg==/base.apk' I/O error
+11-01 21:06:00.202  1752  2002 E ResourcesManager: failed to add asset path /data/app/com.kaan.play-07QcAMjpLSvf6bLjZL6WNg==/base.apk
+11-01 21:06:00.202  1752  2002 W PackageManager: Failure retrieving resources for com.kaan.play
+11-01 21:06:00.213  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:00.224  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_START -p com.android.ld.appstore -f 32 --es package com.kaan.play --es pos pc
+11-01 21:06:00.224  1460  1460 D ldinit  : result:
+11-01 21:06:00.236  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_START flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+11-01 21:06:00.236  2813 20922 I AppStartReceiver: onReceive, action = com.ldmnq.APP_START, extras = Bundle[{package=com.kaan.play, pos=pc}]
+11-01 21:06:00.242  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:00.242  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 27 lines
+11-01 21:06:00.242  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:00.247  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 21:06:00.248  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_START -p com.ldmnq.launcher3 -f 32 --es package com.kaan.play --es pos pc
+11-01 21:06:00.248  1460  1460 D ldinit  : result:
+11-01 21:06:00.257  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_START flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+11-01 21:06:00.262  2302 20942 D AppStartReceiver: action = com.ldmnq.APP_START, packageName = com.kaan.play, pos = pc
+11-01 21:06:00.262  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 21:06:00.501  2813 20922 I LDShopManager: tryShowLDShopRechargePopup success, packageName = com.kaan.play, canPopup = false
+11-01 21:06:00.936 23573 23573 D libnativeloader: INJECT Failed to open gspd.json
+11-01 21:06:00.937 23573 23573 D libnativeloader: CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+11-01 21:06:00.958 23573 23573 W com.kaan.play: Accessing hidden field Landroid/os/Trace;->TRACE_TAG_APP:J (light greylist, reflection)
+11-01 21:06:00.958 23573 23573 W com.kaan.play: Accessing hidden method Landroid/os/Trace;->isTagEnabled(J)Z (light greylist, reflection)
+11-01 21:06:00.970 23573 23573 W com.kaan.play: Accessing hidden method Lcom/android/org/conscrypt/OpenSSLSocketImpl;->setUseSessionTickets(Z)V (light greylist, reflection)
+11-01 21:06:00.970 23573 23573 W com.kaan.play: Accessing hidden method Lcom/android/org/conscrypt/OpenSSLSocketImpl;->setHostname(Ljava/lang/String;)V (light greylist, reflection)
+11-01 21:06:00.970 23573 23573 W com.kaan.play: Accessing hidden method Lcom/android/org/conscrypt/OpenSSLSocketImpl;->getAlpnSelectedProtocol()[B (light greylist, reflection)
+11-01 21:06:00.970 23573 23573 W com.kaan.play: Accessing hidden method Lcom/android/org/conscrypt/OpenSSLSocketImpl;->setAlpnProtocols([B)V (light greylist, reflection)
+11-01 21:06:00.998 23573 23573 D NetworkSecurityConfig: No Network Security Config specified, using platform default
+11-01 21:06:01.059 23573 23607 D AdHideLoader: adhide.txt yuklendi: 0 genel, 11 alan kurali (15 ms)
+11-01 21:06:01.119  1597  1728 D WIFI_AWARE_FACTORY: got request NetworkRequest [ TRACK_DEFAULT id=89, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10192] ] with score 60
+11-01 21:06:01.119  1597  1697 D WIFI    : got request NetworkRequest [ TRACK_DEFAULT id=89, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10192] ] with score 60
+11-01 21:06:01.119  1597  1697 D WIFI_UT : got request NetworkRequest [ TRACK_DEFAULT id=89, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10192] ] with score 60
+11-01 21:06:01.119  1597  1729 D Ethernet: got request NetworkRequest [ TRACK_DEFAULT id=89, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10192] ] with score 60
+11-01 21:06:01.119  1925  1925 D PhoneSwitcherNetworkRequstListener: got request NetworkRequest [ TRACK_DEFAULT id=89, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10192] ] with score 60
+11-01 21:06:01.122 23573 23605 D AdHostLoader: adhosts.txt yuklendi: 52061 alan adi (78 ms)
+11-01 21:06:01.133 23573 23607 W com.kaan.play: Accessing hidden field Ljava/nio/Buffer;->address:J (light greylist, reflection)
+11-01 21:06:01.156  1597  1728 D WIFI_AWARE_FACTORY: got request NetworkRequest [ TRACK_DEFAULT id=90, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10192] ] with score 60
+11-01 21:06:01.157  1597  1697 D WIFI    : got request NetworkRequest [ TRACK_DEFAULT id=90, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10192] ] with score 60
+11-01 21:06:01.157  1597  1697 D WIFI_UT : got request NetworkRequest [ TRACK_DEFAULT id=90, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10192] ] with score 60
+11-01 21:06:01.157  1597  1729 D Ethernet: got request NetworkRequest [ TRACK_DEFAULT id=90, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10192] ] with score 60
+11-01 21:06:01.157  1925  1925 D PhoneSwitcherNetworkRequstListener: got request NetworkRequest [ TRACK_DEFAULT id=90, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED Unwanted:  Uid: 10192] ] with score 60
+11-01 21:06:01.196 23573 23573 W com.kaan.play: Accessing hidden method Landroid/content/Context;->getOpPackageName()Ljava/lang/String; (light greylist, linking)
+11-01 21:06:01.198 23573 23573 W com.kaan.play: Accessing hidden field Landroid/graphics/Insets;->left:I (light greylist, linking)
+11-01 21:06:01.198 23573 23573 W com.kaan.play: Accessing hidden field Landroid/graphics/Insets;->top:I (light greylist, linking)
+11-01 21:06:01.198 23573 23573 W com.kaan.play: Accessing hidden field Landroid/graphics/Insets;->right:I (light greylist, linking)
+11-01 21:06:01.198 23573 23573 W com.kaan.play: Accessing hidden field Landroid/graphics/Insets;->bottom:I (light greylist, linking)
+11-01 21:06:01.224 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V (light greylist, reflection)
+11-01 21:06:01.228 23573 23573 D OpenGLRenderer: Skia GL Pipeline
+11-01 21:06:01.228  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:01.321 23573 23573 W com.kaan.play: Accessing hidden field Landroid/view/WindowInsets;->CONSUMED:Landroid/view/WindowInsets; (light greylist, reflection)
+11-01 21:06:01.322 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/View;->getViewRootImpl()Landroid/view/ViewRootImpl; (light greylist, reflection)
+11-01 21:06:01.322 23573 23573 W com.kaan.play: Accessing hidden field Landroid/view/View$AttachInfo;->mVisibleInsets:Landroid/graphics/Rect; (light greylist, reflection)
+11-01 21:06:01.322 23573 23573 W com.kaan.play: Accessing hidden field Landroid/view/ViewRootImpl;->mAttachInfo:Landroid/view/View$AttachInfo; (light greylist, reflection)
+11-01 21:06:01.410 23573 23573 I RenderThread: type=1400 audit(0.0:4198): avc: denied { read write } for name="fastpipe" dev="tmpfs" ino=3128 scontext=u:r:untrusted_app:s0:c192,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:01.410 23573 23573 I RenderThread: type=1400 audit(0.0:4199): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:untrusted_app:s0:c192,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->create(Ljava/lang/String;Landroid/view/View;)Landroid/view/RenderNode; (light greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setClipToBounds(Z)Z (light greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setClipToOutline(Z)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 I chatty  : uid=10192(com.kaan.play) identical 1 line
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setClipToOutline(Z)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setLayerType(I)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 I chatty  : uid=10192(com.kaan.play) identical 1 line
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setLayerType(I)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setLeftTopRightBottom(IIII)Z (light greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->getMatrix(Landroid/graphics/Matrix;)V (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/DisplayListCanvas;->drawRenderNode(Landroid/view/RenderNode;)V (light greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->isValid()Z (light greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->start(II)Landroid/view/DisplayListCanvas; (light greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->end(Landroid/view/DisplayListCanvas;)V (light greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setAlpha(F)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setCameraDistance(F)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setLayerPaint(Landroid/graphics/Paint;)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setOutline(Landroid/graphics/Outline;)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setPivotX(F)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setRotationX(F)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setRotationY(F)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setRotation(F)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setScaleX(F)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setScaleY(F)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setElevation(F)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setTranslationX(F)Z (dark greylist, linking)
+11-01 21:06:01.417 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->setTranslationY(F)Z (dark greylist, linking)
+11-01 21:06:01.418 23573 23573 W com.kaan.play: Accessing hidden method Landroid/view/RenderNode;->getScaleX()F (dark greylist, linking)
+11-01 21:06:01.427 23573 23573 I RenderThread: type=1400 audit(0.0:4200): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6864 scontext=u:r:untrusted_app:s0:c192,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:01.435 23573 23623 I         : fastpipe: Connect success
+11-01 21:06:01.438 23573 23623 I         : fastpipe: Connect success
+11-01 21:06:01.439 23573 23623 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=23573, tid=23623, this=0x76386f470a00
+11-01 21:06:01.440 23573 23623 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+11-01 21:06:01.445 23573 23623 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-01 21:06:01.445 23573 23623 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-01 21:06:01.445 23573 23623 I OpenGLRenderer: Initialized EGL, version 1.4
+11-01 21:06:01.445 23573 23623 D OpenGLRenderer: Swap behavior 1
+11-01 21:06:01.448 23573 23623 D EGL_emulation: eglCreateContext: 0x76388be60980: maj 3 min 1 rcv 4
+11-01 21:06:01.468 23573 23623 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-01 21:06:01.468 23573 23623 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082e5
+11-01 21:06:01.473 23573 23623 D HostConnection: ExtendedRCEncoderContext GL_VERSION return OpenGL ES 3.1 v1
+11-01 21:06:01.476 23573 23623 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008c29
+11-01 21:06:01.476 23573 23623 E eglCodecCommon: glUtilsParamSize: unknow param 0x000087fe
+11-01 21:06:01.477 23573 23623 D skia    : force disable skia program binary by wb!
+11-01 21:06:01.482 23573 23623 D vndksupport: Loading /vendor/lib64/hw/android.hardware.graphics.mapper@2.0-impl.so from current namespace instead of sphal namespace.
+11-01 21:06:01.483 23573 23623 D vndksupport: Loading /vendor/lib64/hw/gralloc.default.so from current namespace instead of sphal namespace.
+11-01 21:06:01.502 23573 23623 E EGL_emulation: tid 23623: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+11-01 21:06:01.502 23573 23623 W OpenGLRenderer: Failed to set EGL_SWAP_BEHAVIOR on surface 0x76388bff3d00, error=EGL_BAD_MATCH
+11-01 21:06:01.526  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:01.526  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 34 lines
+11-01 21:06:01.526  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:01.614 23573 23573 W com.kaan.play: Accessing hidden method Landroid/text/SpannableStringInternal;->length()I (light greylist, linking)
+11-01 21:06:01.717  1597  1610 I ActivityManager: Displayed com.kaan.play/.MainActivity: +1s692ms
+11-01 21:06:01.720  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:01.721  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:01.723  1597  1597 I android.anim.lf: type=1400 audit(0.0:4201): avc: denied { call } for scontext=u:r:system_server:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+11-01 21:06:01.745 23573 23573 W com.kaan.play: Accessing hidden method Landroid/os/Trace;->asyncTraceBegin(JLjava/lang/String;I)V (light greylist, reflection)
+11-01 21:06:01.745 23573 23573 W com.kaan.play: Accessing hidden method Landroid/os/Trace;->asyncTraceEnd(JLjava/lang/String;I)V (light greylist, reflection)
+11-01 21:06:01.745 23573 23573 W com.kaan.play: Accessing hidden method Landroid/os/Trace;->traceCounter(JLjava/lang/String;I)V (light greylist, reflection)
+11-01 21:06:01.754  2061  5728 I FontLog : (REDACTED) Received query %s, URI %s
+11-01 21:06:01.755  2061  5728 I FontLog : (REDACTED) Query [%s] resolved to %s
+11-01 21:06:01.760  2061  5728 I FontLog : (REDACTED) Fetch %s end status %s
+11-01 21:06:01.765 23573 23630 W com.kaan.play: Accessing hidden method Landroid/graphics/FontFamily;-><init>()V (light greylist, reflection)
+11-01 21:06:01.765 23573 23630 W com.kaan.play: Accessing hidden method Landroid/graphics/FontFamily;->addFontFromAssetManager(Landroid/content/res/AssetManager;Ljava/lang/String;IZIII[Landroid/graphics/fonts/FontVariationAxis;)Z (light greylist, reflection)
+11-01 21:06:01.765 23573 23630 W com.kaan.play: Accessing hidden method Landroid/graphics/FontFamily;->addFontFromBuffer(Ljava/nio/ByteBuffer;I[Landroid/graphics/fonts/FontVariationAxis;II)Z (light greylist, reflection)
+11-01 21:06:01.765 23573 23630 W com.kaan.play: Accessing hidden method Landroid/graphics/FontFamily;->freeze()Z (light greylist, reflection)
+11-01 21:06:01.765 23573 23630 W com.kaan.play: Accessing hidden method Landroid/graphics/FontFamily;->abortCreation()V (light greylist, reflection)
+11-01 21:06:01.765 23573 23630 W com.kaan.play: Accessing hidden method Landroid/graphics/Typeface;->createFromFamiliesWithDefault([Landroid/graphics/FontFamily;Ljava/lang/String;II)Landroid/graphics/Typeface; (light greylist, reflection)
+11-01 21:06:01.766  2061  5728 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+11-01 21:06:01.768  2061  5728 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+11-01 21:06:01.782  1432 23636 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 21:06:01.783  1432 23637 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 21:06:01.783  1432 23638 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 21:06:02.009 23573 23607 E PlayCatalog: Nuvio addon katalog hatasÄ± (nuvio_addon:3): The coroutine scope left the composition
+11-01 21:06:02.009 23573 23607 E PlayCatalog: androidx.compose.runtime.LeftCompositionCancellationException: The coroutine scope left the composition
+11-01 21:06:02.029  1432 23644 I /system/bin/netd: gethostby*.getanswer: asked for "image.tmdb.org IN A", got type "RRSIG"
+11-01 21:06:02.029  1432 23646 I /system/bin/netd: gethostby*.getanswer: asked for "image.tmdb.org IN A", got type "RRSIG"
+11-01 21:06:02.029  1597  4002 W SchedPolicy: add_tid_to_cgroup failed to write '2302' (No space left on device); fd=25
+11-01 21:06:02.029  1597  4002 W SchedPolicy: add_tid_to_cgroup failed to write '2061' (No space left on device); fd=25
+11-01 21:06:02.036  1432 23645 I /system/bin/netd: gethostby*.getanswer: asked for "image.tmdb.org IN A", got type "RRSIG"
+11-01 21:06:02.078  2302 22848 I FA      : Application backgrounded at: timestamp_millis: 1793556360077
+11-01 21:06:02.257  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:02.257  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 33 lines
+11-01 21:06:02.257  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:03.157 23663 23663 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 693 92 
+11-01 21:06:03.157 23663 23663 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 21:06:03.160 23663 23663 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 21:06:03.175 23663 23663 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 21:06:03.183 23663 23663 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 21:06:03.200 23663 23663 I main    : type=1400 audit(0.0:4202): avc: denied { open } for path="/data/local/cfg-ineyg/app_xpt" dev="sdb2" ino=394473 scontext=u:r:shell:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-01 21:06:03.200 23663 23663 I main    : type=1400 audit(0.0:4203): avc: denied { mounton } for path="/proc/cpuinfo" dev="proc" ino=4026531992 scontext=u:r:shell:s0 tcontext=u:object_r:proc_cpuinfo:s0 tclass=file permissive=1
+11-01 21:06:03.205 23663 23663 I app_process: The ClassLoaderContext is a special shared library.
+11-01 21:06:03.205 23663 23663 W app_process: Could not create mount namespace.
+11-01 21:06:03.205 23663 23663 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 21:06:03.205 23663 23663 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 21:06:03.205 23663 23663 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 21:06:03.205 23663 23663 D nativebridge: call UnloadNativeBridge! state=2
+11-01 21:06:03.235 23663 23663 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 21:06:03.236 23663 23663 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=693.0, y[0]=92.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=11145208, downTime=11145208, deviceId=3, source=0x1002 }
+11-01 21:06:03.250 23663 23663 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=693.0, y[0]=92.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=11145208, downTime=11145208, deviceId=3, source=0x1002 }
+11-01 21:06:03.269 23663 23663 D AndroidRuntime: Shutting down VM
+11-01 21:06:03.273  1440  1440 I writer  : type=1400 audit(0.0:4204): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6869 scontext=u:r:hal_audio_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:03.276  1440  3295 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-01 21:06:03.307  1451  1451 I composer@2.1-se: type=1400 audit(0.0:4205): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:03.754  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:03.754  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 38 lines
+11-01 21:06:03.754  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:04.376  2813  3115 D LdAnalyticsSDK: responseCode = 200
+11-01 21:06:04.382 23675 23675 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 500 200 
+11-01 21:06:04.382 23675 23675 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 21:06:04.383 23675 23675 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 21:06:04.389 23675 23675 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 21:06:04.394 23675 23675 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 21:06:04.400 23675 23675 I main    : type=1400 audit(0.0:4206): avc: denied { mounton } for path="/proc/cpuinfo" dev="proc" ino=4026531992 scontext=u:r:shell:s0 tcontext=u:object_r:proc_cpuinfo:s0 tclass=file permissive=1
+11-01 21:06:04.405 23675 23675 I app_process: The ClassLoaderContext is a special shared library.
+11-01 21:06:04.405 23675 23675 W app_process: Could not create mount namespace.
+11-01 21:06:04.405 23675 23675 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 21:06:04.405 23675 23675 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 21:06:04.405 23675 23675 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 21:06:04.405 23675 23675 D nativebridge: call UnloadNativeBridge! state=2
+11-01 21:06:04.414 23675 23675 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 21:06:04.415 23675 23675 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=500.0, y[0]=200.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=11146386, downTime=11146386, deviceId=3, source=0x1002 }
+11-01 21:06:04.429 23675 23675 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=500.0, y[0]=200.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=11146386, downTime=11146386, deviceId=3, source=0x1002 }
+11-01 21:06:04.443 23675 23675 D AndroidRuntime: Shutting down VM
+11-01 21:06:04.450  2702  2702 I utmethod.pinyin: type=1400 audit(0.0:4207): avc: denied { open } for path="/data/local/cfg-ineyg/input" dev="sdb2" ino=394485 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-01 21:06:04.455  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:04.461  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:04.462 23573 23573 W IInputConnectionWrapper: getCursorCapsMode on inactive InputConnection
+11-01 21:06:04.463  1597  2292 W SchedPolicy: add_tid_to_cgroup failed to write '2702' (No space left on device); fd=24
+11-01 21:06:04.464  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:04.473  1463  1463 I surfaceflinger: type=1400 audit(0.0:4208): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:04.473  2238  2238 I chatty  : uid=1000(system) com.android.coreservice identical 1 line
+11-01 21:06:04.474  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:04.476  1597  1658 D NotificationService: notify pkg=android pid=1597
+11-01 21:06:04.484  1597  2292 D NotificationService: notify pkg=android pid=1597
+11-01 21:06:04.487  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:4209): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6867 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:04.490  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:4210): avc: denied { read write } for name="fastpipe" dev="tmpfs" ino=3128 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:04.490  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:4211): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:04.490  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:4212): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:04.498  2702  5035 E EGL_emulation: tid 5035: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+11-01 21:06:04.498  2702  5035 W OpenGLRenderer: Failed to set EGL_SWAP_BEHAVIOR on surface 0x76387306f080, error=EGL_BAD_MATCH
+11-01 21:06:05.028 23685 23685 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input keyevent --longpress 67 67 67 67 67 67 67 67 67 67 67 67 67 67 67 
+11-01 21:06:05.028 23685 23685 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 21:06:05.029 23685 23685 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 21:06:05.035 23685 23685 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 21:06:05.041 23685 23685 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 21:06:05.052 23685 23685 I app_process: The ClassLoaderContext is a special shared library.
+11-01 21:06:05.052 23685 23685 W app_process: Could not create mount namespace.
+11-01 21:06:05.052 23685 23685 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 21:06:05.052 23685 23685 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 21:06:05.052 23685 23685 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 21:06:05.052 23685 23685 D nativebridge: call UnloadNativeBridge! state=2
+11-01 21:06:05.059 23685 23685 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 21:06:05.059 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147031, downTime=11147031, deviceId=-1, source=0x101 }
+11-01 21:06:05.070 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147031, downTime=11147031, deviceId=-1, source=0x101 }
+11-01 21:06:05.077 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147031, downTime=11147031, deviceId=-1, source=0x101 }
+11-01 21:06:05.083 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147056, downTime=11147056, deviceId=-1, source=0x101 }
+11-01 21:06:05.090 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147056, downTime=11147056, deviceId=-1, source=0x101 }
+11-01 21:06:05.096 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147056, downTime=11147056, deviceId=-1, source=0x101 }
+11-01 21:06:05.102 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147075, downTime=11147075, deviceId=-1, source=0x101 }
+11-01 21:06:05.108 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147075, downTime=11147075, deviceId=-1, source=0x101 }
+11-01 21:06:05.115 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147075, downTime=11147075, deviceId=-1, source=0x101 }
+11-01 21:06:05.124 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147097, downTime=11147097, deviceId=-1, source=0x101 }
+11-01 21:06:05.131 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147097, downTime=11147097, deviceId=-1, source=0x101 }
+11-01 21:06:05.140 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147097, downTime=11147097, deviceId=-1, source=0x101 }
+11-01 21:06:05.146 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147119, downTime=11147119, deviceId=-1, source=0x101 }
+11-01 21:06:05.152 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147119, downTime=11147119, deviceId=-1, source=0x101 }
+11-01 21:06:05.158 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147119, downTime=11147119, deviceId=-1, source=0x101 }
+11-01 21:06:05.160  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:05.160  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 33 lines
+11-01 21:06:05.160  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:05.164 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147137, downTime=11147137, deviceId=-1, source=0x101 }
+11-01 21:06:05.170 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147137, downTime=11147137, deviceId=-1, source=0x101 }
+11-01 21:06:05.175 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147137, downTime=11147137, deviceId=-1, source=0x101 }
+11-01 21:06:05.181 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147153, downTime=11147153, deviceId=-1, source=0x101 }
+11-01 21:06:05.186 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147153, downTime=11147153, deviceId=-1, source=0x101 }
+11-01 21:06:05.191 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147153, downTime=11147153, deviceId=-1, source=0x101 }
+11-01 21:06:05.197 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147170, downTime=11147170, deviceId=-1, source=0x101 }
+11-01 21:06:05.203 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147170, downTime=11147170, deviceId=-1, source=0x101 }
+11-01 21:06:05.209 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147170, downTime=11147170, deviceId=-1, source=0x101 }
+11-01 21:06:05.215 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147188, downTime=11147188, deviceId=-1, source=0x101 }
+11-01 21:06:05.221 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147188, downTime=11147188, deviceId=-1, source=0x101 }
+11-01 21:06:05.226 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147188, downTime=11147188, deviceId=-1, source=0x101 }
+11-01 21:06:05.233 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147206, downTime=11147206, deviceId=-1, source=0x101 }
+11-01 21:06:05.239 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147206, downTime=11147206, deviceId=-1, source=0x101 }
+11-01 21:06:05.246 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147206, downTime=11147206, deviceId=-1, source=0x101 }
+11-01 21:06:05.252 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147225, downTime=11147225, deviceId=-1, source=0x101 }
+11-01 21:06:05.259 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147225, downTime=11147225, deviceId=-1, source=0x101 }
+11-01 21:06:05.265 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147225, downTime=11147225, deviceId=-1, source=0x101 }
+11-01 21:06:05.267  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:05.267  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 33 lines
+11-01 21:06:05.267  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:05.271 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147244, downTime=11147244, deviceId=-1, source=0x101 }
+11-01 21:06:05.276 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147244, downTime=11147244, deviceId=-1, source=0x101 }
+11-01 21:06:05.282 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147244, downTime=11147244, deviceId=-1, source=0x101 }
+11-01 21:06:05.287 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147260, downTime=11147260, deviceId=-1, source=0x101 }
+11-01 21:06:05.293 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147260, downTime=11147260, deviceId=-1, source=0x101 }
+11-01 21:06:05.299 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147260, downTime=11147260, deviceId=-1, source=0x101 }
+11-01 21:06:05.304 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147277, downTime=11147277, deviceId=-1, source=0x101 }
+11-01 21:06:05.310 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147277, downTime=11147277, deviceId=-1, source=0x101 }
+11-01 21:06:05.315 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147277, downTime=11147277, deviceId=-1, source=0x101 }
+11-01 21:06:05.321 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147293, downTime=11147293, deviceId=-1, source=0x101 }
+11-01 21:06:05.326 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x80, repeatCount=1, eventTime=11147293, downTime=11147293, deviceId=-1, source=0x101 }
+11-01 21:06:05.331 23685 23685 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_DEL, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147293, downTime=11147293, deviceId=-1, source=0x101 }
+11-01 21:06:05.337 23685 23685 D AndroidRuntime: Shutting down VM
+11-01 21:06:05.376  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:05.376  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 36 lines
+11-01 21:06:05.376  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:05.924 23695 23695 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input text Fall%s2 
+11-01 21:06:05.924 23695 23695 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 21:06:05.925 23695 23695 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 21:06:05.932 23695 23695 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 21:06:05.937 23695 23695 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 21:06:05.949 23695 23695 I app_process: The ClassLoaderContext is a special shared library.
+11-01 21:06:05.949 23695 23695 W app_process: Could not create mount namespace.
+11-01 21:06:05.949 23695 23695 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 21:06:05.949 23695 23695 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 21:06:05.949 23695 23695 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 21:06:05.949 23695 23695 D nativebridge: call UnloadNativeBridge! state=2
+11-01 21:06:05.956 23695 23695 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 21:06:05.957 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:05.965 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_F, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:05.973 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_F, scanCode=0, metaState=META_SHIFT_ON|META_SHIFT_LEFT_ON, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:05.994 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_SHIFT_LEFT, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:06.001 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_A, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:06.008 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_A, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:06.023 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_L, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:06.033 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_L, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:06.040 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_L, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:06.055 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_L, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:06.061 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_SPACE, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:06.072 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_SPACE, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:06.088 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_2, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:06.098 23695 23695 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_2, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11147929, downTime=11147929, deviceId=-1, source=0x101 }
+11-01 21:06:06.104 23695 23695 D AndroidRuntime: Shutting down VM
+11-01 21:06:06.141  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:06.142  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 26 lines
+11-01 21:06:06.142  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:06.371  1440  1556 D audio_hw_hal: log_func, out_standby
+11-01 21:06:06.371  1440  1556 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-01 21:06:06.371  1440  1556 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-01 21:06:06.690  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:06.690  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 25 lines
+11-01 21:06:06.690  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:06.693 23705 23705 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input keyevent 66 
+11-01 21:06:06.693 23705 23705 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 21:06:06.694 23705 23705 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 21:06:06.703 23705 23705 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 21:06:06.708 23705 23705 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 21:06:06.720 23705 23705 I app_process: The ClassLoaderContext is a special shared library.
+11-01 21:06:06.720 23705 23705 W app_process: Could not create mount namespace.
+11-01 21:06:06.720 23705 23705 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 21:06:06.720 23705 23705 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 21:06:06.720 23705 23705 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 21:06:06.720 23705 23705 D nativebridge: call UnloadNativeBridge! state=2
+11-01 21:06:06.726 23705 23705 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 21:06:06.727 23705 23705 I Input   : injectKeyEvent: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_ENTER, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11148699, downTime=11148699, deviceId=-1, source=0x101 }
+11-01 21:06:06.736 23705 23705 I Input   : injectKeyEvent: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_ENTER, scanCode=0, metaState=0, flags=0x0, repeatCount=0, eventTime=11148699, downTime=11148699, deviceId=-1, source=0x101 }
+11-01 21:06:06.741 23705 23705 D AndroidRuntime: Shutting down VM
+11-01 21:06:06.743 23573 23718 D ProfileInstaller: Installing profile for com.kaan.play
+11-01 21:06:06.748  1597  4002 W SchedPolicy: add_tid_to_cgroup failed to write '2702' (No space left on device); fd=25
+11-01 21:06:06.759  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:08.456  1597  1625 W SchedPolicy: add_tid_to_cgroup failed to write '21737' (No space left on device); fd=25
+11-01 21:06:09.847 23719 23719 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 85 500 
+11-01 21:06:09.847 23719 23719 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 21:06:09.848 23719 23719 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 21:06:09.854 23719 23719 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 21:06:09.860 23719 23719 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 21:06:09.871 23719 23719 I app_process: The ClassLoaderContext is a special shared library.
+11-01 21:06:09.871 23719 23719 W app_process: Could not create mount namespace.
+11-01 21:06:09.871 23719 23719 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 21:06:09.871 23719 23719 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 21:06:09.871 23719 23719 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 21:06:09.871 23719 23719 D nativebridge: call UnloadNativeBridge! state=2
+11-01 21:06:09.877 23719 23719 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 21:06:09.879 23719 23719 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=85.0, y[0]=500.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=11151850, downTime=11151850, deviceId=3, source=0x1002 }
+11-01 21:06:09.890 23719 23719 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=85.0, y[0]=500.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=11151850, downTime=11151850, deviceId=3, source=0x1002 }
+11-01 21:06:09.898  1440  3295 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-01 21:06:09.900 23719 23719 D AndroidRuntime: Shutting down VM
+11-01 21:06:10.081  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:10.081  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 36 lines
+11-01 21:06:10.081  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:10.780  1460  1460 I ldinit  : type=1400 audit(0.0:4215): avc: denied { read } for name="partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-01 21:06:10.780  1460  1460 I ldinit  : type=1400 audit(0.0:4216): avc: denied { open } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-01 21:06:10.780  1460  1460 I ldinit  : type=1400 audit(0.0:4217): avc: denied { getattr } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-01 21:06:11.756  2702  2712 W System  : A resource failed to call close. 
+11-01 21:06:12.086  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-01 21:06:12.086  1597  1610 E memtrack: Couldn't load memtrack module
+11-01 21:06:12.086  1597  1610 W android.os.Debug: failed to get memory consumption info: -1
+11-01 21:06:12.972  1440  1556 D audio_hw_hal: log_func, out_standby
+11-01 21:06:12.972  1440  1556 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-01 21:06:12.972  1440  1556 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-01 21:06:13.020 23730 23730 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 254 310 
+11-01 21:06:13.020 23730 23730 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 21:06:13.021 23730 23730 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 21:06:13.028 23730 23730 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 21:06:13.033 23730 23730 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 21:06:13.044 23730 23730 I app_process: The ClassLoaderContext is a special shared library.
+11-01 21:06:13.044 23730 23730 W app_process: Could not create mount namespace.
+11-01 21:06:13.044 23730 23730 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 21:06:13.045 23730 23730 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 21:06:13.045 23730 23730 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 21:06:13.045 23730 23730 D nativebridge: call UnloadNativeBridge! state=2
+11-01 21:06:13.051 23730 23730 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 21:06:13.052 23730 23730 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=254.0, y[0]=310.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=11155024, downTime=11155024, deviceId=3, source=0x1002 }
+11-01 21:06:13.062 23730 23730 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=254.0, y[0]=310.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=11155024, downTime=11155024, deviceId=3, source=0x1002 }
+11-01 21:06:13.069 23730 23730 D AndroidRuntime: Shutting down VM
+11-01 21:06:13.071  1440  3295 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-01 21:06:13.130  1463  1521 D SurfaceFlinger: duplicate layer name: changing com.kaan.play/com.kaan.play.MainActivity to com.kaan.play/com.kaan.play.MainActivity#1
+11-01 21:06:13.137 23573 23623 E EGL_emulation: tid 23623: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+11-01 21:06:13.137 23573 23623 W OpenGLRenderer: Failed to set EGL_SWAP_BEHAVIOR on surface 0x763867d9c000, error=EGL_BAD_MATCH
+11-01 21:06:13.161  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:13.173  1463  1463 I surfaceflinger: type=1400 audit(0.0:4218): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=3128 scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:13.200 23573 23573 D PlayAddon: Torrentio: istek tÃ¼r=movie kimlik=tt31192372
+11-01 21:06:13.214 23573 23573 D PlayPlugin: HDFilmCehennemi: istek tmdbId=1101412 tÃ¼r=movie sezon=null bÃ¶lÃ¼m=null
+11-01 21:06:13.226 23573 23708 D PlayCs  : streams: 0 aÃ§Ä±k CS eklentisi
+11-01 21:06:13.337  1432 23742 I /system/bin/netd: gethostby*.getanswer: asked for "api.themoviedb.org IN A", got type "RRSIG"
+11-01 21:06:13.436 23573 23614 D PlayPluginNet: api.themoviedb.org GET -> 200 ctype=application/json len=1788 charset=UTF-8
+11-01 21:06:13.465 21737 21745 W System  : A resource failed to call close. 
+11-01 21:06:13.526 23573 23744 D PlayTorrent: libtorrent oturumu baÅŸlÄ±yor (ABI=x86_64, x86, arm64-v8a, armeabi-v7a, armeabi, dizin=/storage/emulated/0/Android/data/com.kaan.play/cache/torrents)
+11-01 21:06:13.546 23573 23744 D PlayTorrent: libtorrent oturumu baÅŸladÄ±
+11-01 21:06:13.547  1432 23748 I /system/bin/netd: gethostby*.getanswer: asked for "dht.libtorrent.org IN AAAA", got type "RRSIG"
+11-01 21:06:13.547  1432 23748 I /system/bin/netd: gethostby*.getanswer: asked for "dht.libtorrent.org IN A", got type "RRSIG"
+11-01 21:06:13.549 23573 23746 D PlayTorrent: alert LISTEN_FAILED: listening on 0.0.0.0:0 (device: ) failed: [enum_route] [TCP] Operation not supported on transport endpoint
+11-01 21:06:13.550 23573 23746 D PlayTorrent: alert LISTEN_SUCCEEDED: successfully listening on [TCP] 0.0.0.0:6881
+11-01 21:06:13.550 23573 23746 D PlayTorrent: alert LISTEN_SUCCEEDED: successfully listening on [uTP] 0.0.0.0:6881
+11-01 21:06:13.550 23573 23746 D PlayTorrent: alert LISTEN_SUCCEEDED: successfully listening on [TCP] [::]:6881
+11-01 21:06:13.550 23573 23746 D PlayTorrent: alert LISTEN_SUCCEEDED: successfully listening on [uTP] [::]:6881
+11-01 21:06:13.703  1597  1597 W SchedPolicy: add_tid_to_cgroup failed to write '21811' (No space left on device); fd=24
+11-01 21:06:13.704  1480  1480 W wificond: Scan already started
+11-01 21:06:13.710  1597  4002 W SchedPolicy: add_tid_to_cgroup failed to write '21811' (No space left on device); fd=25
+11-01 21:06:13.711 21811 21811 I Finsky  : [2] SCH: job service start with id 9093.
+11-01 21:06:13.718 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.718 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.718 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.718 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.719 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.719 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.720 23573 23614 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=1878 charset=UTF-8
+11-01 21:06:13.721 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.721 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9100, L: 0, D: 59472797, C: false, I: false, N: 1
+11-01 21:06:13.723 21811 21811 I Finsky  : [2] SCH: job service start with id 9100.
+11-01 21:06:13.724 21811 23751 I Finsky  : [484] SCH: job service finished with id 9093.
+11-01 21:06:13.725 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.725 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.725 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.725 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.725 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.725 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.726 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.726 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9106, L: 0, D: 59472792, C: false, I: false, N: 1
+11-01 21:06:13.727 21811 21811 I Finsky  : [2] SCH: job service start with id 9106.
+11-01 21:06:13.728 21811 23751 I Finsky  : [484] SCH: job service finished with id 9100.
+11-01 21:06:13.729 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.729 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.729 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.729 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.729 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.729 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.730 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.730 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9112, L: 0, D: 59472788, C: false, I: false, N: 1
+11-01 21:06:13.731 21811 21811 I Finsky  : [2] SCH: job service start with id 9112.
+11-01 21:06:13.731 21811 23751 I Finsky  : [484] SCH: job service finished with id 9106.
+11-01 21:06:13.733 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.733 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.733 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.733 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.733 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.733 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.734 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.734 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9118, L: 0, D: 59472784, C: false, I: false, N: 1
+11-01 21:06:13.735 21811 21811 I Finsky  : [2] SCH: job service start with id 9118.
+11-01 21:06:13.735 21811 23751 I Finsky  : [484] SCH: job service finished with id 9112.
+11-01 21:06:13.737 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.737 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.737 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.737 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.737 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.737 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.738 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.738 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9124, L: 0, D: 59472780, C: false, I: false, N: 1
+11-01 21:06:13.738 21811 21811 I Finsky  : [2] SCH: job service start with id 9124.
+11-01 21:06:13.739 21811 23751 I Finsky  : [484] SCH: job service finished with id 9118.
+11-01 21:06:13.741 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.741 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.741 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.741 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.741 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.741 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.746 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.746 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9130, L: 0, D: 59472772, C: false, I: false, N: 1
+11-01 21:06:13.747 21811 21811 I Finsky  : [2] SCH: job service start with id 9130.
+11-01 21:06:13.748 21811 23751 I Finsky  : [484] SCH: job service finished with id 9124.
+11-01 21:06:13.750 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.750 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.750 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.750 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.750 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.750 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.751 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.751 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9136, L: 0, D: 59472767, C: false, I: false, N: 1
+11-01 21:06:13.751 21811 21811 I Finsky  : [2] SCH: job service start with id 9136.
+11-01 21:06:13.752 21811 23751 I Finsky  : [484] SCH: job service finished with id 9130.
+11-01 21:06:13.753 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.753 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.753 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.753 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.753 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.753 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.754 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.754 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9142, L: 0, D: 59472764, C: false, I: false, N: 1
+11-01 21:06:13.755 21811 21811 I Finsky  : [2] SCH: job service start with id 9142.
+11-01 21:06:13.756 21811 23751 I Finsky  : [484] SCH: job service finished with id 9136.
+11-01 21:06:13.757 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.757 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.757 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.757 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.757 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.757 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.758 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.758 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9148, L: 0, D: 59472760, C: false, I: false, N: 1
+11-01 21:06:13.759 21811 21811 I Finsky  : [2] SCH: job service start with id 9148.
+11-01 21:06:13.760 21811 23751 I Finsky  : [484] SCH: job service finished with id 9142.
+11-01 21:06:13.761 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.761 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.761 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.761 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.761 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.761 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.762 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.762 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9154, L: 0, D: 59472756, C: false, I: false, N: 1
+11-01 21:06:13.763 21811 21811 I Finsky  : [2] SCH: job service start with id 9154.
+11-01 21:06:13.763 21811 23751 I Finsky  : [484] SCH: job service finished with id 9148.
+11-01 21:06:13.765 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.765 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.765 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.765 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.765 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.765 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.765 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.765 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9160, L: 0, D: 59472753, C: false, I: false, N: 1
+11-01 21:06:13.766 21811 21811 I Finsky  : [2] SCH: job service start with id 9160.
+11-01 21:06:13.766 21811 23751 I Finsky  : [484] SCH: job service finished with id 9154.
+11-01 21:06:13.768 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.768 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.768 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.768 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.768 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.768 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.769 21811 21866 I Finsky  : [388] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.769 21811 21866 I Finsky  : [388] SCH: Scheduling system job Id: 9166, L: 0, D: 59472749, C: false, I: false, N: 1
+11-01 21:06:13.769 21811 21811 I Finsky  : [2] SCH: job service start with id 9166.
+11-01 21:06:13.770 21811 23751 I Finsky  : [484] SCH: job service finished with id 9160.
+11-01 21:06:13.772 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.772 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.772 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.772 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.772 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.772 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.773 21811 21866 I Finsky  : [388] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.773 21811 21866 I Finsky  : [388] SCH: Scheduling system job Id: 9172, L: 0, D: 59472745, C: false, I: false, N: 1
+11-01 21:06:13.773 21811 21811 I Finsky  : [2] SCH: job service start with id 9172.
+11-01 21:06:13.774 21811 23751 I Finsky  : [484] SCH: job service finished with id 9166.
+11-01 21:06:13.775 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.775 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.775 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.775 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.775 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.775 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.776 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.776 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9178, L: 0, D: 59472742, C: false, I: false, N: 1
+11-01 21:06:13.777 21811 21811 I Finsky  : [2] SCH: job service start with id 9178.
+11-01 21:06:13.778 21811 23751 I Finsky  : [484] SCH: job service finished with id 9172.
+11-01 21:06:13.779 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.779 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.779 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.779 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.779 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.779 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.780 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.780 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9184, L: 0, D: 59472738, C: false, I: false, N: 1
+11-01 21:06:13.780 21811 21811 I Finsky  : [2] SCH: job service start with id 9184.
+11-01 21:06:13.781 21811 23751 I Finsky  : [484] SCH: job service finished with id 9178.
+11-01 21:06:13.782 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.783 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.783 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.783 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.783 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.783 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.783 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.783 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9190, L: 0, D: 59472735, C: false, I: false, N: 1
+11-01 21:06:13.784 21811 21811 I Finsky  : [2] SCH: job service start with id 9190.
+11-01 21:06:13.784 21811 23751 I Finsky  : [484] SCH: job service finished with id 9184.
+11-01 21:06:13.786 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.786 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.786 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.786 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.786 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.786 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.787 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.787 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9196, L: 0, D: 59472731, C: false, I: false, N: 1
+11-01 21:06:13.787 21811 21811 I Finsky  : [2] SCH: job service start with id 9196.
+11-01 21:06:13.788 21811 23751 I Finsky  : [484] SCH: job service finished with id 9190.
+11-01 21:06:13.791 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.791 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.791 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.791 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.791 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.791 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.792 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.792 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9202, L: 0, D: 59472726, C: false, I: false, N: 1
+11-01 21:06:13.792 21811 21811 I Finsky  : [2] SCH: job service start with id 9202.
+11-01 21:06:13.793 21811 23751 I Finsky  : [484] SCH: job service finished with id 9196.
+11-01 21:06:13.795 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.795 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.795 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.795 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.795 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.795 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.796 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.796 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9208, L: 0, D: 59472722, C: false, I: false, N: 1
+11-01 21:06:13.796 21811 21811 I Finsky  : [2] SCH: job service start with id 9208.
+11-01 21:06:13.797 21811 23751 I Finsky  : [484] SCH: job service finished with id 9202.
+11-01 21:06:13.798 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.798 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.798 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.798 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.798 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.799 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.799 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.799 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9214, L: 0, D: 59472719, C: false, I: false, N: 1
+11-01 21:06:13.800 21811 21811 I Finsky  : [2] SCH: job service start with id 9214.
+11-01 21:06:13.800 21811 23751 I Finsky  : [484] SCH: job service finished with id 9208.
+11-01 21:06:13.802 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.802 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.802 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.802 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.802 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.802 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.803 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.803 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9220, L: 0, D: 59472715, C: false, I: false, N: 1
+11-01 21:06:13.804 21811 21811 I Finsky  : [2] SCH: job service start with id 9220.
+11-01 21:06:13.804 21811 23751 I Finsky  : [484] SCH: job service finished with id 9214.
+11-01 21:06:13.806 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.806 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.806 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.806 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.806 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.806 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.807 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.807 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9226, L: 0, D: 59472711, C: false, I: false, N: 1
+11-01 21:06:13.807 21811 21811 I Finsky  : [2] SCH: job service start with id 9226.
+11-01 21:06:13.808 21811 23751 I Finsky  : [484] SCH: job service finished with id 9220.
+11-01 21:06:13.810 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.810 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.810 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.810 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.810 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.810 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.811 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.811 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9232, L: 0, D: 59472707, C: false, I: false, N: 1
+11-01 21:06:13.811 21811 21811 I Finsky  : [2] SCH: job service start with id 9232.
+11-01 21:06:13.812 21811 23751 I Finsky  : [484] SCH: job service finished with id 9226.
+11-01 21:06:13.814 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.814 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.814 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.814 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.814 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.814 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.814 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.814 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9238, L: 0, D: 59472704, C: false, I: false, N: 1
+11-01 21:06:13.815 21811 21811 I Finsky  : [2] SCH: job service start with id 9238.
+11-01 21:06:13.816 21811 23751 I Finsky  : [484] SCH: job service finished with id 9232.
+11-01 21:06:13.818 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.818 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.818 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.818 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.818 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.818 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.818 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.819 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9244, L: 0, D: 59472699, C: false, I: false, N: 1
+11-01 21:06:13.819 23573 23614 D PlayPluginNet: www.hdfilmcehennemi.nl GET -> 200 ctype=text/html len=96172 charset=UTF-8
+11-01 21:06:13.820 21811 23751 I Finsky  : [484] SCH: job service finished with id 9238.
+11-01 21:06:13.821 21811 21811 I Finsky  : [2] SCH: job service start with id 9244.
+11-01 21:06:13.823 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.823 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.823 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.823 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.823 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.823 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.823 21811 21866 I Finsky  : [388] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.824 21811 21866 I Finsky  : [388] SCH: Scheduling system job Id: 9250, L: 0, D: 59472694, C: false, I: false, N: 1
+11-01 21:06:13.824 21811 21811 I Finsky  : [2] SCH: job service start with id 9250.
+11-01 21:06:13.825 21811 23751 I Finsky  : [484] SCH: job service finished with id 9244.
+11-01 21:06:13.827 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.827 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.827 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.827 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.827 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.827 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.828 21811 21866 I Finsky  : [388] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.828 21811 21866 I Finsky  : [388] SCH: Scheduling system job Id: 9256, L: 0, D: 59472690, C: false, I: false, N: 1
+11-01 21:06:13.829 21811 23751 I Finsky  : [484] SCH: job service finished with id 9250.
+11-01 21:06:13.829 21811 21811 I Finsky  : [2] SCH: job service start with id 9256.
+11-01 21:06:13.831 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.831 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.831 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.831 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.831 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.831 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.832 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.832 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9262, L: 0, D: 59472686, C: false, I: false, N: 1
+11-01 21:06:13.833 21811 21811 I Finsky  : [2] SCH: job service start with id 9262.
+11-01 21:06:13.833 21811 23751 I Finsky  : [484] SCH: job service finished with id 9256.
+11-01 21:06:13.834 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.834 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.834 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.834 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.834 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.834 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.835 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.835 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9268, L: 0, D: 59472683, C: false, I: false, N: 1
+11-01 21:06:13.836 21811 21811 I Finsky  : [2] SCH: job service start with id 9268.
+11-01 21:06:13.838 21811 23751 I Finsky  : [484] SCH: job service finished with id 9262.
+11-01 21:06:13.839 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.839 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.839 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.839 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.839 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.839 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.840 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.840 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9274, L: 0, D: 59472678, C: false, I: false, N: 1
+11-01 21:06:13.841 21811 21811 I Finsky  : [2] SCH: job service start with id 9274.
+11-01 21:06:13.841 21811 23751 I Finsky  : [484] SCH: job service finished with id 9268.
+11-01 21:06:13.843 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.843 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.843 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.843 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.843 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.843 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.843 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.843 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9280, L: 0, D: 59472675, C: false, I: false, N: 1
+11-01 21:06:13.844 21811 21811 I Finsky  : [2] SCH: job service start with id 9280.
+11-01 21:06:13.845 21811 23751 I Finsky  : [484] SCH: job service finished with id 9274.
+11-01 21:06:13.846 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.846 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.846 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.846 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.846 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.846 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.847 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.847 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9286, L: 0, D: 59472671, C: false, I: false, N: 1
+11-01 21:06:13.847 23573 23573 D PlayPlugin: HDFilmCehennemi: eklenti 0 akÄ±ÅŸ dÃ¶ndÃ¼rdÃ¼, listeye 0 girdi
+11-01 21:06:13.849 21811 21811 I Finsky  : [2] SCH: job service start with id 9286.
+11-01 21:06:13.850 21811 23751 I Finsky  : [484] SCH: job service finished with id 9280.
+11-01 21:06:13.851 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.851 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.851 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.851 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.851 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.851 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.852 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.852 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9292, L: 0, D: 59472666, C: false, I: false, N: 1
+11-01 21:06:13.852 21811 21811 I Finsky  : [2] SCH: job service start with id 9292.
+11-01 21:06:13.853 21811 23751 I Finsky  : [484] SCH: job service finished with id 9286.
+11-01 21:06:13.855 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.855 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.855 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.855 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.855 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.855 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.856 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.856 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9298, L: 0, D: 59472662, C: false, I: false, N: 1
+11-01 21:06:13.856 21811 21811 I Finsky  : [2] SCH: job service start with id 9298.
+11-01 21:06:13.857 21811 23751 I Finsky  : [484] SCH: job service finished with id 9292.
+11-01 21:06:13.858 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.858 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.858 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.858 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.858 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.859 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.859 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.859 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9304, L: 0, D: 59472659, C: false, I: false, N: 1
+11-01 21:06:13.860 21811 21811 I Finsky  : [2] SCH: job service start with id 9304.
+11-01 21:06:13.861 21811 23751 I Finsky  : [484] SCH: job service finished with id 9298.
+11-01 21:06:13.865 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.865 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.865 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.865 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.865 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.865 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.866 21811 21865 I Finsky  : [387] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.866 21811 21865 I Finsky  : [387] SCH: Scheduling system job Id: 9310, L: 0, D: 59472652, C: false, I: false, N: 1
+11-01 21:06:13.867 21811 21811 I Finsky  : [2] SCH: job service start with id 9310.
+11-01 21:06:13.867 21811 23751 I Finsky  : [484] SCH: job service finished with id 9304.
+11-01 21:06:13.869 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.869 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.869 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.869 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.869 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.869 21811 21865 I Finsky  : [387] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.870 21811 21866 I Finsky  : [388] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.870 21811 21866 I Finsky  : [388] SCH: Scheduling system job Id: 9316, L: 0, D: 59472648, C: false, I: false, N: 1
+11-01 21:06:13.870 21811 21811 I Finsky  : [2] SCH: job service start with id 9316.
+11-01 21:06:13.871 21811 23751 I Finsky  : [484] SCH: job service finished with id 9310.
+11-01 21:06:13.872 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.872 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.872 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.872 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.873 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.873 21811 21860 I Finsky  : [382] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.873 21811 21866 I Finsky  : [388] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.873 21811 21866 I Finsky  : [388] SCH: Scheduling system job Id: 9322, L: 0, D: 59472645, C: false, I: false, N: 1
+11-01 21:06:13.874 21811 21811 I Finsky  : [2] SCH: job service start with id 9322.
+11-01 21:06:13.874 21811 23751 I Finsky  : [484] SCH: job service finished with id 9316.
+11-01 21:06:13.876 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.876 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 12-1, CT: 1793556358878, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.876 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.876 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.876 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.876 21811 21863 I Finsky  : [385] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:13.877 21811 21866 I Finsky  : [388] SCH: Scheduling 1 system job(s)
+11-01 21:06:13.877 21811 21866 I Finsky  : [388] SCH: Scheduling system job Id: 9328, L: 0, D: 59472641, C: false, I: false, N: 1
+11-01 21:06:13.877 21811 21811 I Finsky  : [2] SCH: job service start with id 9328.
+11-01 21:06:13.878 21811 23751 I Finsky  : [484] SCH: job service finished with id 9322.
+11-01 21:06:13.879 21811 23525 I Finsky  : [477] SCH: Satisfied jobs for 9328 are: 12-1
+11-01 21:06:13.881 21811 23751 I Finsky  : [484] SCH: Job 12-1 starting
+11-01 21:06:13.882 21811 21811 I Finsky  : [2] WM::SCH: Logging work start for 12-1
+11-01 21:06:13.882 21811 21811 I Finsky  : [2] [ContentSync] job started
+11-01 21:06:13.890  1432 23752 I /system/bin/netd: gethostby*.getanswer: asked for "dht.transmissionbt.com IN AAAA", got type "RRSIG"
+11-01 21:06:13.890  1432 23752 I /system/bin/netd: gethostby*.getanswer: asked for "dht.transmissionbt.com IN A", got type "RRSIG"
+11-01 21:06:13.975 23573 23746 D PlayTorrent: alert EXTERNAL_IP: external IP received: 78.185.129.235
+11-01 21:06:14.027  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:14.027  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 54 lines
+11-01 21:06:14.027  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:14.029  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.auth.aang.events.services.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 21:06:14.109  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-01 21:06:14.278  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:14.281  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 91 lines
+11-01 21:06:14.281  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:14.297 21811 21811 I Finsky  : [2] App states replicator found 9 unowned apps
+11-01 21:06:14.300 21811 21863 I Finsky  : [385] Completed 0 account content syncs with 0 successful.
+11-01 21:06:14.300 21811 21811 I Finsky  : [2] [ContentSync] Installation state replication succeeded.
+11-01 21:06:14.300 21811 21811 I Finsky  : [2] SCH: jobFinished: 12-1. TimeElapsed: 419ms.
+11-01 21:06:14.300 21811 21811 I Finsky  : [2] WM::SCH: Logging work end for 12-1
+11-01 21:06:14.304 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793545237085, Constraints: [{ L: 27409433, D: 70609433, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:14.304 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-134, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2435467445, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:14.304 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-141, CT: 1793545242395, Constraints: [{ L: 604800000, D: 2514669269, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:14.304 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-144, CT: 1793547233159, Constraints: [{ L: 79199416, D: 1375199416, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:14.304 21811 21866 I Finsky  : [388] SCH: Scheduling phonesky job Id: 34-145, CT: 1793547233924, Constraints: [{ L: 604800000, D: 2591999254, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-01 21:06:14.305 21811 21860 I Finsky  : [382] SCH: Scheduling 1 system job(s)
+11-01 21:06:14.305 21811 21860 I Finsky  : [382] SCH: Scheduling system job Id: 9334, L: 16272213, D: 59472213, C: false, I: false, N: 1
+11-01 21:06:14.306 21811 23751 I Finsky  : [484] SCH: job service finished with id 9328.
+11-01 21:06:14.705  1597  2549 D WificondControl: Scan result ready event
+11-01 21:06:15.198  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 21:06:15.200  2061  2061 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-01 21:06:16.145 23756 23756 I BENCHMARK: START_PLAY B Fall2 r1
+11-01 21:06:16.147  1440  1556 D audio_hw_hal: log_func, out_standby
+11-01 21:06:16.147  1440  1556 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-01 21:06:16.147  1440  1556 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-01 21:06:16.231 23758 23758 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 500 400 
+11-01 21:06:16.231 23758 23758 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-01 21:06:16.232 23758 23758 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-01 21:06:16.238 23758 23758 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-01 21:06:16.243 23758 23758 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-01 21:06:16.256 23758 23758 I app_process: The ClassLoaderContext is a special shared library.
+11-01 21:06:16.256 23758 23758 W app_process: Could not create mount namespace.
+11-01 21:06:16.256 23758 23758 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-01 21:06:16.256 23758 23758 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-01 21:06:16.256 23758 23758 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: Operation not permitted
+11-01 21:06:16.256 23758 23758 D nativebridge: call UnloadNativeBridge! state=2
+11-01 21:06:16.263 23758 23758 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-01 21:06:16.264 23758 23758 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=500.0, y[0]=400.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=11158236, downTime=11158236, deviceId=3, source=0x1002 }
+11-01 21:06:16.275 23758 23758 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=500.0, y[0]=400.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=11158236, downTime=11158236, deviceId=3, source=0x1002 }
+11-01 21:06:16.288  1597  1658 I ActivityManager: START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10192
+11-01 21:06:16.288  1440  3295 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-01 21:06:16.296 23758 23758 D AndroidRuntime: Shutting down VM
+11-01 21:06:16.298  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:45 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:16.300 23768 23768 I ldinit  : type=1400 audit(0.0:4219): avc: denied { execute } for name="sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+11-01 21:06:16.300 23768 23768 I ldinit  : type=1400 audit(0.0:4220): avc: denied { read open } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+11-01 21:06:16.300 23768 23768 I ldinit  : type=1400 audit(0.0:4221): avc: denied { execute_no_trans } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+11-01 21:06:16.300 23768 23768 I sh      : type=1400 audit(0.0:4222): avc: denied { getattr } for path="/system/bin/sh" dev="sda2" ino=1684 scontext=u:r:ldinit:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+11-01 21:06:16.300 23768 23768 I sh      : type=1400 audit(0.0:4223): avc: denied { execute_no_trans } for path="/system/bin/am" dev="sda2" ino=1703 scontext=u:r:ldinit:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+11-01 21:06:16.303  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.android.ld.appstore -f 32 --es package com.kaan.play --es pos pc
+11-01 21:06:16.303  1460  1460 D ldinit  : result:
+11-01 21:06:16.307  1377  1377 I servicemanager: type=1400 audit(0.0:4224): avc: denied { search } for name="23769" dev="proc" ino=643397 scontext=u:r:servicemanager:s0 tcontext=u:r:ldinit:s0 tclass=dir permissive=1
+11-01 21:06:16.328  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.android.ld.appstore (has extras) }
+11-01 21:06:16.337  2813 20922 I AppStartReceiver: onReceive, action = com.ldmnq.APP_FOREGROUND, extras = Bundle[{package=com.kaan.play, pos=pc}]
+11-01 21:06:16.337  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 21:06:16.341  1460  1460 D ldinit  : ld_exec_cmd am broadcast -a com.ldmnq.APP_FOREGROUND -p com.ldmnq.launcher3 -f 32 --es package com.kaan.play --es pos pc
+11-01 21:06:16.341  1460  1460 D ldinit  : result:
+11-01 21:06:16.350  1460  1460 D ldinit  : Broadcasting: Intent { act=com.ldmnq.APP_FOREGROUND flg=0x400020 pkg=com.ldmnq.launcher3 (has extras) }
+11-01 21:06:16.362  2302 20942 D AppStartReceiver: action = com.ldmnq.APP_FOREGROUND, packageName = com.kaan.play, pos = pc
+11-01 21:06:16.363 23573 23573 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@d45efc2
+11-01 21:06:16.363  1460  1460 D ldinit  : Broadcast completed: result=0
+11-01 21:06:16.393 23573 23573 I ExoPlayerImpl: Init 97dcd72 [AndroidXMedia3/1.11.1] [star2qltechn, SM-X710N, samsung, 28]
+11-01 21:06:16.400 23573 23573 W com.kaan.play: Accessing hidden method Landroid/media/AudioTrack$Builder;->setOffloadedPlayback(Z)Landroid/media/AudioTrack$Builder; (dark greylist, linking)
+11-01 21:06:16.424 23573 23573 D PlaySubs: videonun iÃ§indeki altyazÄ±lar: []
+11-01 21:06:16.424 23573 23573 D PlaySubs: seÃ§im: kapalÄ±
+11-01 21:06:16.436 23573 23573 W VideoCapabilities: Unrecognized profile 4 for video/hevc
+11-01 21:06:16.436 23573 23573 W VideoCapabilities: Unrecognized profile 4 for video/hevc
+11-01 21:06:16.439 23573 23573 I VideoCapabilities: Unsupported profile 4 for video/mp4v-es
+11-01 21:06:16.448  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:16.514 23573 23585 I com.kaan.play: JIT allocated 67KB for stack maps of void com.kaan.play.ui.player.PlayerScreenKt.Controls(java.lang.String, java.lang.String, java.lang.String, boolean, boolean, long, long, com.kaan.play.ui.player.GestureZones, androidx.compose.ui.focus.FocusRequester, androidx.compose.ui.focus.FocusRequester, androidx.compose.ui.focus.FocusRequester, kotlin.jvm.functions.Function1, androidx.compose.ui.focus.FocusRequester, java.util.List, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function1, kotlin.jvm.functions.Function1, kotlin.jvm.functions.Function0, androidx.compose.runtime.Composer, int, int, int)
+11-01 21:06:16.514 23573 23585 I com.kaan.play: Compiler allocated 6MB to compile void com.kaan.play.ui.player.PlayerScreenKt.Controls(java.lang.String, java.lang.String, java.lang.String, boolean, boolean, long, long, com.kaan.play.ui.player.GestureZones, androidx.compose.ui.focus.FocusRequester, androidx.compose.ui.focus.FocusRequester, androidx.compose.ui.focus.FocusRequester, kotlin.jvm.functions.Function1, androidx.compose.ui.focus.FocusRequester, java.util.List, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function1, kotlin.jvm.functions.Function1, kotlin.jvm.functions.Function0, androidx.compose.runtime.Composer, int, int, int)
+11-01 21:06:16.524  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:16.524  1597  1604 I chatty  : uid=1000(system) FinalizerDaemon identical 41 lines
+11-01 21:06:16.524  1597  1604 W System  : A resource failed to call close. 
+11-01 21:06:16.595 23573 23623 E EGL_emulation: tid 23623: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+11-01 21:06:16.595 23573 23623 W OpenGLRenderer: Failed to set EGL_SWAP_BEHAVIOR on surface 0x763867d9c200, error=EGL_BAD_MATCH
+11-01 21:06:16.597 23573 23573 D PlayMatch: kaynak baÅŸlatÄ±lÄ±yor: Torrentio (?)
+11-01 21:06:16.598 23573 23573 D PlaybackController: YÃ¼zey henÃ¼z hazÄ±r deÄŸil; erken arabelleÄŸe alma (optimistic buffering) ile ExoPlayer hazÄ±rlanÄ±yor.
+11-01 21:06:16.599 23573 23573 D PlayStreamUrl: oynatÄ±lÄ±yor magnet: mime=?
+11-01 21:06:16.599 23573 23573 D PlayTorrent: oynatÄ±cÄ±ya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=0 baÅŸlÄ±klar=[] mime=null
+11-01 21:06:16.618 23573 23779 D PlayTorrent: yerel sunucu isteÄŸi: GET range=null hedefOk=true
+11-01 21:06:16.618 23573 23779 D PlayTorrent: motor open: hash=7e190917e0ef191710ab931463fbe0f37b91c2b8 fileHint=0
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert STATE_CHANGED: 7e1909: state changed to: dl metadata
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert ADD_TORRENT: added torrent: 7e190917e0ef191710ab931463fbe0f37b91c2b8
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TORRENT_RESUMED: 7e1909 resumed
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.623  1432 23780 I /system/bin/netd: gethostby*.getanswer: asked for "zer0day.ch IN A", got type "RRSIG"
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.623 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-01 21:06:16.624 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-01 21:06:16.625  1432 23782 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.opentrackr.org IN A", got type "RRSIG"
+11-01 21:06:16.625 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-01 21:06:16.625 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.625 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.626  1432 23785 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.renfei.net IN AAAA", got type "RRSIG"
+11-01 21:06:16.626  1432 23785 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.renfei.net IN A", got type "RRSIG"
+11-01 21:06:16.626  1432 23786 I /system/bin/netd: gethostby*.getanswer: asked for "udp.tracker.projectk.org IN A", got type "RRSIG"
+11-01 21:06:16.627  1432 23789 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.theoks.net IN AAAA", got type "RRSIG"
+11-01 21:06:16.627  1432 23789 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.theoks.net IN A", got type "RRSIG"
+11-01 21:06:16.628 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-01 21:06:16.628 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.628 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.628 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.628 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.628 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.656 23573 23573 D PlaybackController: Video yÃ¼zeyi (TextureView) hazÄ±r bildirildi.
+11-01 21:06:16.661  1432 23794 I /system/bin/netd: gethostby*.getanswer: asked for "opensubtitles-v3.strem.io IN A", got type "RRSIG"
+11-01 21:06:16.662  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:16.681  1432 23791 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.qu.ax IN AAAA", got type "RRSIG"
+11-01 21:06:16.681  1432 23791 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.qu.ax IN A", got type "RRSIG"
+11-01 21:06:16.681 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.681 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-01 21:06:16.681 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.682 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-01 21:06:16.682 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-01 21:06:16.682  1432 23798 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.gmi.gd IN AAAA", got type "RRSIG"
+11-01 21:06:16.682  1432 23798 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.gmi.gd IN A", got type "RRSIG"
+11-01 21:06:16.682  1432 23799 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.fnix.net IN AAAA", got type "RRSIG"
+11-01 21:06:16.682 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.682  1432 23799 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.fnix.net IN A", got type "RRSIG"
+11-01 21:06:16.682  1432 23800 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.flatuslifir.is IN AAAA", got type "RRSIG"
+11-01 21:06:16.682  1432 23800 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.flatuslifir.is IN A", got type "RRSIG"
+11-01 21:06:16.683 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.683 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.683 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Operation Canceled "" (2)
+11-01 21:06:16.683  1432 23801 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.ducks.party IN AAAA", got type "RRSIG"
+11-01 21:06:16.683  1432 23801 I /system/bin/netd: gethostby*.getanswer: asked for "tracker.ducks.party IN A", got type "RRSIG"
+11-01 21:06:16.683 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-01 21:06:16.683 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-01 21:06:16.683 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-01 21:06:16.737 23573 23746 D PlayTorrent: alert TRACKER_REPLY: 7e1909 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] received peers: 76
+11-01 21:06:16.754 23573 23746 D PlayTorrent: alert TRACKER_REPLY: 7e1909 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 76
+11-01 21:06:16.765 23573 23573 D PlaySubs: kaynak=OpenSubtitles iÃ§erik=tt31192372 sonuÃ§=18 diller={tr=4, en=14}
+11-01 21:06:16.766 23573 23573 D PlaySubs: seÃ§im: Online OpenSubtitles dil=tr
+11-01 21:06:16.770  1432 23804 I /system/bin/netd: gethostby*.getanswer: asked for "subs5.strem.io IN A", got type "RRSIG"
+11-01 21:06:16.793 23573 23746 D PlayTorrent: alert TRACKER_REPLY: 7e1909 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] received peers: 55
+11-01 21:06:16.823 23573 23746 D PlayTorrent: alert TRACKER_REPLY: 7e1909 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] received peers: 19
+11-01 21:06:16.840 23573 23746 D PlayTorrent: alert TRACKER_REPLY: 7e1909 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] received peers: 18
+11-01 21:06:16.845 23573 23746 D PlayTorrent: alert TRACKER_REPLY: 7e1909 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] received peers: 30
+11-01 21:06:16.909 23573 23573 D PlaySubs: yÃ¼klendi tÃ¼r=Online kaynak=OpenSubtitles dil=tr satÄ±r=1003 kodlama=UTF-8 Ã¶nbellek=false
+11-01 21:06:16.938 23573 23573 D PlaySubs: kaynak=AltyazÄ±DB iÃ§erik=tt31192372 sonuÃ§=1 diller={tr=1}
+11-01 21:06:16.939 23573 23573 D PlaySubs: seÃ§im: Source AltyazÄ±DB dil=tr
+11-01 21:06:16.964 23573 23746 D PlayTorrent: alert TRACKER_REPLY: 7e1909 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] received peers: 20
+11-01 21:06:17.219 23573 23746 D PlayTorrent: alert METADATA_RECEIVED: 7e1909 metadata successfully received
+11-01 21:06:17.220 23573 23746 D PlayTorrent: alert STATE_CHANGED: 7e1909: state changed to: checking (r)
+11-01 21:06:17.220 23573 23746 D PlayTorrent: alert STATE_CHANGED: 7e1909: state changed to: downloading
+11-01 21:06:17.220 23573 23746 D PlayTorrent: alert TORRENT_CHECKED: 7e1909 checked
+11-01 21:06:17.282 23573 23746 D PlayTorrent: alert TRACKER_REPLY: 7e1909 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] received peers: 24
+11-01 21:06:17.404 23573 23573 D PlaySubs: yÃ¼klendi tÃ¼r=Source kaynak=AltyazÄ±DB dil=tr satÄ±r=954 kodlama=UTF-8 Ã¶nbellek=false
+11-01 21:06:17.632 23573 23746 D PlayTorrent: alert FILE_PRIO: 7e1909 file priorities updated
+11-01 21:06:17.633 23573 23779 D PlayTorrent: torrent aÃ§Ä±ldÄ±: hash=7e190917e0ef191710ab931463fbe0f37b91c2b8 dosya[0]=Fall.2.Deadpoint.2026.MULTi.VFQ.HDR.2160p.WEB.H265-SUPERFLU.mkv boyut=18788511030 parÃ§a=2097152 (dosya sayÄ±sÄ± 1, ipucu=0)
+11-01 21:06:17.634 23573 23779 D PlayTorrent: yerel sunucu yanÄ±tÄ±: 200 Fall.2.Deadpoint.2026.MULTi.VFQ.HDR.2160p.WEB.H265-SUPERFLU.mkv 0-18788511029/18788511030
+11-01 21:06:18.414 21811 21875 E PlayCommon: [396] Metalog directories were deleted unexpectedly, recreating...
+11-01 21:06:18.793 23573 23573 D PlaySubs: kaynak=AltyazÄ±TR iÃ§erik=tt31192372 sonuÃ§=0 diller={}
+11-01 21:06:19.359  1440  1556 D audio_hw_hal: log_func, out_standby
+11-01 21:06:19.359  1440  1556 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-01 21:06:19.359  1440  1556 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-01 21:06:19.645 23573 23779 D PlayTorrent: bekleniyor: parÃ§a=0 sÃ¼re=2sn eÅŸ=5 tohum=4 hÄ±z=228KB/s inen=0KB durum=DOWNLOADING
+11-01 21:06:21.651 23573 23779 D PlayTorrent: bekleniyor: parÃ§a=0 sÃ¼re=4sn eÅŸ=10 tohum=7 hÄ±z=1175KB/s inen=0KB durum=DOWNLOADING
+11-01 21:06:22.340  1479  1479 I storaged: type=1400 audit(0.0:4233): avc: denied { call } for scontext=u:r:storaged:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+11-01 21:06:16.682  2238  2238 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-01 21:06:22.351  1479  1488 E storaged: getDiskStats failed with result NOT_SUPPORTED and size 0
+11-01 21:06:23.656 23573 23779 D PlayTorrent: bekleniyor: parÃ§a=0 sÃ¼re=6sn eÅŸ=12 tohum=9 hÄ±z=1495KB/s inen=4096KB durum=DOWNLOADING
+11-01 21:06:25.661 23573 23779 D PlayTorrent: bekleniyor: parÃ§a=0 sÃ¼re=8sn eÅŸ=13 tohum=9 hÄ±z=1927KB/s inen=8192KB durum=DOWNLOADING
+11-01 21:06:26.627 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-01 21:06:26.628 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-01 21:06:26.628 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-01 21:06:26.629 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-01 21:06:26.681 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-01 21:06:26.683 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-01 21:06:26.683 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-01 21:06:26.709 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-01 21:06:27.667 23573 23779 D PlayTorrent: bekleniyor: parÃ§a=0 sÃ¼re=10sn eÅŸ=13 tohum=9 hÄ±z=2152KB/s inen=14336KB durum=DOWNLOADING
+11-01 21:06:28.317 23573 23868 D PlayTorrent: yerel sunucu isteÄŸi: GET range=bytes=18788408455- hedefOk=true
+11-01 21:06:28.317 23573 23868 D PlayTorrent: motor open: hash=7e190917e0ef191710ab931463fbe0f37b91c2b8 fileHint=0
+11-01 21:06:28.317 23573 23868 D PlayTorrent: yerel sunucu yanÄ±tÄ±: 206 Fall.2.Deadpoint.2026.MULTi.VFQ.HDR.2160p.WEB.H265-SUPERFLU.mkv 18788408455-18788511029/18788511030
+11-01 21:06:28.683  1597  1610 E memtrack: Couldn't load memtrack module
+11-01 21:06:28.683  1597  1610 W android.os.Debug: failed to get memory consumption info: -1
+11-01 21:06:29.064 23573 23776 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H150.B0, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 21:06:29.064 23573 23776 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H150.B0, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 21:06:29.064 23573 23776 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H150.B0, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 21:06:29.064 23573 23776 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H150.B0, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 21:06:29.065 23573 23868 D PlayTorrent: yerel sunucu isteÄŸi: GET range=bytes=6017- hedefOk=true
+11-01 21:06:29.065 23573 23868 D PlayTorrent: motor open: hash=7e190917e0ef191710ab931463fbe0f37b91c2b8 fileHint=0
+11-01 21:06:29.065 23573 23868 D PlayTorrent: yerel sunucu yanÄ±tÄ±: 206 Fall.2.Deadpoint.2026.MULTi.VFQ.HDR.2160p.WEB.H265-SUPERFLU.mkv 6017-18788511029/18788511030
+11-01 21:06:29.097 23573 23573 D PlaySubs: videonun iÃ§indeki altyazÄ±lar: [fr, fr]
+11-01 21:06:29.183 23573 23876 D PlayTorrent: yerel sunucu isteÄŸi: GET range=bytes=216023351- hedefOk=true
+11-01 21:06:29.183 23573 23876 D PlayTorrent: motor open: hash=7e190917e0ef191710ab931463fbe0f37b91c2b8 fileHint=0
+11-01 21:06:29.183 23573 23876 D PlayTorrent: yerel sunucu yanÄ±tÄ±: 206 Fall.2.Deadpoint.2026.MULTi.VFQ.HDR.2160p.WEB.H265-SUPERFLU.mkv 216023351-18788511029/18788511030
+11-01 21:06:29.186 23573 23776 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H150.B0, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 21:06:29.186 23573 23776 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H150.B0, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 21:06:29.187 23573 23776 W com.kaan.play: Accessing hidden method Landroid/media/MediaFormat;->getInteger(Ljava/lang/String;I)I (dark greylist, linking)
+11-01 21:06:29.191 23573 23878 I OMXClient: IOmx service obtained
+11-01 21:06:29.192  1481  7026 I OMXMaster: makeComponentInstance(OMX.qcom.video.decoder.hevc) in omx@1.0-service process
+11-01 21:06:29.206  1481  7026 D LDDec   : createSoftOMXComponent OMX.qcom.video.decoder.hevc
+11-01 21:06:29.206  1481  7026 D LDDec   : LDDec init 0x0 1, 320
+11-01 21:06:29.212 23573 23877 D SurfaceUtils: connecting to surface 0x76386695d010, reason connectToSurface
+11-01 21:06:29.212 23573 23877 I MediaCodec: [OMX.qcom.video.decoder.hevc] setting surface generation to 24138753
+11-01 21:06:29.212 23573 23877 D SurfaceUtils: disconnecting from surface 0x76386695d010, reason connectToSurface(reconnect)
+11-01 21:06:29.212 23573 23877 D SurfaceUtils: connecting to surface 0x76386695d010, reason connectToSurface(reconnect)
+11-01 21:06:29.212  1481  7026 W OMXNodeInstance: [0xf52212a0:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-01 21:06:29.212 23573 23878 E ACodec  : [OMX.qcom.video.decoder.hevc] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+11-01 21:06:29.212  1481  7026 W OMXNodeInstance: [0xf52212a0:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-01 21:06:29.213  1481  7026 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-01 21:06:29.213  1481  7026 E OMXNodeInstance: setConfig(0xf52212a0:qcom.decoder.hevc, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+11-01 21:06:29.213 23573 23878 I ACodec  : codec does not support config priority (err -1010)
+11-01 21:06:29.213  1481  7026 E OMXNodeInstance: getConfig(0xf52212a0:qcom.decoder.hevc, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+11-01 21:06:29.213  1481  7026 E OMXNodeInstance: getConfig(0xf52212a0:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-01 21:06:29.219  1437  1437 W AshmemAllocator: ashmem_create_region(11817036) returning hidl_memory(0x76391702c100, 11817036)
+11-01 21:06:29.237  1481  1481 I eo.decoder.hevc: type=1400 audit(0.0:4234): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=3128 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-01 21:06:29.238  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s expire 30 lines
+11-01 21:06:29.238  1437  1437 W AshmemAllocator: ashmem_create_region(11817036) returning hidl_memory(0x76391702c100, 11817036)
+11-01 21:06:29.239 23573 23776 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H150.B0, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-01 21:06:29.239  1481 23880 D LDDec   : initDecoder OMX.qcom.video.decoder.hevc init
+11-01 21:06:29.240 23573 23776 W MediaCodecRenderer: Format exceeds selected codec's capabilities [id=1, mimeType=video/hevc, container=video/x-matroska, codecs=hvc1.2.4.H150.B0, res=3828x2058, color=BT2020/Limited range/ST2084 PQ/10/10, language=en, selectionFlags=[default], OMX.qcom.video.decoder.hevc]
+11-01 21:06:29.249  1481 23880 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-01 21:06:29.251  1481  7026 E OMXNodeInstance: getConfig(0xf52212a0:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-01 21:06:29.252  1481  7026 E OMXNodeInstance: getConfig(0xf52212a0:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-01 21:06:29.853 23573 23779 D PlayTorrent: yerel sunucu baÄŸlantÄ±sÄ± bitti: SocketException Broken pipe
+11-01 21:06:29.921 23573 23868 D PlayTorrent: yerel sunucu baÄŸlantÄ±sÄ± bitti: SocketException Broken pipe
+11-01 21:06:31.197 23573 23876 D PlayTorrent: bekleniyor: parÃ§a=103 sÃ¼re=2sn eÅŸ=12 tohum=9 hÄ±z=2365KB/s inen=22651KB durum=DOWNLOADING
+11-01 21:06:33.027 23573 23746 D PlayTorrent: alert TRACKER_ANNOUNCE: 7e1909 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-01 21:06:33.028 23573 23746 D PlayTorrent: alert TRACKER_ERROR: 7e1909 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-01 21:06:33.202 23573 23876 D PlayTorrent: bekleniyor: parÃ§a=103 sÃ¼re=4sn eÅŸ=12 tohum=9 hÄ±z=2445KB/s inen=28795KB durum=DOWNLOADING
+11-01 21:06:34.814 23573 23877 D MediaCodec: [OMX.qcom.video.decoder.hevc] setting dataspace on output surface to #104
+11-01 21:06:35.054  1481  7026 E OMXNodeInstance: setConfig(0xf52212a0:qcom.decoder.hevc, ConfigOperatingRate(0x6f800003)) ERROR: UnsupportedIndex(0x8000101a)
+11-01 21:06:35.054 23573 23878 I ACodec  : codec does not support config operating rate (err -1010)
+11-01 21:06:35.800 23573 23877 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-01 21:06:35.812 23573 23877 I         : fastpipe: Connect success
+11-01 21:06:35.813 23573 23877 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=23573, tid=23877, this=0x7638636e9080
+11-01 21:06:35.815 23573 23877 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+11-01 21:06:35.822 23573 23877 D SoftwareRenderer: setting dataspace on output surface to #104
+11-01 21:06:35.823 23573 23573 D PlayMatch: ilk kare: Torrentio (faz=Starting)

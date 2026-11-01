@@ -1,0 +1,66 @@
+[
+  {
+    "version": "A",
+    "round": 1,
+    "status": "skipped",
+    "log": "C:\\Users\\okay\\Desktop\\Play-1.1.47\\play-app\\docs\\dogrulama-torrent-kok\\ham\\A_CivilWar_r1.log"
+  },
+  {
+    "version": "B",
+    "round": 1,
+    "status": "skipped",
+    "log": "C:\\Users\\okay\\Desktop\\Play-1.1.47\\play-app\\docs\\dogrulama-torrent-kok\\ham\\B_CivilWar_r1.log"
+  },
+  {
+    "version": "C",
+    "round": 1,
+    "status": "skipped",
+    "log": "C:\\Users\\okay\\Desktop\\Play-1.1.47\\play-app\\docs\\dogrulama-torrent-kok\\ham\\C_CivilWar_r1.log"
+  },
+  {
+    "version": "C",
+    "round": 2,
+    "duration": 63.96438479423523,
+    "success": true,
+    "log": "C:\\Users\\okay\\Desktop\\Play-1.1.47\\play-app\\docs\\dogrulama-torrent-kok\\ham\\C_CivilWar_r2.log",
+    "status": "ok"
+  },
+  {
+    "version": "A",
+    "round": 2,
+    "duration": 11.416,
+    "success": true,
+    "log": "C:\\Users\\okay\\Desktop\\Play-1.1.47\\play-app\\docs\\dogrulama-torrent-kok\\ham\\A_CivilWar_r2.log",
+    "status": "ok"
+  },
+  {
+    "version": "B",
+    "round": 2,
+    "status": "skipped",
+    "log": "C:\\Users\\okay\\Desktop\\Play-1.1.47\\play-app\\docs\\dogrulama-torrent-kok\\ham\\B_CivilWar_r2.log"
+  },
+  {
+    "version": "B",
+    "round": 3,
+    "duration": 72.50069499015808,
+    "success": true,
+    "log": "C:\\Users\\okay\\Desktop\\Play-1.1.47\\play-app\\docs\\dogrulama-torrent-kok\\ham\\B_CivilWar_r3.log",
+    "status": "ok"
+  },
+  {
+    "version": "C",
+    "round": 3,
+    "duration": 75.0,
+    "success": false,
+    "log": "C:\\Users\\okay\\Desktop\\Play-1.1.47\\play-app\\docs\\dogrulama-torrent-kok\\ham\\C_CivilWar_r3.log",
+    "status": "ok"
+  },
+  {
+    "version": "A",
+    "round": 3,
+    "duration": 75.0,
+    "success": false,
+    "log": "C:\\Users\\okay\\Desktop\\Play-1.1.47\\play-app\\docs\\dogrulama-torrent-kok\\ham\\A_CivilWar_r3.log",
+    "status": "ok"
+  }
+]
