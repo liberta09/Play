@@ -1,0 +1,11 @@
+﻿
+11-02 00:59:00.011  5473  5473 D PlayMatch: kaynak boyutu çok küçük (sahte kaynak): https://s24.imagecdn9065.shop/ml/Fz
+9eMKVhZwNkBF4kZQtjpP5PoUIFLKxhESIOGNd0zxnJ1uM2IwMT45ZQL1YaAbo3Ns0xi24vr1 (552B)
+11-02 00:59:00.266  5473  5473 D PlayMatch: kaynak başlatılıyor: DDizi (play2.pilavyerplay.top)
+11-02 00:59:00.555  5473  6856 D PlayProbe: kaynak yoklama: host=play2.pilavyerplay.top durum=200 type=application/vnd.
+apple.mpegurl uzunluk=null
+11-02 00:59:02.102  5473  5473 D PlayMatch: ilk kare: DDizi (faz=Starting)
+11-02 00:59:02.190  5473  5473 D PlayMatch: süre kontrolü kaynak=DDizi (play2.pilavyerplay.top) süre=121.8 dk beklenen=
+122 dk tür=Movie -> Ok
+
+

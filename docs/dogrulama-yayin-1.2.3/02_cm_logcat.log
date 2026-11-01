@@ -1,0 +1,11 @@
+﻿
+11-02 01:02:14.549  5473  5473 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 01:02:54.552  5473  5473 D PlayMatch: kaynak başlatılıyor: Nuvio TR HD (vixsrc.to)
+11-02 01:02:55.988  5473  5473 D PlayMatch: ilk kare: Nuvio TR HD (faz=Starting)
+11-02 01:02:56.082  5473  5473 D PlayMatch: süre kontrolü kaynak=Nuvio TR HD (vixsrc.to) süre=41.6 dk beklenen=40 dk tü
+r=Tv -> Ok
+11-02 01:03:04.141  5473  5473 D PlayMatch: oynatıcı hatası: Nuvio TR HD (faz=Playing) ERROR_CODE_PARSING_CONTAINER_MAL
+FORMED (3001)
+11-02 01:03:14.646  5473  8137 W PlayTorrent: open failed: NoMetadata
+
+
