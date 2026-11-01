@@ -358,6 +358,14 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
                     prefs[NAME] = it.name
                 }
             }
+            if (remappedIds.isNotEmpty()) {
+                val currentPending = decodeBackups(prefs[PENDING_REMAPS] ?: "").toMutableMap()
+                for ((oldD, oldK) in currentPending.toMap()) {
+                    remappedIds[oldK]?.let { currentPending[oldD] = it }
+                }
+                currentPending.putAll(remappedIds)
+                prefs[PENDING_REMAPS] = encodeBackups(currentPending)
+            }
         }
     }
 
@@ -389,8 +397,49 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
                     prefs[NAME] = it.name
                 }
             }
+            if (result.remappedIds.isNotEmpty()) {
+                val currentPending = decodeBackups(prefs[PENDING_REMAPS] ?: "").toMutableMap()
+                for ((oldD, oldK) in currentPending.toMap()) {
+                    result.remappedIds[oldK]?.let { currentPending[oldD] = it }
+                }
+                currentPending.putAll(result.remappedIds)
+                prefs[PENDING_REMAPS] = encodeBackups(currentPending)
+            }
         }
         return result
+    }
+
+    suspend fun getPendingRemappedIds(): Map<String, String> {
+        val raw = store.data.first()[PENDING_REMAPS] ?: return emptyMap()
+        return decodeBackups(raw)
+    }
+
+    suspend fun recordPendingRemaps(remapped: Map<String, String>) {
+        if (remapped.isEmpty()) return
+        store.edit { prefs ->
+            val existing = decodeBackups(prefs[PENDING_REMAPS] ?: "").toMutableMap()
+            for ((oldD, oldK) in existing.toMap()) {
+                val chained = remapped[oldK]
+                if (chained != null) {
+                    existing[oldD] = chained
+                }
+            }
+            existing.putAll(remapped)
+            prefs[PENDING_REMAPS] = encodeBackups(existing)
+        }
+    }
+
+    suspend fun removePendingRemappedId(discardedId: String) {
+        store.edit { prefs ->
+            val existing = decodeBackups(prefs[PENDING_REMAPS] ?: "").toMutableMap()
+            if (existing.remove(discardedId) != null) {
+                if (existing.isEmpty()) {
+                    prefs.remove(PENDING_REMAPS)
+                } else {
+                    prefs[PENDING_REMAPS] = encodeBackups(existing)
+                }
+            }
+        }
     }
 
     private fun decodeProfiles(raw: String): List<LocalProfileSummary> {
@@ -441,6 +490,7 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
         private val NAME = stringPreferencesKey("sync_local_profile_name")
         private val PROFILES = stringPreferencesKey("sync_local_profiles")
         private val BACKUPS = stringPreferencesKey("sync_local_profile_backups")
+        private val PENDING_REMAPS = stringPreferencesKey("sync_pending_remapped_profile_ids")
         private val USER_ID = stringPreferencesKey("sync_local_user_id")
         private val SYNC_CODE = stringPreferencesKey("sync_local_code")
         private val PROFILE_SETUP_COMPLETE = booleanPreferencesKey("sync_profile_setup_complete")
