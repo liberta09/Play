@@ -233,7 +233,7 @@ class SupabaseCloudSync(
         if (remote.transferJson.isBlank()) return emptyList()
         val remoteTransfer = runCatching { LocalSyncMerge.decodeTransfer(remote.transferJson) }.getOrNull() ?: return emptyList()
         val remoteNewer = LocalSyncMerge.remoteIsNewer(remote.updatedAt, syncMetadata.getString(KEY_LOCAL_STAMP, null))
-        val plan = LocalSyncMerge.plan(data.export(), remoteTransfer, remoteIsAuthority = remoteNewer)
+        val plan = LocalSyncMerge.plan(data.export(), remoteTransfer, remoteIsAuthority = remoteNewer, localActiveProfileId = data.activeProfileId())
         data.apply(plan)
         if (remoteTransfer.profiles.isNotEmpty()) profiles.completeProfileSetup()
         _pending.value = plan.missingSources

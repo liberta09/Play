@@ -40,9 +40,19 @@ class LocalSyncData(
     private val deviceName: String,
 ) {
 
+    private val migrator = ProfileDataMigrator(profiles, backups, history, favorites)
+
     private suspend fun userId(): String = profiles.userId.first().ifEmpty { "legacy-user" }
 
+    suspend fun activeProfileId(): String = profiles.id.first()
+
+    suspend fun consolidateLocalDefaultProfiles() {
+        profiles.consolidateDefaultProfiles()
+        migrator.migrateAllPending(userId())
+    }
+
     suspend fun export(): LocalProfileTransfer {
+        consolidateLocalDefaultProfiles()
         profiles.ensureId()
         val uId = userId()
         val all = profiles.allProfiles()
@@ -95,11 +105,12 @@ class LocalSyncData(
 
     /** Planı yazar: profiller, geçmiş + favoriler, (karşı esas ise) ortak kaynakların durumları. */
     suspend fun apply(plan: LocalSyncPlan) {
-        profiles.replaceProfilesKeepingActive(plan.profiles)
+        profiles.replaceProfilesKeepingActive(plan.profiles, plan.remappedProfileIds)
         val uId = userId()
         for ((profileId, library) in plan.libraries) {
             backups.mergeJsonFor(uId, profileId, LocalSyncMerge.encodeBackup(library)).getOrThrow()
         }
+        migrator.migrateAllPending(uId, plan.remappedProfileIds)
         for (item in plan.sourceStates) {
             rowFor(item.sourceUrl)?.let { applyState(it, item) }
         }

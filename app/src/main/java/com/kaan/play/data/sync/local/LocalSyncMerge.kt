@@ -18,15 +18,29 @@ data class LocalSyncPlan(
     val missingSources: List<SourceTransferItem>,
     /** İki cihazda da olan kaynakların uygulanacak durumları (yalnızca karşı taraf esas alınıyorsa dolu). */
     val sourceStates: List<SourceTransferItem>,
+    /** Tekilleştirilen Varsayılan profillerin eski kimlik -> korunan kimlik haritası. */
+    val remappedProfileIds: Map<String, String> = emptyMap(),
+    /** Birleştirmeden sonra uygulanacak aktif profil kimliği (atılan kimlikteyse korunana geçer). */
+    val activeProfileId: String? = null,
 ) {
     val historyCount: Int get() = libraries.values.sumOf { it.history.size }
 }
+
+/** Tek cihazda ya da birleştirmede profil tekilleştirme sonucu. */
+data class ProfileConsolidationResult(
+    val profiles: List<LocalProfileSummary>,
+    val libraries: Map<String, LocalProfileBackup>,
+    val remappedIds: Map<String, String> = emptyMap(),
+    val activeProfileId: String? = null,
+)
 
 /**
  * Wi-Fi senkronizasyonunun birleştirme kuralları (Android'den bağımsız, birim testli). İki cihaz birbirinin anlık
  * görüntüsünü alır ve aynı kurallarla birleştirir; böylece sonunda aynı veriye sahip olurlar:
  *
  * - **Profiller:** kimliğe göre birleşim. PIN hiçbir zaman aktarılmaz ([forTransfer]); yerel profil PIN'ini korur.
+ *   PIN'siz ve adı tam olarak [DEFAULT_NAME] olan profiller tekilleştirilir; daha eski/sabit kimlik ([DEFAULT_ID] ya da
+ *   deterministik en küçük kimlik) korunur, atılan kimliğin kitaplığı (geçmiş + favori) korunana eklenir.
  * - **Geçmiş / kaldığı yer:** aynı içerikte (film ya da sezon+bölüm) en yeni `lastWatchedAt` kazanır; eşitlikte daha ileri konum.
  * - **Favoriler:** birleşim.
  * - **Kaynaklar:** yalnızca karşıda olanlar [LocalSyncPlan.missingSources] olur (onay sorulur). İki tarafta da olanlarda
@@ -35,7 +49,77 @@ data class LocalSyncPlan(
  */
 object LocalSyncMerge {
 
+    const val DEFAULT_NAME = "Varsayılan"
+    const val DEFAULT_ID = "default"
+
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+
+    /** Yalnızca adı tam olarak DEFAULT_NAME olan ve PIN'i olmayan profiller tekilleştirme adayıdır. */
+    fun isEligibleDefault(profile: LocalProfileSummary): Boolean =
+        profile.name == DEFAULT_NAME && !profile.hasPin
+
+    /** Korunacak kimlik: varsa sabit DEFAULT_ID ("default"), yoksa deterministik alfabetik en küçük kimlik. */
+    fun chooseKeptDefaultId(candidateIds: Collection<String>): String? {
+        if (candidateIds.isEmpty()) return null
+        return if (candidateIds.contains(DEFAULT_ID)) {
+            DEFAULT_ID
+        } else {
+            candidateIds.minOrNull()
+        }
+    }
+
+    /** Aktif profil atılan kimlikteyse korunana geçer; değilse mevcut profil listede kalıyorsa o, yoksa ilk profil. */
+    fun resolveActiveProfileId(
+        currentActiveId: String?,
+        profiles: List<LocalProfileSummary>,
+        remappedIds: Map<String, String> = emptyMap(),
+    ): String? {
+        val target = remappedIds[currentActiveId] ?: currentActiveId
+        return if (target != null && profiles.any { it.id == target }) {
+            target
+        } else {
+            profiles.firstOrNull()?.id
+        }
+    }
+
+    /** Tek cihazda (ya da birleştirme sonrasında) çoğalmış PIN'siz Varsayılan profilleri tekilleştirir, kitaplıkları birleştirir. */
+    fun consolidateProfiles(
+        profiles: List<LocalProfileSummary>,
+        libraries: Map<String, LocalProfileBackup> = emptyMap(),
+        activeProfileId: String? = null,
+    ): ProfileConsolidationResult {
+        val eligible = profiles.filter(::isEligibleDefault)
+        if (eligible.size <= 1) {
+            return ProfileConsolidationResult(
+                profiles = profiles,
+                libraries = libraries,
+                remappedIds = emptyMap(),
+                activeProfileId = activeProfileId,
+            )
+        }
+        val keptId = chooseKeptDefaultId(eligible.map { it.id }) ?: return ProfileConsolidationResult(profiles, libraries, emptyMap(), activeProfileId)
+        val discardedIds = eligible.map { it.id }.filter { it != keptId }.toSet()
+        val remapped = discardedIds.associateWith { keptId }
+
+        val newProfiles = profiles.filter { it.id !in discardedIds }
+
+        var mergedLib = libraries[keptId] ?: LocalProfileBackup()
+        for (dId in discardedIds) {
+            val lib = libraries[dId]
+            if (lib != null) {
+                mergedLib = mergeLibrary(mergedLib, lib)
+            }
+        }
+        val newLibraries = libraries.filterKeys { it !in discardedIds } + (keptId to mergedLib)
+        val newActiveId = resolveActiveProfileId(activeProfileId, newProfiles, remapped)
+
+        return ProfileConsolidationResult(
+            profiles = newProfiles,
+            libraries = newLibraries,
+            remappedIds = remapped,
+            activeProfileId = newActiveId,
+        )
+    }
 
     /** Aktarım için: PIN ve bulut kodu çıkarılır. */
     fun forTransfer(profile: LocalProfileSummary): LocalProfileSummary = profile.copy(pinHash = null, syncCode = null)
@@ -76,15 +160,52 @@ object LocalSyncMerge {
         return remote > local
     }
 
-    fun plan(local: LocalProfileTransfer, remote: LocalProfileTransfer, remoteIsAuthority: Boolean): LocalSyncPlan {
+    fun plan(
+        local: LocalProfileTransfer,
+        remote: LocalProfileTransfer,
+        remoteIsAuthority: Boolean,
+        localActiveProfileId: String? = null,
+    ): LocalSyncPlan {
         val profiles = mergeProfiles(local.profiles, remote.profiles, remoteIsAuthority)
+
+        // Tekilleştirilen Varsayılan profilleri tespit et
+        val allEligibleDefaults = (local.profiles + remote.profiles).filter(::isEligibleDefault)
+        val candidateDefaultIds = allEligibleDefaults.map { it.id }.distinct()
+        val keptDefaultId = if (candidateDefaultIds.size > 1) chooseKeptDefaultId(candidateDefaultIds) else null
+        val discardedDefaultIds = if (keptDefaultId != null) candidateDefaultIds.filter { it != keptDefaultId }.toSet() else emptySet()
+
         val libraries = profiles.associate { p ->
-            p.id to mergeLibrary(decode(local.backups[p.id]), decode(remote.backups[p.id]))
+            val base = mergeLibrary(decode(local.backups[p.id]), decode(remote.backups[p.id]))
+            val finalLib = if (p.id == keptDefaultId) {
+                discardedDefaultIds.fold(base) { acc, dId ->
+                    val withLocal = mergeLibrary(acc, decode(local.backups[dId]))
+                    mergeLibrary(withLocal, decode(remote.backups[dId]))
+                }
+            } else {
+                base
+            }
+            p.id to finalLib
         }
+
+        val remappedIds = if (keptDefaultId != null) {
+            discardedDefaultIds.associateWith { keptDefaultId }
+        } else {
+            emptyMap()
+        }
+
+        val activeId = resolveActiveProfileId(localActiveProfileId, profiles, remappedIds)
+
         val localByUrl = local.sources.associateBy { urlKey(it.sourceUrl) }
         val missing = remote.sources.filter { urlKey(it.sourceUrl) !in localByUrl }.distinctBy { urlKey(it.sourceUrl) }
         val states = if (remoteIsAuthority) remote.sources.filter { urlKey(it.sourceUrl) in localByUrl } else emptyList()
-        return LocalSyncPlan(profiles, libraries, missing, states)
+        return LocalSyncPlan(
+            profiles = profiles,
+            libraries = libraries,
+            missingSources = missing,
+            sourceStates = states,
+            remappedProfileIds = remappedIds,
+            activeProfileId = activeId,
+        )
     }
 
     fun mergeProfiles(
@@ -102,7 +223,15 @@ object LocalSyncMerge {
             }
         }
         val known = local.mapTo(HashSet()) { it.id }
-        return merged + remote.filter { it.id !in known }.distinctBy { it.id }.map(::forTransfer)
+        val allMerged = merged + remote.filter { it.id !in known }.distinctBy { it.id }.map(::forTransfer)
+
+        val eligibleDefaults = allMerged.filter(::isEligibleDefault)
+        if (eligibleDefaults.size <= 1) return allMerged
+
+        val keptId = chooseKeptDefaultId(eligibleDefaults.map { it.id }) ?: return allMerged
+        val discardedIds = eligibleDefaults.map { it.id }.filter { it != keptId }.toSet()
+
+        return allMerged.filter { it.id !in discardedIds }
     }
 
     fun mergeLibrary(local: LocalProfileBackup?, remote: LocalProfileBackup?): LocalProfileBackup {
@@ -142,6 +271,8 @@ object LocalSyncMerge {
     }
 
     fun encodeBackup(backup: LocalProfileBackup): String = json.encodeToString(LocalProfileBackup.serializer(), backup)
+
+    fun decodeBackup(raw: String?): LocalProfileBackup? = decode(raw)
 
     private fun decode(raw: String?): LocalProfileBackup? =
         raw?.takeIf { it.isNotBlank() }?.let {
