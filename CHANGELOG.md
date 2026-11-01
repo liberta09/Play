@@ -1,5 +1,19 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.2.3] — 2026-11-02
+
+### Türkçe
+- **Torrent eşzamanlı izleyici anonsu:** Magnet ve torrent açılışında 20 açık izleyiciye eşzamanlı anons ve açılış parçaları hızlandırması; 4K akışlarda bellek taşmasını önleyen arabellek optimizasyonu.
+- **TV kumanda geçmiş silme:** TV kumandasıyla Kütüphane > Geçmiş ekranında silme çarpısına SAĞ tuşla odaklanabilme, TAMAM tuşuyla tekil kayıt silebilme.
+- **Çoklu profil tekilleştirme:** Senkronizasyon ve dışa aktarma sırasında aynı cihazda mükerrer "Varsayılan" profillerin çoğalması önlendi, mevcut kayıtlar güvenli şekilde birleştirildi.
+
+### English
+- **Simultaneous torrent tracker announce:** Concurrent announcements to 20 open trackers and initial chunk acceleration for faster start; buffer optimization for 4K streams to prevent memory errors.
+- **TV remote history delete:** Ability to navigate to the delete cross button via RIGHT D-pad in Library > History, deleting single entries via OK/ENTER.
+- **Profile deduplication:** Prevented duplicate "Default" profiles from multiplying during sync/export, safely merging existing records while preserving watch history and favorites.
+
+
+
 ## [1.2.2] — 2026-10-31
 
 ### Türkçe
