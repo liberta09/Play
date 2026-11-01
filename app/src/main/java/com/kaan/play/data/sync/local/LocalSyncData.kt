@@ -42,7 +42,31 @@ class LocalSyncData(
 
     private suspend fun userId(): String = profiles.userId.first().ifEmpty { "legacy-user" }
 
+    suspend fun activeProfileId(): String = profiles.id.first()
+
+    private suspend fun consolidateLocalDefaultProfiles() {
+        val result = profiles.consolidateDefaultProfiles() ?: return
+        val uId = userId()
+        for ((discardedId, keptId) in result.remappedIds) {
+            val discFavs = favorites.all(uId, discardedId)
+            if (discFavs.isNotEmpty()) {
+                val favBackups = discFavs.map { FavoriteBackup(it.tmdbId, it.type.name.lowercase(), it.title, it.posterPath, it.addedAt) }
+                backups.mergeJsonFor(uId, keptId, "", extraFavorites = favBackups)
+                favorites.clear(uId, discardedId)
+            }
+            val discHist = history.all(uId, discardedId)
+            if (discHist.isNotEmpty()) {
+                val histBackups = discHist.map {
+                    HistoryBackup(it.tmdbId, it.type.name.lowercase(), it.season, it.episode, it.positionMs, it.durationMs, it.lastWatchedAt, it.title, it.posterPath, it.pluginId, it.dataUrl, it.contentUrl)
+                }
+                backups.mergeJsonFor(uId, keptId, "", extraHistory = histBackups)
+                history.clear(uId, discardedId)
+            }
+        }
+    }
+
     suspend fun export(): LocalProfileTransfer {
+        consolidateLocalDefaultProfiles()
         profiles.ensureId()
         val uId = userId()
         val all = profiles.allProfiles()
@@ -95,10 +119,26 @@ class LocalSyncData(
 
     /** Planı yazar: profiller, geçmiş + favoriler, (karşı esas ise) ortak kaynakların durumları. */
     suspend fun apply(plan: LocalSyncPlan) {
-        profiles.replaceProfilesKeepingActive(plan.profiles)
+        profiles.replaceProfilesKeepingActive(plan.profiles, plan.remappedProfileIds)
         val uId = userId()
         for ((profileId, library) in plan.libraries) {
             backups.mergeJsonFor(uId, profileId, LocalSyncMerge.encodeBackup(library)).getOrThrow()
+        }
+        for ((discardedId, keptId) in plan.remappedProfileIds) {
+            val discFavs = favorites.all(uId, discardedId)
+            if (discFavs.isNotEmpty()) {
+                val favBackups = discFavs.map { FavoriteBackup(it.tmdbId, it.type.name.lowercase(), it.title, it.posterPath, it.addedAt) }
+                backups.mergeJsonFor(uId, keptId, "", extraFavorites = favBackups)
+                favorites.clear(uId, discardedId)
+            }
+            val discHist = history.all(uId, discardedId)
+            if (discHist.isNotEmpty()) {
+                val histBackups = discHist.map {
+                    HistoryBackup(it.tmdbId, it.type.name.lowercase(), it.season, it.episode, it.positionMs, it.durationMs, it.lastWatchedAt, it.title, it.posterPath, it.pluginId, it.dataUrl, it.contentUrl)
+                }
+                backups.mergeJsonFor(uId, keptId, "", extraHistory = histBackups)
+                history.clear(uId, discardedId)
+            }
         }
         for (item in plan.sourceStates) {
             rowFor(item.sourceUrl)?.let { applyState(it, item) }

@@ -192,7 +192,7 @@ class LocalSyncController(
 
     private suspend fun merge(local: LocalProfileTransfer, remote: LocalProfileTransfer, remoteIsAuthority: Boolean) {
         _state.update { it.copy(phase = Phase.Syncing, error = null) }
-        val plan = LocalSyncMerge.plan(local, remote, remoteIsAuthority)
+        val plan = LocalSyncMerge.plan(local, remote, remoteIsAuthority, localActiveProfileId = data.activeProfileId())
         data.apply(plan)
         val counts = data.counts()
         _state.update { it.copy(phase = Phase.Done, result = counts, pending = plan.missingSources, installFailed = 0) }
