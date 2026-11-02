@@ -130,7 +130,12 @@ class TorrentHttpServer(private val engine: TorrentEngine) {
             while (position <= end) {
                 val max = minOf(BUFFER.toLong(), end - position + 1).toInt()
                 if (raf == null) {
-                    engine.awaitPiece(file, position)
+                    engine.awaitData(file, position, minOf(max, TorrentBlockRangeRules.BLOCK_SIZE))
+                    var attempts = 0
+                    while (!file.path.exists() && attempts < 50) {
+                        Thread.sleep(20)
+                        attempts++
+                    }
                     raf = RandomAccessFile(file.path, "r")
                 }
                 val n = engine.read(file, position, buffer, max, raf)
