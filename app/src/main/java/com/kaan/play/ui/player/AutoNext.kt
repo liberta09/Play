@@ -92,7 +92,12 @@ object AutoNextRules {
     )
 
     fun order(streams: List<PlayableStream>, current: PlayableStream): List<PlayableStream> {
-        val ranked = streams.distinctBy { it.url }.ranked()
+        val available = if (!com.kaan.play.data.torrent.TorrentSupport.isBuiltInSupported()) {
+            streams.filterNot { TorrentLinks.isMagnet(it.url) }
+        } else {
+            streams
+        }
+        val ranked = available.distinctBy { it.url }.ranked()
         val index = ranked.withIndex().associate { it.value.url to it.index }
         val currentHost = hostOf(current.url)
         val currentMagnet = TorrentLinks.isMagnet(current.url)

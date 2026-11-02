@@ -87,6 +87,11 @@ class MainActivity : AppCompatActivity() {
         }
         if (BuildConfig.DEBUG) {
             // Duman testi: oynatıcıyı test videosuyla doğrudan aç (geçmişe yazılmaz). --es play_test_video <adres>
+            if (intent.hasExtra("play_debug_fail_native")) {
+                com.kaan.play.data.torrent.TorrentSupport.debugForceFailNative =
+                    intent.getBooleanExtra("play_debug_fail_native", false) ||
+                    intent.getStringExtra("play_debug_fail_native") == "true"
+            }
             intent.getStringExtra("play_test_video")?.let { url ->
                 startActivity(com.kaan.play.ui.player.PlaySession.testVideo(url).toIntent(this))
             }
@@ -178,6 +183,11 @@ class MainActivity : AppCompatActivity() {
         handleUpdateIntent(intent)
         handlePlayIntent(intent)
         if (BuildConfig.DEBUG) {
+            if (intent.hasExtra("play_debug_fail_native")) {
+                com.kaan.play.data.torrent.TorrentSupport.debugForceFailNative =
+                    intent.getBooleanExtra("play_debug_fail_native", false) ||
+                    intent.getStringExtra("play_debug_fail_native") == "true"
+            }
             intent.getStringExtra("select_provider")?.let { raw ->
                 val ids = raw.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
                 val container = (application as PlayApp).container

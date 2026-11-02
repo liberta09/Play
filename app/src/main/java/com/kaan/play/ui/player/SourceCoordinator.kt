@@ -603,6 +603,9 @@ class SourceCoordinator(
 
     /** Bu içeriğin kaynağı mı (damga) ve oynatma sırasında reddedilmemiş mi? */
     private fun acceptable(stream: PlayableStream): Boolean {
+        if (TorrentLinks.isMagnet(stream.url) && !com.kaan.play.data.torrent.TorrentSupport.isBuiltInSupported()) {
+            return false
+        }
         val size = SourceRanking.sizeOf(stream, sizes)
         val isMovie = request.type == MediaType.Movie
         val isLive = request.addonType in listOf("tv", "channel")

@@ -22,7 +22,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
 /** Torrent açılamadı; [reason] yerel sunucunun HTTP durumuna çevrilir. */
-class TorrentException(val reason: Reason, message: String) : IOException(message) {
+class TorrentException(val reason: Reason, message: String, cause: Throwable? = null) : IOException(message, cause) {
     enum class Reason { BadLink, NoMetadata, NoFile, NoSpace, Engine }
 }
 
@@ -57,8 +57,12 @@ class TorrentEngine(private val dir: File) {
 
     /** Kaynak listesinde torrent görünce oturumu önceden başlatır (DHT ısınsın, açılış hızlansın). */
     fun warmUp() {
+        if (!TorrentSupport.isBuiltInSupported()) return
         background.execute { runCatching { synchronized(lock) { ensureSession() } } }
     }
+
+    /** [warmUp] için takma ad. */
+    fun prewarm() = warmUp()
 
     /**
      * Magnet'i açar (gerekirse üst bilgiyi bekler) ve oynatılacak dosyayı seçer. Aynı torrent+dosya zaten açıksa onu döndürür;
@@ -250,18 +254,24 @@ class TorrentEngine(private val dir: File) {
 
     private fun ensureSession(): SessionManager {
         session?.let { return it }
+        if (TorrentSupport.isEngineUnavailable || android.os.Build.VERSION.SDK_INT in 1..27) {
+            throw TorrentException(TorrentException.Reason.Engine, "engine unavailable")
+        }
         // Önceki oturumdan (ör. uygulama öldürüldüyse) kalanlar silinir.
         dir.deleteRecursively()
         dir.mkdirs()
-        val settings = SettingsPack()
-            .connectionsLimit(CONNECTIONS)
-            .activeDownloads(2)
-            .apply {
-                setBoolean(settings_pack.bool_types.announce_to_all_trackers.swigValue(), true)
-                setBoolean(settings_pack.bool_types.announce_to_all_tiers.swigValue(), true)
-            }
-        val params = SessionParams(settings).apply { setPosixDiskIO() }
         return try {
+            if (TorrentSupport.debugForceFailNative) {
+                throw UnsatisfiedLinkError("simulated native failure (aligned_alloc)")
+            }
+            val settings = SettingsPack()
+                .connectionsLimit(CONNECTIONS)
+                .activeDownloads(2)
+                .apply {
+                    setBoolean(settings_pack.bool_types.announce_to_all_trackers.swigValue(), true)
+                    setBoolean(settings_pack.bool_types.announce_to_all_tiers.swigValue(), true)
+                }
+            val params = SessionParams(settings).apply { setPosixDiskIO() }
             TorrentDiag.d("libtorrent oturumu başlıyor (ABI=${android.os.Build.SUPPORTED_ABIS.joinToString()}, dizin=$dir)")
             SessionManager(false).also {
                 it.addListener(object : AlertListener {
@@ -277,10 +287,11 @@ class TorrentEngine(private val dir: File) {
                 TorrentDiag.d("libtorrent oturumu başladı")
             }
         } catch (e: Throwable) {
+            TorrentSupport.markUnavailable()
             // Yerel kütüphane bu işlemcide yoksa (UnsatisfiedLinkError) ya da başlatılamazsa.
             TorrentDiag.e("libtorrent oturumu başlatılamadı", e)
             Log.w(TAG, "libtorrent session failed", e)
-            throw TorrentException(TorrentException.Reason.Engine, "engine unavailable")
+            throw TorrentException(TorrentException.Reason.Engine, "engine unavailable", e)
         }
     }
 
