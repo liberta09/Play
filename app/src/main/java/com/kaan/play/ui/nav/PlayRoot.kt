@@ -7,7 +7,9 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
@@ -204,6 +206,11 @@ fun PlayRoot() {
     val scope = rememberCoroutineScope()
     val backStack by navController.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
+    LaunchedEffect(currentRoute) {
+        if (com.kaan.play.BuildConfig.DEBUG) {
+            android.util.Log.d("PlayFocus", "currentRoute changed: $currentRoute")
+        }
+    }
 
     // Kumanda: üst menü ile içerik arasındaki odak köprüleri (her sekmenin kendi içerik hedefi var).
     val homeFocusRequester = remember { FocusRequester() }
@@ -298,6 +305,9 @@ fun PlayRoot() {
     }
 
     fun openTab(tab: Tab) {
+        if (com.kaan.play.BuildConfig.DEBUG) {
+            android.util.Log.d("PlayFocus", "openTab: ${tab.route}")
+        }
         if (tab == Tab.Home) {
             val popped = navController.popBackStack(Tab.Home.route, inclusive = false)
             if (!popped) {
@@ -502,9 +512,36 @@ fun PlayRoot() {
         currentRoute?.startsWith("settings/") == true
     val showNav = !isSubScreen
 
+    val focusManager = LocalFocusManager.current
+    var onHomeScrollToTop: (suspend () -> Unit)? by remember { mutableStateOf(null) }
+
+    fun returnFocusToContent() {
+        val success = runCatching { currentContentFocusRequester.requestFocus() }.isSuccess
+        if (com.kaan.play.BuildConfig.DEBUG) {
+            android.util.Log.d("PlayFocus", "returnFocusToContent: targetSuccess=$success route=$currentRoute")
+        }
+        if (!success) {
+            val scrollAction = onHomeScrollToTop
+            if (scrollAction != null && (currentRoute == Tab.Home.route || currentRoute == null)) {
+                scope.launch {
+                    scrollAction()
+                    val retry = runCatching { currentContentFocusRequester.requestFocus() }.isSuccess
+                    if (com.kaan.play.BuildConfig.DEBUG) {
+                        android.util.Log.d("PlayFocus", "returnFocusToContent: retryAfterScroll=$retry")
+                    }
+                    if (!retry) {
+                        focusManager.moveFocus(FocusDirection.Down)
+                    }
+                }
+            } else {
+                focusManager.moveFocus(FocusDirection.Down)
+            }
+        }
+    }
+
     // Kumanda: odak üst menüdeyken Geri uygulamadan çıkarmaz, odağı içeriğe döndürür.
     BackHandler(enabled = topBarHasFocus && !isSubScreen) {
-        runCatching { currentContentFocusRequester.requestFocus() }
+        returnFocusToContent()
     }
     val avatarKey = activeProfile?.avatar ?: "space_astro"
     fun selected(tab: Tab) = currentRoute == tab.route || currentRoute?.startsWith(tab.route + "/") == true || currentRoute?.startsWith(tab.route + "?") == true
@@ -552,6 +589,7 @@ fun PlayRoot() {
                     topBarFocusRequester = topBarFocusRequester,
                     pillFocusRequester = pillFocusRequester,
                     profileFocusRequester = profileFocusRequester,
+                    onRegisterScrollToTop = { onHomeScrollToTop = it },
                 )
             }
 
@@ -765,6 +803,7 @@ fun PlayRoot() {
                     topBarFocusRequester = topBarFocusRequester,
                     profileFocusRequester = profileFocusRequester,
                     pillFocusRequester = pillFocusRequester.takeIf { currentRoute == Tab.Home.route || currentRoute == null },
+                    onDown = ::returnFocusToContent,
                     modifier = Modifier
                         .onFocusChanged { topBarHasFocus = it.hasFocus }
                         .align(Alignment.TopCenter)
@@ -817,6 +856,7 @@ fun PlayTopBar(
     topBarFocusRequester: FocusRequester,
     profileFocusRequester: FocusRequester,
     pillFocusRequester: FocusRequester?,
+    onDown: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -837,12 +877,12 @@ fun PlayTopBar(
             val tvSelected = currentRoute == Tab.Tv.route || currentRoute?.startsWith("tv") == true
             val librarySelected = currentRoute == Tab.Library.route || currentRoute?.startsWith("library") == true
             val settingsSelected = currentRoute == Tab.Settings.route || currentRoute?.startsWith("settings") == true
-            PlayTopBarItem(PlayIcons.Home, stringResource(R.string.tab_home), homeSelected, contentFocusRequester, topBarFocusRequester.takeIf { homeSelected }) { onOpenTab(Tab.Home) }
-            PlayTopBarItem(PlayIcons.Search, stringResource(R.string.tab_search), searchSelected, contentFocusRequester, topBarFocusRequester.takeIf { searchSelected }) { onOpenTab(Tab.Search) }
-            PlayTopBarItem(PlayIcons.Tv, stringResource(R.string.tab_tv), tvSelected, contentFocusRequester, topBarFocusRequester.takeIf { tvSelected }) { onOpenTab(Tab.Tv) }
-            PlayTopBarItem(PlayIcons.Folder, stringResource(R.string.tab_library), librarySelected, contentFocusRequester, topBarFocusRequester.takeIf { librarySelected }) { onOpenTab(Tab.Library) }
-            PlayTopBarItem(PlayIcons.Gear, stringResource(R.string.tab_settings), settingsSelected, contentFocusRequester, topBarFocusRequester.takeIf { settingsSelected }) { onOpenTab(Tab.Settings) }
-            PlayTopBarItem(null, stringResource(R.string.tab_profile), false, contentFocusRequester, profileFocusRequester, avatarKey = avatarKey, rightFocusRequester = pillFocusRequester, onClick = onOpenProfile)
+            PlayTopBarItem(PlayIcons.Home, stringResource(R.string.tab_home), homeSelected, contentFocusRequester, topBarFocusRequester.takeIf { homeSelected }, onDown = onDown) { onOpenTab(Tab.Home) }
+            PlayTopBarItem(PlayIcons.Search, stringResource(R.string.tab_search), searchSelected, contentFocusRequester, topBarFocusRequester.takeIf { searchSelected }, onDown = onDown) { onOpenTab(Tab.Search) }
+            PlayTopBarItem(PlayIcons.Tv, stringResource(R.string.tab_tv), tvSelected, contentFocusRequester, topBarFocusRequester.takeIf { tvSelected }, onDown = onDown) { onOpenTab(Tab.Tv) }
+            PlayTopBarItem(PlayIcons.Folder, stringResource(R.string.tab_library), librarySelected, contentFocusRequester, topBarFocusRequester.takeIf { librarySelected }, onDown = onDown) { onOpenTab(Tab.Library) }
+            PlayTopBarItem(PlayIcons.Gear, stringResource(R.string.tab_settings), settingsSelected, contentFocusRequester, topBarFocusRequester.takeIf { settingsSelected }, onDown = onDown) { onOpenTab(Tab.Settings) }
+            PlayTopBarItem(null, stringResource(R.string.tab_profile), false, contentFocusRequester, profileFocusRequester, avatarKey = avatarKey, rightFocusRequester = pillFocusRequester, onDown = onDown, onClick = onOpenProfile)
         }
     }
 }
@@ -856,6 +896,7 @@ private fun PlayTopBarItem(
     itemFocusRequester: FocusRequester?,
     avatarKey: String? = null,
     rightFocusRequester: FocusRequester? = null,
+    onDown: () -> Unit = {},
     onClick: () -> Unit,
 ) {
     var boxFocused by remember { mutableStateOf(false) }
@@ -875,12 +916,18 @@ private fun PlayTopBarItem(
             }
             .onPreviewKeyEvent { event ->
                 if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
-                    runCatching { contentFocusRequester.requestFocus() }.getOrDefault(false)
+                    onDown()
+                    true
                 } else {
                     false
                 }
             }
-            .onFocusChanged { boxFocused = it.isFocused }
+            .onFocusChanged {
+                boxFocused = it.isFocused
+                if (it.isFocused && com.kaan.play.BuildConfig.DEBUG) {
+                    android.util.Log.d("PlayFocus", "PlayTopBarItem focused: $contentDescription")
+                }
+            }
             .tvFocusableScaleGlow(
                 scale = 1.15f,
                 glowColor = MaterialTheme.colorScheme.primary,
@@ -889,7 +936,16 @@ private fun PlayTopBarItem(
                 zIndex = 10f,
                 fillGlowAlpha = 0.20f,
             )
-            .clickable(interactionSource = interactionSource, indication = null, onClick = onClick),
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = {
+                    if (com.kaan.play.BuildConfig.DEBUG) {
+                        android.util.Log.d("PlayFocus", "PlayTopBarItem click: $contentDescription")
+                    }
+                    onClick()
+                },
+            ),
     ) {
         if (avatarKey != null) {
             ProfileAvatar(avatar = avatarKey, size = 34)

@@ -116,6 +116,7 @@ fun HomeScreen(
     topBarFocusRequester: FocusRequester? = null,
     pillFocusRequester: FocusRequester? = null,
     profileFocusRequester: FocusRequester? = null,
+    onRegisterScrollToTop: (suspend () -> Unit) -> Unit = {},
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
@@ -177,6 +178,7 @@ fun HomeScreen(
                 onOpenProviderCategory = { activeProviderRow = it },
                 contentFocusRequester = contentFocusRequester,
                 topBarFocusRequester = topBarFocusRequester,
+                onRegisterScrollToTop = onRegisterScrollToTop,
             )
             hasSource == false -> HomeEmptyState(
                 onAddAddon = onAddAddon,
@@ -192,6 +194,7 @@ fun HomeScreen(
                 onOpenSearch = onOpenSearch,
                 contentFocusRequester = contentFocusRequester,
                 topBarFocusRequester = topBarFocusRequester,
+                onRegisterScrollToTop = onRegisterScrollToTop,
             )
         }
 
@@ -279,6 +282,7 @@ private fun HomeContent(
     onOpenSearch: (String) -> Unit = {},
     contentFocusRequester: FocusRequester? = null,
     topBarFocusRequester: FocusRequester? = null,
+    onRegisterScrollToTop: (suspend () -> Unit) -> Unit = {},
 ) {
     val container = rememberContainer()
     val homeProviders by container.providers.homeProviders.collectAsStateWithLifecycle(initialValue = emptyList())
@@ -305,6 +309,13 @@ private fun HomeContent(
     // LazyColumn anahtar bazlı konumu korur: en üste sonradan eklenen "devam et" satırı ekranın üstüne itilirdi.
     val listState = rememberLazyListState()
     LaunchedEffect(hasContinue) { if (hasContinue) listState.scrollToItem(0) }
+    LaunchedEffect(listState) {
+        onRegisterScrollToTop {
+            if (listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0) {
+                listState.scrollToItem(0)
+            }
+        }
+    }
 
     // Sağlayıcı raflarıyla aynı adı taşıyan TMDB rafı (ör. "Popüler filmler") ikinci kopya olarak gizlenir;
     // yalnızca gerçekten görünen sağlayıcı rafları sayılır (addon rafı yüklenemezse TMDB rafı kalır).
@@ -769,6 +780,7 @@ private fun ProviderCatalogView(
     modifier: Modifier = Modifier,
     contentFocusRequester: FocusRequester? = null,
     topBarFocusRequester: FocusRequester? = null,
+    onRegisterScrollToTop: (suspend () -> Unit) -> Unit = {},
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
@@ -861,7 +873,10 @@ private fun ProviderCatalogView(
                 )
                 Button(
                     onClick = { refreshKey++ },
-                    modifier = Modifier.focusRing(MaterialTheme.shapes.medium),
+                    modifier = Modifier
+                        .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                        .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                        .focusRing(MaterialTheme.shapes.medium),
                 ) {
                     Text(stringResource(R.string.provider_catalog_retry))
                 }
@@ -924,7 +939,10 @@ private fun ProviderCatalogView(
                 } else {
                     Button(
                         onClick = { refreshKey++ },
-                        modifier = Modifier.focusRing(MaterialTheme.shapes.medium),
+                        modifier = Modifier
+                            .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                            .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                            .focusRing(MaterialTheme.shapes.medium),
                     ) {
                         Text(stringResource(R.string.provider_catalog_retry))
                     }
@@ -959,6 +977,13 @@ private fun ProviderCatalogView(
                 }
             } else {
                 val listState = rememberLazyListState()
+                LaunchedEffect(listState) {
+                    onRegisterScrollToTop {
+                        if (listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0) {
+                            listState.scrollToItem(0)
+                        }
+                    }
+                }
 
                 LazyColumn(
                 state = listState,
@@ -1025,7 +1050,8 @@ private fun ProviderCatalogView(
                             contentPadding = PaddingValues(horizontal = ScreenPadding),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            itemsIndexed(row.items, key = { index, item -> "${row.id}_${item.id}_$index" }) { _, item ->
+                            itemsIndexed(row.items, key = { index, item -> "${row.id}_${item.id}_$index" }) { itemIdx, item ->
+                                val isFirstProviderCard = row == rows.firstOrNull() && itemIdx == 0
                                 PosterCard(
                                     title = item.title,
                                     subtitle = item.subtitle,
@@ -1049,7 +1075,9 @@ private fun ProviderCatalogView(
                                             }
                                         }
                                     },
-                                    modifier = Modifier.width(cardWidth),
+                                    modifier = Modifier.width(cardWidth)
+                                        .let { if (isFirstProviderCard && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                                        .let { if (isFirstProviderCard && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it },
                                 )
 
                             }
