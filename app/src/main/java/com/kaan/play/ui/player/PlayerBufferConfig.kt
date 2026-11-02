@@ -14,11 +14,15 @@ import android.content.res.Configuration
  * Büyük arabellek kararı (64 MB) yalnızca ActivityManager.memoryClass >= 256 VE
  * toplam RAM >= 4 GB olduğunda verilir; aksi halde (leanback bildirmeyen 1-2 GB RAM'li TV kutuları dahil)
  * 16 MB kullanılır.
+ * TV modunda ise memoryClass >= 192 VE toplam RAM >= 3 GB olduğunda 48 MB arabellek ayrılır.
  */
 object PlayerBufferConfig {
     const val BUFFER_BYTES_TV_OR_LOW_RAM = 16 * 1024 * 1024 // 16 MB (b7dab38)
+    const val BUFFER_BYTES_TV_HIGH = 48 * 1024 * 1024 // 48 MB
     const val BUFFER_BYTES_PHONE_HIGH = 64 * 1024 * 1024 // 64 MB
     const val MIN_TOTAL_MEM_BYTES_FOR_LARGE_BUFFER = 4L * 1024 * 1024 * 1024 // 4 GB
+    const val MIN_TOTAL_MEM_BYTES_FOR_TV_HIGH = 3L * 1024 * 1024 * 1024 // 3 GB
+    const val MIN_MEMORY_CLASS_FOR_TV_HIGH = 192
 
     /**
      * Donanım özelliklerine göre ExoPlayer hedef arabellek bayt boyutunu hesaplar.
@@ -36,8 +40,15 @@ object PlayerBufferConfig {
         memoryClass: Int,
         totalMemBytes: Long,
     ): Int {
-        if (isLowRam || isTv) {
+        if (isLowRam) {
             return BUFFER_BYTES_TV_OR_LOW_RAM
+        }
+        if (isTv) {
+            return if (memoryClass >= MIN_MEMORY_CLASS_FOR_TV_HIGH && totalMemBytes >= MIN_TOTAL_MEM_BYTES_FOR_TV_HIGH) {
+                BUFFER_BYTES_TV_HIGH
+            } else {
+                BUFFER_BYTES_TV_OR_LOW_RAM
+            }
         }
         return if (memoryClass >= 256 && totalMemBytes >= MIN_TOTAL_MEM_BYTES_FOR_LARGE_BUFFER) {
             BUFFER_BYTES_PHONE_HIGH

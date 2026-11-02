@@ -32,8 +32,11 @@ import androidx.media3.exoplayer.hls.DefaultHlsExtractorFactory
 import androidx.media3.exoplayer.hls.HlsMediaSource
 import androidx.media3.extractor.ts.DefaultTsPayloadReaderFactory
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
+import android.media.MediaCodecList
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import com.kaan.play.data.stream.PlayableStream
 import androidx.media3.exoplayer.analytics.AnalyticsListener
 import com.kaan.play.data.stream.StreamPlaybackCookieJar
@@ -194,6 +197,16 @@ class PlaybackController(
                         Log.d("PlayMatch", "kare düşmesi: dropped=$droppedFrames elapsed=${elapsedMs}ms pos=${eventTime.currentPlaybackPositionMs}ms")
                     }
                 }
+
+                override fun onVideoDecoderInitialized(
+                    eventTime: AnalyticsListener.EventTime,
+                    decoderName: String,
+                    initializedTimestampMs: Long,
+                    initializationDurationMs: Long,
+                ) {
+                    val isSw = isSoftwareDecoder(decoderName)
+                    Log.i("PlayMatch", "Video çözücü: decoder=$decoderName tür=${if (isSw) "yazılım" else "donanım"} süre=${initializationDurationMs}ms")
+                }
             })
             // Altyazı varsayılan olarak kapalıdır; seçilince açılır (videonun içindekiler Media3'le, diğerleri kendi katmanımızla).
             exo.trackSelectionParameters = exo.trackSelectionParameters.buildUpon()
@@ -217,6 +230,11 @@ class PlaybackController(
     private var seekWatchdogRunnable: Runnable? = null
     private var isSeeking = false
     private var recoveryAttempts = 0
+    private var watchdogInitialBufferedPos = 0L
+    private var watchdogInitialPos = 0L
+    private var watchdogStartTimeMs = 0L
+    private var watchdogReprepareCount = 0
+    private var isWatchdogRepreparing = false
 
     // Hata sonrası kurtarma (her yükleme için en çok bir kez): geçici çözücü hatasında yeniden hazırlama; ayrıştırma hatasında
     // adresin gerçek türünü ağdan yoklayıp yeniden deneme.
@@ -226,18 +244,65 @@ class PlaybackController(
     private var lastMime: String? = null
 
     private fun startSeekWatchdog() {
-        cancelSeekWatchdog()
-        val r = Runnable {
-            if (!released && player.playbackState == Player.STATE_BUFFERING) {
-                val currentPos = player.currentPosition
-                Log.w("PlayMatch", "Seek sonrası 8 saniye tamponlama aşıldı: akış otomatik kurtarılıyor pos=$currentPos")
-                player.seekTo(currentPos)
-                player.prepare()
-                player.play()
+        if (isWatchdogRepreparing) return
+        if (seekWatchdogRunnable != null) return
+
+        watchdogInitialBufferedPos = player.bufferedPosition
+        watchdogInitialPos = player.currentPosition
+        watchdogStartTimeMs = SystemClock.uptimeMillis()
+
+        val r = object : Runnable {
+            override fun run() {
+                if (released || player.playbackState != Player.STATE_BUFFERING) {
+                    cancelSeekWatchdog()
+                    return
+                }
+                val curBufferedPos = player.bufferedPosition
+                val curPos = player.currentPosition
+                val elapsed = SystemClock.uptimeMillis() - watchdogStartTimeMs
+                val decision = StallWatchdogRules.decide(
+                    initialBufferedPositionMs = watchdogInitialBufferedPos,
+                    currentBufferedPositionMs = curBufferedPos,
+                    initialPositionMs = watchdogInitialPos,
+                    currentPositionMs = curPos,
+                    elapsedMs = elapsed,
+                    reprepareCount = watchdogReprepareCount,
+                )
+                when (decision) {
+                    StallWatchdogRules.Decision.BEKLE -> {
+                        // Veri geliyor (tampon ilerliyor): DOKUNMA, bekle. Yeni ilerlemeyi izlemek için baz konumları güncelle
+                        watchdogInitialBufferedPos = curBufferedPos
+                        watchdogInitialPos = curPos
+                        watchdogStartTimeMs = SystemClock.uptimeMillis()
+                        mainHandler.postDelayed(this, StallWatchdogRules.TIMEOUT_MS)
+                    }
+                    StallWatchdogRules.Decision.YENIDEN_HAZIRLA -> {
+                        watchdogReprepareCount++
+                        val currentPos = player.currentPosition
+                        Log.w("PlayMatch", "Seek sonrası 8 saniye tamponlama aşıldı: veri akmıyor, akış otomatik kurtarılıyor pos=$currentPos buffered=$curBufferedPos")
+                        isWatchdogRepreparing = true
+                        try {
+                            player.seekTo(currentPos)
+                            player.prepare()
+                            player.play()
+                        } finally {
+                            isWatchdogRepreparing = false
+                        }
+                        // Yeniden hazırlama sonrası 8 sn daha izle (ilerleme olmazsa VAZGEC verecek)
+                        watchdogInitialBufferedPos = player.bufferedPosition
+                        watchdogInitialPos = player.currentPosition
+                        watchdogStartTimeMs = SystemClock.uptimeMillis()
+                        mainHandler.postDelayed(this, StallWatchdogRules.TIMEOUT_MS)
+                    }
+                    StallWatchdogRules.Decision.VAZGEC -> {
+                        Log.d("PlayMatch", "Seek sonrası watchdog vazgeçti: deneme sınırı aşıldı")
+                        cancelSeekWatchdog()
+                    }
+                }
             }
         }
         seekWatchdogRunnable = r
-        mainHandler.postDelayed(r, 8_000L)
+        mainHandler.postDelayed(r, StallWatchdogRules.TIMEOUT_MS)
     }
 
     private fun cancelSeekWatchdog() {
@@ -280,6 +345,7 @@ class PlaybackController(
                 if (state == Player.STATE_READY) {
                     cancelSeekWatchdog()
                     isSeeking = false
+                    watchdogReprepareCount = 0
                     recoveryAttempts = 0
                     stallTracker.onSeekEnded()
                     if (!player.isCurrentMediaItemLive) {
@@ -388,6 +454,10 @@ class PlaybackController(
                 reason: Int,
             ) {
                 if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+                    if (isWatchdogRepreparing) {
+                        // Watchdog'un kendi tetiklediği sarmadan yeniden kurulmasın!
+                        return
+                    }
                     if (player.playbackState == Player.STATE_READY && !player.isLoading) {
                         stallTracker.onSeekEnded()
                         cancelSeekWatchdog()
@@ -410,6 +480,9 @@ class PlaybackController(
             decoderRetried = false
             mimeProbed = false
         }
+        cancelSeekWatchdog()
+        watchdogReprepareCount = 0
+        isSeeking = false
         lastStream = stream
         if (!isSurfaceReady) {
             Log.d("PlaybackController", "Yüzey henüz hazır değil; erken arabelleğe alma (optimistic buffering) ile ExoPlayer hazırlanıyor.")
@@ -518,6 +591,8 @@ class PlaybackController(
     fun seekBy(deltaMs: Long) {
         stallTracker.onSeekStarted()
         isSeeking = true
+        cancelSeekWatchdog()
+        watchdogReprepareCount = 0
         startSeekWatchdog()
         val duration = player.duration.takeIf { it != C.TIME_UNSET } ?: Long.MAX_VALUE
         player.seekTo((player.currentPosition + deltaMs).coerceIn(0L, duration))
@@ -526,6 +601,8 @@ class PlaybackController(
     fun seekTo(positionMs: Long) {
         stallTracker.onSeekStarted()
         isSeeking = true
+        cancelSeekWatchdog()
+        watchdogReprepareCount = 0
         startSeekWatchdog()
         player.seekTo(positionMs.coerceAtLeast(0L))
     }
@@ -675,6 +752,30 @@ class PlaybackController(
     }
 
     companion object {
+        internal fun isSoftwareDecoder(decoderName: String): Boolean {
+            val lower = decoderName.lowercase(Locale.ROOT)
+            if (lower.startsWith("omx.google.") ||
+                lower.startsWith("c2.android.") ||
+                lower.startsWith("omx.ffmpeg.") ||
+                lower.startsWith("c2.google.") ||
+                lower.contains(".sw.") ||
+                lower.endsWith(".sw") ||
+                lower.contains("software")
+            ) {
+                return true
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                try {
+                    val codecInfo = MediaCodecList(MediaCodecList.REGULAR_CODECS)
+                        .codecInfos.firstOrNull { it.name.equals(decoderName, ignoreCase = true) }
+                    if (codecInfo != null) {
+                        return codecInfo.isSoftwareOnly || !codecInfo.isHardwareAccelerated
+                    }
+                } catch (_: Throwable) {}
+            }
+            return false
+        }
+
         const val DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         private const val TORRENT_READ_TIMEOUT_S = 120L
 

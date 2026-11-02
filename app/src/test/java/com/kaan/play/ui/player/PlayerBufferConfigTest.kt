@@ -8,33 +8,69 @@ import org.junit.Test
 class PlayerBufferConfigTest {
 
     private val mb16 = 16 * 1024 * 1024
+    private val mb48 = 48 * 1024 * 1024
     private val mb64 = 64 * 1024 * 1024
 
     private val gb1 = 1L * 1024 * 1024 * 1024
     private val gb2 = 2L * 1024 * 1024 * 1024
+    private val gb3 = 3L * 1024 * 1024 * 1024
     private val gb4 = 4L * 1024 * 1024 * 1024
     private val gb8 = 8L * 1024 * 1024 * 1024
     private val gb16 = 16L * 1024 * 1024 * 1024
 
     @Test
-    fun tvDeviceAlwaysKeeps16MbToPreventOom() {
+    fun tvDeviceWithHighMemoryClassAndAtLeast3GbRamUses48Mb() {
         val bytesHighMemTv = PlayerBufferConfig.computeTargetBufferBytes(
+            isLowRam = false,
+            isTv = true,
+            memoryClass = 192,
+            totalMemBytes = gb3,
+        )
+        assertEquals(mb48, bytesHighMemTv)
+        // TV'de boyut sınırı zamana her zaman baskındır (OOM koruması)
+        assertFalse(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = false, isTv = true, memoryClass = 192, totalMemBytes = gb3))
+
+        val bytesHigherMemTv = PlayerBufferConfig.computeTargetBufferBytes(
             isLowRam = false,
             isTv = true,
             memoryClass = 256,
             totalMemBytes = gb16,
         )
-        assertEquals(mb16, bytesHighMemTv)
+        assertEquals(mb48, bytesHigherMemTv)
         assertFalse(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = false, isTv = true, memoryClass = 256, totalMemBytes = gb16))
+    }
 
-        val bytesLowMemTv = PlayerBufferConfig.computeTargetBufferBytes(
+    @Test
+    fun tvDeviceWithLowRamOrLowerSpecsKeeps16Mb() {
+        // isLowRam cihaz her zaman 16 MB
+        val bytesLowRamTv = PlayerBufferConfig.computeTargetBufferBytes(
             isLowRam = true,
             isTv = true,
+            memoryClass = 256,
+            totalMemBytes = gb8,
+        )
+        assertEquals(mb16, bytesLowRamTv)
+        assertFalse(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = true, isTv = true, memoryClass = 256, totalMemBytes = gb8))
+
+        // Düşük memoryClass (< 192) olan TV kutusu
+        val bytesLowClassTv = PlayerBufferConfig.computeTargetBufferBytes(
+            isLowRam = false,
+            isTv = true,
             memoryClass = 128,
+            totalMemBytes = gb4,
+        )
+        assertEquals(mb16, bytesLowClassTv)
+        assertFalse(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = false, isTv = true, memoryClass = 128, totalMemBytes = gb4))
+
+        // Düşük RAM (< 3 GB) olan TV kutusu
+        val bytesLowMemTv = PlayerBufferConfig.computeTargetBufferBytes(
+            isLowRam = false,
+            isTv = true,
+            memoryClass = 256,
             totalMemBytes = gb2,
         )
         assertEquals(mb16, bytesLowMemTv)
-        assertFalse(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = true, isTv = true, memoryClass = 128, totalMemBytes = gb2))
+        assertFalse(PlayerBufferConfig.shouldPrioritizeTimeOverSize(isLowRam = false, isTv = true, memoryClass = 256, totalMemBytes = gb2))
     }
 
     @Test
