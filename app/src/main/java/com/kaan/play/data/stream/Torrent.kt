@@ -1,6 +1,7 @@
 package com.kaan.play.data.stream
 
 import java.net.URI
+import java.net.URLDecoder
 import java.net.URLEncoder
 import java.util.Locale
 import kotlinx.coroutines.flow.Flow
@@ -15,7 +16,7 @@ object TorrentLinks {
 
     private val HEX_HASH = Regex("^[0-9a-fA-F]{40}$")
     private val BASE32_HASH = Regex("^[A-Za-z2-7]{32}$")
-    private const val MAX_TRACKERS = 20
+    private const val MAX_TRACKERS = 40
 
     fun isMagnet(url: String): Boolean = url.startsWith("magnet:", ignoreCase = true)
 
@@ -37,6 +38,24 @@ object TorrentLinks {
             .distinct().take(MAX_TRACKERS)
             .joinToString("") { "&tr=${encode(it)}" }
         return "magnet:?xt=urn:btih:$hash$tr"
+    }
+
+    /** Var olan bir magnet baglantisina eksik izleyicileri ekler; gecerli magnet degilse ya da liste bossa oldugu gibi doner. */
+    fun appendTrackers(magnet: String, trackers: List<String>): String {
+        if (!isMagnet(magnet) || trackers.isEmpty()) return magnet
+        val validTrackers = trackers.asSequence().map { it.trim() }
+            .filter { t -> listOf("udp://", "http://", "https://", "wss://").any { t.startsWith(it, ignoreCase = true) } && t.none { it.isWhitespace() } }
+            .distinct()
+            .take(MAX_TRACKERS)
+            .toList()
+        if (validTrackers.isEmpty()) return magnet
+        val existing = magnet.split('&').filter { it.startsWith("tr=", ignoreCase = true) }
+            .map { runCatching { URLDecoder.decode(it.substring(3), "UTF-8") }.getOrDefault("") }
+            .toSet()
+        val toAppend = validTrackers.filter { it !in existing }
+        if (toAppend.isEmpty()) return magnet
+        val prefix = if (magnet.contains('?')) "&" else "?"
+        return magnet + prefix + toAppend.joinToString("&") { "tr=${encode(it)}" }
     }
 
     /** Magnet'in infoHash'i (geçerliyse). */

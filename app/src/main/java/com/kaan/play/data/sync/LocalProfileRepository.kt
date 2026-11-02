@@ -60,6 +60,7 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
     }
 
     suspend fun ensureId(): String {
+        consolidateDefaultProfiles()
         val current = id.first()
         if (current.isNotEmpty()) return current
         val list = allProfiles()
@@ -68,7 +69,7 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
             setActiveProfile(first)
             return first.id
         }
-        val defaultProfile = createProfile(DEFAULT_NAME)
+        val defaultProfile = createProfile(name = DEFAULT_NAME, id = DEFAULT_ID)
         setActiveProfile(defaultProfile)
         return defaultProfile.id
     }
@@ -91,8 +92,11 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
         avatar: String = "aurora",
         isChild: Boolean = false,
         pin: String? = null,
+        id: String? = null,
     ): LocalProfileSummary {
-        val newId = UUID.randomUUID().toString()
+        val candidateId = id ?: if (name == DEFAULT_NAME && pin.isNullOrEmpty() && !isChild) DEFAULT_ID else UUID.randomUUID().toString()
+        val currentList = allProfiles()
+        val newId = if (currentList.any { it.id == candidateId }) UUID.randomUUID().toString() else candidateId
         val pinHash = pin?.takeIf { it.isNotEmpty() }?.let { hashPin(it) }
         val newProfile = LocalProfileSummary(
             id = newId,
@@ -335,17 +339,104 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
         }
     }
 
-    /** Wi-Fi senkronizasyonu: profil listesini değiştirir, etkin profil (varsa) değişmez. */
-    suspend fun replaceProfilesKeepingActive(newProfiles: List<LocalProfileSummary>) {
+    /** Wi-Fi senkronizasyonu: profil listesini değiştirir, etkin profil (varsa) değişmez; atılan kimlik korunan kimliğe geçer. */
+    suspend fun replaceProfilesKeepingActive(
+        newProfiles: List<LocalProfileSummary>,
+        remappedIds: Map<String, String> = emptyMap(),
+    ) {
         store.edit { prefs ->
             prefs[PROFILES] = encodeProfiles(newProfiles)
-            val active = newProfiles.firstOrNull { it.id == prefs[ID] }
+            val currentId = prefs[ID]
+            val resolvedId = remappedIds[currentId] ?: currentId
+            val active = newProfiles.firstOrNull { it.id == resolvedId }
             if (active != null) {
+                prefs[ID] = active.id
                 prefs[NAME] = active.name
             } else {
                 newProfiles.firstOrNull()?.let {
                     prefs[ID] = it.id
                     prefs[NAME] = it.name
+                }
+            }
+            if (remappedIds.isNotEmpty()) {
+                val currentPending = decodeBackups(prefs[PENDING_REMAPS] ?: "").toMutableMap()
+                for ((oldD, oldK) in currentPending.toMap()) {
+                    remappedIds[oldK]?.let { currentPending[oldD] = it }
+                }
+                currentPending.putAll(remappedIds)
+                prefs[PENDING_REMAPS] = encodeBackups(currentPending)
+            }
+        }
+    }
+
+    suspend fun consolidateDefaultProfiles(): com.kaan.play.data.sync.local.ProfileConsolidationResult? {
+        val profs = allProfiles()
+        val eligible = profs.filter { it.name == DEFAULT_NAME && !it.hasPin }
+        if (eligible.size <= 1) return null
+
+        val rawBackups = store.data.first()[BACKUPS] ?: ""
+        val backupsMap = decodeBackups(rawBackups).mapValues {
+            runCatching { json.decodeFromString(LocalProfileBackup.serializer(), it.value) }.getOrDefault(LocalProfileBackup())
+        }
+        val currentActiveId = id.first()
+
+        val result = com.kaan.play.data.sync.local.LocalSyncMerge.consolidateProfiles(
+            profiles = profs,
+            libraries = backupsMap,
+            activeProfileId = currentActiveId,
+        )
+
+        store.edit { prefs ->
+            prefs[PROFILES] = encodeProfiles(result.profiles)
+            val updatedBackups = result.libraries.mapValues { com.kaan.play.data.sync.local.LocalSyncMerge.encodeBackup(it.value) }
+            prefs[BACKUPS] = encodeBackups(updatedBackups)
+            val newActive = result.activeProfileId ?: result.profiles.firstOrNull()?.id
+            if (newActive != null) {
+                prefs[ID] = newActive
+                result.profiles.firstOrNull { it.id == newActive }?.let {
+                    prefs[NAME] = it.name
+                }
+            }
+            if (result.remappedIds.isNotEmpty()) {
+                val currentPending = decodeBackups(prefs[PENDING_REMAPS] ?: "").toMutableMap()
+                for ((oldD, oldK) in currentPending.toMap()) {
+                    result.remappedIds[oldK]?.let { currentPending[oldD] = it }
+                }
+                currentPending.putAll(result.remappedIds)
+                prefs[PENDING_REMAPS] = encodeBackups(currentPending)
+            }
+        }
+        return result
+    }
+
+    suspend fun getPendingRemappedIds(): Map<String, String> {
+        val raw = store.data.first()[PENDING_REMAPS] ?: return emptyMap()
+        return decodeBackups(raw)
+    }
+
+    suspend fun recordPendingRemaps(remapped: Map<String, String>) {
+        if (remapped.isEmpty()) return
+        store.edit { prefs ->
+            val existing = decodeBackups(prefs[PENDING_REMAPS] ?: "").toMutableMap()
+            for ((oldD, oldK) in existing.toMap()) {
+                val chained = remapped[oldK]
+                if (chained != null) {
+                    existing[oldD] = chained
+                }
+            }
+            existing.putAll(remapped)
+            prefs[PENDING_REMAPS] = encodeBackups(existing)
+        }
+    }
+
+    suspend fun removePendingRemappedId(discardedId: String) {
+        store.edit { prefs ->
+            val existing = decodeBackups(prefs[PENDING_REMAPS] ?: "").toMutableMap()
+            if (existing.remove(discardedId) != null) {
+                if (existing.isEmpty()) {
+                    prefs.remove(PENDING_REMAPS)
+                } else {
+                    prefs[PENDING_REMAPS] = encodeBackups(existing)
                 }
             }
         }
@@ -394,10 +485,12 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
 
     companion object {
         const val DEFAULT_NAME = "Varsayılan"
+        const val DEFAULT_ID = "default"
         private val ID = stringPreferencesKey("sync_local_profile_id")
         private val NAME = stringPreferencesKey("sync_local_profile_name")
         private val PROFILES = stringPreferencesKey("sync_local_profiles")
         private val BACKUPS = stringPreferencesKey("sync_local_profile_backups")
+        private val PENDING_REMAPS = stringPreferencesKey("sync_pending_remapped_profile_ids")
         private val USER_ID = stringPreferencesKey("sync_local_user_id")
         private val SYNC_CODE = stringPreferencesKey("sync_local_code")
         private val PROFILE_SETUP_COMPLETE = booleanPreferencesKey("sync_profile_setup_complete")

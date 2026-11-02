@@ -37,9 +37,9 @@ object StreamParser {
     private fun StreamDto.toPlayable(source: StreamSource): PlayableStream? {
         val httpLink = url?.trim()?.takeIf { it.startsWith("http://", ignoreCase = true) || it.startsWith("https://", ignoreCase = true) }
         val trackers = sources.orEmpty().filter { it.startsWith("tracker:", ignoreCase = true) }.map { it.substringAfter(':') }
+        val rawMagnet = url?.trim()?.takeIf(TorrentLinks::isMagnet)
         val link = httpLink
-            ?: url?.trim()?.takeIf(TorrentLinks::isMagnet)
-            ?: TorrentLinks.magnet(infoHash, trackers)
+            ?: (if (rawMagnet != null) TorrentLinks.appendTrackers(rawMagnet, trackers) else TorrentLinks.magnet(infoHash, trackers))
             ?: run {
                 url?.let { StreamLog.rejected("addon", it) }
                 return null
