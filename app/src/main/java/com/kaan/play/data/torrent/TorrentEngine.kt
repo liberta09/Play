@@ -335,10 +335,11 @@ class TorrentEngine(private val dir: File) {
             h.setPieceDeadline(piece + 1, 350)
         }
 
-        // Başlık ve kuyruk parçalarını da canlı tut
-        listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEach { p ->
+        // Başlık ve kuyruk parçalarını da canlı tut (paralel öncelik)
+        listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEachIndexed { idx, p ->
             if (!isPieceVerified(file, p)) {
                 h.piecePriority(p, Priority.TOP_PRIORITY)
+                h.setPieceDeadline(p, 500 + idx * 250)
             }
         }
     }
