@@ -1,0 +1,872 @@
+{
+  "tur2_cw_d1": {
+    "run_name": "tur2_cw_d1",
+    "duration_sec": 11.382,
+    "tail_wait_sec": 8.787,
+    "start_line": "11-02 22:07:54.356 D/PlayMatch(21724): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:08:05.738 D/PlayMatch(21724): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 2015,
+    "metadata_ready_line": "11-02 22:07:56.371 21724 21908 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 804,
+    "first_peer_line": "11-02 22:07:55.160 21724 21814 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 2009,
+    "piece0_block0_line": "11-02 22:07:56.366 21724 21814 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:07:56.635 21724 21812 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:08:05.258 21724 21812 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=294912",
+    "tail_last_line": "11-02 22:08:05.422 21724 21812 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=369727",
+    "stats_lines": [
+      "11-02 22:08:00.005 21724 21809 D PlayTorrent: MILESTONE: stats at 1s peers=23 seeds=18 dlRate=795KB/s inen=7375KB",
+      "11-02 22:08:02.005 21724 21809 D PlayTorrent: MILESTONE: stats at 3s peers=25 seeds=22 dlRate=1625KB/s inen=15004KB",
+      "11-02 22:08:04.005 21724 21809 D PlayTorrent: MILESTONE: stats at 5s peers=24 seeds=22 dlRate=2480KB/s inen=22822KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:07:56.373 21724 21908 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:07:56.635 21724 21812 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:08:05.437 21724 21812 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:07:56.374 21724 21908 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=16384 total=16384",
+      "11-02 22:08:05.258 21724 21812 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=294912",
+      "11-02 22:08:05.439 21724 21812 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=435263"
+    ],
+    "http_last_lines": [
+      "11-02 22:08:05.422 21724 21812 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=369727"
+    ],
+    "total_bytes_served": 369727,
+    "mismatches": 0
+  },
+  "tur3_cw_d1": {
+    "run_name": "tur3_cw_d1",
+    "duration_sec": 18.078,
+    "tail_wait_sec": 14.288,
+    "start_line": "11-02 22:08:24.532 D/PlayMatch(21980): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:08:42.610 D/PlayMatch(21980): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 2020,
+    "metadata_ready_line": "11-02 22:08:26.552 21980 22162 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 872,
+    "first_peer_line": "11-02 22:08:25.404 21980 22071 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 3228,
+    "piece0_block0_line": "11-02 22:08:27.760 21980 22071 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:08:28.111 21980 22068 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:08:42.071 21980 22068 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=294912",
+    "tail_last_line": "11-02 22:08:42.399 21980 22068 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=369727",
+    "stats_lines": [
+      "11-02 22:08:30.277 21980 22065 D PlayTorrent: MILESTONE: stats at 1s peers=24 seeds=19 dlRate=872KB/s inen=6035KB",
+      "11-02 22:08:32.277 21980 22065 D PlayTorrent: MILESTONE: stats at 3s peers=32 seeds=22 dlRate=1083KB/s inen=9341KB",
+      "11-02 22:08:34.278 21980 22065 D PlayTorrent: MILESTONE: stats at 5s peers=29 seeds=22 dlRate=1639KB/s inen=14714KB",
+      "11-02 22:08:39.278 21980 22065 D PlayTorrent: MILESTONE: stats at 10s peers=33 seeds=26 dlRate=2251KB/s inen=28453KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:08:26.554 21980 22162 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:08:28.111 21980 22068 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:08:42.409 21980 22068 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:08:27.763 21980 22162 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=16384 total=16384",
+      "11-02 22:08:42.071 21980 22068 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=294912",
+      "11-02 22:08:42.411 21980 22068 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=435263"
+    ],
+    "http_last_lines": [
+      "11-02 22:08:42.399 21980 22068 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=369727"
+    ],
+    "total_bytes_served": 369727,
+    "mismatches": 0
+  },
+  "tur2_cw_d2": {
+    "run_name": "tur2_cw_d2",
+    "duration_sec": 17.602,
+    "tail_wait_sec": 14.971,
+    "start_line": "11-02 22:09:01.308 D/PlayMatch(22265): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:09:18.910 D/PlayMatch(22265): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 1514,
+    "metadata_ready_line": "11-02 22:09:02.822 22265 22450 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 454,
+    "first_peer_line": "11-02 22:09:01.762 22265 22360 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 1814,
+    "piece0_block0_line": "11-02 22:09:03.122 22265 22360 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:09:03.549 22265 22356 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:09:18.518 22265 22356 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=196608",
+    "tail_last_line": "11-02 22:09:18.520 22265 22356 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=271423",
+    "stats_lines": [
+      "11-02 22:09:03.822 22265 22353 D PlayTorrent: MILESTONE: stats at 1s peers=12 seeds=7 dlRate=70KB/s inen=502KB",
+      "11-02 22:09:05.823 22265 22353 D PlayTorrent: MILESTONE: stats at 3s peers=19 seeds=17 dlRate=445KB/s inen=4044KB",
+      "11-02 22:09:07.823 22265 22353 D PlayTorrent: MILESTONE: stats at 5s peers=20 seeds=17 dlRate=1382KB/s inen=11259KB",
+      "11-02 22:09:12.823 22265 22353 D PlayTorrent: MILESTONE: stats at 10s peers=29 seeds=23 dlRate=2315KB/s inen=25089KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:09:02.823 22265 22450 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:09:03.549 22265 22356 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:09:18.634 22265 22356 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:09:03.128 22265 22450 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=16384 total=16384",
+      "11-02 22:09:18.518 22265 22356 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=196608",
+      "11-02 22:09:18.637 22265 22356 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=336959"
+    ],
+    "http_last_lines": [
+      "11-02 22:09:18.520 22265 22356 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=271423"
+    ],
+    "total_bytes_served": 271423,
+    "mismatches": 0
+  },
+  "tur3_cw_d2": {
+    "run_name": "tur3_cw_d2",
+    "duration_sec": 18.839,
+    "tail_wait_sec": 2.932,
+    "start_line": "11-02 22:11:40.648 D/PlayMatch(23086): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:11:59.487 D/PlayMatch(23086): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 1526,
+    "metadata_ready_line": "11-02 22:11:42.174 23086 23291 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 526,
+    "first_peer_line": "11-02 22:11:41.174 23086 23198 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 15531,
+    "piece0_block0_line": "11-02 22:11:56.179 23086 23198 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:11:56.335 23086 23196 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:11:57.994 23086 23196 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=21410 total=13620130",
+    "tail_last_line": "11-02 22:11:59.267 23086 23196 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=13739071",
+    "stats_lines": [
+      "11-02 22:11:38.109 23086 23192 D PlayTorrent: MILESTONE: stats at 5s peers=6 seeds=4 dlRate=701KB/s inen=4236KB",
+      "11-02 22:11:44.110 23086 23192 D PlayTorrent: MILESTONE: stats at 1s peers=14 seeds=14 dlRate=478KB/s inen=2753KB",
+      "11-02 22:11:46.137 23086 23192 D PlayTorrent: MILESTONE: stats at 3s peers=17 seeds=14 dlRate=673KB/s inen=4776KB",
+      "11-02 22:11:48.110 23086 23192 D PlayTorrent: MILESTONE: stats at 5s peers=23 seeds=17 dlRate=1163KB/s inen=8773KB",
+      "11-02 22:11:53.109 23086 23192 D PlayTorrent: MILESTONE: stats at 10s peers=23 seeds=18 dlRate=2254KB/s inen=24133KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:11:42.177 23086 23291 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:11:56.335 23086 23196 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:11:59.279 23086 23196 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:11:56.200 23086 23291 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=65536 total=65536",
+      "11-02 22:11:57.994 23086 23196 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=21410 total=13620130",
+      "11-02 22:11:59.279 23086 23196 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=13804607"
+    ],
+    "http_last_lines": [
+      "11-02 22:11:59.267 23086 23196 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=13739071"
+    ],
+    "total_bytes_served": 13739071,
+    "mismatches": 0
+  },
+  "tur2_cw_d3": {
+    "run_name": "tur2_cw_d3",
+    "duration_sec": 27.807,
+    "tail_wait_sec": 0.001,
+    "start_line": "11-02 22:12:20.082 D/PlayMatch(23401): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:12:47.889 D/PlayMatch(23401): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 2524,
+    "metadata_ready_line": "11-02 22:12:22.606 23401 23588 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 570,
+    "first_peer_line": "11-02 22:12:20.652 23401 23494 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 27313,
+    "piece0_block0_line": "11-02 22:12:47.395 23401 23494 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:12:47.673 23401 23491 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:12:47.674 23401 23491 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=29310976",
+    "tail_last_line": "11-02 22:12:47.674 23401 23491 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=29385791",
+    "stats_lines": [
+      "11-02 22:12:17.591 23401 23488 D PlayTorrent: MILESTONE: stats at 5s peers=7 seeds=5 dlRate=524KB/s inen=3445KB",
+      "11-02 22:12:23.609 23401 23488 D PlayTorrent: MILESTONE: stats at 1s peers=8 seeds=8 dlRate=328KB/s inen=1653KB",
+      "11-02 22:12:25.610 23401 23488 D PlayTorrent: MILESTONE: stats at 3s peers=13 seeds=12 dlRate=979KB/s inen=6106KB",
+      "11-02 22:12:27.609 23401 23488 D PlayTorrent: MILESTONE: stats at 5s peers=14 seeds=14 dlRate=1386KB/s inen=10257KB",
+      "11-02 22:12:32.609 23401 23488 D PlayTorrent: MILESTONE: stats at 10s peers=18 seeds=15 dlRate=2451KB/s inen=24875KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:12:22.610 23401 23588 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:12:47.673 23401 23491 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:12:47.721 23401 23491 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:12:47.409 23401 23588 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=16384 total=16384",
+      "11-02 22:12:47.674 23401 23491 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=29310976",
+      "11-02 22:12:47.721 23401 23491 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=29451327"
+    ],
+    "http_last_lines": [
+      "11-02 22:12:47.674 23401 23491 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=29385791"
+    ],
+    "total_bytes_served": 29385791,
+    "mismatches": 0
+  },
+  "tur3_cw_d3": {
+    "run_name": "tur3_cw_d3",
+    "duration_sec": 11.419,
+    "tail_wait_sec": 9.41,
+    "start_line": "11-02 22:13:08.383 D/PlayMatch(23662): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:13:19.802 D/PlayMatch(23662): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 1520,
+    "metadata_ready_line": "11-02 22:13:09.903 23662 23852 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 559,
+    "first_peer_line": "11-02 22:13:08.942 23662 23758 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 1495,
+    "piece0_block0_line": "11-02 22:13:09.878 23662 23758 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:13:10.145 23662 23755 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:13:18.043 23662 23755 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=294912",
+    "tail_last_line": "11-02 22:13:19.555 23662 23755 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=369727",
+    "stats_lines": [
+      "11-02 22:13:05.868 23662 23752 D PlayTorrent: MILESTONE: stats at 5s peers=8 seeds=5 dlRate=472KB/s inen=3100KB",
+      "11-02 22:13:11.868 23662 23752 D PlayTorrent: MILESTONE: stats at 1s peers=16 seeds=16 dlRate=822KB/s inen=4677KB",
+      "11-02 22:13:13.879 23662 23752 D PlayTorrent: MILESTONE: stats at 3s peers=18 seeds=16 dlRate=1671KB/s inen=11132KB",
+      "11-02 22:13:15.868 23662 23752 D PlayTorrent: MILESTONE: stats at 5s peers=24 seeds=19 dlRate=1797KB/s inen=16104KB",
+      "11-02 22:13:20.868 23662 23752 D PlayTorrent: MILESTONE: stats at 10s peers=24 seeds=20 dlRate=2778KB/s inen=31820KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:13:09.904 23662 23852 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:13:10.145 23662 23755 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:13:19.572 23662 23755 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:13:09.904 23662 23852 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=16384 total=16384",
+      "11-02 22:13:18.043 23662 23755 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=294912",
+      "11-02 22:13:19.573 23662 23755 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=435263"
+    ],
+    "http_last_lines": [
+      "11-02 22:13:19.555 23662 23755 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=369727"
+    ],
+    "total_bytes_served": 369727,
+    "mismatches": 0
+  },
+  "tur2_cw_d4": {
+    "run_name": "tur2_cw_d4",
+    "duration_sec": 20.483,
+    "tail_wait_sec": 15.415,
+    "start_line": "11-02 22:13:40.302 D/PlayMatch(23927): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:14:00.785 D/PlayMatch(23927): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 2024,
+    "metadata_ready_line": "11-02 22:13:42.326 23927 24112 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 530,
+    "first_peer_line": "11-02 22:13:40.832 23927 24021 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 3269,
+    "piece0_block0_line": "11-02 22:13:43.571 23927 24021 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:13:45.143 23927 24018 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:13:54.664 23927 24018 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=54178 total=152482",
+    "tail_last_line": "11-02 22:14:00.558 23927 24018 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=238655",
+    "stats_lines": [
+      "11-02 22:13:38.278 23927 24014 D PlayTorrent: MILESTONE: stats at 5s peers=6 seeds=5 dlRate=0KB/s inen=0KB",
+      "11-02 22:13:44.278 23927 24014 D PlayTorrent: MILESTONE: stats at 1s peers=13 seeds=13 dlRate=145KB/s inen=1747KB",
+      "11-02 22:13:46.278 23927 24014 D PlayTorrent: MILESTONE: stats at 3s peers=15 seeds=14 dlRate=1225KB/s inen=8531KB",
+      "11-02 22:13:48.278 23927 24014 D PlayTorrent: MILESTONE: stats at 5s peers=17 seeds=16 dlRate=1672KB/s inen=12945KB",
+      "11-02 22:13:53.278 23927 24014 D PlayTorrent: MILESTONE: stats at 10s peers=22 seeds=17 dlRate=2830KB/s inen=29266KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:13:42.329 23927 24112 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:13:45.143 23927 24018 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:14:00.617 23927 24018 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:13:43.587 23927 24112 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=32768 total=32768",
+      "11-02 22:13:54.664 23927 24018 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=54178 total=152482",
+      "11-02 22:14:00.619 23927 24018 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=304191"
+    ],
+    "http_last_lines": [
+      "11-02 22:14:00.558 23927 24018 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=238655"
+    ],
+    "total_bytes_served": 238655,
+    "mismatches": 0
+  },
+  "tur3_cw_d4": {
+    "run_name": "tur3_cw_d4",
+    "duration_sec": 11.318,
+    "tail_wait_sec": 9.423,
+    "start_line": "11-02 22:14:21.284 D/PlayMatch(24183): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:14:32.602 D/PlayMatch(24183): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 1530,
+    "metadata_ready_line": "11-02 22:14:22.814 24183 24370 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 501,
+    "first_peer_line": "11-02 22:14:21.785 24183 24278 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 1341,
+    "piece0_block0_line": "11-02 22:14:22.625 24183 24278 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:14:22.956 24183 24275 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:14:32.377 24183 24275 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=229376",
+    "tail_last_line": "11-02 22:14:32.379 24183 24275 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=304191",
+    "stats_lines": [
+      "11-02 22:14:18.725 24183 24272 D PlayTorrent: MILESTONE: stats at 5s peers=8 seeds=5 dlRate=875KB/s inen=5512KB",
+      "11-02 22:14:24.726 24183 24272 D PlayTorrent: MILESTONE: stats at 1s peers=18 seeds=16 dlRate=1495KB/s inen=8684KB",
+      "11-02 22:14:26.726 24183 24272 D PlayTorrent: MILESTONE: stats at 3s peers=20 seeds=17 dlRate=2120KB/s inen=16316KB",
+      "11-02 22:14:28.726 24183 24272 D PlayTorrent: MILESTONE: stats at 5s peers=25 seeds=20 dlRate=2252KB/s inen=22582KB",
+      "11-02 22:14:33.726 24183 24272 D PlayTorrent: MILESTONE: stats at 10s peers=21 seeds=18 dlRate=3323KB/s inen=41223KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:14:22.814 24183 24370 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:14:22.956 24183 24275 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:14:32.421 24183 24275 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:14:22.817 24183 24370 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=65536 total=65536",
+      "11-02 22:14:32.377 24183 24275 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=229376",
+      "11-02 22:14:32.421 24183 24275 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=369727"
+    ],
+    "http_last_lines": [
+      "11-02 22:14:32.379 24183 24275 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=304191"
+    ],
+    "total_bytes_served": 304191,
+    "mismatches": 0
+  },
+  "tur2_cw_d5": {
+    "run_name": "tur2_cw_d5",
+    "duration_sec": 25.365,
+    "tail_wait_sec": 22.328,
+    "start_line": "11-02 22:14:53.119 D/PlayMatch(24455): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:15:18.484 D/PlayMatch(24455): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 2016,
+    "metadata_ready_line": "11-02 22:14:55.135 24455 24639 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 491,
+    "first_peer_line": "11-02 22:14:53.610 24455 24548 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 2551,
+    "piece0_block0_line": "11-02 22:14:55.670 24455 24548 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:14:55.948 24455 24546 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:15:05.481 24455 24546 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=21410 total=201634",
+    "tail_last_line": "11-02 22:15:18.276 24455 24546 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=320575",
+    "stats_lines": [
+      "11-02 22:14:50.552 24455 24543 D PlayTorrent: MILESTONE: stats at 5s peers=7 seeds=5 dlRate=428KB/s inen=2961KB",
+      "11-02 22:14:56.552 24455 24543 D PlayTorrent: MILESTONE: stats at 1s peers=11 seeds=9 dlRate=439KB/s inen=2220KB",
+      "11-02 22:14:58.554 24455 24543 D PlayTorrent: MILESTONE: stats at 3s peers=16 seeds=13 dlRate=977KB/s inen=6045KB",
+      "11-02 22:15:00.552 24455 24543 D PlayTorrent: MILESTONE: stats at 5s peers=17 seeds=16 dlRate=1539KB/s inen=12826KB",
+      "11-02 22:15:05.552 24455 24543 D PlayTorrent: MILESTONE: stats at 10s peers=23 seeds=18 dlRate=2705KB/s inen=30014KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:14:55.148 24455 24639 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:14:55.948 24455 24546 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:15:18.306 24455 24546 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:14:55.682 24455 24639 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=32768 total=32768",
+      "11-02 22:15:05.481 24455 24546 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=21410 total=201634",
+      "11-02 22:15:18.307 24455 24546 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=386111"
+    ],
+    "http_last_lines": [
+      "11-02 22:15:18.276 24455 24546 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=320575"
+    ],
+    "total_bytes_served": 320575,
+    "mismatches": 0
+  },
+  "tur3_cw_d5": {
+    "run_name": "tur3_cw_d5",
+    "duration_sec": 11.956,
+    "tail_wait_sec": 9.861,
+    "start_line": "11-02 22:15:39.112 D/PlayMatch(24718): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:15:51.068 D/PlayMatch(24718): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 1527,
+    "metadata_ready_line": "11-02 22:15:40.639 24718 24900 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 504,
+    "first_peer_line": "11-02 22:15:39.616 24718 24810 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 1539,
+    "piece0_block0_line": "11-02 22:15:40.651 24718 24810 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:15:40.978 24718 24807 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:15:50.837 24718 24807 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=180224",
+    "tail_last_line": "11-02 22:15:50.839 24718 24807 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=255039",
+    "stats_lines": [
+      "11-02 22:15:36.568 24718 24804 D PlayTorrent: MILESTONE: stats at 5s peers=8 seeds=5 dlRate=577KB/s inen=3721KB",
+      "11-02 22:15:42.569 24718 24804 D PlayTorrent: MILESTONE: stats at 1s peers=17 seeds=16 dlRate=837KB/s inen=4884KB",
+      "11-02 22:15:44.571 24718 24804 D PlayTorrent: MILESTONE: stats at 3s peers=19 seeds=17 dlRate=1313KB/s inen=9302KB",
+      "11-02 22:15:46.568 24718 24804 D PlayTorrent: MILESTONE: stats at 5s peers=27 seeds=21 dlRate=1440KB/s inen=13135KB",
+      "11-02 22:15:51.568 24718 24804 D PlayTorrent: MILESTONE: stats at 10s peers=26 seeds=22 dlRate=2608KB/s inen=29494KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:15:40.644 24718 24900 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:15:40.978 24718 24807 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:15:50.884 24718 24807 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:15:40.665 24718 24900 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=32768 total=32768",
+      "11-02 22:15:50.837 24718 24807 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=180224",
+      "11-02 22:15:50.885 24718 24807 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=320575"
+    ],
+    "http_last_lines": [
+      "11-02 22:15:50.839 24718 24807 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=255039"
+    ],
+    "total_bytes_served": 255039,
+    "mismatches": 0
+  },
+  "tur3_ablation_nofocus_1": {
+    "run_name": "tur3_ablation_nofocus_1",
+    "duration_sec": 19.045,
+    "tail_wait_sec": 16.953,
+    "start_line": "11-02 22:17:08.906 D/PlayMatch(25229): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:17:27.951 D/PlayMatch(25229): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 1522,
+    "metadata_ready_line": "11-02 22:17:10.428 25229 25417 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 480,
+    "first_peer_line": "11-02 22:17:09.386 25229 25321 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 1514,
+    "piece0_block0_line": "11-02 22:17:10.420 25229 25321 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:17:10.710 25229 25328 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:17:18.825 25229 25328 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=21410 total=447394",
+    "tail_last_line": "11-02 22:17:27.663 25229 25328 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=566335",
+    "stats_lines": [
+      "11-02 22:17:06.334 25229 25318 D PlayTorrent: MILESTONE: stats at 5s peers=7 seeds=5 dlRate=381KB/s inen=2450KB",
+      "11-02 22:17:12.334 25229 25318 D PlayTorrent: MILESTONE: stats at 1s peers=15 seeds=13 dlRate=997KB/s inen=5442KB",
+      "11-02 22:17:14.342 25229 25318 D PlayTorrent: MILESTONE: stats at 3s peers=17 seeds=15 dlRate=1771KB/s inen=11734KB",
+      "11-02 22:17:16.334 25229 25318 D PlayTorrent: MILESTONE: stats at 5s peers=24 seeds=18 dlRate=2220KB/s inen=18039KB",
+      "11-02 22:17:21.334 25229 25318 D PlayTorrent: MILESTONE: stats at 10s peers=23 seeds=20 dlRate=3187KB/s inen=35941KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:17:10.431 25229 25417 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:17:10.710 25229 25328 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:17:27.674 25229 25328 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:17:10.431 25229 25417 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=16384 total=16384",
+      "11-02 22:17:18.825 25229 25328 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=21410 total=447394",
+      "11-02 22:17:27.675 25229 25328 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=631871"
+    ],
+    "http_last_lines": [
+      "11-02 22:17:27.663 25229 25328 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=566335"
+    ],
+    "total_bytes_served": 566335,
+    "mismatches": 0
+  },
+  "tur3_ablation_nofocus_2": {
+    "run_name": "tur3_ablation_nofocus_2",
+    "duration_sec": 17.816,
+    "tail_wait_sec": 15.383,
+    "start_line": "11-02 22:17:48.387 D/PlayMatch(25500): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:18:06.203 D/PlayMatch(25500): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 2017,
+    "metadata_ready_line": "11-02 22:17:50.405 25500 25683 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 703,
+    "first_peer_line": "11-02 22:17:49.090 25500 25592 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 1943,
+    "piece0_block0_line": "11-02 22:17:50.330 25500 25592 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:17:50.603 25500 25587 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:18:05.721 25500 25587 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=21410 total=152482",
+    "tail_last_line": "11-02 22:18:05.986 25500 25587 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=271423",
+    "stats_lines": [
+      "11-02 22:17:46.034 25500 25584 D PlayTorrent: MILESTONE: stats at 5s peers=7 seeds=4 dlRate=67KB/s inen=379KB",
+      "11-02 22:17:52.034 25500 25584 D PlayTorrent: MILESTONE: stats at 1s peers=17 seeds=16 dlRate=607KB/s inen=3475KB",
+      "11-02 22:17:54.035 25500 25584 D PlayTorrent: MILESTONE: stats at 3s peers=18 seeds=17 dlRate=1373KB/s inen=8836KB",
+      "11-02 22:17:56.035 25500 25584 D PlayTorrent: MILESTONE: stats at 5s peers=23 seeds=18 dlRate=1904KB/s inen=14686KB",
+      "11-02 22:18:01.034 25500 25584 D PlayTorrent: MILESTONE: stats at 10s peers=23 seeds=19 dlRate=2575KB/s inen=28211KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:17:50.406 25500 25683 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:17:50.603 25500 25587 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:18:06.018 25500 25587 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:17:50.407 25500 25683 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=32768 total=32768",
+      "11-02 22:18:05.721 25500 25587 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=21410 total=152482",
+      "11-02 22:18:06.019 25500 25587 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=336959"
+    ],
+    "http_last_lines": [
+      "11-02 22:18:05.986 25500 25587 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=271423"
+    ],
+    "total_bytes_served": 271423,
+    "mismatches": 0
+  },
+  "tur3_ablation_nostate_1": {
+    "run_name": "tur3_ablation_nostate_1",
+    "duration_sec": 22.382,
+    "tail_wait_sec": 7.42,
+    "start_line": "11-02 22:18:26.785 D/PlayMatch(25759): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:18:49.167 D/PlayMatch(25759): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 2025,
+    "metadata_ready_line": "11-02 22:18:28.810 25759 25945 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 671,
+    "first_peer_line": "11-02 22:18:27.456 25759 25854 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 14592,
+    "piece0_block0_line": "11-02 22:18:41.377 25759 25854 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:18:41.526 25759 25850 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:18:44.992 25759 25850 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=21410 total=3773346",
+    "tail_last_line": "11-02 22:18:48.946 25759 25850 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=3892287",
+    "stats_lines": [
+      "11-02 22:18:24.397 25759 25847 D PlayTorrent: MILESTONE: stats at 5s peers=7 seeds=4 dlRate=175KB/s inen=1051KB",
+      "11-02 22:18:30.397 25759 25847 D PlayTorrent: MILESTONE: stats at 1s peers=16 seeds=16 dlRate=676KB/s inen=3775KB",
+      "11-02 22:18:32.397 25759 25847 D PlayTorrent: MILESTONE: stats at 3s peers=18 seeds=17 dlRate=1630KB/s inen=10538KB",
+      "11-02 22:18:34.397 25759 25847 D PlayTorrent: MILESTONE: stats at 5s peers=26 seeds=20 dlRate=2026KB/s inen=16052KB",
+      "11-02 22:18:39.397 25759 25847 D PlayTorrent: MILESTONE: stats at 10s peers=25 seeds=20 dlRate=2532KB/s inen=28722KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:18:28.810 25759 25945 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:18:41.526 25759 25850 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:18:48.969 25759 25850 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:18:41.393 25759 25945 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=65536 total=65536",
+      "11-02 22:18:44.992 25759 25850 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=21410 total=3773346",
+      "11-02 22:18:48.969 25759 25850 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=3957823"
+    ],
+    "http_last_lines": [
+      "11-02 22:18:48.946 25759 25850 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=3892287"
+    ],
+    "total_bytes_served": 3892287,
+    "mismatches": 0
+  },
+  "tur3_ablation_nostate_2": {
+    "run_name": "tur3_ablation_nostate_2",
+    "duration_sec": 13.637,
+    "tail_wait_sec": 11.614,
+    "start_line": "11-02 22:19:09.701 D/PlayMatch(26026): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:19:23.338 D/PlayMatch(26026): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 1522,
+    "metadata_ready_line": "11-02 22:19:11.223 26026 26211 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 531,
+    "first_peer_line": "11-02 22:19:10.232 26026 26116 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 1509,
+    "piece0_block0_line": "11-02 22:19:11.210 26026 26116 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:19:11.496 26026 26113 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:19:22.260 26026 26113 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=54178 total=136098",
+    "tail_last_line": "11-02 22:19:23.110 26026 26113 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=222271",
+    "stats_lines": [
+      "11-02 22:19:07.675 26026 26110 D PlayTorrent: MILESTONE: stats at 5s peers=7 seeds=4 dlRate=281KB/s inen=2487KB",
+      "11-02 22:19:13.675 26026 26110 D PlayTorrent: MILESTONE: stats at 1s peers=17 seeds=17 dlRate=877KB/s inen=5581KB",
+      "11-02 22:19:15.675 26026 26110 D PlayTorrent: MILESTONE: stats at 3s peers=22 seeds=18 dlRate=1612KB/s inen=11834KB",
+      "11-02 22:19:17.675 26026 26110 D PlayTorrent: MILESTONE: stats at 5s peers=26 seeds=21 dlRate=1944KB/s inen=16951KB",
+      "11-02 22:19:22.675 26026 26110 D PlayTorrent: MILESTONE: stats at 10s peers=25 seeds=21 dlRate=2778KB/s inen=33121KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:19:11.224 26026 26211 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:19:11.496 26026 26113 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:19:23.152 26026 26113 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:19:11.227 26026 26211 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=16384 total=16384",
+      "11-02 22:19:22.260 26026 26113 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=54178 total=136098",
+      "11-02 22:19:23.153 26026 26113 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=287807"
+    ],
+    "http_last_lines": [
+      "11-02 22:19:23.110 26026 26113 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=222271"
+    ],
+    "total_bytes_served": 222271,
+    "mismatches": 0
+  },
+  "tur3_ablation_nosettings_1": {
+    "run_name": "tur3_ablation_nosettings_1",
+    "duration_sec": 29.919,
+    "tail_wait_sec": 0.002,
+    "start_line": "11-02 22:19:43.767 D/PlayMatch(26282): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:20:13.686 D/PlayMatch(26282): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 3523,
+    "metadata_ready_line": "11-02 22:19:47.290 26282 26470 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 606,
+    "first_peer_line": "11-02 22:19:44.373 26282 26379 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 28842,
+    "piece0_block0_line": "11-02 22:20:12.609 26282 26379 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:20:13.438 26282 26376 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:20:13.440 26282 26376 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=9224192",
+    "tail_last_line": "11-02 22:20:13.440 26282 26376 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=9299007",
+    "stats_lines": [
+      "11-02 22:19:41.813 26282 26373 D PlayTorrent: MILESTONE: stats at 5s peers=7 seeds=5 dlRate=302KB/s inen=2014KB",
+      "11-02 22:19:48.291 26282 26373 D PlayTorrent: MILESTONE: stats at 1s peers=18 seeds=17 dlRate=103KB/s inen=2930KB",
+      "11-02 22:19:50.291 26282 26373 D PlayTorrent: MILESTONE: stats at 3s peers=21 seeds=21 dlRate=813KB/s inen=7771KB",
+      "11-02 22:19:52.291 26282 26373 D PlayTorrent: MILESTONE: stats at 5s peers=25 seeds=23 dlRate=1598KB/s inen=13666KB",
+      "11-02 22:19:57.291 26282 26373 D PlayTorrent: MILESTONE: stats at 10s peers=28 seeds=24 dlRate=2928KB/s inen=29779KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:19:47.293 26282 26470 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:20:13.438 26282 26376 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:20:13.491 26282 26470 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:20:12.632 26282 26470 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=16384 total=16384",
+      "11-02 22:20:13.440 26282 26376 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=9224192",
+      "11-02 22:20:13.491 26282 26470 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=9364543"
+    ],
+    "http_last_lines": [
+      "11-02 22:20:13.440 26282 26376 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=9299007"
+    ],
+    "total_bytes_served": 9299007,
+    "mismatches": 0
+  },
+  "tur3_ablation_nosettings_2": {
+    "run_name": "tur3_ablation_nosettings_2",
+    "duration_sec": 19.417,
+    "tail_wait_sec": 15.947,
+    "start_line": "11-02 22:20:34.383 D/PlayMatch(26560): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:20:53.800 D/PlayMatch(26560): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": 2530,
+    "metadata_ready_line": "11-02 22:20:36.913 26560 26747 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608",
+    "ms_first_peer": 617,
+    "first_peer_line": "11-02 22:20:35.000 26560 26657 D PlayTorrent: MILESTONE: first_peer_connected",
+    "ms_piece0_block0": 2984,
+    "piece0_block0_line": "11-02 22:20:37.367 26560 26657 D PlayTorrent: MILESTONE: piece0_first_block",
+    "tail_req_line": "11-02 22:20:37.638 26560 26653 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:20:43.000 26560 26653 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=21410 total=136098",
+    "tail_last_line": "11-02 22:20:53.585 26560 26653 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=271423",
+    "stats_lines": [
+      "11-02 22:20:31.916 26560 26650 D PlayTorrent: MILESTONE: stats at 5s peers=7 seeds=4 dlRate=203KB/s inen=1997KB",
+      "11-02 22:20:37.921 26560 26650 D PlayTorrent: MILESTONE: stats at 1s peers=8 seeds=8 dlRate=5KB/s inen=780KB",
+      "11-02 22:20:39.920 26560 26650 D PlayTorrent: MILESTONE: stats at 3s peers=17 seeds=17 dlRate=531KB/s inen=4480KB",
+      "11-02 22:20:41.921 26560 26650 D PlayTorrent: MILESTONE: stats at 5s peers=19 seeds=18 dlRate=1520KB/s inen=11166KB",
+      "11-02 22:20:46.921 26560 26650 D PlayTorrent: MILESTONE: stats at 10s peers=25 seeds=21 dlRate=2730KB/s inen=28976KB"
+    ],
+    "http_req_lines": [
+      "11-02 22:20:36.915 26560 26747 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:20:37.638 26560 26653 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:20:53.611 26560 26653 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:20:37.384 26560 26747 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=32768 total=32768",
+      "11-02 22:20:43.000 26560 26653 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=21410 total=136098",
+      "11-02 22:20:53.611 26560 26653 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=336959"
+    ],
+    "http_last_lines": [
+      "11-02 22:20:53.585 26560 26653 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=271423"
+    ],
+    "total_bytes_served": 271423,
+    "mismatches": 0
+  },
+  "tur3_warm_1": {
+    "run_name": "tur3_warm_1",
+    "duration_sec": 0.675,
+    "tail_wait_sec": 0.003,
+    "start_line": "11-02 22:38:47.115 D/PlayMatch(27389): kaynak ba\u015flat\u0131l\u0131yor: Play test (?)",
+    "first_frame_line": "11-02 22:38:47.790 D/PlayMatch(27389): ilk kare: Play test (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": null,
+    "metadata_ready_line": null,
+    "ms_first_peer": null,
+    "first_peer_line": null,
+    "ms_piece0_block0": null,
+    "piece0_block0_line": null,
+    "tail_req_line": "11-02 22:38:47.253 27389 27499 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:38:47.254 27389 27499 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=64031463",
+    "tail_last_line": "11-02 22:38:47.256 27389 27499 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=64106278",
+    "stats_lines": [],
+    "http_req_lines": [
+      "11-02 22:38:47.143 27389 27499 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:38:47.253 27389 27499 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:38:47.276 27389 27499 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:38:47.143 27389 27499 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=65536 total=10488551",
+      "11-02 22:38:47.254 27389 27499 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=64031463",
+      "11-02 22:38:47.276 27389 27499 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=64171814"
+    ],
+    "http_last_lines": [
+      "11-02 22:38:47.256 27389 27499 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=64106278"
+    ],
+    "total_bytes_served": 64106278,
+    "mismatches": 0
+  },
+  "tur3_warm_2": {
+    "run_name": "tur3_warm_2",
+    "duration_sec": 0.52,
+    "tail_wait_sec": 0.001,
+    "start_line": "11-02 22:40:09.921 D/PlayMatch(27633): kaynak ba\u015flat\u0131l\u0131yor: Play test (?)",
+    "first_frame_line": "11-02 22:40:10.441 D/PlayMatch(27633): ilk kare: Play test (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": null,
+    "metadata_ready_line": null,
+    "ms_first_peer": null,
+    "first_peer_line": null,
+    "ms_piece0_block0": null,
+    "piece0_block0_line": null,
+    "tail_req_line": "11-02 22:40:10.058 27633 27754 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:40:10.059 27633 27754 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=31279847",
+    "tail_last_line": "11-02 22:40:10.059 27633 27754 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=31354662",
+    "stats_lines": [],
+    "http_req_lines": [
+      "11-02 22:40:09.937 27633 27754 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:40:10.058 27633 27754 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:40:10.087 27633 27754 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:40:09.940 27633 27754 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=65536 total=8800999",
+      "11-02 22:40:10.059 27633 27754 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=31279847",
+      "11-02 22:40:10.088 27633 27754 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=31420198"
+    ],
+    "http_last_lines": [
+      "11-02 22:40:10.059 27633 27754 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=31354662"
+    ],
+    "total_bytes_served": 31354662,
+    "mismatches": 0
+  },
+  "tur3_warm_3": {
+    "run_name": "tur3_warm_3",
+    "duration_sec": 0.375,
+    "tail_wait_sec": 0.001,
+    "start_line": "11-02 22:41:41.968 D/PlayMatch(27885): kaynak ba\u015flat\u0131l\u0131yor: Play test (?)",
+    "first_frame_line": "11-02 22:41:42.343 D/PlayMatch(27885): ilk kare: Play test (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": null,
+    "metadata_ready_line": null,
+    "ms_first_peer": null,
+    "first_peer_line": null,
+    "ms_piece0_block0": null,
+    "piece0_block0_line": null,
+    "tail_req_line": "11-02 22:41:42.105 27885 28068 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+    "tail_first_line": "11-02 22:41:42.105 27885 28068 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=49597159",
+    "tail_last_line": "11-02 22:41:42.106 27885 28068 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=49671974",
+    "stats_lines": [],
+    "http_req_lines": [
+      "11-02 22:41:41.994 27885 28068 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620",
+      "11-02 22:41:42.105 27885 28068 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620",
+      "11-02 22:41:42.121 27885 28068 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620"
+    ],
+    "http_first_lines": [
+      "11-02 22:41:41.995 27885 28068 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=65536 total=19974887",
+      "11-02 22:41:42.105 27885 28068 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=49597159",
+      "11-02 22:41:42.121 27885 28068 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=49737510"
+    ],
+    "http_last_lines": [
+      "11-02 22:41:42.106 27885 28068 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=49671974"
+    ],
+    "total_bytes_served": 49671974,
+    "mismatches": 0
+  },
+  "tur3_release_cw_1": {
+    "run_name": "tur3_release_cw_1",
+    "duration_sec": 14.578,
+    "tail_wait_sec": null,
+    "start_line": "11-02 22:43:09.502 D/PlayMatch(28235): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:43:24.080 D/PlayMatch(28235): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": null,
+    "metadata_ready_line": null,
+    "ms_first_peer": null,
+    "first_peer_line": null,
+    "ms_piece0_block0": null,
+    "piece0_block0_line": null,
+    "tail_req_line": null,
+    "tail_first_line": null,
+    "tail_last_line": null,
+    "stats_lines": [],
+    "http_req_lines": [],
+    "http_first_lines": [],
+    "http_last_lines": [],
+    "total_bytes_served": null,
+    "mismatches": 0,
+    "seek_results": {}
+  },
+  "tur3_release_cw_2": {
+    "run_name": "tur3_release_cw_2",
+    "duration_sec": 18.358,
+    "tail_wait_sec": null,
+    "start_line": "11-02 22:43:38.252 D/PlayMatch(28512): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:43:56.610 D/PlayMatch(28512): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": null,
+    "metadata_ready_line": null,
+    "ms_first_peer": null,
+    "first_peer_line": null,
+    "ms_piece0_block0": null,
+    "piece0_block0_line": null,
+    "tail_req_line": null,
+    "tail_first_line": null,
+    "tail_last_line": null,
+    "stats_lines": [],
+    "http_req_lines": [],
+    "http_first_lines": [],
+    "http_last_lines": [],
+    "total_bytes_served": null,
+    "mismatches": 0,
+    "seek_results": {}
+  },
+  "tur3_release_cw_3": {
+    "run_name": "tur3_release_cw_3",
+    "duration_sec": 18.044,
+    "tail_wait_sec": null,
+    "start_line": "11-02 22:44:10.383 D/PlayMatch(28803): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:44:28.427 D/PlayMatch(28803): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": null,
+    "metadata_ready_line": null,
+    "ms_first_peer": null,
+    "first_peer_line": null,
+    "ms_piece0_block0": null,
+    "piece0_block0_line": null,
+    "tail_req_line": null,
+    "tail_first_line": null,
+    "tail_last_line": null,
+    "stats_lines": [],
+    "http_req_lines": [],
+    "http_first_lines": [],
+    "http_last_lines": [],
+    "total_bytes_served": null,
+    "mismatches": 0,
+    "seek_results": {
+      "seek_10m": 3.17,
+      "seek_40m": 3.66,
+      "seek_5m": 2.67
+    }
+  },
+  "tur3_release_bbb_1": {
+    "run_name": "tur3_release_bbb_1",
+    "duration_sec": 2.883,
+    "tail_wait_sec": null,
+    "start_line": "11-02 22:45:01.399 D/PlayMatch(29151): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:45:04.282 D/PlayMatch(29151): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": null,
+    "metadata_ready_line": null,
+    "ms_first_peer": null,
+    "first_peer_line": null,
+    "ms_piece0_block0": null,
+    "piece0_block0_line": null,
+    "tail_req_line": null,
+    "tail_first_line": null,
+    "tail_last_line": null,
+    "stats_lines": [],
+    "http_req_lines": [],
+    "http_first_lines": [],
+    "http_last_lines": [],
+    "total_bytes_served": null,
+    "mismatches": 0
+  },
+  "tur3_release_bbb_2": {
+    "run_name": "tur3_release_bbb_2",
+    "duration_sec": 3.512,
+    "tail_wait_sec": null,
+    "start_line": "11-02 22:45:11.158 D/PlayMatch(29346): kaynak ba\u015flat\u0131l\u0131yor: Torrentio (?)",
+    "first_frame_line": "11-02 22:45:14.670 D/PlayMatch(29346): ilk kare: Torrentio (faz=Starting)",
+    "ms_session": null,
+    "session_ready_line": null,
+    "ms_metadata": null,
+    "metadata_ready_line": null,
+    "ms_first_peer": null,
+    "first_peer_line": null,
+    "ms_piece0_block0": null,
+    "piece0_block0_line": null,
+    "tail_req_line": null,
+    "tail_first_line": null,
+    "tail_last_line": null,
+    "stats_lines": [],
+    "http_req_lines": [],
+    "http_first_lines": [],
+    "http_last_lines": [],
+    "total_bytes_served": null,
+    "mismatches": 0
+  },
+  "tur3_idle_timeout": {
+    "cleaned_line": "11-02 22:49:36.556 D/PlayTorrent(29857): motor: 3 dk bo\u015fta kald\u0131, oturum ve dosyalar temizleniyor",
+    "state_saved_line": "11-02 22:49:36.557 D/PlayTorrent(29857): DHT oturum durumu kaydedildi (1748 B)",
+    "success": true
+  }
+}

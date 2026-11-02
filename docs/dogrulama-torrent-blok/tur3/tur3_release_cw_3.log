@@ -1,0 +1,250 @@
+--------- beginning of system
+11-02 22:44:07.148  1519  1519 W wificond: Scan already started
+--------- beginning of main
+11-02 22:44:07.331  1440  1440 I writer  : type=1400 audit(0.0:18676): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:hal_audio_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 22:44:08.148  1598  1661 D WificondControl: Scan result ready event
+11-02 22:44:08.198 28958 28958 I sh      : type=1400 audit(0.0:18677): avc: denied { execute_no_trans } for path="/system/bin/input" dev="sda2" ino=1554 scontext=u:r:su:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+11-02 22:44:08.238 28958 28958 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input swipe 300 650 300 200 300 
+11-02 22:44:08.238 28958 28958 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 22:44:08.239 28958 28958 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 22:44:08.245 28958 28958 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 22:44:08.251 28958 28958 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 22:44:08.262 28958 28958 I app_process: The ClassLoaderContext is a special shared library.
+11-02 22:44:08.262 28958 28958 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 22:44:08.262 28958 28958 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 22:44:08.262 28958 28958 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 22:44:08.262 28958 28958 D nativebridge: call UnloadNativeBridge! state=2
+11-02 22:44:08.269 28958 28958 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 22:44:08.270 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=300.0, y[0]=650.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389704, downTime=16389704, deviceId=3, source=0x1002 }
+11-02 22:44:08.271 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=650.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389704, downTime=16389704, deviceId=3, source=0x1002 }
+11-02 22:44:08.281 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=632.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389716, downTime=16389716, deviceId=3, source=0x1002 }
+11-02 22:44:08.303 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=599.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389738, downTime=16389738, deviceId=3, source=0x1002 }
+11-02 22:44:08.314 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=581.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389750, downTime=16389750, deviceId=3, source=0x1002 }
+11-02 22:44:08.331 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=557.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389766, downTime=16389766, deviceId=3, source=0x1002 }
+11-02 22:44:08.348 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=531.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389783, downTime=16389783, deviceId=3, source=0x1002 }
+11-02 22:44:08.365 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=506.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389800, downTime=16389800, deviceId=3, source=0x1002 }
+11-02 22:44:08.381 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=480.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389817, downTime=16389817, deviceId=3, source=0x1002 }
+11-02 22:44:08.398 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=456.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389833, downTime=16389833, deviceId=3, source=0x1002 }
+11-02 22:44:08.415 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=431.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389850, downTime=16389850, deviceId=3, source=0x1002 }
+11-02 22:44:08.432 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=405.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389867, downTime=16389867, deviceId=3, source=0x1002 }
+11-02 22:44:08.448 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=381.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389883, downTime=16389883, deviceId=3, source=0x1002 }
+11-02 22:44:08.465 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=356.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389900, downTime=16389900, deviceId=3, source=0x1002 }
+11-02 22:44:08.482 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=330.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389917, downTime=16389917, deviceId=3, source=0x1002 }
+11-02 22:44:08.498 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=306.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389933, downTime=16389933, deviceId=3, source=0x1002 }
+11-02 22:44:08.514 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=281.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389950, downTime=16389950, deviceId=3, source=0x1002 }
+11-02 22:44:08.531 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=257.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389966, downTime=16389966, deviceId=3, source=0x1002 }
+11-02 22:44:08.549 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=228.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16389985, downTime=16389985, deviceId=3, source=0x1002 }
+11-02 22:44:08.565 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=206.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16390000, downTime=16390000, deviceId=3, source=0x1002 }
+11-02 22:44:08.581 28958 28958 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=300.0, y[0]=200.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16390017, downTime=16390017, deviceId=3, source=0x1002 }
+11-02 22:44:08.585 28958 28958 D AndroidRuntime: Shutting down VM
+11-02 22:44:09.686 28968 28968 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 300 470 
+11-02 22:44:09.686 28968 28968 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 22:44:09.687 28968 28968 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 22:44:09.694 28968 28968 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 22:44:09.700 28968 28968 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 22:44:09.711 28968 28968 I app_process: The ClassLoaderContext is a special shared library.
+11-02 22:44:09.711 28968 28968 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 22:44:09.711 28968 28968 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 22:44:09.711 28968 28968 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 22:44:09.711 28968 28968 D nativebridge: call UnloadNativeBridge! state=2
+11-02 22:44:09.718 28968 28968 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 22:44:09.718 28968 28968 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=300.0, y[0]=470.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16391153, downTime=16391153, deviceId=3, source=0x1002 }
+11-02 22:44:09.720 28968 28968 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=300.0, y[0]=470.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16391153, downTime=16391153, deviceId=3, source=0x1002 }
+11-02 22:44:09.720  1440  1489 D audio_hw_hal: log_func, out_standby
+11-02 22:44:09.720  1440  1489 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-02 22:44:09.720  1440  1489 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-02 22:44:09.720 28968 28968 D AndroidRuntime: Shutting down VM
+11-02 22:44:09.721  1440  5272 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-02 22:44:09.750  1461  1499 D AudioFlinger: mixer(0xf3483640) throttle end: throttle time(9)
+11-02 22:44:10.268 28978 28978 I sh      : type=1400 audit(0.0:18678): avc: denied { getattr } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 22:44:10.268 28978 28978 I sh      : type=1400 audit(0.0:18679): avc: denied { execute } for name="logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 22:44:10.268 28978 28978 I sh      : type=1400 audit(0.0:18680): avc: denied { read open } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 22:44:10.268 28978 28978 I sh      : type=1400 audit(0.0:18681): avc: denied { execute_no_trans } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 22:44:10.271 28978 28978 I logcat  : type=1400 audit(0.0:18682): avc: denied { write } for name="logd" dev="tmpfs" ino=2114 scontext=u:r:su:s0 tcontext=u:object_r:logd_socket:s0 tclass=sock_file permissive=1
+11-02 22:44:10.344 28980 28980 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 1463 811 
+11-02 22:44:10.344 28980 28980 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 22:44:10.345 28980 28980 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 22:44:10.352 28980 28980 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 22:44:10.358 28980 28980 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 22:44:10.371 28980 28980 I app_process: The ClassLoaderContext is a special shared library.
+11-02 22:44:10.371 28980 28980 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 22:44:10.371 28980 28980 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 22:44:10.371 28980 28980 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 22:44:10.371 28980 28980 D nativebridge: call UnloadNativeBridge! state=2
+11-02 22:44:10.379 28980 28980 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 22:44:10.380 28980 28980 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16391814, downTime=16391814, deviceId=3, source=0x1002 }
+11-02 22:44:10.382 28980 28980 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16391814, downTime=16391814, deviceId=3, source=0x1002 }
+11-02 22:44:10.383 28803 28803 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 22:44:10.385 28980 28980 D AndroidRuntime: Shutting down VM
+11-02 22:44:10.416  1463  2229 W SurfaceFlinger: Attempting to set client state on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 22:44:10.416  1463  2229 W SurfaceFlinger: Attempting to destroy on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 22:44:10.426  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 22:44:10.426  1463  1690 W SurfaceFlinger: Attempting to set client state on removed layer: Dim Layer for - Task=79#0
+11-02 22:44:10.426  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 22:44:10.426  1463  1690 W SurfaceFlinger: Attempting to destroy on removed layer: Dim Layer for - Task=79#0
+11-02 22:44:10.426  2281  2281 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-02 22:44:10.434 28992 28992 I logcat  : type=1400 audit(0.0:18683): avc: denied { write } for name="logdr" dev="tmpfs" ino=2118 scontext=u:r:su:s0 tcontext=u:object_r:logdr_socket:s0 tclass=sock_file permissive=1
+11-02 22:44:10.453 28803 28816 I com.kaan.play: JIT allocated 113KB for stack maps of void u93.e(i63, bb4, com.kaan.play.data.stream.PlayTarget, boolean, boolean, sn0, fo, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, l54, com.kaan.play.data.stream.PlayableStream, boolean, kotlin.jvm.functions.Function1, d24, kotlin.jvm.functions.Function0, l81, int, int)
+11-02 22:44:10.454 28803 28816 I com.kaan.play: JIT allocated 50KB for compiled code of void u93.e(i63, bb4, com.kaan.play.data.stream.PlayTarget, boolean, boolean, sn0, fo, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, l54, com.kaan.play.data.stream.PlayableStream, boolean, kotlin.jvm.functions.Function1, d24, kotlin.jvm.functions.Function0, l81, int, int)
+11-02 22:44:10.454 28803 28816 I com.kaan.play: Compiler allocated 15MB to compile void u93.e(i63, bb4, com.kaan.play.data.stream.PlayTarget, boolean, boolean, sn0, fo, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, l54, com.kaan.play.data.stream.PlayableStream, boolean, kotlin.jvm.functions.Function1, d24, kotlin.jvm.functions.Function0, l81, int, int)
+11-02 22:44:11.981  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-02 22:44:12.428  1451  1451 I HwBinder:1451_1: type=1400 audit(0.0:18684): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 22:44:13.471  1440  1489 D audio_hw_hal: log_func, out_standby
+11-02 22:44:13.471  1440  1489 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-02 22:44:13.471  1440  1489 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-02 22:44:20.957  1598  1661 E memtrack: Couldn't load memtrack module
+11-02 22:44:20.957  1598  1661 W android.os.Debug: failed to get memory consumption info: -1
+11-02 22:44:28.155 28803 28864 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:44:28.155 28803 28864 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:44:28.155 28803 28864 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:44:28.156 28803 28864 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:44:28.167 28803 28864 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:44:28.167 28803 28864 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:44:28.172 28803 29001 I OMXClient: IOmx service obtained
+11-02 22:44:28.172  1520  6644 I OMXMaster: makeComponentInstance(OMX.qcom.video.decoder.hevc) in omx@1.0-service process
+11-02 22:44:28.172  1520  6644 D LDDec   : createSoftOMXComponent OMX.qcom.video.decoder.hevc
+11-02 22:44:28.173  1520  6644 D LDDec   : LDDec init 0x0 1, 320
+11-02 22:44:28.176 28803 29000 D SurfaceUtils: connecting to surface 0x763875287010, reason connectToSurface
+11-02 22:44:28.176 28803 29000 I MediaCodec: [OMX.qcom.video.decoder.hevc] setting surface generation to 29494273
+11-02 22:44:28.176 28803 29000 D SurfaceUtils: disconnecting from surface 0x763875287010, reason connectToSurface(reconnect)
+11-02 22:44:28.176 28803 29000 D SurfaceUtils: connecting to surface 0x763875287010, reason connectToSurface(reconnect)
+11-02 22:44:28.177  1520  6644 W OMXNodeInstance: [0xf562cd80:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 22:44:28.177 28803 29001 E ACodec  : [OMX.qcom.video.decoder.hevc] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+11-02 22:44:28.177  1520  1585 W OMXNodeInstance: [0xf562cd80:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 22:44:28.179  1520  6644 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 22:44:28.179  1520  1586 E OMXNodeInstance: setConfig(0xf562cd80:qcom.decoder.hevc, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 22:44:28.179 28803 29001 I ACodec  : codec does not support config priority (err -1010)
+11-02 22:44:28.179  1520  1586 E OMXNodeInstance: getConfig(0xf562cd80:qcom.decoder.hevc, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 22:44:28.179  1520  6644 E OMXNodeInstance: getConfig(0xf562cd80:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 22:44:28.185  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 22:44:28.197  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 30 lines
+11-02 22:44:28.197  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 22:44:28.198 28803 28864 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:44:28.198 28803 28864 W MediaCodecRenderer: Format exceeds selected codec's capabilities [id=1, mimeType=video/dolby-vision, container=video/x-matroska, codecs=dvhe.08.06, res=3836x2072, color=BT2020/Limited range/ST2084 PQ/10/10, language=en, selectionFlags=[default], OMX.qcom.video.decoder.hevc]
+11-02 22:44:28.199  1520 29003 D LDDec   : initDecoder OMX.qcom.video.decoder.hevc init
+11-02 22:44:28.205  1520 29003 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 22:44:28.194  1520  1520 I eo.decoder.hevc: type=1400 audit(0.0:18685): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 22:44:28.276  1520  1585 E OMXNodeInstance: getConfig(0xf562cd80:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 22:44:28.364  1520  1585 E OMXNodeInstance: getConfig(0xf562cd80:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 22:44:28.365 28803 29000 D MediaCodec: [OMX.qcom.video.decoder.hevc] setting dataspace on output surface to #104
+11-02 22:44:28.374 28803 29000 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 22:44:28.371  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:18686): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 22:44:28.374  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:18687): avc: denied { read write } for name="fastpipe" dev="tmpfs" ino=2104 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 22:44:28.374  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:18688): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 22:44:28.408 28803 29000 I         : fastpipe: Connect success
+11-02 22:44:28.416 28803 29000 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=28803, tid=29000, this=0x7638757c0d40
+11-02 22:44:28.394 28803 28803 I MediaCodec_loop: type=1400 audit(0.0:18689): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 22:44:28.417 28803 29000 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+11-02 22:44:28.424 28803 29000 D SoftwareRenderer: setting dataspace on output surface to #104
+11-02 22:44:28.427 28803 28803 D PlayMatch: ilk kare: Torrentio (faz=Starting)
+11-02 22:44:28.440 28803 29000 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 22:44:28.445 28803 28803 D PlayMatch: süre kontrolü kaynak=Torrentio (?) süre=108.8 dk beklenen=109 dk tür=Movie -> Ok
+11-02 22:44:28.469 28803 29000 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 22:44:28.461  1463  1463 I surfaceflinger: type=1400 audit(0.0:18690): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 22:44:28.963  1520  1585 E OMXNodeInstance: setConfig(0xf562cd80:qcom.decoder.hevc, ConfigOperatingRate(0x6f800003)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 22:44:28.963 28803 29001 I ACodec  : codec does not support config operating rate (err -1010)
+11-02 22:44:29.977  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 22:44:29.977  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 22:44:31.838  1460  1460 I ldinit  : type=1400 audit(0.0:18691): avc: denied { read } for name="partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-02 22:44:31.838  1460  1460 I ldinit  : type=1400 audit(0.0:18692): avc: denied { open } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-02 22:44:31.838  1460  1460 I ldinit  : type=1400 audit(0.0:18693): avc: denied { getattr } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-02 22:44:33.214 29007 29007 I logcat  : type=1400 audit(0.0:18694): avc: denied { connectto } for path="/dev/socket/logdr" scontext=u:r:su:s0 tcontext=u:r:logd:s0 tclass=unix_stream_socket permissive=1
+11-02 22:44:33.519 29010 29010 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 800 450 
+11-02 22:44:33.519 29010 29010 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 22:44:33.521 29010 29010 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 22:44:33.518 29010 29010 I app_process: type=1400 audit(0.0:18695): avc: denied { getattr } for path="/data/dalvik-cache/x86_64" dev="sdb2" ino=131107 scontext=u:r:su:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=dir permissive=1
+11-02 22:44:33.531 29010 29010 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 22:44:33.537 29010 29010 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 22:44:33.518 29010 29010 I app_process: type=1400 audit(0.0:18696): avc: denied { getattr } for path="/data/dalvik-cache/x86_64/system@framework@boot.art" dev="sdb2" ino=131131 scontext=u:r:su:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=file permissive=1
+11-02 22:44:33.518 29010 29010 I app_process: type=1400 audit(0.0:18697): avc: denied { read } for name="system@framework@boot.art" dev="sdb2" ino=131131 scontext=u:r:su:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=file permissive=1
+11-02 22:44:33.567 29010 29010 I app_process: The ClassLoaderContext is a special shared library.
+11-02 22:44:33.567 29010 29010 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 22:44:33.567 29010 29010 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 22:44:33.567 29010 29010 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 22:44:33.567 29010 29010 D nativebridge: call UnloadNativeBridge! state=2
+11-02 22:44:33.518 29010 29010 I app_process: type=1400 audit(0.0:18698): avc: denied { open } for path="/data/dalvik-cache/x86_64/system@framework@boot.art" dev="sdb2" ino=131131 scontext=u:r:su:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=file permissive=1
+11-02 22:44:33.582 29010 29010 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 22:44:33.518 29010 29010 I app_process: type=1400 audit(0.0:18699): avc: denied { lock } for path="/data/dalvik-cache/x86_64/system@framework@boot.art" dev="sdb2" ino=131131 scontext=u:r:su:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=file permissive=1
+11-02 22:44:33.518 29010 29010 I app_process: type=1400 audit(0.0:18700): avc: denied { read } for name="system@framework@boot.vdex" dev="sdb2" ino=131130 scontext=u:r:su:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=lnk_file permissive=1
+11-02 22:44:33.595 29010 29010 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=800.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16415017, downTime=16415017, deviceId=3, source=0x1002 }
+11-02 22:44:33.597 29010 29010 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=800.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16415017, downTime=16415017, deviceId=3, source=0x1002 }
+11-02 22:44:33.598 29010 29010 D AndroidRuntime: Shutting down VM
+11-02 22:44:34.005 29021 29021 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 195 860 
+11-02 22:44:34.005 29021 29021 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 22:44:34.006 29021 29021 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 22:44:34.014 29021 29021 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 22:44:34.020 29021 29021 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 22:44:34.036 29021 29021 I app_process: The ClassLoaderContext is a special shared library.
+11-02 22:44:34.036 29021 29021 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 22:44:34.036 29021 29021 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 22:44:34.036 29021 29021 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 22:44:34.036 29021 29021 D nativebridge: call UnloadNativeBridge! state=2
+11-02 22:44:34.048 29021 29021 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 22:44:34.050 29021 29021 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=195.0, y[0]=860.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16415483, downTime=16415483, deviceId=3, source=0x1002 }
+11-02 22:44:34.051 29021 29021 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=195.0, y[0]=860.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16415483, downTime=16415483, deviceId=3, source=0x1002 }
+11-02 22:44:34.053 29021 29021 D AndroidRuntime: Shutting down VM
+11-02 22:44:34.053  1440  5272 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-02 22:44:35.273  1598  1606 W System  : A resource failed to call close. 
+11-02 22:44:35.274  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 30 lines
+11-02 22:44:35.274  1598  1606 W System  : A resource failed to call close. 
+11-02 22:44:37.130  1440  1489 D audio_hw_hal: log_func, out_standby
+11-02 22:44:37.130  1440  1489 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-02 22:44:37.130  1440  1489 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-02 22:44:39.239 28803 28803 D PlayMatch: takılma-ayrıntı kaynak=Torrentio bitHızı=bilinmiyor bantTahmini=3.20 Mbps tampon=0.2 sn
+11-02 22:44:42.169 29031 29031 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 800 450 
+11-02 22:44:42.169 29031 29031 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 22:44:42.171 29031 29031 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 22:44:42.182 29031 29031 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 22:44:42.188 29031 29031 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 22:44:42.206 29031 29031 I app_process: The ClassLoaderContext is a special shared library.
+11-02 22:44:42.206 29031 29031 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 22:44:42.206 29031 29031 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 22:44:42.206 29031 29031 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 22:44:42.206 29031 29031 D nativebridge: call UnloadNativeBridge! state=2
+11-02 22:44:42.201 29031 29031 I main    : type=1400 audit(0.0:18709): avc: denied { execute } for path=2F6465762F6173686D656D2F64616C76696B2D6A69742D636F64652D6361636865202864656C6574656429 dev="tmpfs" ino=592907 scontext=u:r:su:s0 tcontext=u:object_r:tmpfs:s0 tclass=file permissive=1
+11-02 22:44:42.216 29031 29031 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 22:44:42.218 29031 29031 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=800.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16423652, downTime=16423652, deviceId=3, source=0x1002 }
+11-02 22:44:42.220 29031 29031 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=800.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16423652, downTime=16423652, deviceId=3, source=0x1002 }
+11-02 22:44:42.220 29031 29031 D AndroidRuntime: Shutting down VM
+11-02 22:44:42.632 29042 29042 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 480 860 
+11-02 22:44:42.632 29042 29042 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 22:44:42.635 29042 29042 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 22:44:42.646 29042 29042 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 22:44:42.651 29042 29042 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 22:44:42.666 29042 29042 I app_process: The ClassLoaderContext is a special shared library.
+11-02 22:44:42.666 29042 29042 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 22:44:42.666 29042 29042 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 22:44:42.666 29042 29042 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 22:44:42.666 29042 29042 D nativebridge: call UnloadNativeBridge! state=2
+11-02 22:44:42.673 29042 29042 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 22:44:42.674 29042 29042 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=480.0, y[0]=860.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16424109, downTime=16424109, deviceId=3, source=0x1002 }
+11-02 22:44:42.675 29042 29042 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=480.0, y[0]=860.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16424109, downTime=16424109, deviceId=3, source=0x1002 }
+11-02 22:44:42.676 29042 29042 D AndroidRuntime: Shutting down VM
+11-02 22:44:51.300 29052 29052 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 800 450 
+11-02 22:44:51.300 29052 29052 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 22:44:51.301 29052 29052 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 22:44:51.311 29052 29052 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 22:44:51.316 29052 29052 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 22:44:51.336 29052 29052 I app_process: The ClassLoaderContext is a special shared library.
+11-02 22:44:51.336 29052 29052 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 22:44:51.336 29052 29052 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 22:44:51.336 29052 29052 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 22:44:51.336 29052 29052 D nativebridge: call UnloadNativeBridge! state=2
+11-02 22:44:51.345 29052 29052 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 22:44:51.346 29052 29052 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=800.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16432780, downTime=16432780, deviceId=3, source=0x1002 }
+11-02 22:44:51.347 29052 29052 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=800.0, y[0]=450.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16432780, downTime=16432780, deviceId=3, source=0x1002 }
+11-02 22:44:51.348 29052 29052 D AndroidRuntime: Shutting down VM
+11-02 22:44:51.771 29063 29063 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 148 860 
+11-02 22:44:51.772 29063 29063 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 22:44:51.773 29063 29063 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 22:44:51.780 29063 29063 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 22:44:51.786 29063 29063 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 22:44:51.807 29063 29063 I app_process: The ClassLoaderContext is a special shared library.
+11-02 22:44:51.807 29063 29063 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 22:44:51.808 29063 29063 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 22:44:51.808 29063 29063 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 22:44:51.808 29063 29063 D nativebridge: call UnloadNativeBridge! state=2
+11-02 22:44:51.818 29063 29063 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 22:44:51.820 29063 29063 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=148.0, y[0]=860.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16433254, downTime=16433254, deviceId=3, source=0x1002 }
+11-02 22:44:51.821 29063 29063 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=148.0, y[0]=860.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=16433254, downTime=16433254, deviceId=3, source=0x1002 }
+11-02 22:44:51.821 29063 29063 D AndroidRuntime: Shutting down VM
