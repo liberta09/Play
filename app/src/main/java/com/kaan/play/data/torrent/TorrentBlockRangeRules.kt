@@ -192,4 +192,28 @@ object TorrentBlockRangeRules {
 
         return result
     }
+
+    /**
+     * TUR 3 (AÇILIŞ ODAĞI):
+     * Metadata geldiğinde yalnızca parça 0 ve SON parça TOP öncelik + deadline alır.
+     * Son parçaya en kısa deadline (150ms), parça 0'a ikinci deadline (350ms).
+     * Parça 1 ve son-1 açılışta yer almaz.
+     */
+    fun startupFocusPieces(
+        firstPiece: Int,
+        lastPiece: Int,
+        isPieceVerified: (piece: Int) -> Boolean = { false },
+    ): List<ActiveDeadline> {
+        if (firstPiece > lastPiece) return emptyList()
+        val result = mutableListOf<ActiveDeadline>()
+        // 1. Son parça (en acil: 150ms)
+        if (!isPieceVerified(lastPiece)) {
+            result.add(ActiveDeadline(lastPiece, 150))
+        }
+        // 2. İlk parça (350ms) - son parça ile aynı değilse
+        if (firstPiece != lastPiece && !isPieceVerified(firstPiece)) {
+            result.add(ActiveDeadline(firstPiece, 350))
+        }
+        return result
+    }
 }

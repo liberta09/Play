@@ -151,6 +151,7 @@ class TorrentHttpServer(private val engine: TorrentEngine) {
                 position += n
             }
             out.flush()
+            TorrentDiag.d("MILESTONE: http_range_last_byte offset=$start bytesRead=$position end=$end total=${engine.totalBytesServed.get()}")
         } finally {
             raf?.close()
         }

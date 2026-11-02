@@ -82,7 +82,7 @@ data class PlaySession(
          * Debug derlemede duman testinin oynatıcıyı doğrudan açması için (`--es play_test_video <adres>`): tek kaynaklı,
          * geçmişe yazılmayan bir film oturumu, [startPositionMs]'ten başlar.
          */
-        fun testVideo(url: String, startPositionMs: Long = 60_000L): PlaySession = PlaySession(
+        fun testVideo(url: String, startPositionMs: Long = 0L): PlaySession = PlaySession(
             target = PlayTarget(
                 request = StreamRequest(tmdbId = 0, imdbId = null, type = MediaType.Movie, title = TEST_TITLE),
                 title = TEST_TITLE,

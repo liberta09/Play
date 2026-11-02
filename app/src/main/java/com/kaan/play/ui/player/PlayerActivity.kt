@@ -237,6 +237,7 @@ class PlayerActivity : AppCompatActivity() {
             coordinator = sources
             controller.onFirstFrame = {
                 sources.onFirstFrame()
+                container.torrentEngine.onFirstFrame()
                 if (BuildConfig.DEBUG && PlayerNoticeLogic.testForceStall) {
                     PlayerNoticeLogic.testForceStall = false
                     lifecycleScope.launch {

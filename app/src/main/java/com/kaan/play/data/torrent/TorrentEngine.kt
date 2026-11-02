@@ -22,6 +22,8 @@ import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
 import java.util.BitSet
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
@@ -37,7 +39,7 @@ class TorrentException(val reason: Reason, message: String) : IOException(messag
  * önündeki parçalara süre sınırı (deadline) verilir, böylece oynatıcının istediği bayt önce gelir. Veriler [dir] içinde geçicidir:
  * son oynatıcı kapanınca ([release]) ve oturum her başladığında silinir. Oturum ilk torrentte başlar, son oynatıcı kapanınca durur.
  */
-class TorrentEngine(private val dir: File) {
+class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
 
     /** Açık torrentteki oynatılan dosya. */
     class Opened internal constructor(
@@ -60,6 +62,9 @@ class TorrentEngine(private val dir: File) {
     @Volatile private var active: Opened? = null
     private val users = AtomicInteger()
     private val background = Executors.newSingleThreadExecutor { r -> Thread(r, "torrent-engine").apply { isDaemon = true } }
+    @Volatile private var firstFrameArrived: Boolean = false
+    private val idleExecutor = Executors.newSingleThreadScheduledExecutor { r -> Thread(r, "torrent-idle").apply { isDaemon = true } }
+    @Volatile private var idleTask: ScheduledFuture<*>? = null
 
     /** Blok düzeyinde okuma modu (false ise parça düzeyinde eski davranış geçerlidir). */
     @Volatile var blockModeEnabled: Boolean = BLOCK_MODE_ENABLED
@@ -95,7 +100,9 @@ class TorrentEngine(private val dir: File) {
         val hash = TorrentLinks.hexHashOf(magnet) ?: throw TorrentException(TorrentException.Reason.BadLink, "bad magnet")
         TorrentDiag.d("motor open: hash=$hash fileHint=$fileHint")
         synchronized(lock) {
-            active?.let { if (it.hash == hash && it.fileHint == fileHint && it.handle.isValid) return it }
+            idleTask?.cancel(false)
+            idleTask = null
+            active?.let { if (it.hash == hash && it.fileHint == fileHint && it.handle.isValid) { TorrentDiag.d("motor open: hash=$hash (REUSING EXISTING ACTIVE TORRENT)"); return it } }
             val s = ensureSession()
             active?.let { prev ->
                 if (prev.hash != hash) {
@@ -112,6 +119,7 @@ class TorrentEngine(private val dir: File) {
             totalBytesServed.set(0L)
             firstPeerLogged = false
             piece0Block0Logged = false
+            firstFrameArrived = false
 
             val sha1 = Sha1Hash.parseHex(hash)
             var handle = s.find(sha1)
@@ -149,18 +157,30 @@ class TorrentEngine(private val dir: File) {
             }
 
             h.prioritizeFiles(Array(files.numFiles()) { if (it == index) Priority.DEFAULT else Priority.IGNORE })
-            h.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
             val offset = files.fileOffset(index)
             val pieceLength = info.pieceLength()
-            // MKV/MP4 dizini çoğu zaman dosyanın sonundadır: baş ve son parçalar önce gelsin (paralel öncelik).
             val first = TorrentRules.pieceAt(offset, 0, pieceLength)
             val last = TorrentRules.pieceAt(offset, size - 1, pieceLength)
-            listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEach { h.piecePriority(it, Priority.TOP_PRIORITY) }
-            listOf(first, first + 1).filter { it in first..last }.forEachIndexed { idx, p ->
-                if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 250)
-            }
-            listOf(last - 1, last).filter { it in first..last }.forEachIndexed { idx, p ->
-                if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 500)
+
+            if (STARTUP_FOCUS_ENABLED) {
+                h.unsetFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
+                for (p in first..last) {
+                    h.piecePriority(p, Priority.LOW)
+                }
+                val startupDeadlines = TorrentBlockRangeRules.startupFocusPieces(first, last) { h.havePiece(it) }
+                for (d in startupDeadlines) {
+                    h.piecePriority(d.pieceIndex, Priority.TOP_PRIORITY)
+                    h.setPieceDeadline(d.pieceIndex, d.deadlineMs)
+                }
+            } else {
+                h.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
+                listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEach { h.piecePriority(it, Priority.TOP_PRIORITY) }
+                listOf(first, first + 1).filter { it in first..last }.forEachIndexed { idx, p ->
+                    if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 250)
+                }
+                listOf(last - 1, last).filter { it in first..last }.forEachIndexed { idx, p ->
+                    if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 500)
+                }
             }
 
             TorrentDiag.d("MILESTONE: metadata_ready pieces=${info.numPieces()} size=$size pieceLength=$pieceLength")
@@ -175,8 +195,38 @@ class TorrentEngine(private val dir: File) {
      * Yeni bir okuma (HTTP isteği) [position]'dan başlıyor:
      * ADIM 2 (PARALEL öncelik): Başlık ve kuyruk önceliklerini silmeden, yeni konumun parçalarını öne alır.
      */
+    /** İlk video karesi ekrana gelince çağrılır: sequential_download açılır ve normal pencere önceliği başlar. */
+    fun onFirstFrame() {
+        TorrentDiag.d("motor: ilk kare bildirildi")
+        firstFrameArrived = true
+        val file = active ?: return
+        if (!file.handle.isValid) return
+        background.execute {
+            synchronized(lock) {
+                if (!file.handle.isValid) return@synchronized
+                if (STARTUP_FOCUS_ENABLED) {
+                    file.handle.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
+                    val first = TorrentRules.pieceAt(file.offset, 0, file.pieceLength)
+                    val last = TorrentRules.pieceAt(file.offset, file.size - 1, file.pieceLength)
+                    for (p in first..last) {
+                        if (!file.handle.havePiece(p)) {
+                            file.handle.piecePriority(p, Priority.DEFAULT)
+                        }
+                    }
+                    val piece = file.windowStart.takeIf { it >= 0 } ?: TorrentRules.pieceAt(file.offset, 0, file.pieceLength)
+                    if (blockModeEnabled) {
+                        prioritizeAtOffset(file, piece)
+                    } else {
+                        prioritize(file, piece)
+                    }
+                }
+            }
+        }
+    }
+
     fun seek(file: Opened, position: Long) {
         if (!file.handle.isValid) return
+        firstFrameArrived = true
         val piece = TorrentRules.pieceAt(file.offset, position, file.pieceLength)
         file.windowStart = piece
         if (!blockModeEnabled) {
@@ -342,6 +392,9 @@ class TorrentEngine(private val dir: File) {
     private fun prioritizeAtOffset(file: Opened, piece: Int) {
         val h = file.handle
         if (!h.isValid) return
+        if (STARTUP_FOCUS_ENABLED && !firstFrameArrived) {
+            return
+        }
         val first = TorrentRules.pieceAt(file.offset, 0, file.pieceLength)
         val last = TorrentRules.pieceAt(file.offset, file.size - 1, file.pieceLength)
 
@@ -398,7 +451,7 @@ class TorrentEngine(private val dir: File) {
                         firstPeerLogged = true
                         TorrentDiag.d("MILESTONE: first_peer_connected")
                     }
-                    TorrentDiag.d("MILESTONE: stats at ${sec}s peers=${st.numPeers()} seeds=${st.numSeeds()} dlRate=${st.downloadPayloadRate() / 1024}KB/s inen=${st.totalDone() / 1024}KB")
+                    TorrentDiag.d("MILESTONE: stats at ${sec}s peers=${st.numPeers()} seeds=${st.numSeeds()} dlRate=${st.downloadPayloadRate() / 1024}KB/s inen=${st.totalPayloadDownload() / 1024}KB")
                 }
             }
         }
@@ -471,6 +524,11 @@ class TorrentEngine(private val dir: File) {
     /** Oynatıcı açıldı: motor, [release] edilene dek kapanmaz. Ana iş parçacığından çağrılabilir (kilit almaz). */
     fun retain() {
         users.incrementAndGet()
+        TorrentDiag.d("motor retain: users=${users.get()}")
+        synchronized(lock) {
+            idleTask?.cancel(false)
+            idleTask = null
+        }
     }
 
     /**
@@ -478,16 +536,63 @@ class TorrentEngine(private val dir: File) {
      * o arada yeni bir oynatıcı [retain] ettiyse hiçbir şey kapanmaz.
      */
     fun release() {
-        if (users.decrementAndGet() > 0) return
+        val rem = users.decrementAndGet()
+        TorrentDiag.d("motor release: remainingUsers=$rem, keepAlive=$KEEP_ALIVE_ENABLED, idleTimeout=${IDLE_TIMEOUT_MS}ms")
+        if (rem > 0) return
+        if (KEEP_ALIVE_ENABLED) {
+            synchronized(lock) {
+                idleTask?.cancel(false)
+                idleTask = idleExecutor.schedule({
+                    background.execute {
+                        synchronized(lock) {
+                            if (users.get() > 0) return@synchronized
+                            TorrentDiag.d("motor: 3 dk boşta kaldı, oturum ve dosyalar temizleniyor")
+                            saveSessionState()
+                            val s = session
+                            if (s != null) {
+                                active?.let { removeLocked(s, it) }
+                                runCatching { s.stop() }
+                                session = null
+                            }
+                            dir.deleteRecursively()
+                        }
+                    }
+                }, IDLE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+            }
+            return
+        }
         background.execute {
             synchronized(lock) {
                 if (users.get() > 0) return@synchronized
+                saveSessionState()
                 val s = session ?: return@synchronized
                 active?.let { removeLocked(s, it) }
                 runCatching { s.stop() }
                 session = null
                 dir.deleteRecursively()
             }
+        }
+    }
+
+    private fun saveSessionState() {
+        if (!SESSION_STATE_ENABLED) return
+        val s = session ?: return
+        val targetDir = stateDir ?: return
+        try {
+            val bytes = s.saveState()
+            if (bytes != null && bytes.isNotEmpty()) {
+                targetDir.mkdirs()
+                val tmp = File(targetDir, "session.dat.tmp")
+                val finalFile = File(targetDir, "session.dat")
+                tmp.writeBytes(bytes)
+                if (!tmp.renameTo(finalFile)) {
+                    tmp.copyTo(finalFile, overwrite = true)
+                    tmp.delete()
+                }
+                TorrentDiag.d("DHT oturum durumu kaydedildi (${bytes.size} B)")
+            }
+        } catch (e: Throwable) {
+            TorrentDiag.e("DHT oturum durumu kaydedilemedi: ${e.message}", e)
         }
     }
 
@@ -524,10 +629,35 @@ class TorrentEngine(private val dir: File) {
             .apply {
                 setBoolean(settings_pack.bool_types.announce_to_all_trackers.swigValue(), true)
                 setBoolean(settings_pack.bool_types.announce_to_all_tiers.swigValue(), true)
+                if (TUNED_SETTINGS_ENABLED) {
+                    setInteger(settings_pack.int_types.torrent_connect_boost.swigValue(), 60)
+                    setInteger(settings_pack.int_types.connection_speed.swigValue(), 100)
+                    setBoolean(settings_pack.bool_types.smooth_connects.swigValue(), false)
+                    setInteger(settings_pack.int_types.peer_connect_timeout.swigValue(), 5)
+                    setInteger(settings_pack.int_types.handshake_timeout.swigValue(), 5)
+                    setInteger(settings_pack.int_types.request_timeout.swigValue(), 8)
+                    setInteger(settings_pack.int_types.piece_timeout.swigValue(), 8)
+                    setInteger(settings_pack.int_types.min_reconnect_time.swigValue(), 5)
+                }
             }
-        val params = SessionParams(settings).apply { setPosixDiskIO() }
+        val stateFile = if (SESSION_STATE_ENABLED && stateDir != null) File(stateDir, "session.dat") else null
+        val params = if (stateFile != null && stateFile.exists() && stateFile.length() > 0) {
+            try {
+                val bytes = stateFile.readBytes()
+                TorrentDiag.d("DHT oturum durumu yükleniyor (${bytes.size} B)")
+                SessionParams(bytes).apply {
+                    setPosixDiskIO()
+                    setSettings(settings)
+                }
+            } catch (e: Throwable) {
+                TorrentDiag.e("DHT durumu yüklenemedi, sıfırdan başlanıyor", e)
+                SessionParams(settings).apply { setPosixDiskIO() }
+            }
+        } else {
+            SessionParams(settings).apply { setPosixDiskIO() }
+        }
         return try {
-            TorrentDiag.d("libtorrent oturumu başlıyor (ABI=${android.os.Build.SUPPORTED_ABIS.joinToString()}, dizin=$dir, blokModu=$BLOCK_MODE_ENABLED)")
+            TorrentDiag.d("libtorrent oturumu başlıyor (ABI=${android.os.Build.SUPPORTED_ABIS.joinToString()}, dizin=$dir, blokModu=$BLOCK_MODE_ENABLED, odak=$STARTUP_FOCUS_ENABLED, hafıza=$SESSION_STATE_ENABLED, agresif=$TUNED_SETTINGS_ENABLED)")
             SessionManager(false).also {
                 it.addListener(object : AlertListener {
                     override fun types(): IntArray? = null
@@ -573,6 +703,21 @@ class TorrentEngine(private val dir: File) {
 
         /** Blok düzeyinde okuma modu (false ise parça düzeyinde eski davranış geçerlidir). */
         @Volatile var BLOCK_MODE_ENABLED: Boolean = true
+
+        /** Açılış odağı: ilk kareye kadar yalnızca parça 0 ve son parça top öncelik alır. */
+        @JvmField @Volatile var STARTUP_FOCUS_ENABLED: Boolean = true
+
+        /** DHT / oturum durumunu dosyaya kaydedip açılışta yükleme. */
+        @JvmField @Volatile var SESSION_STATE_ENABLED: Boolean = true
+
+        /** Son oynatıcı kapanınca oturumu 3 dk boyunca açık tutma. */
+        @JvmField @Volatile var KEEP_ALIVE_ENABLED: Boolean = true
+
+        /** Bağlantı agresifliği ayarları (hızlı eş bağlantısı). */
+        @JvmField @Volatile var TUNED_SETTINGS_ENABLED: Boolean = true
+
+        /** Boşta bekleme süresi (varsayılan 3 dakika). */
+        @JvmField @Volatile var IDLE_TIMEOUT_MS: Long = 180_000L
 
         /** Teşhis logunda atlanan, çok sık gelen alert türleri. */
         val NOISY_ALERTS = listOf("BLOCK_", "PIECE_FINISHED", "STATS", "STATE_UPDATE", "SESSION_STATS", "PEER_", "INCOMING_", "DHT_", "UNWANTED_BLOCK", "LOG", "PICKER_LOG")

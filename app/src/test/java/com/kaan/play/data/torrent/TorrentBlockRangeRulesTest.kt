@@ -239,4 +239,58 @@ class TorrentBlockRangeRulesTest {
         // 1, 2, 0 tekilleştirilmiş olmalı
         assertEquals(listOf(1, 2, 0), pieces)
     }
+// --- TUR 3 BİRİM TESTLERİ (startupFocusPieces) ---
+
+    @Test
+    fun testStartupFocusPieces_normalCivilWar() {
+        // Civil War FLUX (parça 0..2357):
+        // Yalnızca son parça (2357) ve parça 0 seçilmeli;
+        // Parça 1 ve son-1 (2356) KESİNLİKLE yer almamalıdır.
+        val deadlines = TorrentBlockRangeRules.startupFocusPieces(
+            firstPiece = 0,
+            lastPiece = 2357,
+        )
+        val pieces = deadlines.map { it.pieceIndex }
+        assertEquals(listOf(2357, 0), pieces)
+        assertFalse(pieces.contains(1))
+        assertFalse(pieces.contains(2356))
+
+        // Son parçaya en kısa deadline (150ms), parça 0'a ikinci (350ms)
+        assertEquals(150, deadlines.first { it.pieceIndex == 2357 }.deadlineMs)
+        assertEquals(350, deadlines.first { it.pieceIndex == 0 }.deadlineMs)
+    }
+
+    @Test
+    fun testStartupFocusPieces_singlePieceTorrent() {
+        // Tek parçalı torrent (0..0): iki kez eklenmemeli, tek parça 150ms almalı
+        val deadlines = TorrentBlockRangeRules.startupFocusPieces(
+            firstPiece = 0,
+            lastPiece = 0,
+        )
+        val pieces = deadlines.map { it.pieceIndex }
+        assertEquals(listOf(0), pieces)
+        assertEquals(150, deadlines.first().deadlineMs)
+    }
+
+    @Test
+    fun testStartupFocusPieces_verifiedPieceExcluded() {
+        // Son parça zaten inip doğrulanmışsa yalnızca parça 0 kalmalı
+        val deadlines = TorrentBlockRangeRules.startupFocusPieces(
+            firstPiece = 0,
+            lastPiece = 2357,
+            isPieceVerified = { p -> p == 2357 },
+        )
+        val pieces = deadlines.map { it.pieceIndex }
+        assertEquals(listOf(0), pieces)
+        assertEquals(350, deadlines.first().deadlineMs)
+    }
+
+    @Test
+    fun testStartupFocusPieces_invalidRange_returnsEmpty() {
+        val deadlines = TorrentBlockRangeRules.startupFocusPieces(
+            firstPiece = 10,
+            lastPiece = 5,
+        )
+        assertTrue(deadlines.isEmpty())
+    }
 }

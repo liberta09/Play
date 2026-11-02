@@ -513,7 +513,10 @@ class AppContainer(context: Context) {
      * Geçici veriler uygulamaya özel önbellek dizininde durur ve son oynatıcı kapanınca silinir.
      */
     val torrentEngine: TorrentEngine by lazy {
-        TorrentEngine(File(appContext.externalCacheDir ?: appContext.cacheDir, "torrents"))
+        TorrentEngine(
+            dir = File(appContext.externalCacheDir ?: appContext.cacheDir, "torrents"),
+            stateDir = File(appContext.filesDir, "torrent-state"),
+        )
     }
 
     /** Torrent dosyasını oynatıcıya `127.0.0.1` üzerinden http olarak veren yerel sunucu. */
