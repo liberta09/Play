@@ -115,7 +115,9 @@ class MainActivity : AppCompatActivity() {
             handlePlayIntent(intent)
         }
 
-        setContent {
+        try {
+            StartupWindowGuard.checkDebugFailSetContent(intent)
+            setContent {
             val mode by settings.themeMode.collectAsStateWithLifecycle(initialValue = initialTheme)
             val dark = when (mode) {
                 ThemeMode.Dark -> true
@@ -155,6 +157,11 @@ class MainActivity : AppCompatActivity() {
                     DeepLinkHost(container.deepLinks)
                 }
             }
+        }
+            StartupGuardRules.recordSuccess(this, "MainActivity")
+        } catch (e: RuntimeException) {
+            StartupWindowGuard.handleStartupContentFailure(this, "MainActivity", e)
+            return
         }
 
         // TV Box zırhı: sistem çubuğu ve pencere ayarları setContent sonrasında decorView.post içinde güvenle uygulanır

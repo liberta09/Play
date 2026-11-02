@@ -21,6 +21,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.Player
 import com.kaan.play.PlayApp
+import com.kaan.play.StartupGuardRules
+import com.kaan.play.StartupWindowGuard
 import com.kaan.play.R
 import com.kaan.play.data.db.DownloadStatus
 import com.kaan.play.data.download.DownloadedSubtitleLoader
@@ -288,7 +290,9 @@ class PlayerActivity : AppCompatActivity() {
             }
         }
 
-        setContent {
+        try {
+            StartupWindowGuard.checkDebugFailSetContent(intent)
+            setContent {
             PlayTheme(darkTheme = true) {
                 val isSeries = AutoNextRules.canShowNextEpisodeButton(session.target.request.type, session.target.request.season, session.target.request.episode, session.target.request.addonType, 1L)
                 PlayerScreen(
@@ -309,6 +313,11 @@ class PlayerActivity : AppCompatActivity() {
                     onBack = ::finish,
                 )
             }
+        }
+            StartupGuardRules.recordSuccess(this, "PlayerActivity")
+        } catch (e: RuntimeException) {
+            StartupWindowGuard.handleStartupContentFailure(this, "PlayerActivity", e)
+            return
         }
         // TV Box zırhı: Immersive mode setContent sonrasında güvenle uygulanır
         enterImmersive()
@@ -358,7 +367,9 @@ class PlayerActivity : AppCompatActivity() {
         if (!::controller.isInitialized) return
         controller.player.pause()
         saveProgress()
-        subtitles.flush()
+        if (::subtitles.isInitialized) {
+            subtitles.flush()
+        }
     }
 
     /** Çıkışta pencere parlaklığı bırakılır; sistem değeri geçerli olur. */
@@ -579,6 +590,7 @@ class PlayerActivity : AppCompatActivity() {
 
     /** Duraklatma/bitiş anlarında da çağrılır: bitişte (ya da sonraki bölüme geçerken) konum süreye eşitlenir ("izlendi"). */
     private fun saveProgress() {
+        if (!::session.isInitialized || !::controller.isInitialized) return
         if (session.noHistory) return
         if (session.target.request.addonType in listOf("tv", "channel")) return
         val duration = controller.durationMs()

@@ -24,6 +24,15 @@ class PlayApp : Application(), SingletonImageLoader.Factory {
     companion object {
         lateinit var appContext: android.content.Context
             private set
+        val appStartTimeMs: Long = System.currentTimeMillis()
+
+        fun getElapsedProcessTimeMs(): Long {
+            return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                android.os.SystemClock.uptimeMillis() - android.os.Process.getStartUptimeMillis()
+            } else {
+                System.currentTimeMillis() - appStartTimeMs
+            }
+        }
     }
 
     private val wrappedLifecycleCallbacks = ConcurrentHashMap<ActivityLifecycleCallbacks, ActivityLifecycleCallbacks>()
