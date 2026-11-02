@@ -1,0 +1,329 @@
+﻿{
+  "success": true,
+  "posixDiskIO": true,
+  "unverifiedBlocksReadCount": 731,
+  "verifiedBlocksComparedCount": 505,
+  "allCrcsMatched": true,
+  "bitfield": {
+    "size": 2358,
+    "count": 1,
+    "bit0": false,
+    "havePiece0": false
+  },
+  "downloadQueueSnapshots": [
+    {
+      "pieceIndex": 0,
+      "blocksInPiece": 512,
+      "finished": 1,
+      "writing": 0,
+      "requested": 5
+    },
+    {
+      "pieceIndex": 0,
+      "blocksInPiece": 512,
+      "finished": 2,
+      "writing": 0,
+      "requested": 6
+    },
+    {
+      "pieceIndex": 0,
+      "blocksInPiece": 512,
+      "finished": 3,
+      "writing": 0,
+      "requested": 7
+    },
+    {
+      "pieceIndex": 0,
+      "blocksInPiece": 512,
+      "finished": 4,
+      "writing": 0,
+      "requested": 8
+    },
+    {
+      "pieceIndex": 828,
+      "blocksInPiece": 512,
+      "finished": 1,
+      "writing": 0,
+      "requested": 7
+    },
+    {
+      "pieceIndex": 828,
+      "blocksInPiece": 512,
+      "finished": 2,
+      "writing": 0,
+      "requested": 6
+    },
+    {
+      "pieceIndex": 0,
+      "blocksInPiece": 512,
+      "finished": 5,
+      "writing": 0,
+      "requested": 9
+    },
+    {
+      "pieceIndex": 0,
+      "blocksInPiece": 512,
+      "finished": 6,
+      "writing": 0,
+      "requested": 10
+    },
+    {
+      "pieceIndex": 0,
+      "blocksInPiece": 512,
+      "finished": 7,
+      "writing": 0,
+      "requested": 11
+    },
+    {
+      "pieceIndex": 0,
+      "blocksInPiece": 512,
+      "finished": 8,
+      "writing": 0,
+      "requested": 12
+    }
+  ],
+  "sampleBlocks": [
+    {
+      "pieceIndex": 0,
+      "blockIndex": 0,
+      "havePiece": false,
+      "fileBlockOffset": 0,
+      "nonZeroBytes": 6143,
+      "crc32": 3960567314,
+      "partialFinished": 1,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 0,
+      "blockIndex": 1,
+      "havePiece": false,
+      "fileBlockOffset": 16384,
+      "nonZeroBytes": 9795,
+      "crc32": 3101466350,
+      "partialFinished": 2,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 0,
+      "blockIndex": 2,
+      "havePiece": false,
+      "fileBlockOffset": 32768,
+      "nonZeroBytes": 10201,
+      "crc32": 2878280388,
+      "partialFinished": 3,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 0,
+      "blockIndex": 3,
+      "havePiece": false,
+      "fileBlockOffset": 49152,
+      "nonZeroBytes": 9868,
+      "crc32": 1054206897,
+      "partialFinished": 4,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 828,
+      "blockIndex": 0,
+      "havePiece": false,
+      "fileBlockOffset": 6945767424,
+      "nonZeroBytes": 16304,
+      "crc32": 1786727716,
+      "partialFinished": 1,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 828,
+      "blockIndex": 1,
+      "havePiece": false,
+      "fileBlockOffset": 6945783808,
+      "nonZeroBytes": 16241,
+      "crc32": 2439567373,
+      "partialFinished": 2,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 0,
+      "blockIndex": 4,
+      "havePiece": false,
+      "fileBlockOffset": 65536,
+      "nonZeroBytes": 10029,
+      "crc32": 1263473176,
+      "partialFinished": 5,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 0,
+      "blockIndex": 5,
+      "havePiece": false,
+      "fileBlockOffset": 81920,
+      "nonZeroBytes": 10204,
+      "crc32": 1314280743,
+      "partialFinished": 6,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 0,
+      "blockIndex": 6,
+      "havePiece": false,
+      "fileBlockOffset": 98304,
+      "nonZeroBytes": 9798,
+      "crc32": 3007573165,
+      "partialFinished": 7,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 0,
+      "blockIndex": 7,
+      "havePiece": false,
+      "fileBlockOffset": 114688,
+      "nonZeroBytes": 14696,
+      "crc32": 4269787750,
+      "partialFinished": 8,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 828,
+      "blockIndex": 2,
+      "havePiece": false,
+      "fileBlockOffset": 6945800192,
+      "nonZeroBytes": 16322,
+      "crc32": 608395419,
+      "partialFinished": 3,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 828,
+      "blockIndex": 3,
+      "havePiece": false,
+      "fileBlockOffset": 6945816576,
+      "nonZeroBytes": 16241,
+      "crc32": 401047052,
+      "partialFinished": 4,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 0,
+      "blockIndex": 8,
+      "havePiece": false,
+      "fileBlockOffset": 131072,
+      "nonZeroBytes": 16271,
+      "crc32": 649591332,
+      "partialFinished": 9,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 0,
+      "blockIndex": 9,
+      "havePiece": false,
+      "fileBlockOffset": 147456,
+      "nonZeroBytes": 16307,
+      "crc32": 1434598839,
+      "partialFinished": 10,
+      "partialBlocksInPiece": 512
+    },
+    {
+      "pieceIndex": 0,
+      "blockIndex": 10,
+      "havePiece": false,
+      "fileBlockOffset": 163840,
+      "nonZeroBytes": 16171,
+      "crc32": 2544452562,
+      "partialFinished": 11,
+      "partialBlocksInPiece": 512
+    }
+  ],
+  "sampleComparisons": [
+    {
+      "key": "789:413",
+      "unverifiedCrc": 2240671412,
+      "verifiedCrc": 2240671412,
+      "match": true
+    },
+    {
+      "key": "789:414",
+      "unverifiedCrc": 750258752,
+      "verifiedCrc": 750258752,
+      "match": true
+    },
+    {
+      "key": "789:415",
+      "unverifiedCrc": 2255255599,
+      "verifiedCrc": 2255255599,
+      "match": true
+    },
+    {
+      "key": "789:416",
+      "unverifiedCrc": 2482840119,
+      "verifiedCrc": 2482840119,
+      "match": true
+    },
+    {
+      "key": "789:410",
+      "unverifiedCrc": 2785254987,
+      "verifiedCrc": 2785254987,
+      "match": true
+    },
+    {
+      "key": "789:411",
+      "unverifiedCrc": 1883150022,
+      "verifiedCrc": 1883150022,
+      "match": true
+    },
+    {
+      "key": "789:412",
+      "unverifiedCrc": 81763447,
+      "verifiedCrc": 81763447,
+      "match": true
+    },
+    {
+      "key": "789:417",
+      "unverifiedCrc": 3076389997,
+      "verifiedCrc": 3076389997,
+      "match": true
+    },
+    {
+      "key": "789:418",
+      "unverifiedCrc": 3792304553,
+      "verifiedCrc": 3792304553,
+      "match": true
+    },
+    {
+      "key": "789:419",
+      "unverifiedCrc": 4042677835,
+      "verifiedCrc": 4042677835,
+      "match": true
+    },
+    {
+      "key": "789:303",
+      "unverifiedCrc": 3512307718,
+      "verifiedCrc": 3512307718,
+      "match": true
+    },
+    {
+      "key": "789:424",
+      "unverifiedCrc": 3566398435,
+      "verifiedCrc": 3566398435,
+      "match": true
+    },
+    {
+      "key": "789:304",
+      "unverifiedCrc": 1198514936,
+      "verifiedCrc": 1198514936,
+      "match": true
+    },
+    {
+      "key": "789:425",
+      "unverifiedCrc": 69535492,
+      "verifiedCrc": 69535492,
+      "match": true
+    },
+    {
+      "key": "789:305",
+      "unverifiedCrc": 1479023780,
+      "verifiedCrc": 1479023780,
+      "match": true
+    }
+  ]
+}

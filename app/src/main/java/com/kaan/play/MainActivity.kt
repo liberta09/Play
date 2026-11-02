@@ -82,7 +82,10 @@ class MainActivity : AppCompatActivity() {
                 PlayerNoticeLogic.testBigBuffer = intent.getBooleanExtra("test_big_buffer", false)
             }
             if (intent.hasExtra("test_force_stall")) {
-                PlayerNoticeLogic.testForceStall = intent.getBooleanExtra("test_force_stall", false)
+                PlayerNoticeLogic.testForceStall = intent.getBooleanExtra("test_force_stall", false)
+            }
+            if (intent.getStringExtra("play_debug_action") == "adim0_feasibility") {
+                com.kaan.play.data.torrent.TorrentBlockFeasibility.runExperiment(this)
             }
         }
         if (BuildConfig.DEBUG) {
