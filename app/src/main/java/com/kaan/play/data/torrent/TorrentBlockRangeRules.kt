@@ -11,6 +11,7 @@ object TorrentBlockRangeRules {
     const val BLOCK_SIZE = 16384
 
     data class BlockCoord(val pieceIndex: Int, val blockIndex: Int)
+    data class ActiveDeadline(val pieceIndex: Int, val deadlineMs: Int)
 
     /**
      * Dosya içindeki [position] baytından başlayarak [length] baytlık bir aralığın
@@ -134,4 +135,61 @@ object TorrentBlockRangeRules {
      */
     fun blocksInPiece(pieceLength: Int): Int =
         ((pieceLength + BLOCK_SIZE - 1) / BLOCK_SIZE).coerceAtLeast(1)
+
+    /**
+     * DÜZELTME 1:
+     * Kullanıcı yeni bir [currentPiece] konumuna atladığında (veya ilk açılışta),
+     * acil öncelikte kalması gereken parçaların listesini ve son tarihlerini döner.
+     *
+     * Kurallar:
+     * 1. Mevcut okuma penceresi: [currentPiece] .. [currentPiece] + [windowAhead] - 1 (150ms, 350ms...)
+     * 2. Baş parçalar: [firstPiece] ve [firstPiece] + 1 (500ms, 750ms)
+     * 3. Kuyruk parçaları: [lastPiece] - 1 ve [lastPiece] (1000ms, 1250ms)
+     *
+     * Bu üç kümenin DIŞINDA kalan eski konumlara ait parçalar elenir (deadline verilmez).
+     * Doğrulanmış parçalar ([isPieceVerified] == true) elenir.
+     * Parçalar tekilleştirilir; öncelik sırası korunur.
+     */
+    fun activeDeadlinePieces(
+        currentPiece: Int,
+        firstPiece: Int,
+        lastPiece: Int,
+        windowAhead: Int = 2,
+        isPieceVerified: (piece: Int) -> Boolean = { false },
+    ): List<ActiveDeadline> {
+        if (firstPiece > lastPiece) return emptyList()
+
+        val result = mutableListOf<ActiveDeadline>()
+        val seen = mutableSetOf<Int>()
+
+        // 1. Mevcut oynatma ofseti (en acil: 150ms, 350ms...)
+        for (i in 0 until windowAhead) {
+            val p = currentPiece + i
+            if (p in firstPiece..lastPiece && seen.add(p)) {
+                if (!isPieceVerified(p)) {
+                    result.add(ActiveDeadline(p, 150 + i * 200))
+                }
+            }
+        }
+
+        // 2. Baş parçalar (500ms, 750ms)
+        listOf(firstPiece, firstPiece + 1).filter { it in firstPiece..lastPiece }.forEachIndexed { idx, p ->
+            if (seen.add(p)) {
+                if (!isPieceVerified(p)) {
+                    result.add(ActiveDeadline(p, 500 + idx * 250))
+                }
+            }
+        }
+
+        // 3. Kuyruk parçaları (1000ms, 1250ms)
+        listOf(lastPiece - 1, lastPiece).filter { it in firstPiece..lastPiece }.forEachIndexed { idx, p ->
+            if (seen.add(p)) {
+                if (!isPieceVerified(p)) {
+                    result.add(ActiveDeadline(p, 1000 + idx * 250))
+                }
+            }
+        }
+
+        return result
+    }
 }

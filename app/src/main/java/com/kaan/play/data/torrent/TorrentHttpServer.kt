@@ -126,6 +126,8 @@ class TorrentHttpServer(private val engine: TorrentEngine) {
         val buffer = ByteArray(BUFFER)
         var position = start
         var raf: RandomAccessFile? = null
+        var firstChunkWritten = false
+        TorrentDiag.d("MILESTONE: http_range_req offset=$start end=$end")
         try {
             while (position <= end) {
                 val max = minOf(BUFFER.toLong(), end - position + 1).toInt()
@@ -141,6 +143,11 @@ class TorrentHttpServer(private val engine: TorrentEngine) {
                 val n = engine.read(file, position, buffer, max, raf)
                 if (n <= 0) break
                 out.write(buffer, 0, n)
+                engine.totalBytesServed.addAndGet(n.toLong())
+                if (!firstChunkWritten) {
+                    firstChunkWritten = true
+                    TorrentDiag.d("MILESTONE: http_range_first_byte offset=$start bytes=$n total=${engine.totalBytesServed.get()}")
+                }
                 position += n
             }
             out.flush()

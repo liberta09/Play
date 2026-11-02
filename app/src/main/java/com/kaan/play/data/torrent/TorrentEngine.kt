@@ -1,5 +1,6 @@
 package com.kaan.play.data.torrent
 
+import android.os.SystemClock
 import android.util.Log
 import com.kaan.play.BuildConfig
 import com.kaan.play.data.stream.TorrentLinks
@@ -75,8 +76,11 @@ class TorrentEngine(private val dir: File) {
     // "parça:blok" -> doğrulanmamışken sunulan bloğun CRC32'si
     private val servedBlockCrcs = ConcurrentHashMap<String, Long>()
 
-    private data class ServedRange(val filePosition: Long, val length: Int, val crc: Long)
-    private val servedRanges = java.util.concurrent.CopyOnWriteArrayList<ServedRange>()
+    /** Oynatıcıya HTTP üzerinden verilen kümülatif bayt sayısı. */
+    val totalBytesServed = java.util.concurrent.atomic.AtomicLong(0L)
+
+    @Volatile private var firstPeerLogged = false
+    @Volatile private var piece0Block0Logged = false
 
     /** Kaynak listesinde torrent görünce oturumu önceden başlatır (DHT ısınsın, açılış hızlansın). */
     fun warmUp() {
@@ -104,8 +108,10 @@ class TorrentEngine(private val dir: File) {
             finishedBlocks.clear()
             verifiedPieces.clear()
             servedBlockCrcs.clear()
-            servedRanges.clear()
             blockModeEnabled = BLOCK_MODE_ENABLED
+            totalBytesServed.set(0L)
+            firstPeerLogged = false
+            piece0Block0Logged = false
 
             val sha1 = Sha1Hash.parseHex(hash)
             var handle = s.find(sha1)
@@ -157,7 +163,9 @@ class TorrentEngine(private val dir: File) {
                 if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 500)
             }
 
+            TorrentDiag.d("MILESTONE: metadata_ready pieces=${info.numPieces()} size=$size pieceLength=$pieceLength")
             TorrentDiag.d("torrent açıldı: hash=$hash dosya[$index]=${files.fileName(index)} boyut=$size parça=$pieceLength (dosya sayısı ${files.numFiles()}, ipucu=$fileHint, blokModu=$blockModeEnabled)")
+            startOpeningStatsTracker(h)
             return Opened(hash, fileHint, h, files.fileName(index), size, offset, pieceLength, File(h.savePath(), files.filePath(index)))
                 .also { active = it }
         }
@@ -192,19 +200,30 @@ class TorrentEngine(private val dir: File) {
             return raf.read(buffer, 0, n)
         }
 
-        awaitData(file, position, minOf(max, TorrentBlockRangeRules.BLOCK_SIZE))
+        // DÜZELTME 2: servable == 0 ise asla bitmemiş/doğrulanmamış bayt okuma, tekrar bekle
+        var servable = 0
+        var attempts = 0
+        while (servable <= 0) {
+            awaitData(file, position, minOf(max, TorrentBlockRangeRules.BLOCK_SIZE))
 
-        val servable = TorrentBlockRangeRules.maxServableLength(
-            file.offset, position, max, file.pieceLength, file.size,
-            { isPieceVerified(file, it) },
-            { p, b -> isBlockFinished(p, b) },
-        )
-        val toRead = if (servable > 0) servable else minOf(max.toLong(), TorrentRules.bytesLeftInPiece(file.offset, position, file.pieceLength, file.size)).toInt()
+            servable = TorrentBlockRangeRules.maxServableLength(
+                file.offset, position, max, file.pieceLength, file.size,
+                { isPieceVerified(file, it) },
+                { p, b -> isBlockFinished(p, b) },
+            )
+            if (servable <= 0) {
+                if (active !== file || !file.handle.isValid) throw IOException("torrent closed")
+                attempts++
+                if (attempts >= 500) {
+                    throw IOException("read timeout: no finished blocks available at $position")
+                }
+                Thread.sleep(POLL_MS_FAST)
+            }
+        }
 
         raf.seek(position)
-        val n = raf.read(buffer, 0, toRead)
+        val n = raf.read(buffer, 0, servable)
         if (n > 0) {
-            recordServedRange(file, position, buffer, n)
             recordServedCrc(file, position, buffer, n)
         }
         return n
@@ -326,79 +345,62 @@ class TorrentEngine(private val dir: File) {
         val first = TorrentRules.pieceAt(file.offset, 0, file.pieceLength)
         val last = TorrentRules.pieceAt(file.offset, file.size - 1, file.pieceLength)
 
-        if (piece in first..last && !isPieceVerified(file, piece)) {
-            h.piecePriority(piece, Priority.TOP_PRIORITY)
-            h.setPieceDeadline(piece, 150)
-        }
-        if (piece + 1 in first..last && !isPieceVerified(file, piece + 1)) {
-            h.piecePriority(piece + 1, Priority.TOP_PRIORITY)
-            h.setPieceDeadline(piece + 1, 350)
-        }
+        val activeDeadlines = TorrentBlockRangeRules.activeDeadlinePieces(
+            currentPiece = piece,
+            firstPiece = first,
+            lastPiece = last,
+            windowAhead = 2,
+            isPieceVerified = { isPieceVerified(file, it) },
+        )
 
-        // Başlık ve kuyruk parçalarını da canlı tut (paralel öncelik)
-        listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEachIndexed { idx, p ->
-            if (!isPieceVerified(file, p)) {
-                h.piecePriority(p, Priority.TOP_PRIORITY)
-                h.setPieceDeadline(p, 500 + idx * 250)
-            }
+        // DÜZELTME 1: Eski sarmalardan kalan acil son tarihleri kaldır
+        h.clearPieceDeadlines()
+
+        for (ad in activeDeadlines) {
+            h.piecePriority(ad.pieceIndex, Priority.TOP_PRIORITY)
+            h.setPieceDeadline(ad.pieceIndex, ad.deadlineMs)
         }
     }
 
     private fun onBlockFinished(piece: Int, block: Int) {
         val set = finishedBlocks.computeIfAbsent(piece) { BitSet() }
         synchronized(set) { set.set(block) }
+        if (!piece0Block0Logged && piece == 0 && block == 0) {
+            piece0Block0Logged = true
+            TorrentDiag.d("MILESTONE: piece0_first_block")
+        }
     }
 
+    // DÜZELTME 3: Disk I/O alert iş parçacığından arka plan yürütücüsüne taşındı
     private fun onPieceFinished(piece: Int) {
         verifiedPieces[piece] = true
-        verifyServedBlocks(active, piece)
-        verifyServedRanges(active)
-    }
-
-    private fun arePiecesVerified(file: Opened, pos: Long, len: Int): Boolean {
-        if (len <= 0) return true
-        val p1 = TorrentRules.pieceAt(file.offset, pos, file.pieceLength)
-        val p2 = TorrentRules.pieceAt(file.offset, pos + len - 1L, file.pieceLength)
-        for (p in p1..p2) {
-            if (!isPieceVerified(file, p)) return false
+        val currentActive = active
+        if (currentActive != null) {
+            background.execute {
+                verifyServedBlocks(currentActive, piece)
+            }
         }
-        return true
     }
 
-    private fun recordServedRange(file: Opened, position: Long, buffer: ByteArray, readBytes: Int) {
-        if (!blockModeEnabled) return
-        if (arePiecesVerified(file, position, readBytes)) return
-        val crc = CRC32().apply { update(buffer, 0, readBytes) }.value
-        servedRanges.add(ServedRange(position, readBytes, crc))
-    }
-
-    private fun verifyServedRanges(file: Opened?) {
-        val f = file ?: return
-        if (!f.path.exists()) return
-        val toRemove = mutableListOf<ServedRange>()
-        try {
-            RandomAccessFile(f.path, "r").use { raf ->
-                for (range in servedRanges) {
-                    if (arePiecesVerified(f, range.filePosition, range.length)) {
-                        toRemove.add(range)
-                        val buf = ByteArray(range.length)
-                        raf.seek(range.filePosition)
-                        raf.readFully(buf)
-                        val verifiedCrc = CRC32().apply { update(buf) }.value
-                        if (range.crc != verifiedCrc) {
-                            Log.e(TAG, "BLOK_UYUMSUZ: pos=${range.filePosition} len=${range.length} oncekiCrc=${range.crc} dogrulanmisCrc=$verifiedCrc")
-                            TorrentDiag.d("BLOK_UYUMSUZ: pos=${range.filePosition} len=${range.length}! Parça düzeyine dönülüyor.")
-                            blockMismatches.incrementAndGet()
-                            blockModeEnabled = false
-                        }
+    private fun startOpeningStatsTracker(h: TorrentHandle) {
+        if (!BuildConfig.DEBUG) return
+        background.execute {
+            val milestones = listOf(1, 3, 5, 10)
+            val startMono = SystemClock.elapsedRealtime()
+            for (sec in milestones) {
+                val targetMs = startMono + sec * 1000L
+                val sleepMs = targetMs - SystemClock.elapsedRealtime()
+                if (sleepMs > 0) Thread.sleep(sleepMs)
+                if (!h.isValid || active == null) break
+                runCatching {
+                    val st = h.status()
+                    if (!firstPeerLogged && st.numPeers() > 0) {
+                        firstPeerLogged = true
+                        TorrentDiag.d("MILESTONE: first_peer_connected")
                     }
+                    TorrentDiag.d("MILESTONE: stats at ${sec}s peers=${st.numPeers()} seeds=${st.numSeeds()} dlRate=${st.downloadPayloadRate() / 1024}KB/s inen=${st.totalDone() / 1024}KB")
                 }
             }
-        } catch (e: Exception) {
-            Log.w(TAG, "verifyServedRanges hatası: ${e.message}")
-        }
-        if (toRemove.isNotEmpty()) {
-            servedRanges.removeAll(toRemove)
         }
     }
 
@@ -535,6 +537,10 @@ class TorrentEngine(private val dir: File) {
                             is PieceFinishedAlert -> onPieceFinished(alert.pieceIndex())
                             else -> {
                                 val type = alert.type().name
+                                if (!firstPeerLogged && type.startsWith("PEER_CONNECT")) {
+                                    firstPeerLogged = true
+                                    TorrentDiag.d("MILESTONE: first_peer_connected")
+                                }
                                 if (NOISY_ALERTS.any { type.startsWith(it) }) return
                                 TorrentDiag.d("alert $type: ${runCatching { alert.message() }.getOrNull()}")
                             }
@@ -543,6 +549,7 @@ class TorrentEngine(private val dir: File) {
                 })
                 it.start(params)
                 session = it
+                TorrentDiag.d("MILESTONE: session_ready")
                 TorrentDiag.d("libtorrent oturumu başladı")
             }
         } catch (e: Throwable) {

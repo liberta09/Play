@@ -84,9 +84,6 @@ class MainActivity : AppCompatActivity() {
             if (intent.hasExtra("test_force_stall")) {
                 PlayerNoticeLogic.testForceStall = intent.getBooleanExtra("test_force_stall", false)
             }
-            if (intent.getStringExtra("play_debug_action") == "adim0_feasibility") {
-                com.kaan.play.data.torrent.TorrentBlockFeasibility.runExperiment(this)
-            }
         }
         if (BuildConfig.DEBUG) {
             // Duman testi: oynatıcıyı test videosuyla doğrudan aç (geçmişe yazılmaz). --es play_test_video <adres>

@@ -25,7 +25,6 @@ class TorrentBlockRangeRulesTest {
 
     @Test
     fun testRequiredBlocksMultipleBlocksInSamePiece() {
-        // 64 KiB = 4 blok (blok 0..3)
         val blocks = TorrentBlockRangeRules.requiredBlocks(
             fileOffset = 0L,
             position = 0L,
@@ -42,7 +41,6 @@ class TorrentBlockRangeRulesTest {
 
     @Test
     fun testRequiredBlocksCrossingPieceBoundary() {
-        // Parça 0'ın son 10 baytı + Parça 1'in ilk 20 baytı (toplam 30 bayt)
         val pos = pieceLength8M.toLong() - 10L
         val blocks = TorrentBlockRangeRules.requiredBlocks(
             fileOffset = 0L,
@@ -51,7 +49,6 @@ class TorrentBlockRangeRulesTest {
             pieceLength = pieceLength8M,
             fileSize = fileSize10G,
         )
-        // Parça 0'ın son bloğu (blok 511) ve Parça 1'in ilk bloğu (blok 0)
         assertEquals(2, blocks.size)
         assertEquals(TorrentBlockRangeRules.BlockCoord(0, 511), blocks[0])
         assertEquals(TorrentBlockRangeRules.BlockCoord(1, 0), blocks[1])
@@ -59,7 +56,6 @@ class TorrentBlockRangeRulesTest {
 
     @Test
     fun testRequiredBlocksWithFileOffset() {
-        // Dosya torrent içinde 100.000 bayt ofsetle başlıyor
         val fileOffset = 100_000L
         val blocks = TorrentBlockRangeRules.requiredBlocks(
             fileOffset = fileOffset,
@@ -68,8 +64,6 @@ class TorrentBlockRangeRulesTest {
             pieceLength = pieceLength8M,
             fileSize = fileSize10G,
         )
-        // 100.000 / 16384 = 6.1 -> Blok 6
-        // (100.000 + 16383) / 16384 = 7.1 -> Blok 7
         assertEquals(2, blocks.size)
         assertEquals(TorrentBlockRangeRules.BlockCoord(0, 6), blocks[0])
         assertEquals(TorrentBlockRangeRules.BlockCoord(0, 7), blocks[1])
@@ -119,7 +113,6 @@ class TorrentBlockRangeRulesTest {
             TorrentBlockRangeRules.BlockCoord(0, 0),
             TorrentBlockRangeRules.BlockCoord(0, 1),
         )
-        // Parça 0 doğrulanmış, isBlockFinished false dönse bile servable olmalı
         val servable = TorrentBlockRangeRules.isRangeServable(
             blocks = blocks,
             isPieceVerified = { p -> p == 0 },
@@ -130,23 +123,21 @@ class TorrentBlockRangeRulesTest {
 
     @Test
     fun testMaxServableLengthContiguous() {
-        // Blok 0 ve Blok 1 hazır, Blok 2 eksik
         val readyBlocks = setOf("0:0", "0:1")
         val servableLen = TorrentBlockRangeRules.maxServableLength(
             fileOffset = 0L,
             position = 0L,
-            maxBytes = 65536, // 4 blok talep edildi
+            maxBytes = 65536,
             pieceLength = pieceLength8M,
             fileSize = fileSize10G,
             isPieceVerified = { false },
             isBlockFinished = { p, b -> "$p:$b" in readyBlocks },
         )
-        // İlk 2 blok (32768 bayt) kesintisiz verilebilmeli
         assertEquals(32768, servableLen)
     }
 
     @Test
-    fun testMaxServableLengthFirstBlockMissing() {
+    fun testMaxServableLengthFirstBlockMissing_returnsZero() {
         val readyBlocks = setOf("0:1", "0:2") // Blok 0 eksik!
         val servableLen = TorrentBlockRangeRules.maxServableLength(
             fileOffset = 0L,
@@ -165,5 +156,87 @@ class TorrentBlockRangeRulesTest {
         assertEquals(512, TorrentBlockRangeRules.blocksInPiece(8 * 1024 * 1024))
         assertEquals(128, TorrentBlockRangeRules.blocksInPiece(2 * 1024 * 1024))
         assertEquals(1, TorrentBlockRangeRules.blocksInPiece(1024))
+    }
+
+    // --- DÜZELTME 1 BİRİM TESTLERİ (activeDeadlinePieces) ---
+
+    @Test
+    fun testActiveDeadlinePieces_normalSeekRemovesOldPositions() {
+        // Kullanıcı 600. parçaya sarıyor.
+        // Baş (0, 1), kuyruk (999, 1000) ve mevcut (600, 601) parçalar kalmalı;
+        // Eski sarılan parça 150 kesinlikle bulunmamalı!
+        val deadlines = TorrentBlockRangeRules.activeDeadlinePieces(
+            currentPiece = 600,
+            firstPiece = 0,
+            lastPiece = 1000,
+            windowAhead = 2,
+        )
+        val pieces = deadlines.map { it.pieceIndex }
+        assertEquals(listOf(600, 601, 0, 1, 999, 1000), pieces)
+        assertFalse(pieces.contains(150))
+
+        // Öncelik süreleri kontrolü: mevcut konum en acil olmalı
+        assertEquals(150, deadlines.first { it.pieceIndex == 600 }.deadlineMs)
+        assertEquals(350, deadlines.first { it.pieceIndex == 601 }.deadlineMs)
+        assertEquals(500, deadlines.first { it.pieceIndex == 0 }.deadlineMs)
+        assertEquals(750, deadlines.first { it.pieceIndex == 1 }.deadlineMs)
+        assertEquals(1000, deadlines.first { it.pieceIndex == 999 }.deadlineMs)
+        assertEquals(1250, deadlines.first { it.pieceIndex == 1000 }.deadlineMs)
+    }
+
+    @Test
+    fun testActiveDeadlinePieces_nearHead_noDuplicates() {
+        // Mevcut konum baş parça (0) olduğunda parça 0 ve 1 iki kez eklenmemeli
+        val deadlines = TorrentBlockRangeRules.activeDeadlinePieces(
+            currentPiece = 0,
+            firstPiece = 0,
+            lastPiece = 1000,
+            windowAhead = 2,
+        )
+        val pieces = deadlines.map { it.pieceIndex }
+        assertEquals(listOf(0, 1, 999, 1000), pieces)
+    }
+
+    @Test
+    fun testActiveDeadlinePieces_nearTail_noDuplicates() {
+        // Mevcut konum kuyruk parça (1000) olduğunda kuyruk parçaları tekilleştirilmeli
+        val deadlines = TorrentBlockRangeRules.activeDeadlinePieces(
+            currentPiece = 999,
+            firstPiece = 0,
+            lastPiece = 1000,
+            windowAhead = 2,
+        )
+        val pieces = deadlines.map { it.pieceIndex }
+        assertEquals(listOf(999, 1000, 0, 1), pieces)
+    }
+
+    @Test
+    fun testActiveDeadlinePieces_verifiedPiecesExcluded() {
+        // Parça 0 ve parça 600 zaten inip doğrulanmışsa onlara deadline verilmemeli
+        val deadlines = TorrentBlockRangeRules.activeDeadlinePieces(
+            currentPiece = 600,
+            firstPiece = 0,
+            lastPiece = 1000,
+            windowAhead = 2,
+            isPieceVerified = { p -> p == 0 || p == 600 },
+        )
+        val pieces = deadlines.map { it.pieceIndex }
+        assertEquals(listOf(601, 1, 999, 1000), pieces)
+        assertFalse(pieces.contains(0))
+        assertFalse(pieces.contains(600))
+    }
+
+    @Test
+    fun testActiveDeadlinePieces_smallTorrent() {
+        // Toplam 3 parçalı küçük torrent (0..2): çakışmalar düzgün yönetilmeli
+        val deadlines = TorrentBlockRangeRules.activeDeadlinePieces(
+            currentPiece = 1,
+            firstPiece = 0,
+            lastPiece = 2,
+            windowAhead = 2,
+        )
+        val pieces = deadlines.map { it.pieceIndex }
+        // 1, 2, 0 tekilleştirilmiş olmalı
+        assertEquals(listOf(1, 2, 0), pieces)
     }
 }
