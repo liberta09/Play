@@ -1,0 +1,304 @@
+--------- beginning of main
+11-02 19:10:23.274  8141  8141 I sh      : type=1400 audit(0.0:3232): avc: denied { getattr } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 19:10:23.274  8141  8141 I sh      : type=1400 audit(0.0:3233): avc: denied { execute } for name="logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 19:10:23.274  8141  8141 I sh      : type=1400 audit(0.0:3234): avc: denied { read open } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 19:10:23.274  8141  8141 I sh      : type=1400 audit(0.0:3235): avc: denied { execute_no_trans } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 19:10:23.341  8143  8143 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 1463 811 
+11-02 19:10:23.341  8143  8143 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 19:10:23.342  8143  8143 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 19:10:23.349  8143  8143 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 19:10:23.354  8143  8143 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 19:10:23.367  8143  8143 I app_process: The ClassLoaderContext is a special shared library.
+11-02 19:10:23.367  8143  8143 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 19:10:23.367  8143  8143 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 19:10:23.367  8143  8143 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 19:10:23.367  8143  8143 D nativebridge: call UnloadNativeBridge! state=2
+11-02 19:10:23.374  8143  8143 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 19:10:23.375  8143  8143 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=3564809, downTime=3564809, deviceId=3, source=0x1002 }
+11-02 19:10:23.376  8143  8143 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=3564809, downTime=3564809, deviceId=3, source=0x1002 }
+11-02 19:10:23.377  7962  7962 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 19:10:23.381  8143  8143 D AndroidRuntime: Shutting down VM
+11-02 19:10:23.396  1463  1480 W SurfaceFlinger: Attempting to set client state on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 19:10:23.396  1463  1480 W SurfaceFlinger: Attempting to set client state on removed layer: Dim Layer for - Task=13#0
+11-02 19:10:23.396  1463  1480 W SurfaceFlinger: Attempting to destroy on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 19:10:23.396  1463  1480 W SurfaceFlinger: Attempting to destroy on removed layer: Dim Layer for - Task=13#0
+11-02 19:10:23.457  7962  7974 I com.kaan.play: JIT allocated 114KB for stack maps of void u93.e(i63, bb4, com.kaan.play.data.stream.PlayTarget, boolean, boolean, sn0, fo, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, l54, com.kaan.play.data.stream.PlayableStream, boolean, kotlin.jvm.functions.Function1, d24, kotlin.jvm.functions.Function0, l81, int, int)
+11-02 19:10:23.457  7962  7974 I com.kaan.play: JIT allocated 50KB for compiled code of void u93.e(i63, bb4, com.kaan.play.data.stream.PlayTarget, boolean, boolean, sn0, fo, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, l54, com.kaan.play.data.stream.PlayableStream, boolean, kotlin.jvm.functions.Function1, d24, kotlin.jvm.functions.Function0, l81, int, int)
+11-02 19:10:23.457  7962  7974 I com.kaan.play: Compiler allocated 15MB to compile void u93.e(i63, bb4, com.kaan.play.data.stream.PlayTarget, boolean, boolean, sn0, fo, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, l54, com.kaan.play.data.stream.PlayableStream, boolean, kotlin.jvm.functions.Function1, d24, kotlin.jvm.functions.Function0, l81, int, int)
+11-02 19:10:23.466  1598  1606 W System  : A resource failed to call close. 
+11-02 19:10:23.467  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 36 lines
+11-02 19:10:23.467  1598  1606 W System  : A resource failed to call close. 
+11-02 19:10:26.472  1440  1489 D audio_hw_hal: log_func, out_standby
+11-02 19:10:26.472  1440  1489 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-02 19:10:26.472  1440  1489 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-02 19:10:26.851  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 19:10:26.851  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:10:26.851  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-02 19:10:29.889  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 19:10:29.889  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 19:10:38.702  2062  6649 I AlarmManager: setExactAndAllowWhileIdle [name: GCM_HB_ALARM type: 2 triggerAtMillis: 4540137]
+11-02 19:10:38.703  2062  6649 I AlarmManager: setExactAndAllowWhileIdle [name: GCM_HB_ALARM type: 2 triggerAtMillis: 4540138]
+11-02 19:10:38.745  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 19:10:38.745  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:10:38.747  2062  8159 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-02 19:10:38.754  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 19:10:38.754  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+--------- beginning of system
+11-02 19:10:23.399  2281  2281 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-02 19:10:38.762  1598  2425 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=24
+11-02 19:10:38.763  2062  8160 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-02 19:10:38.777  3223  3254 W FileUtils: Failed to chmod(/data/user/0/com.google.android.gms/app_dg_cache): android.system.ErrnoException: chmod failed: ENOENT (No such file or directory)
+11-02 19:10:38.778  3223  3254 E DGFRR   : FR error [CONTEXT service_id=25 ]
+11-02 19:10:38.778  3223  3254 E DGFRR   : bwsy: Failed to get VM keys.
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at bwtb.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):103)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at bwut.f(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):3)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at bwuc.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):85)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at bwtx.g(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):210)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at bwtg.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):111)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at bwqw.e(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):59)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at bwqw.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):28)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at bwst.dispatchTransaction(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):30)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at ckxl.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):63)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at abjn.onTransact(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):23)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at android.os.Binder.transact(Binder.java:667)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at ckya.onTransact(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):168)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at android.os.Binder.execTransact(Binder.java:731)
+11-02 19:10:38.778  3223  3254 E DGFRR   : Caused by: java.nio.file.NoSuchFileException: /data/user/0/com.google.android.gms/app_dg_cache
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at sun.nio.fs.UnixFileSystemProvider.newDirectoryStream(UnixFileSystemProvider.java:434)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at j$.nio.file.spi.a.r(r8-map-id-fa95ee5151e4a92c29730317b2f899da01d44da53a24384dc28b278dadf49a63:13)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at j$.nio.file.Files.newDirectoryStream(r8-map-id-fa95ee5151e4a92c29730317b2f899da01d44da53a24384dc28b278dadf49a63:7)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	at bwtb.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):14)
+11-02 19:10:38.778  3223  3254 E DGFRR   : 	... 12 more
+11-02 19:10:38.780  3223  3254 W DG      : [flow devicekey] DroidGuardRunner.initSignalCollection() exception [CONTEXT service_id=25 ]
+11-02 19:10:38.780  3223  3254 W DG      : bwte
+11-02 19:10:38.780  3223  3254 W DG      : 	at bwtg.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):122)
+11-02 19:10:38.780  3223  3254 W DG      : 	at bwqw.e(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):59)
+11-02 19:10:38.780  3223  3254 W DG      : 	at bwqw.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):28)
+11-02 19:10:38.780  3223  3254 W DG      : 	at bwst.dispatchTransaction(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):30)
+11-02 19:10:38.780  3223  3254 W DG      : 	at ckxl.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):63)
+11-02 19:10:38.780  3223  3254 W DG      : 	at abjn.onTransact(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):23)
+11-02 19:10:38.780  3223  3254 W DG      : 	at android.os.Binder.transact(Binder.java:667)
+11-02 19:10:38.780  3223  3254 W DG      : 	at ckya.onTransact(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):168)
+11-02 19:10:38.780  3223  3254 W DG      : 	at android.os.Binder.execTransact(Binder.java:731)
+11-02 19:10:38.815  1512  1512 I keystore: del USRPKEY_unstable.c7202ece89390c490b1b94d5b71225e1.fallback 10014
+11-02 19:10:38.817  1598  1661 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=25
+11-02 19:10:38.819  1512  1512 I keystore: del USRCERT_unstable.c7202ece89390c490b1b94d5b71225e1.fallback 10014
+11-02 19:10:38.819  1512  1512 I keystore: del CACERT_unstable.c7202ece89390c490b1b94d5b71225e1.fallback 10014
+11-02 19:10:38.826  2062  6649 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-02 19:10:38.830  1598  1613 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.DROPBOX_ENTRY_ADDED flg=0x10 (has extras) } to com.google.android.gms/.stats.service.DropBoxEntryAddedReceiver
+11-02 19:10:38.828  3223  3223 I Binder:3223_2: type=1400 audit(0.0:3239): avc: denied { read } for name="address" dev="sysfs" ino=7109 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+11-02 19:10:38.828  3223  3223 I Binder:3223_2: type=1400 audit(0.0:3240): avc: denied { open } for path="/sys/devices/pci0000:00/0000:00:03.0/virtio0/net/wlan0/address" dev="sysfs" ino=7109 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+11-02 19:10:38.828  3223  3223 I Binder:3223_2: type=1400 audit(0.0:3241): avc: denied { getattr } for path="/sys/devices/pci0000:00/0000:00:03.0/virtio0/net/wlan0/address" dev="sysfs" ino=7109 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+11-02 19:10:38.873  1598  1606 W System  : A resource failed to call close. 
+11-02 19:10:38.873  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 32 lines
+11-02 19:10:38.873  1598  1606 W System  : A resource failed to call close. 
+11-02 19:10:38.905  2062  2540 W GmsUrlRequestImpl: [https://android.googleapis.com/auth/devicekey] Content-Type header is overwritten.
+11-02 19:10:38.917  2062  7060 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-02 19:10:38.943  2062  6649 I PlatformStatsUtil: canLog says can't log [CONTEXT service_id=254 ]
+11-02 19:10:38.957  2062  8158 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-02 19:10:39.001  2062  6649 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-02 19:10:39.019  2062  8160 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-02 19:10:39.184  2062  2540 W GLSUser : [AppCertManager] Exception while requesting key: 
+11-02 19:10:39.184  2062  2540 W GLSUser : java.util.concurrent.ExecutionException: dkbi: Parsing Exception
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at gztt.k(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):21)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at gzub.u(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):73)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at apuj.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):416)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at apuh.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):38)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at apuc.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at apuf.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):58)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at akkt.call(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):55)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at bqax.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):50)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at bqax.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):5)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at bqax.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):81)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at bqgz.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):8)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at java.lang.Thread.run(Thread.java:764)
+11-02 19:10:39.184  2062  2540 W GLSUser : Caused by: dkbi: Parsing Exception
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at dkcj.jI(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):15)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at gzwm.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):55)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at bqax.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):50)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at bqax.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):27)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	... 5 more
+11-02 19:10:39.184  2062  2540 W GLSUser : Caused by: hwdp: Protocol message end-group tag did not match expected tag.
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at hwfg.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):56)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at hwef.i(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):426)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at hwcr.R(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):22)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at hwcm.q(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):3)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at hwap.e(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):7)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at hwap.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at hwap.m(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at dkci.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):11)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at dkcn.call(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):8)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at bqax.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):50)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	at bqax.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):5)
+11-02 19:10:39.184  2062  2540 W GLSUser : 	... 5 more
+11-02 19:10:39.195  2062  8160 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-02 19:10:39.256  1598  1606 W System  : A resource failed to call close. 
+11-02 19:10:39.256  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 34 lines
+11-02 19:10:39.256  1598  1606 W System  : A resource failed to call close. 
+11-02 19:10:47.125  7962  8025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:10:47.125  7962  8025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:10:47.125  7962  8025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:10:47.125  7962  8025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:10:47.131  7962  8025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:10:47.131  7962  8025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:10:47.138  7962  8166 I OMXClient: IOmx service obtained
+11-02 19:10:47.139  1520  6994 I OMXMaster: makeComponentInstance(OMX.qcom.video.decoder.hevc) in omx@1.0-service process
+11-02 19:10:47.167  1520  6994 D LDDec   : createSoftOMXComponent OMX.qcom.video.decoder.hevc
+11-02 19:10:47.167  1520  6994 D LDDec   : LDDec init 0x0 1, 320
+11-02 19:10:47.169  7962  8165 D SurfaceUtils: connecting to surface 0x7638703f5010, reason connectToSurface
+11-02 19:10:47.169  7962  8165 I MediaCodec: [OMX.qcom.video.decoder.hevc] setting surface generation to 8153089
+11-02 19:10:47.169  7962  8165 D SurfaceUtils: disconnecting from surface 0x7638703f5010, reason connectToSurface(reconnect)
+11-02 19:10:47.169  7962  8165 D SurfaceUtils: connecting to surface 0x7638703f5010, reason connectToSurface(reconnect)
+11-02 19:10:47.169  1520  6994 W OMXNodeInstance: [0xf562c960:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 19:10:47.169  7962  8166 E ACodec  : [OMX.qcom.video.decoder.hevc] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+11-02 19:10:47.169  1520  6994 W OMXNodeInstance: [0xf562c960:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 19:10:47.170  1520  6994 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 19:10:47.170  1520  6994 E OMXNodeInstance: setConfig(0xf562c960:qcom.decoder.hevc, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 19:10:47.170  7962  8166 I ACodec  : codec does not support config priority (err -1010)
+11-02 19:10:47.170  1520  6994 E OMXNodeInstance: getConfig(0xf562c960:qcom.decoder.hevc, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 19:10:47.172  1520  1520 E OMXNodeInstance: getConfig(0xf562c960:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 19:10:47.181  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 19:10:47.189  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 30 lines
+11-02 19:10:47.189  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 19:10:47.189  7962  8025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:10:47.189  1520  8168 D LDDec   : initDecoder OMX.qcom.video.decoder.hevc init
+11-02 19:10:47.189  7962  8025 W MediaCodecRenderer: Format exceeds selected codec's capabilities [id=1, mimeType=video/dolby-vision, container=video/x-matroska, codecs=dvhe.08.06, res=3836x2072, color=BT2020/Limited range/ST2084 PQ/10/10, language=en, selectionFlags=[default], OMX.qcom.video.decoder.hevc]
+11-02 19:10:47.199  1520  8168 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 19:10:47.219  1520  6994 E OMXNodeInstance: getConfig(0xf562c960:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 19:10:47.184  1520  1520 I eo.decoder.hevc: type=1400 audit(0.0:3242): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:10:47.266  1520  6994 E OMXNodeInstance: getConfig(0xf562c960:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 19:10:47.328  7962  8165 D MediaCodec: [OMX.qcom.video.decoder.hevc] setting dataspace on output surface to #104
+11-02 19:10:47.339  7962  8165 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 19:10:47.344  7962  8165 I         : fastpipe: Connect success
+11-02 19:10:47.345  7962  8165 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=7962, tid=8165, this=0x7638752a1b80
+11-02 19:10:47.346  7962  8165 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+11-02 19:10:47.348  7962  8165 D SoftwareRenderer: setting dataspace on output surface to #104
+11-02 19:10:47.350  7962  7962 D PlayMatch: ilk kare: Torrentio (faz=Starting)
+11-02 19:10:47.338  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:3243): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:10:47.338  7962  7962 I MediaCodec_loop: type=1400 audit(0.0:3244): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:10:47.338  7962  7962 I MediaCodec_loop: type=1400 audit(0.0:3245): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6864 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:10:47.360  7962  8165 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 19:10:47.372  7962  7962 D PlayMatch: süre kontrolü kaynak=Torrentio (?) süre=108.8 dk beklenen=109 dk tür=Movie -> Ok
+11-02 19:10:47.873  1520  1520 E OMXNodeInstance: setConfig(0xf562c960:qcom.decoder.hevc, ConfigOperatingRate(0x6f800003)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 19:10:47.873  7962  8166 I ACodec  : codec does not support config operating rate (err -1010)
+11-02 19:10:50.135  7962  7962 D PlayMatch: takılma-ayrıntı kaynak=Torrentio bitHızı=bilinmiyor bantTahmini=3.20 Mbps tampon=0.2 sn
+11-02 19:10:58.580  1598  1617 E BatteryExternalStatsWorker: no controller energy info supplied for wifi
+11-02 19:10:58.586  1598  1617 E BatteryExternalStatsWorker: no controller energy info supplied for bluetooth
+11-02 19:10:58.591  1463  1463 I surfaceflinger: type=1400 audit(0.0:3246): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:10:58.593  1521  1521 E VSoCRil : Request 135 not supported.
+11-02 19:10:58.594  1598  1598 I batterystats-wo: type=1400 audit(0.0:3247): avc: denied { call } for scontext=u:r:system_server:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+11-02 19:10:58.595  1598  1617 W KernelCpuProcReader: File not exist: /proc/uid_cpupower/concurrent_active_time
+11-02 19:10:58.595  1598  1617 W KernelCpuProcReader: File not exist: /proc/uid_cpupower/concurrent_policy_time
+11-02 19:10:58.595  1598  1617 E KernelCpuSpeedReader: Failed to read cpu-freq: /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state (No such file or directory)
+11-02 19:10:58.595  1598  1617 E KernelWakelockReader: neither /proc/wakelocks nor /d/wakeup_sources exists
+11-02 19:10:58.597  1598  1617 W BatteryStatsImpl: Couldn't get kernel wake lock stats
+11-02 19:10:58.598  1451  1451 I composer@2.1-se: type=1400 audit(0.0:3248): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:10:58.599  1598  1617 W BatteryExternalStatsWorker: modem info is invalid: ModemActivityInfo{ mTimestamp=0 mSleepTimeMs=0 mIdleTimeMs=0 mTxTimeMs[]=[0, 0, 0, 0, 0] mRxTimeMs=0 mEnergyUsed=0}
+11-02 19:10:58.611  1520  1520 I eo.decoder.hevc: type=1400 audit(0.0:3249): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:10:58.613  1598  1613 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.DROPBOX_ENTRY_ADDED flg=0x10 (has extras) } to com.google.android.gms/.stats.service.DropBoxEntryAddedReceiver
+11-02 19:11:00.005  1598  2425 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=24
+11-02 19:11:00.008  1598  2425 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=25
+11-02 19:11:00.014  1746  1746 I RenderThread: type=1400 audit(0.0:3250): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:11:01.341  1460  1460 I ldinit  : type=1400 audit(0.0:3251): avc: denied { read } for name="partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-02 19:11:01.341  1460  1460 I ldinit  : type=1400 audit(0.0:3252): avc: denied { open } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-02 19:11:01.341  1460  1460 I ldinit  : type=1400 audit(0.0:3253): avc: denied { getattr } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-02 19:11:02.208  1518  1518 I storaged: type=1400 audit(0.0:3254): avc: denied { call } for scontext=u:r:storaged:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+11-02 19:11:02.219  1518  1531 E storaged: getDiskStats failed with result NOT_SUPPORTED and size 0
+11-02 19:11:03.971  1736  1736 I hci_thread: type=1400 audit(0.0:3255): avc: denied { call } for scontext=u:r:bluetooth:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+11-02 19:11:03.971  1441  1441 I bluetooth@1.0-s: type=1400 audit(0.0:3256): avc: denied { call } for scontext=u:r:init:s0 tcontext=u:r:bluetooth:s0 tclass=binder permissive=1
+11-02 19:11:03.976  1441  1993 I dual_mode_controller: Command opcode: 0x2018, OGF: 0x0008, OCF: 0x0018
+11-02 19:11:03.981  1441  1993 I dual_mode_controller: Command opcode: 0x2005, OGF: 0x0008, OCF: 0x0005
+11-02 19:11:03.982  1441  1993 I dual_mode_controller: Controller performing command: LE SetRandomAddress
+11-02 19:11:09.704  1598  2425 E memtrack: Couldn't load memtrack module
+11-02 19:11:09.705  1598  2425 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:11:10.114  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:3257): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:11:10.118  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:3258): avc: denied { read write } for name="fastpipe" dev="tmpfs" ino=2104 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:11:10.118  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:3259): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:11:10.118  7962  8165 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 19:11:10.996  1598  1606 W System  : A resource failed to call close. 
+11-02 19:11:10.996  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 31 lines
+11-02 19:11:10.996  1598  1606 W System  : A resource failed to call close. 
+11-02 19:11:11.555  1443  1443 V QCamera_Camera: getCameraInfo
+11-02 19:11:11.557  1443  1443 V QCamera_BaseCamera: getCameraInfo
+11-02 19:11:11.566  1443  1443 V QCamera_Camera: getCameraInfo
+11-02 19:11:11.566  1443  1443 V QCamera_BaseCamera: getCameraInfo
+11-02 19:11:14.839  1519  1519 W wificond: Scan already started
+11-02 19:11:14.867  1598  1615 I ActivityManager: Start proc 8174:com.google.android.partnersetup/u0a28 for service com.google.android.partnersetup/.InstalledAppJobService
+11-02 19:11:14.883  8174  8174 I Zygote  : seccomp disabled by setenforce 0
+11-02 19:11:14.891  8174  8174 I com.google.android.partnersetup: type=1400 audit(0.0:3260): avc: denied { connectto } for comm=4144422D4A44575020436F6E6E6563 path=006A6477702D636F6E74726F6C scontext=u:r:priv_app:s0:c512,c768 tcontext=u:r:su:s0 tclass=unix_stream_socket permissive=1
+11-02 19:11:14.892  8174  8174 D nativebridge: call UnloadNativeBridge! state=1
+11-02 19:11:14.901  8174  8174 I id.partnersetup: type=1400 audit(0.0:3261): avc: denied { open } for path="/data/local/cfg-ineyg/app_device" dev="sdb2" ino=394513 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-02 19:11:14.973  2062  2062 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+11-02 19:11:15.022  2062  8179 E WorkSourceUtil: Could not find package: com.google.android.gms.westworld
+11-02 19:11:15.022  2281  2281 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+11-02 19:11:15.038  8174  8174 I id.partnersetu: The ClassLoaderContext is a special shared library.
+11-02 19:11:15.051  8174  8174 I id.partnersetup: type=1400 audit(0.0:3262): avc: denied { read } for name="Applications" dev="sdcardfs" ino=1441794 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sdcardfs:s0 tclass=lnk_file permissive=1
+11-02 19:11:15.052  8174  8174 D libnativeloader: INJECT Failed to open gspd.json
+11-02 19:11:15.053  8174  8174 D libnativeloader: CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+11-02 19:11:15.054  8174  8174 W id.partnersetu: JIT profile information will not be recorded: profile file does not exits.
+11-02 19:11:15.054  8174  8174 I chatty  : uid=10028(com.google.android.partnersetup) identical 1 line
+11-02 19:11:15.054  8174  8174 W id.partnersetu: JIT profile information will not be recorded: profile file does not exits.
+11-02 19:11:15.077  8174  8174 W id.partnersetu: Class xz failed lock verification and will run slower.
+11-02 19:11:15.077  8174  8174 W id.partnersetu: Common causes for lock verification issues are non-optimized dex code
+11-02 19:11:15.077  8174  8174 W id.partnersetu: and incorrect proguard optimizations.
+11-02 19:11:15.080  1598  1661 W SchedPolicy: add_tid_to_cgroup failed to write '8174' (No space left on device); fd=25
+11-02 19:11:15.152  1598  1606 W System  : A resource failed to call close. 
+11-02 19:11:15.152  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 30 lines
+11-02 19:11:15.152  1598  1606 W System  : A resource failed to call close. 
+11-02 19:11:15.179  1598  1598 W SchedPolicy: add_tid_to_cgroup failed to write '8174' (No space left on device); fd=24
+11-02 19:11:15.179  1598  1661 W SchedPolicy: add_tid_to_cgroup failed to write '8174' (No space left on device); fd=25
+11-02 19:11:15.205  8174  8174 I GooglePartnerSetup: Phenotype client.register successes
+11-02 19:11:15.306  1598  1598 W SchedPolicy: add_tid_to_cgroup failed to write '8174' (No space left on device); fd=24
+11-02 19:11:15.307  1598  2425 W SchedPolicy: add_tid_to_cgroup failed to write '8174' (No space left on device); fd=25
+11-02 19:11:15.316  8174  8195 I GooglePartnerSetup: Phenotype commit successes
+11-02 19:11:15.416  1598  1598 W SchedPolicy: add_tid_to_cgroup failed to write '8174' (No space left on device); fd=24
+11-02 19:11:15.417  1598  2425 W SchedPolicy: add_tid_to_cgroup failed to write '8174' (No space left on device); fd=25
+11-02 19:11:15.624  1598  1606 W System  : A resource failed to call close. 
+11-02 19:11:15.624  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 32 lines
+11-02 19:11:15.624  1598  1606 W System  : A resource failed to call close. 
+11-02 19:11:15.625  1435  1435 D libnativeloader: CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+11-02 19:11:15.626  1435  1435 I Zygote  : IsCopy  libcrashcatcher: 0
+11-02 19:11:15.631  1598  1615 I ActivityManager: Start proc 8201:com.android.chrome/u0a44 for broadcast com.android.chrome/com.google.android.apps.chrome.rlz.RevenueStatsConfigurationUpdateReceiver
+11-02 19:11:15.664  7962  7962 I MediaCodec_loop: type=1400 audit(0.0:3263): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:11:15.664  8201  8201 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: Not a directory
+11-02 19:11:15.664  8201  8201 I Zygote  : seccomp disabled by setenforce 0
+11-02 19:11:15.665  8201  8201 D nativebridge: call UnloadNativeBridge! state=1
+11-02 19:11:15.671  8201  8201 I zygote  : type=1400 audit(0.0:3264): avc: denied { connectto } for comm=4144422D4A44575020436F6E6E6563 path=006A6477702D636F6E74726F6C scontext=u:r:untrusted_app:s0:c44,c256,c512,c768 tcontext=u:r:su:s0 tclass=unix_stream_socket permissive=1
+11-02 19:11:15.691  8201  8201 I .android.chrome: type=1400 audit(0.0:3265): avc: denied { open } for path="/data/local/cfg-ineyg/app_device" dev="sdb2" ino=394513 scontext=u:r:untrusted_app:s0:c44,c256,c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-02 19:11:15.818  1598  4382 W SchedPolicy: add_tid_to_cgroup failed to write '8201' (No space left on device); fd=25
+11-02 19:11:15.839  1598  4382 D WificondControl: Scan result ready event
+11-02 19:11:15.854  8201  8201 D libnativeloader: CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+11-02 19:11:15.873  8201  8201 W .android.chrom: Unknown chunk type '200'.
+11-02 19:11:15.881  8201  8201 I cr_SplitCompatApp: Launched version=124.0.6367.82 minSdkVersion=1 isBundle=true processName=com.android.chrome isIsolated=false
+11-02 19:11:15.908  1598  1598 I Binder:1598_3: type=1400 audit(0.0:3266): avc: denied { read } for name="Applications" dev="sdcardfs" ino=1441794 scontext=u:r:system_server:s0 tcontext=u:object_r:sdcardfs:s0 tclass=lnk_file permissive=1
+11-02 19:11:15.908  2062  2270 I FontLog : (REDACTED) Received query %s, URI %s
+11-02 19:11:15.909  2062  2270 I FontLog : (REDACTED) Query [%s] resolved to %s
+11-02 19:11:15.909  2062  2270 I FontLog : (REDACTED) Font PFD returned from cache for %s
+11-02 19:11:15.910  2062  2270 I FontLog : (REDACTED) Fetch %s end status %s
+11-02 19:11:15.913  2062  2270 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+11-02 19:11:15.950  2062  2270 I FontLog : (REDACTED) Received query %s, URI %s
+11-02 19:11:15.955  2062  2270 I FontLog : (REDACTED) Query [%s] resolved to %s
+11-02 19:11:15.956  2062  2270 I FontLog : (REDACTED) Font PFD returned from cache for %s
+11-02 19:11:15.956  2062  2270 I FontLog : (REDACTED) Fetch %s end status %s
+11-02 19:11:15.957  2062  2270 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+11-02 19:11:15.968  2062  2270 I FontLog : (REDACTED) Received query %s, URI %s
+11-02 19:11:15.968  2062  2270 I FontLog : (REDACTED) Query [%s] resolved to %s
+11-02 19:11:15.969  2062  2270 I FontLog : (REDACTED) Font PFD returned from cache for %s
+11-02 19:11:15.969  2062  2270 I FontLog : (REDACTED) Fetch %s end status %s
+11-02 19:11:15.971  2062  3866 I FontLog : (REDACTED) Pulling font file for id = %d, cache size = %d
+11-02 19:11:16.048  2281  2281 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+11-02 19:11:16.117  8201  8222 I cr_LibraryLoader: Successfully loaded native library
+11-02 19:11:16.121  8201  8222 I cr_CachingUmaRecorder: Flushed 18 samples from 17 histograms, 0 samples were dropped.
+11-02 19:11:22.133  8174  8188 V ClearcutMetricXmitter: Transmission is done.
+11-02 19:11:30.043  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+11-02 19:11:30.981  1451  1451 I HwBinder:1451_2: type=1400 audit(0.0:3267): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:11:37.157  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 19:11:37.157  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:11:37.163  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 19:11:37.163  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:11:47.371  5551  5551 I <-host-10: type=1400 audit(0.0:3268): avc: denied { read } for path="socket:[56667]" dev="sockfs" ino=56667 scontext=u:r:su:s0 tcontext=u:r:su:s0 tclass=tcp_socket permissive=1
+11-02 19:11:47.394  8232  8232 I adbd    : type=1400 audit(0.0:3269): avc: denied { execute } for name="sh" dev="sda2" ino=1684 scontext=u:r:su:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1

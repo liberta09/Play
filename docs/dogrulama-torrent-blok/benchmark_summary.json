@@ -1,0 +1,164 @@
+{
+  "blok_cw": [
+    {
+      "run_idx": 1,
+      "name": "blok_cw_run1",
+      "duration": 114.418,
+      "start_line": "11-02 19:04:00.784 D/PlayMatch( 7112): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:05:55.202 D/PlayMatch( 7112): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 0,
+      "stalls": 0,
+      "log_file": "blok_cw_run1.log",
+      "png_file": "blok_cw_run1.png"
+    },
+    {
+      "run_idx": 2,
+      "name": "blok_cw_run2",
+      "duration": 25.892,
+      "start_line": "11-02 19:07:08.603 D/PlayMatch( 7392): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:07:34.495 D/PlayMatch( 7392): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 1,
+      "stalls": 0,
+      "log_file": "blok_cw_run2.log",
+      "png_file": "blok_cw_run2.png"
+    },
+    {
+      "run_idx": 3,
+      "name": "blok_cw_run3",
+      "duration": 22.443,
+      "start_line": "11-02 19:08:47.964 D/PlayMatch( 7676): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:09:10.407 D/PlayMatch( 7676): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 1,
+      "stalls": 1,
+      "log_file": "blok_cw_run3.log",
+      "png_file": "blok_cw_run3.png"
+    },
+    {
+      "run_idx": 4,
+      "name": "blok_cw_run4",
+      "duration": 23.973,
+      "start_line": "11-02 19:10:23.377 D/PlayMatch( 7962): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:10:47.350 D/PlayMatch( 7962): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 1,
+      "stalls": 1,
+      "log_file": "blok_cw_run4.log",
+      "png_file": "blok_cw_run4.png"
+    },
+    {
+      "run_idx": 5,
+      "name": "blok_cw_run5",
+      "duration": 28.978,
+      "start_line": "11-02 19:12:00.406 D/PlayMatch( 8323): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:12:29.384 D/PlayMatch( 8323): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 1,
+      "stalls": 0,
+      "log_file": "blok_cw_run5.log",
+      "png_file": "blok_cw_run5.png"
+    }
+  ],
+  "blok_bbb": [
+    {
+      "run_idx": 1,
+      "name": "blok_bbb_run1",
+      "duration": 4.508,
+      "start_line": "11-02 19:13:35.177 D/PlayMatch( 8606): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:13:39.685 D/PlayMatch( 8606): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 0,
+      "stalls": 2,
+      "log_file": "blok_bbb_run1.log",
+      "png_file": "blok_bbb_run1.png"
+    },
+    {
+      "run_idx": 2,
+      "name": "blok_bbb_run2",
+      "duration": 4.873,
+      "start_line": "11-02 19:14:44.845 D/PlayMatch( 8821): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:14:49.718 D/PlayMatch( 8821): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 0,
+      "stalls": 0,
+      "log_file": "blok_bbb_run2.log",
+      "png_file": "blok_bbb_run2.png"
+    },
+    {
+      "run_idx": 3,
+      "name": "blok_bbb_run3",
+      "duration": 4.475,
+      "start_line": "11-02 19:15:55.475 D/PlayMatch( 9043): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:15:59.950 D/PlayMatch( 9043): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 0,
+      "stalls": 1,
+      "log_file": "blok_bbb_run3.log",
+      "png_file": "blok_bbb_run3.png"
+    }
+  ],
+  "main_cw": [
+    {
+      "run_idx": 1,
+      "name": "main_cw_run1",
+      "duration": 33.982,
+      "start_line": "11-02 19:17:17.880 D/PlayMatch( 9347): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:17:51.862 D/PlayMatch( 9347): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 1,
+      "stalls": 0,
+      "log_file": "main_cw_run1.log",
+      "png_file": "main_cw_run1.png"
+    },
+    {
+      "run_idx": 2,
+      "name": "main_cw_run2",
+      "duration": 38.74,
+      "start_line": "11-02 19:19:05.033 D/PlayMatch( 9622): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:19:43.773 D/PlayMatch( 9622): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 1,
+      "stalls": 0,
+      "log_file": "main_cw_run2.log",
+      "png_file": "main_cw_run2.png"
+    },
+    {
+      "run_idx": 3,
+      "name": "main_cw_run3",
+      "duration": 39.309,
+      "start_line": "11-02 19:20:56.857 D/PlayMatch( 9921): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:21:36.166 D/PlayMatch( 9921): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 1,
+      "stalls": 0,
+      "log_file": "main_cw_run3.log",
+      "png_file": "main_cw_run3.png"
+    },
+    {
+      "run_idx": 4,
+      "name": "main_cw_run4",
+      "duration": 107.94,
+      "start_line": "11-02 19:22:49.245 D/PlayMatch(10218): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:24:37.185 D/PlayMatch(10218): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 0,
+      "stalls": 0,
+      "log_file": "main_cw_run4.log",
+      "png_file": "main_cw_run4.png"
+    },
+    {
+      "run_idx": 5,
+      "name": "main_cw_run5",
+      "duration": 32.136,
+      "start_line": "11-02 19:25:50.403 D/PlayMatch(10508): kaynak başlatılıyor: Torrentio (?)",
+      "first_frame_line": "11-02 19:26:22.539 D/PlayMatch(10508): ilk kare: Torrentio (faz=Starting)",
+      "mismatches": 0,
+      "decoder_errors": 1,
+      "stalls": 0,
+      "log_file": "main_cw_run5.log",
+      "png_file": "main_cw_run5.png"
+    }
+  ]
+}

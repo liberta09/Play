@@ -1,0 +1,105 @@
+--------- beginning of main
+11-02 19:07:08.491  7576  7576 I sh      : type=1400 audit(0.0:2859): avc: denied { getattr } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 19:07:08.491  7576  7576 I sh      : type=1400 audit(0.0:2860): avc: denied { execute } for name="logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 19:07:08.491  7576  7576 I sh      : type=1400 audit(0.0:2861): avc: denied { read open } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 19:07:08.491  7576  7576 I sh      : type=1400 audit(0.0:2862): avc: denied { execute_no_trans } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 19:07:08.491  7576  7576 I logcat  : type=1400 audit(0.0:2863): avc: denied { write } for name="logd" dev="tmpfs" ino=2114 scontext=u:r:su:s0 tcontext=u:object_r:logd_socket:s0 tclass=sock_file permissive=1
+11-02 19:07:08.566  7578  7578 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 1463 811 
+11-02 19:07:08.566  7578  7578 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 19:07:08.567  7578  7578 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 19:07:08.575  7578  7578 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 19:07:08.580  7578  7578 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 19:07:08.593  7578  7578 I app_process: The ClassLoaderContext is a special shared library.
+11-02 19:07:08.593  7578  7578 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 19:07:08.593  7578  7578 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 19:07:08.593  7578  7578 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 19:07:08.593  7578  7578 D nativebridge: call UnloadNativeBridge! state=2
+11-02 19:07:08.600  7578  7578 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 19:07:08.601  7578  7578 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=3370035, downTime=3370035, deviceId=3, source=0x1002 }
+11-02 19:07:08.602  7578  7578 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=3370035, downTime=3370035, deviceId=3, source=0x1002 }
+11-02 19:07:08.603  7392  7392 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 19:07:08.607  7578  7578 D AndroidRuntime: Shutting down VM
+11-02 19:07:08.631  1463  1479 W SurfaceFlinger: Attempting to set client state on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 19:07:08.632  1463  1479 W SurfaceFlinger: Attempting to destroy on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+--------- beginning of system
+11-02 19:07:08.637  2281  2281 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-02 19:07:08.645  1463  1480 W SurfaceFlinger: Attempting to set client state on removed layer: Dim Layer for - Task=11#0
+11-02 19:07:08.645  1463  1480 W SurfaceFlinger: Attempting to destroy on removed layer: Dim Layer for - Task=11#0
+11-02 19:07:09.525  1598  1661 E memtrack: Couldn't load memtrack module
+11-02 19:07:09.525  1598  1661 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:07:10.564  1440  1440 I writer  : type=1400 audit(0.0:2866): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:hal_audio_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:07:10.577  1598  1606 W System  : A resource failed to call close. 
+11-02 19:07:10.578  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 28 lines
+11-02 19:07:10.578  1598  1606 W System  : A resource failed to call close. 
+11-02 19:07:11.699  1440  1489 D audio_hw_hal: log_func, out_standby
+11-02 19:07:11.699  1440  1489 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-02 19:07:11.699  1440  1489 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-02 19:07:12.001  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-02 19:07:12.001  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 19:07:12.001  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:07:14.952  3223  3330 I id.gms.unstabl: Explicit concurrent copying GC freed 989(131KB) AllocSpace objects, 1(20KB) LOS objects, 25% free, 2MB/2MB, paused 30us total 14.645ms
+11-02 19:07:15.125  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 19:07:15.125  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 19:07:30.037  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 19:07:30.037  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:07:34.326  7392  7464 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:07:34.326  7392  7464 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:07:34.327  7392  7464 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:07:34.327  7392  7464 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:07:34.330  7392  7464 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:07:34.330  7392  7464 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:07:34.333  7392  7596 I OMXClient: IOmx service obtained
+11-02 19:07:34.334  1520  1520 I OMXMaster: makeComponentInstance(OMX.qcom.video.decoder.hevc) in omx@1.0-service process
+11-02 19:07:34.347  1520  1520 D LDDec   : createSoftOMXComponent OMX.qcom.video.decoder.hevc
+11-02 19:07:34.347  1520  1520 D LDDec   : LDDec init 0x0 1, 320
+11-02 19:07:34.349  7392  7595 D SurfaceUtils: connecting to surface 0x7638725e5010, reason connectToSurface
+11-02 19:07:34.349  7392  7595 I MediaCodec: [OMX.qcom.video.decoder.hevc] setting surface generation to 7569409
+11-02 19:07:34.349  7392  7595 D SurfaceUtils: disconnecting from surface 0x7638725e5010, reason connectToSurface(reconnect)
+11-02 19:07:34.349  7392  7595 D SurfaceUtils: connecting to surface 0x7638725e5010, reason connectToSurface(reconnect)
+11-02 19:07:34.349  1520  1520 W OMXNodeInstance: [0xf562c8a0:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 19:07:34.349  7392  7596 E ACodec  : [OMX.qcom.video.decoder.hevc] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+11-02 19:07:34.349  1520  1520 W OMXNodeInstance: [0xf562c8a0:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 19:07:34.350  1520  1520 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 19:07:34.350  1520  6994 E OMXNodeInstance: setConfig(0xf562c8a0:qcom.decoder.hevc, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 19:07:34.350  7392  7596 I ACodec  : codec does not support config priority (err -1010)
+11-02 19:07:34.350  1520  6994 E OMXNodeInstance: getConfig(0xf562c8a0:qcom.decoder.hevc, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 19:07:34.350  1520  6994 E OMXNodeInstance: getConfig(0xf562c8a0:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 19:07:34.357  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 19:07:34.367  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 30 lines
+11-02 19:07:34.367  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 19:07:34.368  1520  7598 D LDDec   : initDecoder OMX.qcom.video.decoder.hevc init
+11-02 19:07:34.368  7392  7464 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:07:34.368  7392  7464 W MediaCodecRenderer: Format exceeds selected codec's capabilities [id=1, mimeType=video/dolby-vision, container=video/x-matroska, codecs=dvhe.08.06, res=3836x2072, color=BT2020/Limited range/ST2084 PQ/10/10, language=en, selectionFlags=[default], OMX.qcom.video.decoder.hevc]
+11-02 19:07:34.364  1520  1520 I eo.decoder.hevc: type=1400 audit(0.0:2867): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:07:34.375  1520  7598 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 19:07:34.376  1520  6994 E OMXNodeInstance: getConfig(0xf562c8a0:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 19:07:34.426  1520  1520 E OMXNodeInstance: getConfig(0xf562c8a0:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 19:07:34.470  7392  7595 D MediaCodec: [OMX.qcom.video.decoder.hevc] setting dataspace on output surface to #104
+11-02 19:07:34.476  7392  7595 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 19:07:34.478  7392  7392 I MediaCodec_loop: type=1400 audit(0.0:2868): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:07:34.489  7392  7595 I         : fastpipe: Connect success
+11-02 19:07:34.490  7392  7595 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=7392, tid=7595, this=0x76386faec680
+11-02 19:07:34.490  7392  7595 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+11-02 19:07:34.494  7392  7595 D SoftwareRenderer: setting dataspace on output surface to #104
+11-02 19:07:34.495  7392  7392 D PlayMatch: ilk kare: Torrentio (faz=Starting)
+11-02 19:07:34.528  1463  1463 I surfaceflinger: type=1400 audit(0.0:2869): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:07:34.531  1451  1451 I composer@2.1-se: type=1400 audit(0.0:2870): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:07:43.636  7392  7392 D PlayMatch: süre kontrolü kaynak=Torrentio (?) süre=108.8 dk beklenen=109 dk tür=Movie -> Ok
+11-02 19:07:43.648  7392  7426 I com.kaan.play: Waiting for a blocking GC ProfileSaver
+11-02 19:07:43.653  7392  7595 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 19:07:43.688  7392  7595 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 19:07:43.696  7392  7426 I com.kaan.play: WaitForGcToComplete blocked ProfileSaver on HeapTrim for 48.006ms
+11-02 19:07:44.161  1520  1520 E OMXNodeInstance: setConfig(0xf562c8a0:qcom.decoder.hevc, ConfigOperatingRate(0x6f800003)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 19:07:44.161  7392  7596 I ACodec  : codec does not support config operating rate (err -1010)
+11-02 19:07:51.154  1460  1460 I ldinit  : type=1400 audit(0.0:2871): avc: denied { read } for name="partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-02 19:07:51.154  1460  1460 I ldinit  : type=1400 audit(0.0:2872): avc: denied { open } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-02 19:07:51.154  1460  1460 I ldinit  : type=1400 audit(0.0:2873): avc: denied { getattr } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-02 19:07:52.208  1598  1606 W System  : A resource failed to call close. 
+11-02 19:08:00.014  1598  1881 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=24
+11-02 19:08:00.021  1598  1881 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=25
+11-02 19:07:52.208  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 34 lines
+11-02 19:07:52.208  1598  1606 W System  : A resource failed to call close. 
+11-02 19:08:00.044  1746  1746 I RenderThread: type=1400 audit(0.0:2874): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:08:02.209  1518  1531 E storaged: getDiskStats failed with result NOT_SUPPORTED and size 0
+11-02 19:08:09.547  1598  1881 E memtrack: Couldn't load memtrack module
+11-02 19:08:09.547  1598  1881 W android.os.Debug: failed to get memory consumption info: -1
