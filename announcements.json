@@ -1,6 +1,13 @@
 {
   "announcements": [
     {
+      "id": "2026-11-02-play-123",
+      "title": "🎉 Play 1.2.3 yayında!",
+      "message": "✨ Yenilikler:\n✅ TV kumandayla Kütüphane > Geçmiş satırlarında çarpıya geçip silme düzeltildi\n✅ Eşitlemede çoğalan 'Varsayılan' profiller tek profilde birleşiyor; geçmiş ve favoriler korunuyor\n✅ Torrent açılışında iyileştirmeler 🍿🎬",
+      "link": "https://github.com/liberta09/Play/releases/download/v1.2.3/Play-1.2.3.apk",
+      "until": "2026-12-31"
+    },
+    {
       "id": "2026-10-31-play-122",
       "title": "🎉 Play 1.2.2 yayında!",
       "message": "✨ Yenilikler:\n✅ HLS oynatma düzeltmesi: bazı film ve dizilerde 'kaynak açılamadı' hatası giderildi\n✅ Torrent'te soğuk açılış hızlandı (yaklaşık 5-8 sn)\n✅ Yavaş sitelerdeki eklentiler artık erken kesilmiyor\n✅ Oynatıcı hatalardan daha iyi toparlanıyor 🍿🎬",
