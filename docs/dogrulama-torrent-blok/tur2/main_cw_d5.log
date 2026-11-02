@@ -1,0 +1,662 @@
+--------- beginning of main
+11-02 20:27:23.469 16060 16060 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 1463 811 
+11-02 20:27:23.469 16060 16060 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 20:27:23.471 16060 16060 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 20:27:23.478 16060 16060 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 20:27:23.484 16060 16060 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 20:27:23.495 16060 16060 I app_process: The ClassLoaderContext is a special shared library.
+11-02 20:27:23.495 16060 16060 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 20:27:23.495 16060 16060 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 20:27:23.495 16060 16060 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 20:27:23.495 16060 16060 D nativebridge: call UnloadNativeBridge! state=2
+11-02 20:27:23.502 16060 16060 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 20:27:23.503 16060 16060 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=8184937, downTime=8184937, deviceId=3, source=0x1002 }
+11-02 20:27:23.505 16060 16060 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=8184937, downTime=8184937, deviceId=3, source=0x1002 }
+11-02 20:27:23.507 15886 15886 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 20:27:23.508 15886 15886 D PlayStreamUrl: oynatılıyor magnet: mime=?
+11-02 20:27:23.508 15886 15886 D PlayTorrent: oynatıcıya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=0 başlıklar=[] mime=null
+11-02 20:27:23.509 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:27:23.509 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:27:23.509 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:27:23.509 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:27:23.509 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:27:23.509 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:27:23.509 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:27:23.509 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:27:23.509 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:27:23.509 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:27:23.509 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:27:23.510 16060 16060 D AndroidRuntime: Shutting down VM
+11-02 20:27:23.512 15886 15979 D PlayTorrent: alert TORRENT_DELETED: ------ deleted
+11-02 20:27:23.513 15886 15979 D PlayTorrent: alert TORRENT_REMOVED: ------ removed
+11-02 20:27:23.517 15886 16071 D PlayTorrent: yerel sunucu isteği: GET range=null hedefOk=true
+11-02 20:27:23.517 15886 16071 D PlayTorrent: motor open: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 fileHint=0
+11-02 20:27:23.519 15886 15979 D PlayTorrent: alert STATE_CHANGED: cf5290: state changed to: dl metadata
+11-02 20:27:23.519 15886 15979 D PlayTorrent: alert ADD_TORRENT: added torrent: cf5290d3f602bbeb0de9cb4419251c98c0e6db70
+11-02 20:27:23.535  1461  1499 D AudioFlinger: mixer(0xf3483640) throttle end: throttle time(8)
+11-02 20:27:23.550  1463  2229 W SurfaceFlinger: Attempting to set client state on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 20:27:23.550  1463  2229 W SurfaceFlinger: Attempting to destroy on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 20:27:23.557  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:27:23.557  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+--------- beginning of system
+11-02 20:27:23.557  2281  2281 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-02 20:27:23.566  1463  2230 W SurfaceFlinger: Attempting to set client state on removed layer: Dim Layer for - Task=38#0
+11-02 20:27:23.566  1463  2230 W SurfaceFlinger: Attempting to destroy on removed layer: Dim Layer for - Task=38#0
+11-02 20:27:23.571 15886 15977 D PlayTorrent: yerel sunucu bağlantısı bitti: IOException torrent closed
+11-02 20:27:24.237 15886 15979 D PlayTorrent: alert TORRENT_RESUMED: cf5290 resumed
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:24.238 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Operation Canceled "" (2)
+11-02 20:27:24.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:27:24.283 15886 15979 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] received peers: 0
+11-02 20:27:24.303 15886 15979 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] received peers: 118
+11-02 20:27:24.316 15886 15979 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 118
+11-02 20:27:24.316 15886 15979 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] received peers: 19
+11-02 20:27:24.316 15886 15979 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] received peers: 3
+11-02 20:27:24.321 15886 15979 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] received peers: 85
+11-02 20:27:24.332 15886 15979 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] received peers: 1
+11-02 20:27:24.430 15886 15979 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] received peers: 1
+11-02 20:27:24.563 15886 15979 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] received peers: 24
+11-02 20:27:24.603 15886 15979 D PlayTorrent: alert TRACKER_REPLY: cf5290 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] received peers: 9
+11-02 20:27:25.017  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-02 20:27:26.055  4119  4128 W System  : A resource failed to call close. 
+11-02 20:27:26.094 15886 15979 D PlayTorrent: alert METADATA_RECEIVED: cf5290 metadata successfully received
+11-02 20:27:26.094 15886 15979 D PlayTorrent: alert STATE_CHANGED: cf5290: state changed to: checking (r)
+11-02 20:27:26.094 15886 15979 D PlayTorrent: alert STATE_CHANGED: cf5290: state changed to: downloading
+11-02 20:27:26.094 15886 15979 D PlayTorrent: alert TORRENT_CHECKED: cf5290 checked
+11-02 20:27:26.434  1598  1598 W SchedPolicy: add_tid_to_cgroup failed to write '2586' (No space left on device); fd=24
+11-02 20:27:26.441  1519  1519 W wificond: Scan already started
+11-02 20:27:26.443  1598  4385 W SchedPolicy: add_tid_to_cgroup failed to write '2586' (No space left on device); fd=25
+11-02 20:27:26.443  2586  2586 I Finsky  : [2] SCH: job service start with id 9459.
+11-02 20:27:26.447  2586 15836 I Finsky  : [450] SCH: Satisfied jobs for 9459 are: 12-1
+11-02 20:27:26.449  2586 16075 I Finsky  : [455] SCH: Job 12-1 starting
+11-02 20:27:26.449  2586  2586 I Finsky  : [2] WM::SCH: Logging work start for 12-1
+11-02 20:27:26.449  2586  2586 I Finsky  : [2] [ContentSync] job started
+11-02 20:27:26.526 15886 15979 D PlayTorrent: alert FILE_PRIO: cf5290 file priorities updated
+11-02 20:27:26.526 15886 16071 D PlayTorrent: torrent açıldı: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 dosya[0]=Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv boyut=19775934621 parça=8388608 (dosya sayısı 3, ipucu=0)
+11-02 20:27:26.527 15886 16071 D PlayTorrent: yerel sunucu yanıtı: 200 Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv 0-19775934620/19775934621
+11-02 20:27:26.577  1440  1489 D audio_hw_hal: log_func, out_standby
+11-02 20:27:26.577  1440  1489 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-02 20:27:26.577  1440  1489 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-02 20:27:26.682  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.auth.aang.events.services.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:27:26.701  1598  1606 W System  : A resource failed to call close. 
+11-02 20:27:26.702  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 66 lines
+11-02 20:27:26.702  1598  1606 W System  : A resource failed to call close. 
+11-02 20:27:26.767  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:27:26.944  2586  2586 I Finsky  : [2] App states replicator found 9 unowned apps
+11-02 20:27:26.948  2586  2637 I Finsky  : [103] Completed 0 account content syncs with 0 successful.
+11-02 20:27:26.949  2586  2586 I Finsky  : [2] [ContentSync] Installation state replication succeeded.
+11-02 20:27:26.949  2586  2586 I Finsky  : [2] SCH: jobFinished: 12-1. TimeElapsed: 500ms.
+11-02 20:27:26.949  2586  2586 I Finsky  : [2] WM::SCH: Logging work end for 12-1
+11-02 20:27:26.956  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:27:26.956  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:27:26.956  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:27:26.959  2586  2666 I Finsky  : [112] SCH: Scheduling 1 system job(s)
+11-02 20:27:26.959  2586  2666 I Finsky  : [112] SCH: Scheduling system job Id: 9464, L: 18599527, D: 61799527, C: false, I: false, N: 1
+11-02 20:27:26.963  2586 16075 I Finsky  : [455] SCH: job service finished with id 9459.
+11-02 20:27:27.442  1598  4385 D WificondControl: Scan result ready event
+11-02 20:27:28.018  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:27:28.018  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:27:28.534 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=2sn eş=15 tohum=13 hız=150KB/s inen=0KB durum=DOWNLOADING
+11-02 20:27:30.542 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=4sn eş=16 tohum=14 hız=673KB/s inen=0KB durum=DOWNLOADING
+11-02 20:27:32.552 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=6sn eş=17 tohum=14 hız=970KB/s inen=0KB durum=DOWNLOADING
+11-02 20:27:34.240 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:27:34.241 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:27:34.241 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:27:34.242 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:27:34.242 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:27:34.242 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:27:34.341 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:27:34.558 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=8sn eş=20 tohum=17 hız=1310KB/s inen=0KB durum=DOWNLOADING
+11-02 20:27:36.564 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=10sn eş=22 tohum=17 hız=1482KB/s inen=0KB durum=DOWNLOADING
+11-02 20:27:38.569 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=12sn eş=22 tohum=18 hız=2122KB/s inen=0KB durum=DOWNLOADING
+11-02 20:27:39.157  1598  1606 W System  : A resource failed to call close. 
+11-02 20:27:39.158  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 98 lines
+11-02 20:27:39.158  1598  1606 W System  : A resource failed to call close. 
+11-02 20:27:40.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:40.565 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:27:40.579 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=14sn eş=23 tohum=18 hız=2012KB/s inen=0KB durum=DOWNLOADING
+11-02 20:27:41.181  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:27:41.182  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:27:42.601 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=16sn eş=23 tohum=18 hız=2119KB/s inen=0KB durum=DOWNLOADING
+11-02 20:27:44.607 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=18sn eş=21 tohum=17 hız=2759KB/s inen=0KB durum=DOWNLOADING
+11-02 20:27:46.614 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=20sn eş=21 tohum=17 hız=2623KB/s inen=0KB durum=DOWNLOADING
+11-02 20:27:48.619 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=22sn eş=21 tohum=17 hız=2805KB/s inen=0KB durum=DOWNLOADING
+11-02 20:27:50.627 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=24sn eş=21 tohum=17 hız=2842KB/s inen=0KB durum=DOWNLOADING
+11-02 20:27:52.634 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=26sn eş=21 tohum=17 hız=2718KB/s inen=16384KB durum=DOWNLOADING
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:27:53.565 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:27:53.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:27:54.651 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=28sn eş=21 tohum=17 hız=2929KB/s inen=24576KB durum=DOWNLOADING
+11-02 20:27:56.657 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=30sn eş=19 tohum=15 hız=3275KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:27:58.673 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=32sn eş=19 tohum=15 hız=3364KB/s inen=40960KB durum=DOWNLOADING
+11-02 20:28:00.012  1598  2704 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=24
+11-02 20:28:00.017  1598  2704 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=25
+11-02 20:28:00.034  1746  1746 I RenderThread: type=1400 audit(0.0:8982): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:28:00.684 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=34sn eş=19 tohum=15 hız=3950KB/s inen=65536KB durum=DOWNLOADING
+11-02 20:28:02.691 15886 16071 D PlayTorrent: bekleniyor: parça=0 süre=36sn eş=19 tohum=15 hız=4337KB/s inen=73728KB durum=DOWNLOADING
+11-02 20:28:02.906  1518  1531 E storaged: getDiskStats failed with result NOT_SUPPORTED and size 0
+11-02 20:28:02.898  1518  1518 I storaged: type=1400 audit(0.0:8983): avc: denied { call } for scontext=u:r:storaged:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+11-02 20:28:03.511 15886 15886 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 20:28:03.512 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:03.512 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:03.512 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:03.512 15886 15886 D PlayStreamUrl: oynatılıyor magnet: mime=?
+11-02 20:28:03.512 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:03.512 15886 15886 D PlayTorrent: oynatıcıya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=6 başlıklar=[] mime=null
+11-02 20:28:03.512 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:03.512 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:03.512 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:03.512 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:03.512 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:03.513 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:03.525 15886 15979 D PlayTorrent: alert TORRENT_DELETED: cf5290 deleted
+11-02 20:28:03.525 15886 15979 D PlayTorrent: alert TORRENT_REMOVED: cf5290 removed
+11-02 20:28:03.530 15886 15977 D PlayTorrent: yerel sunucu isteği: GET range=null hedefOk=true
+11-02 20:28:03.530 15886 15977 D PlayTorrent: motor open: hash=76f7269d8ce731e44543eacdd5ab3a17c3655e33 fileHint=6
+11-02 20:28:03.532 15886 15979 D PlayTorrent: alert STATE_CHANGED: 76f726: state changed to: dl metadata
+11-02 20:28:03.533 15886 15979 D PlayTorrent: alert ADD_TORRENT: added torrent: 76f7269d8ce731e44543eacdd5ab3a17c3655e33
+11-02 20:28:03.594 15886 16071 D PlayTorrent: yerel sunucu bağlantısı bitti: IOException torrent closed
+11-02 20:28:04.276 15886 15979 D PlayTorrent: alert TORRENT_RESUMED: 76f726 resumed
+11-02 20:28:04.276 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.276 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.276 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.276 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.277 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.277 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.277 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.277 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.277 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.277 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.277 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.277 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.277 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.278 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.278 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.278 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.278 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.278 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.278 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.278 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.278 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.278 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.278 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.278 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.278 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.279 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.279 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.279 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.279 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.279 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.279 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.279 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.279 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.279 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.279 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.279 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.279 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.280 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.280 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:04.280 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:04.283 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.285 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:28:04.285 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:28:04.285 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.285 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Operation Canceled "" (2)
+11-02 20:28:04.285 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:04.333 15886 15979 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] received peers: 4
+11-02 20:28:04.340 15886 15979 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] received peers: 21
+11-02 20:28:04.342 15886 15979 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 21
+11-02 20:28:04.342 15886 15979 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] received peers: 5
+11-02 20:28:04.344 15886 15979 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] received peers: 3
+11-02 20:28:04.344 15886 15979 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] received peers: 7
+11-02 20:28:04.348 15886 15979 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] received peers: 10
+11-02 20:28:04.368 15886 15979 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] received peers: 5
+11-02 20:28:04.476 15886 15979 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] received peers: 3
+11-02 20:28:04.621 15886 15979 D PlayTorrent: alert TRACKER_REPLY: 76f726 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] received peers: 5
+11-02 20:28:04.623 15886 15979 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] received peers: 5
+11-02 20:28:05.649 15886 15979 D PlayTorrent: alert METADATA_RECEIVED: 76f726 metadata successfully received
+11-02 20:28:05.650 15886 15979 D PlayTorrent: alert STATE_CHANGED: 76f726: state changed to: checking (r)
+11-02 20:28:05.652 15886 15979 D PlayTorrent: alert STATE_CHANGED: 76f726: state changed to: downloading
+11-02 20:28:05.654 15886 15979 D PlayTorrent: alert TORRENT_CHECKED: 76f726 checked
+11-02 20:28:06.041 15886 15979 D PlayTorrent: alert FILE_PRIO: 76f726 file priorities updated
+11-02 20:28:06.041 15886 15977 D PlayTorrent: torrent açıldı: hash=76f7269d8ce731e44543eacdd5ab3a17c3655e33 dosya[6]=Every Global Conflict And War Summarized (2024) 1080p.mp4 boyut=673857317 parça=33554432 (dosya sayısı 197, ipucu=6)
+11-02 20:28:06.041 15886 15977 D PlayTorrent: yerel sunucu yanıtı: 200 Every Global Conflict And War Summarized (2024) 1080p.mp4 0-673857316/673857317
+11-02 20:28:07.392  2586  2660 I Finsky  : [107] AIM: AppInfoManager-Perf > Destroying AppInfoManager ...
+11-02 20:28:08.046 15886 15977 D PlayTorrent: bekleniyor: parça=485 süre=2sn eş=7 tohum=4 hız=297KB/s inen=0KB durum=DOWNLOADING
+11-02 20:28:10.052 15886 15977 D PlayTorrent: bekleniyor: parça=485 süre=4sn eş=7 tohum=4 hız=828KB/s inen=0KB durum=DOWNLOADING
+11-02 20:28:11.631  1451  1527 D EmuHWC2 : sent 588 syncs in 60s
+11-02 20:28:11.738  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS pkg=com.google.android.gms }
+11-02 20:28:12.063 15886 15977 D PlayTorrent: bekleniyor: parça=485 süre=6sn eş=7 tohum=4 hız=1041KB/s inen=0KB durum=DOWNLOADING
+11-02 20:28:14.071 15886 15977 D PlayTorrent: bekleniyor: parça=485 süre=8sn eş=7 tohum=4 hız=1239KB/s inen=0KB durum=DOWNLOADING
+11-02 20:28:14.283 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:28:14.283 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:28:14.283 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:28:14.283 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:28:14.284 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:28:14.384  1598  2704 E memtrack: Couldn't load memtrack module
+11-02 20:28:14.384  1598  2704 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:28:16.082 15886 15977 D PlayTorrent: bekleniyor: parça=485 süre=10sn eş=7 tohum=4 hız=1365KB/s inen=0KB durum=DOWNLOADING
+11-02 20:28:18.089 15886 15977 D PlayTorrent: bekleniyor: parça=485 süre=12sn eş=7 tohum=4 hız=1561KB/s inen=0KB durum=DOWNLOADING
+11-02 20:28:19.258  1598  1606 W System  : A resource failed to call close. 
+11-02 20:28:19.258  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 31 lines
+11-02 20:28:19.258  1598  1606 W System  : A resource failed to call close. 
+11-02 20:28:20.099 15886 15977 D PlayTorrent: bekleniyor: parça=485 süre=14sn eş=7 tohum=4 hız=1841KB/s inen=0KB durum=DOWNLOADING
+11-02 20:28:20.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:20.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:28:22.112 15886 15977 D PlayTorrent: bekleniyor: parça=485 süre=16sn eş=7 tohum=4 hız=1953KB/s inen=0KB durum=DOWNLOADING
+11-02 20:28:24.125 15886 15977 D PlayTorrent: bekleniyor: parça=485 süre=18sn eş=7 tohum=4 hız=2033KB/s inen=0KB durum=DOWNLOADING
+11-02 20:28:24.283 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:28:25.051 15886 16071 D PlayTorrent: yerel sunucu isteği: GET range=bytes=671912740- hedefOk=true
+11-02 20:28:25.051 15886 16071 D PlayTorrent: motor open: hash=76f7269d8ce731e44543eacdd5ab3a17c3655e33 fileHint=6
+11-02 20:28:25.051 15886 16071 D PlayTorrent: yerel sunucu yanıtı: 206 Every Global Conflict And War Summarized (2024) 1080p.mp4 671912740-673857316/673857317
+11-02 20:28:26.963 15886 15977 D PlayTorrent: bekleniyor: parça=486 süre=2sn eş=7 tohum=4 hız=1789KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:27.063 15886 16071 D PlayTorrent: bekleniyor: parça=505 süre=2sn eş=7 tohum=4 hız=1789KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:28.969 15886 15977 D PlayTorrent: bekleniyor: parça=486 süre=4sn eş=6 tohum=4 hız=1585KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:29.072 15886 16071 D PlayTorrent: bekleniyor: parça=505 süre=4sn eş=6 tohum=4 hız=1585KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:30.974 15886 15977 D PlayTorrent: bekleniyor: parça=486 süre=6sn eş=6 tohum=4 hız=1609KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:31.079 15886 16071 D PlayTorrent: bekleniyor: parça=505 süre=6sn eş=6 tohum=4 hız=1609KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:32.978 15886 15977 D PlayTorrent: bekleniyor: parça=486 süre=8sn eş=6 tohum=4 hız=1735KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:33.086 15886 16071 D PlayTorrent: bekleniyor: parça=505 süre=8sn eş=6 tohum=4 hız=1735KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.567 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:28:33.568 15886 15979 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:28:34.984 15886 15977 D PlayTorrent: bekleniyor: parça=486 süre=10sn eş=6 tohum=4 hız=1738KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:35.098 15886 16071 D PlayTorrent: bekleniyor: parça=505 süre=10sn eş=6 tohum=4 hız=1738KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:36.990 15886 15977 D PlayTorrent: bekleniyor: parça=486 süre=12sn eş=6 tohum=5 hız=1278KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:37.109 15886 16071 D PlayTorrent: bekleniyor: parça=505 süre=12sn eş=6 tohum=5 hız=1278KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:38.997 15886 15977 D PlayTorrent: bekleniyor: parça=486 süre=14sn eş=6 tohum=5 hız=1014KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:39.117 15886 16071 D PlayTorrent: bekleniyor: parça=505 süre=14sn eş=6 tohum=5 hız=1014KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:41.002 15886 15977 D PlayTorrent: bekleniyor: parça=486 süre=16sn eş=6 tohum=5 hız=819KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:41.125 15886 16071 D PlayTorrent: bekleniyor: parça=505 süre=16sn eş=6 tohum=5 hız=819KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:43.007 15886 15977 D PlayTorrent: bekleniyor: parça=486 süre=18sn eş=6 tohum=5 hız=676KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:43.134 15886 16071 D PlayTorrent: bekleniyor: parça=505 süre=18sn eş=6 tohum=5 hız=676KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:28:43.517 15886 15886 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 20:28:43.519 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:43.519 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:43.519 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:43.519 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:43.519 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:43.519 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:43.519 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:43.519 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:43.519 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:43.519 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:43.519 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:28:43.519 15886 15886 D PlayStreamUrl: oynatılıyor magnet: mime=?
+11-02 20:28:43.519 15886 15886 D PlayTorrent: oynatıcıya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=0 başlıklar=[] mime=null
+11-02 20:28:43.524 15886 15979 D PlayTorrent: alert TORRENT_DELETED: 76f726 deleted
+11-02 20:28:43.524 15886 15979 D PlayTorrent: alert TORRENT_REMOVED: 76f726 removed
+11-02 20:28:43.525 15886 16082 D PlayTorrent: yerel sunucu isteği: GET range=null hedefOk=true
+11-02 20:28:43.526 15886 16082 D PlayTorrent: motor open: hash=d11e3f7a2a87f7151913ad550c1886615ae7edaa fileHint=0
+11-02 20:28:43.527 15886 15979 D PlayTorrent: alert STATE_CHANGED: d11e3f: state changed to: dl metadata
+11-02 20:28:43.527 15886 15979 D PlayTorrent: alert ADD_TORRENT: added torrent: d11e3f7a2a87f7151913ad550c1886615ae7edaa
+11-02 20:28:43.536 15886 16071 D PlayTorrent: yerel sunucu bağlantısı bitti: IOException torrent closed
+11-02 20:28:43.611 15886 15977 D PlayTorrent: yerel sunucu bağlantısı bitti: IOException torrent closed
+11-02 20:28:44.319 15886 15979 D PlayTorrent: alert TORRENT_RESUMED: d11e3f resumed
+11-02 20:28:44.319 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.320 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.320 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.320 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.321 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.321 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.321 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.321 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.321 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.321 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.321 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.322 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.322 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.322 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.322 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.322 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.322 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.322 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.322 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.322 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.322 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.322 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.323 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:28:44.324 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:28:44.329 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:28:44.329 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:28:44.329 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:28:44.329 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:28:44.329 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.329 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.330 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:28:44.330 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.330 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.330 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.330 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.331 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.332 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:28:44.332 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.332 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:28:44.332 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:28:44.332 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.332 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.332 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.332 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:28:44.332 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:28:44.332 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.332 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Operation Canceled "" (2)
+11-02 20:28:44.332 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:28:44.374 15886 15979 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] received peers: 0
+11-02 20:28:44.385 15886 15979 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] received peers: 200
+11-02 20:28:44.391 15886 15979 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 200
+11-02 20:28:44.397 15886 15979 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] received peers: 44
+11-02 20:28:44.397 15886 15979 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] received peers: 12
+11-02 20:28:44.399 15886 15979 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] received peers: 200
+11-02 20:28:44.416 15886 15979 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] received peers: 200
+11-02 20:28:44.516 15886 15979 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] received peers: 12
+11-02 20:28:44.523 15886 15979 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] received peers: 3
+11-02 20:28:44.651 15886 15979 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] received peers: 24
+11-02 20:28:44.700 15886 15979 D PlayTorrent: alert TRACKER_REPLY: d11e3f (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] received peers: 20
+11-02 20:28:45.816 15886 15979 D PlayTorrent: alert METADATA_RECEIVED: d11e3f metadata successfully received
+11-02 20:28:45.817 15886 15979 D PlayTorrent: alert STATE_CHANGED: d11e3f: state changed to: checking (r)
+11-02 20:28:45.817 15886 15979 D PlayTorrent: alert STATE_CHANGED: d11e3f: state changed to: downloading
+11-02 20:28:45.817 15886 15979 D PlayTorrent: alert TORRENT_CHECKED: d11e3f checked
+11-02 20:28:46.037 15886 15979 D PlayTorrent: alert FILE_PRIO: d11e3f file priorities updated
+11-02 20:28:46.039 15886 16082 D PlayTorrent: torrent açıldı: hash=d11e3f7a2a87f7151913ad550c1886615ae7edaa dosya[0]=Civil.War.2024.1080p.AMZN.WEBRip.1400MB.DD5.1.x264-GalaxyRG.mkv boyut=1506466558 parça=1048576 (dosya sayısı 3, ipucu=0)
+11-02 20:28:46.039 15886 16082 D PlayTorrent: yerel sunucu yanıtı: 200 Civil.War.2024.1080p.AMZN.WEBRip.1400MB.DD5.1.x264-GalaxyRG.mkv 0-1506466557/1506466558
+11-02 20:28:47.640  2381  2381 D AppUsageManager: 目前在前台的应用是：com.kaan.play， 累积在前台运行：4800.0秒
+11-02 20:28:47.642  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:28:47.642  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:28:47.658  3577 13141 I AppStartReceiver: onReceive, action = com.ldmnq.APP_USAGE, extras = Bundle[{intervalTime=300000, totalTime=4800001, packageName=com.kaan.play}]
+11-02 20:28:48.054 15886 16082 D PlayTorrent: bekleniyor: parça=0 süre=2sn eş=11 tohum=11 hız=57KB/s inen=0KB durum=DOWNLOADING
+11-02 20:28:50.076 15886 16082 D PlayTorrent: bekleniyor: parça=0 süre=4sn eş=19 tohum=17 hız=621KB/s inen=1024KB durum=DOWNLOADING
+11-02 20:28:52.084 15886 16082 D PlayTorrent: bekleniyor: parça=0 süre=6sn eş=21 tohum=19 hız=1985KB/s inen=2048KB durum=DOWNLOADING
+11-02 20:28:54.089 15886 16082 D PlayTorrent: bekleniyor: parça=0 süre=8sn eş=23 tohum=20 hız=1720KB/s inen=3072KB durum=DOWNLOADING
+11-02 20:28:54.329 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:28:54.329 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:28:54.329 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:28:54.329 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:28:54.329 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:28:54.511 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:28:56.097 15886 16082 D PlayTorrent: bekleniyor: parça=0 süre=10sn eş=24 tohum=21 hız=1868KB/s inen=3072KB durum=DOWNLOADING
+11-02 20:28:58.102 15886 16082 D PlayTorrent: bekleniyor: parça=0 süre=12sn eş=25 tohum=22 hız=2301KB/s inen=10240KB durum=DOWNLOADING
+11-02 20:29:00.000  1598  2704 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=24
+11-02 20:29:00.001  1598  2704 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=25
+11-02 20:29:00.106 15886 16082 D PlayTorrent: bekleniyor: parça=0 süre=14sn eş=28 tohum=23 hız=2050KB/s inen=12288KB durum=DOWNLOADING
+11-02 20:29:00.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:00.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:29:00.618  1598  1606 W System  : A resource failed to call close. 
+11-02 20:29:00.618  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 25 lines
+11-02 20:29:00.618  1598  1606 W System  : A resource failed to call close. 
+11-02 20:29:02.134 15886 16082 D PlayTorrent: bekleniyor: parça=0 süre=16sn eş=25 tohum=22 hız=2219KB/s inen=19456KB durum=DOWNLOADING
+11-02 20:29:02.901  1518  1518 I storaged: type=1400 audit(0.0:8984): avc: denied { call } for scontext=u:r:storaged:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+11-02 20:29:02.907  1518  1531 E storaged: getDiskStats failed with result NOT_SUPPORTED and size 0
+11-02 20:29:03.859 15886 15977 D PlayTorrent: yerel sunucu isteği: GET range=bytes=1506353127- hedefOk=true
+11-02 20:29:03.859 15886 15977 D PlayTorrent: motor open: hash=d11e3f7a2a87f7151913ad550c1886615ae7edaa fileHint=0
+11-02 20:29:03.859 15886 15977 D PlayTorrent: yerel sunucu yanıtı: 206 Civil.War.2024.1080p.AMZN.WEBRip.1400MB.DD5.1.x264-GalaxyRG.mkv 1506353127-1506466557/1506466558
+11-02 20:29:05.570 15886 16082 D PlayTorrent: yerel sunucu bağlantısı bitti: SocketException Broken pipe
+11-02 20:29:05.868 15886 15977 D PlayTorrent: bekleniyor: parça=1436 süre=2sn eş=24 tohum=23 hız=2421KB/s inen=26624KB durum=DOWNLOADING
+11-02 20:29:07.872 15886 15977 D PlayTorrent: bekleniyor: parça=1436 süre=4sn eş=27 tohum=24 hız=2497KB/s inen=34816KB durum=DOWNLOADING
+11-02 20:29:08.343 15886 15979 D PlayTorrent: alert PERFORMANCE: d11e3f: performance warning: the disk queue limit is too high compared to the cache size. The disk queue eats into the cache size
+11-02 20:29:08.344 15886 15979 D PlayTorrent: alert FILE_COMPLETED: d11e3f: file 1 finished downloading
+11-02 20:29:08.344 15886 15979 D PlayTorrent: alert FILE_COMPLETED: d11e3f: file 2 finished downloading
+11-02 20:29:08.417 15886 15977 D PlayTorrent: yerel sunucu isteği: GET range=bytes=3439- hedefOk=true
+11-02 20:29:08.417 15886 15977 D PlayTorrent: motor open: hash=d11e3f7a2a87f7151913ad550c1886615ae7edaa fileHint=0
+11-02 20:29:08.417 15886 15977 D PlayTorrent: yerel sunucu yanıtı: 206 Civil.War.2024.1080p.AMZN.WEBRip.1400MB.DD5.1.x264-GalaxyRG.mkv 3439-1506466557/1506466558
+11-02 20:29:08.432 15886 15948 W com.kaan.play: Accessing hidden method Landroid/media/MediaFormat;->getInteger(Ljava/lang/String;I)I (dark greylist, linking)
+11-02 20:29:08.441 15886 16088 I OMXClient: IOmx service obtained
+11-02 20:29:08.442  1520  6644 I OMXMaster: makeComponentInstance(OMX.google.h264.decoder) in omx@1.0-service process
+11-02 20:29:08.453  1520  6644 D LDDec   : createSoftOMXComponent OMX.google.h264.decoder
+11-02 20:29:08.453  1520  6644 D LDDec   : LDDec init 0x0 1, 320
+11-02 20:29:08.456 15886 16087 D SurfaceUtils: connecting to surface 0x76388899f010, reason connectToSurface
+11-02 20:29:08.456 15886 16087 I MediaCodec: [OMX.google.h264.decoder] setting surface generation to 16267265
+11-02 20:29:08.456 15886 16087 D SurfaceUtils: disconnecting from surface 0x76388899f010, reason connectToSurface(reconnect)
+11-02 20:29:08.456 15886 16087 D SurfaceUtils: connecting to surface 0x76388899f010, reason connectToSurface(reconnect)
+11-02 20:29:08.458  1520  6644 W OMXNodeInstance: [0xf5229060:google.h264.decoder] component does not support metadata mode; using fallback
+11-02 20:29:08.458 15886 16088 E ACodec  : [OMX.google.h264.decoder] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+11-02 20:29:08.458  1520  6644 W OMXNodeInstance: [0xf5229060:google.h264.decoder] component does not support metadata mode; using fallback
+11-02 20:29:08.459  1520  6644 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 20:29:08.459  1520  6644 E OMXNodeInstance: setConfig(0xf5229060:google.h264.decoder, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 20:29:08.459 15886 16088 I ACodec  : codec does not support config priority (err -1010)
+11-02 20:29:08.459  1520  6644 E OMXNodeInstance: getConfig(0xf5229060:google.h264.decoder, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 20:29:08.459  1520  6644 E OMXNodeInstance: getConfig(0xf5229060:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 20:29:08.471  1437  1437 W AshmemAllocator: ashmem_create_region(2995200) returning hidl_memory(0x76391702c100, 2995200)
+11-02 20:29:08.480  1437  1437 W AshmemAllocator: ashmem_create_region(2995200) returning hidl_memory(0x76391702c100, 2995200)
+11-02 20:29:08.480 15886 15886 D PlaySubs: videonun içindeki altyazılar: [en, en, es]
+11-02 20:29:08.480  1437  1437 W AshmemAllocator: ashmem_create_region(2995200) returning hidl_memory(0x76391702c100, 2995200)
+11-02 20:29:08.485  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 28 lines
+11-02 20:29:08.485  1437  1437 W AshmemAllocator: ashmem_create_region(2995200) returning hidl_memory(0x76391702c100, 2995200)
+11-02 20:29:08.486  1520 16090 D LDDec   : initDecoder OMX.google.h264.decoder init
+11-02 20:29:08.490  1520 16090 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 20:29:08.500  1520  6644 E OMXNodeInstance: getConfig(0xf5229060:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 20:29:08.500  1520  6644 E OMXNodeInstance: getConfig(0xf5229060:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 20:29:08.481  1520  1520 I le.h264.decoder: type=1400 audit(0.0:8985): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:29:08.512 15886 16087 D MediaCodec: [OMX.google.h264.decoder] setting dataspace on output surface to #104
+11-02 20:29:08.519 15886 16087 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 20:29:08.521  1450  1450 I HwBinder:1450_2: type=1400 audit(0.0:8986): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:29:08.521 15886 15886 I MediaCodec_loop: type=1400 audit(0.0:8987): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:29:08.521 15886 15886 I MediaCodec_loop: type=1400 audit(0.0:8988): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6864 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:29:08.554 15886 16087 I         : fastpipe: Connect success
+11-02 20:29:08.554 15886 16087 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=15886, tid=16087, this=0x76387345ff00
+11-02 20:29:08.555 15886 16087 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+11-02 20:29:08.570 15886 16087 D SoftwareRenderer: setting dataspace on output surface to #104
+11-02 20:29:08.585 15886 16087 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 20:29:08.593 15886 15886 D PlayMatch: ilk kare: Torrentio (faz=Starting)
+11-02 20:29:08.596 15886 15886 D PlayMatch: süre kontrolü kaynak=Torrentio (?) süre=108.8 dk beklenen=109 dk tür=Movie -> Ok
+11-02 20:29:08.606 15886 16087 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 20:29:09.360  1520  6644 E OMXNodeInstance: setConfig(0xf5229060:google.h264.decoder, ConfigOperatingRate(0x6f800003)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 20:29:09.360 15886 16088 I ACodec  : codec does not support config operating rate (err -1010)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:29:13.565 15886 15979 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:29:13.566 15886 15979 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:29:13.621 16096 16096 I sh      : type=1400 audit(0.0:8989): avc: denied { getattr } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 20:29:13.621 16096 16096 I sh      : type=1400 audit(0.0:8990): avc: denied { execute } for name="logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 20:29:13.621 16096 16096 I sh      : type=1400 audit(0.0:8991): avc: denied { read open } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 20:29:13.621 16096 16096 I sh      : type=1400 audit(0.0:8992): avc: denied { execute_no_trans } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1

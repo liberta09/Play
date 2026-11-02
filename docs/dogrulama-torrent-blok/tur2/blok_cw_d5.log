@@ -1,0 +1,390 @@
+--------- beginning of main
+11-02 20:22:17.894 15028 15028 I sh      : type=1400 audit(0.0:8163): avc: denied { execute } for name="logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 20:22:17.894 15028 15028 I sh      : type=1400 audit(0.0:8164): avc: denied { read open } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 20:22:17.894 15028 15028 I sh      : type=1400 audit(0.0:8165): avc: denied { execute_no_trans } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 20:22:17.901 15028 15028 I logcat  : type=1400 audit(0.0:8166): avc: denied { connectto } for path="/dev/socket/logd" scontext=u:r:su:s0 tcontext=u:r:logd:s0 tclass=unix_stream_socket permissive=1
+11-02 20:22:17.963 15030 15030 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 1463 811 
+11-02 20:22:17.963 15030 15030 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 20:22:17.964 15030 15030 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 20:22:17.970 15030 15030 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 20:22:17.976 15030 15030 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 20:22:17.987 15030 15030 I app_process: The ClassLoaderContext is a special shared library.
+11-02 20:22:17.987 15030 15030 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 20:22:17.987 15030 15030 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 20:22:17.987 15030 15030 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 20:22:17.987 15030 15030 D nativebridge: call UnloadNativeBridge! state=2
+11-02 20:22:17.993 15030 15030 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 20:22:17.999 15030 15030 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7879429, downTime=7879429, deviceId=3, source=0x1002 }
+11-02 20:22:18.002 15030 15030 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=7879429, downTime=7879429, deviceId=3, source=0x1002 }
+11-02 20:22:18.004 14856 14856 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 20:22:18.005 14856 14856 D PlayStreamUrl: oynatılıyor magnet: mime=?
+11-02 20:22:18.005 14856 14856 D PlayTorrent: oynatıcıya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=0 başlıklar=[] mime=null
+11-02 20:22:18.008 15030 15030 D AndroidRuntime: Shutting down VM
+11-02 20:22:18.014 14856 15041 D PlayTorrent: yerel sunucu isteği: GET range=null hedefOk=true
+11-02 20:22:18.014 14856 15041 D PlayTorrent: motor open: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 fileHint=0
+11-02 20:22:18.015 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:22:18.015 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:22:18.015 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:22:18.015 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:22:18.015 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:22:18.015 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:22:18.015 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:22:18.015 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:22:18.015 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:22:18.015 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:22:18.015 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:22:18.018 14856 14951 D PlayTorrent: alert TORRENT_DELETED: ------ deleted
+11-02 20:22:18.018 14856 14951 D PlayTorrent: alert TORRENT_REMOVED: ------ removed
+11-02 20:22:18.018 14856 14951 D PlayTorrent: alert STATE_CHANGED: cf5290: state changed to: dl metadata
+11-02 20:22:18.018 14856 14951 D PlayTorrent: alert ADD_TORRENT: added torrent: cf5290d3f602bbeb0de9cb4419251c98c0e6db70
+11-02 20:22:18.021 14856 14948 D PlayTorrent: yerel sunucu bağlantısı bitti: IOException torrent closed
+--------- beginning of system
+11-02 20:22:18.037  2281  2281 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-02 20:22:18.042  1463  1480 W SurfaceFlinger: Attempting to set client state on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 20:22:18.042  1463  1480 W SurfaceFlinger: Attempting to destroy on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 20:22:18.054  1463  1479 W SurfaceFlinger: Attempting to set client state on removed layer: Dim Layer for - Task=35#0
+11-02 20:22:18.054  1463  1479 W SurfaceFlinger: Attempting to destroy on removed layer: Dim Layer for - Task=35#0
+11-02 20:22:18.071 15042 15042 I sh      : type=1400 audit(0.0:8167): avc: denied { write search } for name="tmp" dev="sdb2" ino=393218 scontext=u:r:su:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=1
+11-02 20:22:18.071 15042 15042 I sh      : type=1400 audit(0.0:8168): avc: denied { getattr } for path="/data/local/tmp" dev="sdb2" ino=393218 scontext=u:r:su:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=1
+11-02 20:22:18.637 14856 14951 D PlayTorrent: alert TORRENT_RESUMED: cf5290 resumed
+11-02 20:22:18.637 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.637 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.637 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.637 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.637 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.637 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.637 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.637 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.637 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.637 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:22:18.638 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.641 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:22:18.642 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.642 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:22:18.642 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:22:18.642 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.642 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.642 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.642 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:22:18.642 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:22:18.642 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.642 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Operation Canceled "" (2)
+11-02 20:22:18.642 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:22:18.684 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] received peers: 0
+11-02 20:22:18.702 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] received peers: 119
+11-02 20:22:18.702 14856 14951 D PlayTorrent: MILESTONE: first_peer_connected
+11-02 20:22:18.705 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 119
+11-02 20:22:18.705 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] received peers: 19
+11-02 20:22:18.705 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] received peers: 3
+11-02 20:22:18.723 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] received peers: 85
+11-02 20:22:18.726 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] received peers: 81
+11-02 20:22:18.728 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] received peers: 3
+11-02 20:22:18.831 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] received peers: 1
+11-02 20:22:18.915 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] received peers: 5
+11-02 20:22:18.964 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] received peers: 24
+11-02 20:22:18.987 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] received peers: 9
+11-02 20:22:20.690 14856 14951 D PlayTorrent: alert METADATA_RECEIVED: cf5290 metadata successfully received
+11-02 20:22:20.690 14856 14951 D PlayTorrent: alert STATE_CHANGED: cf5290: state changed to: checking (r)
+11-02 20:22:20.690 14856 14951 D PlayTorrent: alert STATE_CHANGED: cf5290: state changed to: downloading
+11-02 20:22:20.690 14856 14951 D PlayTorrent: alert TORRENT_CHECKED: cf5290 checked
+11-02 20:22:21.029 14856 14951 D PlayTorrent: alert FILE_PRIO: cf5290 file priorities updated
+11-02 20:22:21.031 14856 15041 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608
+11-02 20:22:21.031 14856 15041 D PlayTorrent: torrent açıldı: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 dosya[0]=Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv boyut=19775934621 parça=8388608 (dosya sayısı 3, ipucu=0, blokModu=true)
+11-02 20:22:21.032 14856 14945 W com.kaan.play: Long monitor contention with owner torrent-http (15041) at com.kaan.play.data.torrent.TorrentEngine$Opened com.kaan.play.data.torrent.TorrentEngine.open(java.lang.String, java.lang.Integer)(TorrentEngine.kt:97) waiters=0 in void com.kaan.play.data.torrent.TorrentEngine.closeActive$lambda$0(com.kaan.play.data.torrent.TorrentEngine, com.kaan.play.data.torrent.TorrentEngine$Opened) for 1.381s
+11-02 20:22:21.033 14856 15041 D PlayTorrent: yerel sunucu yanıtı: 200 Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv 0-19775934620/19775934621
+11-02 20:22:21.036 14856 15041 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620
+11-02 20:22:21.104  1440  1489 D audio_hw_hal: log_func, out_standby
+11-02 20:22:21.104  1440  1489 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-02 20:22:21.104  1440  1489 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-02 20:22:21.330 14856 14951 D PlayTorrent: MILESTONE: piece0_first_block
+11-02 20:22:21.354  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:22:21.354  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:22:21.355  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-02 20:22:21.362 14856 15041 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=16384 total=16384
+11-02 20:22:21.763 14856 14948 D PlayTorrent: yerel sunucu isteği: GET range=bytes=19775794270- hedefOk=true
+11-02 20:22:21.764 14856 14948 D PlayTorrent: motor open: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 fileHint=0
+11-02 20:22:21.764 14856 14948 D PlayTorrent: yerel sunucu yanıtı: 206 Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv 19775794270-19775934620/19775934621
+11-02 20:22:21.768 14856 14948 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620
+11-02 20:22:22.033 14856 14945 D PlayTorrent: MILESTONE: stats at 1s peers=14 seeds=12 dlRate=25KB/s inen=0KB
+11-02 20:22:22.381  4119  4128 W System  : A resource failed to call close. 
+11-02 20:22:22.636  1598  1598 W SchedPolicy: add_tid_to_cgroup failed to write '2586' (No space left on device); fd=24
+11-02 20:22:22.648  1598  1895 W SchedPolicy: add_tid_to_cgroup failed to write '2586' (No space left on device); fd=25
+11-02 20:22:22.648  2586  2586 I Finsky  : [2] SCH: job service start with id 9283.
+11-02 20:22:22.658  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.658  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.658  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.658  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.660  2586  2674 I Finsky  : [115] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.660  2586  2674 I Finsky  : [115] SCH: Scheduling system job Id: 9288, L: 0, D: 62103826, C: false, I: false, N: 1
+11-02 20:22:22.662  2586  2586 I Finsky  : [2] SCH: job service start with id 9288.
+11-02 20:22:22.662  2586 15045 I Finsky  : [413] SCH: job service finished with id 9283.
+11-02 20:22:22.664  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.664  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.664  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.664  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.665  2586  2674 I Finsky  : [115] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.665  2586  2674 I Finsky  : [115] SCH: Scheduling system job Id: 9292, L: 0, D: 62103821, C: false, I: false, N: 1
+11-02 20:22:22.665  2586  2586 I Finsky  : [2] SCH: job service start with id 9292.
+11-02 20:22:22.666  2586 15045 I Finsky  : [413] SCH: job service finished with id 9288.
+11-02 20:22:22.668  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.668  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.668  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.668  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.668  2586  2674 I Finsky  : [115] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.669  2586  2674 I Finsky  : [115] SCH: Scheduling system job Id: 9296, L: 0, D: 62103817, C: false, I: false, N: 1
+11-02 20:22:22.669  2586  2586 I Finsky  : [2] SCH: job service start with id 9296.
+11-02 20:22:22.670  2586 15045 I Finsky  : [413] SCH: job service finished with id 9292.
+11-02 20:22:22.672  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.672  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.672  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.672  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.673  2586  2674 I Finsky  : [115] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.673  2586  2674 I Finsky  : [115] SCH: Scheduling system job Id: 9300, L: 0, D: 62103813, C: false, I: false, N: 1
+11-02 20:22:22.673  2586  2586 I Finsky  : [2] SCH: job service start with id 9300.
+11-02 20:22:22.674  2586 15045 I Finsky  : [413] SCH: job service finished with id 9296.
+11-02 20:22:22.675  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.675  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.675  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.675  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.676  2586  2674 I Finsky  : [115] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.676  2586  2674 I Finsky  : [115] SCH: Scheduling system job Id: 9304, L: 0, D: 62103810, C: false, I: false, N: 1
+11-02 20:22:22.676  2586  2586 I Finsky  : [2] SCH: job service start with id 9304.
+11-02 20:22:22.677  2586 15045 I Finsky  : [413] SCH: job service finished with id 9300.
+11-02 20:22:22.679  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.679  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.679  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.679  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.680  2586  2674 I Finsky  : [115] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.680  2586  2674 I Finsky  : [115] SCH: Scheduling system job Id: 9308, L: 0, D: 62103806, C: false, I: false, N: 1
+11-02 20:22:22.680  2586  2586 I Finsky  : [2] SCH: job service start with id 9308.
+11-02 20:22:22.681  2586 15045 I Finsky  : [413] SCH: job service finished with id 9304.
+11-02 20:22:22.682  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.682  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.682  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.682  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.683  2586  2674 I Finsky  : [115] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.683  2586  2674 I Finsky  : [115] SCH: Scheduling system job Id: 9312, L: 0, D: 62103803, C: false, I: false, N: 1
+11-02 20:22:22.684  2586  2586 I Finsky  : [2] SCH: job service start with id 9312.
+11-02 20:22:22.684  2586 15045 I Finsky  : [413] SCH: job service finished with id 9308.
+11-02 20:22:22.685  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.685  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.685  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.686  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.686  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.686  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9316, L: 0, D: 62103800, C: false, I: false, N: 1
+11-02 20:22:22.687  2586  2586 I Finsky  : [2] SCH: job service start with id 9316.
+11-02 20:22:22.688  2586 15045 I Finsky  : [413] SCH: job service finished with id 9312.
+11-02 20:22:22.689  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.689  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.689  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.689  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.698  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.698  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9320, L: 0, D: 62103788, C: false, I: false, N: 1
+11-02 20:22:22.698  2586  2586 I Finsky  : [2] SCH: job service start with id 9320.
+11-02 20:22:22.699  2586 15045 I Finsky  : [413] SCH: job service finished with id 9316.
+11-02 20:22:22.701  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.701  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.701  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.701  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.702  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.702  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9324, L: 0, D: 62103784, C: false, I: false, N: 1
+11-02 20:22:22.703  2586  2586 I Finsky  : [2] SCH: job service start with id 9324.
+11-02 20:22:22.704  2586 15045 I Finsky  : [413] SCH: job service finished with id 9320.
+11-02 20:22:22.706  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.706  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.706  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.706  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.707  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.707  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9328, L: 0, D: 62103779, C: false, I: false, N: 1
+11-02 20:22:22.707  2586  2586 I Finsky  : [2] SCH: job service start with id 9328.
+11-02 20:22:22.708  2586 15045 I Finsky  : [413] SCH: job service finished with id 9324.
+11-02 20:22:22.710  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.710  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.710  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.710  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.710  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.710  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9332, L: 0, D: 62103776, C: false, I: false, N: 1
+11-02 20:22:22.711  2586  2586 I Finsky  : [2] SCH: job service start with id 9332.
+11-02 20:22:22.712  2586 15045 I Finsky  : [413] SCH: job service finished with id 9328.
+11-02 20:22:22.715  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.715  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.715  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.715  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.716  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.716  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9336, L: 0, D: 62103770, C: false, I: false, N: 1
+11-02 20:22:22.717  2586  2586 I Finsky  : [2] SCH: job service start with id 9336.
+11-02 20:22:22.718  2586 15045 I Finsky  : [413] SCH: job service finished with id 9332.
+11-02 20:22:22.720  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.720  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.720  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.720  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.721  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.721  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9340, L: 0, D: 62103765, C: false, I: false, N: 1
+11-02 20:22:22.721  2586  2586 I Finsky  : [2] SCH: job service start with id 9340.
+11-02 20:22:22.722  2586 15045 I Finsky  : [413] SCH: job service finished with id 9336.
+11-02 20:22:22.725  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.725  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.725  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.725  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.726  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.726  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9344, L: 0, D: 62103760, C: false, I: false, N: 1
+11-02 20:22:22.727  2586  2586 I Finsky  : [2] SCH: job service start with id 9344.
+11-02 20:22:22.729  2586 15045 I Finsky  : [413] SCH: job service finished with id 9340.
+11-02 20:22:22.731  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.731  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.731  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.731  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.731  2586  2660 I Finsky  : [107] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.731  2586  2660 I Finsky  : [107] SCH: Scheduling system job Id: 9348, L: 0, D: 62103755, C: false, I: false, N: 1
+11-02 20:22:22.732  2586  2586 I Finsky  : [2] SCH: job service start with id 9348.
+11-02 20:22:22.732  2586 15045 I Finsky  : [413] SCH: job service finished with id 9344.
+11-02 20:22:22.734  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.734  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.734  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.734  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.735  2586  2660 I Finsky  : [107] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.735  2586  2660 I Finsky  : [107] SCH: Scheduling system job Id: 9352, L: 0, D: 62103751, C: false, I: false, N: 1
+11-02 20:22:22.735  2586  2586 I Finsky  : [2] SCH: job service start with id 9352.
+11-02 20:22:22.736  2586 15045 I Finsky  : [413] SCH: job service finished with id 9348.
+11-02 20:22:22.737  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.737  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640127740, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.737  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.737  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:22.738  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:22:22.738  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9356, L: 0, D: 62103748, C: false, I: false, N: 1
+11-02 20:22:22.739  2586  2586 I Finsky  : [2] SCH: job service start with id 9356.
+11-02 20:22:22.739  2586 15045 I Finsky  : [413] SCH: job service finished with id 9352.
+11-02 20:22:22.740  2586 14800 I Finsky  : [408] SCH: Satisfied jobs for 9356 are: 12-1
+11-02 20:22:22.741  2586 15045 I Finsky  : [413] SCH: Job 12-1 starting
+11-02 20:22:22.741  2586  2586 I Finsky  : [2] WM::SCH: Logging work start for 12-1
+11-02 20:22:22.742  2586  2586 I Finsky  : [2] [ContentSync] job started
+11-02 20:22:22.811  1598  1606 W System  : A resource failed to call close. 
+11-02 20:22:22.811  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 25 lines
+11-02 20:22:22.811  1598  1606 W System  : A resource failed to call close. 
+11-02 20:22:22.874  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.auth.aang.events.services.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:22:23.027  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:22:23.151  1598  1606 W System  : A resource failed to call close. 
+11-02 20:22:23.152  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 98 lines
+11-02 20:22:23.152  1598  1606 W System  : A resource failed to call close. 
+11-02 20:22:23.238  2586  2586 I Finsky  : [2] App states replicator found 9 unowned apps
+11-02 20:22:23.241  2586  2637 I Finsky  : [103] Completed 0 account content syncs with 0 successful.
+11-02 20:22:23.242  2586  2586 I Finsky  : [2] [ContentSync] Installation state replication succeeded.
+11-02 20:22:23.242  2586  2586 I Finsky  : [2] SCH: jobFinished: 12-1. TimeElapsed: 500ms.
+11-02 20:22:23.242  2586  2586 I Finsky  : [2] WM::SCH: Logging work end for 12-1
+11-02 20:22:23.246  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:23.246  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:23.246  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:22:23.247  2586  2674 I Finsky  : [115] SCH: Scheduling 1 system job(s)
+11-02 20:22:23.247  2586  2674 I Finsky  : [115] SCH: Scheduling system job Id: 9360, L: 18903239, D: 62103239, C: false, I: false, N: 1
+11-02 20:22:23.248  2586 15045 I Finsky  : [413] SCH: job service finished with id 9356.
+11-02 20:22:23.543 14856 15041 D PlayTorrent: yerel sunucu bağlantısı bitti: SocketException Broken pipe
+11-02 20:22:23.809 14856 14948 D PlayTorrent: bekleniyor: parça=2357 süre=2sn eş=17 tohum=15 hız=508KB/s inen=0KB durum=DOWNLOADING
+11-02 20:22:24.033 14856 14945 D PlayTorrent: MILESTONE: stats at 3s peers=17 seeds=15 dlRate=508KB/s inen=0KB
+11-02 20:22:24.418  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:22:24.418  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:22:25.842 14856 14948 D PlayTorrent: bekleniyor: parça=2357 süre=4sn eş=19 tohum=17 hız=746KB/s inen=0KB durum=DOWNLOADING
+11-02 20:22:26.032 14856 14945 D PlayTorrent: MILESTONE: stats at 5s peers=19 seeds=17 dlRate=746KB/s inen=0KB
+11-02 20:22:27.883 14856 14948 D PlayTorrent: bekleniyor: parça=2357 süre=6sn eş=21 tohum=19 hız=1054KB/s inen=0KB durum=DOWNLOADING
+11-02 20:22:28.639 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:22:28.640 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:22:28.640 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:22:28.640 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:22:28.721 14856 14951 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] received peers: 1
+11-02 20:22:29.936 14856 14948 D PlayTorrent: bekleniyor: parça=2357 süre=8sn eş=24 tohum=19 hız=1661KB/s inen=0KB durum=DOWNLOADING
+11-02 20:22:31.033 14856 14945 D PlayTorrent: MILESTONE: stats at 10s peers=25 seeds=20 dlRate=1656KB/s inen=0KB
+11-02 20:22:31.962 14856 14948 D PlayTorrent: bekleniyor: parça=2357 süre=10sn eş=25 tohum=21 hız=1668KB/s inen=0KB durum=DOWNLOADING
+11-02 20:22:33.930 14856 14948 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=37794 total=185250
+11-02 20:22:34.955 14856 14919 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:22:34.955 14856 14919 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:22:34.955 14856 14919 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:22:34.955 14856 14919 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:22:34.959 14856 14948 D PlayTorrent: yerel sunucu isteği: GET range=bytes=6488- hedefOk=true
+11-02 20:22:34.959 14856 14948 D PlayTorrent: motor open: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 fileHint=0
+11-02 20:22:34.959 14856 14948 D PlayTorrent: yerel sunucu yanıtı: 206 Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv 6488-19775934620/19775934621
+11-02 20:22:34.959 14856 14948 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620
+11-02 20:22:34.960 14856 14948 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=353343
+11-02 20:22:34.963 14856 14919 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:22:34.963 14856 14919 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:22:34.964 14856 14919 W com.kaan.play: Accessing hidden method Landroid/media/MediaFormat;->getInteger(Ljava/lang/String;I)I (dark greylist, linking)
+11-02 20:22:34.967 14856 15052 I OMXClient: IOmx service obtained
+11-02 20:22:34.968  1520  1586 I OMXMaster: makeComponentInstance(OMX.qcom.video.decoder.hevc) in omx@1.0-service process
+11-02 20:22:34.985  1520  1586 D LDDec   : createSoftOMXComponent OMX.qcom.video.decoder.hevc
+11-02 20:22:34.986  1520  1586 D LDDec   : LDDec init 0x0 1, 320
+11-02 20:22:34.987 14856 15051 D SurfaceUtils: connecting to surface 0x763874c40010, reason connectToSurface
+11-02 20:22:34.987 14856 15051 I MediaCodec: [OMX.qcom.video.decoder.hevc] setting surface generation to 15212545
+11-02 20:22:34.987 14856 15051 D SurfaceUtils: disconnecting from surface 0x763874c40010, reason connectToSurface(reconnect)
+11-02 20:22:34.987 14856 15051 D SurfaceUtils: connecting to surface 0x763874c40010, reason connectToSurface(reconnect)
+11-02 20:22:34.987  1520  1586 W OMXNodeInstance: [0xf562c900:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 20:22:34.987 14856 15052 E ACodec  : [OMX.qcom.video.decoder.hevc] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+11-02 20:22:34.987  1520  1586 W OMXNodeInstance: [0xf562c900:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 20:22:34.988  1520  1586 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 20:22:34.988  1520  1586 E OMXNodeInstance: setConfig(0xf562c900:qcom.decoder.hevc, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 20:22:34.988 14856 15052 I ACodec  : codec does not support config priority (err -1010)
+11-02 20:22:34.988  1520  1586 E OMXNodeInstance: getConfig(0xf562c900:qcom.decoder.hevc, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 20:22:34.988  1520  1586 E OMXNodeInstance: getConfig(0xf562c900:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 20:22:34.993 14856 14856 D PlaySubs: videonun içindeki altyazılar: [en, en, es]
+11-02 20:22:34.999  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 20:22:35.015  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 30 lines
+11-02 20:22:35.016  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 20:22:35.017 14856 14919 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:22:35.018 14856 14919 W MediaCodecRenderer: Format exceeds selected codec's capabilities [id=1, mimeType=video/dolby-vision, container=video/x-matroska, codecs=dvhe.08.06, res=3836x2072, color=BT2020/Limited range/ST2084 PQ/10/10, language=en, selectionFlags=[default], OMX.qcom.video.decoder.hevc]
+11-02 20:22:35.018  1520 15054 D LDDec   : initDecoder OMX.qcom.video.decoder.hevc init
+11-02 20:22:35.014  1520  1520 I eo.decoder.hevc: type=1400 audit(0.0:8170): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:22:35.034  1520 15054 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 20:22:35.083  1520  6644 E OMXNodeInstance: getConfig(0xf562c900:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 20:22:35.114  1520  6644 E OMXNodeInstance: getConfig(0xf562c900:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 20:22:35.114 14856 15051 D MediaCodec: [OMX.qcom.video.decoder.hevc] setting dataspace on output surface to #104
+11-02 20:22:35.121 14856 15051 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 20:22:35.129 14856 15051 I         : fastpipe: Connect success
+11-02 20:22:35.129 14856 15051 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=14856, tid=15051, this=0x763865039600
+11-02 20:22:35.130 14856 15051 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+11-02 20:22:35.134 14856 15051 D SoftwareRenderer: setting dataspace on output surface to #104
+11-02 20:22:35.159 14856 14856 D PlayMatch: ilk kare: Torrentio (faz=Starting)
+11-02 20:22:35.565 14856 14951 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:22:35.565 14856 14951 D PlayTorrent: alert TRACKER_ERROR: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:22:36.999 14856 14948 D PlayTorrent: bekleniyor: parça=0 süre=2sn eş=24 tohum=20 hız=2316KB/s inen=0KB durum=DOWNLOADING
+11-02 20:22:37.545  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:22:37.545  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:22:39.028 14856 14948 D PlayTorrent: bekleniyor: parça=0 süre=4sn eş=24 tohum=20 hız=2832KB/s inen=0KB durum=DOWNLOADING
+11-02 20:22:39.900  1598  1606 W System  : A resource failed to call close. 
