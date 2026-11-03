@@ -1,5 +1,6 @@
 package com.kaan.play.data.sync.local
 
+import com.kaan.play.data.sync.DeletedHistoryItem
 import com.kaan.play.data.sync.FavoriteBackup
 import com.kaan.play.data.sync.HistoryBackup
 import com.kaan.play.data.sync.LocalProfileBackup
@@ -22,6 +23,8 @@ data class LocalSyncPlan(
     val remappedProfileIds: Map<String, String> = emptyMap(),
     /** Birleştirmeden sonra uygulanacak aktif profil kimliği (atılan kimlikteyse korunana geçer). */
     val activeProfileId: String? = null,
+    /** İki tarafın birleşik ve budanmış mezar taşları. */
+    val deletedHistory: List<DeletedHistoryItem> = emptyList(),
 ) {
     val historyCount: Int get() = libraries.values.sumOf { it.history.size }
 }
@@ -51,6 +54,8 @@ object LocalSyncMerge {
 
     const val DEFAULT_NAME = "Varsayılan"
     const val DEFAULT_ID = "default"
+    const val MAX_DELETED_HISTORY_PER_PROFILE = 500
+    const val DELETED_HISTORY_RETENTION_MS = 90L * 24 * 60 * 60 * 1000L // 90 gün
 
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
@@ -133,11 +138,13 @@ object LocalSyncMerge {
         libraries: Map<String, LocalProfileBackup>,
         sources: List<SourceTransferItem>,
         deviceName: String,
+        deletedHistory: List<DeletedHistoryItem> = emptyList(),
     ): LocalProfileTransfer = LocalProfileTransfer(
         profiles = profiles.map(::forTransfer),
         backups = libraries.mapValues { encodeBackup(it.value) },
         sources = sources,
         deviceName = deviceName,
+        deletedHistory = deletedHistory,
     )
 
     /**
@@ -165,6 +172,7 @@ object LocalSyncMerge {
         remote: LocalProfileTransfer,
         remoteIsAuthority: Boolean,
         localActiveProfileId: String? = null,
+        nowMs: Long = System.currentTimeMillis(),
     ): LocalSyncPlan {
         val profiles = mergeProfiles(local.profiles, remote.profiles, remoteIsAuthority)
 
@@ -174,23 +182,26 @@ object LocalSyncMerge {
         val keptDefaultId = if (candidateDefaultIds.size > 1) chooseKeptDefaultId(candidateDefaultIds) else null
         val discardedDefaultIds = if (keptDefaultId != null) candidateDefaultIds.filter { it != keptDefaultId }.toSet() else emptySet()
 
+        val remappedIds = if (keptDefaultId != null) {
+            discardedDefaultIds.associateWith { keptDefaultId }
+        } else {
+            emptyMap()
+        }
+
+        val mergedTombstones = mergeDeletedHistory(local.deletedHistory, remote.deletedHistory, remappedIds, nowMs)
+
         val libraries = profiles.associate { p ->
-            val base = mergeLibrary(decode(local.backups[p.id]), decode(remote.backups[p.id]))
+            val profileTombstones = mergedTombstones.filter { it.profileId == p.id }
+            val base = mergeLibrary(decode(local.backups[p.id]), decode(remote.backups[p.id]), profileTombstones)
             val finalLib = if (p.id == keptDefaultId) {
                 discardedDefaultIds.fold(base) { acc, dId ->
-                    val withLocal = mergeLibrary(acc, decode(local.backups[dId]))
-                    mergeLibrary(withLocal, decode(remote.backups[dId]))
+                    val withLocal = mergeLibrary(acc, decode(local.backups[dId]), profileTombstones)
+                    mergeLibrary(withLocal, decode(remote.backups[dId]), profileTombstones)
                 }
             } else {
                 base
             }
             p.id to finalLib
-        }
-
-        val remappedIds = if (keptDefaultId != null) {
-            discardedDefaultIds.associateWith { keptDefaultId }
-        } else {
-            emptyMap()
         }
 
         val activeId = resolveActiveProfileId(localActiveProfileId, profiles, remappedIds)
@@ -205,6 +216,7 @@ object LocalSyncMerge {
             sourceStates = states,
             remappedProfileIds = remappedIds,
             activeProfileId = activeId,
+            deletedHistory = mergedTombstones,
         )
     }
 
@@ -234,7 +246,11 @@ object LocalSyncMerge {
         return allMerged.filter { it.id !in discardedIds }
     }
 
-    fun mergeLibrary(local: LocalProfileBackup?, remote: LocalProfileBackup?): LocalProfileBackup {
+    fun mergeLibrary(
+        local: LocalProfileBackup?,
+        remote: LocalProfileBackup?,
+        tombstones: List<DeletedHistoryItem> = emptyList(),
+    ): LocalProfileBackup {
         val base = local ?: remote ?: return LocalProfileBackup()
         val history = LinkedHashMap<String, HistoryBackup>()
         for (h in (local?.history.orEmpty() + remote?.history.orEmpty())) {
@@ -248,10 +264,64 @@ object LocalSyncMerge {
             val current = favorites[key]
             if (current == null || f.addedAt > current.addedAt) favorites[key] = f
         }
+        val filteredHistory = filterHistoryWithTombstones(history.values.toList(), tombstones)
         return base.copy(
-            history = history.values.sortedByDescending { it.lastWatchedAt },
+            history = filteredHistory.sortedByDescending { it.lastWatchedAt },
             favorites = favorites.values.sortedByDescending { it.addedAt },
         )
+    }
+
+    /** Mezar taşlarını profil başına en çok [maxCount] (500) ve [retentionMs] (90 gün) sınırlarıyla budar. */
+    fun pruneDeletedHistory(
+        items: List<DeletedHistoryItem>,
+        nowMs: Long = System.currentTimeMillis(),
+        maxCount: Int = MAX_DELETED_HISTORY_PER_PROFILE,
+        retentionMs: Long = DELETED_HISTORY_RETENTION_MS,
+    ): List<DeletedHistoryItem> {
+        val cutoff = nowMs - retentionMs
+        return items
+            .filter { it.deletedAt >= cutoff }
+            .groupBy { "${it.profileId}:${it.tmdbId}:${it.type.lowercase()}" }
+            .values
+            .map { group -> group.maxByOrNull { it.deletedAt }!! }
+            .groupBy { it.profileId }
+            .values
+            .flatMap { profileGroup ->
+                profileGroup.sortedByDescending { it.deletedAt }.take(maxCount)
+            }
+            .sortedByDescending { it.deletedAt }
+    }
+
+    /** İki tarafın mezar taşlarını birleştirir (aynı içerik için en yeni deletedAt), remapped profil kimliklerini taşır ve budar. */
+    fun mergeDeletedHistory(
+        local: List<DeletedHistoryItem>,
+        remote: List<DeletedHistoryItem>,
+        remappedProfileIds: Map<String, String> = emptyMap(),
+        nowMs: Long = System.currentTimeMillis(),
+    ): List<DeletedHistoryItem> {
+        val combined = (local + remote).map { item ->
+            val targetProfId = remappedProfileIds[item.profileId] ?: item.profileId
+            if (targetProfId != item.profileId) item.copy(profileId = targetProfId) else item
+        }
+        return pruneDeletedHistory(combined, nowMs)
+    }
+
+    /**
+     * Mezar taşlarına göre geçmişi filtreler: aynı içerik için deletedAt >= lastWatchedAt ise elenir;
+     * lastWatchedAt > deletedAt ise (silindikten sonra tekrar izlenmiş) korunur.
+     * Dizilerde mezar taşı (type=tv) tüm bölümleri kapsar.
+     */
+    fun filterHistoryWithTombstones(
+        history: List<HistoryBackup>,
+        tombstones: List<DeletedHistoryItem>,
+    ): List<HistoryBackup> {
+        if (history.isEmpty() || tombstones.isEmpty()) return history
+        val tombstoneMap = tombstones.associateBy { "${it.tmdbId}:${it.type.lowercase()}" }
+        return history.filterNot { h ->
+            val key = "${h.tmdbId}:${h.type.lowercase()}"
+            val t = tombstoneMap[key]
+            t != null && t.deletedAt >= h.lastWatchedAt
+        }
     }
 
     /** Aynı içerik: film ya da dizinin aynı sezon+bölümü. */

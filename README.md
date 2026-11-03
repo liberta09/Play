@@ -56,7 +56,7 @@
 
 1. TV'ye Play Store'dan **Downloader** ya da **Send Files to TV** uygulamasını kur.
 2. APK'yı oradan indir (cihazın 32 bit ise `armeabi-v7a`, 64 bit ise `arm64-v8a` sürümünü seç) ve kur.
-3. Kumandanın yön tuşlarıyla gezin, Tamam ile seç, Geri ile panelleri kapat.
+3. Kumandanın yön tuşlarıyla gezin, Tamam ile seç, Geri ile panelleri kapat. Her işlemin kumandada bir tuş karşılığı vardır (ör. 'İzlemeye devam et' kartlarını kaldırmak için kumandada Tamam'ı basılı tutabilir veya Menü tuşunu kullanabilirsiniz).
 </details>
 
 ## 🚀 Eklenti nasıl eklenir?
