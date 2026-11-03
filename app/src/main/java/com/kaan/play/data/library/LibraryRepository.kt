@@ -63,6 +63,7 @@ class LibraryRepository(
     suspend fun removeContinueWatching(type: MediaType, tmdbId: Int) {
         val (u, p) = scope()
         history.deleteForMedia(u, p, tmdbId, type.name)
+        profile?.recordDeletedHistory(u, p, tmdbId, type.name.lowercase(), clock())
     }
 
     suspend fun removeContinueWatching(item: ContinueItem) {

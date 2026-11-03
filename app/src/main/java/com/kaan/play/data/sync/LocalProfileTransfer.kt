@@ -24,6 +24,15 @@ data class SourceTransferItem(
 )
 
 @Serializable
+data class DeletedHistoryItem(
+    val userId: String = "",
+    val profileId: String = "",
+    val tmdbId: Int,
+    val type: String, // "movie" veya "tv"
+    val deletedAt: Long,
+)
+
+@Serializable
 data class LocalProfileTransfer(
     val profiles: List<LocalProfileSummary> = emptyList(),
     val backups: Map<String, String> = emptyMap(), // profileId -> JSON of LocalProfileBackup
@@ -31,4 +40,5 @@ data class LocalProfileTransfer(
     val warnings: List<String> = emptyList(),
     /** Gönderen cihazın adı (Wi-Fi senkronizasyonu). */
     val deviceName: String = "",
+    val deletedHistory: List<DeletedHistoryItem> = emptyList(),
 )

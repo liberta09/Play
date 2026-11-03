@@ -82,7 +82,8 @@ class LocalSyncData(
             )
             p.id to backup
         }
-        return LocalSyncMerge.snapshot(all, libs, sources(), deviceName)
+        val tombstones = profiles.allDeletedHistory()
+        return LocalSyncMerge.snapshot(all, libs, sources(), deviceName, tombstones)
     }
 
     /** Tüm kaynaklar: Nuvio addon'ları (altyazı addon'ları dahil), Nuvio eklenti depoları, CloudStream depoları, web siteleri. */
@@ -109,6 +110,20 @@ class LocalSyncData(
         val uId = userId()
         for ((profileId, library) in plan.libraries) {
             backups.mergeJsonFor(uId, profileId, LocalSyncMerge.encodeBackup(library)).getOrThrow()
+        }
+        if (plan.deletedHistory.isNotEmpty()) {
+            profiles.saveDeletedHistory(plan.deletedHistory)
+            for (item in plan.deletedHistory) {
+                val profId = plan.remappedProfileIds[item.profileId] ?: item.profileId
+                val existing = history.all(uId, profId)
+                for (entity in existing) {
+                    if (entity.tmdbId == item.tmdbId &&
+                        entity.type.name.equals(item.type, ignoreCase = true) &&
+                        entity.lastWatchedAt <= item.deletedAt) {
+                        history.delete(uId, profId, entity.id)
+                    }
+                }
+            }
         }
         migrator.migrateAllPending(uId, plan.remappedProfileIds)
         for (item in plan.sourceStates) {

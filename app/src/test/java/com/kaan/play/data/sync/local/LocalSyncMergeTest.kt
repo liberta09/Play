@@ -1,5 +1,6 @@
 package com.kaan.play.data.sync.local
 
+import com.kaan.play.data.sync.DeletedHistoryItem
 import com.kaan.play.data.sync.FavoriteBackup
 import com.kaan.play.data.sync.HistoryBackup
 import com.kaan.play.data.sync.LocalProfileBackup
@@ -7,7 +8,10 @@ import com.kaan.play.data.sync.LocalProfileSummary
 import com.kaan.play.data.sync.LocalProfileTransfer
 import com.kaan.play.data.sync.PluginStateTransfer
 import com.kaan.play.data.sync.SourceTransferItem
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -21,11 +25,20 @@ class LocalSyncMergeTest {
 
     private fun f(tmdb: Int, at: Long) = FavoriteBackup(tmdb, "movie", "F$tmdb", null, at)
 
+    private fun dh(tmdb: Int, at: Long, profileId: String = "p1", type: String = "movie") =
+        DeletedHistoryItem(userId = "u", profileId = profileId, tmdbId = tmdb, type = type, deletedAt = at)
+
     private fun transfer(
         profiles: List<LocalProfileSummary>,
         libs: Map<String, LocalProfileBackup> = emptyMap(),
         sources: List<SourceTransferItem> = emptyList(),
-    ) = LocalProfileTransfer(profiles = profiles, backups = libs.mapValues { LocalSyncMerge.encodeBackup(it.value) }, sources = sources)
+        deletedHistory: List<DeletedHistoryItem> = emptyList(),
+    ) = LocalProfileTransfer(
+        profiles = profiles,
+        backups = libs.mapValues { LocalSyncMerge.encodeBackup(it.value) },
+        sources = sources,
+        deletedHistory = deletedHistory,
+    )
 
     @Test
     fun newestLastWatchedWinsPerContent() {
@@ -280,5 +293,179 @@ class LocalSyncMergeTest {
         val mergedLib = result.libraries["d1"]!!
         assertEquals(setOf(10, 20, 30), mergedLib.history.map { it.tmdbId }.toSet())
         assertEquals(setOf(100, 200, 300), mergedLib.favorites.map { it.tmdbId }.toSet())
+    }
+
+    @Serializable
+    private data class LegacyTransferPayload(
+        val profiles: List<LocalProfileSummary> = emptyList(),
+        val backups: Map<String, String> = emptyMap(),
+        val sources: List<SourceTransferItem> = emptyList(),
+        val deviceName: String = "",
+    )
+
+    @Test
+    fun tombstoneDeletesOldRecordOnMerge() {
+        // 1) A siler, B'de eski kayıt var -> birleşimde ikisinde de OLMAZ (mezar taşı kazanır)
+        val now = System.currentTimeMillis()
+        val p = listOf(LocalProfileSummary("p1", "Ben"))
+        val devA = transfer(
+            profiles = p,
+            deletedHistory = listOf(dh(10, at = now - 5_000)),
+        )
+        val devB = transfer(
+            profiles = p,
+            libs = mapOf("p1" to LocalProfileBackup(history = listOf(h(10, at = now - 10_000)))),
+        )
+
+        val planA = LocalSyncMerge.plan(devA, devB, remoteIsAuthority = false, nowMs = now)
+        val planB = LocalSyncMerge.plan(devB, devA, remoteIsAuthority = true, nowMs = now)
+
+        assertTrue(planA.libraries["p1"]!!.history.none { it.tmdbId == 10 })
+        assertTrue(planB.libraries["p1"]!!.history.none { it.tmdbId == 10 })
+        assertEquals(1, planA.deletedHistory.size)
+        assertEquals(10, planA.deletedHistory.single().tmdbId)
+        assertEquals(1, planB.deletedHistory.size)
+        assertEquals(10, planB.deletedHistory.single().tmdbId)
+    }
+
+    @Test
+    fun reWatchedAfterDeletionReturns() {
+        // 2) B silindikten SONRA tekrar izledi (lastWatchedAt > deletedAt) -> kayıt geri GELİR
+        val now = System.currentTimeMillis()
+        val p = listOf(LocalProfileSummary("p1", "Ben"))
+        val devA = transfer(
+            profiles = p,
+            deletedHistory = listOf(dh(10, at = now - 5_000)),
+        )
+        val devB = transfer(
+            profiles = p,
+            libs = mapOf("p1" to LocalProfileBackup(history = listOf(h(10, at = now - 1_000)))),
+        )
+
+        val plan = LocalSyncMerge.plan(devA, devB, remoteIsAuthority = false, nowMs = now)
+        val historyItem = plan.libraries["p1"]!!.history.singleOrNull { it.tmdbId == 10 }
+        assertTrue("Silindikten sonra izlenen kayıt geri gelmeli", historyItem != null)
+        assertEquals(now - 1_000, historyItem!!.lastWatchedAt)
+    }
+
+    @Test
+    fun seriesTombstoneDeletesAllEpisodesAndNewEpisodeSurvives() {
+        // 3) Dizi silindi -> mezar taşı o dizinin TÜM bölümlerini siler; sonradan yeni bölüm izlenirse sadece o bölüm gelir
+        val now = System.currentTimeMillis()
+        val p = listOf(LocalProfileSummary("p1", "Ben"))
+        val devA = transfer(
+            profiles = p,
+            deletedHistory = listOf(dh(50, at = now - 5_000, type = "tv")),
+        )
+        val devB = transfer(
+            profiles = p,
+            libs = mapOf(
+                "p1" to LocalProfileBackup(
+                    history = listOf(
+                        h(50, at = now - 20_000, season = 1, episode = 1, type = "tv"),
+                        h(50, at = now - 10_000, season = 1, episode = 2, type = "tv"),
+                        h(50, at = now - 1_000, season = 2, episode = 1, type = "tv"),
+                    ),
+                ),
+            ),
+        )
+
+        val plan = LocalSyncMerge.plan(devA, devB, remoteIsAuthority = false, nowMs = now)
+        val episodes = plan.libraries["p1"]!!.history.filter { it.tmdbId == 50 }
+        assertEquals(1, episodes.size)
+        assertEquals(2, episodes.single().season)
+        assertEquals(1, episodes.single().episode)
+        assertEquals(now - 1_000, episodes.single().lastWatchedAt)
+    }
+
+    @Test
+    fun tombstoneIsolatedToProfile() {
+        // 4) Farklı profil yalıtımı: profil 1'deki mezar taşı profil 2'deki aynı içeriği SİLMEZ
+        val now = System.currentTimeMillis()
+        val p1 = LocalProfileSummary("p1", "Ben")
+        val p2 = LocalProfileSummary("p2", "Misafir")
+        val local = transfer(
+            profiles = listOf(p1, p2),
+            libs = mapOf(
+                "p1" to LocalProfileBackup(history = listOf(h(100, at = now - 10_000))),
+                "p2" to LocalProfileBackup(history = listOf(h(100, at = now - 10_000))),
+            ),
+            deletedHistory = listOf(dh(100, at = now - 5_000, profileId = "p1")),
+        )
+        val remote = transfer(
+            profiles = listOf(p1, p2),
+        )
+
+        val plan = LocalSyncMerge.plan(local, remote, remoteIsAuthority = false, nowMs = now)
+        assertTrue("p1 mezar taşı yüzünden içeriği kaybetmeli", plan.libraries["p1"]!!.history.none { it.tmdbId == 100 })
+        assertTrue("p2 mezar taşından etkilenmemeli", plan.libraries["p2"]!!.history.any { it.tmdbId == 100 })
+    }
+
+    @Test
+    fun oldPayloadWithoutDeletedHistoryParses() {
+        // 5) Eski yük (deletedHistory alanı hiç olmayan JSON) hatasız okunur ve deletedHistory = [] kabul edilir
+        val oldJson = """{"profiles":[],"backups":{},"sources":[]}"""
+        val decoded = LocalSyncMerge.decodeTransfer(oldJson)
+        assertTrue(decoded.deletedHistory.isEmpty())
+        assertTrue(decoded.profiles.isEmpty())
+        assertTrue(decoded.backups.isEmpty())
+    }
+
+    @Test
+    fun newPayloadReadByOldSchemaWithIgnoreUnknownKeys() {
+        // 6) Yeni yük (deletedHistory alanı dolu), ignoreUnknownKeys = true olan eski şema tarafından çökmeden okunur ve diğer alanlar korunur
+        val modern = LocalProfileTransfer(
+            profiles = listOf(LocalProfileSummary("p1", "Ad")),
+            backups = mapOf("p1" to "backup_str"),
+            sources = listOf(SourceTransferItem("KIND", "https://example.com")),
+            deviceName = "ModernCihaz",
+            deletedHistory = listOf(dh(1, 100)),
+        )
+        val jsonString = LocalSyncMerge.encode(modern)
+        assertTrue(jsonString.contains("deletedHistory"))
+
+        val legacyJsonParser = Json { ignoreUnknownKeys = true }
+        val legacyDecoded = legacyJsonParser.decodeFromString(LegacyTransferPayload.serializer(), jsonString)
+        assertEquals(1, legacyDecoded.profiles.size)
+        assertEquals("p1", legacyDecoded.profiles.single().id)
+        assertEquals("backup_str", legacyDecoded.backups["p1"])
+        assertEquals("https://example.com", legacyDecoded.sources.single().sourceUrl)
+        assertEquals("ModernCihaz", legacyDecoded.deviceName)
+    }
+
+    @Test
+    fun pruningMax500And90Days() {
+        // 7) Budama kuralı: 90 günden eski veya profil başına 500'ü aşan mezar taşları temizlenir, en yeniler kalır
+        val now = 1_000_000_000_000L
+        val dayMs = 24L * 60 * 60 * 1000L
+        val oldTombstone = dh(999, at = now - (91 * dayMs), profileId = "p1")
+        val validTombstone = dh(1, at = now - (10 * dayMs), profileId = "p1")
+        val duplicateOld = dh(2, at = now - 5000, profileId = "p1")
+        val duplicateNew = dh(2, at = now - 1000, profileId = "p1")
+
+        // 505 adet farklı içerik oluştur
+        val manyItems = (1..505).map { i ->
+            dh(i + 1000, at = now - i * 100L, profileId = "p1")
+        }
+
+        val allItems = listOf(oldTombstone, validTombstone, duplicateOld, duplicateNew) + manyItems
+        val pruned = LocalSyncMerge.pruneDeletedHistory(allItems, nowMs = now)
+
+        // 90 günden eski olan budanmalı
+        assertFalse(pruned.any { it.tmdbId == 999 })
+        // duplicate olanlardan daha yeni olan kalmalı
+        val dup2 = pruned.filter { it.tmdbId == 2 }
+        assertEquals(1, dup2.size)
+        assertEquals(now - 1000, dup2.single().deletedAt)
+
+        // Toplam p1 sayısı en fazla 500 olmalı
+        val p1Count = pruned.count { it.profileId == "p1" }
+        assertEquals(500, p1Count)
+
+        // Çoklu profil desteği: p2 de 10 öğeye sahipse p1 500, p2 10 toplam 510 kalmalı
+        val p2Items = (1..10).map { i -> dh(i, at = now - 1000, profileId = "p2") }
+        val multiPruned = LocalSyncMerge.pruneDeletedHistory(allItems + p2Items, nowMs = now)
+        assertEquals(500, multiPruned.count { it.profileId == "p1" })
+        assertEquals(10, multiPruned.count { it.profileId == "p2" })
     }
 }
