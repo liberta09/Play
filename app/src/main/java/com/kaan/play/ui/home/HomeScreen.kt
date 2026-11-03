@@ -59,6 +59,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import com.kaan.play.R
 import com.kaan.play.data.cloudstream.cloudflare.CloudflareSolver
 import com.kaan.play.data.library.ContinueItem
@@ -72,7 +73,11 @@ import com.kaan.play.i18n.AppLanguage
 import com.kaan.play.ui.components.Button
 import com.kaan.play.ui.components.ErrorMessage
 import com.kaan.play.ui.components.Loadable
+import androidx.compose.ui.focus.onFocusChanged
 import com.kaan.play.ui.components.PosterCard
+import com.kaan.play.ui.components.PosterPrefetch
+import com.kaan.play.ui.components.PosterPrefetchRules
+import kotlinx.coroutines.Job
 import com.kaan.play.ui.components.StatusBarScrim
 import com.kaan.play.ui.components.posterUrl
 import com.kaan.play.ui.containerViewModel
@@ -322,10 +327,75 @@ private fun HomeContent(
     val shownProviderTitles = remember { mutableStateMapOf<String, List<String>>() }
     val tmdbTitles = HomeRow.entries.associateWith { stringResource(it.titleRes()) }
     val providerIds = homeProviders.mapTo(HashSet()) { it.id }
-    val hiddenTmdbRows = ProviderRules.duplicateTmdbRows(
-        tmdbTitles,
-        shownProviderTitles.filterKeys { it in providerIds }.values.flatten(),
-    )
+    val hiddenTmdbRows = ProviderRules.duplicateTmdbRows(tmdbTitles, shownProviderTitles.filterKeys { it in providerIds }.values.flatten())
+
+
+
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val homeScope = rememberCoroutineScope()
+    val (cardWidthPx, cardHeightPx) = remember(cardWidth, density) {
+        PosterPrefetch.calculateCardPixelSize(cardWidth, density)
+    }
+
+    val visibleTmdbRows = remember(hiddenTmdbRows) {
+        HomeRow.entries.filterNot { it in hiddenTmdbRows }
+    }
+
+    val rowUrlProviders = remember(hasContinue, continueWatching, rows, visibleTmdbRows) {
+        buildList<() -> List<String>> {
+            if (hasContinue) {
+                add { continueWatching.mapNotNull { TmdbImages.url(it.entry.posterPath, TmdbImages.Size.Poster) } }
+            }
+            visibleTmdbRows.forEach { row ->
+                add { (rows[row] as? Loadable.Ready)?.value?.mapNotNull { TmdbImages.url(it.posterPath, TmdbImages.Size.Poster) }.orEmpty() }
+            }
+        }
+    }
+
+    var activeVerticalRowIndex by remember { mutableIntStateOf(-1) }
+
+    val triggerVerticalPrefetch: (currentRowIndex: Int) -> Unit = remember(rowUrlProviders, cardWidthPx, cardHeightPx, context) {
+        { rowIndex ->
+            if (rowIndex != activeVerticalRowIndex) {
+                activeVerticalRowIndex = rowIndex
+                val nextIdx = PosterPrefetchRules.nextRowIndex(rowIndex, rowUrlProviders.size)
+                if (nextIdx != null) {
+                    val nextUrls = rowUrlProviders[nextIdx]()
+                    val vIndices = PosterPrefetchRules.calculateVerticalIndices(nextUrls.size, 6)
+                    val urlsToPrefetch = vIndices.mapNotNull { nextUrls.getOrNull(it) }
+                    if (urlsToPrefetch.isNotEmpty()) {
+                        PosterPrefetch.prefetchUrls(
+                            context = context,
+                            urls = urlsToPrefetch,
+                            widthPx = cardWidthPx,
+                            heightPx = cardHeightPx,
+                            coroutineScope = homeScope,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(firstReady, rowUrlProviders, cardWidthPx, cardHeightPx) {
+        if (firstReady && rowUrlProviders.isNotEmpty() && activeVerticalRowIndex == -1) {
+            val firstRowUrls = rowUrlProviders.first()()
+            val vIndices = PosterPrefetchRules.calculateVerticalIndices(firstRowUrls.size, 6)
+            val urlsToPrefetch = vIndices.mapNotNull { firstRowUrls.getOrNull(it) }
+            if (urlsToPrefetch.isNotEmpty()) {
+                PosterPrefetch.prefetchUrls(
+                    context = context,
+                    urls = urlsToPrefetch,
+                    widthPx = cardWidthPx,
+                    heightPx = cardHeightPx,
+                    coroutineScope = homeScope,
+                )
+            }
+        }
+    }
+
+
 
     LazyColumn(
         state = listState,
@@ -352,15 +422,22 @@ private fun HomeContent(
         if (hasContinue) {
             item(key = "continue") {
                 Section(title = stringResource(R.string.home_row_continue)) {
+                    val continueUrls = remember(continueWatching) {
+                        continueWatching.mapNotNull { TmdbImages.url(it.entry.posterPath, TmdbImages.Size.Poster) }
+                    }
+                    val onContinuePrefetch = rememberRowHorizontalPrefetch(continueUrls, cardWidth) {
+                        triggerVerticalPrefetch(0)
+                    }
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = ScreenPadding),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        items(continueWatching, key = { "${it.entry.type}-${it.entry.tmdbId}" }) { item ->
+                        itemsIndexed(continueWatching, key = { _, item -> "${item.entry.type}-${item.entry.tmdbId}" }) { index, item ->
                             val isFirstContinue = !hasHero && item === continueWatching.first()
                             ContinueCard(
                                 item,
                                 modifier = Modifier
+                                    .onFocusChanged { if (it.isFocused) onContinuePrefetch(index) }
                                     .let { if (isFirstContinue && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
                                     .let { if (isFirstContinue && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
                                     .focusMemory(
@@ -389,8 +466,9 @@ private fun HomeContent(
                 )
             }
         }
-        HomeRow.entries.filterNot { it in hiddenTmdbRows }.forEach { row ->
+        visibleTmdbRows.forEach { row ->
             item(key = row.name) {
+                val tmdbRowIndex = (if (hasContinue) 1 else 0) + visibleTmdbRows.indexOf(row)
                 Section(
                     title = stringResource(row.titleRes()),
                     onSeeAll = { onOpenCategory(row) },
@@ -399,29 +477,37 @@ private fun HomeContent(
                     when (val state = rows.getValue(row)) {
                         Loadable.Loading -> SkeletonRow(cardWidth)
                         is Loadable.Failed -> ErrorMessage(state.error, onRetry = { vm.load(row) }, modifier = Modifier.fillMaxWidth())
-                        is Loadable.Ready -> LazyRow(
-                            contentPadding = PaddingValues(horizontal = ScreenPadding),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            items(state.value, key = { "${it.type}-${it.id}" }) { media ->
-                                val isFirstTrending = !hasHero && !hasContinue && row == HomeRow.TrendingMovies && media == state.value.first()
-                                PosterCard(
-                                    title = media.title,
-                                    subtitle = media.year?.toString(),
-                                    imageUrl = media.posterUrl(),
-                                    tmdbId = media.id,
-                                    mediaType = media.type,
-                                    onClick = { onOpenDetail(media.type, media.id) },
-                                    modifier = Modifier
-                                        .width(cardWidth)
-                                        .let { if (isFirstTrending && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                                        .let { if (isFirstTrending && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
-                                        .focusMemory(
-                                            focus,
-                                            "${row.name}-${media.type}-${media.id}",
-                                            isDefault = isFirstTrending,
-                                        ),
-                                )
+                        is Loadable.Ready -> {
+                            val rowUrls = remember(state.value) { state.value.mapNotNull { TmdbImages.url(it.posterPath, TmdbImages.Size.Poster) } }
+                            val onTmdbPrefetch = rememberRowHorizontalPrefetch(rowUrls, cardWidth) {
+                                triggerVerticalPrefetch(tmdbRowIndex)
+                            }
+                            LazyRow(
+                                contentPadding = PaddingValues(horizontal = ScreenPadding),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                itemsIndexed(state.value, key = { _, it -> "${it.type}-${it.id}" }) { index, media ->
+                                    val isFirstTrending = !hasHero && !hasContinue && row == HomeRow.TrendingMovies && media == state.value.first()
+                                    PosterCard(
+                                        title = media.title,
+                                        subtitle = media.year?.toString(),
+                                        imageUrl = media.posterUrl(),
+                                        cardWidth = cardWidth,
+                                        tmdbId = media.id,
+                                        mediaType = media.type,
+                                        onClick = { onOpenDetail(media.type, media.id) },
+                                        modifier = Modifier
+                                            .width(cardWidth)
+                                            .onFocusChanged { if (it.isFocused) onTmdbPrefetch(index) }
+                                            .let { if (isFirstTrending && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                                            .let { if (isFirstTrending && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                                            .focusMemory(
+                                                focus,
+                                                "${row.name}-${media.type}-${media.id}",
+                                                isDefault = isFirstTrending,
+                                            ),
+                                    )
+                                }
                             }
                         }
                     }
@@ -515,6 +601,7 @@ private fun ContinueCard(item: ContinueItem, width: Dp, modifier: Modifier = Mod
         imageUrl = TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster),
         tmdbId = entry.tmdbId,
         mediaType = entry.type,
+        cardWidth = width,
         onClick = onClick,
         modifier = modifier.width(width),
         progress = progress,
@@ -537,6 +624,47 @@ private fun SkeletonRow(cardWidth: Dp) {
                     .clip(MaterialTheme.shapes.medium)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
             )
+        }
+    }
+}
+
+/**
+ * Bir afis satirinda yatay gezinirken (D-pad sag/sol) odaklanan kartin sagindaki ve solundaki
+ * en cok 4 kartin gorselini arka planda Coil bellek onbellegine onceden yukler (prefetch).
+ * Satir ekrandan cikinca / kompozisyondan dusunce bekleyen prefetch isleri kendiliginden iptal olur.
+ */
+@Composable
+private fun rememberRowHorizontalPrefetch(
+    urls: List<String>,
+    cardWidth: Dp,
+    onRowFocused: (() -> Unit)? = null,
+): (focusedIndex: Int) -> Unit {
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val scope = rememberCoroutineScope()
+    val (widthPx, heightPx) = remember(cardWidth, density) {
+        PosterPrefetch.calculateCardPixelSize(cardWidth, density)
+    }
+    var activeJob by remember { mutableStateOf<Job?>(null) }
+    var lastIndex by remember { mutableIntStateOf(-1) }
+
+    LaunchedEffect(urls, widthPx, heightPx) {
+        if (urls.isNotEmpty() && lastIndex == -1) {
+            val initialIndices = PosterPrefetchRules.calculateHorizontalIndices(0, urls.size, 4)
+            val initialUrls = initialIndices.mapNotNull { urls.getOrNull(it) }
+            activeJob = PosterPrefetch.prefetchUrls(context, initialUrls, widthPx, heightPx, coroutineScope = scope)
+        }
+    }
+
+    return remember(urls, widthPx, heightPx, scope, onRowFocused) {
+        { index: Int ->
+            if (index != lastIndex && index in urls.indices) {
+                lastIndex = index
+                val indices = PosterPrefetchRules.calculateHorizontalIndices(index, urls.size, 4)
+                val targetUrls = indices.mapNotNull { urls.getOrNull(it) }
+                PosterPrefetch.prefetchUrls(context, targetUrls, widthPx, heightPx, coroutineScope = scope)
+                onRowFocused?.invoke()
+            }
         }
     }
 }
@@ -707,15 +835,18 @@ private fun LazyProviderSection(
                             }
                         }
 
+                        val providerRowUrls = remember(row.items) { row.items.mapNotNull { it.posterUrl } }
+                        val onProviderCardPrefetch = rememberRowHorizontalPrefetch(providerRowUrls, cardWidth)
                         LazyRow(
                             contentPadding = PaddingValues(horizontal = ScreenPadding),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            itemsIndexed(row.items, key = { index, item -> "${row.providerId}_${row.id}_${item.id}_$index" }) { _, item ->
+                            itemsIndexed(row.items, key = { index, item -> "${row.providerId}_${row.id}_${item.id}_$index" }) { itemIndex, item ->
                                 PosterCard(
                                     title = item.title,
                                     subtitle = item.subtitle,
                                     imageUrl = item.posterUrl,
+                                    cardWidth = cardWidth,
                                     posterId = PosterUrlTemplate.findImdbId(item.id, item.rawUrl, item.posterUrl),
                                     tmdbId = item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(item.id, item.rawUrl, item.posterUrl),
                                     mediaType = item.mediaType,
@@ -737,6 +868,7 @@ private fun LazyProviderSection(
                                     },
                                     modifier = Modifier
                                         .width(cardWidth)
+                                        .onFocusChanged { if (it.isFocused) onProviderCardPrefetch(itemIndex) }
                                         .focusMemory(focus, "${row.providerId}_${row.id}_${item.id}"),
                                 )
                             }
@@ -1046,6 +1178,8 @@ private fun ProviderCatalogView(
                             }
                         }
 
+                        val catalogRowUrls = remember(row.items) { row.items.mapNotNull { it.posterUrl } }
+                        val onCatalogCardPrefetch = rememberRowHorizontalPrefetch(catalogRowUrls, cardWidth)
                         LazyRow(
                             contentPadding = PaddingValues(horizontal = ScreenPadding),
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -1056,6 +1190,7 @@ private fun ProviderCatalogView(
                                     title = item.title,
                                     subtitle = item.subtitle,
                                     imageUrl = item.posterUrl,
+                                    cardWidth = cardWidth,
                                     posterId = PosterUrlTemplate.findImdbId(item.id, item.rawUrl, item.posterUrl),
                                     tmdbId = item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(item.id, item.rawUrl, item.posterUrl),
                                     mediaType = item.mediaType,
@@ -1076,6 +1211,7 @@ private fun ProviderCatalogView(
                                         }
                                     },
                                     modifier = Modifier.width(cardWidth)
+                                        .onFocusChanged { if (it.isFocused) onCatalogCardPrefetch(itemIdx) }
                                         .let { if (isFirstProviderCard && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
                                         .let { if (isFirstProviderCard && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it },
                                 )
