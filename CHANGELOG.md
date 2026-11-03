@@ -1,5 +1,15 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.2.5] — 2026-11-04
+
+### Türkçe
+- **İzlemeye devam et kartı kaldırma ve senkron koruması:** İzlemeye devam et kartı artık kaldırılabilir: kumandada Tamam'ı basılı tutup bırakın ya da Menü tuşuna basın; dokunmatikte uzun basın. Dizide tüm bölümler birlikte kaldırılır. Kaldırılan içerik Wi-Fi ve bulut senkronunda diğer cihazdan geri gelmez (iki cihaz da 1.2.5 olmalı).
+
+### English
+- **Remove continue watching card & sync protection:** Continue watching cards can now be removed: press and hold then release OK on the remote, or press the Menu key; long press on touchscreen. For series, all episodes are removed together. Removed content will not return from other devices during Wi-Fi or cloud sync (both devices must be 1.2.5).
+
+
+
 ## [1.2.4] — 2026-11-03
 
 ### Türkçe
