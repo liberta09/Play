@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kaan.play.data.library.ContinueItem
 import com.kaan.play.data.library.ContinueWatching
+import com.kaan.play.data.library.LibraryRepository
 import com.kaan.play.data.model.HeroItem
 import com.kaan.play.data.model.MediaSummary
 import com.kaan.play.data.model.MediaType
@@ -37,6 +38,7 @@ typealias RowState = Loadable<List<MediaSummary>>
 class HomeViewModel(
     private val tmdb: TmdbRepository,
     continueWatching: ContinueWatching,
+    private val library: LibraryRepository? = null,
 ) : ViewModel() {
 
     private val _rows = MutableStateFlow<Map<HomeRow, RowState>>(HomeRow.entries.associateWith { Loadable.Loading })
@@ -56,6 +58,12 @@ class HomeViewModel(
     fun loadHero() {
         _hero.value = Loadable.Loading
         viewModelScope.launch { _hero.value = loadable { tmdb.hero() } }
+    }
+
+    fun removeContinueWatching(item: ContinueItem) {
+        viewModelScope.launch {
+            library?.removeContinueWatching(item)
+        }
     }
 
     fun load(row: HomeRow) {

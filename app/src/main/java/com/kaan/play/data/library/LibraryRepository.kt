@@ -60,6 +60,16 @@ class LibraryRepository(
         history.delete(u, p, id)
     }
 
+    suspend fun removeContinueWatching(type: MediaType, tmdbId: Int) {
+        val (u, p) = scope()
+        history.deleteForMedia(u, p, tmdbId, type.name)
+        profile?.recordDeletedHistory(u, p, tmdbId, type.name.lowercase(), clock())
+    }
+
+    suspend fun removeContinueWatching(item: ContinueItem) {
+        removeContinueWatching(item.entry.type, item.entry.tmdbId)
+    }
+
     suspend fun clearHistory() {
         val (u, p) = scope()
         history.clear(u, p)

@@ -1,5 +1,7 @@
 package com.kaan.play.data.sync
 
+import com.kaan.play.data.sync.local.LocalSyncMerge
+
 import android.util.Base64
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -158,6 +160,8 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
         store.edit { prefs ->
             val list = decodeProfiles(prefs[PROFILES] ?: "").filterNot { it.id == profileId }
             prefs[PROFILES] = encodeProfiles(list)
+            val deletedHist = decodeDeletedHistory(prefs[DELETED_HISTORY] ?: "").filterNot { it.profileId == profileId }
+            prefs[DELETED_HISTORY] = encodeDeletedHistory(deletedHist)
             if (prefs[ID] == profileId) {
                 val next = list.firstOrNull()
                 if (next != null) {
@@ -271,6 +275,48 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
             val map = decodeBackups(prefs[BACKUPS] ?: "").toMutableMap()
             map[profileId] = backupJson
             prefs[BACKUPS] = encodeBackups(map)
+        }
+    }
+
+    fun decodeDeletedHistory(raw: String): List<DeletedHistoryItem> =
+        if (raw.isBlank()) emptyList()
+        else runCatching { json.decodeFromString(DeletedHistoryListSerializer, raw) }.getOrDefault(emptyList())
+
+    fun encodeDeletedHistory(items: List<DeletedHistoryItem>): String =
+        json.encodeToString(DeletedHistoryListSerializer, items)
+
+    suspend fun allDeletedHistory(): List<DeletedHistoryItem> {
+        val raw = store.data.first()[DELETED_HISTORY] ?: return emptyList()
+        return decodeDeletedHistory(raw)
+    }
+
+    suspend fun recordDeletedHistory(
+        userId: String,
+        profileId: String,
+        tmdbId: Int,
+        type: String,
+        deletedAt: Long = System.currentTimeMillis(),
+    ) {
+        store.edit { prefs ->
+            val current = decodeDeletedHistory(prefs[DELETED_HISTORY] ?: "")
+            val newItem = DeletedHistoryItem(
+                userId = userId,
+                profileId = profileId,
+                tmdbId = tmdbId,
+                type = type.lowercase(),
+                deletedAt = deletedAt,
+            )
+            val updated = LocalSyncMerge.pruneDeletedHistory(current + newItem, nowMs = deletedAt)
+            prefs[DELETED_HISTORY] = encodeDeletedHistory(updated)
+        }
+    }
+
+    suspend fun saveDeletedHistory(items: List<DeletedHistoryItem>) {
+        if (items.isEmpty()) return
+        store.edit { prefs ->
+            val current = decodeDeletedHistory(prefs[DELETED_HISTORY] ?: "")
+            val updated = LocalSyncMerge.mergeDeletedHistory(current, items)
+            prefs[DELETED_HISTORY] = encodeDeletedHistory(updated)
         }
     }
 
@@ -497,8 +543,10 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
         private val PEER_HOST = stringPreferencesKey("sync_local_peer_host")
         private val PEER_PORT = intPreferencesKey("sync_local_peer_port")
         private val PEER_CODE = stringPreferencesKey("sync_local_peer_code")
+        private val DELETED_HISTORY = stringPreferencesKey("sync_deleted_history")
 
         private val SummaryListSerializer = ListSerializer(LocalProfileSummary.serializer())
+        private val DeletedHistoryListSerializer = ListSerializer(DeletedHistoryItem.serializer())
         private val ProfileMapSerializer = MapSerializer(String.serializer(), String.serializer())
 
         fun hashPin(pin: String): String {
