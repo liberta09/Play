@@ -84,6 +84,12 @@ class MainActivity : AppCompatActivity() {
             if (intent.hasExtra("test_force_stall")) {
                 PlayerNoticeLogic.testForceStall = intent.getBooleanExtra("test_force_stall", false)
             }
+            if (intent.hasExtra("play_flag_no_glow")) {
+                com.kaan.play.ui.tv.PlayFocusFlags.noGlow = intent.getBooleanExtra("play_flag_no_glow", false)
+            }
+            if (intent.hasExtra("play_flag_no_images")) {
+                com.kaan.play.ui.tv.PlayFocusFlags.noImages = intent.getBooleanExtra("play_flag_no_images", false)
+            }
             if (intent.hasExtra("play_flag_startup_focus")) {
                 com.kaan.play.data.torrent.TorrentEngine.STARTUP_FOCUS_ENABLED = intent.getBooleanExtra("play_flag_startup_focus", true)
             }
@@ -199,7 +205,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
+        super.onNewIntent(intent)
+        if (BuildConfig.DEBUG) {
+            if (intent.hasExtra("play_flag_no_glow")) {
+                com.kaan.play.ui.tv.PlayFocusFlags.noGlow = intent.getBooleanExtra("play_flag_no_glow", false)
+            }
+            if (intent.hasExtra("play_flag_no_images")) {
+                com.kaan.play.ui.tv.PlayFocusFlags.noImages = intent.getBooleanExtra("play_flag_no_images", false)
+            }
+        }
         intent.getStringExtra("sync_email")?.let { testSyncEmail = it }
         intent.getStringExtra("sync_password")?.let { testSyncPassword = it }
         handleLink(intent)

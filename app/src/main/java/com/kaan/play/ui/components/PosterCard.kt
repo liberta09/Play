@@ -86,7 +86,7 @@ fun PosterCard(
                 .clip(shape)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
-            if (resolvedImageUrl != null) {
+            if (resolvedImageUrl != null && (!com.kaan.play.BuildConfig.DEBUG || !com.kaan.play.ui.tv.PlayFocusFlags.noImages)) {
                 AsyncImage(
                     model = resolvedImageUrl,
                     contentDescription = null,

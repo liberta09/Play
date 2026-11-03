@@ -72,6 +72,11 @@ import kotlinx.coroutines.launch
 
 private val RingWidth = 3.dp
 
+object PlayFocusFlags {
+    var noGlow: Boolean = false
+    var noImages: Boolean = false
+}
+
 /**
  * Odaktaki her tıklanabilir öğeye çizilen turkuaz çerçeve (TV/kumanda/klavye). Tüm uygulamada `LocalIndication`
  * olarak verilir ([com.kaan.play.ui.theme.PlayTheme]); böylece `clickable`, `Button`, `IconButton`, `selectable`
@@ -130,6 +135,24 @@ fun Modifier.tvFocusableScaleGlow(
 ): Modifier {
     var internalFocused by remember { mutableStateOf(false) }
     val currentFocused = isFocused ?: internalFocused
+
+    if (com.kaan.play.BuildConfig.DEBUG && PlayFocusFlags.noGlow) {
+        val innerColor = if (glowColor.luminance() > 0.5f) lerp(glowColor, Color.White, 0.5f) else glowColor
+        val borderModifier = if (currentFocused) {
+            Modifier
+                .border(width = if (strong) 4.dp else 3.dp, color = glowColor.copy(alpha = if (strong) 0.5f else 0.25f), shape = shape)
+                .border(width = if (strong) 2.dp else 1.dp, color = innerColor.copy(alpha = if (strong) 1f else 0.85f), shape = shape)
+        } else {
+            Modifier
+        }
+        return this
+            .onFocusChanged { state ->
+                internalFocused = state.hasFocus
+                onFocusChange?.invoke(state.hasFocus)
+            }
+            .zIndex(if (currentFocused) zIndex else 0f)
+            .then(borderModifier)
+    }
 
     val animatedScale by animateFloatAsState(
         targetValue = if (currentFocused) scale else 1.0f,
