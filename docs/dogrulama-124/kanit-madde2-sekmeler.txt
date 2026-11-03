@@ -1,0 +1,22 @@
+=== MADDE 2: UST MENU HER SEKMEDE ASAGI VE GERI TESTI ===
+
+Sekme: Ana sayfa
+  Ust bar odak: [579,50][662,132] text=
+  ASAGI basildi -> Odak icerige indi mi? True (y=406, bounds=[20,406][249,486])
+  Geri basildi -> Odak/Durum: bounds=[20,406][249,486] text=
+Sekme: Ara
+  Ust bar odak: [20,406][249,486] text=
+  ASAGI basildi -> Odak icerige indi mi? True (y=244, bounds=[49,244][159,316])
+  Geri basildi -> Odak/Durum: bounds=[20,406][249,486] text=
+Sekme: TV
+  Ust bar odak: [20,406][249,486] text=
+  ASAGI basildi -> Odak icerige indi mi? True (y=363, bounds=[617,363][842,435])
+  Geri basildi -> Odak/Durum: bounds=[20,406][249,486] text=
+Sekme: Kütüphane
+  Ust bar odak: [795,50][878,132] text=
+  ASAGI basildi -> Odak icerige indi mi? True (y=253, bounds=[50,253][1550,301])
+  Geri basildi -> Odak/Durum: bounds=[20,406][249,486] text=
+Sekme: Ayarlar
+  Ust bar odak: [280,205][1310,283] text=
+  ASAGI basildi -> Odak icerige indi mi? True (y=293, bounds=[280,293][1310,371])
+  Geri basildi -> Odak/Durum: bounds=[20,406][249,486] text=

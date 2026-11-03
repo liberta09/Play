@@ -1,0 +1,16 @@
+=== MADDE 1: ACILIS, PROFIL, ANA SAYFA GORUNUR, COKME YOK ===
+Fatal satir sayisi: 0
+Ekran UI Dökümü (Ana Sayfa):
+  - Verity: Gerçeğin Diğer Kıyısı
+  - Gizem · Gerilim · 2026
+  - Detayları gör
+  - Yeni Eklenen Filmler
+  - Play Özel Kataloglar
+  - Tümünü göster
+  - Tümünü göster
+  - Eklenti seç
+  - Ana sayfa
+  - Ara
+  - TV
+  - Kütüphane
+  - Ayarlar

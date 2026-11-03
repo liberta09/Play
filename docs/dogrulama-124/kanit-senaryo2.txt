@@ -1,0 +1,12 @@
+=== KULLANICI SENARYOSU 2: Eklenti Sec Hapi ve Odak Kacmama Testi ===
+
+Baslangicta ust bar odagi: {'class': 'android.view.View', 'bounds': '[579,50][662,132]', 'y1': 50, 'y2': 132, 'x1': 579, 'x2': 662, 'w': 83, 'h': 82, 'text': ''}
+Sag alttaki hap odagi: {'class': 'android.view.View', 'bounds': '[1367,804][1570,876]', 'y1': 804, 'y2': 876, 'x1': 1367, 'x2': 1570, 'w': 203, 'h': 72, 'text': ''}
+Hapa basariyla ulasildi mi: True (bounds=[1367,804][1570,876])
+Tekrar menuye cikildi: {'class': 'android.view.View', 'bounds': '[939,50][1022,132]', 'y1': 50, 'y2': 132, 'x1': 939, 'x2': 1022, 'w': 83, 'h': 82, 'text': ''}
+Ana sayfa'ya OK basildi: {'class': 'android.view.View', 'bounds': '[20,406][249,486]', 'y1': 406, 'y2': 486, 'x1': 20, 'x2': 249, 'w': 229, 'h': 80, 'text': ''}
+ASAGI basildiginda odak: {'class': 'android.view.View', 'bounds': '[15,571][1585,645]', 'y1': 571, 'y2': 645, 'x1': 15, 'x2': 1585, 'w': 1570, 'h': 74, 'text': ''}
+Icerige inildi mi: True (y1=571)
+Hapa KACMADI mi: True (bounds=[15,571][1585,645])
+
+SONUC: GECTI

@@ -1,0 +1,27 @@
+=== ADIM 2(c) KANITI: RELEASE APK DA DEBUG EKSTRALARI YOK SAYMA ===
+Komut: C:\Users\okay\AppData\Local\Android\Sdk\platform-tools\adb.exe -s emulator-5554 shell am start -n com.kaan.play/.MainActivity --es play_test_video https://example.com/a.mp4
+am start ciktisi: Starting: Intent { cmp=com.kaan.play/.MainActivity (has extras) }
+Odaklanan Pencere:
+
+Ilgili Logcat Satirlari:
+--------- beginning of system
+--------- beginning of main
+11-03 04:00:35.650 E/memtrack( 1599): Couldn't load memtrack module
+11-03 04:00:35.656 E/memtrack( 1599): Couldn't load memtrack module
+11-03 04:00:35.667 E/memtrack( 1599): Couldn't load memtrack module
+11-03 04:00:35.775 E/SELinux ( 1373): avc:  denied  { find } for service=tab pid=4837 uid=10197 scontext=u:r:untrusted_app:s0:c197,c256,c512,c768 tcontext=u:object_r:default_android_service:s0 tclass=service_manager permissive=1
+11-03 04:00:36.085 E/eglCodecCommon( 4837): glUtilsParamSize: unknow param 0x000082da
+11-03 04:00:36.085 E/eglCodecCommon( 4837): glUtilsParamSize: unknow param 0x000082e5
+11-03 04:00:36.093 E/eglCodecCommon( 4837): glUtilsParamSize: unknow param 0x00008c29
+11-03 04:00:36.093 E/eglCodecCommon( 4837): glUtilsParamSize: unknow param 0x000087fe
+11-03 04:00:36.113 E/EGL_emulation( 4837): tid 4900: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+11-03 04:00:36.650 E/EGL_emulation( 4837): tid 4900: eglSurfaceAttrib(1504): error 0x3009 (EGL_BAD_MATCH)
+
+Aktif Activity Listesi:
+      Activities=[ActivityRecord{909d145 u0 com.kaan.play/.MainActivity t3}]
+      * Hist #0: ActivityRecord{909d145 u0 com.kaan.play/.MainActivity t3}
+        Run #0: ActivityRecord{909d145 u0 com.kaan.play/.MainActivity t3}
+    mResumedActivity: ActivityRecord{909d145 u0 com.kaan.play/.MainActivity t3}
+  ResumedActivity: ActivityRecord{909d145 u0 com.kaan.play/.MainActivity t3}
+
+Sonuc: PlayerActivity calisti mi? False (BEKLENEN: False / ACILMADI)

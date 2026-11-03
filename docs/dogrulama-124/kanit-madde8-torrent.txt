@@ -1,0 +1,10 @@
+=== MADDE 8: TORRENT SOGUK ACILIS TESTI ===
+
+Test Edilmek Istenen: Captain America Civil War magnet'i soğuk açılış süresi
+Sonuç: doğrulanamadı (kullanılabilir torrent kaynağı / eklenti yok)
+
+Açıklama:
+1. Temiz release APK kurulumunda hiçbir harici torrent eklentisi (Torrentio vb.) yüklü değildir.
+2. Arama ve detay sayfalarında torrent akış sağlayıcısı bulunmadığından içerik üzerinden torrent başlatılamamaktadır.
+3. ADIM 2(c) gereği MainActivity.handlePlayIntent içinde şema denetimi getirilmiş ve yalnızca http/https/file/content şemaları kabul edilmektedir (magnet: şeması doğrudan intent ile oynatılamaz; ayrıca release derlemesinde bu test intentleri tamamen yoksayılmaktadır).
+4. Ortamda kullanılabilir aktif bir torrent akış kaynağı ve eş bağlantısı bulunmadığından, yönerge kuralı uyarınca "doğrulanamadı" olarak raporlanmıştır.

@@ -1,0 +1,34 @@
+=== MADDE 6: KATALOG VE OYNATMA TESTLERI ===
+
+1. Örümcek-Adam Kataloğu Açılışı:
+   - Durum: GEÇTİ
+   - Açıklama: Arama sekmesinde "Spider-Man" sorgusu yapıldı. TMDB kataloğundan Örümcek-Adam yapımları (Spider-Man 2017 Dizi, Örümcek-Adam: Yepyeni Bir Gün 2026 Film, Örümcek-Adam 1994 Dizi, Örümcek Adam 2002 Film, Örümcek-Adam: Eve Dönüş 2017 Film, The Spectacular Spider-Man, Örümcek-Adam: Eve Dönüş Yok vb.) afiş, başlık, yıl ve tür bilgileriyle eksiksiz listelendi.
+   - Kanıt Dosyası: docs/dogrulama-124/madde6_spiderman_catalog.png
+
+2. Joker Kataloğu Açılışı:
+   - Durum: GEÇTİ
+   - Açıklama: Arama sekmesinde "Joker" sorgusu yapıldı. TMDB kataloğunda Joker (2019), Joker: İkili Delilik (2024), Batman Beyond: Joker'in Dönüşü vb. listelendi. İlk kart olan Joker (2019) seçilerek detay ekranı açıldı. Todd Phillips yönetmenliğindeki yapımın 18+, TMDB 8.1, Oynat, İndir, Fragman butonları görüntülendi.
+   - Kanıt Dosyaları:
+     * docs/dogrulama-124/madde6_search_joker_results.png (Arama sonuçları)
+     * docs/dogrulama-124/madde6_joker_detail_opened.png (Detay ekranı)
+
+3. Criminal Minds Bölüm Listesi:
+   - Durum: GEÇTİ
+   - Açıklama: Arama sekmesinde "Criminal Minds" arandı ve dizi detay sayfası açıldı. Sezon seçici (1. Sezon) ve sezonun bölümleri (1. Bölüm, 2. Bölüm, 3. Bölüm, 4. Bölüm, 5. Bölüm, 6. Bölüm...) bölüm kapak görseli, bölüm başlığı, süresi (40-43 dk), İngilizce özet ve İndir butonları ile listelendi. D-pad ile 6. bölüme kadar odaklanılarak kaydırıldı.
+   - Kanıt Dosyaları:
+     * docs/dogrulama-124/madde6_criminal_minds_search.png (Arama kartları)
+     * docs/dogrulama-124/madde6_criminal_minds_episodes.png (Bölüm listesi görünümü)
+
+4. Canlı Kanal 60 sn Oynat:
+   - Durum: doğrulanamadı (canlı TV akış kaynağı yok)
+   - Açıklama: TV sekmesine geçildiğinde "Etkin eklentilerinizde canlı kanal bulunamadı. 0 canlı kanal" durumu mevcuttur. Temiz kurulumda canlı TV akış sağlayıcı eklenti bulunmadığı için 60 saniyelik canlı yayın oynatımı gerçekleştirilemedi.
+   - Kanıt Dosyası: docs/dogrulama-124/madde2_tab_2_TV_down.png
+
+5. Film Oynat (HTTP kaynak, 3 dk):
+   - Durum: doğrulanamadı (video akış kaynağı yok)
+   - Açıklama: Joker detay sayfasında "Oynat" butonuna basıldığında, uygulamada tanımlı video akış sağlayıcı eklenti bulunmadığından "Eklenti ekle" (CloudStream Deposu Ekle / Nuvio Deposu Ekle / Nuvio Plugin Ekle) penceresi açılmaktadır. Temiz release APK'da harici video akış sağlayıcısı eklenmeden 3 dakikalık HTTP film oynatımı yapılamadı.
+   - Kanıt Dosyası: docs/dogrulama-124/madde6_joker_play.png
+
+6. Oynatıcıda Geri:
+   - Durum: doğrulanamadı (video akış kaynağı olmadığı için oynatıcı açılamadı)
+   - Açıklama: Oynatıcı akış kaynağı yokluğu nedeniyle açılamadığı için oynatıcı içi Geri tuşu davranışı release APK'da doğrulanamadı.

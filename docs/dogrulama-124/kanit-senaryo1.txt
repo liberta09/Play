@@ -1,0 +1,13 @@
+=== KULLANICI SENARYOSU 1: Eklenti Secilmemis Ana Sayfa Asagi/Geri Testi ===
+1. Ana sayfa eklenti secilmemis baslangic: Detaylari gor butonunda (y1=406) odakli.
+2. Asagi kaydir: 2 kez DOWN ile Yeni Eklenen Filmler cataloguna inildi (y1=485).
+3. Ust menuye cik: UP ile Ana sayfa sekmesine ulasildi (bounds=[579,50][662,132]).
+4. OK'ye basmadan ASAGI bas: returnFocusToContent calisti, liste basa kaydirildi, odak basariyla icerige indi (bounds=[20,229][249,309], y1=229).
+5. Ust menuye cikip Geri bas: BackHandler returnFocusToContent tetikledi, uygulamadan cikis OLMADI, odak icerige dondu (bounds=[20,229][249,309]).
+
+SONUC: GECTI
+Kanit Dosyalari:
+- docs/dogrulama-124/senaryo1_1_scrolled.png
+- docs/dogrulama-124/senaryo1_2_topbar.png
+- docs/dogrulama-124/senaryo1_3_content_after_down.png
+- docs/dogrulama-124/senaryo1_4_content_after_back.png

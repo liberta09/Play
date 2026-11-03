@@ -1,0 +1,15 @@
+=== MADDE 5: Eklenti Secili Ana Sayfa Asagi/Geri Testi ===
+1. Eklenti Secimi: 'Play Ozel Kataloglar' secildi, hap butonu guncellendi (bounds=[1294,827][1510,855]).
+2. Icerik odagi: Ilk kartta (Surus - Yalancilar, bounds=[30,131][258,513]).
+3. Ust menuye cik: UP ile Ana sayfa sekmesine ulasildi (bounds=[579,50][662,132]).
+4. OK'ye basmadan ASAGI bas: returnFocusToContent calisti, odak basariyla ilk karta indi (bounds=[30,131][258,513]).
+5. Ust menuye cikip Geri bas: BackHandler returnFocusToContent tetikledi, uygulamadan cikis OLMADI, odak icerikteki ilk karta dondu (bounds=[30,131][258,513]).
+
+SONUC: GECTI
+Kanit Dosyalari:
+- docs/dogrulama-124/madde5_provider_sheet.png
+- docs/dogrulama-124/madde5_addon_selected.png
+- docs/dogrulama-124/madde5_1_scrolled.png
+- docs/dogrulama-124/madde5_2_topbar.png
+- docs/dogrulama-124/madde5_3_content_after_down.png
+- docs/dogrulama-124/madde5_4_content_after_back.png

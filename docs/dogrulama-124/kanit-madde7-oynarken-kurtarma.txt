@@ -1,0 +1,36 @@
+=== MADDE 7: OYNARKEN BAGLANTI KOPMA VE KURTARMA SIMULASYONU (DEBUG APK) ===
+
+Birleşik Dal: release/1.2.4
+Ana Video (Primary): http://vjs.zencdn.net/v/oceans.mp4 (TestPrimary)
+Hata Zamanı (play_test_fail_after_ms): 2500 ms (tekrar: 2)
+Yedek Video (Fallback): https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4 (TestFallback)
+
+Sonuç: GEÇTİ
+Açıklama:
+1. Video başlatıldı: TestPrimary (vjs.zencdn.net) oynatılmaya başlandı, ilk kare alındı ve faz=Playing oldu.
+2. 2500 ms sonra ilk yapay hata tetiklendi: ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004).
+3. MidPlaybackRecoveryRules ilk kopmada aynı kaynağı yeniden deneme (RetrySame) kararı verdi. Oynatıcı kapanmadan aynı kaynak yeniden başlatıldı ve ilk kare başarıyla alındı.
+4. 2500 ms sonra ikinci yapay hata tetiklendi. RetrySame hakkı dolduğu için MidPlaybackRecoveryRules yedek kaynağa geçiş kararı verdi: Switch(candidate=TestFallback, notice=STREAM_DROPPED_TRYING_NEXT).
+5. Oynatıcı kapanmadan TestFallback başlatıldı ve ekranda sol üstte "TestFallback" başlığıyla kaynak geçişi doğrulandı.
+
+Kanıt Dosyaları:
+- docs/dogrulama-124/madde7_recovery_playing.png
+- docs/dogrulama-124/kanit-madde7-oynarken-kurtarma.txt
+
+Doğrudan Logcat Kanıtı:
+11-03 10:28:16.271 18119 18119 D PlayMatch: kaynak başlatılıyor: TestPrimary (vjs.zencdn.net)
+11-03 10:28:17.289 18119 18119 I PlayMatch: Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=20ms
+11-03 10:28:17.348 18119 18119 D PlayMatch: ilk kare: TestPrimary (faz=Starting)
+11-03 10:28:17.570 18119 18119 D PlayMatch: süre kontrolü kaynak=TestPrimary (vjs.zencdn.net) süre=0.8 dk beklenen=? dk tür=Movie -> Unknown
+11-03 10:28:19.850 18119 18119 D PlayMatch: play_test_fail_after_ms tetiklendi (2500 ms, kalan=2) -> ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)
+11-03 10:28:19.851 18119 18119 D PlayMatch: oynatıcı hatası: TestPrimary (faz=Playing) ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)
+11-03 10:28:19.851 18119 18119 D PlayMatch: oynatıcı hatası: TestPrimary (ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)) faz=Playing
+11-03 10:28:19.852 18119 18119 D PlayMatch: oynatirken kurtarma karari: RetrySame(stream=PlayableStream(source=StreamSource(addonId=1, addonName=TestPrimary), url=http://vjs.zencdn.net/v/oceans.mp4, resolution=1080, sizeBytes=null, headers={}, subtitles=[], language=null, mimeType=null, torrentFileIdx=null, dubbed=false, forKey=null)) (gecis=0)
+11-03 10:28:19.852 18119 18119 D PlayMatch: kaynak başlatılıyor: TestPrimary (vjs.zencdn.net)
+11-03 10:28:20.144 18119 18119 I PlayMatch: Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=16ms
+11-03 10:28:20.351 18119 18119 D PlayMatch: ilk kare: TestPrimary (faz=Starting)
+11-03 10:28:22.851 18119 18119 D PlayMatch: play_test_fail_after_ms tetiklendi (2500 ms, kalan=1) -> ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)
+11-03 10:28:22.853 18119 18119 D PlayMatch: oynatıcı hatası: TestPrimary (faz=Playing) ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)
+11-03 10:28:22.853 18119 18119 D PlayMatch: oynatıcı hatası: TestPrimary (ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)) faz=Playing
+11-03 10:28:22.853 18119 18119 D PlayMatch: oynatirken kurtarma karari: Switch(candidate=PlayableStream(source=StreamSource(addonId=2, addonName=TestFallback), url=https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4, resolution=1080, sizeBytes=null, headers={}, subtitles=[], language=null, mimeType=null, torrentFileIdx=null, dubbed=false, forKey=null), notice=STREAM_DROPPED_TRYING_NEXT) (gecis=0)
+11-03 10:28:22.854 18119 18119 D PlayMatch: kaynak başlatılıyor: TestFallback (test-videos.co.uk)
