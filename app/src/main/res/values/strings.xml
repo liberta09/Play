@@ -37,6 +37,9 @@
     <string name="continue_left_movie">%1$d min left</string>
     <string name="continue_left_episode">S%1$d E%2$d · %3$d min left</string>
     <string name="continue_next_episode">Next: S%1$d E%2$d</string>
+    <string name="continue_remove_message">Remove from Continue watching</string>
+    <string name="continue_remove_confirm">Remove from list</string>
+    <string name="continue_remove_cancel">Cancel</string>
 
     <!-- Ara -->
     <string name="search_hint">Search movies and series</string>

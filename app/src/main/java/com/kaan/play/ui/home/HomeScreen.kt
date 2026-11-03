@@ -23,6 +23,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import com.kaan.play.data.library.ContinueDeletionRules
+import com.kaan.play.ui.components.TextButton
+import kotlinx.coroutines.delay
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -289,7 +294,10 @@ private fun HomeContent(
     val loadSemaphore = remember { Semaphore(3) }
 
     // Dil değişince (etkinlik yeniden kurulur) yeni dille taze bir ViewModel: satırlar yeni dilde yüklenir.
-    val vm = containerViewModel(key = "home-${AppLanguage.effective().iso}") { HomeViewModel(it.tmdb, it.continueWatching) }
+    val vm = containerViewModel(key = "home-${AppLanguage.effective().iso}") { HomeViewModel(it.tmdb, it.continueWatching, it.library) }
+    var itemToRemove by remember { mutableStateOf<ContinueItem?>(null) }
+    val coroutineScope = rememberCoroutineScope()
+    val continueRequesters = remember { mutableMapOf<String, FocusRequester>() }
     val rows by vm.rows.collectAsStateWithLifecycle()
     val hero by vm.hero.collectAsStateWithLifecycle()
     // Durum kompozisyon kapsamında okunur (LazyColumn DSL bloğunda değil): değişince bu ekran yeniden çizilir.
@@ -357,10 +365,15 @@ private fun HomeContent(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(continueWatching, key = { "${it.entry.type}-${it.entry.tmdbId}" }) { item ->
+                            val itemKey = "${item.entry.type}-${item.entry.tmdbId}"
+                            val cardRequester = remember(itemKey) {
+                                continueRequesters.getOrPut(itemKey) { FocusRequester() }
+                            }
                             val isFirstContinue = !hasHero && item === continueWatching.first()
                             ContinueCard(
                                 item,
                                 modifier = Modifier
+                                    .focusRequester(cardRequester)
                                     .let { if (isFirstContinue && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
                                     .let { if (isFirstContinue && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
                                     .focusMemory(
@@ -368,7 +381,9 @@ private fun HomeContent(
                                         isDefault = isFirstContinue,
                                     ),
                                 width = cardWidth,
-                            ) { onContinue(item) }
+                                onClick = { onContinue(item) },
+                                onLongClick = { itemToRemove = item },
+                            )
                         }
                     }
                 }
@@ -428,6 +443,72 @@ private fun HomeContent(
                 }
             }
         }
+    }
+
+    itemToRemove?.let { target ->
+        val cancelFocus = rememberInitialFocus()
+        AlertDialog(
+            onDismissRequest = { itemToRemove = null },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = {
+                Text(
+                    text = target.entry.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.continue_remove_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val currentIndex = continueWatching.indexOfFirst {
+                            it.entry.type == target.entry.type && it.entry.tmdbId == target.entry.tmdbId
+                        }
+                        val remaining = continueWatching.filterNot {
+                            it.entry.type == target.entry.type && it.entry.tmdbId == target.entry.tmdbId
+                        }
+                        val nextItem = ContinueDeletionRules.nextFocusedItem(currentIndex, remaining)
+                        val nextKey = nextItem?.let { "${it.entry.type}-${it.entry.tmdbId}" }
+                        if (nextItem != null) {
+                            focus.lastKey = "c-${nextItem.entry.type}-${nextItem.entry.tmdbId}"
+                        } else {
+                            focus.lastKey = null
+                        }
+                        continueRequesters.remove("${target.entry.type}-${target.entry.tmdbId}")
+                        vm.removeContinueWatching(target)
+                        itemToRemove = null
+                        if (nextKey != null) {
+                            coroutineScope.launch {
+                                delay(100)
+                                try {
+                                    continueRequesters[nextKey]?.requestFocus()
+                                } catch (_: Exception) {}
+                            }
+                        }
+                    },
+                ) {
+                    Text(
+                        text = stringResource(R.string.continue_remove_confirm),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { itemToRemove = null },
+                    modifier = Modifier.focusRequester(cancelFocus),
+                ) {
+                    Text(stringResource(R.string.continue_remove_cancel))
+                }
+            },
+        )
     }
 }
 
@@ -489,7 +570,13 @@ private fun Section(
 }
 
 @Composable
-private fun ContinueCard(item: ContinueItem, width: Dp, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun ContinueCard(
+    item: ContinueItem,
+    width: Dp,
+    modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onClick: () -> Unit,
+) {
     val entry = item.entry
     val subtitle: String
     val progress: Float?
@@ -516,6 +603,7 @@ private fun ContinueCard(item: ContinueItem, width: Dp, modifier: Modifier = Mod
         tmdbId = entry.tmdbId,
         mediaType = entry.type,
         onClick = onClick,
+        onLongClick = onLongClick,
         modifier = modifier.width(width),
         progress = progress,
     )

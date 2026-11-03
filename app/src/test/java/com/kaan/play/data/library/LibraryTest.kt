@@ -273,6 +273,37 @@ class ContinueWatchingTest {
         assertTrue(item is ContinueItem.Resume)
         assertEquals(2, item.entry.episode)
     }
+
+    @Test
+    fun removeContinueWatchingSeriesDeletesAllEpisodesOfSeries() = runTest {
+        repo.saveProgress(episode(10, 1, 1), 60_000, 600_000)
+        repo.saveProgress(episode(10, 1, 2), 60_000, 600_000)
+        repo.saveProgress(movie(20), 60_000, 600_000)
+
+        assertEquals(2, continueWatching().items.first().size)
+
+        repo.removeContinueWatching(MediaType.Tv, 10)
+
+        val remaining = continueWatching().items.first()
+        assertEquals(1, remaining.size)
+        assertEquals(20, remaining.single().entry.tmdbId)
+        assertEquals(0, dao.rows.value.count { it.tmdbId == 10 })
+    }
+
+    @Test
+    fun removeContinueWatchingMovieDeletesSingleMovieRecord() = runTest {
+        repo.saveProgress(movie(1), 60_000, 600_000)
+        repo.saveProgress(movie(2), 60_000, 600_000)
+
+        assertEquals(2, continueWatching().items.first().size)
+
+        repo.removeContinueWatching(MediaType.Movie, 1)
+
+        val remaining = continueWatching().items.first()
+        assertEquals(1, remaining.size)
+        assertEquals(2, remaining.single().entry.tmdbId)
+        assertEquals(0, dao.rows.value.count { it.tmdbId == 1 })
+    }
 }
 
 class NextEpisodeResolverTest {

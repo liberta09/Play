@@ -2,7 +2,25 @@ package com.kaan.play.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import android.view.KeyEvent as AndroidKeyEvent
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.material3.ripple
@@ -44,6 +62,7 @@ import java.util.concurrent.ConcurrentHashMap
 private data class CachedImdbId(val value: String?, val checkedAtMs: Long)
 private val tmdbImdbCache = ConcurrentHashMap<String, CachedImdbId>()
 private const val EMPTY_IMDB_CACHE_TTL_MS = 2 * 60 * 1_000L
+private val OK_KEYS = setOf(Key.DirectionCenter, Key.Enter, Key.NumPadEnter)
 
 /**
  * Play'in kart biçimi: ince çerçeveli 2:3 afiş (12dp köşe), altında başlık ve soluk alt satır.
@@ -51,12 +70,14 @@ private const val EMPTY_IMDB_CACHE_TTL_MS = 2 * 60 * 1_000L
  * [overlay]: afişin üstüne çizilen küçük eylem (ör. favoriden çıkar düğmesi).
  */
 @Composable
+@OptIn(ExperimentalFoundationApi::class)
 fun PosterCard(
     title: String,
     subtitle: String?,
     imageUrl: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     progress: Float? = null,
     /** Addon öğelerindeki IMDb kimliği; özel poster şablonu bununla doldurulur. */
     posterId: String? = null,
@@ -71,7 +92,108 @@ fun PosterCard(
     val interaction = remember { MutableInteractionSource() }
     val focused by interaction.collectIsFocusedAsState()
     // Tüm sütunu yuvarlak kırpmayız: alt satırın ilk harfini keserdi. Yalnızca afiş kırpılır.
-    Column(modifier = modifier.clickable(interactionSource = interaction, indication = ripple(), onClick = onClick).zIndex(if (focused) 10f else 0f)) {
+    val scope = rememberCoroutineScope()
+    var isKeyDownActive by remember { mutableStateOf(false) }
+    var isLongPressTriggered by remember { mutableStateOf(false) }
+    var longPressJob by remember { mutableStateOf<Job?>(null) }
+    var currentPress by remember { mutableStateOf<PressInteraction.Press?>(null) }
+
+    DisposableEffect(onLongClick) {
+        onDispose {
+            longPressJob?.cancel()
+            longPressJob = null
+            isKeyDownActive = false
+            isLongPressTriggered = false
+            currentPress = null
+        }
+    }
+
+    val clickModifier = if (onLongClick != null) {
+        Modifier.combinedClickable(
+            interactionSource = interaction,
+            indication = ripple(),
+            onClick = onClick,
+            onLongClick = onLongClick,
+        )
+    } else {
+        Modifier.clickable(
+            interactionSource = interaction,
+            indication = ripple(),
+            onClick = onClick,
+        )
+    }
+
+    val keyModifier = if (onLongClick != null) {
+        Modifier
+            .onFocusChanged { focusState ->
+                if (!focusState.isFocused && isKeyDownActive) {
+                    longPressJob?.cancel()
+                    longPressJob = null
+                    currentPress?.let { p -> scope.launch { interaction.emit(PressInteraction.Cancel(p)) } }
+                    currentPress = null
+                    isKeyDownActive = false
+                    isLongPressTriggered = false
+                }
+            }
+            .onPreviewKeyEvent { event ->
+                if (event.key == Key.Menu) {
+                    if (event.type == KeyEventType.KeyDown) {
+                        onLongClick()
+                    }
+                    true
+                } else if (event.key in OK_KEYS) {
+                    if (event.type == KeyEventType.KeyDown) {
+                        val native = event.nativeKeyEvent
+                        if (native.isLongPress || (native.flags and AndroidKeyEvent.FLAG_LONG_PRESS) != 0) {
+                            longPressJob?.cancel()
+                            longPressJob = null
+                            isLongPressTriggered = true
+                            onLongClick()
+                            return@onPreviewKeyEvent true
+                        }
+                        if (!isKeyDownActive) {
+                            isKeyDownActive = true
+                            isLongPressTriggered = false
+                            val press = PressInteraction.Press(Offset.Zero)
+                            currentPress = press
+                            scope.launch { interaction.emit(press) }
+                            longPressJob = scope.launch {
+                                delay(500)
+                                isLongPressTriggered = true
+                                onLongClick()
+                            }
+                        }
+                        true
+                    } else if (event.type == KeyEventType.KeyUp) {
+                        val wasActive = isKeyDownActive
+                        isKeyDownActive = false
+                        currentPress?.let { p ->
+                            scope.launch { interaction.emit(PressInteraction.Release(p)) }
+                            currentPress = null
+                        }
+                        longPressJob?.cancel()
+                        longPressJob = null
+                        if (isLongPressTriggered) {
+                            isLongPressTriggered = false
+                            true
+                        } else if (wasActive) {
+                            onClick()
+                            true
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
+            }
+    } else {
+        Modifier
+    }
+
+    Column(modifier = modifier.then(keyModifier).then(clickModifier).zIndex(if (focused) 10f else 0f)) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()

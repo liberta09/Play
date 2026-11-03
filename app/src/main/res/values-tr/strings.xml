@@ -30,6 +30,9 @@
     <string name="continue_left_movie">%1$d dk kaldı</string>
     <string name="continue_left_episode">S%1$d B%2$d · %3$d dk kaldı</string>
     <string name="continue_next_episode">Sıradaki: S%1$d B%2$d</string>
+    <string name="continue_remove_message">İzlemeye devam et\'ten kaldır</string>
+    <string name="continue_remove_confirm">Listeden kaldır</string>
+    <string name="continue_remove_cancel">Vazgeç</string>
 
     <!-- Ara -->
     <string name="search_hint">Film ve dizi ara</string>
