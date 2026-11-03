@@ -912,6 +912,8 @@ private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier
         SourceNotice.Mismatch -> R.string.player_source_mismatch to "content"
         SourceNotice.StallSwitched -> R.string.player_stall_switched to null
         SourceNotice.ManualSlow -> R.string.player_manual_slow to null
+        is SourceNotice.StreamDropped -> R.string.player_stream_dropped to notice.detail
+        SourceNotice.SourceSwitched -> R.string.player_source_switched to null
     }
     Column(
         modifier = modifier

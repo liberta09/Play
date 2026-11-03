@@ -217,8 +217,42 @@ class SourceCoordinatorTest {
         val notice = rig.coordinator.notice as SourceNotice.Skipped
         assertEquals("ERROR_CODE_IO_BAD_HTTP_STATUS (2004) http=404", notice.detail)
         rig.coordinator.onFirstFrame()
-        // Oynarken gelen hata arayüze bırakılır.
-        assertFalse(rig.coordinator.onFailure("later"))
+        // Oynarken ilk hata aynı kaynağı bir kez yeniden dener.
+        assertTrue(rig.coordinator.onFailure("later"))
+        assertEquals("https://a/2", rig.lastUrl)
+        advanceTimeBy(SourceCoordinator.STALE_FRAME_GUARD_MS + 100)
+        rig.coordinator.onFirstFrame()
+        // İkinci hata başka aday olmadığı için hata ekranına bırakılır.
+        assertFalse(rig.coordinator.onFailure("later-again"))
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun midPlaybackFailureRecoversToNextSourceAtSamePosition() = runTest {
+        val a = stream(source1, "https://a/1", size = 1_000_000_000L)
+        val b = stream(source1, "https://a/2", size = 2_000_000_000L)
+        val rig = Rig(this, flow { emit(found(source1, a, b)) }, request = request)
+        rig.positionMs = 20_000L
+        rig.coordinator.start(null, emptyList(), 0)
+        runCurrent()
+        assertEquals("https://a/1", rig.lastUrl)
+        rig.coordinator.onFirstFrame()
+
+        // 1. hata: aynı kaynak kaldığı konumdan denenir
+        assertTrue(rig.coordinator.onFailure("ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)"))
+        assertEquals("https://a/1", rig.lastUrl)
+        assertEquals(20_000L, rig.loaded.last().second)
+        advanceTimeBy(SourceCoordinator.STALE_FRAME_GUARD_MS + 100)
+        rig.coordinator.onFirstFrame()
+
+        // 2. hata: sıradaki kaynağa geçilir
+        rig.positionMs = 25_000L
+        assertTrue(rig.coordinator.onFailure("ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)"))
+        assertEquals("https://a/2", rig.lastUrl)
+        assertEquals(25_000L, rig.loaded.last().second)
+        val notice = rig.coordinator.notice as SourceNotice.StreamDropped
+        assertEquals("ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)", notice.detail)
+        assertEquals(1, rig.coordinator.midPlaybackSwitches)
         advanceUntilIdle()
     }
 

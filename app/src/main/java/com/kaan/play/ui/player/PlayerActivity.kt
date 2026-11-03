@@ -246,6 +246,24 @@ class PlayerActivity : AppCompatActivity() {
                         }
                     }
                 }
+                if (BuildConfig.DEBUG) {
+                    val failAfterMs = intent.getLongExtra("play_test_fail_after_ms", 0L)
+                    val repeatsLeft = intent.getIntExtra("play_test_fail_repeats", 1)
+                    if (failAfterMs > 0 && repeatsLeft > 0) {
+                        intent.putExtra("play_test_fail_repeats", repeatsLeft - 1)
+                        if (repeatsLeft - 1 <= 0) {
+                            intent.removeExtra("play_test_fail_after_ms")
+                        }
+                        lifecycleScope.launch {
+                            delay(failAfterMs)
+                            if (!leaving && session.offline == null && coordinator?.phase == SourcePhase.Playing) {
+                                android.util.Log.d("PlayMatch", "play_test_fail_after_ms tetiklendi ($failAfterMs ms, kalan=$repeatsLeft) -> ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)")
+                                controller.player.stop()
+                                controller.onFailure?.invoke("ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)")
+                            }
+                        }
+                    }
+                }
             }
             controller.onDurationKnown = { sources.onDuration(it) }
             controller.onFailure = { detail -> leaving || sources.onFailure(detail) }

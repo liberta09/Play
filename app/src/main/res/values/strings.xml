@@ -475,6 +475,8 @@
     <string name="player_source_mismatch">That source was playing a different video, so it was skipped.</string>
     <string name="player_stall_switched">Source was slow, switched.</string>
     <string name="player_manual_slow">Source is slow, you can choose another.</string>
+    <string name="player_stream_dropped">Stream disconnected, trying next source.</string>
+    <string name="player_source_switched">Source changed.</string>
     <string name="player_error_detail">Details: %1$s</string>
     <string name="dub_suggest_title">Dubbed source found. Switch?</string>
     <string name="dub_suggest_switch">Switch</string>
