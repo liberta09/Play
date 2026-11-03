@@ -2,6 +2,7 @@ package com.kaan.play.data.library
 
 import com.kaan.play.data.db.WatchHistoryEntity
 import com.kaan.play.data.model.MediaType
+import kotlin.jvm.JvmName
 
 /**
  * "İzlemeye devam et" listesinden kaldırma kuralları (Android'den bağımsız saf sınıf).
@@ -29,11 +30,18 @@ object ContinueDeletionRules {
     fun shouldDelete(entry: WatchHistoryEntity, target: Target): Boolean =
         entry.tmdbId == target.tmdbId && entry.type == target.type
 
+    fun shouldDelete(item: ContinueItem, target: Target): Boolean =
+        shouldDelete(item.entry, target)
+
     /**
      * Geçmiş listesinden hedef içeriğe ait tüm kayıtları filtreler (çıkarır).
      */
     fun filterRemaining(history: List<WatchHistoryEntity>, target: Target): List<WatchHistoryEntity> =
         history.filterNot { shouldDelete(it, target) }
+
+    @JvmName("filterRemainingItems")
+    fun filterRemaining(items: List<ContinueItem>, target: Target): List<ContinueItem> =
+        items.filterNot { shouldDelete(it, target) }
 
     /**
      * Bir kart silindiğinde odağın geçeceği bir sonraki kartı belirler.

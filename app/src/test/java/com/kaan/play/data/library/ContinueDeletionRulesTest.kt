@@ -111,6 +111,25 @@ class ContinueDeletionRulesTest {
     }
 
     @Test
+    fun continueItem_filterRemaining_and_shouldDelete_workForResumeAndNext() {
+        val seriesEp = episode(id = 1, tmdbId = 100, season = 1, episode = 1)
+        val itemSeries = ContinueItem.Next(seriesEp, season = 1, episode = 2)
+
+        val movieEntity = movie(id = 2, tmdbId = 200)
+        val itemMovie = ContinueItem.Resume(movieEntity)
+
+        val items = listOf<ContinueItem>(itemSeries, itemMovie)
+
+        val seriesTarget = ContinueDeletionRules.targetFrom(itemSeries)
+        assertTrue(ContinueDeletionRules.shouldDelete(itemSeries, seriesTarget))
+        assertFalse(ContinueDeletionRules.shouldDelete(itemMovie, seriesTarget))
+
+        val remaining = ContinueDeletionRules.filterRemaining(items, seriesTarget)
+        assertEquals(1, remaining.size)
+        assertEquals(itemMovie, remaining.first())
+    }
+
+    @Test
     fun nextFocusedItem_choosesCorrectNeighbor() {
         val list = listOf("A", "B", "C")
 

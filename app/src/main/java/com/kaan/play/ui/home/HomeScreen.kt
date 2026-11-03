@@ -445,7 +445,7 @@ private fun HomeContent(
         }
     }
 
-    itemToRemove?.let { target ->
+    itemToRemove?.let { targetItem ->
         val cancelFocus = rememberInitialFocus()
         AlertDialog(
             onDismissRequest = { itemToRemove = null },
@@ -453,7 +453,7 @@ private fun HomeContent(
             containerColor = MaterialTheme.colorScheme.surface,
             title = {
                 Text(
-                    text = target.entry.title,
+                    text = targetItem.entry.title,
                     style = MaterialTheme.typography.titleLarge,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -468,12 +468,11 @@ private fun HomeContent(
             confirmButton = {
                 TextButton(
                     onClick = {
+                        val ruleTarget = ContinueDeletionRules.targetFrom(targetItem)
                         val currentIndex = continueWatching.indexOfFirst {
-                            it.entry.type == target.entry.type && it.entry.tmdbId == target.entry.tmdbId
+                            ContinueDeletionRules.shouldDelete(it, ruleTarget)
                         }
-                        val remaining = continueWatching.filterNot {
-                            it.entry.type == target.entry.type && it.entry.tmdbId == target.entry.tmdbId
-                        }
+                        val remaining = ContinueDeletionRules.filterRemaining(continueWatching, ruleTarget)
                         val nextItem = ContinueDeletionRules.nextFocusedItem(currentIndex, remaining)
                         val nextKey = nextItem?.let { "${it.entry.type}-${it.entry.tmdbId}" }
                         if (nextItem != null) {
@@ -481,8 +480,8 @@ private fun HomeContent(
                         } else {
                             focus.lastKey = null
                         }
-                        continueRequesters.remove("${target.entry.type}-${target.entry.tmdbId}")
-                        vm.removeContinueWatching(target)
+                        continueRequesters.remove("${ruleTarget.type}-${ruleTarget.tmdbId}")
+                        vm.removeContinueWatching(targetItem)
                         itemToRemove = null
                         if (nextKey != null) {
                             coroutineScope.launch {

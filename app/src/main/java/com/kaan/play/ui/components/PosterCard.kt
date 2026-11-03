@@ -55,6 +55,7 @@ import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.ui.rememberContainer
+import com.kaan.play.ui.tv.LongPressKeyMachine
 import com.kaan.play.ui.tv.tvFocusableScaleGlow
 import androidx.compose.ui.zIndex
 import java.util.concurrent.ConcurrentHashMap
@@ -93,8 +94,7 @@ fun PosterCard(
     val focused by interaction.collectIsFocusedAsState()
     // Tüm sütunu yuvarlak kırpmayız: alt satırın ilk harfini keserdi. Yalnızca afiş kırpılır.
     val scope = rememberCoroutineScope()
-    var isKeyDownActive by remember { mutableStateOf(false) }
-    var isLongPressTriggered by remember { mutableStateOf(false) }
+    val machine = remember { LongPressKeyMachine() }
     var longPressJob by remember { mutableStateOf<Job?>(null) }
     var currentPress by remember { mutableStateOf<PressInteraction.Press?>(null) }
 
@@ -102,9 +102,8 @@ fun PosterCard(
         onDispose {
             longPressJob?.cancel()
             longPressJob = null
-            isKeyDownActive = false
-            isLongPressTriggered = false
             currentPress = null
+            machine.reset()
         }
     }
 
@@ -126,61 +125,63 @@ fun PosterCard(
     val keyModifier = if (onLongClick != null) {
         Modifier
             .onFocusChanged { focusState ->
-                if (!focusState.isFocused && isKeyDownActive) {
+                if (!focusState.isFocused) {
                     longPressJob?.cancel()
                     longPressJob = null
                     currentPress?.let { p -> scope.launch { interaction.emit(PressInteraction.Cancel(p)) } }
                     currentPress = null
-                    isKeyDownActive = false
-                    isLongPressTriggered = false
+                    machine.onFocusLost()
                 }
             }
             .onPreviewKeyEvent { event ->
                 if (event.key == Key.Menu) {
                     if (event.type == KeyEventType.KeyDown) {
+                        longPressJob?.cancel()
+                        longPressJob = null
+                        currentPress?.let { p -> scope.launch { interaction.emit(PressInteraction.Cancel(p)) } }
+                        currentPress = null
+                        machine.reset()
                         onLongClick()
                     }
                     true
                 } else if (event.key in OK_KEYS) {
                     if (event.type == KeyEventType.KeyDown) {
                         val native = event.nativeKeyEvent
-                        if (native.isLongPress || (native.flags and AndroidKeyEvent.FLAG_LONG_PRESS) != 0) {
+                        val isNativeLong = native.isLongPress || (native.flags and AndroidKeyEvent.FLAG_LONG_PRESS) != 0
+                        if (isNativeLong) {
                             longPressJob?.cancel()
                             longPressJob = null
-                            isLongPressTriggered = true
-                            onLongClick()
-                            return@onPreviewKeyEvent true
                         }
-                        if (!isKeyDownActive) {
-                            isKeyDownActive = true
-                            isLongPressTriggered = false
+                        val action = machine.onKeyDown(repeatCount = native.repeatCount, isLongPress = isNativeLong)
+                        if (action is LongPressKeyMachine.Action.Press) {
                             val press = PressInteraction.Press(Offset.Zero)
                             currentPress = press
                             scope.launch { interaction.emit(press) }
+                            longPressJob?.cancel()
                             longPressJob = scope.launch {
-                                delay(500)
-                                isLongPressTriggered = true
-                                onLongClick()
+                                delay(machine.longPressThresholdMs)
+                                machine.onTimeout()
                             }
                         }
                         true
                     } else if (event.type == KeyEventType.KeyUp) {
-                        val wasActive = isKeyDownActive
-                        isKeyDownActive = false
+                        longPressJob?.cancel()
+                        longPressJob = null
                         currentPress?.let { p ->
                             scope.launch { interaction.emit(PressInteraction.Release(p)) }
                             currentPress = null
                         }
-                        longPressJob?.cancel()
-                        longPressJob = null
-                        if (isLongPressTriggered) {
-                            isLongPressTriggered = false
-                            true
-                        } else if (wasActive) {
-                            onClick()
-                            true
-                        } else {
-                            false
+                        val action = machine.onKeyUp()
+                        when (action) {
+                            is LongPressKeyMachine.Action.ShowDialogOnRelease -> {
+                                onLongClick()
+                                true
+                            }
+                            is LongPressKeyMachine.Action.Click -> {
+                                onClick()
+                                true
+                            }
+                            else -> true
                         }
                     } else {
                         false

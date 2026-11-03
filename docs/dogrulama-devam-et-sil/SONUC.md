@@ -4,25 +4,25 @@
 **Dal:** `feat/devam-et-sil` (taban: `origin/main` @ `3bb1dd0`)  
 **Sürüm:** 1.2.4 (sürüm artırılmadı)  
 **Düzenek:** LDPlayer (127.0.0.1:5555), Android 9 x86_64, 1600x900  
-**Fiziksel TV kutusu:** Doğrulanamadı (fiziksel TV kutusu bağlı değil; emülatör üzerinde kumanda keyevent'leri ve dokunmatik ile doğrulandı)
+**Fiziksel TV kutusu:** Doğrulanamadı (fiziksel TV kutusu bağlı değil; emülatör üzerinde kumanda keyevent'leri ve dokunmatik ile doğrulandı. Donanımsal tuş tekrarı için bkz. Bölüm 2 altındaki açıklama)
 
 ---
 
 ## 1. Görev ve Yapılanlar Özeti
 
-Ana sayfadaki "İzlemeye devam et" satırında yer alan içerik kartlarını basılı tutarak veya kumanda Menü tuşuyla listeden kaldırma özelliği tamamlandı.
+Ana sayfadaki "İzlemeye devam et" satırında yer alan içerik kartlarını basılı tutarak veya kumanda Menü tuşuyla listeden kaldırma özelliği tamamlandı ve 3 kritik düzeltme uygulandı:
 
 1. **Yol Haritası ve README Güncellemesi:**
    - [docs/yol-haritasi.md](file:///C:/Projeler/Play/docs/yol-haritasi.md): 2026-11-03 kullanıcı kararı karar günlüğüne eklendi.
-   - [README.md](file:///C:/Projeler/Play/README.md): TV / Kumanda bölümüne CLAUDE.md kuralı gereği tuş karşılığı notu eklendi ("Her işlemin kumandada bir tuş karşılığı vardır: Tamam basılı tutma veya Menü tuşu").
+   - [README.md](file:///C:/Projeler/Play/README.md): TV / Kumanda bölümüne CLAUDE.md kuralı gereği tuş karşılığı notu eklendi ("Her işlemin kumandada bir tuş karşılığı vardır: 'İzlemeye devam et' kartında Menü tuşu veya Tamam tuşunu ~0,5 sn basılı tutma onay penceresini açar").
 
-2. **Çoklu Dil String Kaynakları (EN + TR):**
+2. **Çoklu Dil String Kaynakları (EN + TR Soru Cümlesi):**
    - [app/src/main/res/values/strings.xml](file:///C:/Projeler/Play/app/src/main/res/values/strings.xml):
-     - `continue_remove_message`: "Remove from Continue watching"
+     - `continue_remove_message`: "Remove from Continue watching?"
      - `continue_remove_confirm`: "Remove from list"
      - `continue_remove_cancel`: "Cancel"
    - [app/src/main/res/values-tr/strings.xml](file:///C:/Projeler/Play/app/src/main/res/values-tr/strings.xml):
-     - `continue_remove_message`: "İzlemeye devam et'ten kaldır"
+     - `continue_remove_message`: "İzlemeye devam et\'ten kaldırılsın mı?"
      - `continue_remove_confirm`: "Listeden kaldır"
      - `continue_remove_cancel`: "Vazgeç"
    - `StringResourcesTest`: Anahtar eşitliği doğrulandı ve başarıyla geçti.
@@ -30,32 +30,31 @@ Ana sayfadaki "İzlemeye devam et" satırında yer alan içerik kartlarını bas
 3. **Android'den Bağımsız Saf Kural Sınıfı (`ContinueDeletionRules`):**
    - [app/src/main/java/com/kaan/play/data/library/ContinueDeletionRules.kt](file:///C:/Projeler/Play/app/src/main/java/com/kaan/play/data/library/ContinueDeletionRules.kt):
      - `targetFrom(item: ContinueItem)` / `targetFrom(entry: WatchHistoryEntity)`: Hedef çıkarımı.
-     - `shouldDelete(entry, target)` / `filterRemaining(history, target)`: Dizide tüm bölümlerin, filmde tek kaydın eşleşmesi; olmayan kayıtta sessiz kalma.
+     - `shouldDelete(entry, target)` / `shouldDelete(item, target)`: Medya türü ve TMDb kimliği eşleşmesi.
+     - `filterRemaining(history, target)` / `filterRemaining(items, target)`: Dizide tüm bölümlerin, filmde tek kaydın elenmesi.
      - `nextFocusedItem(removedIndex, remaining)`: Silme sonrası odak verilecek komşu öğe hesabı.
-   - [app/src/test/java/com/kaan/play/data/library/ContinueDeletionRulesTest.kt](file:///C:/Projeler/Play/app/src/test/java/com/kaan/play/data/library/ContinueDeletionRulesTest.kt): 5 birim testiyle %100 kapsandı.
+   - [app/src/test/java/com/kaan/play/data/library/ContinueDeletionRulesTest.kt](file:///C:/Projeler/Play/app/src/test/java/com/kaan/play/data/library/ContinueDeletionRulesTest.kt): 6 birim testiyle %100 kapsandı.
 
-4. **Veri Katmanı (`LibraryRepository`):**
-   - [app/src/main/java/com/kaan/play/data/library/LibraryRepository.kt](file:///C:/Projeler/Play/app/src/main/java/com/kaan/play/data/library/LibraryRepository.kt): `removeContinueWatching(type, tmdbId)` ve `removeContinueWatching(item: ContinueItem)` fonksiyonları eklendi.
-   - `history.deleteForMedia(u, p, tmdbId, type.name)` çağrısı kullanılarak Room üzerinden tek sorguyla dizinin tüm bölümleri veya film kaydı silinir.
-   - [app/src/test/java/com/kaan/play/data/library/LibraryTest.kt](file:///C:/Projeler/Play/app/src/test/java/com/kaan/play/data/library/LibraryTest.kt): Dizi ve film silme birim testleri eklendi.
+4. **HomeScreen Silme Mantığı Sadeleştirmesi (Ölü Kod Giderildi):**
+   - [app/src/main/java/com/kaan/play/ui/home/HomeScreen.kt](file:///C:/Projeler/Play/app/src/main/java/com/kaan/play/ui/home/HomeScreen.kt): Silme onay butonundaki satır içi filtreleme kaldırılarak doğrudan `ContinueDeletionRules.targetFrom`, `shouldDelete`, `filterRemaining` ve `nextFocusedItem` fonksiyonları bağlandı.
 
-5. **Arayüz ve Kumanda Etkileşimi (`PosterCard` & `HomeScreen`):**
-   - [app/src/main/java/com/kaan/play/ui/components/PosterCard.kt](file:///C:/Projeler/Play/app/src/main/java/com/kaan/play/ui/components/PosterCard.kt):
-     - `onLongClick` parametresi eklendi.
-     - Kumanda Menü tuşu (`Key.Menu` / keycode 82) doğrudan `onLongClick` tetikler.
-     - Kumanda Tamam tuşu (`Key.DirectionCenter`, `Key.Enter`, `Key.NumPadEnter`): ~0.5 sn basılı tutulduğunda (`delay(500)` veya native `FLAG_LONG_PRESS`) `onLongClick` tetiklenir; kısa basıp bırakıldığında normal `onClick` (oynatma) çalışır.
-     - Dokunmatikte `combinedClickable` ile uzun basma `onLongClick` tetikler.
-   - [app/src/main/java/com/kaan/play/ui/home/HomeScreen.kt](file:///C:/Projeler/Play/app/src/main/java/com/kaan/play/ui/home/HomeScreen.kt):
-     - `AlertDialog` onay penceresi: Başlık içeriğin adı, metin "İzlemeye devam et'ten kaldır".
-     - Düğmeler: "Vazgeç" ve "Listeden kaldır" (`PlayButtons.TextButton` odak halkalı).
-     - Başlangıç odağı `rememberInitialFocus()` ile "Vazgeç" üzerindedir; kazara silme engellenir.
-     - Geri tuşu = Vazgeç (`onDismissRequest`).
-     - Silme işlemi animasyonsuz gerçekleşir; odak `continueRequesters` üzerinden komşu karta aktarılır; satır boşalırsa satır kapanır ve odak komşu satıra devredilir.
-     - Favoriler ve indirilenler silinmez. Kütüphane geçmişi aynı tablodan beslendiği için silinen içerik orada da görünmez.
+5. **Gerçek Kumanda Basılı Tutma Sorununun Çözümü (`LongPressKeyMachine`):**
+   - [app/src/main/java/com/kaan/play/ui/tv/LongPressKeyMachine.kt](file:///C:/Projeler/Play/app/src/main/java/com/kaan/play/ui/tv/LongPressKeyMachine.kt): Android ve Compose bağımsız saf durum makinesi.
+   - Kural: 500 ms dolduğunda uzun basma algılanır/silahlanır (`LONG_PRESS_ARMED`) ve görsel ripple/basılı tutma sürer. Ancak pencere kullanıcı tuşu **BIRAKTIĞINDA** (`KeyUp` -> `ShowDialogOnRelease`) açılır. Böylece fiziksel kumandanın donanımsal tekrar eden `KeyDown` ve `KeyUp` olayları penceredeki odaklı "Vazgeç" düğmesine sızamaz.
+   - Pencere kapandıktan sonra iç durum (`machine.reset()`, `currentPress = null`, `longPressJob = null`) tamamen temiz sıfırlanır; uzun basma sonrası yapılan ilk kısa Tamam basışı yutulmadan doğrudan oynatma/detay akışını açar.
+   - [app/src/test/java/com/kaan/play/ui/tv/LongPressKeyMachineTest.kt](file:///C:/Projeler/Play/app/src/test/java/com/kaan/play/ui/tv/LongPressKeyMachineTest.kt): 7 birim testi ile tüm geçişler, tekrarlar, odak kaybı ve sıfırlanma doğrulandı.
 
 ---
 
-## 2. Senkronizasyon Riski Araştırması (`LocalSyncMerge`)
+## 2. Emülatör ve Donanım Kısıtları
+
+> [!WARNING]
+> **Fiziksel Kumanda Donanımsal Tuş Tekrarı:**
+> Emülatörde ADB keyevent (`adb shell input keyevent`) mekanizmasıyla fiziksel kumandaların donanımsal otomatik tuş tekrar akışı (`repeatCount > 0` hızında sürekli basılı kalma) gerçekçi şekilde simüle edilememektedir. Bu sebeple donanımsal tuş tekrar davranışı emülatörde **doğrulanamadı, saf durum makinesi birim testiyle (`LongPressKeyMachineTest`) %100 kapsandı, gerçek kumandada kullanıcı denemesi gerekir.**
+
+---
+
+## 3. Senkronizasyon Riski Araştırması (`LocalSyncMerge`)
 
 **Soru:** "LocalSyncMerge geçmişi en yeni `lastWatchedAt` birleşimiyle eşitliyor. Silinen kayıt Wi-Fi/bulut senkronunda diğer cihazdan GERİ GELEBİLİR mi? Hangi koşulda?"
 
@@ -87,36 +86,36 @@ Kural gereği kendiliğinden şema değişikliği yapılmamıştır. Bu durumun 
 
 ---
 
-## 3. Test ve Derleme Sonuçları
+## 4. Test ve Derleme Sonuçları
 
 ### Birim Testleri
 ```bash
 .\gradlew testDebugUnitTest
 ```
-- **Toplam Test Sayısı:** 1201 (önceki: 1194, yeni: +7)
+- **Toplam Test Sayısı:** 1209 (önceki: 1201, yeni: +8)
 - **Başarısız:** 0
 - **Atlanan:** 2 (önceden tanımlı harici ağ testleri)
-- **Sonuç:** `BUILD SUCCESSFUL` (Tüm 1201 test eksiksiz geçti)
+- **Sonuç:** `BUILD SUCCESSFUL in 1m 3s` (%100 başarılı)
 
 ### Release Derlemesi
 ```bash
 .\gradlew assembleRelease
 ```
-- **Sonuç:** `BUILD SUCCESSFUL in 2m 54s`
+- **Sonuç:** `BUILD SUCCESSFUL in 2m 36s`
 - **APK Dosyası:** `app/build/outputs/apk/release/Play-1.2.4.apk`
-- **Boyut:** 48,634,002 bayt (~46.38 MB)
-- **SHA-256:** `1a7c79d49c2d159b64b6a31d8a971c2568289f743f9de756e38c1947353eb0c9`
+- **Boyut:** 48,637,378 bayt (~46.38 MB)
+- **SHA-256:** `bc4d5dbdaa53288ec079855407d34da7ca8ba429754245ccad0a23c4cc6144f7`
 
 ---
 
-## 4. Emülatör Doğrulama Kanıtları
+## 5. Emülatör Doğrulama Kanıtları
 
-Doğrulama betiği ile tüm senaryolar uçtan uca çalıştırılmış ve ekran görüntüleri `docs/dogrulama-devam-et-sil/` altına kaydedilmiştir:
+Doğrulama betikleri ile tüm senaryolar uçtan uca çalıştırılmış ve 11 adet ekran görüntüsü güncellenmiştir:
 
 | Ekran Görüntüsü | Açıklama |
 |---|---|
 | `01-kart-odak.png` | "İzlemeye devam et" satırındaki ilk kart ('Breaking Bad') odaklandı. |
-| `02-dialog-menu-ile-acildi.png` | Kumandada Menü tuşuna (`Key.Menu` / 82) basıldığında onay penceresi açıldı. Başlık: "Breaking Bad", Metin: "İzlemeye devam et'ten kaldır". Odak "Vazgeç" düğmesinde. |
+| `02-dialog-menu-ile-acildi.png` | Kumandada Menü tuşuna (`Key.Menu` / 82) basıldığında onay penceresi açıldı. Başlık: "Breaking Bad", Metin: "İzlemeye devam et'ten kaldırılsın mı?". Odak "Vazgeç" düğmesinde. |
 | `03-vazgec-ile-kapatildi.png` | Odak "Vazgeç"te iken Tamam'a basıldığında pencere kapandı, içerik veritabanında ve satırda kaldı. |
 | `04-geri-ile-kapatildi.png` | Pencere açıkken kumanda Geri tuşuna basıldığında pencere kapandı, içerik silinmedi. |
 | `05-dialog-odak-listeden-kaldir.png` | Yön tuşuyla odak "Listeden kaldır" kırmızı vurgulu düğmesine geçirildi. |
@@ -125,26 +124,4 @@ Doğrulama betiği ile tüm senaryolar uçtan uca çalıştırılmış ve ekran 
 | `08-film-silindi-odak-diziye-gecti.png` | Film silindi (tek kayıt silindi), odak sağındaki 'Game of Thrones' kartına geçti. |
 | `09-son-kart-silindi-satir-kapandi.png` | Çok bölümlü dizi ('Game of Thrones', S1E1 + S1E2): "Listeden kaldır" ile TÜM bölümleri silindi (bölüm sayısı: 2 -> 0). Satır tamamen boşaldığı için satır arayüzden kalktı ve odak komşu içeriğe devredildi. |
 | `10-ust-menu-kopru.png` | Üst menü köprüleri (AŞAĞI/YUKARI/Geri geçişleri) denendi; menüye çıkış ve içeriğe dönüş sorunsuz çalıştı. |
-| `11-kisa-tamam-oynatma.png` | Kısa Tamam basışının (normal seçim) hâlâ içeriği oynattığı/kaynak/detay akışını açtığı doğrulandı. |
-
----
-
-## 5. Değiştirilen Dosyalar (`git diff --stat`)
-
-```text
- README.md                                          |  2 +-
- .../com/kaan/play/data/library/LibraryRepository.kt|  9 +++
- .../com/kaan/play/ui/components/PosterCard.kt      | 98 +++++++++++++++++++++-
- .../java/com/kaan/play/ui/home/HomeScreen.kt       | 87 ++++++++++++++++++-
- .../java/com/kaan/play/ui/home/HomeViewModel.kt    |  7 ++
- app/src/main/res/values-tr/strings.xml             |  3 +
- app/src/main/res/values/strings.xml                |  3 +
- .../com/kaan/play/data/library/LibraryTest.kt      | 31 +++++++
- docs/yol-haritasi.md                               |  1 +
- 9 files changed, 237 insertions(+), 4 deletions(-)
-
-Untracked files:
- app/src/main/java/com/kaan/play/data/library/ContinueDeletionRules.kt
- app/src/test/java/com/kaan/play/data/library/ContinueDeletionRulesTest.kt
- docs/dogrulama-devam-et-sil/
-```
+| `11-kisa-tamam-oynatma.png` | Uzun basıp pencere kapatıldıktan sonra yapılan İLK kısa Tamam basışının yutulmadığı, doğrudan oynatma/detay/eklenti akışını açtığı doğrulandı. |
