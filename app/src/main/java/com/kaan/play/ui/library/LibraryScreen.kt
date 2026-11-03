@@ -3,6 +3,7 @@ package com.kaan.play.ui.library
 import android.text.format.Formatter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -115,7 +116,14 @@ fun LibraryScreen(
         val favs = favorites
         fullWidth { SectionTitle(stringResource(R.string.library_favorites)) }
         if (favs != null && favs.isEmpty()) {
-            fullWidth { EmptyText(stringResource(R.string.library_favorites_empty)) }
+            fullWidth {
+                EmptyText(
+                    stringResource(R.string.library_favorites_empty),
+                    modifier = Modifier
+                        .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester).focusable() else it }
+                        .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it },
+                )
+            }
         } else if (favs != null) {
             items(favs, key = { "fav-${it.type}-${it.tmdbId}" }) { fav ->
                 val removeLabel = stringResource(R.string.detail_favorite_remove)
@@ -279,12 +287,12 @@ private fun SectionTitle(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun EmptyText(text: String) {
+private fun EmptyText(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(vertical = 8.dp),
+        modifier = modifier.padding(vertical = 8.dp),
     )
 }
 
