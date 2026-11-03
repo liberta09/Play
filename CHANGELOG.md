@@ -1,14 +1,14 @@
 # Changelog / Değişiklik günlüğü
 
-## [1.2.4] â 2026-11-03
+## [1.2.4] — 2026-11-03
 
-### TÃ¼rkÃ§e
-- **Kumanda aÅaÄÄ±/geri dÃ¼zeltmesi:** Ãst menÃ¼den AÅAÄI basÄ±ldÄ±ÄÄ±nda odaÄÄ±n iÃ§eriÄe geÃ§mesi saÄlandÄ±; baÅarÄ±sÄ±zlÄ±kta liste baÅa kaydÄ±rÄ±lÄ±p hedef tekrar denenir veya aÅaÄÄ± yÃ¶nsel odaklama yapÄ±lÄ±r. BoÅ ana sayfada Geri tuÅunun doÄrudan Ã§Ä±kÄ±Å yapmasÄ± yerine odaÄÄ± iÃ§eriÄe dÃ¶ndÃ¼rmesi saÄlandÄ±.
-- **Oynarken kaynak kurtarma:** Oynatma esnasÄ±nda baÄlantÄ± kopmasÄ± ya da akÄ±Å hatasÄ± durumunda oynatÄ±cÄ± kapanmadan yedek kaynaklara otomatik geÃ§iÅ ve kesintisiz kurtarma saÄlandÄ±.
-- **OynatÄ±cÄ± takÄ±lma bekÃ§isi dÃ¶ngÃ¼sÃ¼ ve TV tamponu:** OynatÄ±cÄ± donma/takÄ±lma bekÃ§isi dÃ¶ngÃ¼sÃ¼ dÃ¼zeltildi; TV cihazlarÄ± iÃ§in ExoPlayer tampon stratejisi optimize edildi.
-- **Eski Android torrent Ã§Ã¶kmesi:** Eski Android sÃ¼rmlerinde (API 24-27) libtorrent baÅlatma ve native yÃ¼kleme istisnalarÄ± zÄ±rhlandÄ±, Ã§Ã¶kmeler Ã¶nlendi.
-- **AÃ§Ä±lÄ±Å Ã§Ã¶kmesi korumasÄ±:** TV Box ROM'larÄ±nda pencere aÃ§Ä±lÄ±ÅÄ± ve DecorView hazÄ±rlÄ±ÄÄ± esnasÄ±nda oluÅan baÅlatma istisnalarÄ± korumaya alÄ±ndÄ±.
-- **Torrent aÃ§Ä±lÄ±Å hÄ±zÄ±:** Torrent parÃ§a ve blok yÃ¶netimi iyileÅtirilerek soÄuk aÃ§Ä±lÄ±Å sÃ¼resi ve ilk gÃ¶rÃ¼ntÃ¼ hÄ±zlandÄ±rÄ±ldÄ±.
+### Türkçe
+- **Kumanda aşağı/geri düzeltmesi:** Üst menüden AŞAĞI basıldığında odağın içeriğe geçmesi sağlandı; başarısızlıkta liste başa kaydırılıp hedef tekrar denenir veya aşağı yönsel odaklama yapılır. Boş ana sayfada Geri tuşunun doğrudan çıkış yapması yerine odağı içeriğe döndürmesi sağlandı.
+- **Oynarken kaynak kurtarma:** Oynatma esnasında bağlantı kopması ya da akış hatası durumunda oynatıcı kapanmadan yedek kaynaklara otomatik geçiş ve kesintisiz kurtarma sağlandı.
+- **Oynatıcı takılma bekçisi döngüsü ve TV tamponu:** Oynatıcı donma/takılma bekçisi döngüsü düzeltildi; TV cihazları için ExoPlayer tampon stratejisi optimize edildi.
+- **Eski Android torrent çökmesi:** Eski Android sürmlerinde (API 24-27) libtorrent başlatma ve native yükleme istisnaları zırhlandı, çökmeler önlendi.
+- **Açılış çökmesi koruması:** TV Box ROM'larında pencere açılışı ve DecorView hazırlığı esnasında oluşan başlatma istisnaları korumaya alındı.
+- **Torrent açılış hızı:** Torrent parça ve blok yönetimi iyileştirilerek soğuk açılış süresi ve ilk görüntü hızlandırıldı.
 
 ### English
 - **Remote down and back key navigation fixes:** Ensured focus reliably returns to content on DOWN press from top bar; retries after scrolling to top or uses directional down focus. Prevented immediate app exit on empty home screen when pressing BACK, returning focus to content instead.
