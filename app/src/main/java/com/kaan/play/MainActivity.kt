@@ -90,6 +90,18 @@ class MainActivity : AppCompatActivity() {
             if (intent.hasExtra("play_flag_no_images")) {
                 com.kaan.play.ui.tv.PlayFocusFlags.noImages = intent.getBooleanExtra("play_flag_no_images", false)
             }
+            if (intent.hasExtra("play_flag_no_crossfade")) {
+                com.kaan.play.ui.tv.PlayFocusFlags.noCrossfade = intent.getBooleanExtra("play_flag_no_crossfade", false)
+            }
+            if (intent.hasExtra("play_flag_image_size")) {
+                com.kaan.play.ui.tv.PlayFocusFlags.imageSize = intent.getBooleanExtra("play_flag_image_size", false)
+            }
+            if (intent.hasExtra("play_flag_no_hardware")) {
+                com.kaan.play.ui.tv.PlayFocusFlags.noHardware = intent.getBooleanExtra("play_flag_no_hardware", false)
+            }
+            if (intent.hasExtra("play_flag_hoist_template")) {
+                com.kaan.play.ui.tv.PlayFocusFlags.hoistTemplate = intent.getBooleanExtra("play_flag_hoist_template", false)
+            }
             if (intent.hasExtra("play_flag_startup_focus")) {
                 com.kaan.play.data.torrent.TorrentEngine.STARTUP_FOCUS_ENABLED = intent.getBooleanExtra("play_flag_startup_focus", true)
             }
@@ -212,6 +224,18 @@ class MainActivity : AppCompatActivity() {
             }
             if (intent.hasExtra("play_flag_no_images")) {
                 com.kaan.play.ui.tv.PlayFocusFlags.noImages = intent.getBooleanExtra("play_flag_no_images", false)
+            }
+            if (intent.hasExtra("play_flag_no_crossfade")) {
+                com.kaan.play.ui.tv.PlayFocusFlags.noCrossfade = intent.getBooleanExtra("play_flag_no_crossfade", false)
+            }
+            if (intent.hasExtra("play_flag_image_size")) {
+                com.kaan.play.ui.tv.PlayFocusFlags.imageSize = intent.getBooleanExtra("play_flag_image_size", false)
+            }
+            if (intent.hasExtra("play_flag_no_hardware")) {
+                com.kaan.play.ui.tv.PlayFocusFlags.noHardware = intent.getBooleanExtra("play_flag_no_hardware", false)
+            }
+            if (intent.hasExtra("play_flag_hoist_template")) {
+                com.kaan.play.ui.tv.PlayFocusFlags.hoistTemplate = intent.getBooleanExtra("play_flag_hoist_template", false)
             }
         }
         intent.getStringExtra("sync_email")?.let { testSyncEmail = it }

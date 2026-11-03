@@ -75,6 +75,10 @@ private val RingWidth = 3.dp
 object PlayFocusFlags {
     var noGlow: Boolean = false
     var noImages: Boolean = false
+    var noCrossfade: Boolean = false
+    var imageSize: Boolean = false
+    var noHardware: Boolean = false
+    var hoistTemplate: Boolean = false
 }
 
 /**

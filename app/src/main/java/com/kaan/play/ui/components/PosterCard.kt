@@ -31,6 +31,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import coil3.request.allowHardware
+import coil3.size.Precision
 import com.kaan.play.R
 import com.kaan.play.data.model.MediaSummary
 import com.kaan.play.data.model.MediaType
@@ -87,8 +93,30 @@ fun PosterCard(
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
             if (resolvedImageUrl != null && (!com.kaan.play.BuildConfig.DEBUG || !com.kaan.play.ui.tv.PlayFocusFlags.noImages)) {
+                val context = LocalContext.current
+                val density = LocalDensity.current
+                val imageModel: Any = remember(resolvedImageUrl, density) {
+                    if (!com.kaan.play.BuildConfig.DEBUG || (!com.kaan.play.ui.tv.PlayFocusFlags.imageSize && !com.kaan.play.ui.tv.PlayFocusFlags.noCrossfade && !com.kaan.play.ui.tv.PlayFocusFlags.noHardware)) {
+                        resolvedImageUrl
+                    } else {
+                        val builder = ImageRequest.Builder(context)
+                            .data(resolvedImageUrl)
+                        if (com.kaan.play.ui.tv.PlayFocusFlags.imageSize) {
+                            val w = with(density) { 152.dp.roundToPx() }
+                            val h = with(density) { 228.dp.roundToPx() }
+                            builder.size(w, h).precision(Precision.EXACT)
+                        }
+                        if (com.kaan.play.ui.tv.PlayFocusFlags.noCrossfade) {
+                            builder.crossfade(false)
+                        }
+                        if (com.kaan.play.ui.tv.PlayFocusFlags.noHardware) {
+                            builder.allowHardware(false)
+                        }
+                        builder.build()
+                    }
+                }
                 AsyncImage(
-                    model = resolvedImageUrl,
+                    model = imageModel,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
@@ -134,6 +162,9 @@ fun resolvePosterImageUrl(
     tmdbId: Int?,
     mediaType: MediaType?,
 ): String? {
+    if (com.kaan.play.BuildConfig.DEBUG && com.kaan.play.ui.tv.PlayFocusFlags.hoistTemplate) {
+        return fallbackUrl
+    }
     val container = rememberContainer()
     val posterTemplate by container.settings.posterUrlTemplate.collectAsStateWithLifecycle(initialValue = PosterUrlTemplate.DEFAULT)
     val direct = PosterUrlTemplate.build(
