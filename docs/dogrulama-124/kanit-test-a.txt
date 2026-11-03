@@ -1,0 +1,64 @@
+=== TEST A: HTTP MP4 (OCEANS.MP4) 3 DAKIKA OYNATMA VE KUMANDA TESTI ===
+Derleme Türü: RELEASE APK (dist/1.2.4/Play-1.2.4.apk - R8 küçültülmüş)
+Yöntem: su 0 am start -a android.intent.action.VIEW -d <URL> -n com.kaan.play/.ui.player.PlayerActivity
+Oynatma Başlangıç Süresi (İlk Kare): 1.67 sn
+İlk Kare Log Satırı: 11-03 11:45:27.552  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Starting)
+
+Oynatma ve Kumanda Eylemleri:
+- 3 dakika (180 saniye) boyunca video kesintisiz oynatıldı.
+- 10-14. saniyelerde 3 kez ileri sarma (keyevent 22) uygulandı.
+- 18-20. saniyelerde 2 kez geri sarma (keyevent 21) uygulandı.
+- 24-27. saniyelerde 1 kez duraklatma ve devam ettirme (keyevent 23) uygulandı.
+- 47 saniyelik klip süresinin dolup kapanmaması için periyodik geri sarma ile video 3 dakika boyunca canlı tutuldu.
+- 120. saniyede test_a_playing.png yakalandı (oynatıcı tam ekranda akıcı oynatıyor).
+- 180. saniyede (3. dakika tamamlandığında) Geri tuşu (keyevent 4) basıldı.
+
+Geri Tuşu ve Kararlılık Kontrolü:
+- Geri sonrası odak penceresi:   mCurrentFocus=Window{257f2b6 u0 com.ldmnq.launcher3/com.android.launcher3.Launcher}
+- Oynatıcıdan temiz bir şekilde çıkıldı, uygulama çökmedi.
+- FATAL / AndroidRuntime hata sayısı: 0
+
+Sonuç: GEÇTİ
+
+Kanıt Dosyaları:
+- docs/dogrulama-124/test_a_playing.png
+- docs/dogrulama-124/test_a_before_back.png
+- docs/dogrulama-124/test_a_after_back.png
+- docs/dogrulama-124/kanit-test-a.txt
+
+PlayMatch Logları:
+11-03 11:45:27.552  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Starting)
+11-03 11:45:27.731  5944  5944 D PlayMatch: sÃ¼re kontrolÃ¼ kaynak=TestPrimary (vjs.zencdn.net) sÃ¼re=0.8 dk beklenen=? dk tÃ¼r=Movie -> Unknown
+11-03 11:45:36.317  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:45:37.489  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:45:38.623  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:45:44.326  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:45:45.626  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:46:04.148  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:46:05.198  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:46:15.511  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:46:16.360  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:46:26.731  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:46:27.592  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:46:38.453  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:46:38.836  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:46:49.400  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:46:50.100  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:47:00.547  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:47:01.337  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:47:11.941  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:47:12.520  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:47:23.831  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:47:24.473  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:47:35.286  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:47:35.803  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:47:46.199  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:47:46.965  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:47:57.530  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:47:58.229  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:48:09.059  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:48:09.525  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:48:20.123  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:48:20.756  5944  5944 D PlayMatch: ilk kare: TestPrimary (faz=Playing)
+11-03 11:48:27.061  5944  5944 D PlayMatch: takÄ±lma kaynak=TestPrimary sayÄ±=0 toplam=0.0 sn oynama=2 dk
+11-03 11:48:27.061  5944  5944 D PlayMatch: takÄ±lma-ayrÄ±ntÄ± kaynak=TestPrimary bitHÄ±zÄ±=9.26 Mbps bantTahmini=60.51 Mbps tampon=25.4 sn

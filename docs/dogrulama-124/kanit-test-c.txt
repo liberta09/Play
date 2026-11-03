@@ -1,0 +1,30 @@
+=== TEST C: BIG BUCK BUNNY TORRENT DOĞRULAMA KANITI ===
+Derleme Türü: RELEASE APK (dist/1.2.4/Play-1.2.4.apk - R8 küçültülmüş)
+Torrent İçeriği: Big Buck Bunny (2008) 1080p 30fps (88594aaacbde40ef3e2510c47374ec0aa396c08e)
+Yöntem: su 0 am start -a android.intent.action.VIEW -d <magnet> -n com.kaan.play/.ui.player.PlayerActivity
+
+## 1. Açılış Süreleri Tablosu (Açılış Emri → İlk Kare)
+| Ölçüm Türü | Bekleme Aralığı | Süre (sn) | Log Satırı |
+| :--- | :--- | :--- | :--- |
+| Soğuk Açılış 1 | > 3 dk (önceden kapalı) | 4.39 sn | 11-03 12:08:15.671  7565  7565 D PlayMatch: ilk kare: TestPrimary (faz=Starting) |
+| Soğuk Açılış 2 | 185 sn (> 3 dk) | 2.74 sn | 11-03 12:11:28.353  7803  7803 D PlayMatch: ilk kare: TestPrimary (faz=Starting) |
+| Soğuk Açılış 3 | 185 sn (> 3 dk) | 5.19 sn | 11-03 12:14:43.687  8024  8024 D PlayMatch: ilk kare: TestPrimary (faz=Starting) |
+| Sıcak Açılış | 10 sn (< 3 dk) | 5.24 sn | 11-03 12:15:04.222  8259  8259 D PlayMatch: ilk kare: TestPrimary (faz=Starting) |
+
+## 2. İleri Sarma (Seek) Süreleri
+- 1. İleri Sarma (DPAD_RIGHT / Key 22): 0.95 sn (11-03 12:15:10.578  8259  8259 D PlayMatch: ilk kare: TestPrimary (faz=Playing))
+- 2. İleri Sarma (DPAD_RIGHT / Key 22): 0.45 sn (11-03 12:15:15.115  8259  8259 D PlayMatch: ilk kare: TestPrimary (faz=Playing))
+
+## 3. Geri Tuşu ve Kararlılık Kontrolü
+- Geri tuşu sonrası odak penceresi: mCurrentFocus=Window{257f2b6 u0 com.ldmnq.launcher3/com.android.launcher3.Launcher}
+- Oynatıcıdan temiz çıkış sağlandı, uygulama çökmedi.
+- FATAL / AndroidRuntime hata sayısı: 0
+- Torrent motoru release'te başarıyla başladı; libtorrent JNI, POSIX I/O ve R8 küçültme hatası YOK.
+
+## 4. Kanıt Dosyaları
+- docs/dogrulama-124/test_c_playing.png
+- docs/dogrulama-124/test_c_before_back.png
+- docs/dogrulama-124/test_c_after_back.png
+- docs/dogrulama-124/kanit-test-c.txt
+
+Sonuç: GEÇTİ

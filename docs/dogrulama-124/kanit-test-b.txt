@@ -1,0 +1,31 @@
+=== TEST B: HLS CANLI AKIS (TEST-STREAMS.MUX.DEV) 60 SANIYE OYNATMA TESTI ===
+Derleme Türü: RELEASE APK (dist/1.2.4/Play-1.2.4.apk - R8 küçültülmüş)
+Yöntem: su 0 am start -a android.intent.action.VIEW -d <URL> -n com.kaan.play/.ui.player.PlayerActivity
+Oynatma Başlangıç Süresi (İlk Kare): 2.21 sn
+İlk Kare Log Satırı: 11-03 11:49:45.055  6607  6607 D PlayMatch: ilk kare: TestPrimary (faz=Starting)
+
+Oynatma ve Geri Tuşu Kontrolü:
+- HLS (m3u8) akışı 60 saniye boyunca kesintisiz oynatıldı (Canlı TV akışı simülasyonu).
+- 30. saniyede test_b_playing.png yakalandı.
+- 60. saniyede kumandadan Geri tuşu (keyevent 4) basıldı.
+- Geri sonrası odak penceresi:   mCurrentFocus=Window{257f2b6 u0 com.ldmnq.launcher3/com.android.launcher3.Launcher}
+- Oynatıcıdan temiz çıkış sağlandı, uygulama çökmedi.
+- FATAL / AndroidRuntime hata sayısı: 0
+
+Sonuç: GEÇTİ
+
+Kanıt Dosyaları:
+- docs/dogrulama-124/test_b_playing.png
+- docs/dogrulama-124/test_b_before_back.png
+- docs/dogrulama-124/test_b_after_back.png
+- docs/dogrulama-124/kanit-test-b.txt
+
+PlayMatch Logları:
+--------- beginning of main
+--------- beginning of system
+11-03 11:49:43.346  6607  6607 D PlayMatch: kaynak baÅŸlatÄ±lÄ±yor: TestPrimary (test-streams.mux.dev)
+11-03 11:49:44.996  6607  6607 I PlayMatch: Video Ã§Ã¶zÃ¼cÃ¼: decoder=OMX.google.h264.decoder tÃ¼r=yazÄ±lÄ±m sÃ¼re=38ms
+11-03 11:49:45.055  6607  6607 D PlayMatch: ilk kare: TestPrimary (faz=Starting)
+11-03 11:49:45.256  6607  6607 D PlayMatch: sÃ¼re kontrolÃ¼ kaynak=TestPrimary (test-streams.mux.dev) sÃ¼re=10.6 dk beklenen=? dk tÃ¼r=Movie -> Unknown
+11-03 11:50:44.171  6607  6607 D PlayMatch: takÄ±lma kaynak=TestPrimary sayÄ±=0 toplam=0.0 sn oynama=0 dk
+11-03 11:50:44.171  6607  6607 D PlayMatch: takÄ±lma-ayrÄ±ntÄ± kaynak=TestPrimary bitHÄ±zÄ±=6.22 Mbps bantTahmini=66.66 Mbps tampon=21.2 sn
