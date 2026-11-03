@@ -30,6 +30,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import com.kaan.play.ui.tv.rememberPlayLayout
 import coil3.compose.AsyncImage
 import com.kaan.play.R
 import com.kaan.play.data.model.MediaSummary
@@ -57,6 +61,7 @@ fun PosterCard(
     imageUrl: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    cardWidth: Dp? = null,
     progress: Float? = null,
     /** Addon öğelerindeki IMDb kimliği; özel poster şablonu bununla doldurulur. */
     posterId: String? = null,
@@ -65,7 +70,25 @@ fun PosterCard(
     mediaType: MediaType? = null,
     overlay: @Composable BoxScope.() -> Unit = {},
 ) {
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val layout = rememberPlayLayout()
+    val effectiveWidth = cardWidth ?: if (layout.widthDp >= 600) 152.dp else 132.dp
+    val (widthPx, heightPx) = remember(effectiveWidth, density) {
+        PosterPrefetch.calculateCardPixelSize(effectiveWidth, density)
+    }
     val resolvedImageUrl = resolvePosterImageUrl(imageUrl, posterId, tmdbId, mediaType)
+    val imageRequest = remember(resolvedImageUrl, widthPx, heightPx, context) {
+        if (resolvedImageUrl != null) {
+            PosterPrefetch.buildRequest(
+                context = context,
+                url = resolvedImageUrl,
+                widthPx = widthPx,
+                heightPx = heightPx,
+                isDisplay = true,
+            )
+        } else null
+    }
     val shape = MaterialTheme.shapes.medium
     // Odak halkası yalnızca afişte (kart yazısını ezmez): tıklama göstergesi dalga olarak kalır, halka afişe çizilir.
     val interaction = remember { MutableInteractionSource() }
@@ -86,9 +109,9 @@ fun PosterCard(
                 .clip(shape)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
-            if (resolvedImageUrl != null) {
+            if (imageRequest != null) {
                 AsyncImage(
-                    model = resolvedImageUrl,
+                    model = imageRequest,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
