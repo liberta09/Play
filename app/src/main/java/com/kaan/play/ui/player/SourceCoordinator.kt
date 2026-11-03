@@ -74,6 +74,12 @@ sealed interface SourceNotice {
 
     /** Kullanıcının elle seçtiği kaynak yavaşladı (otomatik değiştirilmez). */
     data object ManualSlow : SourceNotice
+
+    /** Oynatma sırasında kaynak koptu, sıradaki kaynak deneniyor. */
+    data class StreamDropped(val detail: String) : SourceNotice
+
+    /** Kullanıcının elle seçtiği kaynak koptu, otomatik olarak başka kaynağa geçildi. */
+    data object SourceSwitched : SourceNotice
 }
 
 /**
@@ -162,6 +168,10 @@ class SourceCoordinator(
     /** "Dublajlı kaynak bulundu, geçilsin mi?" önerisi; null: yok. */
     var dubSuggestion by mutableStateOf<PlayableStream?>(null)
         private set
+
+    var midPlaybackSwitches by mutableStateOf(0)
+        private set
+    private var hasRetriedCurrentStream = false
 
     private var preference: SourcePref? = null
         set(value) {
@@ -545,6 +555,55 @@ class SourceCoordinator(
 
     fun onFailure(detail: String): Boolean {
         Log.d(TAG, "oynatıcı hatası: ${current?.source?.addonName} (faz=$phase) $detail")
+        Log.d("PlayMatch", "oynatıcı hatası: ${current?.source?.addonName} ($detail) faz=$phase")
+
+        if (phase == SourcePhase.Playing) {
+            val currentStream = current ?: return false
+            val queuedList = queue.filter { it.url !in attempted && acceptable(it) }
+            val rankedList = ranked().filter { acceptable(it) && it.url != currentStream.url && it.url !in attempted }
+            val candidates = (queuedList + rankedList).distinctBy { it.url }
+            val decision = MidPlaybackRecoveryRules.evaluate(
+                phase = phase,
+                currentStream = currentStream,
+                hasRetriedCurrentStream = hasRetriedCurrentStream,
+                switchCount = midPlaybackSwitches,
+                candidates = candidates,
+                isManual = userPicked,
+                isOffline = false,
+                isLeaving = false,
+            )
+            Log.d("PlayMatch", "oynatirken kurtarma karari: $decision (gecis=$midPlaybackSwitches)")
+            when (decision) {
+                is MidPlaybackRecoveryRules.Decision.RetrySame -> {
+                    hasRetriedCurrentStream = true
+                    val pos = position().takeIf { it > 0 } ?: lastStartMs
+                    lastStartMs = pos
+                    firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+                    begin(decision.stream, pos)
+                    return true
+                }
+                is MidPlaybackRecoveryRules.Decision.Switch -> {
+                    hasRetriedCurrentStream = false
+                    midPlaybackSwitches++
+                    queue.removeAll { it.url == decision.candidate.url }
+                    notice = when (decision.notice) {
+                        MidPlaybackRecoveryRules.NoticeType.SOURCE_SWITCHED -> SourceNotice.SourceSwitched
+                        MidPlaybackRecoveryRules.NoticeType.STREAM_DROPPED_TRYING_NEXT -> SourceNotice.StreamDropped(detail)
+                    }
+                    val pos = position().takeIf { it > 0 } ?: lastStartMs
+                    lastStartMs = pos
+                    switching = true
+                    firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+                    begin(decision.candidate, pos)
+                    return true
+                }
+                MidPlaybackRecoveryRules.Decision.Fail -> {
+                    phase = SourcePhase.Failed
+                    return false
+                }
+            }
+        }
+
         if (phase != SourcePhase.Starting) return false
         firstFrameJob?.cancel()
         probeJob?.cancel()

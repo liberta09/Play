@@ -82,20 +82,34 @@ data class PlaySession(
          * Debug derlemede duman testinin oynatıcıyı doğrudan açması için (`--es play_test_video <adres>`): tek kaynaklı,
          * geçmişe yazılmayan bir film oturumu, [startPositionMs]'ten başlar.
          */
-        fun testVideo(url: String, startPositionMs: Long = 60_000L): PlaySession = PlaySession(
+        fun testVideo(
+            url: String,
+            fallbackUrl: String? = null,
+            startPositionMs: Long = 0L,
+        ): PlaySession = PlaySession(
             target = PlayTarget(
                 request = StreamRequest(tmdbId = 0, imdbId = null, type = MediaType.Movie, title = TEST_TITLE),
                 title = TEST_TITLE,
                 posterPath = null,
             ),
             stream = PlayableStream(
-                source = StreamSource(addonId = 0, addonName = TEST_TITLE),
+                source = StreamSource(addonId = 1, addonName = "TestPrimary"),
                 url = url,
-                resolution = null,
+                resolution = 1080,
                 sizeBytes = null,
                 headers = emptyMap(),
                 subtitles = emptyList(),
             ),
+            fallbacks = if (!fallbackUrl.isNullOrBlank()) listOf(
+                PlayableStream(
+                    source = StreamSource(addonId = 2, addonName = "TestFallback"),
+                    url = fallbackUrl,
+                    resolution = 1080,
+                    sizeBytes = null,
+                    headers = emptyMap(),
+                    subtitles = emptyList(),
+                )
+            ) else emptyList(),
             startPositionMs = startPositionMs,
             noHistory = true,
         )
@@ -133,7 +147,9 @@ data class PlaySession(
                 if (!extraUrl.isNullOrBlank()) {
                     val trimmed = extraUrl.trim()
                     if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("file://") || trimmed.startsWith("content://") || trimmed.startsWith("magnet:")) {
-                        return testVideo(trimmed)
+                        val fallback = intent.getStringExtra("play_test_fallback")?.trim()
+                        val startMs = intent.getLongExtra("play_test_start_ms", 0L)
+                        return testVideo(trimmed, fallback, startMs)
                     }
                 }
             } catch (_: Throwable) {
