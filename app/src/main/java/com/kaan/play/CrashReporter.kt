@@ -43,6 +43,35 @@ object CrashReporter {
         checkAndSendPendingReport(context.applicationContext)
     }
 
+    fun recordPendingReport(
+        context: Context,
+        message: String,
+        stackTrace: String,
+        threadName: String = Thread.currentThread().name
+    ) {
+        try {
+            val crashFile = File(context.filesDir, "last_crash.txt")
+            crashFile.writeText(
+                "Thread: $threadName\n" +
+                "Device: ${Build.MANUFACTURER} ${Build.MODEL} (SDK ${Build.VERSION.SDK_INT})\n" +
+                "Time: ${System.currentTimeMillis()}\n" +
+                "Message: $message\n" +
+                "Stack:\n$stackTrace"
+            )
+            val pendingFile = File(context.filesDir, PENDING_CRASH_FILE)
+            val json = JSONObject().apply {
+                put("threadName", threadName)
+                put("message", message)
+                put("stackTrace", stackTrace)
+                put("timestamp", System.currentTimeMillis())
+            }
+            pendingFile.writeText(json.toString())
+            Log.i(TAG, "Bekleyen çökme/teşhis raporu kaydedildi: $message")
+        } catch (t: Throwable) {
+            Log.e(TAG, "Bekleyen çökme/teşhis raporu kaydedilemedi: ${t.message}")
+        }
+    }
+
     fun sendCrashReport(message: String) {
         val threadName = Thread.currentThread().name
         sendTelegramReportAsync(threadName, message, "Manuel test tetiklendi: $message", null)
