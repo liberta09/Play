@@ -84,6 +84,21 @@ class MainActivity : AppCompatActivity() {
             if (intent.hasExtra("test_force_stall")) {
                 PlayerNoticeLogic.testForceStall = intent.getBooleanExtra("test_force_stall", false)
             }
+            if (intent.hasExtra("play_flag_startup_focus")) {
+                com.kaan.play.data.torrent.TorrentEngine.STARTUP_FOCUS_ENABLED = intent.getBooleanExtra("play_flag_startup_focus", true)
+            }
+            if (intent.hasExtra("play_flag_session_state")) {
+                com.kaan.play.data.torrent.TorrentEngine.SESSION_STATE_ENABLED = intent.getBooleanExtra("play_flag_session_state", true)
+            }
+            if (intent.hasExtra("play_flag_keep_alive")) {
+                com.kaan.play.data.torrent.TorrentEngine.KEEP_ALIVE_ENABLED = intent.getBooleanExtra("play_flag_keep_alive", true)
+            }
+            if (intent.hasExtra("play_flag_tuned_settings")) {
+                com.kaan.play.data.torrent.TorrentEngine.TUNED_SETTINGS_ENABLED = intent.getBooleanExtra("play_flag_tuned_settings", true)
+            }
+            if (intent.hasExtra("play_idle_timeout_ms")) {
+                com.kaan.play.data.torrent.TorrentEngine.IDLE_TIMEOUT_MS = intent.getLongExtra("play_idle_timeout_ms", 180_000L)
+            }
         }
         if (BuildConfig.DEBUG) {
             // Duman testi: oynatıcıyı test videosuyla doğrudan aç (geçmişe yazılmaz). --es play_test_video <adres>
@@ -93,7 +108,8 @@ class MainActivity : AppCompatActivity() {
                     intent.getStringExtra("play_debug_fail_native") == "true"
             }
             intent.getStringExtra("play_test_video")?.let { url ->
-                startActivity(com.kaan.play.ui.player.PlaySession.testVideo(url).toIntent(this))
+                val startMs = intent.getLongExtra("play_start_position", 0L)
+                startActivity(com.kaan.play.ui.player.PlaySession.testVideo(url, startPositionMs = startMs).toIntent(this))
             }
             intent.getStringExtra("select_provider")?.let { raw ->
                 val ids = raw.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
@@ -187,6 +203,10 @@ class MainActivity : AppCompatActivity() {
                 com.kaan.play.data.torrent.TorrentSupport.debugForceFailNative =
                     intent.getBooleanExtra("play_debug_fail_native", false) ||
                     intent.getStringExtra("play_debug_fail_native") == "true"
+            }
+            intent.getStringExtra("play_test_video")?.let { url ->
+                val startMs = intent.getLongExtra("play_start_position", 0L)
+                startActivity(com.kaan.play.ui.player.PlaySession.testVideo(url, startPositionMs = startMs).toIntent(this))
             }
             intent.getStringExtra("select_provider")?.let { raw ->
                 val ids = raw.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()

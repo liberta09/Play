@@ -1,0 +1,1317 @@
+--------- beginning of main
+11-02 20:33:41.274 17192 17192 I sh      : type=1400 audit(0.0:9785): avc: denied { getattr } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 20:33:41.274 17192 17192 I sh      : type=1400 audit(0.0:9786): avc: denied { execute } for name="logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 20:33:41.274 17192 17192 I sh      : type=1400 audit(0.0:9787): avc: denied { read open } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 20:33:41.274 17192 17192 I sh      : type=1400 audit(0.0:9788): avc: denied { execute_no_trans } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 20:33:41.281 17192 17192 I logcat  : type=1400 audit(0.0:9789): avc: denied { connectto } for path="/dev/socket/logd" scontext=u:r:su:s0 tcontext=u:r:logd:s0 tclass=unix_stream_socket permissive=1
+11-02 20:33:41.363 17194 17194 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 1463 811 
+11-02 20:33:41.363 17194 17194 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 20:33:41.364 17194 17194 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 20:33:41.371 17194 17194 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 20:33:41.376 17194 17194 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 20:33:41.388 17194 17194 I app_process: The ClassLoaderContext is a special shared library.
+11-02 20:33:41.389 17194 17194 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 20:33:41.389 17194 17194 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 20:33:41.389 17194 17194 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 20:33:41.389 17194 17194 D nativebridge: call UnloadNativeBridge! state=2
+11-02 20:33:41.396 17194 17194 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 20:33:41.397 17194 17194 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=8562831, downTime=8562831, deviceId=3, source=0x1002 }
+11-02 20:33:41.399 17194 17194 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=8562831, downTime=8562831, deviceId=3, source=0x1002 }
+11-02 20:33:41.401 17022 17022 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 20:33:41.402 17022 17022 D PlayStreamUrl: oynatılıyor magnet: mime=?
+11-02 20:33:41.402 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:33:41.402 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:33:41.402 17022 17022 D PlayTorrent: oynatıcıya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=0 başlıklar=[] mime=null
+11-02 20:33:41.402 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:33:41.402 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:33:41.402 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:33:41.402 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:33:41.402 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:33:41.402 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:33:41.402 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:33:41.402 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:33:41.402 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:33:41.405 17022 17112 D PlayTorrent: alert TORRENT_DELETED: ------ deleted
+11-02 20:33:41.405 17022 17112 D PlayTorrent: alert TORRENT_REMOVED: ------ removed
+11-02 20:33:41.408 17022 17205 D PlayTorrent: yerel sunucu isteği: GET range=null hedefOk=true
+11-02 20:33:41.409 17022 17205 D PlayTorrent: motor open: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 fileHint=0
+11-02 20:33:41.409 17194 17194 D AndroidRuntime: Shutting down VM
+11-02 20:33:41.411 17022 17112 D PlayTorrent: alert STATE_CHANGED: cf5290: state changed to: dl metadata
+11-02 20:33:41.411 17022 17112 D PlayTorrent: alert ADD_TORRENT: added torrent: cf5290d3f602bbeb0de9cb4419251c98c0e6db70
+11-02 20:33:41.443 17022 17110 D PlayTorrent: yerel sunucu bağlantısı bitti: IOException torrent closed
+11-02 20:33:41.448  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:33:41.448  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+--------- beginning of system
+11-02 20:33:41.449  2281  2281 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-02 20:33:41.449  1463  1480 W SurfaceFlinger: Attempting to set client state on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 20:33:41.449  1463  1480 W SurfaceFlinger: Attempting to destroy on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 20:33:41.463  1463  1690 W SurfaceFlinger: Attempting to set client state on removed layer: Dim Layer for - Task=42#0
+11-02 20:33:41.463  1463  1690 W SurfaceFlinger: Attempting to destroy on removed layer: Dim Layer for - Task=42#0
+11-02 20:33:42.107 17022 17112 D PlayTorrent: alert TORRENT_RESUMED: cf5290 resumed
+11-02 20:33:42.107 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.107 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:33:42.108 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:42.113 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:33:42.113 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:33:42.113 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:33:42.113 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:33:42.113 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.113 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Operation Canceled "" (2)
+11-02 20:33:42.114 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:33:42.159 17022 17112 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] received peers: 4
+11-02 20:33:42.166 17022 17112 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] received peers: 121
+11-02 20:33:42.169 17022 17112 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 121
+11-02 20:33:42.180 17022 17112 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] received peers: 19
+11-02 20:33:42.180 17022 17112 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] received peers: 3
+11-02 20:33:42.182 17022 17112 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] received peers: 86
+11-02 20:33:42.193 17022 17112 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] received peers: 87
+11-02 20:33:42.197 17022 17112 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] received peers: 0
+11-02 20:33:42.300 17022 17112 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] received peers: 1
+11-02 20:33:42.482 17022 17112 D PlayTorrent: alert TRACKER_REPLY: cf5290 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] received peers: 9
+11-02 20:33:42.524 17022 17112 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] received peers: 24
+11-02 20:33:42.942  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-02 20:33:43.980  4119  4128 W System  : A resource failed to call close. 
+11-02 20:33:44.260  1598  1598 W SchedPolicy: add_tid_to_cgroup failed to write '2586' (No space left on device); fd=24
+11-02 20:33:44.263  1598  1610 W SchedPolicy: add_tid_to_cgroup failed to write '2586' (No space left on device); fd=25
+11-02 20:33:44.263  2586  2586 I Finsky  : [2] SCH: job service start with id 9541.
+11-02 20:33:44.270  2586 16970 I Finsky  : [474] SCH: Satisfied jobs for 9541 are: 12-1
+11-02 20:33:44.271  2586 17209 I Finsky  : [479] SCH: Job 12-1 starting
+11-02 20:33:44.271  2586  2586 I Finsky  : [2] WM::SCH: Logging work start for 12-1
+11-02 20:33:44.272  2586  2586 I Finsky  : [2] [ContentSync] job started
+11-02 20:33:44.355  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:44.376  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 35 lines
+11-02 20:33:44.376  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:44.401  2062 16740 I AlarmManager: setExactAndAllowWhileIdle [name: GCM_HB_ALARM type: 2 triggerAtMillis: 9525836]
+11-02 20:33:44.419  2062  2062 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.common.telemetry.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:33:44.425  2062  2062 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+11-02 20:33:44.421  2062  2062 I GoogleApiHandle: type=1400 audit(0.0:9791): avc: denied { open } for path="/data/local/cfg-ineyg/android7" dev="sdb2" ino=394447 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-02 20:33:44.445  2062 17216 I AlarmManager: setExactAndAllowWhileIdle [name: GCM_HB_ALARM type: 2 triggerAtMillis: 9525880]
+11-02 20:33:44.478  2062 16974 W gle.android.gm: Accessing hidden method Landroid/os/Parcel;->writeTypedList(Ljava/util/List;I)V (dark greylist, linking)
+11-02 20:33:44.483  1440  1489 D audio_hw_hal: log_func, out_standby
+11-02 20:33:44.483  1440  1489 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-02 20:33:44.483  1440  1489 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-02 20:33:44.524  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.auth.aang.events.services.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:33:44.526  2062 17216 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-02 20:33:44.538  2062 17220 I GCM     : Message from 745476177629
+11-02 20:33:44.539  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:44.539  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 55 lines
+11-02 20:33:44.539  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:44.548  2062  2062 I lowpool[190]: type=1400 audit(0.0:9792): avc: denied { read } for name="Applications" dev="sdcardfs" ino=1441794 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sdcardfs:s0 tclass=lnk_file permissive=1
+11-02 20:33:44.548  2062  2062 I lowpool[190]: type=1400 audit(0.0:9793): avc: denied { search } for name="/" dev="vboxsf" ino=1 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:unlabeled:s0 tclass=dir permissive=1
+11-02 20:33:44.589  1434  1434 D libnativeloader: CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+11-02 20:33:44.589  1434  1434 I Zygote  : IsCopy  libcrashcatcher: 0
+11-02 20:33:44.589  1434  1434 D libnativeloader: INJECT Failed to open gspd.json
+11-02 20:33:44.595  2062 17216 W FlagUpdateListenerRegis: Unable to invoke IFlagUpdateListener.onFlagUpdate. App: com.google.android.verifier. Process: com.google.android.verifier|29183474. Error: android.os.DeadObjectException. [CONTEXT service_id=51 ]
+11-02 20:33:44.597  1598  1615 I ActivityManager: Start proc 17222:com.google.android.play.games/u0a47 for broadcast com.google.android.play.games/com.google.android.apps.play.games.features.experiments.PhenotypeBroadcastReceiver
+11-02 20:33:44.617 17222 17222 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: Not a directory
+11-02 20:33:44.617 17222 17222 I Zygote  : seccomp disabled by setenforce 0
+11-02 20:33:44.618 17222 17222 D nativebridge: call UnloadNativeBridge! state=1
+11-02 20:33:44.626  1598  4385 W SchedPolicy: add_tid_to_cgroup failed to write '17222' (No space left on device); fd=25
+11-02 20:33:44.614 17222 17222 I com.google.android.play.games: type=1400 audit(0.0:9794): avc: denied { connectto } for comm=4144422D4A44575020436F6E6E6563 path=006A6477702D636F6E74726F6C scontext=u:r:untrusted_app:s0:c47,c256,c512,c768 tcontext=u:r:su:s0 tclass=unix_stream_socket permissive=1
+11-02 20:33:44.646 17222 17222 D libnativeloader: CrashArm64 config not exist or not readable: /system/vendor/firmware_mnt/ineyg/CrashArm64
+11-02 20:33:44.653  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:33:44.618 17222 17222 I roid.play.games: type=1400 audit(0.0:9795): avc: denied { open } for path="/data/local/cfg-ineyg/app_device" dev="sdb2" ino=394513 scontext=u:r:untrusted_app:s0:c47,c256,c512,c768 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+11-02 20:33:44.694  2062  2062 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.auth.aang.events.services.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:33:44.695  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.697  2062 17239 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.698  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.698  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.701  2062  2070 I gle.android.gm: Compiler allocated 4MB to compile int m32.qpl.c(java.lang.Object, byte[], int, int, int, m32.qmv)
+11-02 20:33:44.706  2062 17242 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.707  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.709  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.709  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.710  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.710  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.711  2062 17239 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.714  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.714  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.715  2062 17252 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.720  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.720  2062 17239 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.720  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.721 17222 17222 I GAv4-SVC: Google Analytics 220.2.06 is starting up.
+11-02 20:33:44.721  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.721  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.721  2062 17239 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.721  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.722  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.722  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.722  2062 17239 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.722  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.722  2062 17239 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.722  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.728  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.728  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.728  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.728  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.729  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.729  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.729  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.729  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.729  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.729  2062 17253 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.730  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.730  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.730  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.730  2062 17253 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.730  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.731  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.731  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.731  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.731  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.731  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.731  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.731  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.732  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.732  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.732  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.732  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.733  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.733  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.733  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.733  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.734  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.734  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.734  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.734  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.734  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.734  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.747  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.747  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.747  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.747  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.748  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.748  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.748  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.758  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.758  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.758  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.758  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.758  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.758  2062 17253 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.758  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.769  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.769  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.769  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.769  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.769  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.769  2062  2062 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.instantapps.START pkg=com.google.android.gms }
+11-02 20:33:44.769  2062  2062 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.instantapps.START pkg=com.google.android.gms }
+11-02 20:33:44.769  2062 17253 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.769  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.771  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.771  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.771  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.771  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.771  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.771  2062 17253 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.772  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.773  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.773  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.773  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.773  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.773  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.776  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.776  2062 17252 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.777  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.777  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.777  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.777  2062 17252 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.777  2062 17252 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.778  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.781  2062 17252 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.781  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.781  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.781  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.781  2062 17241 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.781  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.785  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.785  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.785  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.785  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.785  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.785  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.785  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.791  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.792  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.792  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.792  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.792  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.792  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.792  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.795  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.795  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.796  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.796  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.796  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.796  2062 17242 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.796  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.800 17222 17257 W ConnectionStatusConfig: Dynamic lookup for intent failed for action: com.google.android.play.games.service.START_1P
+11-02 20:33:44.801  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.801  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.801  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.801  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.801  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.801  2062 17241 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.801  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.802  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.802  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.802  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.802  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.802  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.802  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.802  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.805  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.805  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.806  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.806  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.806  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.806  2062 17241 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.806  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.810  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.810  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.811  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.811  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.811  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.811  2062 17253 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.811  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.815  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.815  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.815  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.815  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.815  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.815  2062 17253 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.815  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.817  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.817  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.817  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.817  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.817  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.817  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:44.817  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 41 lines
+11-02 20:33:44.817  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:44.817  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.817  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:44.817  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 14 lines
+11-02 20:33:44.817  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:44.817  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.817  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:44.818  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 4 lines
+11-02 20:33:44.818  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:44.821  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.821  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.821  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.821  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.821  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.821  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.821  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.822 17222 17262 W DynamiteModule: Local module descriptor class for com.google.android.gms.measurement.dynamite not found.
+11-02 20:33:44.823 17222 17262 W roid.play.game: Unsupported class loader
+11-02 20:33:44.824 17222 17262 W roid.play.game: Skipping duplicate class check due to unsupported classloader
+11-02 20:33:44.829  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.830  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.830  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.830  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.830  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.830  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.830  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.843  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.843  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.843  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.843  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.843  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.844  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.844  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.846  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.846  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.846  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.846  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.846  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.846  2062 17253 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.846  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.850  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.850  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.850  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.850  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.850  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.850  2062 17241 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.850  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.851 17222 17262 W roid.play.game: Unknown chunk type '200'.
+11-02 20:33:44.851 17222 17262 I chatty  : uid=10047(com.google.android.play.games) identical 3 lines
+11-02 20:33:44.851 17222 17262 W roid.play.game: Unknown chunk type '200'.
+11-02 20:33:44.853  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.853  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.853  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.853  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.853  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.853  2062 17242 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.853  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.854  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.854 17222 17262 W roid.play.game: Unknown chunk type '200'.
+11-02 20:33:44.854 17222 17262 I chatty  : uid=10047(com.google.android.play.games) identical 2 lines
+11-02 20:33:44.854 17222 17262 W roid.play.game: Unknown chunk type '200'.
+11-02 20:33:44.854  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.854  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.854  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.854  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.854  2062 17253 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.854  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.855  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.855  2062 17252 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.855  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.855  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.855  2062 17252 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.855  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.855  2062 17252 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.856 17222 17262 W roid.play.game: Unsupported class loader
+11-02 20:33:44.858 17222 17262 W roid.play.game: Skipping duplicate class check due to unsupported classloader
+11-02 20:33:44.858  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.858  2062 17252 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.858  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.858  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.858  2062 17252 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.858  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.859  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.860  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.860  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.860  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.860  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.860  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.860  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.860  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.861  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.861  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.861  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.861  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.861  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.861  2062 17241 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.861  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.864  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.864  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.864  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.864  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.864  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.865  2062 17241 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.865  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.865  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.865  2062 17251 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.865  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.865  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.865  2062 17251 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.865  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.865  2062 17251 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.865  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.865  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.865  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.865  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.865  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.865  2062 17241 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.865  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.866  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.867  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.867  2062 17251 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.867  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.867  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.867  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.867  2062 17239 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.867  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.867  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.867  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.867  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.867  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.872 17222 17262 W DynamiteModule: Local module descriptor class for com.google.android.gms.measurement.dynamite not found.
+11-02 20:33:44.872  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.872  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.872  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.872  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.872  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.872  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.872  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.876  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.877  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.877  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.877  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.877  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.877  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.877  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.878  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.879  2062 17251 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.879  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.879  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.879  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.879  2062 17251 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.879  2062 17251 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.884  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.884  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.885  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.885  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.885  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.886  2062 17241 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.886  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.887  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.887  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.887  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.887  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.887  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.887  2062 17241 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.887  2062 17241 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.893  2062  2077 W StubBrokerPreprocessor: Play games failed to connect due to missing account [CONTEXT service_id=1 ]
+11-02 20:33:44.899  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.899  2062 17239 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.899  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.899  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.899  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.900  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.900  2062 17239 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.901  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.901  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.901  2062 17241 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.901  2062 17239 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.901  2062 17239 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.907  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.907  2062 17239 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.907  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.908  2062 17242 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.908  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.908  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.908  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.911  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.911  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.911  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.912  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.912  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.912  2062 17242 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.912  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.912  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.912  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.912  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.912  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.912  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.914  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.914  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.914  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.914  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.914  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.914  2062 17253 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.914  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.919  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.919  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.919  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.919  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.919  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.919  2062 17253 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.920  2062 17253 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.920 17222 17275 I FA      : App measurement initialized, version: 194006
+11-02 20:33:44.920 17222 17275 I FA      : To enable debug logging run: adb shell setprop log.tag.FA VERBOSE
+11-02 20:33:44.920 17222 17275 I FA      : To enable faster debug mode event logging run:
+11-02 20:33:44.920 17222 17275 I FA      :   adb shell setprop debug.firebase.analytics.app com.google.android.play.games
+11-02 20:33:44.920  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.920  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.920  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.920  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.920  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.920  2062 17240 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.920  2062 17240 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.921  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.921  2062 17240 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.921  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.921  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.921  2062 17251 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.921  2062 17240 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.921  2062 17240 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.922  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.922  2062 17240 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.922  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.922  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.922  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.922  2062 17240 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.922  2062 17240 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.923  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.923  2062 17240 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.923  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.923  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.923  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.923  2062 17240 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.923  2062 17240 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.924  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.924  2062 17240 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.924  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.924  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.924  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.924  2062 17242 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.924  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.925  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.925  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.925  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.925  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.925  2062 17240 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.925  2062 17242 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.925  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.935  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.935  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.935  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.935  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.935  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.935  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.935  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.936  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.936  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.936  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.936  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.936  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.937  2062 17251 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.937  2062 17251 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.939  2062 17243 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.939  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.939  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.939  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.939  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.940  2062 17243 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.940  2062 17243 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.942  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.943  2062 17239 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.943  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.943  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.943  2062 17253 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.943  2062 17251 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.943  2062 17251 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.943  2062 17242 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onCreate
+11-02 20:33:44.943  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onCreate. [CONTEXT service_id=359 ]
+11-02 20:33:44.943  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [Ts.43-IntentOperation] Action : %s
+11-02 20:33:44.943  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] Action : %s
+11-02 20:33:44.943  2062 17239 I serviceentitlement: (REDACTED) [ServiceEntitlementIntentOperation] [%s] onDestroy
+11-02 20:33:44.943  2062 17242 I serviceentitlement: (REDACTED) [DynamicCarrierIdOtaIntentOperation] Received background OTA trigger. Action: %s
+11-02 20:33:44.944  2062 17242 I serviceentitlement: [DynamicCarrierIdOtaIntentOperation] DynamicCarrierIdOtaIntentOperation onDestroy. [CONTEXT service_id=359 ]
+11-02 20:33:44.993  2062 17216 W gle.android.gm: Unknown chunk type '200'.
+11-02 20:33:44.995  2062  2062 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-02 20:33:44.995  2062  2062 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-02 20:33:45.008  2062 17216 I NetworkScheduler.ATC: (REDACTED) Called cancelTask for already completed task %s :%d
+11-02 20:33:45.017  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:45.018  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 79 lines
+11-02 20:33:45.018  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:45.018  2062 17216 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-02 20:33:45.048  2586  2689 I PhenotypeBackgroundRecv: Successfully updated snapshot for com.google.android.libraries.onegoogle.consent#com.android.vending
+11-02 20:33:45.054  2586  2586 I PhenotypeBackgroundRecv: Skipping com.google.android.gms.measurement#com.android.vending which doesn't use ProcessStable flags.
+11-02 20:33:45.056  2281  2281 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:54 android.app.ActivityThread.handleReceiver:3424 
+11-02 20:33:45.066  2062 16425 D AdvertisingIdClient: AdvertisingIdClient already created.
+11-02 20:33:45.073  2586  2586 I Finsky  : [2] App states replicator found 9 unowned apps
+11-02 20:33:45.075  2586  2660 I Finsky  : [107] Completed 0 account content syncs with 0 successful.
+11-02 20:33:45.075  2586  2586 I Finsky  : [2] [ContentSync] Installation state replication succeeded.
+11-02 20:33:45.075  2062 16425 I AdvertisingIdClient: shouldSendLog 8552403
+11-02 20:33:45.075  2062 16425 I AdvertisingIdClient: GetInfoInternal elapse 9ms
+11-02 20:33:45.075  2586  2586 I Finsky  : [2] SCH: jobFinished: 12-1. TimeElapsed: 804ms.
+11-02 20:33:45.076  2586  2586 I Finsky  : [2] WM::SCH: Logging work end for 12-1
+11-02 20:33:45.086  2062 17214 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-02 20:33:45.086  2062 17214 I WalletGcmTaskService: Running GcmTask w/ tag INSTANTBUY_REFRESH_INSTRUMENT_AVAILABILITY
+11-02 20:33:45.087  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:33:45.087  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:33:45.087  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:33:45.089  2586  2674 I Finsky  : [115] SCH: Scheduling 1 system job(s)
+11-02 20:33:45.089  2586  2674 I Finsky  : [115] SCH: Scheduling system job Id: 9546, L: 18221397, D: 61421397, C: false, I: false, N: 1
+11-02 20:33:45.093  2586 17209 I Finsky  : [479] SCH: job service finished with id 9541.
+11-02 20:33:45.107  2062  2107 W ServiceBindIntentUtils: Dynamic lookup for intent failed for action: com.google.android.gms.payse.service.BIND
+11-02 20:33:45.109  2062  2062 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.payse.service.BIND pkg=com.google.android.gms }
+11-02 20:33:45.109  2062  2062 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.payse.service.BIND pkg=com.google.android.gms }
+11-02 20:33:45.109  2062  2062 I BndSvcConfigHelper: No bound-service is registered for action: com.google.android.gms.payse.service.BIND
+11-02 20:33:45.109  2062  2062 I BoundBrokerSvc: Bound service not available for: Intent { act=com.google.android.gms.payse.service.BIND pkg=com.google.android.gms }
+11-02 20:33:45.109  2062  2062 I GmsApiChimeraSvc: Handling missing api service for: com.google.android.gms.payse.service.BIND
+11-02 20:33:45.109  1598  2426 W SchedPolicy: add_tid_to_cgroup failed to write '12697' (No space left on device); fd=24
+11-02 20:33:45.110  2062  2107 I GmsApiChimeraSvc: Using MissingApiServiceBroker for com.google.android.gms.payse.service.BIND due to missing BoundService implementation
+11-02 20:33:45.113  1598  2426 W SchedPolicy: add_tid_to_cgroup failed to write '12697' (No space left on device); fd=25
+11-02 20:33:45.121  2062  2062 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.fido.fido2.regular.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:33:45.121  2062  2062 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.fido.fido2.regular.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:33:45.121  1598  2426 W SchedPolicy: add_tid_to_cgroup failed to write '12697' (No space left on device); fd=24
+11-02 20:33:45.122  1598  2426 W SchedPolicy: add_tid_to_cgroup failed to write '12697' (No space left on device); fd=25
+11-02 20:33:45.124  1598  2426 W SchedPolicy: add_tid_to_cgroup failed to write '12697' (No space left on device); fd=24
+11-02 20:33:45.127  1598  2426 W SchedPolicy: add_tid_to_cgroup failed to write '12697' (No space left on device); fd=25
+11-02 20:33:45.132  2062  2062 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.ocr.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:33:45.132  2062  2062 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.ocr.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:33:45.134  1598  1661 W SchedPolicy: add_tid_to_cgroup failed to write '12697' (No space left on device); fd=24
+11-02 20:33:45.142  1598  2375 W SchedPolicy: add_tid_to_cgroup failed to write '12697' (No space left on device); fd=25
+11-02 20:33:45.150  1443  1443 V QCamera_Camera: getCameraInfo
+11-02 20:33:45.151  1443  1443 V QCamera_BaseCamera: getCameraInfo
+11-02 20:33:45.155 12720 12720 I PhenotypeBackgroundRecv: Skipping com.google.android.partnersetup#com.android.chrome which doesn't use ProcessStable flags.
+11-02 20:33:45.166  2062  2062 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.chimera.container.moduleinstall.ModuleInstallService.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:33:45.166  2062  2062 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.chimera.container.moduleinstall.ModuleInstallService.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:33:45.188  2062  2062 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.ocr.service.internal.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsInternalApiService }
+11-02 20:33:45.188  2062  2062 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.ocr.service.internal.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsInternalApiService }
+11-02 20:33:45.215  1931  2176 D TelephonyProvider: subIdString = -1 subId = -1
+11-02 20:33:45.216  1931  2176 D TelephonyProvider: getPreferredApnIdFromApn: for subId -1
+11-02 20:33:45.229  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:45.229  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 50 lines
+11-02 20:33:45.229  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:45.406  2062 17213 I AlarmManager: setExactAndAllowWhileIdle [name: GCM_HB_ALARM type: 2 triggerAtMillis: 9526841]
+11-02 20:33:45.407 17022 17112 D PlayTorrent: alert METADATA_RECEIVED: cf5290 metadata successfully received
+11-02 20:33:45.407 17022 17112 D PlayTorrent: alert STATE_CHANGED: cf5290: state changed to: checking (r)
+11-02 20:33:45.407 17022 17112 D PlayTorrent: alert STATE_CHANGED: cf5290: state changed to: downloading
+11-02 20:33:45.407 17022 17112 D PlayTorrent: alert TORRENT_CHECKED: cf5290 checked
+11-02 20:33:45.418 17022 17205 D PlayTorrent: torrent açıldı: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 dosya[0]=Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv boyut=19775934621 parça=8388608 (dosya sayısı 3, ipucu=0)
+11-02 20:33:45.418 17022 17112 D PlayTorrent: alert FILE_PRIO: cf5290 file priorities updated
+11-02 20:33:45.419 17022 17205 D PlayTorrent: yerel sunucu yanıtı: 200 Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv 0-19775934620/19775934621
+11-02 20:33:45.441 17022 17022 I RenderThread: type=1400 audit(0.0:9799): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:33:45.456  2062 17216 I AlarmManager: setExactAndAllowWhileIdle [name: FcmRetry type: 2 triggerAtMillis: 8686890]
+11-02 20:33:45.464  2062 17213 I AlarmManager: setExactAndAllowWhileIdle [name: GCM_HB_ALARM type: 2 triggerAtMillis: 9526900]
+11-02 20:33:45.464  1451  1451 I HwBinder:1451_1: type=1400 audit(0.0:9800): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:33:45.493  2062 17213 I AlarmManager: setExactAndAllowWhileIdle [name: GCM_HB_ALARM type: 2 triggerAtMillis: 9526928]
+11-02 20:33:45.520  2586 17297 I FirebaseMessaging: FirebaseApp has not being initialized. Device might be in direct boot mode. Skip exporting delivery metrics to Big Query
+11-02 20:33:45.525  2586 17297 I Finsky  : [487] FCM Handling notificationId=[CQ19ufUZso8h]
+11-02 20:33:45.530  2586  2586 I Finsky  : [2] Notification [id=CQ19ufUZso8h, type=27, account=[eBsRHnFf_QsfqgUhuEFS1oxijmw_1VQkcOqGU6G0D_I]] handling as ten
+11-02 20:33:45.551  2062 16974 I AlarmManager: setExactAndAllowWhileIdle [name: FcmRetry type: 2 triggerAtMillis: 8686986]
+11-02 20:33:45.564  2586 17297 I FirebaseMessaging: FirebaseApp has not being initialized. Device might be in direct boot mode. Skip exporting delivery metrics to Big Query
+11-02 20:33:45.564  2586 17297 I Finsky  : [487] FCM Handling notificationId=[CW3GVlyDJZfi]
+11-02 20:33:45.565  2586  2586 I Finsky  : [2] Notification [id=CW3GVlyDJZfi, type=19, account=[eBsRHnFf_QsfqgUhuEFS1oxijmw_1VQkcOqGU6G0D_I]] handling as tau
+11-02 20:33:45.566  2586 17299 W Finsky  : [489] Client provided delay (530 ms) is overridden by work metrics delay (32 ms)
+11-02 20:33:45.568  2586  2637 I Finsky  : [103] Commerce cache was cleared.
+11-02 20:33:45.570  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:45.570  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 41 lines
+11-02 20:33:45.570  1598  1606 W System  : A resource failed to call close. 
+11-02 20:33:45.577  2586 17299 W Finsky  : [489] Client provided delay (513 ms) is overridden by work metrics delay (12 ms)
+11-02 20:33:45.827  2062 16974 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-02 20:33:46.010  2586  2586 I Finsky  : [2] Notifications [[CQ19ufUZso8h]] successfully ack'd.
+11-02 20:33:46.014  2586  2586 I Finsky  : [2] Notifications [[CQ19ufUZso8h, CW3GVlyDJZfi]] successfully ack'd.
+11-02 20:33:47.424 17022 17205 D PlayTorrent: bekleniyor: parça=0 süre=2sn eş=13 tohum=10 hız=348KB/s inen=0KB durum=DOWNLOADING
+11-02 20:33:49.433 17022 17205 D PlayTorrent: bekleniyor: parça=0 süre=4sn eş=14 tohum=13 hız=651KB/s inen=0KB durum=DOWNLOADING
+11-02 20:33:49.434  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.common.telemetry.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:33:50.115  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.payse.service.BIND pkg=com.google.android.gms }
+11-02 20:33:51.438 17022 17205 D PlayTorrent: bekleniyor: parça=0 süre=6sn eş=14 tohum=12 hız=927KB/s inen=0KB durum=DOWNLOADING
+11-02 20:33:51.715  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:33:51.715  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:33:52.111 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:33:52.111 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:33:52.111 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:33:52.112 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:33:52.112 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:33:52.112 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:33:53.444 17022 17205 D PlayTorrent: bekleniyor: parça=0 süre=8sn eş=15 tohum=12 hız=1515KB/s inen=0KB durum=DOWNLOADING
+11-02 20:33:55.086  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-02 20:33:55.450 17022 17205 D PlayTorrent: bekleniyor: parça=0 süre=10sn eş=17 tohum=14 hız=1687KB/s inen=0KB durum=DOWNLOADING
+11-02 20:33:57.457 17022 17205 D PlayTorrent: bekleniyor: parça=0 süre=12sn eş=18 tohum=14 hız=1890KB/s inen=0KB durum=DOWNLOADING
+11-02 20:33:58.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:33:58.567 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:33:59.463 17022 17205 D PlayTorrent: bekleniyor: parça=0 süre=14sn eş=17 tohum=13 hız=2281KB/s inen=0KB durum=DOWNLOADING
+11-02 20:33:59.711  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.auth.aang.events.services.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:33:59.919  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.instantapps.START pkg=com.google.android.gms }
+11-02 20:34:00.007  1598  1661 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=24
+11-02 20:34:00.010  1598  1661 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=25
+11-02 20:34:00.018  1746  1746 I RenderThread: type=1400 audit(0.0:9801): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:34:00.028  1463  1463 I surfaceflinger: type=1400 audit(0.0:9802): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:34:00.137  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.fido.fido2.regular.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:34:00.147  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.ocr.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:34:00.169  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.chimera.container.moduleinstall.ModuleInstallService.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:34:00.189  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.ocr.service.internal.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsInternalApiService }
+11-02 20:34:01.476 17022 17205 D PlayTorrent: bekleniyor: parça=0 süre=16sn eş=17 tohum=13 hız=2579KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:01.551  1460  1460 I ldinit  : type=1400 audit(0.0:9803): avc: denied { read } for name="partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-02 20:34:01.551  1460  1460 I ldinit  : type=1400 audit(0.0:9804): avc: denied { open } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-02 20:34:01.551  1460  1460 I ldinit  : type=1400 audit(0.0:9805): avc: denied { getattr } for path="/proc/partitions" dev="proc" ino=4026532046 scontext=u:r:ldinit:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1
+11-02 20:34:02.917  1518  1531 E storaged: getDiskStats failed with result NOT_SUPPORTED and size 0
+11-02 20:34:02.911  1518  1518 I storaged: type=1400 audit(0.0:9806): avc: denied { call } for scontext=u:r:storaged:s0 tcontext=u:r:init:s0 tclass=binder permissive=1
+11-02 20:34:03.482 17022 17205 D PlayTorrent: bekleniyor: parça=0 süre=18sn eş=17 tohum=13 hız=2554KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:05.487 17022 17205 D PlayTorrent: bekleniyor: parça=0 süre=20sn eş=17 tohum=13 hız=2735KB/s inen=8192KB durum=DOWNLOADING
+11-02 20:34:06.747  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:34:06.747  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:34:07.492 17022 17205 D PlayTorrent: bekleniyor: parça=0 süre=22sn eş=17 tohum=13 hız=2746KB/s inen=16384KB durum=DOWNLOADING
+11-02 20:34:09.497 17022 17205 D PlayTorrent: bekleniyor: parça=0 süre=24sn eş=14 tohum=10 hız=2670KB/s inen=24576KB durum=DOWNLOADING
+11-02 20:34:09.519  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+11-02 20:34:10.640 17022 17110 D PlayTorrent: yerel sunucu isteği: GET range=bytes=19775794270- hedefOk=true
+11-02 20:34:10.640 17022 17110 D PlayTorrent: motor open: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 fileHint=0
+11-02 20:34:10.640 17022 17110 D PlayTorrent: yerel sunucu yanıtı: 206 Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv 19775794270-19775934620/19775934621
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:34:11.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:34:12.615 17022 17205 D PlayTorrent: bekleniyor: parça=5 süre=2sn eş=13 tohum=9 hız=2816KB/s inen=40960KB durum=DOWNLOADING
+11-02 20:34:12.650 17022 17110 D PlayTorrent: bekleniyor: parça=2357 süre=2sn eş=13 tohum=9 hız=2816KB/s inen=40960KB durum=DOWNLOADING
+11-02 20:34:14.126 17022 17205 D PlayTorrent: yerel sunucu bağlantısı bitti: SocketException Broken pipe
+11-02 20:34:14.677 17022 17110 D PlayTorrent: bekleniyor: parça=2357 süre=4sn eş=13 tohum=9 hız=2732KB/s inen=49152KB durum=DOWNLOADING
+11-02 20:34:14.826  1598  1661 E memtrack: Couldn't load memtrack module
+11-02 20:34:14.826  1598  1661 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:34:16.685 17022 17110 D PlayTorrent: bekleniyor: parça=2357 süre=6sn eş=13 tohum=9 hız=2528KB/s inen=49152KB durum=DOWNLOADING
+11-02 20:34:18.693 17022 17110 D PlayTorrent: bekleniyor: parça=2357 süre=8sn eş=12 tohum=8 hız=2596KB/s inen=49152KB durum=DOWNLOADING
+11-02 20:34:20.701 17022 17110 D PlayTorrent: bekleniyor: parça=2357 süre=10sn eş=12 tohum=8 hız=2374KB/s inen=49152KB durum=DOWNLOADING
+11-02 20:34:20.964  1451  1527 D EmuHWC2 : sent 510 syncs in 60s
+11-02 20:34:21.220  1598  1606 W System  : A resource failed to call close. 
+11-02 20:34:21.221  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 37 lines
+11-02 20:34:21.221  1598  1606 W System  : A resource failed to call close. 
+11-02 20:34:21.410 17022 17022 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 20:34:21.414 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:34:21.414 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:34:21.414 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:34:21.414 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:34:21.414 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:34:21.414 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:34:21.414 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:34:21.414 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:34:21.414 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:34:21.414 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:34:21.414 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:34:21.416 17022 17022 D PlayStreamUrl: oynatılıyor magnet: mime=?
+11-02 20:34:21.416 17022 17022 D PlayTorrent: oynatıcıya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=6 başlıklar=[] mime=null
+11-02 20:34:21.429 17022 17205 D PlayTorrent: yerel sunucu isteği: GET range=null hedefOk=true
+11-02 20:34:21.429 17022 17205 D PlayTorrent: motor open: hash=76f7269d8ce731e44543eacdd5ab3a17c3655e33 fileHint=6
+11-02 20:34:21.434 17022 17112 D PlayTorrent: alert TORRENT_DELETED: ------ deleted
+11-02 20:34:21.434 17022 17112 D PlayTorrent: alert TORRENT_REMOVED: ------ removed
+11-02 20:34:21.434 17022 17112 D PlayTorrent: alert STATE_CHANGED: 76f726: state changed to: dl metadata
+11-02 20:34:21.434 17022 17112 D PlayTorrent: alert ADD_TORRENT: added torrent: 76f7269d8ce731e44543eacdd5ab3a17c3655e33
+11-02 20:34:21.510 17022 17110 D PlayTorrent: yerel sunucu bağlantısı bitti: IOException torrent closed
+11-02 20:34:22.140 17022 17112 D PlayTorrent: alert TORRENT_RESUMED: 76f726 resumed
+11-02 20:34:22.140 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.140 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.141 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.141 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.141 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.141 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.141 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.141 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.141 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.141 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.141 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.141 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.141 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.141 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.142 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.142 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.142 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.142 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.142 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.142 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.142 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.142 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.142 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.142 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.143 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.143 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.143 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.143 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.143 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.143 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.143 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.143 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.143 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.144 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.144 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.144 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.144 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.144 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.144 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:22.144 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:22.153 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:34:22.153 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:34:22.153 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:34:22.153 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:34:22.153 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.153 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Operation Canceled "" (2)
+11-02 20:34:22.169 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:34:22.199 17022 17112 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] received peers: 4
+11-02 20:34:22.202 17022 17112 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] received peers: 20
+11-02 20:34:22.206 17022 17112 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 20
+11-02 20:34:22.220 17022 17112 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] received peers: 9
+11-02 20:34:22.222 17022 17112 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] received peers: 6
+11-02 20:34:22.222 17022 17112 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] received peers: 4
+11-02 20:34:22.223 17022 17112 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] received peers: 3
+11-02 20:34:22.250 17022 17112 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] received peers: 2
+11-02 20:34:22.340 17022 17112 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] received peers: 3
+11-02 20:34:22.473 17022 17112 D PlayTorrent: alert TRACKER_REPLY: 76f726 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] received peers: 4
+11-02 20:34:22.500 17022 17112 D PlayTorrent: alert TRACKER_REPLY: 76f726 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] received peers: 5
+11-02 20:34:23.652 17022 17112 D PlayTorrent: alert METADATA_RECEIVED: 76f726 metadata successfully received
+11-02 20:34:23.653 17022 17112 D PlayTorrent: alert STATE_CHANGED: 76f726: state changed to: checking (r)
+11-02 20:34:23.655 17022 17112 D PlayTorrent: alert STATE_CHANGED: 76f726: state changed to: downloading
+11-02 20:34:23.655 17022 17112 D PlayTorrent: alert TORRENT_CHECKED: 76f726 checked
+11-02 20:34:23.949 17022 17112 D PlayTorrent: alert FILE_PRIO: 76f726 file priorities updated
+11-02 20:34:23.951 17022 17205 D PlayTorrent: torrent açıldı: hash=76f7269d8ce731e44543eacdd5ab3a17c3655e33 dosya[6]=Every Global Conflict And War Summarized (2024) 1080p.mp4 boyut=673857317 parça=33554432 (dosya sayısı 197, ipucu=6)
+11-02 20:34:23.952 17022 17205 D PlayTorrent: yerel sunucu yanıtı: 200 Every Global Conflict And War Summarized (2024) 1080p.mp4 0-673857316/673857317
+11-02 20:34:25.966 17022 17205 D PlayTorrent: bekleniyor: parça=485 süre=2sn eş=7 tohum=3 hız=63KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:27.982 17022 17205 D PlayTorrent: bekleniyor: parça=485 süre=4sn eş=7 tohum=4 hız=555KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:29.623  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:34:29.624  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:34:29.624  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS pkg=com.google.android.gms }
+11-02 20:34:30.001 17022 17205 D PlayTorrent: bekleniyor: parça=485 süre=6sn eş=7 tohum=4 hız=1104KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:32.013 17022 17205 D PlayTorrent: bekleniyor: parça=485 süre=8sn eş=7 tohum=4 hız=1694KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:32.152 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:34:32.152 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:34:32.152 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:34:32.152 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:34:32.152 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:34:34.029 17022 17205 D PlayTorrent: bekleniyor: parça=485 süre=10sn eş=7 tohum=4 hız=1930KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:36.042 17022 17205 D PlayTorrent: bekleniyor: parça=485 süre=12sn eş=7 tohum=4 hız=2084KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:38.062 17022 17205 D PlayTorrent: bekleniyor: parça=485 süre=14sn eş=7 tohum=4 hız=1986KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:38.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:38.569 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:40.075 17022 17205 D PlayTorrent: bekleniyor: parça=485 süre=16sn eş=7 tohum=4 hız=1840KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:42.083 17022 17205 D PlayTorrent: bekleniyor: parça=485 süre=18sn eş=7 tohum=4 hız=1850KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:42.153 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:34:44.090 17022 17205 D PlayTorrent: bekleniyor: parça=485 süre=20sn eş=7 tohum=4 hız=1852KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:44.922  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:34:44.922  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:34:46.095 17022 17205 D PlayTorrent: bekleniyor: parça=485 süre=22sn eş=7 tohum=4 hız=1627KB/s inen=0KB durum=DOWNLOADING
+11-02 20:34:48.151 17022 17205 D PlayTorrent: bekleniyor: parça=485 süre=24sn eş=7 tohum=4 hız=1337KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:34:48.266 17022 17110 D PlayTorrent: yerel sunucu isteği: GET range=bytes=671912740- hedefOk=true
+11-02 20:34:48.267 17022 17110 D PlayTorrent: motor open: hash=76f7269d8ce731e44543eacdd5ab3a17c3655e33 fileHint=6
+11-02 20:34:48.267 17022 17110 D PlayTorrent: yerel sunucu yanıtı: 206 Every Global Conflict And War Summarized (2024) 1080p.mp4 671912740-673857316/673857317
+11-02 20:34:50.173 17022 17205 D PlayTorrent: bekleniyor: parça=486 süre=2sn eş=7 tohum=4 hız=1690KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:34:50.285 17022 17110 D PlayTorrent: bekleniyor: parça=505 süre=2sn eş=7 tohum=4 hız=1690KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:34:51.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:51.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:51.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:34:51.567 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:34:51.567 17022 17112 D PlayTorrent: alert TRACKER_ERROR: 76f726 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (2)
+11-02 20:34:52.182 17022 17205 D PlayTorrent: bekleniyor: parça=486 süre=4sn eş=7 tohum=4 hız=1544KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:34:52.296 17022 17110 D PlayTorrent: bekleniyor: parça=505 süre=4sn eş=7 tohum=4 hız=1544KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:34:54.194 17022 17205 D PlayTorrent: bekleniyor: parça=486 süre=6sn eş=6 tohum=4 hız=1462KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:34:54.309 17022 17110 D PlayTorrent: bekleniyor: parça=505 süre=6sn eş=6 tohum=4 hız=1462KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:34:56.202 17022 17205 D PlayTorrent: bekleniyor: parça=486 süre=8sn eş=6 tohum=4 hız=1582KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:34:56.323 17022 17110 D PlayTorrent: bekleniyor: parça=505 süre=8sn eş=6 tohum=4 hız=1582KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:34:58.213 17022 17205 D PlayTorrent: bekleniyor: parça=486 süre=10sn eş=6 tohum=4 hız=1718KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:34:58.346 17022 17110 D PlayTorrent: bekleniyor: parça=505 süre=10sn eş=6 tohum=4 hız=1718KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:34:59.975  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:34:59.975  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:35:00.002  1598  2375 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=24
+11-02 20:35:00.003  1598  2375 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=25
+11-02 20:35:00.229 17022 17205 D PlayTorrent: bekleniyor: parça=486 süre=12sn eş=6 tohum=4 hız=1572KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:35:00.361 17022 17110 D PlayTorrent: bekleniyor: parça=505 süre=12sn eş=6 tohum=4 hız=1572KB/s inen=32768KB durum=DOWNLOADING
+11-02 20:35:01.425 17022 17022 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 20:35:01.428 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:35:01.428 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:35:01.428 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:35:01.428 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:35:01.428 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:35:01.428 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:35:01.428 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:35:01.428 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:35:01.428 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:35:01.428 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:35:01.428 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 20:35:01.429 17022 17022 D PlayStreamUrl: oynatılıyor magnet: mime=?
+11-02 20:35:01.429 17022 17022 D PlayTorrent: oynatıcıya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=0 başlıklar=[] mime=null
+11-02 20:35:01.442 17022 17112 D PlayTorrent: alert TORRENT_DELETED: ------ deleted
+11-02 20:35:01.442 17022 17112 D PlayTorrent: alert TORRENT_REMOVED: ------ removed
+11-02 20:35:01.442 17022 17205 D PlayTorrent: yerel sunucu bağlantısı bitti: IOException torrent closed
+11-02 20:35:01.444 17022 17310 D PlayTorrent: yerel sunucu isteği: GET range=null hedefOk=true
+11-02 20:35:01.444 17022 17310 D PlayTorrent: motor open: hash=d11e3f7a2a87f7151913ad550c1886615ae7edaa fileHint=0
+11-02 20:35:01.446 17022 17112 D PlayTorrent: alert STATE_CHANGED: d11e3f: state changed to: dl metadata
+11-02 20:35:01.446 17022 17112 D PlayTorrent: alert ADD_TORRENT: added torrent: d11e3f7a2a87f7151913ad550c1886615ae7edaa
+11-02 20:35:01.466 17022 17110 D PlayTorrent: yerel sunucu bağlantısı bitti: IOException torrent closed
+11-02 20:35:02.190 17022 17112 D PlayTorrent: alert TORRENT_RESUMED: d11e3f resumed
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.191 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 20:35:02.192 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:02.200 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:35:02.200 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:35:02.200 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:35:02.200 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:35:02.200 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.200 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.201 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:35:02.201 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.201 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.201 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.201 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.201 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.201 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 20:35:02.201 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.202 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:35:02.202 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:35:02.202 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.202 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.202 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.202 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:35:02.202 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 20:35:02.202 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.202 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Operation Canceled "" (2)
+11-02 20:35:02.202 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 20:35:02.247 17022 17112 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] received peers: 0
+11-02 20:35:02.256 17022 17112 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] received peers: 200
+11-02 20:35:02.259 17022 17112 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 200
+11-02 20:35:02.269 17022 17112 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] received peers: 200
+11-02 20:35:02.270 17022 17112 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] received peers: 44
+11-02 20:35:02.270 17022 17112 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] received peers: 12
+11-02 20:35:02.275 17022 17112 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] received peers: 200
+11-02 20:35:02.387 17022 17112 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] received peers: 12
+11-02 20:35:02.520 17022 17112 D PlayTorrent: alert TRACKER_REPLY: d11e3f (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] received peers: 24
+11-02 20:35:02.574 17022 17112 D PlayTorrent: alert TRACKER_REPLY: d11e3f (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] received peers: 20
+11-02 20:35:02.918  1518  1531 E storaged: getDiskStats failed with result NOT_SUPPORTED and size 0
+11-02 20:35:03.556 17022 17112 D PlayTorrent: alert METADATA_RECEIVED: d11e3f metadata successfully received
+11-02 20:35:03.556 17022 17112 D PlayTorrent: alert STATE_CHANGED: d11e3f: state changed to: checking (r)
+11-02 20:35:03.556 17022 17112 D PlayTorrent: alert STATE_CHANGED: d11e3f: state changed to: downloading
+11-02 20:35:03.557 17022 17112 D PlayTorrent: alert TORRENT_CHECKED: d11e3f checked
+11-02 20:35:03.956 17022 17112 D PlayTorrent: alert FILE_PRIO: d11e3f file priorities updated
+11-02 20:35:03.958 17022 17310 D PlayTorrent: torrent açıldı: hash=d11e3f7a2a87f7151913ad550c1886615ae7edaa dosya[0]=Civil.War.2024.1080p.AMZN.WEBRip.1400MB.DD5.1.x264-GalaxyRG.mkv boyut=1506466558 parça=1048576 (dosya sayısı 3, ipucu=0)
+11-02 20:35:03.958 17022 17310 D PlayTorrent: yerel sunucu yanıtı: 200 Civil.War.2024.1080p.AMZN.WEBRip.1400MB.DD5.1.x264-GalaxyRG.mkv 0-1506466557/1506466558
+11-02 20:35:05.981 17022 17310 D PlayTorrent: bekleniyor: parça=0 süre=2sn eş=13 tohum=9 hız=184KB/s inen=0KB durum=DOWNLOADING
+11-02 20:35:06.021  2062 16974 I gle.android.gm: Explicit concurrent copying GC freed 85179(4MB) AllocSpace objects, 15(412KB) LOS objects, 50% free, 15MB/31MB, paused 60us total 51.438ms
+11-02 20:35:07.992 17022 17310 D PlayTorrent: bekleniyor: parça=0 süre=4sn eş=16 tohum=13 hız=673KB/s inen=0KB durum=DOWNLOADING
+11-02 20:35:10.001 17022 17310 D PlayTorrent: bekleniyor: parça=0 süre=6sn eş=17 tohum=13 hız=1464KB/s inen=2048KB durum=DOWNLOADING
+11-02 20:35:12.020 17022 17310 D PlayTorrent: bekleniyor: parça=0 süre=8sn eş=21 tohum=15 hız=1845KB/s inen=6144KB durum=DOWNLOADING
+11-02 20:35:12.199 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:35:12.199 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:35:12.199 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:35:12.199 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:35:12.199 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:35:12.199 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:35:13.232 17022 17110 D PlayTorrent: yerel sunucu isteği: GET range=bytes=1506353127- hedefOk=true
+11-02 20:35:13.233 17022 17110 D PlayTorrent: motor open: hash=d11e3f7a2a87f7151913ad550c1886615ae7edaa fileHint=0
+11-02 20:35:13.233 17022 17110 D PlayTorrent: yerel sunucu yanıtı: 206 Civil.War.2024.1080p.AMZN.WEBRip.1400MB.DD5.1.x264-GalaxyRG.mkv 1506353127-1506466557/1506466558
+11-02 20:35:14.236 17022 17310 D PlayTorrent: yerel sunucu bağlantısı bitti: SocketException Broken pipe
+11-02 20:35:14.520  2062 16974 I AlarmManager: setExactAndAllowWhileIdle [name: GCM_HB_ALARM type: 2 triggerAtMillis: 9615955]
+11-02 20:35:14.598  1598  1606 W System  : A resource failed to call close. 
+11-02 20:35:14.598  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 37 lines
+11-02 20:35:14.598  1598  1606 W System  : A resource failed to call close. 
+11-02 20:35:14.604  2062 17315 I GCM     : Message from 745476177629
+11-02 20:35:14.637  2062  2062 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.auth.aang.events.services.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:35:14.653  2062 17316 W GLSUser : [DeviceKeyStore] Cannot load key: Device key file not found.
+11-02 20:35:14.655  1598  2087 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=24
+11-02 20:35:14.663  3223  3348 W FileUtils: Failed to chmod(/data/user/0/com.google.android.gms/app_dg_cache): android.system.ErrnoException: chmod failed: ENOENT (No such file or directory)
+11-02 20:35:14.665  3223  3348 E DGFRR   : FR error [CONTEXT service_id=25 ]
+11-02 20:35:14.665  3223  3348 E DGFRR   : bwsy: Failed to get VM keys.
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at bwtb.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):103)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at bwut.f(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):3)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at bwuc.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):85)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at bwtx.g(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):210)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at bwtg.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):111)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at bwqw.e(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):59)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at bwqw.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):28)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at bwst.dispatchTransaction(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):30)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at ckxl.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):63)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at abjn.onTransact(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):23)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at android.os.Binder.transact(Binder.java:667)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at ckya.onTransact(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):168)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at android.os.Binder.execTransact(Binder.java:731)
+11-02 20:35:14.665  3223  3348 E DGFRR   : Caused by: java.nio.file.NoSuchFileException: /data/user/0/com.google.android.gms/app_dg_cache
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at sun.nio.fs.UnixFileSystemProvider.newDirectoryStream(UnixFileSystemProvider.java:434)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at j$.nio.file.spi.a.r(r8-map-id-fa95ee5151e4a92c29730317b2f899da01d44da53a24384dc28b278dadf49a63:13)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at j$.nio.file.Files.newDirectoryStream(r8-map-id-fa95ee5151e4a92c29730317b2f899da01d44da53a24384dc28b278dadf49a63:7)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	at bwtb.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):14)
+11-02 20:35:14.665  3223  3348 E DGFRR   : 	... 12 more
+11-02 20:35:14.665  3223  3348 W DG      : [flow devicekey] DroidGuardRunner.initSignalCollection() exception [CONTEXT service_id=25 ]
+11-02 20:35:14.665  3223  3348 W DG      : bwte
+11-02 20:35:14.665  3223  3348 W DG      : 	at bwtg.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):122)
+11-02 20:35:14.665  3223  3348 W DG      : 	at bwqw.e(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):59)
+11-02 20:35:14.665  3223  3348 W DG      : 	at bwqw.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):28)
+11-02 20:35:14.665  3223  3348 W DG      : 	at bwst.dispatchTransaction(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):30)
+11-02 20:35:14.665  3223  3348 W DG      : 	at ckxl.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):63)
+11-02 20:35:14.665  3223  3348 W DG      : 	at abjn.onTransact(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):23)
+11-02 20:35:14.665  3223  3348 W DG      : 	at android.os.Binder.transact(Binder.java:667)
+11-02 20:35:14.665  3223  3348 W DG      : 	at ckya.onTransact(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):168)
+11-02 20:35:14.665  3223  3348 W DG      : 	at android.os.Binder.execTransact(Binder.java:731)
+11-02 20:35:14.672  1512  1512 I keystore: del USRPKEY_unstable.c7202ece89390c490b1b94d5b71225e1.fallback 10014
+11-02 20:35:14.674  1512  1512 I keystore: del USRCERT_unstable.c7202ece89390c490b1b94d5b71225e1.fallback 10014
+11-02 20:35:14.674  1512  1512 I keystore: del CACERT_unstable.c7202ece89390c490b1b94d5b71225e1.fallback 10014
+11-02 20:35:14.685  1598  1613 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.DROPBOX_ENTRY_ADDED flg=0x10 (has extras) } to com.google.android.gms/.stats.service.DropBoxEntryAddedReceiver
+11-02 20:35:14.685  1598  1613 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=25
+11-02 20:35:14.688  3223  3223 I Binder:3223_4: type=1400 audit(0.0:9807): avc: denied { read } for name="address" dev="sysfs" ino=7109 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+11-02 20:35:14.688  3223  3223 I Binder:3223_4: type=1400 audit(0.0:9808): avc: denied { open } for path="/sys/devices/pci0000:00/0000:00:03.0/virtio0/net/wlan0/address" dev="sysfs" ino=7109 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+11-02 20:35:14.688  3223  3223 I Binder:3223_4: type=1400 audit(0.0:9809): avc: denied { getattr } for path="/sys/devices/pci0000:00/0000:00:03.0/virtio0/net/wlan0/address" dev="sysfs" ino=7109 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+11-02 20:35:14.731  2062 17316 W GmsUrlRequestImpl: [https://android.googleapis.com/auth/devicekey] Content-Type header is overwritten.
+11-02 20:35:14.896  1598  2087 E memtrack: Couldn't load memtrack module
+11-02 20:35:14.896  1598  2087 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:35:15.009  2586  2674 I Finsky  : [115] AIM: AppInfoManager-Perf > Destroying AppInfoManager ...
+11-02 20:35:15.067  2062 17316 W GLSUser : [AppCertManager] Exception while requesting key: 
+11-02 20:35:15.067  2062 17316 W GLSUser : java.util.concurrent.ExecutionException: dkbi: Parsing Exception
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at gztt.k(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):21)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at gzub.u(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):73)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at apuj.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):416)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at apuh.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):110)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at apud.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):3)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at apuf.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):58)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at apuf.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):17)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at aqts.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):234)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at aqts.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at aqtf.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):220)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at aqtf.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):67)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at aqth.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):141)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at com.google.android.gms.auth.cryptauth.gcm.GcmReceiverChimeraService.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):231)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at com.google.android.gms.framework.tracing.wrapper.TracingIntentService.onHandleIntent(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):13)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at adzg.handleMessage(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):7)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at android.os.Looper.loop(Looper.java:193)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at android.os.HandlerThread.run(HandlerThread.java:65)
+11-02 20:35:15.067  2062 17316 W GLSUser : Caused by: dkbi: Parsing Exception
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at dkcj.jI(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):15)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at gzwm.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):55)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at bqax.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):50)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at bqax.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):27)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at bqax.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):81)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at bqgz.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):8)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at java.lang.Thread.run(Thread.java:764)
+11-02 20:35:15.067  2062 17316 W GLSUser : Caused by: hwdp: Protocol message end-group tag did not match expected tag.
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at hwfg.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):56)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at hwef.i(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):426)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at hwcr.R(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):22)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at hwcm.q(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):3)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at hwap.e(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):7)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at hwap.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at hwap.m(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at dkci.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):11)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at dkcn.call(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):8)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at bqax.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):50)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	at bqax.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):5)
+11-02 20:35:15.067  2062 17316 W GLSUser : 	... 5 more
+11-02 20:35:15.068  2062 17316 W GLSUser : [DeviceKeyStore] Cannot load key: Device key file not found.
+11-02 20:35:15.147  3223  3330 I id.gms.unstabl: Explicit concurrent copying GC freed 150764(4MB) AllocSpace objects, 1(16KB) LOS objects, 24% free, 3MB/4MB, paused 18us total 17.792ms
+11-02 20:35:15.237 17022 17110 D PlayTorrent: bekleniyor: parça=1436 süre=2sn eş=33 tohum=26 hız=2610KB/s inen=18432KB durum=DOWNLOADING
+11-02 20:35:15.783  2062 17316 W GLSUser : [DeviceKeyStore] Cannot load key: Device key file not found.
+11-02 20:35:16.208  2062 17316 I chatty  : uid=10014(com.google.android.gms) identical 2 lines
+11-02 20:35:16.208  2062 17316 W GLSUser : [DeviceKeyStore] Cannot load key: Device key file not found.
+11-02 20:35:16.511  2062 17316 I CryptauthV2: [DeviceSyncController] Device sync completed, sending broadcast
+11-02 20:35:16.520  2062  2062 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.auth.cryptauth.cryptauthservice.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-02 20:35:16.520  2062  2062 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.auth.cryptauth.cryptauthservice.START dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-02 20:35:16.538  2062  2062 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS pkg=com.google.android.gms }
+11-02 20:35:16.538  2062  2062 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.common.BIND_SHARED_PREFS pkg=com.google.android.gms }
+11-02 20:35:16.538  2062 17315 I ProximityAuth: (REDACTED) [FeatureEnabledController] Updating previously enabled features (%s) and with enabled features synced from Cryptauth (%s)
+11-02 20:35:16.540  2062 17315 I ProximityAuth: [FeatureLoader] auth_easyunlock module load status: 2
+11-02 20:35:16.541  2062 17314 I ProximityAuth: [FeatureSupportProvider] Not supported: not a phone [CONTEXT service_id=108 ]
+11-02 20:35:16.542  2062  2062 I ProximityAuth: [PhoneHubService] Handling intent for PhoneHubChimeraService.
+11-02 20:35:16.548  2062 17214 I ProximityAuth: [PhoneHubService] No enabled account, stopping service
+11-02 20:35:16.548  2062  2062 I ProximityAuth: [PhoneHubService] Destroying PhoneHubChimeraService.
+11-02 20:35:16.548  2062  2062 W ProximityAuth: [PhoneHubNotificationProcessor] shutdown(): context is null.
+11-02 20:35:16.548  2062  2062 I ProximityAuth: [PhoneHubService] All devices have disconnected. Performing cleanup...
+11-02 20:35:16.549  2062  2062 W ChimeraUtils: Module com.google.android.gms.auth_proximity missing resource null(0)
+11-02 20:35:16.558  2062 17315 I AlarmManager: set [name: SystemMemoryCache type: 2 triggerAtMillis: 315368657993 windowMillis: -1 intervalMillis: 0]
+11-02 20:35:16.581  2062 17214 I MagicTether: (REDACTED) [HostValidator] InvalidHost. PhoneRadio: %b, MobileData: %b, Tethering: %b, BLE: %b
+11-02 20:35:17.241 17022 17110 D PlayTorrent: bekleniyor: parça=1436 süre=4sn eş=32 tohum=25 hız=2600KB/s inen=22199KB durum=DOWNLOADING
+11-02 20:35:17.241 17022 17112 D PlayTorrent: alert FILE_COMPLETED: d11e3f: file 1 finished downloading
+11-02 20:35:17.241 17022 17112 D PlayTorrent: alert FILE_COMPLETED: d11e3f: file 2 finished downloading
+11-02 20:35:17.279 17022 17110 D PlayTorrent: yerel sunucu isteği: GET range=bytes=3439- hedefOk=true
+11-02 20:35:17.280 17022 17110 D PlayTorrent: motor open: hash=d11e3f7a2a87f7151913ad550c1886615ae7edaa fileHint=0
+11-02 20:35:17.280 17022 17110 D PlayTorrent: yerel sunucu yanıtı: 206 Civil.War.2024.1080p.AMZN.WEBRip.1400MB.DD5.1.x264-GalaxyRG.mkv 3439-1506466557/1506466558
+11-02 20:35:17.296 17022 17085 W com.kaan.play: Accessing hidden method Landroid/media/MediaFormat;->getInteger(Ljava/lang/String;I)I (dark greylist, linking)
+11-02 20:35:17.306 17022 17331 I OMXClient: IOmx service obtained
+11-02 20:35:17.308  1520  1585 I OMXMaster: makeComponentInstance(OMX.google.h264.decoder) in omx@1.0-service process
+11-02 20:35:17.342  1520  1585 D LDDec   : createSoftOMXComponent OMX.google.h264.decoder
+11-02 20:35:17.342  1520  1585 D LDDec   : LDDec init 0x0 1, 320
+11-02 20:35:17.345 17022 17330 D SurfaceUtils: connecting to surface 0x76386ee78010, reason connectToSurface
+11-02 20:35:17.345 17022 17330 I MediaCodec: [OMX.google.h264.decoder] setting surface generation to 17430529
+11-02 20:35:17.345 17022 17330 D SurfaceUtils: disconnecting from surface 0x76386ee78010, reason connectToSurface(reconnect)
+11-02 20:35:17.345 17022 17330 D SurfaceUtils: connecting to surface 0x76386ee78010, reason connectToSurface(reconnect)
+11-02 20:35:17.346  1520  1585 W OMXNodeInstance: [0xf5229060:google.h264.decoder] component does not support metadata mode; using fallback
+11-02 20:35:17.346 17022 17331 E ACodec  : [OMX.google.h264.decoder] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+11-02 20:35:17.346  1520  1585 W OMXNodeInstance: [0xf5229060:google.h264.decoder] component does not support metadata mode; using fallback
+11-02 20:35:17.346  1520  1585 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 20:35:17.346  1520  1585 E OMXNodeInstance: setConfig(0xf5229060:google.h264.decoder, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 20:35:17.346 17022 17331 I ACodec  : codec does not support config priority (err -1010)
+11-02 20:35:17.346  1520  1585 E OMXNodeInstance: getConfig(0xf5229060:google.h264.decoder, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 20:35:17.346  1520  1585 E OMXNodeInstance: getConfig(0xf5229060:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 20:35:17.351 17022 17022 D PlaySubs: videonun içindeki altyazılar: [en, en, es]
+11-02 20:35:17.354  1437  1437 W AshmemAllocator: ashmem_create_region(2995200) returning hidl_memory(0x76391702c100, 2995200)
+11-02 20:35:17.369  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 30 lines
+11-02 20:35:17.369  1437  1437 W AshmemAllocator: ashmem_create_region(2995200) returning hidl_memory(0x76391702c100, 2995200)
+11-02 20:35:17.369  1520 17333 D LDDec   : initDecoder OMX.google.h264.decoder init
+11-02 20:35:17.370  1520 17333 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 20:35:17.381  1520  1585 E OMXNodeInstance: getConfig(0xf5229060:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 20:35:17.382  1520  6644 E OMXNodeInstance: getConfig(0xf5229060:google.h264.decoder, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 20:35:17.364  1520  1520 I le.h264.decoder: type=1400 audit(0.0:9810): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:35:17.391 17022 17330 D MediaCodec: [OMX.google.h264.decoder] setting dataspace on output surface to #104
+11-02 20:35:17.394 17022 17330 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 20:35:17.398 17022 17330 I         : fastpipe: Connect success
+11-02 20:35:17.400 17022 17330 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=17022, tid=17330, this=0x76387561a180
+11-02 20:35:17.407 17022 17330 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+11-02 20:35:17.433 17022 17330 D SoftwareRenderer: setting dataspace on output surface to #104
+11-02 20:35:17.391  1450  1450 I HwBinder:1450_2: type=1400 audit(0.0:9811): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:35:17.394  1450  1450 I HwBinder:1450_2: type=1400 audit(0.0:9812): avc: denied { read write } for name="fastpipe" dev="tmpfs" ino=2104 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:35:17.394  1450  1450 I HwBinder:1450_2: type=1400 audit(0.0:9813): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:hal_graphics_allocator_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:35:17.394  1450  1450 I HwBinder:1450_2: type=1400 audit(0.0:9814): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:35:17.394 17022 17022 I MediaCodec_loop: type=1400 audit(0.0:9815): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:35:17.453 17022 17022 D PlayMatch: ilk kare: Torrentio (faz=Starting)
+11-02 20:35:17.454  5551  5551 I ->host-10: type=1400 audit(0.0:9816): avc: denied { write } for path="socket:[56667]" dev="sockfs" ino=56667 scontext=u:r:su:s0 tcontext=u:r:su:s0 tclass=tcp_socket permissive=1
+11-02 20:35:17.454  5551  5551 I <-host-10: type=1400 audit(0.0:9817): avc: denied { read } for path="socket:[56667]" dev="sockfs" ino=56667 scontext=u:r:su:s0 tcontext=u:r:su:s0 tclass=tcp_socket permissive=1
+11-02 20:35:17.454 17022 17022 D PlayMatch: süre kontrolü kaynak=Torrentio (?) süre=108.8 dk beklenen=109 dk tür=Movie -> Ok
+11-02 20:35:17.455 17022 17330 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 20:35:17.474 17022 17330 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 20:35:17.586 17022 17037 I com.kaan.play: Background concurrent copying GC freed 207531(7MB) AllocSpace objects, 24(1392KB) LOS objects, 45% free, 28MB/52MB, paused 41us total 111.946ms
+11-02 20:35:18.223  1520  1585 E OMXNodeInstance: setConfig(0xf5229060:google.h264.decoder, ConfigOperatingRate(0x6f800003)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 20:35:18.223 17022 17331 I ACodec  : codec does not support config operating rate (err -1010)
+11-02 20:35:18.565 17022 17112 D PlayTorrent: alert TRACKER_ANNOUNCE: d11e3f (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 20:35:18.566 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (2)
+11-02 20:35:19.489 17022 17110 D PlayTorrent: bekleniyor: parça=5 süre=2sn eş=29 tohum=23 hız=3279KB/s inen=31415KB durum=DOWNLOADING
+11-02 20:35:21.329  1598  1606 W System  : A resource failed to call close. 
+11-02 20:35:21.329  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 34 lines
+11-02 20:35:21.329  1598  1606 W System  : A resource failed to call close. 
+11-02 20:35:21.505 17022 17110 D PlayTorrent: bekleniyor: parça=6 süre=2sn eş=29 tohum=23 hız=3023KB/s inen=33463KB durum=DOWNLOADING
+11-02 20:35:22.290 17022 17112 D PlayTorrent: alert TRACKER_ERROR: d11e3f (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 20:35:22.484 17338 17338 I adbd    : type=1400 audit(0.0:9818): avc: denied { execute } for name="sh" dev="sda2" ino=1684 scontext=u:r:su:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1

@@ -1,0 +1,296 @@
+--------- beginning of main
+11-02 19:19:04.428  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon expire 32 lines
+11-02 19:19:04.428  1598  1606 W System  : A resource failed to call close. 
+11-02 19:19:04.921  9802  9802 I sh      : type=1400 audit(0.0:4373): avc: denied { getattr } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 19:19:04.921  9802  9802 I sh      : type=1400 audit(0.0:4374): avc: denied { execute } for name="logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 19:19:04.921  9802  9802 I sh      : type=1400 audit(0.0:4375): avc: denied { read open } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 19:19:04.921  9802  9802 I sh      : type=1400 audit(0.0:4376): avc: denied { execute_no_trans } for path="/system/bin/logcat" dev="sda2" ino=1790 scontext=u:r:su:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+11-02 19:19:04.924  9802  9802 I logcat  : type=1400 audit(0.0:4377): avc: denied { write } for name="logd" dev="tmpfs" ino=2114 scontext=u:r:su:s0 tcontext=u:object_r:logd_socket:s0 tclass=sock_file permissive=1
+11-02 19:19:04.924  9802  9802 I logcat  : type=1400 audit(0.0:4378): avc: denied { connectto } for path="/dev/socket/logd" scontext=u:r:su:s0 tcontext=u:r:logd:s0 tclass=unix_stream_socket permissive=1
+11-02 19:19:04.995  9804  9804 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 1463 811 
+11-02 19:19:04.995  9804  9804 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 19:19:04.996  9804  9804 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 19:19:05.003  9804  9804 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 19:19:05.009  9804  9804 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 19:19:05.023  9804  9804 I app_process: The ClassLoaderContext is a special shared library.
+11-02 19:19:05.023  9804  9804 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 19:19:05.023  9804  9804 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 19:19:05.023  9804  9804 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 19:19:05.023  9804  9804 D nativebridge: call UnloadNativeBridge! state=2
+11-02 19:19:05.030  9804  9804 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 19:19:05.031  9804  9804 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=4086465, downTime=4086465, deviceId=3, source=0x1002 }
+11-02 19:19:05.032  9804  9804 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=4086465, downTime=4086465, deviceId=3, source=0x1002 }
+11-02 19:19:05.033  9622  9622 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 19:19:05.036  9804  9804 D AndroidRuntime: Shutting down VM
+--------- beginning of system
+11-02 19:19:05.072  2281  2281 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-02 19:19:05.082  1463  2230 W SurfaceFlinger: Attempting to set client state on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 19:19:05.082  1463  2230 W SurfaceFlinger: Attempting to destroy on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 19:19:05.093  1463  1480 W SurfaceFlinger: Attempting to set client state on removed layer: Dim Layer for - Task=19#0
+11-02 19:19:05.094  1463  1480 W SurfaceFlinger: Attempting to destroy on removed layer: Dim Layer for - Task=19#0
+11-02 19:19:05.131  9622  9632 I com.kaan.play: JIT allocated 114KB for stack maps of void u93.e(i63, bb4, com.kaan.play.data.stream.PlayTarget, boolean, boolean, sn0, fo, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, l54, com.kaan.play.data.stream.PlayableStream, boolean, kotlin.jvm.functions.Function1, d24, kotlin.jvm.functions.Function0, l81, int, int)
+11-02 19:19:05.132  9622  9632 I com.kaan.play: JIT allocated 50KB for compiled code of void u93.e(i63, bb4, com.kaan.play.data.stream.PlayTarget, boolean, boolean, sn0, fo, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, l54, com.kaan.play.data.stream.PlayableStream, boolean, kotlin.jvm.functions.Function1, d24, kotlin.jvm.functions.Function0, l81, int, int)
+11-02 19:19:05.132  9622  9632 I com.kaan.play: Compiler allocated 15MB to compile void u93.e(i63, bb4, com.kaan.play.data.stream.PlayTarget, boolean, boolean, sn0, fo, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, l54, com.kaan.play.data.stream.PlayableStream, boolean, kotlin.jvm.functions.Function1, d24, kotlin.jvm.functions.Function0, l81, int, int)
+11-02 19:19:08.135  1440  1489 D audio_hw_hal: log_func, out_standby
+11-02 19:19:08.135  1440  1489 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-02 19:19:08.135  1440  1489 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-02 19:19:08.459  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 19:19:08.460  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:19:08.460  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-02 19:19:08.778  2381  2381 D AppUsageManager: 目前在前台的应用是：com.kaan.play， 累积在前台运行：3300.0秒
+11-02 19:19:08.779  3577  9581 I AppStartReceiver: onReceive, action = com.ldmnq.APP_USAGE, extras = Bundle[{intervalTime=300000, totalTime=3300000, packageName=com.kaan.play}]
+11-02 19:19:10.256  1598  2706 E memtrack: Couldn't load memtrack module
+11-02 19:19:10.256  1598  2706 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:19:11.513  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 19:19:11.513  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.presencemanager.service.INTERNAL_IDENTITY dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 19:19:13.168  1598  1606 W System  : A resource failed to call close. 
+11-02 19:19:13.169  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 28 lines
+11-02 19:19:13.169  1598  1606 W System  : A resource failed to call close. 
+11-02 19:19:26.476  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 19:19:26.476  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:19:26.484  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 19:19:26.484  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:19:26.489  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 19:19:26.489  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:19:43.544  9622  9689 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:19:43.544  9622  9689 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:19:43.545  9622  9689 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:19:43.545  9622  9689 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:19:43.567  9622  9689 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:19:43.567  9622  9689 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:19:43.583  9622  9826 I OMXClient: IOmx service obtained
+11-02 19:19:43.587  1520  1585 I OMXMaster: makeComponentInstance(OMX.qcom.video.decoder.hevc) in omx@1.0-service process
+11-02 19:19:43.601  1520  1585 D LDDec   : createSoftOMXComponent OMX.qcom.video.decoder.hevc
+11-02 19:19:43.601  1520  1585 D LDDec   : LDDec init 0x0 1, 320
+11-02 19:19:43.604  9622  9825 D SurfaceUtils: connecting to surface 0x76387530b010, reason connectToSurface
+11-02 19:19:43.604  9622  9825 I MediaCodec: [OMX.qcom.video.decoder.hevc] setting surface generation to 9852929
+11-02 19:19:43.604  9622  9825 D SurfaceUtils: disconnecting from surface 0x76387530b010, reason connectToSurface(reconnect)
+11-02 19:19:43.604  9622  9825 D SurfaceUtils: connecting to surface 0x76387530b010, reason connectToSurface(reconnect)
+11-02 19:19:43.604  1520  1585 W OMXNodeInstance: [0xf562c900:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 19:19:43.604  9622  9826 E ACodec  : [OMX.qcom.video.decoder.hevc] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+11-02 19:19:43.604  1520  1585 W OMXNodeInstance: [0xf562c900:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 19:19:43.604  1520  1585 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 19:19:43.604  1520  1585 E OMXNodeInstance: setConfig(0xf562c900:qcom.decoder.hevc, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 19:19:43.604  9622  9826 I ACodec  : codec does not support config priority (err -1010)
+11-02 19:19:43.604  1520  1585 E OMXNodeInstance: getConfig(0xf562c900:qcom.decoder.hevc, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 19:19:43.604  1520  1585 E OMXNodeInstance: getConfig(0xf562c900:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 19:19:43.622  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 19:19:43.627  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 30 lines
+11-02 19:19:43.627  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 19:19:43.628  1520  9828 D LDDec   : initDecoder OMX.qcom.video.decoder.hevc init
+11-02 19:19:43.628  9622  9689 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 19:19:43.630  9622  9689 W MediaCodecRenderer: Format exceeds selected codec's capabilities [id=1, mimeType=video/dolby-vision, container=video/x-matroska, codecs=dvhe.08.06, res=3836x2072, color=BT2020/Limited range/ST2084 PQ/10/10, language=en, selectionFlags=[default], OMX.qcom.video.decoder.hevc]
+11-02 19:19:43.624  1520  1520 I eo.decoder.hevc: type=1400 audit(0.0:4380): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:19:43.637  1520  9828 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 19:19:43.699  1520  1585 E OMXNodeInstance: getConfig(0xf562c900:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 19:19:43.717  1520  1585 E OMXNodeInstance: getConfig(0xf562c900:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 19:19:43.749  9622  9825 D MediaCodec: [OMX.qcom.video.decoder.hevc] setting dataspace on output surface to #104
+11-02 19:19:43.755  9622  9825 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 19:19:43.766  9622  9825 I         : fastpipe: Connect success
+11-02 19:19:43.767  9622  9825 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=9622, tid=9825, this=0x76386c9f6ac0
+11-02 19:19:43.768  9622  9825 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+11-02 19:19:43.771  9622  9825 D SoftwareRenderer: setting dataspace on output surface to #104
+11-02 19:19:43.773  9622  9622 D PlayMatch: ilk kare: Torrentio (faz=Starting)
+11-02 19:19:43.784  9622  9825 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 19:19:43.790  9622  9622 D PlayMatch: süre kontrolü kaynak=Torrentio (?) süre=108.8 dk beklenen=109 dk tür=Movie -> Ok
+11-02 19:19:43.816  9622  9825 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 19:19:44.303  1520  1585 E OMXNodeInstance: setConfig(0xf562c900:qcom.decoder.hevc, ConfigOperatingRate(0x6f800003)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 19:19:44.303  9622  9826 I ACodec  : codec does not support config operating rate (err -1010)
+11-02 19:20:00.019  1598  2423 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=24
+11-02 19:20:00.028  1598  2423 W SchedPolicy: add_tid_to_cgroup failed to write '2381' (No space left on device); fd=25
+11-02 19:20:02.481  1518  1531 E storaged: getDiskStats failed with result NOT_SUPPORTED and size 0
+11-02 19:20:02.899  1519  1519 W wificond: Scan already started
+11-02 19:20:03.003  1598  2706 W SchedPolicy: add_tid_to_cgroup failed to write '2254' (No space left on device); fd=24
+11-02 19:20:03.009  1598  2423 W SchedPolicy: add_tid_to_cgroup failed to write '2254' (No space left on device); fd=25
+11-02 19:20:03.024  1598  2423 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=24
+11-02 19:20:03.034  2062  9833 W GLSUser : [DeviceKeyStore] Cannot load key: Device key file not found.
+11-02 19:20:03.035  3223  3223 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.droidguard.DroidGuardFastRefreshGmsTaskBoundService.ACTION_TASK_READY dat=chimera-action: cmp=com.google.android.gms/.chimera.UnstableInternalBoundBrokerService }
+11-02 19:20:03.035  3223  3223 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.droidguard.DroidGuardFastRefreshGmsTaskBoundService.ACTION_TASK_READY dat=chimera-action: cmp=com.google.android.gms/.chimera.UnstableInternalBoundBrokerService }
+11-02 19:20:03.048  1598  2732 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=25
+11-02 19:20:03.052  1598  2423 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=24
+11-02 19:20:03.053  2062  9283 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-02 19:20:03.053  2062  9283 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-02 19:20:03.061  2062  2062 I lowpool[93]: type=1400 audit(0.0:4381): avc: denied { read } for name="Applications" dev="sdcardfs" ino=1441794 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sdcardfs:s0 tclass=lnk_file permissive=1
+11-02 19:20:03.061  2062  2062 I lowpool[93]: type=1400 audit(0.0:4382): avc: denied { search } for name="/" dev="vboxsf" ino=1 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:unlabeled:s0 tclass=dir permissive=1
+11-02 19:20:03.063  1598  1606 W System  : A resource failed to call close. 
+11-02 19:20:03.064  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 32 lines
+11-02 19:20:03.064  1598  1606 W System  : A resource failed to call close. 
+11-02 19:20:03.082  3223  3323 W FileUtils: Failed to chmod(/data/user/0/com.google.android.gms/app_dg_cache): android.system.ErrnoException: chmod failed: ENOENT (No such file or directory)
+11-02 19:20:03.114  3223  3223 I Binder:3223_7: type=1400 audit(0.0:4383): avc: denied { read } for name="address" dev="sysfs" ino=7109 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+11-02 19:20:03.114  3223  3223 I Binder:3223_7: type=1400 audit(0.0:4384): avc: denied { open } for path="/sys/devices/pci0000:00/0000:00:03.0/virtio0/net/wlan0/address" dev="sysfs" ino=7109 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+11-02 19:20:03.114  3223  3223 I Binder:3223_7: type=1400 audit(0.0:4385): avc: denied { getattr } for path="/sys/devices/pci0000:00/0000:00:03.0/virtio0/net/wlan0/address" dev="sysfs" ino=7109 scontext=u:r:priv_app:s0:c512,c768 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+11-02 19:20:03.117  3223  3323 E DGFRR   : FR error [CONTEXT service_id=25 ]
+11-02 19:20:03.117  3223  3323 E DGFRR   : bwsy: Failed to get VM keys.
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at bwtb.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):103)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at bwut.f(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):3)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at bwuc.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):85)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at bwtx.g(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):210)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at com.google.android.gms.droidguard.DroidGuardFastRefreshGmsTaskBoundService.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):49)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at dkjn.call(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):37)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at bqax.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):50)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at bqax.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):5)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at bqax.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):81)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at bqgz.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):8)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at java.lang.Thread.run(Thread.java:764)
+11-02 19:20:03.117  3223  3323 E DGFRR   : Caused by: java.nio.file.NoSuchFileException: /data/user/0/com.google.android.gms/app_dg_cache
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at sun.nio.fs.UnixFileSystemProvider.newDirectoryStream(UnixFileSystemProvider.java:434)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at j$.nio.file.spi.a.r(r8-map-id-fa95ee5151e4a92c29730317b2f899da01d44da53a24384dc28b278dadf49a63:13)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at j$.nio.file.Files.newDirectoryStream(r8-map-id-fa95ee5151e4a92c29730317b2f899da01d44da53a24384dc28b278dadf49a63:7)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	at bwtb.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):14)
+11-02 19:20:03.117  3223  3323 E DGFRR   : 	... 13 more
+11-02 19:20:03.139  3223  5040 W DG      : [flow devicekey] DroidGuardRunner.initSignalCollection() exception [CONTEXT service_id=25 ]
+11-02 19:20:03.139  3223  5040 W DG      : bwte
+11-02 19:20:03.139  3223  5040 W DG      : 	at bwtg.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):122)
+11-02 19:20:03.139  3223  5040 W DG      : 	at bwqw.e(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):59)
+11-02 19:20:03.139  3223  5040 W DG      : 	at bwqw.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):28)
+11-02 19:20:03.139  3223  5040 W DG      : 	at bwst.dispatchTransaction(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):30)
+11-02 19:20:03.139  3223  5040 W DG      : 	at ckxl.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):63)
+11-02 19:20:03.139  3223  5040 W DG      : 	at abjn.onTransact(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):23)
+11-02 19:20:03.139  3223  5040 W DG      : 	at android.os.Binder.transact(Binder.java:667)
+11-02 19:20:03.139  3223  5040 W DG      : 	at ckya.onTransact(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):168)
+11-02 19:20:03.139  3223  5040 W DG      : 	at android.os.Binder.execTransact(Binder.java:731)
+11-02 19:20:03.141  2062  2062 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.common.telemetry.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 19:20:03.235  1512  1512 I keystore: del USRPKEY_unstable.c7202ece89390c490b1b94d5b71225e1.fallback 10014
+11-02 19:20:03.270  1512  1512 I keystore: del USRCERT_unstable.c7202ece89390c490b1b94d5b71225e1.fallback 10014
+11-02 19:20:03.272  1512  1512 I keystore: del CACERT_unstable.c7202ece89390c490b1b94d5b71225e1.fallback 10014
+11-02 19:20:03.477  2062  9283 E NFC     : could not retrieve NFC service
+11-02 19:20:03.480  2062  9283 I TapAndPay: NfcAdapter is null while obtaining CardEmulation instance. [CONTEXT service_id=79 ]
+11-02 19:20:03.510  1598  1620 W Looper  : Slow dispatch took 299ms android.fg h=android.os.Handler c=com.android.server.Watchdog$HandlerChecker@8729d0d m=0
+11-02 19:20:03.539  2062  9837 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-02 19:20:03.555  1598  1613 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.DROPBOX_ENTRY_ADDED flg=0x10 (has extras) } to com.google.android.gms/.stats.service.DropBoxEntryAddedReceiver
+11-02 19:20:03.556  1598  1613 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=25
+11-02 19:20:03.567  1598  2423 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=24
+11-02 19:20:03.568  1598  2423 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=25
+11-02 19:20:03.571  1598  2423 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=24
+11-02 19:20:03.571  2062  9837 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-02 19:20:03.573  1598  2423 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=25
+11-02 19:20:03.573  3223  3223 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.droidguard.DroidGuardFastRefreshGmsTaskBoundService.ACTION_TASK_READY dat=chimera-action: cmp=com.google.android.gms/.chimera.UnstableInternalBoundBrokerService }
+11-02 19:20:03.581  1598  2732 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=24
+11-02 19:20:03.600  9622  9622 I Choreographer: Skipped 30 frames!  The application may be doing too much work on its main thread.
+11-02 19:20:03.664  1451  1451 I composer@2.1-se: type=1400 audit(0.0:4386): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:hal_graphics_composer_default:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:20:03.685  2062  9833 W GmsUrlRequestImpl: [https://android.googleapis.com/auth/devicekey] Content-Type header is overwritten.
+11-02 19:20:03.759  1598  2732 W SchedPolicy: add_tid_to_cgroup failed to write '3223' (No space left on device); fd=25
+11-02 19:20:03.774  2062  9837 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-02 19:20:03.847  2062  9283 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-02 19:20:03.884  1463  1463 I surfaceflinger: type=1400 audit(0.0:4387): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 19:20:03.899  1598  1986 D WificondControl: Scan result ready event
+11-02 19:20:04.244  2062  9833 W GLSUser : [AppCertManager] Exception while requesting key: 
+11-02 19:20:04.244  2062  9833 W GLSUser : java.util.concurrent.ExecutionException: dkbi: Parsing Exception
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at gztt.k(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):21)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at gzub.u(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):73)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at apuj.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):416)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at apuh.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):110)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at apud.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):3)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at apuf.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):58)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at apuf.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):17)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at bptp.m(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):13)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at bpuc.g(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):10)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at eunz.i(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):222)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at eunz.k(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):390)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at eunz.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):29)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at bpzp.onPerformSync(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):25)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at android.content.AbstractThreadedSyncAdapter$SyncThread.run(AbstractThreadedSyncAdapter.java:334)
+11-02 19:20:04.244  2062  9833 W GLSUser : Caused by: dkbi: Parsing Exception
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at dkcj.jI(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):15)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at gzwm.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):55)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at bqax.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):50)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at bqax.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):5)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at bqax.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):81)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at bqgz.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):8)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at java.lang.Thread.run(Thread.java:764)
+11-02 19:20:04.244  2062  9833 W GLSUser : Caused by: hwdp: Protocol message end-group tag did not match expected tag.
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at hwfg.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):56)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at hwef.i(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):426)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at hwcr.R(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):22)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at hwcm.q(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):3)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at hwap.e(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):7)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at hwap.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at hwap.m(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at dkci.a(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):11)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at dkcn.call(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):8)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+11-02 19:20:04.244  2062  9833 W GLSUser : 	... 7 more
+11-02 19:20:04.245  2062  9833 W GLSUser : [DeviceKeyStore] Cannot load key: Device key file not found.
+11-02 19:20:04.246  2062  2540 W gle.android.gm: Long monitor contention with owner SyncAdapterThread-8 (9833) at void java.lang.Object.wait(long, int)(Object.java:-2) waiters=0 in boolean apuj.b() for 396ms
+11-02 19:20:04.258  1598  1598 I Binder:1598_18: type=1400 audit(0.0:4388): avc: denied { read } for name="Applications" dev="sdcardfs" ino=1441794 scontext=u:r:system_server:s0 tcontext=u:object_r:sdcardfs:s0 tclass=lnk_file permissive=1
+11-02 19:20:04.262  2062  9283 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-02 19:20:04.309  2062  9837 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-02 19:20:04.332  1598  1606 W System  : A resource failed to call close. 
+11-02 19:20:04.332  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 30 lines
+11-02 19:20:04.332  1598  1606 W System  : A resource failed to call close. 
+11-02 19:20:04.358  2062  2062 D BoundBrokerSvc: onRebind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+11-02 19:20:04.359  2062  2540 W PhBaseOp: Phenotype API error. Event: # ibzt@7235f73d, EventCode: COMMIT_CONFIG [CONTEXT service_id=51 ]
+11-02 19:20:04.359  2062  2540 W PhBaseOp: esvv: 29547: Stale snapshot for com.google.android.gms.pseudonymous#com.google.android.gms(new configuration available)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at esxy.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):460)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at esxy.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):42)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at esxx.i(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):3)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at esxt.h(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):38)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at esxt.f(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):20)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at diza.fE(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at dizl.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):136)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at grhn.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):23)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at bqax.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):50)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at bqax.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):5)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at bqax.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):81)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at bqgz.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):8)
+11-02 19:20:04.359  2062  2540 W PhBaseOp: 	at java.lang.Thread.run(Thread.java:764)
+11-02 19:20:04.359  2062  2540 W AsyncOperation: operation=CommitToConfigurationOperationCall, opStatusCode=29547 [CONTEXT service_id=51 ]
+11-02 19:20:04.359  2062  2540 W AsyncOperation: OperationException[Status{statusCode=Stale snapshot for com.google.android.gms.pseudonymous#com.google.android.gms(new configuration available), resolution=null}]
+11-02 19:20:04.359  2062  2540 W AsyncOperation: 	at esxt.h(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):68)
+11-02 19:20:04.359  2062  2540 W AsyncOperation: 	at esxt.f(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):20)
+11-02 19:20:04.359  2062  2540 W AsyncOperation: 	at diza.fE(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):1)
+11-02 19:20:04.359  2062  2540 W AsyncOperation: 	at dizl.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):136)
+11-02 19:20:04.359  2062  2540 W AsyncOperation: 	at grhn.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):23)
+11-02 19:20:04.359  2062  2540 W AsyncOperation: 	at bqax.d(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):50)
+11-02 19:20:04.359  2062  2540 W AsyncOperation: 	at bqax.c(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):5)
+11-02 19:20:04.359  2062  2540 W AsyncOperation: 	at bqax.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):81)
+11-02 19:20:04.359  2062  2540 W AsyncOperation: 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+11-02 19:20:04.359  2062  2540 W AsyncOperation: 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+11-02 19:20:04.359  2062  2540 W AsyncOperation: 	at bqgz.run(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):8)
+11-02 19:20:04.359  2062  2540 W AsyncOperation: 	at java.lang.Thread.run(Thread.java:764)
+11-02 19:20:04.384  2062  9819 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-02 19:20:04.414  2062  9283 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-02 19:20:04.650  2062  9833 E RemindersSync: NetworkError [T SyncAdapterThread-8:id=659:priority=5:group=main] [CONTEXT service_id=18 ]
+11-02 19:20:04.650  2062  9833 E RemindersSync: irly: UNIMPLEMENTED: HTTP status code 404
+11-02 19:20:04.650  2062  9833 E RemindersSync: invalid content-type: text/html; charset=UTF-8
+11-02 19:20:04.650  2062  9833 E RemindersSync: headers: Metadata(:status=404,content-type=text/html; charset=UTF-8,referrer-policy=no-referrer,content-length=1613,date=Mon, 02 Nov 2026 16:20:04 GMT,alt-svc=h3=":443"; ma=2592000,h3-29=":443"; ma=2592000)
+11-02 19:20:04.650  2062  9833 E RemindersSync: DATA-----------------------------
+11-02 19:20:04.650  2062  9833 E RemindersSync: <!DOCTYPE html>
+11-02 19:20:04.650  2062  9833 E RemindersSync: <html lang=en>
+11-02 19:20:04.650  2062  9833 E RemindersSync:   <meta charset=utf-8>
+11-02 19:20:04.650  2062  9833 E RemindersSync:   <meta name=viewport content="initial-scale=1, minimum-scale=1, width=device-width">
+11-02 19:20:04.650  2062  9833 E RemindersSync:   <title>Error 404 (Not Found)!!1</title>
+11-02 19:20:04.650  2062  9833 E RemindersSync:   <style>
+11-02 19:20:04.650  2062  9833 E RemindersSync:     *{margin:0;padding:0}html,code{font:15px/22px arial,sans-serif}html{background:#fff;color:#222;padding:15px}body{margin:7% auto 0;max-width:390px;min-height:180px;padding:30px 0 15px}* > body{background:url(//www.google.com/images/errors/robot.png) 100% 5px no-repeat;padding-right:205px}p{margin:11px 0 22px;overflow:hidden}ins{color:#777;text-decoration:none}a img{border:0}@media screen and (max-width:772px){body{background:none;margin-top:0;max-width:none;padding-right:0}}#logo{background:url(//www.google.com/images/branding/googlelogo/1x/googlelogo_color_150x54dp.png) no-repeat;margin-left:-5px}@media only screen and (min-resolution:192dpi){#logo{background:url(//www.google.com/images/branding/googlelogo/2x/googlelogo_color_150x54dp.png) no-repeat 0% 0%/100% 100%;-moz-border-image:url(//www.google.com/images/branding/googlelogo/2x/googlelogo_color_150x54dp.png) 0}}@media only screen and (-webkit-min-device-pixel-ratio:2){#logo{background:url(//www.google.com/images/branding/googlelogo/2x/googlelogo_color_150x54dp.png) no-repeat;-webkit-background-size:100% 100%}}#logo{display:inline-block;height:54px;width:150px}
+11-02 19:20:04.650  2062  9833 E RemindersSync:   </style>
+11-02 19:20:04.650  2062  9833 E RemindersSync:   <a href=//www.google.com/><span id=logo aria-label=Google></span></a>
+11-02 19:20:04.650  2062  9833 E RemindersSync:   <p><b>404.</b> <ins>That’s an error.</ins>
+11-02 19:20:04.650  2062  9833 E RemindersSync:   <p>The requested URL <code>/caribou.tasks.service.TasksApiService/GetTaskHistory</code> was not found on this server.  <ins>That’s all we know.</ins>
+11-02 19:20:04.650  2062  9833 E RemindersSync: 
+11-02 19:20:04.650  2062  9833 E RemindersSync: 	at bpuc.s(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):37)
+11-02 19:20:04.650  2062  9833 E RemindersSync: 	at bpuc.g(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):87)
+11-02 19:20:04.650  2062  9833 E RemindersSync: 	at eunz.i(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):222)
+11-02 19:20:04.650  2062  9833 E RemindersSync: 	at eunz.k(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):390)
+11-02 19:20:04.650  2062  9833 E RemindersSync: 	at eunz.b(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):29)
+11-02 19:20:04.650  2062  9833 E RemindersSync: 	at bpzp.onPerformSync(:com.google.android.gms@264330017@26.43.30 (100800-1006944126):25)
+11-02 19:20:04.650  2062  9833 E RemindersSync: 	at android.content.AbstractThreadedSyncAdapter$SyncThread.run(AbstractThreadedSyncAdapter.java:334)
+11-02 19:20:04.653  1598  1733 W SyncManager: failed sync operation JobId=109579 ***/com.google u0 [com.google.android.gms.reminders] PERIODIC ExpectedIn=-22s Reason=Periodic Retries=51, SyncResult: stats [ numIoExceptions: 1]
+11-02 19:20:08.155  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.common.telemetry.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 19:20:08.248  2586  2637 I Finsky  : [103] AIM: AppInfoManager-Perf > Destroying AppInfoManager ...
+11-02 19:20:10.343  1598  2732 E memtrack: Couldn't load memtrack module
+11-02 19:20:10.344  1598  2732 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:20:13.274  1598  1606 W System  : A resource failed to call close. 
+11-02 19:20:13.274  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 32 lines
+11-02 19:20:13.274  1598  1606 W System  : A resource failed to call close. 
+11-02 19:20:29.427  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.libs.gmscorelogger.service.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentDirectBootAwareApiService }
+11-02 19:20:29.446  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 19:20:29.446  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 19:20:34.658  2062  9283 I ChimeraPrvdrProxy: Shutting down chimera ContentProvider com.google.android.gms.reminders.provider.RemindersChimeraProvider
+11-02 19:20:43.801  9845  9845 I sh      : type=1400 audit(0.0:4389): avc: denied { dac_override } for capability=1 scontext=u:r:su:s0 tcontext=u:r:su:s0 tclass=capability permissive=1

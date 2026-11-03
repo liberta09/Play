@@ -1,0 +1,271 @@
+--------- beginning of main
+11-02 20:36:29.661 17680 17680 I logcat  : type=1400 audit(0.0:10106): avc: denied { write } for name="logd" dev="tmpfs" ino=2114 scontext=u:r:su:s0 tcontext=u:object_r:logd_socket:s0 tclass=sock_file permissive=1
+11-02 20:36:29.661 17680 17680 I logcat  : type=1400 audit(0.0:10107): avc: denied { connectto } for path="/dev/socket/logd" scontext=u:r:su:s0 tcontext=u:r:logd:s0 tclass=unix_stream_socket permissive=1
+11-02 20:36:29.730 17682 17682 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 1463 811 
+11-02 20:36:29.730 17682 17682 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 20:36:29.731 17682 17682 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 20:36:29.737 17682 17682 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 20:36:29.739  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:36:29.746  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:36:29.751 17682 17682 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 20:36:29.764 17682 17682 I app_process: The ClassLoaderContext is a special shared library.
+11-02 20:36:29.764 17682 17682 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 20:36:29.764 17682 17682 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 20:36:29.764 17682 17682 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 20:36:29.764 17682 17682 D nativebridge: call UnloadNativeBridge! state=2
+11-02 20:36:29.771 17682 17682 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 20:36:29.772 17682 17682 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=8731207, downTime=8731207, deviceId=3, source=0x1002 }
+11-02 20:36:29.773 17682 17682 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=8731207, downTime=8731207, deviceId=3, source=0x1002 }
+11-02 20:36:29.774 17507 17507 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 20:36:29.776 17682 17682 D AndroidRuntime: Shutting down VM
+--------- beginning of system
+11-02 20:36:29.807  2281  2281 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1531 android.content.ContextWrapper.startService:664 android.content.ContextWrapper.startService:664 com.android.coreservice.CoreBroadcastReceiver.onReceive:70 android.app.ActivityThread.handleReceiver:3424 
+11-02 20:36:29.814  1463  1480 W SurfaceFlinger: Attempting to set client state on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 20:36:29.814  1463  1480 W SurfaceFlinger: Attempting to set client state on removed layer: Dim Layer for - Task=43#0
+11-02 20:36:29.814  1463  1480 W SurfaceFlinger: Attempting to destroy on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 20:36:29.814  1463  1480 W SurfaceFlinger: Attempting to destroy on removed layer: Dim Layer for - Task=43#0
+11-02 20:36:29.831 17694 17694 I logcat  : type=1400 audit(0.0:10108): avc: denied { write } for name="logdr" dev="tmpfs" ino=2118 scontext=u:r:su:s0 tcontext=u:object_r:logdr_socket:s0 tclass=sock_file permissive=1
+11-02 20:36:29.854 17507 17518 I com.kaan.play: JIT allocated 114KB for stack maps of void u93.e(i63, bb4, com.kaan.play.data.stream.PlayTarget, boolean, boolean, sn0, fo, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, l54, com.kaan.play.data.stream.PlayableStream, boolean, kotlin.jvm.functions.Function1, d24, kotlin.jvm.functions.Function0, l81, int, int)
+11-02 20:36:29.855 17507 17518 I com.kaan.play: JIT allocated 50KB for compiled code of void u93.e(i63, bb4, com.kaan.play.data.stream.PlayTarget, boolean, boolean, sn0, fo, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, l54, com.kaan.play.data.stream.PlayableStream, boolean, kotlin.jvm.functions.Function1, d24, kotlin.jvm.functions.Function0, l81, int, int)
+11-02 20:36:29.855 17507 17518 I com.kaan.play: Compiler allocated 15MB to compile void u93.e(i63, bb4, com.kaan.play.data.stream.PlayTarget, boolean, boolean, sn0, fo, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, l54, com.kaan.play.data.stream.PlayableStream, boolean, kotlin.jvm.functions.Function1, d24, kotlin.jvm.functions.Function0, l81, int, int)
+11-02 20:36:31.112  4119  4128 W System  : A resource failed to call close. 
+11-02 20:36:31.267  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-02 20:36:32.886  1598  1598 W SchedPolicy: add_tid_to_cgroup failed to write '2586' (No space left on device); fd=24
+11-02 20:36:32.888  1598  4380 W SchedPolicy: add_tid_to_cgroup failed to write '2586' (No space left on device); fd=25
+11-02 20:36:32.888  2586  2586 I Finsky  : [2] SCH: job service start with id 9546.
+11-02 20:36:32.889  1440  1489 D audio_hw_hal: log_func, out_standby
+11-02 20:36:32.889  1440  1489 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-02 20:36:32.889  1440  1489 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-02 20:36:32.892  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.892  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.892  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.892  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.894  2586  2666 I Finsky  : [112] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.894  2586  2666 I Finsky  : [112] SCH: Scheduling system job Id: 9551, L: 0, D: 61253592, C: false, I: false, N: 1
+11-02 20:36:32.896  2586  2586 I Finsky  : [2] SCH: job service start with id 9551.
+11-02 20:36:32.898  2586 17697 I Finsky  : [498] SCH: job service finished with id 9546.
+11-02 20:36:32.901  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.901  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.901  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.901  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.902  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.902  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9555, L: 0, D: 61253584, C: false, I: false, N: 1
+11-02 20:36:32.903  2586  2586 I Finsky  : [2] SCH: job service start with id 9555.
+11-02 20:36:32.903  2586 17697 I Finsky  : [498] SCH: job service finished with id 9551.
+11-02 20:36:32.905  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.905  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.905  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.905  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.906  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.906  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9559, L: 0, D: 61253580, C: false, I: false, N: 1
+11-02 20:36:32.907  2586  2586 I Finsky  : [2] SCH: job service start with id 9559.
+11-02 20:36:32.907  2586 17697 I Finsky  : [498] SCH: job service finished with id 9555.
+11-02 20:36:32.909  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.909  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.909  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.909  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.910  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.910  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9563, L: 0, D: 61253576, C: false, I: false, N: 1
+11-02 20:36:32.911  2586  2586 I Finsky  : [2] SCH: job service start with id 9563.
+11-02 20:36:32.911  2586 17697 I Finsky  : [498] SCH: job service finished with id 9559.
+11-02 20:36:32.913  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.913  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.913  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.913  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.913  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.913  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9567, L: 0, D: 61253573, C: false, I: false, N: 1
+11-02 20:36:32.914  2586  2586 I Finsky  : [2] SCH: job service start with id 9567.
+11-02 20:36:32.915  2586 17697 I Finsky  : [498] SCH: job service finished with id 9563.
+11-02 20:36:32.916  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.916  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.916  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.916  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.917  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.917  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9571, L: 0, D: 61253569, C: false, I: false, N: 1
+11-02 20:36:32.917  2586  2586 I Finsky  : [2] SCH: job service start with id 9571.
+11-02 20:36:32.918  2586 17697 I Finsky  : [498] SCH: job service finished with id 9567.
+11-02 20:36:32.920  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.920  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.920  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.920  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.921  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.921  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9575, L: 0, D: 61253565, C: false, I: false, N: 1
+11-02 20:36:32.921  2586  2586 I Finsky  : [2] SCH: job service start with id 9575.
+11-02 20:36:32.922  2586 17697 I Finsky  : [498] SCH: job service finished with id 9571.
+11-02 20:36:32.923  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.923  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.924  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.924  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.924  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.924  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9579, L: 0, D: 61253562, C: false, I: false, N: 1
+11-02 20:36:32.925  2586  2586 I Finsky  : [2] SCH: job service start with id 9579.
+11-02 20:36:32.926  2586 17697 I Finsky  : [498] SCH: job service finished with id 9575.
+11-02 20:36:32.927  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.927  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.927  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.927  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.928  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.928  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9583, L: 0, D: 61253558, C: false, I: false, N: 1
+11-02 20:36:32.928  2586  2586 I Finsky  : [2] SCH: job service start with id 9583.
+11-02 20:36:32.929  2586 17697 I Finsky  : [498] SCH: job service finished with id 9579.
+11-02 20:36:32.932  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.932  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.932  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.932  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.933  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.933  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9587, L: 0, D: 61253553, C: false, I: false, N: 1
+11-02 20:36:32.933  2586  2586 I Finsky  : [2] SCH: job service start with id 9587.
+11-02 20:36:32.934  2586 17697 I Finsky  : [498] SCH: job service finished with id 9583.
+11-02 20:36:32.935  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.935  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.935  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.935  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.936  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.936  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9591, L: 0, D: 61253550, C: false, I: false, N: 1
+11-02 20:36:32.937  2586  2586 I Finsky  : [2] SCH: job service start with id 9591.
+11-02 20:36:32.937  2586 17697 I Finsky  : [498] SCH: job service finished with id 9587.
+11-02 20:36:32.939  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.939  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.939  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.939  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.940  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.940  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9595, L: 0, D: 61253546, C: false, I: false, N: 1
+11-02 20:36:32.940  2586  2586 I Finsky  : [2] SCH: job service start with id 9595.
+11-02 20:36:32.941  2586 17697 I Finsky  : [498] SCH: job service finished with id 9591.
+11-02 20:36:32.943  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.943  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.943  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.943  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.944  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.944  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9599, L: 0, D: 61253542, C: false, I: false, N: 1
+11-02 20:36:32.944  2586  2586 I Finsky  : [2] SCH: job service start with id 9599.
+11-02 20:36:32.945  2586 17697 I Finsky  : [498] SCH: job service finished with id 9595.
+11-02 20:36:32.947  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.947  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.947  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.947  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.947  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.947  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9603, L: 0, D: 61253539, C: false, I: false, N: 1
+11-02 20:36:32.948  2586  2586 I Finsky  : [2] SCH: job service start with id 9603.
+11-02 20:36:32.948  2586 17697 I Finsky  : [498] SCH: job service finished with id 9599.
+11-02 20:36:32.950  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.950  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.950  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.950  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.951  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.951  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9607, L: 0, D: 61253535, C: false, I: false, N: 1
+11-02 20:36:32.952  2586  2586 I Finsky  : [2] SCH: job service start with id 9607.
+11-02 20:36:32.952  2586 17697 I Finsky  : [498] SCH: job service finished with id 9603.
+11-02 20:36:32.954  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.954  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.954  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.954  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.955  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.955  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9611, L: 0, D: 61253531, C: false, I: false, N: 1
+11-02 20:36:32.955  2586  2586 I Finsky  : [2] SCH: job service start with id 9611.
+11-02 20:36:32.956  2586 17697 I Finsky  : [498] SCH: job service finished with id 9607.
+11-02 20:36:32.958  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.958  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.958  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.958  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.959  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.959  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9615, L: 0, D: 61253527, C: false, I: false, N: 1
+11-02 20:36:32.959  2586  2586 I Finsky  : [2] SCH: job service start with id 9615.
+11-02 20:36:32.960  2586 17697 I Finsky  : [498] SCH: job service finished with id 9611.
+11-02 20:36:32.962  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.962  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.962  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.962  2586  2674 I Finsky  : [115] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.963  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.963  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9619, L: 0, D: 61253523, C: false, I: false, N: 1
+11-02 20:36:32.963  2586  2586 I Finsky  : [2] SCH: job service start with id 9619.
+11-02 20:36:32.964  2586 17697 I Finsky  : [498] SCH: job service finished with id 9615.
+11-02 20:36:32.965  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.965  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.965  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.965  2586  2660 I Finsky  : [107] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.966  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.966  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9623, L: 0, D: 61253520, C: false, I: false, N: 1
+11-02 20:36:32.967  2586  2586 I Finsky  : [2] SCH: job service start with id 9623.
+11-02 20:36:32.967  2586 17697 I Finsky  : [498] SCH: job service finished with id 9619.
+11-02 20:36:32.969  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.969  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 12-1, CT: 1793640977969, Constraints: [{ L: 15000, D: 86400000, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.969  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.969  2586  2666 I Finsky  : [112] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:32.970  2586  2637 I Finsky  : [103] SCH: Scheduling 1 system job(s)
+11-02 20:36:32.970  2586  2637 I Finsky  : [103] SCH: Scheduling system job Id: 9627, L: 0, D: 61253516, C: false, I: false, N: 1
+11-02 20:36:32.970  2586  2586 I Finsky  : [2] SCH: job service start with id 9627.
+11-02 20:36:32.971  2586 17697 I Finsky  : [498] SCH: job service finished with id 9623.
+11-02 20:36:32.972  2586 17451 I Finsky  : [493] SCH: Satisfied jobs for 9627 are: 12-1
+11-02 20:36:32.973  2586 17697 I Finsky  : [498] SCH: Job 12-1 starting
+11-02 20:36:32.973  2586  2586 I Finsky  : [2] WM::SCH: Logging work start for 12-1
+11-02 20:36:32.973  2586  2586 I Finsky  : [2] [ContentSync] job started
+11-02 20:36:32.979  2381  2381 D AppUsageManager: 目前在前台的应用是：com.kaan.play， 累积在前台运行：5100.0秒
+11-02 20:36:32.981  3577 17373 I AppStartReceiver: onReceive, action = com.ldmnq.APP_USAGE, extras = Bundle[{intervalTime=300000, totalTime=5100000, packageName=com.kaan.play}]
+11-02 20:36:33.037  1598  1606 W System  : A resource failed to call close. 
+11-02 20:36:33.038  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 33 lines
+11-02 20:36:33.038  1598  1606 W System  : A resource failed to call close. 
+11-02 20:36:33.156  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.auth.aang.events.services.START dat=chimera-action: cmp=com.google.android.gms/.chimera.PersistentApiService }
+11-02 20:36:33.368  1598  1606 W System  : A resource failed to call close. 
+11-02 20:36:33.369  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 113 lines
+11-02 20:36:33.369  1598  1606 W System  : A resource failed to call close. 
+11-02 20:36:33.385  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action: cmp=com.google.android.gms/.chimera.GmsApiService }
+11-02 20:36:33.430  2586  2586 I Finsky  : [2] App states replicator found 9 unowned apps
+11-02 20:36:33.433  2586  2637 I Finsky  : [103] Completed 0 account content syncs with 0 successful.
+11-02 20:36:33.433  2586  2586 I Finsky  : [2] [ContentSync] Installation state replication succeeded.
+11-02 20:36:33.433  2586  2586 I Finsky  : [2] SCH: jobFinished: 12-1. TimeElapsed: 460ms.
+11-02 20:36:33.433  2586  2586 I Finsky  : [2] WM::SCH: Logging work end for 12-1
+11-02 20:36:33.438  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 1-1337, CT: 1793629042919, Constraints: [{ L: 30003567, D: 73203567, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:33.438  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-148, CT: 1793629080329, Constraints: [{ L: 79199895, D: 1375199895, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:33.438  2586  2637 I Finsky  : [103] SCH: Scheduling phonesky job Id: 34-149, CT: 1793629082096, Constraints: [{ L: 604800000, D: 2591998440, C: CHARGING_NONE, I: IDLE_NONE, N: NET_ANY, B: BATTERY_ANY }]
+11-02 20:36:33.439  2586  2674 I Finsky  : [115] SCH: Scheduling 1 system job(s)
+11-02 20:36:33.439  2586  2674 I Finsky  : [115] SCH: Scheduling system job Id: 9631, L: 18053047, D: 61253047, C: false, I: false, N: 1
+11-02 20:36:33.440  2586 17697 I Finsky  : [498] SCH: job service finished with id 9627.
+11-02 20:36:40.581  1451  1527 D EmuHWC2 : sent 185 syncs in 60s
+11-02 20:36:47.514  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 20:36:47.514  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 20:36:52.870 17507 17568 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:36:52.870 17507 17568 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:36:52.871 17507 17568 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:36:52.871 17507 17568 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:36:52.878 17507 17568 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:36:52.878 17507 17568 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:36:52.882 17507 17704 I OMXClient: IOmx service obtained
+11-02 20:36:52.883  1520  1585 I OMXMaster: makeComponentInstance(OMX.qcom.video.decoder.hevc) in omx@1.0-service process
+11-02 20:36:52.897  1520  1585 D LDDec   : createSoftOMXComponent OMX.qcom.video.decoder.hevc
+11-02 20:36:52.898  1520  1585 D LDDec   : LDDec init 0x0 1, 320
+11-02 20:36:52.901 17507 17703 D SurfaceUtils: connecting to surface 0x7638927be010, reason connectToSurface
+11-02 20:36:52.901 17507 17703 I MediaCodec: [OMX.qcom.video.decoder.hevc] setting surface generation to 17927169
+11-02 20:36:52.901 17507 17703 D SurfaceUtils: disconnecting from surface 0x7638927be010, reason connectToSurface(reconnect)
+11-02 20:36:52.901 17507 17703 D SurfaceUtils: connecting to surface 0x7638927be010, reason connectToSurface(reconnect)
+11-02 20:36:52.901  1520  1585 W OMXNodeInstance: [0xf562cb40:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 20:36:52.901 17507 17704 E ACodec  : [OMX.qcom.video.decoder.hevc] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+11-02 20:36:52.901  1520  1585 W OMXNodeInstance: [0xf562cb40:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 20:36:52.901  1520  1585 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 20:36:52.901  1520  1585 E OMXNodeInstance: setConfig(0xf562cb40:qcom.decoder.hevc, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 20:36:52.901 17507 17704 I ACodec  : codec does not support config priority (err -1010)
+11-02 20:36:52.901  1520  1585 E OMXNodeInstance: getConfig(0xf562cb40:qcom.decoder.hevc, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 20:36:52.902  1520  1585 E OMXNodeInstance: getConfig(0xf562cb40:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 20:36:52.914  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 20:36:52.920  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 30 lines
+11-02 20:36:52.920  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 20:36:52.921  1520 17706 D LDDec   : initDecoder OMX.qcom.video.decoder.hevc init
+11-02 20:36:52.926 17507 17568 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 20:36:52.926 17507 17568 W MediaCodecRenderer: Format exceeds selected codec's capabilities [id=1, mimeType=video/dolby-vision, container=video/x-matroska, codecs=dvhe.08.06, res=3836x2072, color=BT2020/Limited range/ST2084 PQ/10/10, language=en, selectionFlags=[default], OMX.qcom.video.decoder.hevc]
+11-02 20:36:52.928  1520 17706 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 20:36:52.918  1520  1520 I eo.decoder.hevc: type=1400 audit(0.0:10109): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:36:52.931  1520  1585 E OMXNodeInstance: getConfig(0xf562cb40:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 20:36:52.931  1520  1585 E OMXNodeInstance: getConfig(0xf562cb40:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 20:36:52.998 17507 17507 I RenderThread: type=1400 audit(0.0:10110): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6867 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:36:53.021 17507 17703 D MediaCodec: [OMX.qcom.video.decoder.hevc] setting dataspace on output surface to #104
+11-02 20:36:53.022 17507 17703 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 20:36:53.031 17507 17703 I         : fastpipe: Connect success
+11-02 20:36:53.034 17507 17703 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=17507, tid=17703, this=0x763868ca1080
+11-02 20:36:53.024  1450  1450 I allocator@2.0-s: type=1400 audit(0.0:10111): avc: denied { read write } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:36:53.039 17507 17703 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+11-02 20:36:53.024 17507 17507 I MediaCodec_loop: type=1400 audit(0.0:10112): avc: denied { open } for path="/dev/fastpipe" dev="tmpfs" ino=2104 scontext=u:r:untrusted_app:s0:c196,c256,c512,c768 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 20:36:53.047 17507 17703 D SoftwareRenderer: setting dataspace on output surface to #104
+11-02 20:36:53.048 17507 17507 D PlayMatch: ilk kare: Torrentio (faz=Starting)
+11-02 20:36:53.059 17507 17703 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 20:36:53.069 17507 17703 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 20:36:53.069 17507 17507 D PlayMatch: süre kontrolü kaynak=Torrentio (?) süre=108.8 dk beklenen=109 dk tür=Movie -> Ok

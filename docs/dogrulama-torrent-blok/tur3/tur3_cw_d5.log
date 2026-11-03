@@ -1,0 +1,271 @@
+--------- beginning of main
+11-02 22:15:35.650 24718 24807 D PlayTorrent: bekleniyor: parça=485 süre=4sn eş=8 tohum=5 hız=357KB/s inen=0KB durum=DOWNLOADING
+11-02 22:15:36.458 24867 24867 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input swipe 300 650 300 200 300 
+11-02 22:15:36.458 24867 24867 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 22:15:36.459 24867 24867 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 22:15:36.467 24867 24867 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 22:15:36.473 24867 24867 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 22:15:36.485 24867 24867 I app_process: The ClassLoaderContext is a special shared library.
+11-02 22:15:36.486 24867 24867 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 22:15:36.486 24867 24867 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 22:15:36.486 24867 24867 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 22:15:36.486 24867 24867 D nativebridge: call UnloadNativeBridge! state=2
+11-02 22:15:36.493 24867 24867 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 22:15:36.494 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=300.0, y[0]=650.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14677928, downTime=14677928, deviceId=3, source=0x1002 }
+11-02 22:15:36.496 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=650.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14677928, downTime=14677928, deviceId=3, source=0x1002 }
+11-02 22:15:36.514 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=618.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14677949, downTime=14677949, deviceId=3, source=0x1002 }
+11-02 22:15:36.542 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=576.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14677977, downTime=14677977, deviceId=3, source=0x1002 }
+11-02 22:15:36.543 24718 24718 W com.kaan.play: Accessing hidden method Landroid/view/ViewTreeObserver;->dispatchOnScrollChanged()V (light greylist, reflection)
+11-02 22:15:36.548 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=567.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14677983, downTime=14677983, deviceId=3, source=0x1002 }
+11-02 22:15:36.568 24718 24804 D PlayTorrent: MILESTONE: stats at 5s peers=8 seeds=5 dlRate=577KB/s inen=3721KB
+11-02 22:15:36.582 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=516.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678017, downTime=14678017, deviceId=3, source=0x1002 }
+11-02 22:15:36.599 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=491.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678034, downTime=14678034, deviceId=3, source=0x1002 }
+11-02 22:15:36.622  1598  1606 W System  : A resource failed to call close. 
+11-02 22:15:36.622  1598  1606 I chatty  : uid=1000(system) FinalizerDaemon identical 44 lines
+11-02 22:15:36.622  1598  1606 W System  : A resource failed to call close. 
+11-02 22:15:36.626 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=450.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678061, downTime=14678061, deviceId=3, source=0x1002 }
+11-02 22:15:36.648 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=416.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678084, downTime=14678084, deviceId=3, source=0x1002 }
+11-02 22:15:36.665 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=392.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678100, downTime=14678100, deviceId=3, source=0x1002 }
+11-02 22:15:36.682 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=366.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678117, downTime=14678117, deviceId=3, source=0x1002 }
+11-02 22:15:36.698 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=342.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678133, downTime=14678133, deviceId=3, source=0x1002 }
+11-02 22:15:36.715 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=315.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678151, downTime=14678151, deviceId=3, source=0x1002 }
+11-02 22:15:36.732 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=291.5, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678167, downTime=14678167, deviceId=3, source=0x1002 }
+11-02 22:15:36.749 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=266.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678184, downTime=14678184, deviceId=3, source=0x1002 }
+11-02 22:15:36.765 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=242.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678200, downTime=14678200, deviceId=3, source=0x1002 }
+11-02 22:15:36.782 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_MOVE, actionButton=0, id[0]=0, x[0]=300.0, y[0]=215.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678218, downTime=14678218, deviceId=3, source=0x1002 }
+11-02 22:15:36.800 24867 24867 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=300.0, y[0]=200.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14678235, downTime=14678235, deviceId=3, source=0x1002 }
+11-02 22:15:36.805 24867 24867 D AndroidRuntime: Shutting down VM
+11-02 22:15:37.421  1440  1489 D audio_hw_hal: log_func, out_standby
+11-02 22:15:37.421  1440  1489 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-02 22:15:37.421  1440  1489 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-02 22:15:37.683 24718 24807 D PlayTorrent: bekleniyor: parça=485 süre=6sn eş=9 tohum=5 hız=912KB/s inen=0KB durum=DOWNLOADING
+11-02 22:15:38.094 24877 24877 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 300 470 
+11-02 22:15:38.094 24877 24877 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 22:15:38.095 24877 24877 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 22:15:38.103 24877 24877 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 22:15:38.108 24877 24877 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 22:15:38.121 24877 24877 I app_process: The ClassLoaderContext is a special shared library.
+11-02 22:15:38.121 24877 24877 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 22:15:38.121 24877 24877 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 22:15:38.121 24877 24877 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 22:15:38.121 24877 24877 D nativebridge: call UnloadNativeBridge! state=2
+11-02 22:15:38.128 24877 24877 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 22:15:38.129 24877 24877 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=300.0, y[0]=470.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14679563, downTime=14679563, deviceId=3, source=0x1002 }
+11-02 22:15:38.131 24877 24877 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=300.0, y[0]=470.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14679563, downTime=14679563, deviceId=3, source=0x1002 }
+11-02 22:15:38.132 24877 24877 D AndroidRuntime: Shutting down VM
+11-02 22:15:38.132  1440  5272 D audio_hw_hal: raw_start_output_stream, stream=0xf5e1b000, sampleRate=48000, channel=2, bps=16, bufSize=4096
+11-02 22:15:38.601  1598  1612 E memtrack: Couldn't load memtrack module
+11-02 22:15:38.601  1598  1612 W android.os.Debug: failed to get memory consumption info: -1
+11-02 22:15:38.601  2062  2062 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.measurement.START pkg=com.google.android.gms }
+11-02 22:15:38.994 24887 24887 I logcat  : type=1400 audit(0.0:15816): avc: denied { write } for name="logd" dev="tmpfs" ino=2114 scontext=u:r:su:s0 tcontext=u:object_r:logd_socket:s0 tclass=sock_file permissive=1
+11-02 22:15:38.994 24887 24887 I logcat  : type=1400 audit(0.0:15817): avc: denied { connectto } for path="/dev/socket/logd" scontext=u:r:su:s0 tcontext=u:r:logd:s0 tclass=unix_stream_socket permissive=1
+11-02 22:15:39.073 24889 24889 I appproc : app_process main with argv: /system/bin com.android.commands.input.Input tap 1463 811 
+11-02 22:15:39.073 24889 24889 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+11-02 22:15:39.074 24889 24889 E cutils-trace: Error opening trace file: No such file or directory (2)
+11-02 22:15:39.081 24889 24889 V libnb   : enter native_bridge2_isCompatibleWith 3
+11-02 22:15:39.086 24889 24889 I libnb   : Found /system/lib64/libhoudini.so version 3
+11-02 22:15:39.098 24889 24889 I app_process: The ClassLoaderContext is a special shared library.
+11-02 22:15:39.098 24889 24889 D nativebridge: PreInitializeNativeBridge name=unknown instruction_set=x86_64
+11-02 22:15:39.099 24889 24889 W nativebridge: Failed to bind-mount /data/local/cfg-ineyg/ as /proc/cpuinfo: No such file or directory
+11-02 22:15:39.099 24889 24889 W nativebridge: Failed to bind-mount /system/lib64/x86_64/cpuinfo as /proc/cpuinfo: No such file or directory
+11-02 22:15:39.099 24889 24889 D nativebridge: call UnloadNativeBridge! state=2
+11-02 22:15:39.105 24889 24889 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+11-02 22:15:39.107 24889 24889 I Input   : injectMotionEvent: MotionEvent { action=ACTION_DOWN, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14680541, downTime=14680541, deviceId=3, source=0x1002 }
+11-02 22:15:39.109 24889 24889 I Input   : injectMotionEvent: MotionEvent { action=ACTION_UP, actionButton=0, id[0]=0, x[0]=1463.0, y[0]=811.0, toolType[0]=TOOL_TYPE_UNKNOWN, buttonState=0, metaState=0, flags=0x0, edgeFlags=0x0, pointerCount=1, historySize=0, eventTime=14680541, downTime=14680541, deviceId=3, source=0x1002 }
+11-02 22:15:39.112 24718 24718 D PlayMatch: kaynak başlatılıyor: Torrentio (?)
+11-02 22:15:39.113 24718 24718 D PlayStreamUrl: oynatılıyor magnet: mime=?
+11-02 22:15:39.113 24718 24718 D PlayTorrent: oynatıcıya veriliyor: kaynak=Torrentio magnet: torrent=true fileIdx=0 başlıklar=[] mime=null
+11-02 22:15:39.118 24889 24889 D AndroidRuntime: Shutting down VM
+11-02 22:15:39.119 24718 24900 D PlayTorrent: yerel sunucu isteği: GET range=null hedefOk=true
+11-02 22:15:39.120 24718 24900 D PlayTorrent: motor open: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 fileHint=0
+11-02 22:15:39.121 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 22:15:39.121 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 22:15:39.121 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 22:15:39.121 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 22:15:39.121 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 22:15:39.121 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 22:15:39.121 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 22:15:39.121 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 22:15:39.121 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 22:15:39.121 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 22:15:39.121 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: 76f726 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (stopped)
+11-02 22:15:39.124 24718 24810 D PlayTorrent: alert TORRENT_DELETED: ------ deleted
+11-02 22:15:39.124 24718 24807 D PlayTorrent: yerel sunucu bağlantısı bitti: IOException torrent closed
+11-02 22:15:39.124 24718 24810 D PlayTorrent: alert TORRENT_REMOVED: ------ removed
+11-02 22:15:39.125 24718 24810 D PlayTorrent: alert STATE_CHANGED: cf5290: state changed to: dl metadata
+11-02 22:15:39.126 24718 24810 D PlayTorrent: alert ADD_TORRENT: added torrent: cf5290d3f602bbeb0de9cb4419251c98c0e6db70
+11-02 22:15:39.144 24718 24728 I com.kaan.play: JIT allocated 67KB for stack maps of void com.kaan.play.ui.player.PlayerScreenKt.Controls(java.lang.String, java.lang.String, java.lang.String, boolean, boolean, long, long, com.kaan.play.ui.player.GestureZones, androidx.compose.ui.focus.FocusRequester, androidx.compose.ui.focus.FocusRequester, androidx.compose.ui.focus.FocusRequester, kotlin.jvm.functions.Function1, androidx.compose.ui.focus.FocusRequester, java.util.List, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function1, kotlin.jvm.functions.Function1, kotlin.jvm.functions.Function0, androidx.compose.runtime.Composer, int, int, int)
+11-02 22:15:39.145 24718 24728 I com.kaan.play: Compiler allocated 6MB to compile void com.kaan.play.ui.player.PlayerScreenKt.Controls(java.lang.String, java.lang.String, java.lang.String, boolean, boolean, long, long, com.kaan.play.ui.player.GestureZones, androidx.compose.ui.focus.FocusRequester, androidx.compose.ui.focus.FocusRequester, androidx.compose.ui.focus.FocusRequester, kotlin.jvm.functions.Function1, androidx.compose.ui.focus.FocusRequester, java.util.List, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function0, kotlin.jvm.functions.Function1, kotlin.jvm.functions.Function1, kotlin.jvm.functions.Function0, androidx.compose.runtime.Composer, int, int, int)
+11-02 22:15:39.148  1463  1479 W SurfaceFlinger: Attempting to set client state on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 22:15:39.148  1463  1479 W SurfaceFlinger: Attempting to destroy on removed layer: com.kaan.play/com.kaan.play.ui.player.PlayerActivity#1
+11-02 22:15:39.166  1463  2229 W SurfaceFlinger: Attempting to set client state on removed layer: Dim Layer for - Task=64#0
+11-02 22:15:39.166  1463  2229 W SurfaceFlinger: Attempting to destroy on removed layer: Dim Layer for - Task=64#0
+11-02 22:15:39.174 24901 24901 I logcat  : type=1400 audit(0.0:15818): avc: denied { write } for name="logdr" dev="tmpfs" ino=2118 scontext=u:r:su:s0 tcontext=u:object_r:logdr_socket:s0 tclass=sock_file permissive=1
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TORRENT_RESUMED: cf5290 resumed
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://open.stealth.si:80/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.557 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.558 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.558 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.558 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.558 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.558 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.558 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.558 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.558 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.558 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.558 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] sending announce (started)
+11-02 22:15:39.558 24718 24810 D PlayTorrent: alert TRACKER_ANNOUNCE: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] sending announce (started)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://zer0day.ch:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.publictracker.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.opentrackr.org:1337/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://open.demonii.com:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://open.stealth.si:80/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.tryhackx.org:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.torrent.eu.org:451/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.theoks.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.startwork.cv:1337/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.qu.ax:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.plx.im:6969/announce)[[::]:6881-v1] skipping tracker announce (unreachable) "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.nyaa.vc:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.iperson.xyz:6969/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.iperson.xyz:6969/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.gmi.gd:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.fnix.net:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.ducks.party:1984/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[0.0.0.0:6881-v1] Host not found (authoritative) "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.bluefrog.pw:2710/announce)[[::]:6881-v1] Host not found (authoritative) "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.flatuslifir.is:6969/announce)[[::]:6881-v1] Operation Canceled "" (2)
+11-02 22:15:39.559 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (http://tracker.renfei.net:8080/announce)[[::]:6881-v1] Network is unreachable "" (1)
+11-02 22:15:39.602 24718 24810 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.ducks.party:1984/announce)[0.0.0.0:6881-v1] received peers: 0
+11-02 22:15:39.616 24718 24810 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.nyaa.vc:6969/announce)[0.0.0.0:6881-v1] received peers: 5
+11-02 22:15:39.616 24718 24810 D PlayTorrent: MILESTONE: first_peer_connected
+11-02 22:15:39.624 24718 24810 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.torrent.eu.org:451/announce)[0.0.0.0:6881-v1] received peers: 92
+11-02 22:15:39.631 24718 24810 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://zer0day.ch:1337/announce)[0.0.0.0:6881-v1] received peers: 117
+11-02 22:15:39.632 24718 24810 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.qu.ax:6969/announce)[0.0.0.0:6881-v1] received peers: 19
+11-02 22:15:39.633 24718 24810 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.opentrackr.org:1337/announce)[0.0.0.0:6881-v1] received peers: 117
+11-02 22:15:39.633 24718 24810 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://open.stealth.si:80/announce)[0.0.0.0:6881-v1] received peers: 87
+11-02 22:15:39.747 24718 24810 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.theoks.net:6969/announce)[0.0.0.0:6881-v1] received peers: 42
+11-02 22:15:39.748 24718 24810 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://tracker.gmi.gd:6969/announce)[0.0.0.0:6881-v1] received peers: 2
+11-02 22:15:39.854 24718 24810 D PlayTorrent: alert TRACKER_REPLY: cf5290 (http://tracker.renfei.net:8080/announce)[0.0.0.0:6881-v1] received peers: 11
+11-02 22:15:39.888 24718 24810 D PlayTorrent: alert TRACKER_REPLY: cf5290 (udp://open.demonii.com:1337/announce)[0.0.0.0:6881-v1] received peers: 24
+11-02 22:15:40.139 24718 24810 D PlayTorrent: alert METADATA_RECEIVED: cf5290 metadata successfully received
+11-02 22:15:40.140 24718 24810 D PlayTorrent: alert STATE_CHANGED: cf5290: state changed to: checking (r)
+11-02 22:15:40.140 24718 24810 D PlayTorrent: alert STATE_CHANGED: cf5290: state changed to: downloading
+11-02 22:15:40.140 24718 24810 D PlayTorrent: alert TORRENT_CHECKED: cf5290 checked
+11-02 22:15:40.636 24718 24810 D PlayTorrent: alert FILE_PRIO: cf5290 file priorities updated
+11-02 22:15:40.639 24718 24900 D PlayTorrent: MILESTONE: metadata_ready pieces=2358 size=19775934621 pieceLength=8388608
+11-02 22:15:40.642 24718 24900 D PlayTorrent: torrent açıldı: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 dosya[0]=Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv boyut=19775934621 parça=8388608 (dosya sayısı 3, ipucu=0, blokModu=true)
+11-02 22:15:40.643 24718 24900 D PlayTorrent: yerel sunucu yanıtı: 200 Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv 0-19775934620/19775934621
+11-02 22:15:40.644 24718 24900 D PlayTorrent: MILESTONE: http_range_req offset=0 end=19775934620
+11-02 22:15:40.651 24718 24810 D PlayTorrent: MILESTONE: piece0_first_block
+11-02 22:15:40.665 24718 24900 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=32768 total=32768
+11-02 22:15:40.977 24718 24807 D PlayTorrent: yerel sunucu isteği: GET range=bytes=19775794270- hedefOk=true
+11-02 22:15:40.977 24718 24807 D PlayTorrent: motor open: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 fileHint=0
+11-02 22:15:40.977 24718 24807 D PlayTorrent: motor open: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 (REUSING EXISTING ACTIVE TORRENT)
+11-02 22:15:40.978 24718 24807 D PlayTorrent: yerel sunucu yanıtı: 206 Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv 19775794270-19775934620/19775934621
+11-02 22:15:40.978 24718 24807 D PlayTorrent: MILESTONE: http_range_req offset=19775794270 end=19775934620
+11-02 22:15:41.753 24718 24900 D PlayTorrent: yerel sunucu bağlantısı bitti: SocketException Broken pipe
+11-02 22:15:42.195  1440  1489 D audio_hw_hal: log_func, out_standby
+11-02 22:15:42.195  1440  1489 D audio_hw_hal: raw_close_output_stream, dev=0xf5e18000, stream =0xf5e1b000
+11-02 22:15:42.195  1440  1489 D audio_hw_hal: raw_close_output_stream, stream=0xf5e1b000,  success!
+11-02 22:15:42.569 24718 24804 D PlayTorrent: MILESTONE: stats at 1s peers=17 seeds=16 dlRate=837KB/s inen=4884KB
+11-02 22:15:43.008 24718 24807 D PlayTorrent: bekleniyor: parça=2357 süre=2sn eş=17 tohum=16 hız=837KB/s inen=0KB durum=DOWNLOADING
+11-02 22:15:44.571 24718 24804 D PlayTorrent: MILESTONE: stats at 3s peers=19 seeds=17 dlRate=1313KB/s inen=9302KB
+11-02 22:15:45.063 24718 24807 D PlayTorrent: bekleniyor: parça=2357 süre=4sn eş=19 tohum=17 hız=1313KB/s inen=0KB durum=DOWNLOADING
+11-02 22:15:46.568 24718 24804 D PlayTorrent: MILESTONE: stats at 5s peers=27 seeds=21 dlRate=1440KB/s inen=13135KB
+11-02 22:15:47.102 24718 24807 D PlayTorrent: bekleniyor: parça=2357 süre=6sn eş=27 tohum=22 hız=1440KB/s inen=0KB durum=DOWNLOADING
+11-02 22:15:49.134 24718 24807 D PlayTorrent: bekleniyor: parça=2357 süre=8sn eş=27 tohum=22 hız=1667KB/s inen=0KB durum=DOWNLOADING
+11-02 22:15:49.523 24718 24810 D PlayTorrent: alert PERFORMANCE: cf5290: performance warning: the disk queue limit is too high compared to the cache size. The disk queue eats into the cache size
+11-02 22:15:49.558 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://udp.tracker.projectk.org:23333/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 22:15:49.558 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.tryhackx.org:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 22:15:49.558 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.startwork.cv:1337/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 22:15:49.558 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.plx.im:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 22:15:49.659 24718 24810 D PlayTorrent: alert TRACKER_ERROR: cf5290 (udp://tracker.fnix.net:6969/announce)[0.0.0.0:6881-v1] timed out "" (1)
+11-02 22:15:50.837 24718 24807 D PlayTorrent: MILESTONE: http_range_first_byte offset=19775794270 bytes=65536 total=180224
+11-02 22:15:50.839 24718 24807 D PlayTorrent: MILESTONE: http_range_last_byte offset=19775794270 bytesRead=19775934621 end=19775934620 total=255039
+11-02 22:15:50.883 24718 24780 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:15:50.883 24718 24780 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:15:50.883 24718 24807 D PlayTorrent: yerel sunucu isteği: GET range=bytes=6488- hedefOk=true
+11-02 22:15:50.883 24718 24807 D PlayTorrent: motor open: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 fileHint=0
+11-02 22:15:50.884 24718 24807 D PlayTorrent: motor open: hash=cf5290d3f602bbeb0de9cb4419251c98c0e6db70 (REUSING EXISTING ACTIVE TORRENT)
+11-02 22:15:50.884 24718 24807 D PlayTorrent: yerel sunucu yanıtı: 206 Civil.War.2024.2160p.WEB-DL.DDP5.1.Atmos.DV.HDR.H.265-FLUX.mkv 6488-19775934620/19775934621
+11-02 22:15:50.884 24718 24780 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:15:50.884 24718 24780 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:15:50.884 24718 24807 D PlayTorrent: MILESTONE: http_range_req offset=6488 end=19775934620
+11-02 22:15:50.885 24718 24807 D PlayTorrent: MILESTONE: http_range_first_byte offset=6488 bytes=65536 total=320575
+11-02 22:15:50.896 24718 24780 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:15:50.896 24718 24780 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:15:50.896 24718 24780 W com.kaan.play: Accessing hidden method Landroid/media/MediaFormat;->getInteger(Ljava/lang/String;I)I (dark greylist, linking)
+11-02 22:15:50.898 24718 24906 I OMXClient: IOmx service obtained
+11-02 22:15:50.898  1520  1585 I OMXMaster: makeComponentInstance(OMX.qcom.video.decoder.hevc) in omx@1.0-service process
+11-02 22:15:50.898  1520  1585 D LDDec   : createSoftOMXComponent OMX.qcom.video.decoder.hevc
+11-02 22:15:50.898  1520  1585 D LDDec   : LDDec init 0x0 1, 320
+11-02 22:15:50.899 24718 24905 D SurfaceUtils: connecting to surface 0x76386f67c010, reason connectToSurface
+11-02 22:15:50.899 24718 24905 I MediaCodec: [OMX.qcom.video.decoder.hevc] setting surface generation to 25311233
+11-02 22:15:50.899 24718 24905 D SurfaceUtils: disconnecting from surface 0x76386f67c010, reason connectToSurface(reconnect)
+11-02 22:15:50.899 24718 24905 D SurfaceUtils: connecting to surface 0x76386f67c010, reason connectToSurface(reconnect)
+11-02 22:15:50.899  1520  1585 W OMXNodeInstance: [0xf562cd80:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 22:15:50.899 24718 24906 E ACodec  : [OMX.qcom.video.decoder.hevc] setPortMode on output to DynamicANWBuffer failed w/ err -1010
+11-02 22:15:50.899  1520  1585 W OMXNodeInstance: [0xf562cd80:qcom.decoder.hevc] component does not support metadata mode; using fallback
+11-02 22:15:50.900  1520  1585 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 22:15:50.900  1520  1585 E OMXNodeInstance: setConfig(0xf562cd80:qcom.decoder.hevc, ConfigPriority(0x6f800002)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 22:15:50.900 24718 24906 I ACodec  : codec does not support config priority (err -1010)
+11-02 22:15:50.900  1520  6994 E OMXNodeInstance: getConfig(0xf562cd80:qcom.decoder.hevc, ConfigAndroidVendorExtension(0x6f100004)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 22:15:50.900  1520  6994 E OMXNodeInstance: getConfig(0xf562cd80:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 22:15:50.906  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 22:15:50.917  1437  1437 I chatty  : uid=1000(system) allocator@1.0-s identical 30 lines
+11-02 22:15:50.917  1437  1437 W AshmemAllocator: ashmem_create_region(11922288) returning hidl_memory(0x76391702c100, 11922288)
+11-02 22:15:50.918  1520 24908 D LDDec   : initDecoder OMX.qcom.video.decoder.hevc init
+11-02 22:15:50.914  1520  1520 I eo.decoder.hevc: type=1400 audit(0.0:15819): avc: denied { ioctl } for path="/dev/fastpipe" dev="tmpfs" ino=2104 ioctlcmd=6869 scontext=u:r:mediacodec:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+11-02 22:15:50.924  1520 24908 D SoftVideoDecoderOMXComponent: Color Aspects preference: 1 
+11-02 22:15:50.925 24718 24780 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-02 22:15:50.926  1520  1585 E OMXNodeInstance: getConfig(0xf562cd80:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 22:15:50.927 24718 24780 W MediaCodecRenderer: Format exceeds selected codec's capabilities [id=1, mimeType=video/dolby-vision, container=video/x-matroska, codecs=dvhe.08.06, res=3836x2072, color=BT2020/Limited range/ST2084 PQ/10/10, language=en, selectionFlags=[default], OMX.qcom.video.decoder.hevc]
+11-02 22:15:50.928  1520  6994 E OMXNodeInstance: getConfig(0xf562cd80:qcom.decoder.hevc, ??(0x7f000003)) ERROR: UnsupportedSetting(0x80001019)
+11-02 22:15:50.958 24718 24718 D PlaySubs: videonun içindeki altyazılar: [en, en, es]
+11-02 22:15:51.029 24718 24905 D MediaCodec: [OMX.qcom.video.decoder.hevc] setting dataspace on output surface to #104
+11-02 22:15:51.040 24718 24905 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 22:15:51.049 24718 24905 I         : fastpipe: Connect success
+11-02 22:15:51.049 24718 24905 D HostConnection: HostRPC::connect sucess: app=com.kaan.play, pid=24718, tid=24905, this=0x763868c28c80
+11-02 22:15:51.050 24718 24905 D HostConnection: queryAndSetGLESMaxVersion select gles-version: 3.1 hostGLVersion:46 process:com.kaan.play
+11-02 22:15:51.053 24718 24905 D SoftwareRenderer: setting dataspace on output surface to #104
+11-02 22:15:51.066 24718 24905 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 22:15:51.068 24718 24718 D PlayMatch: ilk kare: Torrentio (faz=Starting)
+11-02 22:15:51.069 24718 24718 D PlayTorrent: motor: ilk kare bildirildi
+11-02 22:15:51.071 24718 24718 D PlayMatch: süre kontrolü kaynak=Torrentio (?) süre=108.8 dk beklenen=109 dk tür=Movie -> Ok
+11-02 22:15:51.096 24718 24905 W MapperHal: buffer descriptor with invalid usage bits 0x2000
+11-02 22:15:51.568 24718 24804 D PlayTorrent: MILESTONE: stats at 10s peers=26 seeds=22 dlRate=2608KB/s inen=29494KB
+11-02 22:15:51.577  1520  6994 E OMXNodeInstance: setConfig(0xf562cd80:qcom.decoder.hevc, ConfigOperatingRate(0x6f800003)) ERROR: UnsupportedIndex(0x8000101a)
+11-02 22:15:51.577 24718 24906 I ACodec  : codec does not support config operating rate (err -1010)
+11-02 22:15:52.933 24718 24807 D PlayTorrent: bekleniyor: parça=0 süre=2sn eş=26 tohum=22 hız=3078KB/s inen=0KB durum=DOWNLOADING
+11-02 22:15:53.351 24718 24718 D PlayMatch: takılma-ayrıntı kaynak=Torrentio bitHızı=bilinmiyor bantTahmini=1.00 Mbps tampon=0.2 sn
