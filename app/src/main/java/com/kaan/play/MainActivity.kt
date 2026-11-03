@@ -115,39 +115,6 @@ class MainActivity : AppCompatActivity() {
                 val ids = raw.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
                 container.appScope.launch { container.providers.setSelectedProviders(ids) }
             }
-            if (intent.hasExtra("play_flag_no_prefetch")) {
-                com.kaan.play.ui.components.PosterPrefetchFlags.noPrefetch =
-                    intent.getBooleanExtra("play_flag_no_prefetch", false) ||
-                    intent.getStringExtra("play_flag_no_prefetch") == "true"
-            }
-            com.kaan.play.ui.components.PosterPrefetchMetrics.reset()
-
-            val prefetchFilter = android.content.IntentFilter().apply {
-                addAction("com.kaan.play.RESET_PREFETCH_METRICS")
-                addAction("com.kaan.play.DUMP_PREFETCH_METRICS")
-            }
-            androidx.core.content.ContextCompat.registerReceiver(
-                this,
-                object : android.content.BroadcastReceiver() {
-                    override fun onReceive(context: android.content.Context?, intent: android.content.Intent?) {
-                        when (intent?.action) {
-                            "com.kaan.play.RESET_PREFETCH_METRICS" -> {
-                                com.kaan.play.ui.components.PosterPrefetchMetrics.reset()
-                                setResultData("RESET_OK")
-                                android.util.Log.i("PosterPrefetchMetrics", "RESET_OK")
-                            }
-                            "com.kaan.play.DUMP_PREFETCH_METRICS" -> {
-                                val dumpStr = com.kaan.play.ui.components.PosterPrefetchMetrics.dump()
-                                setResultData(dumpStr)
-                                android.util.Log.i("PosterPrefetchMetrics", dumpStr)
-                            }
-                        }
-                    }
-                },
-                prefetchFilter,
-                androidx.core.content.ContextCompat.RECEIVER_EXPORTED,
-            )
-
             val runDiag = intent.getBooleanExtra("play_diag", false) || intent.getStringExtra("play_diag") == "true"
             if (runDiag) {
                 val filter = intent.getStringExtra("diag_plugins")?.split(",")?.map { it.trim() }
@@ -253,14 +220,6 @@ class MainActivity : AppCompatActivity() {
                 val container = (application as PlayApp).container
                 container.appScope.launch { container.providers.setSelectedProviders(ids) }
             }
-            if (intent.hasExtra("play_flag_no_prefetch")) {
-                com.kaan.play.ui.components.PosterPrefetchFlags.noPrefetch =
-                    intent.getBooleanExtra("play_flag_no_prefetch", false) ||
-                    intent.getStringExtra("play_flag_no_prefetch") == "true"
-            }
-            com.kaan.play.ui.components.PosterPrefetchMetrics.reset()
-
-            
             val runDiag = intent.getBooleanExtra("play_diag", false) || intent.getStringExtra("play_diag") == "true"
             if (runDiag) {
                 val container = (application as PlayApp).container
