@@ -1,0 +1,8 @@
+{
+  "size": "Physical size: 1600x900",
+  "density": "Physical density: 240",
+  "model": "SM-X710N",
+  "qemu_gles": "",
+  "egl": "",
+  "gles_renderer": "Qualcomm, Adreno (TM) 750, OpenGL ES 3.1 v1"
+}
