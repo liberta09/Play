@@ -119,12 +119,18 @@ class TorrentStreamProvider(
     private val inner: StreamProvider,
     private val server: suspend () -> String?,
     private val onBuiltIn: () -> Unit = {},
+    private val isBuiltInAvailable: () -> Boolean = { com.kaan.play.data.torrent.TorrentSupport.isBuiltInSupported() },
 ) : StreamProvider {
 
     override fun streams(request: StreamRequest): Flow<StreamResult> = inner.streams(request).map { result ->
         if (result !is StreamResult.Found || result.streams.none { TorrentLinks.isMagnet(it.url) }) return@map result
         val base = TorrentLinks.normalizeServer(server())
         if (base == null) {
+            if (!isBuiltInAvailable()) {
+                // Yerleşik torrent kullanılamıyor (SDK < 28 veya yerel kütüphane hatası) ve TorrServer yok:
+                // Yerleşik torrent kaynaklarını gizle
+                return@map result.copy(streams = result.streams.filterNot { TorrentLinks.isMagnet(it.url) })
+            }
             onBuiltIn()
             return@map result
         }
