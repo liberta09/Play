@@ -236,19 +236,27 @@ class MainActivity : AppCompatActivity() {
      * (bkz. [com.kaan.play.data.update.UpdateFlow.restoreReady]).
      */
     private fun handlePlayIntent(intent: Intent?) {
-        val testUrl = intent?.getStringExtra("play_test_video") ?: intent?.getStringExtra("url")
-        if (!testUrl.isNullOrBlank()) {
-            val fallback = intent?.getStringExtra("play_test_fallback")
-            val session = com.kaan.play.ui.player.PlaySession.testVideo(testUrl, fallback)
-            val playIntent = session.toIntent(this)
-            if (intent?.hasExtra("play_test_fail_after_ms") == true) {
-                playIntent.putExtra("play_test_fail_after_ms", intent.getLongExtra("play_test_fail_after_ms", 0L))
+        if (BuildConfig.DEBUG) {
+            val testUrl = intent?.getStringExtra("play_test_video")
+            if (!testUrl.isNullOrBlank()) {
+                val scheme = runCatching { android.net.Uri.parse(testUrl)?.scheme?.lowercase() }.getOrNull()
+                if (scheme in listOf("http", "https", "file", "content")) {
+                    val fallback = intent?.getStringExtra("play_test_fallback")
+                    val session = com.kaan.play.ui.player.PlaySession.testVideo(testUrl, fallback)
+                    val playIntent = session.toIntent(this)
+                    if (intent?.hasExtra("play_test_fail_after_ms") == true) {
+                        playIntent.putExtra("play_test_fail_after_ms", intent.getLongExtra("play_test_fail_after_ms", 0L))
+                    }
+                    if (intent?.hasExtra("play_test_fail_repeats") == true) {
+                        playIntent.putExtra("play_test_fail_repeats", intent.getIntExtra("play_test_fail_repeats", 1))
+                    }
+                    startActivity(playIntent)
+                    return
+                } else {
+                    android.util.Log.w("MainActivity", "play_test_video rejected: invalid scheme $scheme")
+                    return
+                }
             }
-            if (intent?.hasExtra("play_test_fail_repeats") == true) {
-                playIntent.putExtra("play_test_fail_repeats", intent.getIntExtra("play_test_fail_repeats", 1))
-            }
-            startActivity(playIntent)
-            return
         }
         val tmdbId = intent?.getIntExtra("play_tmdb_id", 0) ?: 0
         if (tmdbId > 0) {
@@ -277,11 +285,13 @@ class MainActivity : AppCompatActivity() {
                 autoResumed = false,
             )
             val playIntent = session.toIntent(this)
-            if (intent?.hasExtra("play_test_fail_after_ms") == true) {
-                playIntent.putExtra("play_test_fail_after_ms", intent.getLongExtra("play_test_fail_after_ms", 0L))
-            }
-            if (intent?.hasExtra("play_test_fail_repeats") == true) {
-                playIntent.putExtra("play_test_fail_repeats", intent.getIntExtra("play_test_fail_repeats", 1))
+            if (BuildConfig.DEBUG) {
+                if (intent?.hasExtra("play_test_fail_after_ms") == true) {
+                    playIntent.putExtra("play_test_fail_after_ms", intent.getLongExtra("play_test_fail_after_ms", 0L))
+                }
+                if (intent?.hasExtra("play_test_fail_repeats") == true) {
+                    playIntent.putExtra("play_test_fail_repeats", intent.getIntExtra("play_test_fail_repeats", 1))
+                }
             }
             startActivity(playIntent)
         }

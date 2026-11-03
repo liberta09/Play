@@ -1,5 +1,25 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.2.4] â 2026-11-03
+
+### TÃ¼rkÃ§e
+- **Kumanda aÅaÄÄ±/geri dÃ¼zeltmesi:** Ãst menÃ¼den AÅAÄI basÄ±ldÄ±ÄÄ±nda odaÄÄ±n iÃ§eriÄe geÃ§mesi saÄlandÄ±; baÅarÄ±sÄ±zlÄ±kta liste baÅa kaydÄ±rÄ±lÄ±p hedef tekrar denenir veya aÅaÄÄ± yÃ¶nsel odaklama yapÄ±lÄ±r. BoÅ ana sayfada Geri tuÅunun doÄrudan Ã§Ä±kÄ±Å yapmasÄ± yerine odaÄÄ± iÃ§eriÄe dÃ¶ndÃ¼rmesi saÄlandÄ±.
+- **Oynarken kaynak kurtarma:** Oynatma esnasÄ±nda baÄlantÄ± kopmasÄ± ya da akÄ±Å hatasÄ± durumunda oynatÄ±cÄ± kapanmadan yedek kaynaklara otomatik geÃ§iÅ ve kesintisiz kurtarma saÄlandÄ±.
+- **OynatÄ±cÄ± takÄ±lma bekÃ§isi dÃ¶ngÃ¼sÃ¼ ve TV tamponu:** OynatÄ±cÄ± donma/takÄ±lma bekÃ§isi dÃ¶ngÃ¼sÃ¼ dÃ¼zeltildi; TV cihazlarÄ± iÃ§in ExoPlayer tampon stratejisi optimize edildi.
+- **Eski Android torrent Ã§Ã¶kmesi:** Eski Android sÃ¼rmlerinde (API 24-27) libtorrent baÅlatma ve native yÃ¼kleme istisnalarÄ± zÄ±rhlandÄ±, Ã§Ã¶kmeler Ã¶nlendi.
+- **AÃ§Ä±lÄ±Å Ã§Ã¶kmesi korumasÄ±:** TV Box ROM'larÄ±nda pencere aÃ§Ä±lÄ±ÅÄ± ve DecorView hazÄ±rlÄ±ÄÄ± esnasÄ±nda oluÅan baÅlatma istisnalarÄ± korumaya alÄ±ndÄ±.
+- **Torrent aÃ§Ä±lÄ±Å hÄ±zÄ±:** Torrent parÃ§a ve blok yÃ¶netimi iyileÅtirilerek soÄuk aÃ§Ä±lÄ±Å sÃ¼resi ve ilk gÃ¶rÃ¼ntÃ¼ hÄ±zlandÄ±rÄ±ldÄ±.
+
+### English
+- **Remote down and back key navigation fixes:** Ensured focus reliably returns to content on DOWN press from top bar; retries after scrolling to top or uses directional down focus. Prevented immediate app exit on empty home screen when pressing BACK, returning focus to content instead.
+- **Mid-playback source recovery:** Seamless automatic fallback to alternate sources when network drops or streams fail during playback without exiting the player.
+- **Player watchdog loop & TV buffering:** Fixed player stall detector loop and optimized ExoPlayer buffering strategy for smoother Android TV playback.
+- **Legacy Android torrent crash:** Hardened libtorrent native initialization and session setup on older Android releases (API 24-27) against native link crashes.
+- **Window launch crash protection:** Armored window initialization and DecorView setup against startup crashes on custom TV box ROMs.
+- **Torrent startup speed:** Improved torrent chunk/block management for faster cold startup and quicker time to first frame.
+
+
+
 ## [1.2.3] — 2026-11-02
 
 ### Türkçe

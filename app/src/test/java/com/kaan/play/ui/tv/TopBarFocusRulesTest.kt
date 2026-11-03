@@ -6,52 +6,68 @@ import org.junit.Test
 class TopBarFocusRulesTest {
 
     @Test
-    fun targetAttachedAndNotScrolled_requestsTarget() {
-        val action = TopBarFocusRules.decide(
+    fun targetAttachedAndFocusTaken_returnsInitialTarget() {
+        val step = TopBarFocusRules.decideStep(
             targetAttached = true,
+            focusTaken = true,
+            isHome = true,
             isScrolled = false,
-            canScrollToTop = true,
         )
-        assertEquals(TopBarFocusRules.Action.REQUEST_TARGET, action)
+        assertEquals(TopBarFocusRules.Step.INITIAL_TARGET, step)
     }
 
     @Test
-    fun isScrolledAndCanScroll_scrollsToTopAndFocuses() {
-        val action = TopBarFocusRules.decide(
-            targetAttached = false,
+    fun initialFocusFailed_scrolledHome_returnsScrollAndRetry() {
+        val step = TopBarFocusRules.decideStep(
+            targetAttached = true,
+            focusTaken = false,
+            isHome = true,
             isScrolled = true,
-            canScrollToTop = true,
         )
-        assertEquals(TopBarFocusRules.Action.SCROLL_TO_TOP_AND_FOCUS, action)
+        assertEquals(TopBarFocusRules.Step.SCROLL_AND_RETRY, step)
     }
 
     @Test
-    fun isScrolledEvenIfTargetAttached_scrollsToTopAndFocuses() {
-        val action = TopBarFocusRules.decide(
-            targetAttached = true,
-            isScrolled = true,
-            canScrollToTop = true,
-        )
-        assertEquals(TopBarFocusRules.Action.SCROLL_TO_TOP_AND_FOCUS, action)
-    }
-
-    @Test
-    fun targetNotAttachedAndCannotScroll_movesFocusDown() {
-        val action = TopBarFocusRules.decide(
+    fun targetNotAttached_scrolledHome_returnsScrollAndRetry() {
+        val step = TopBarFocusRules.decideStep(
             targetAttached = false,
-            isScrolled = false,
-            canScrollToTop = false,
+            focusTaken = false,
+            isHome = true,
+            isScrolled = true,
         )
-        assertEquals(TopBarFocusRules.Action.MOVE_FOCUS_DOWN, action)
+        assertEquals(TopBarFocusRules.Step.SCROLL_AND_RETRY, step)
     }
 
     @Test
-    fun targetAttachedAndCannotScroll_requestsTarget() {
-        val action = TopBarFocusRules.decide(
+    fun initialFocusFailed_notHome_returnsMoveFocusDown() {
+        val step = TopBarFocusRules.decideStep(
             targetAttached = true,
-            isScrolled = false,
-            canScrollToTop = false,
+            focusTaken = false,
+            isHome = false,
+            isScrolled = true,
         )
-        assertEquals(TopBarFocusRules.Action.REQUEST_TARGET, action)
+        assertEquals(TopBarFocusRules.Step.MOVE_FOCUS_DOWN, step)
+    }
+
+    @Test
+    fun initialFocusFailed_homeNotScrolled_returnsMoveFocusDown() {
+        val step = TopBarFocusRules.decideStep(
+            targetAttached = true,
+            focusTaken = false,
+            isHome = true,
+            isScrolled = false,
+        )
+        assertEquals(TopBarFocusRules.Step.MOVE_FOCUS_DOWN, step)
+    }
+
+    @Test
+    fun targetNotAttached_notHome_returnsMoveFocusDown() {
+        val step = TopBarFocusRules.decideStep(
+            targetAttached = false,
+            focusTaken = false,
+            isHome = false,
+            isScrolled = false,
+        )
+        assertEquals(TopBarFocusRules.Step.MOVE_FOCUS_DOWN, step)
     }
 }

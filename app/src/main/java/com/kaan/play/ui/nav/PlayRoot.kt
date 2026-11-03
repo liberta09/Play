@@ -142,6 +142,8 @@ import com.kaan.play.ui.addons.RepoManagerCatalogScreen
 import com.kaan.play.data.sync.LocalProfileSummary
 import kotlinx.coroutines.flow.first
 import com.kaan.play.ui.sources.SourcesSheet
+import androidx.compose.runtime.withFrameNanos
+import com.kaan.play.ui.tv.TopBarFocusRules
 import kotlinx.coroutines.launch
 
 private const val SPEED_TEST_ROUTE = "settings/speed-test"
@@ -515,17 +517,26 @@ fun PlayRoot() {
     val focusManager = LocalFocusManager.current
     var onHomeScrollToTop: (suspend () -> Unit)? by remember { mutableStateOf(null) }
 
-    fun returnFocusToContent() {
-        val success = runCatching { currentContentFocusRequester.requestFocus() }.isSuccess
+    fun returnFocusToContent(): Boolean {
+        val initialSuccess = runCatching { currentContentFocusRequester.requestFocus() }.getOrDefault(false)
+        val isHome = currentRoute == Tab.Home.route || currentRoute == null
+        val scrollAction = onHomeScrollToTop
+        val step = TopBarFocusRules.decideStep(
+            targetAttached = true,
+            focusTaken = initialSuccess,
+            isHome = isHome,
+            isScrolled = scrollAction != null,
+        )
         if (com.kaan.play.BuildConfig.DEBUG) {
-            android.util.Log.d("PlayFocus", "returnFocusToContent: targetSuccess=$success route=$currentRoute")
+            android.util.Log.d("PlayFocus", "returnFocusToContent: step=$step route=$currentRoute initialSuccess=$initialSuccess")
         }
-        if (!success) {
-            val scrollAction = onHomeScrollToTop
-            if (scrollAction != null && (currentRoute == Tab.Home.route || currentRoute == null)) {
+        return when (step) {
+            TopBarFocusRules.Step.INITIAL_TARGET -> true
+            TopBarFocusRules.Step.SCROLL_AND_RETRY -> {
                 scope.launch {
-                    scrollAction()
-                    val retry = runCatching { currentContentFocusRequester.requestFocus() }.isSuccess
+                    scrollAction?.invoke()
+                    withFrameNanos { }
+                    val retry = runCatching { currentContentFocusRequester.requestFocus() }.getOrDefault(false)
                     if (com.kaan.play.BuildConfig.DEBUG) {
                         android.util.Log.d("PlayFocus", "returnFocusToContent: retryAfterScroll=$retry")
                     }
@@ -533,7 +544,9 @@ fun PlayRoot() {
                         focusManager.moveFocus(FocusDirection.Down)
                     }
                 }
-            } else {
+                true
+            }
+            TopBarFocusRules.Step.MOVE_FOCUS_DOWN -> {
                 focusManager.moveFocus(FocusDirection.Down)
             }
         }
@@ -856,7 +869,7 @@ fun PlayTopBar(
     topBarFocusRequester: FocusRequester,
     profileFocusRequester: FocusRequester,
     pillFocusRequester: FocusRequester?,
-    onDown: () -> Unit = {},
+    onDown: () -> Boolean = { false },
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -896,7 +909,7 @@ private fun PlayTopBarItem(
     itemFocusRequester: FocusRequester?,
     avatarKey: String? = null,
     rightFocusRequester: FocusRequester? = null,
-    onDown: () -> Unit = {},
+    onDown: () -> Boolean = { false },
     onClick: () -> Unit,
 ) {
     var boxFocused by remember { mutableStateOf(false) }
@@ -917,7 +930,6 @@ private fun PlayTopBarItem(
             .onPreviewKeyEvent { event ->
                 if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
                     onDown()
-                    true
                 } else {
                     false
                 }

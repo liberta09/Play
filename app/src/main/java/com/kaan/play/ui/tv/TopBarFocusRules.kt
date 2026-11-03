@@ -5,27 +5,34 @@ package com.kaan.play.ui.tv
  * içeriğe dönüş mantığını yöneten saf karar sınıfı.
  */
 object TopBarFocusRules {
-    enum class Action {
-        REQUEST_TARGET,
-        SCROLL_TO_TOP_AND_FOCUS,
+
+    enum class Step {
+        INITIAL_TARGET,
+        SCROLL_AND_RETRY,
         MOVE_FOCUS_DOWN,
     }
 
     /**
-     * @param targetAttached Hedef FocusRequester şu an bağlı ve odak kabul edebilir mi
-     * @param isScrolled Liste ilk öğenin ötesine kaydırılmış mı
-     * @param canScrollToTop Başa kaydırma yeteneği mevcut mu
+     * returnFocusToContent akışında hangi adımın işletileceğini belirler.
+     *
+     * @param targetAttached Hedef FocusRequester bağlı mı / odak denenebilir mi
+     * @param focusTaken Odak başarıyla alındı mı (runCatching { requestFocus() }.getOrDefault(false))
+     * @param isHome Ana sayfa rotasında mı (currentRoute == Tab.Home.route || currentRoute == null)
+     * @param isScrolled Liste ilk öğenin ötesine kaydırılmış mı / başa kaydırma aksiyonu var mı
+     * @return Yürütülecek odak adımı ([Step])
      */
-    fun decide(
+    fun decideStep(
         targetAttached: Boolean,
+        focusTaken: Boolean,
+        isHome: Boolean,
         isScrolled: Boolean,
-        canScrollToTop: Boolean = true,
-    ): Action {
-        return when {
-            targetAttached && !isScrolled -> Action.REQUEST_TARGET
-            isScrolled && canScrollToTop -> Action.SCROLL_TO_TOP_AND_FOCUS
-            targetAttached -> Action.REQUEST_TARGET
-            else -> Action.MOVE_FOCUS_DOWN
+    ): Step {
+        if (targetAttached && focusTaken) {
+            return Step.INITIAL_TARGET
         }
+        if (isHome && isScrolled) {
+            return Step.SCROLL_AND_RETRY
+        }
+        return Step.MOVE_FOCUS_DOWN
     }
 }
