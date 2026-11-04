@@ -5,8 +5,9 @@
 **Cihaz / Emülatör:** `emulator-5554` (LDPlayer, Android 9 / API 28)  
 **APK A (Mevcut Dal):** `app-debug.apk`  
 - **SHA-256:** `ec00e02a63271aa2e2594ea4037553ccf81b55c03d3035657121ccf5af708cb8`  
-**APK B (Resmi 1.2.5 Dağıtımı):** `downloaded_Play-1.2.5.apk`  
+**APK B (Resmi 1.2.5 Dağıtımı — GEÇERSİZ: debug/release eşit değil):** `downloaded_Play-1.2.5.apk`  
 - **SHA-256:** `f7a0a9fac8f7c71f64abbe467a1735d5d7e8e0e74c05f1747688c99c97ded0ca`  
+*(Not: Bölüm 6'daki A (debug) ile B (release) karşılaştırması derleme profili eşitsizliği nedeniyle GEÇERSİZDİR; adil karşılaştırma Bölüm 7'deki T/A/C debug ölçümüdür.)*  
 
 ---
 
@@ -32,7 +33,7 @@ Tüm görseller emülatör üzerinde gerçek koşullarda yakalanmış, araçlarl
 | :--- | :--- | :--- | :--- |
 | `kanit_yatay_backdrop_logo.png` | 1,123,654 bayt | `61ec9a99395e3d02631787bfd3405447` | **YENİ KANIT:** Dövüş Kulübü (Fight Club) filminde TMDB yatay sahne görseli (16:9 gökdelen manzarası) + %50 perde + ortada kendi doğal pembe rengiyle nefes alan soluk TMDB logosu. Yakınlaştırılmış dik afiş yok. |
 | `kanit_dolum_ilerleme_kismi.png` | 1,121,073 bayt | `908c002b9e09d56a6fe07a640f7095f2` | **YENİ KANIT:** Aynı akışın soldan sağa dolum sürerken çekilmiş karesi; "FIGHT CLUB" logosunun sol kısmı ('F' ve 'I' harfleri) tam opak pembe ile dolmuş, sağ kısmı soluk kalmıştır. |
-| `a_connecting_backdrop_breathing_logo.png` | 557,120 bayt | `ad9d8ea01903dafd7cebd36042f2e0fd` | Bağlanma anı: Soluk nefes alan logo, arkada Big Buck Bunny yatay sahne görseli ve %50 perde. Çubuk, metin, sayaç yok. |
+| `a_connecting_backdrop_breathing_logo.png` | 557,120 bayt | `ad9d8ea01903dafd7cebd36042f2e0fd` | Bu kare videonun kendi açılış karesiyle karışık geçiş anıdır, temiz 'bağlanıyor' kanıtı değildir. Temiz kanıt `kanit_yatay_backdrop_logo.png` ve `kanit_dolum_ilerleme_kismi.png` dosyalarıdır. |
 | `d_fallback_no_logo_cyan_text.png` | 10,543 bayt | `d46ac353c05e17c3ad1caa64177129a9` | Logo yok/yüklenemedi: Ortada `#00E5FF` camgöbeği metin başlık yedeği. |
 | `f_direct_stream_no_overlay.png` | 25,233 bayt | `72a9a8cf81c3560dded28c9397e5166a` | Doğrudan HTTP akışı (torrent değil): Yükleme ekranı hiç tetiklenmez, doğrudan video kontrolleri gelir. |
 | `h_same_torrent_seek_no_overlay.png` | 156,176 bayt | `2c49793ba397f53f35f2f09917513add` | Aynı torrent içinde seek yapıldığında video aktif oynar, yükleme ekranı tekrar çıkmaz. |
@@ -73,7 +74,10 @@ Tüm testler emülatör üzerinde 60'ar saniye kesintisiz oynatılarak Back tuş
 
 ---
 
-## 6. Adil A/B İlk Kare Süresi Ölçümü (16 Koşu: 8 A + 8 B)
+## 6. İlk Kare Süresi Ölçümü (GEÇERSİZ — debug/release eşit değil)
+
+> [!WARNING]
+> **GEÇERSİZ — debug/release eşit değil:** Bu bölümdeki A (debug) ile B (resmî release) karşılaştırması R8 ve Compose debug yükü eşitsizliği nedeniyle geçersizdir. Silinmemiş, arşiv amaçlı tutulmuştur. Gerçek ve adil karşılaştırma Bölüm 7'deki T/A/C (tümü debug) ölçümüdür.
 
 - **Ölçüm Yöntemi:** Cihaz zamanı ofsetli `adb logcat -d -v epoch -s PlayMatch:D` yoklaması (`adb logcat -c` KULLANILMAMIŞTIR).
 - **Test Magneti:** `magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e` (Big Buck Bunny)
@@ -122,3 +126,29 @@ Tüm testler emülatör üzerinde 60'ar saniye kesintisiz oynatılarak Back tuş
   - **Genel Medyan A:** **4.530 sn**
   - **Genel Medyan B:** **2.914 sn**
 - **Yüzdesel Fark ((A − B) / B × 100):** **+%55.45** (A medyanı B medyanından 1.616 sn daha yüksektir)
+
+---
+
+## 7. Adil T/A/C İlk Kare Süresi Ölçümü (Tümü Debug)
+
+Tüm yapılar `assembleDebug` ile derlenmiş ve eşit koşullarda serpiştirilerek (T-A-C döngüsüyle 8'er koşu) ölçülmüştür.
+
+- **T (v1.2.5 debug, SHA `dd75650e657f03d9dd141891a44af015f1f3d95d55f8cbfd9032a059df89ceca`):**
+  - Ham Koşular: `[5.280, 3.671, 4.018, 3.922, 5.492, 4.586, 3.980, 5.040]` sn
+  - Medyan: **4.302 sn**
+- **A (ae588d5 debug, SHA `ec00e02a63271aa2e2594ea4037553ccf81b55c03d3035657121ccf5af708cb8`):**
+  - Ham Koşular: `[5.318, 4.151, 4.365, 4.229, 5.167, 4.001, 4.695, 4.313]` sn
+  - Medyan: **4.339 sn**
+- **C (overlay+yoklama kapalı, SHA `3fd702095dfa07aa7ed6ae7e6d548c27eab03e60b5c68c2ca5a22212bc46fa90`):**
+  - Ham Koşular: `[4.060, 6.344, 4.382, 3.948, 4.986, 4.075, 4.508, 4.678]` sn
+  - Medyan: **4.445 sn**
+
+### Karşılaştırma Özeti
+- **A − T Farkı:** **+%0.86** (+0.037 sn, torrent yükleme ekranı açılış süresini etkilememektedir).
+- **C − T Farkı:** **+%3.32** (+0.143 sn, ölçüm sapması sınırları dahilindedir).
+
+---
+
+## 8. Bilinen Sınır
+
+- **Bilinen sınır:** Dizide otomatik sonraki bölüm torrent ise `PlayTarget` nesnesinde logo/sahne bilgisi henüz bulunmadığı için metin başlıklı yedek ekran görünür (kasten kabul).

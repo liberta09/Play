@@ -144,4 +144,126 @@ class TorrentOverlayDisplayRulesTest {
         assertFalse("Aynı URLler false dönmeli", TorrentOverlayDisplayRules.isNewStream("url1", "url1"))
         assertTrue("Farklı URLler true dönmeli", TorrentOverlayDisplayRules.isNewStream("url2", "url1"))
     }
+
+    // ==========================================
+    // Saf Durum Sınıfı (TorrentOverlayState) Geçiş Testleri
+    // ==========================================
+
+    @Test
+    fun `durum gecisi - direct ten torrente geciste ekran cikar ve dogru sonlanir`() {
+        var state = TorrentOverlayDisplayRules.TorrentOverlayState()
+        
+        // 1. Doğrudan (HTTP) kaynak başlar
+        state = state.onStreamSelected("https://cdn.example.com/stream.m3u8", isTorrent = false)
+        assertFalse("Doğrudan kaynakta yükleme ekranı gösterilmemeli", state.shouldShow())
+        
+        // Doğrudan kaynağın ilk karesi gelir
+        state = state.onFirstFrameRendered()
+        assertFalse("Doğrudan kaynakta isDismissing tetiklenmemeli", state.isDismissing)
+        assertFalse("Doğrudan kaynakta ekran çıkmamalı", state.shouldShow())
+        
+        // 2. Kullanıcı Kaynak panelinden Torrent (Torrentio/magnet) seçer
+        state = state.onStreamSelected("magnet:?xt=urn:btih:fightclub111", isTorrent = true)
+        assertTrue("Torrent kaynağına geçildiğinde ekran HEMEN görünür olmalı", state.shouldShow())
+        assertFalse("Yeni akışta dismissed sıfırlanmalı", state.dismissed)
+        assertFalse("Yeni akışta isDismissing sıfırlanmalı", state.isDismissing)
+        
+        // 3. Torrent ilk karesi çizildi -> animasyon fazı
+        state = state.onFirstFrameRendered()
+        assertTrue("İlk kare geldiğinde çıkış animasyonu fazına geçmeli", state.isDismissing)
+        assertTrue("Çıkış animasyonu sürerken ekran görünür kalmalı", state.shouldShow())
+        
+        // 4. Animasyon bitti
+        state = state.onDismissFinished()
+        assertTrue("Animasyon bitince dismissed true olmalı", state.dismissed)
+        assertFalse("Animasyon bitince ekran kapanmalı", state.shouldShow())
+    }
+
+    @Test
+    fun `durum gecisi - torrent ten baska bir torrente geciste ekran tekrar cikar`() {
+        var state = TorrentOverlayDisplayRules.TorrentOverlayState()
+        
+        // 1. Torrent 1 açılır ve biter
+        state = state.onStreamSelected("magnet:?xt=urn:btih:torrent1", isTorrent = true)
+        assertTrue(state.shouldShow())
+        state = state.onFirstFrameRendered()
+        state = state.onDismissFinished()
+        assertFalse("Torrent 1 bittiğinde ekran kapalı olmalı", state.shouldShow())
+        
+        // 2. Farklı bir Torrent 2'ye geçiş yapılır
+        state = state.onStreamSelected("magnet:?xt=urn:btih:torrent2", isTorrent = true)
+        assertTrue("Farklı torrent seçildiğinde ekran TEKRAR görünür olmalı", state.shouldShow())
+        assertFalse("Yeni torrent akışında dismissed false olmalı", state.dismissed)
+        
+        // Torrent 2 ilk karesi ve çıkışı
+        state = state.onFirstFrameRendered()
+        assertTrue(state.shouldShow())
+        state = state.onDismissFinished()
+        assertFalse(state.shouldShow())
+    }
+
+    @Test
+    fun `durum gecisi - torrent ten direct e sonra tekrar torrente gecis`() {
+        var state = TorrentOverlayDisplayRules.TorrentOverlayState()
+        
+        // 1. Torrent 1 tamamlandı
+        state = state.onStreamSelected("magnet:?xt=urn:btih:torrent1", isTorrent = true)
+        state = state.onFirstFrameRendered()
+        state = state.onDismissFinished()
+        assertFalse(state.shouldShow())
+        
+        // 2. Doğrudan kaynağa geçildi
+        state = state.onStreamSelected("https://cdn.example.com/direct.mp4", isTorrent = false)
+        assertFalse("Doğrudan kaynakta ekran çıkmaz", state.shouldShow())
+        state = state.onFirstFrameRendered()
+        
+        // 3. Tekrar Torrent 1'e dönüldü
+        state = state.onStreamSelected("magnet:?xt=urn:btih:torrent1", isTorrent = true)
+        assertTrue("Doğrudan kaynaktan torrente dönüldüğünde ekran tekrar açılmalı", state.shouldShow())
+        assertFalse(state.dismissed)
+    }
+
+    @Test
+    fun `durum gecisi - ayni torrent icinde seek yapildiginda ekran ASLA cikmaz`() {
+        var state = TorrentOverlayDisplayRules.TorrentOverlayState()
+        
+        // Torrent 1 normal açıldı ve ilk karesi oynatıldı
+        state = state.onStreamSelected("magnet:?xt=urn:btih:torrent1", isTorrent = true)
+        state = state.onFirstFrameRendered()
+        state = state.onDismissFinished()
+        assertFalse(state.shouldShow())
+        
+        // Kullanıcı 30 saniye ileri sarar
+        assertFalse("Seek sırasında ekran ÇIKMAMALI", state.shouldShow(isSeeking = true))
+        assertFalse("Seek bittikten sonra da ekran ÇIKMAMALI", state.shouldShow(isSeeking = false))
+        
+        // Sarma sırasında aynı streamUrl tekrar iletilirse
+        state = state.onStreamSelected("magnet:?xt=urn:btih:torrent1", isTorrent = true)
+        assertFalse("Aynı URL ile iletilen akışta dismissed korunmalı ve ekran ÇIKMAMALI", state.shouldShow())
+    }
+
+    @Test
+    fun `durum gecisi - ayni akis yeniden hazirlanirken (retry) ekran cikmaz`() {
+        var state = TorrentOverlayDisplayRules.TorrentOverlayState()
+        
+        // Torrent açıldı ve oynuyor
+        state = state.onStreamSelected("magnet:?xt=urn:btih:torrent1", isTorrent = true)
+        state = state.onFirstFrameRendered()
+        state = state.onDismissFinished()
+        
+        // MidPlaybackRecovery aynı akışı tekrar yükler
+        state = state.onStreamSelected("magnet:?xt=urn:btih:torrent1", isTorrent = true)
+        assertFalse("Aynı akış retry edildiğinde ekran ÇIKMAMALI", state.shouldShow())
+    }
+
+    @Test
+    fun `durum gecisi - oynatma sirasinda tamponlamada ekran cikmaz`() {
+        var state = TorrentOverlayDisplayRules.TorrentOverlayState()
+        
+        state = state.onStreamSelected("magnet:?xt=urn:btih:torrent1", isTorrent = true)
+        state = state.onFirstFrameRendered()
+        state = state.onDismissFinished()
+        
+        assertFalse("Oynatma sırasında tamponlama olurken özel yükleme ekranı çıkmamalı", state.shouldShow(isBuffering = true))
+    }
 }

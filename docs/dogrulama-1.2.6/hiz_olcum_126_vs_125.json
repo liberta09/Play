@@ -1,0 +1,48 @@
+{
+  "hashes": {
+    "1.2.5": "f7a0a9fac8f7c71f64abbe467a1735d5d7e8e0e74c05f1747688c99c97ded0ca",
+    "1.2.6": "1ec69100d1fe7873cf2dbe2a21b18b864fd402b3afc9b1036666414dbdbe1bf9"
+  },
+  "warmups": {
+    "1.2.5": [
+      2.525,
+      2.921
+    ],
+    "1.2.6": [
+      3.71,
+      2.417
+    ]
+  },
+  "statistics": {
+    "1.2.5": {
+      "runs": [
+        3.026,
+        2.878,
+        2.432,
+        3.092,
+        2.996,
+        2.739
+      ],
+      "count": 6,
+      "median_first3": 2.878,
+      "median_last3": 2.996,
+      "median_overall": 2.9370000000000003
+    },
+    "1.2.6": {
+      "runs": [
+        2.62,
+        2.834,
+        2.872,
+        2.734,
+        2.924,
+        2.369
+      ],
+      "count": 6,
+      "median_first3": 2.834,
+      "median_last3": 2.734,
+      "median_overall": 2.784
+    },
+    "percentage_difference": -5.20939734422882,
+    "slower_than_10_percent": false
+  }
+}

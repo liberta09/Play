@@ -181,7 +181,6 @@ fun PlayerScreen(
     val locale = remember { Locale.forLanguageTag(AppLanguage.effective().iso) }
 
     val ui = controller.ui
-    var torrentOverlayFallback by remember { mutableStateOf(false) }
 
 
     var controlsVisible by remember { mutableStateOf(true) }
@@ -628,37 +627,31 @@ fun PlayerScreen(
         LevelIndicator(levelIndicator)
         SeekIndicator(seekIndicator)
 
-        val currentStream = coordinator?.current ?: initialStream ?: offlineStream
+                val currentStream = coordinator?.current ?: initialStream ?: offlineStream
         val isTorrent = currentStream != null && TorrentLinks.isMagnet(currentStream.url)
-        var lastRenderedStreamUrl by remember { mutableStateOf<String?>(null) }
-        var isOverlayDismissing by remember { mutableStateOf(false) }
-        var overlayDismissed by remember { mutableStateOf(false) }
+        val streamUrl = currentStream?.url
 
-        val isNewStream = TorrentOverlayDisplayRules.isNewStream(currentStream?.url, lastRenderedStreamUrl)
-
-        // Yeni bir akış başladığında dismiss durumunu sıfırla
-        LaunchedEffect(currentStream?.url) {
-            if (isNewStream) {
-                isOverlayDismissing = false
-                overlayDismissed = false
-            }
+        var overlayState by remember {
+            mutableStateOf(
+                TorrentOverlayDisplayRules.TorrentOverlayState().onStreamSelected(streamUrl, isTorrent)
+            )
         }
 
-        // İlk kare geldiğinde çıkış animasyonu fazına geç
+        if (streamUrl != overlayState.currentStreamUrl) {
+            overlayState = overlayState.onStreamSelected(streamUrl, isTorrent)
+        }
+
         LaunchedEffect(ui.firstFrameRendered) {
-            if (ui.firstFrameRendered && !overlayDismissed) {
-                isOverlayDismissing = true
+            if (ui.firstFrameRendered) {
+                overlayState = overlayState.onFirstFrameRendered()
             }
         }
 
-        val shouldShowByRules = TorrentOverlayDisplayRules.evaluate(
-            isTorrent = isTorrent,
-            isNewStream = isNewStream && !overlayDismissed,
-            firstFrameRendered = ui.firstFrameRendered,
-            isDismissing = isOverlayDismissing,
+        val showTorrentOverlay = overlayState.shouldShow(
             isSeeking = controller.stallTracker.isSeeking,
+            isBuffering = ui.buffering,
+            hasError = ui.error != null || sourcesFailed,
         )
-        val showTorrentOverlay = shouldShowByRules && !torrentOverlayFallback && ui.error == null && !sourcesFailed
 
         if (resolving && ui.error == null) {
             Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -670,12 +663,8 @@ fun PlayerScreen(
                 target = target,
                 firstFrameRendered = ui.firstFrameRendered,
                 getSnapshot = getTorrentLoadSnapshot,
-                onFallback = { torrentOverlayFallback = true },
-                onDismissed = {
-                    isOverlayDismissing = false
-                    overlayDismissed = true
-                    lastRenderedStreamUrl = currentStream?.url
-                },
+                onFallback = { overlayState = overlayState.onFallback() },
+                onDismissed = { overlayState = overlayState.onDismissFinished() },
             )
         } else if ((ui.buffering || coordinator?.switching == true) && ui.error == null && !sourcesFailed) {
             // Kaynak değişirken (kaldığı saniyeden devam) ve tamponlarken dönen yükleme göstergesi.

@@ -1,5 +1,15 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.2.6] — 2026-11-05
+
+### Türkçe
+- **Torrent yükleme ekranı:** torrent kaynağı açılırken filmin yatay sahnesi üzerinde, kendi renklerinde logosu gerçek ilerlemeye göre soldan sağa dolar; ilk görüntü gelince kaybolur. Başka yazı ya da düğme yok. Açılış süresini yavaşlatmaz.
+
+### English
+- **Torrent loading screen:** When opening a torrent source, over the movie's horizontal backdrop, its logo in its original colors fills from left to right according to actual progress; fades away once the first video frame appears. No other text or buttons. Does not slow down startup time.
+
+
+
 ## [1.2.5] — 2026-11-04
 
 ### Türkçe

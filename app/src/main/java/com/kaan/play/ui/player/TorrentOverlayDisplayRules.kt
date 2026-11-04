@@ -23,6 +23,74 @@ object TorrentOverlayDisplayRules {
     }
 
     /**
+     * Torrent yükleme ekranının durum geçişlerini deterministik ve saf olarak yöneten durum modeli.
+     */
+    data class TorrentOverlayState(
+        val currentStreamUrl: String? = null,
+        val isTorrent: Boolean = false,
+        val firstFrameRendered: Boolean = false,
+        val isDismissing: Boolean = false,
+        val dismissed: Boolean = false,
+        val fallback: Boolean = false,
+    ) {
+        /**
+         * Yeni veya mevcut bir akış seçildiğinde durumu günceller.
+         */
+        fun onStreamSelected(url: String?, isTorrent: Boolean): TorrentOverlayState {
+            if (url == null) return TorrentOverlayState()
+            if (url == currentStreamUrl) {
+                // Aynı akış: seek, retry veya tamponlama; mevcut durumu koru
+                return this
+            }
+            return TorrentOverlayState(
+                currentStreamUrl = url,
+                isTorrent = isTorrent,
+                firstFrameRendered = false,
+                isDismissing = false,
+                dismissed = false,
+                fallback = false,
+            )
+        }
+
+        /**
+         * Oynatıcı ilk video karesini çizdiğinde çağrılır.
+         */
+        fun onFirstFrameRendered(): TorrentOverlayState {
+            if (!isTorrent || dismissed) return this
+            return copy(firstFrameRendered = true, isDismissing = true)
+        }
+
+        /**
+         * Çıkış animasyonu (dolum tamamlama + 300 ms fade-out) bittiğinde çağrılır.
+         */
+        fun onDismissFinished(): TorrentOverlayState {
+            return copy(isDismissing = false, dismissed = true)
+        }
+
+        /**
+         * Yükleme ekranı kritik hata aldığında sessizce standart yükleyiciye düşer.
+         */
+        fun onFallback(): TorrentOverlayState {
+            return copy(fallback = true)
+        }
+
+        /**
+         * Ekranın o an gösterilip gösterilmeyeceğini belirler.
+         */
+        fun shouldShow(
+            isSeeking: Boolean = false,
+            isBuffering: Boolean = false,
+            hasError: Boolean = false,
+        ): Boolean {
+            if (hasError || fallback || !isTorrent || dismissed) return false
+            if (isSeeking) return false
+            if (isBuffering && dismissed) return false
+            if (firstFrameRendered && !isDismissing) return false
+            return true
+        }
+    }
+
+    /**
      * @param isTorrent Kaynağın torrent (magnet/infoHash, TorrentEngine) olup olmadığı
      * @param action Oynatıcıda o an gerçekleşen aksiyon
      * @param firstFrameRendered Yeni kaynağın ilk karesi ekrana çizildi mi
@@ -61,14 +129,6 @@ object TorrentOverlayDisplayRules {
 
     /**
      * Mevcut durum değişkenlerine göre yükleme ekranının gösterilme durumunu hesaplar.
-     *
-     * @param isTorrent Kaynak torrent mi
-     * @param isNewStream Yeni/farklı bir akış mı
-     * @param firstFrameRendered İlk kare çizildi mi
-     * @param isDismissing İlk kare sonrası çıkış animasyonu (dolum tamamlama + 300ms fade-out) sürüyor mu
-     * @param isSeeking Aynı kaynakta sarma yapılıyor mu
-     * @param isSameStreamRetry Aynı akış yeniden mi hazırlanıyor
-     * @param isBufferingDuringPlayback Oynarken geçici tamponlama mı
      */
     fun evaluate(
         isTorrent: Boolean,
