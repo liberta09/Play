@@ -11,7 +11,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -31,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -39,9 +37,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil3.SingletonImageLoader
-import coil3.memory.MemoryCache
-import coil3.toBitmap
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.kaan.play.data.stream.PlayTarget
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.data.torrent.TorrentLoadProgressRules
@@ -57,11 +55,12 @@ private val AccentCyan = Color(0xFF00E5FF)
  * Yalnızca torrent kaynağı açılırken ilk video karesine kadar gösterilen sade yükleme ekranı.
  *
  * Kurallar (bağlayıcı):
- * 1. Görseller (backdrop ve logo) YALNIZCA Coil BELLEK önbelleğinden (MemoryCache) gelir.
- *    Bellekte yoksa: görsel yok sayılır, düz #07111A zemin ve metin başlık (#00E5FF) gösterilir.
- * 2. Açılış anında hiçbir disk okuma, internet isteği ya da görsel çözme yapılmaz.
- * 3. Tasarım: Logo iki katman (alt katman nefes alan/0.28, üst katman soldan sağa kırpılmış).
- *    Logo yoksa film adı büyük kalın yazı, aynı iki katman ama #00E5FF camgöbeği renginde.
+ * 1. Arka plan görseli Coil ile normal AsyncImage olarak yüklenir (crossfade ile yumuşak belirir).
+ *    Resim hazır değilken düz #07111A zemin görünür, resim gelince %50 perde ile belirir.
+ * 2. Görsel yüklemesi video hazırlığını, ExoPlayer'ı ve torrent açılışını ASLA bekletmez veya bloklamaz.
+ * 3. Logo AsyncImage ile kendi renkleriyle iki katmanlı dolar (alt katman nefes alan/0.28, üst katman soldan sağa kırpılmış).
+ *    logoPath yoksa veya yükleme hata verirse camgöbeği #00E5FF film adı yedeği gösterilir.
+ *    Logo yüklenirken yazı yedeği gösterilmez (yalnızca zemin görünür).
  * 4. Durum yazısı, hız, eş, bayt, buton vb. başka HİÇBİR ŞEY yer almaz.
  * 5. İlk kare gelince dolum %100'e tamamlanır ve ekran ~300 ms içinde şeffaflaşarak kaybolur (fade-out).
  */
@@ -143,25 +142,15 @@ fun TorrentLoadingOverlay(
     val backdropUrl = remember(target.backdropPath) { TmdbImages.url(target.backdropPath, TmdbImages.Size.BackdropLarge) }
     val logoUrl = remember(target.logoPath) { TmdbImages.url(target.logoPath, TmdbImages.Size.Logo) }
 
-    // SADECE BELLEK ÖNBELLEĞİ: MemoryCache doğrudan sorgulanır
-    val imageLoader = remember(context) { SingletonImageLoader.get(context) }
-    val cachedBackdropBitmap = remember(backdropUrl) {
-        backdropUrl?.let { url ->
-            val cache = imageLoader.memoryCache
-            val value = cache?.get(MemoryCache.Key(url))
-                ?: cache?.keys?.firstOrNull { it.key == url }?.let { cache.get(it) }
-            runCatching { value?.image?.toBitmap()?.asImageBitmap() }.getOrNull()
-        }
-    }
+    var isBackdropLoaded by remember(backdropUrl) { mutableStateOf(false) }
+    var isLogoLoaded by remember(logoUrl) { mutableStateOf(false) }
+    var isLogoFailed by remember(logoUrl) { mutableStateOf(false) }
 
-    val cachedLogoBitmap = remember(logoUrl) {
-        logoUrl?.let { url ->
-            val cache = imageLoader.memoryCache
-            val value = cache?.get(MemoryCache.Key(url))
-                ?: cache?.keys?.firstOrNull { it.key == url }?.let { cache.get(it) }
-            runCatching { value?.image?.toBitmap()?.asImageBitmap() }.getOrNull()
-        }
-    }
+    val scrimAlpha by animateFloatAsState(
+        targetValue = if (isBackdropLoaded) 0.5f else 0.0f,
+        animationSpec = tween(300),
+        label = "scrimAlpha",
+    )
 
     AnimatedVisibility(
         visible = overlayVisible,
@@ -175,23 +164,29 @@ fun TorrentLoadingOverlay(
                 .background(BackgroundColor),
             contentAlignment = Alignment.Center,
         ) {
-            // 1. En altta filmin arka plan görseli (YALNIZCA BELLEKTE VARSA) + %50 opak perde
-            if (cachedBackdropBitmap != null) {
-                Image(
-                    bitmap = cachedBackdropBitmap,
+            // 1. En altta filmin yatay arka plan görseli (AsyncImage ile crossfade) + %50 opak perde
+            if (backdropUrl != null) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(backdropUrl)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
+                    onSuccess = { isBackdropLoaded = true },
                     modifier = Modifier.fillMaxSize(),
                 )
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(BackgroundColor.copy(alpha = 0.5f)),
-                )
+                if (scrimAlpha > 0f) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(BackgroundColor.copy(alpha = scrimAlpha)),
+                    )
+                }
             }
 
-            // 2. Ortada logo (YALNIZCA BELLEKTE VARSA) veya yoksa/bellekte değilse camgöbeği metin başlık
-            if (cachedLogoBitmap != null) {
+            // 2. Ortada logo (AsyncImage ile iki katmanlı dolum) veya yoksa/hata verirse camgöbeği metin başlık
+            if (logoUrl != null && !isLogoFailed) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.38f)
@@ -199,32 +194,42 @@ fun TorrentLoadingOverlay(
                     contentAlignment = Alignment.Center,
                 ) {
                     // Alt katman: kendi renkleriyle soluk (0.28f veya nefes alan)
-                    Image(
-                        bitmap = cachedLogoBitmap,
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(logoUrl)
+                            .crossfade(true)
+                            .build(),
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
+                        onSuccess = { isLogoLoaded = true },
+                        onError = { isLogoFailed = true },
                         modifier = Modifier
                             .fillMaxSize()
                             .graphicsLayer { alpha = bottomLayerAlpha },
                     )
 
                     // Üst katman: kendi renkleriyle tam opak, soldan sağa ilerleme yüzdesi kadar kırpılmış (clip)
-                    Image(
-                        bitmap = cachedLogoBitmap,
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .drawWithContent {
-                                val fill = animatedProgress
-                                clipRect(left = 0f, top = 0f, right = size.width * fill, bottom = size.height) {
-                                    this@drawWithContent.drawContent()
-                                }
-                            },
-                    )
+                    if (isLogoLoaded) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(context)
+                                .data(logoUrl)
+                                .crossfade(false)
+                                .build(),
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .drawWithContent {
+                                    val fill = animatedProgress
+                                    clipRect(left = 0f, top = 0f, right = size.width * fill, bottom = size.height) {
+                                        this@drawWithContent.drawContent()
+                                    }
+                                },
+                        )
+                    }
                 }
-            } else {
-                // Logo yoksa ya da bellekte değilse: film adı büyük ve kalın yazı, aynı iki katman ama #00E5FF camgöbeği renginde
+            } else if (logoUrl == null || isLogoFailed) {
+                // Logo yoksa ya da yükleme hata verdiyse: film adı büyük ve kalın yazı, aynı iki katman ama #00E5FF camgöbeği renginde
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.70f)

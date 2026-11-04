@@ -135,34 +135,29 @@ fun DetailScreen(
         when (val d = detail) {
             Loadable.Loading -> CenteredLoading()
             is Loadable.Failed -> ErrorMessage(d.error, onRetry = vm::loadDetail, modifier = Modifier.align(Alignment.Center))
-            is Loadable.Ready -> {
-                val posterTemplate by rememberContainer().settings.posterUrlTemplate.collectAsStateWithLifecycle(initialValue = PosterUrlTemplate.DEFAULT)
-                val media = d.value.summary
-                val preferredPoster = PosterUrlTemplate.build(posterTemplate, d.value.imdbId)
-                    ?: media.backdropPath
-                    ?: media.posterPath
-                DetailContent(
-                    detail = d.value,
-                    twoPane = layout.twoPane,
-                    screenHeight = layout.heightDp.dp,
-                    isFavorite = isFavorite,
-                    selectedSeason = season,
-                    episodes = episodes,
-                    onToggleFavorite = vm::toggleFavorite,
-                    onSelectSeason = vm::selectSeason,
-                    onRetryEpisodes = vm::retryEpisodes,
-                    onOpenSimilar = onOpenSimilar,
-                    onOpenActor = onOpenActor,
-                    onPlay = { s, e ->
-                        onPlay(PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath, d.value.logoPath, preferredPoster))
-                    },
-                    downloads = downloads,
-                    onDownload = { s, e ->
-                        downloadFor = PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath, d.value.logoPath, preferredPoster)
-                    },
-                    listState = listState,
-                )
-            }
+            is Loadable.Ready -> DetailContent(
+                detail = d.value,
+                twoPane = layout.twoPane,
+                screenHeight = layout.heightDp.dp,
+                isFavorite = isFavorite,
+                selectedSeason = season,
+                episodes = episodes,
+                onToggleFavorite = vm::toggleFavorite,
+                onSelectSeason = vm::selectSeason,
+                onRetryEpisodes = vm::retryEpisodes,
+                onOpenSimilar = onOpenSimilar,
+                onOpenActor = onOpenActor,
+                onPlay = { s, e ->
+                    val media = d.value.summary
+                    onPlay(PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath, d.value.logoPath, media.backdropPath))
+                },
+                downloads = downloads,
+                onDownload = { s, e ->
+                    val media = d.value.summary
+                    downloadFor = PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath, d.value.logoPath, media.backdropPath)
+                },
+                listState = listState,
+            )
         }
         // Sayfa kayınca geri düğmesinin arkasına zemin rengi şerit gelir: afiş/bölüm kartları düğmenin altında
         // görünmez, düğmeyle üst üste binmez.

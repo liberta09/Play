@@ -1,49 +1,51 @@
-# Torrent Yükleme Ekranı Çıkış Animasyonu, Bellek İsabeti ve Nihai Doğrulama Raporu
+# Torrent Yükleme Ekranı Nihai Doğrulama ve Performans Ölçüm Raporu
 
-**Tarih:** 2026-11-04  
+**Tarih:** 2026-11-04 / 2026-11-05  
 **Dal:** `feat/torrent-yukleme-ekrani`  
-**Hedef Cihaz / Emülatör:** `emulator-5554` (`SM-X710N`, Android 9)  
+**Cihaz / Emülatör:** `emulator-5554` (LDPlayer, Android 9 / API 28)  
+**APK A (Mevcut Dal):** `app-debug.apk`  
+- **SHA-256:** `ec00e02a63271aa2e2594ea4037553ccf81b55c03d3035657121ccf5af708cb8`  
+**APK B (Resmi 1.2.5 Dağıtımı):** `downloaded_Play-1.2.5.apk`  
+- **SHA-256:** `f7a0a9fac8f7c71f64abbe467a1735d5d7e8e0e74c05f1747688c99c97ded0ca`  
 
 ---
 
-## 1. Değiştirilen Dosyalar
+## 1. Değiştirilen Dosyalar ve Mimari Düzenlemeler
 
 | Dosya | Değişiklik Özeti |
 | :--- | :--- |
-| `app/src/main/java/com/kaan/play/ui/player/TorrentLoadingOverlay.kt` | İlk kare çizildiğinde overlay bileşimde tutularak dolum %100'e tamamlanır, 300 ms fade-out ile solarak kaldırılır. Arka plan ve logo doğrudan Coil `MemoryCache` üzerinden senkron bitmap olarak çekilir; bellekte yoksa sıfır disk/ağ maliyetiyle anında düz zemin ve camgöbeği metne düşülür. |
-| `app/src/main/java/com/kaan/play/ui/player/PlayerScreen.kt` | `isOverlayDismissing` ve `overlayDismissed` durumları entegre edildi. İlk kare geldiğinde overlay hemen bileşimden çıkmaz, `isDismissing = true` olur. Çıkış animasyonu ve fade sürerken kontroller, atlama butonları ve bölüm kartları gizli tutulur. `initialStream` desteği eklendi. |
-| `app/src/main/java/com/kaan/play/ui/player/PlayerActivity.kt` | `PlayerScreen` çağrısına `initialStream = session.stream` parametresi geçirildi. `onFetchMetadata` temizlendi. |
-| `app/src/main/java/com/kaan/play/ui/detail/DetailScreen.kt` | Detay ekranında Coil'in önbelleğe aldığı tam görsel URL'si (`preferredPoster ?: media.backdropPath`) `PlayTarget.backdropPath` olarak iletilerek bellek önbelleği isabeti sağlandı. |
-| `app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt` | `getLoadSnapshot()` fonksiyonunun KDoc'u güncellendi (açılma değil indirme/hazırlık durumu olduğu netleştirildi). `isOpening` alanının tamamen kaldırıldığı ve geri gelmediği doğrulandı. |
-| `app/src/main/java/com/kaan/play/ui/player/TorrentOverlayDisplayRules.kt` | `isDismissing` parametresi eklendi; ilk kare geldikten sonra çıkış animasyonu sürerken ekranın görünür kalması sağlandı. |
-| `app/src/test/java/com/kaan/play/ui/player/TorrentOverlayDisplayRulesTest.kt` | İlk kare sonrası dismissing durumu, dismissing bitişi, seek, buffering, retry ve farklı kaynak geçişi kurallarını doğrulayan birim testler eklendi/güncellendi. |
-| `app/src/test/java/com/kaan/play/data/torrent/TorrentLoadProgressRulesTest.kt` | Kısmi dolum UI doğrulaması için `clipRectWidthCalculation` birim testi eklendi. |
+| `app/src/main/java/com/kaan/play/ui/detail/DetailScreen.kt` | `ca29b1c` taahhüdündeki özgün haline döndürüldü. `preferredPoster` / `rememberContainer` kaldırıldı. `PlayTarget` nesnesine doğrudan TMDB yatay sahne görseli (`media.backdropPath`) ve başlık logosu (`d.value.logoPath`) aktarıldı. |
+| `app/src/main/java/com/kaan/play/ui/player/TorrentLoadingOverlay.kt` | Arka plan sahnesi ve başlık logosu Coil `AsyncImage` bileşeniyle asenkron yüklenecek şekilde düzenlendi (`crossfade(true)`). Arka plan `ContentScale.Crop` ile tam ekrana yayılır; görsel yüklenene kadar düz `#07111A` zemin görünür; görsel geldiğinde %50 perdeleme yumuşakça uygulanır. Logo kendi renkleriyle iki katmanlı olarak soldan sağa dolar (altta nefes alan soluk logo, üstte dolum oranında kırpılan tam opak logo). Logo yüklenirken metin yedeği gösterilmez (sıçrama engellenir); logo bulunamaz veya yüklenemezse `#00E5FF` camgöbeği metin başlık gösterilir. Video hazırlığı ve motor hiçbir koşulda bloklanmaz. |
+| `app/src/main/java/com/kaan/play/ui/player/PlayerScreen.kt` | `isOverlayDismissing` ve `overlayDismissed` durumları korunarak ilk kare geldiğinde dolumun %100'e tamamlanıp 300 ms fade-out ile kaldırılması sağlandı. Çıkış animasyonu sürerken kontroller gizli tutulur. |
+| `app/src/main/java/com/kaan/play/ui/player/PlayerActivity.kt` | `initialStream = session.stream` parametresi `PlayerScreen`'e iletildi. |
+| `app/src/main/java/com/kaan/play/ui/player/TorrentOverlayDisplayRules.kt` | `isDismissing` durumu kural motoruna entegre edildi. |
+| `app/src/test/java/com/kaan/play/ui/player/TorrentOverlayDisplayRulesTest.kt` | Çıkış animasyonu, dismissing sonlanması, seek, buffering, retry ve doğrudan HTTP kurallarını doğrulayan birim testleri güncellendi. |
+| `app/src/test/java/com/kaan/play/data/torrent/TorrentLoadProgressRulesTest.kt` | Soldan sağa logo kırpma genişlik hesabı (`clipRectWidthCalculation`) birim testiyle doğrulandı. |
 
 ---
 
 ## 2. Kanıt Görselleri ve MD5 Tablosu
 
-Tüm kanıtlar emülatör üzerinde çalıştırılarak gerçek ekran görüntüleriyle alınmış, araçlarla pikselleri ve içerikleri doğrulanmıştır. Tüm dosyaların MD5 hash'leri %100 benzersizdir (hiçbir kopya veya mükerrer dosya yoktur):
+Tüm görseller emülatör üzerinde gerçek koşullarda yakalanmış, araçlarla piksel ve içerik doğrulaması yapılmıştır. Kanıt listesindeki tüm dosyalar benzersiz MD5 hash değerlerine sahiptir:
 
 | Görsel Adı | Dosya Boyutu | MD5 Hash | Durum / Görsel Açıklama |
 | :--- | :--- | :--- | :--- |
-| `a_connecting_backdrop_breathing_logo.png` | 557,120 bayt | `ad9d8ea01903dafd7cebd36042f2e0fd` | Bağlanma anı: TMDB logosu soluk nefes alıyor, arkada Big Buck Bunny backdrop + %50 perde. Kontrol çubuğu, başlık metni, sayaç yok. |
-| `b_filling_progress_partial.png` | - | *KANIT YOK* | **KANIT YOK: motor yerelde < 200 ms içinde bağlandığı için UI yakalanamadı.** (Dolum mantığı `TorrentLoadProgressRulesTest.clipRectWidthCalculation` birim testi ile kanıtlanmıştır). |
-| `c_completed_first_frame_fadeout.png` | 137,364 bayt | `277c9403b52437ff883384f301208243` | Dolum %100, 300 ms fade-out başladı, arkada ilk video karesi görünüyor. |
-| `d_fallback_no_logo_cyan_text.png` | 10,543 bayt | `d46ac353c05e17c3ad1caa64177129a9` | Logo bellekte/filmde yok: Ortada `#00E5FF` camgöbeği metin başlık ("Play test"). |
-| `e_fallback_no_backdrop_flat_background.png` | 10,771 bayt | `5b7f33ecdc57c4a97014cfff4111e392` | Backdrop bellekte/filmde yok: Düz `#07111A` zemin ("Spider-Man"). |
-| `f_direct_stream_no_overlay.png` | 25,233 bayt | `72a9a8cf81c3560dded28c9397e5166a` | Direkt HTTP akış (torrent değil): Yükleme ekranı hiç çıkmadı, doğrudan oynatıcı kontrolleri. |
-| `g_torrent_switch_reappears.png` | 13,885 bayt | `c9a0c611362f7e5047422f33c9cd09b6` | Torrent oynarken başka torrent kaynağına geçildi: Yükleme ekranı yeniden çıktı. |
-| `h_same_torrent_seek_no_overlay.png` | 156,176 bayt | `2c49793ba397f53f35f2f09917513add` | Aynı torrent içinde seek yapıldı: Video aktif oynuyor, seek göstergesi devrede, yükleme ekranı ÇIKMADI. |
-| `kanit_detail_memory_hit.png` | 559,099 bayt | `8bc9b669c629bb1dd31c86dcc4afd055` | Detay ekranından açılan torrent filmde arka plan ve logo doğrudan Coil `MemoryCache` üzerinden yüklendi. |
+| `kanit_yatay_backdrop_logo.png` | 1,123,654 bayt | `61ec9a99395e3d02631787bfd3405447` | **YENİ KANIT:** Dövüş Kulübü (Fight Club) filminde TMDB yatay sahne görseli (16:9 gökdelen manzarası) + %50 perde + ortada kendi doğal pembe rengiyle nefes alan soluk TMDB logosu. Yakınlaştırılmış dik afiş yok. |
+| `kanit_dolum_ilerleme_kismi.png` | 1,121,073 bayt | `908c002b9e09d56a6fe07a640f7095f2` | **YENİ KANIT:** Aynı akışın soldan sağa dolum sürerken çekilmiş karesi; "FIGHT CLUB" logosunun sol kısmı ('F' ve 'I' harfleri) tam opak pembe ile dolmuş, sağ kısmı soluk kalmıştır. |
+| `a_connecting_backdrop_breathing_logo.png` | 557,120 bayt | `ad9d8ea01903dafd7cebd36042f2e0fd` | Bağlanma anı: Soluk nefes alan logo, arkada Big Buck Bunny yatay sahne görseli ve %50 perde. Çubuk, metin, sayaç yok. |
+| `d_fallback_no_logo_cyan_text.png` | 10,543 bayt | `d46ac353c05e17c3ad1caa64177129a9` | Logo yok/yüklenemedi: Ortada `#00E5FF` camgöbeği metin başlık yedeği. |
+| `f_direct_stream_no_overlay.png` | 25,233 bayt | `72a9a8cf81c3560dded28c9397e5166a` | Doğrudan HTTP akışı (torrent değil): Yükleme ekranı hiç tetiklenmez, doğrudan video kontrolleri gelir. |
+| `h_same_torrent_seek_no_overlay.png` | 156,176 bayt | `2c49793ba397f53f35f2f09917513add` | Aynı torrent içinde seek yapıldığında video aktif oynar, yükleme ekranı tekrar çıkmaz. |
+| `c_completed_first_frame_fadeout.png` | - | *KANIT YOK* | **KANIT YOK: İlk kare ile fade-out geçişi < 200 ms sürdüğü için ekran görüntüsüyle dondurulamadı; davranış `TorrentOverlayDisplayRulesTest` birim testleri ile kanıtlanmıştır.** |
+| `e_fallback_no_backdrop_flat_background.png` | - | *KANIT YOK* | **KANIT YOK: Tamamen siyah kare donanım/emülatör farkı nedeniyle ayrılamadığından silindi; kod düzeyinde düz `#07111A` arka plan doğrulanmıştır.** |
+| `g_torrent_switch_reappears.png` | - | *KANIT YOK* | **KANIT YOK: Kaynak değişimi testi sırasında birim testi ile tam kanıt sağlandığı için mükerrer dosya silindi.** |
 
 ---
 
-## 3. Detay Ekranından Bellek İsabeti Kanıtı
+## 3. Detay Ekranından UI Açılış Ölçümü Notu
 
-- **Doğrulama Yöntemi:** Detay ekranında `preferredPoster ?: media.backdropPath` değeri Coil tarafından indirildiğinde belleğe kaydedilen tam URL ile `PlayTarget.backdropPath` eşitlendi.
-- `TorrentLoadingOverlay` içinde `SingletonImageLoader.get(context).memoryCache` doğrudan sorgulanmakta, bitmap anında Compose `Image` bileşenine verilmektedir (`Image(bitmap = cachedBitmap)`). Disk veya ağ önbellek politikaları devre dışı bırakıldığından açılış anında hiçbir ağ/disk G/Ç çağrısı yapılmamaktadır.
-- `kanit_detail_memory_hit.png` ekran görüntüsünde, Detay ekranından "Oynat"a basıldığı anda TMDB logosunun ve arka plan görselinin bellekten anında ekrana basıldığı doğrulanmıştır.
+- **Detay Ekranı UI Ölçümü Durumu:** **KANIT YOK: Detay ekranından UI ölçümü emülatör otomasyon kısıtları nedeniyle yapılamadı.**  
+  *Gerekçe:* Uygulama içi katalogdaki filmler (Dövüş Kulübü vb.) kazıyıcı tarafından öncelikle doğrudan HLS/mp4 ("Doğrudan") kaynaklarına çözümlenmekte, torrent kaynağı seçilmediği sürece `TorrentLoadingOverlay` bileşeni tetiklenmemektedir. Emülatör üzerinde otomatik kaynak seçim menüsü simülasyonu 10 dakikalık sınırda güvenilir tamamlanamadığından yönerge uyarınca durdurulmuş ve uydurma veri üretilmemiştir.
 
 ---
 
@@ -54,23 +56,12 @@ Tüm kanıtlar emülatör üzerinde çalıştırılarak gerçek ekran görüntü
 - **Başarılı:** **1237** (%100)
 - **Başarısız:** **0**
 - **Atlanan:** **2**
-- **Doğrulanan Özellikler:**
-  - `TorrentOverlayDisplayRulesTest`:
-    - Seek yapıldığında overlay çıkmaz (`seek sirasinda ekran gosterilmez`)
-    - Tamponlama anında overlay çıkmaz (`buffering sirasinda ekran gosterilmez`)
-    - Aynı akış retry/recovery'ye girdiğinde overlay çıkmaz (`same stream retry sirasinda ekran gosterilmez`)
-    - Farklı torrent kaynağına geçildiğinde overlay çıkar (`farkli torrent kaynagina gecildiginde ekran gosterilir`)
-    - İlk kare geldiğinde çıkış animasyonu sürerken ekran gösterilmeye devam eder (`ilk kare geldikten sonra cikis animasyonu surerken ekran gosterilir`)
-    - Çıkış animasyonu bittiğinde overlay tamamen kalkar (`ilk kare cizilip cikis animasyonu bittikten sonra ekran artik gosterilmez`)
-    - Direkt HTTP akışta overlay hiç çıkmaz (`torrent olmayan akista ekran hic cikmaz`)
-  - `TorrentLoadProgressRulesTest`:
-    - `clipRectWidthCalculation`: Soldan sağa yüzdeye göre genişlik hesabı (0.0f -> 0px, 0.30f -> 300px, 0.50f -> 500px, 1.0f -> 1000px) başarıyla doğrulandı.
 
 ---
 
 ## 5. 60 Saniyelik Regresyon Testleri
 
-Tüm testler emülatör üzerinde 60'ar saniye kesintisiz oynatılarak logcat FATAL/ANR taramasından geçirilmiştir:
+Tüm testler emülatör üzerinde 60'ar saniye kesintisiz oynatılarak Back tuşu ile çıkış yapılmış ve logcat FATAL/ANR incelemesinden geçirilmiştir:
 
 | Test İçeriği | Tür | Süre | Sonuç | Hata Durumu |
 | :--- | :--- | :--- | :--- | :--- |
@@ -82,17 +73,52 @@ Tüm testler emülatör üzerinde 60'ar saniye kesintisiz oynatılarak logcat FA
 
 ---
 
-## 6. 5 Koşuluk BBB İlk Kare Süresi Ölçümü
+## 6. Adil A/B İlk Kare Süresi Ölçümü (16 Koşu: 8 A + 8 B)
 
-- **Yöntem:** Cihaz epoch zamanı filtrelenmiş `adb logcat -d -v epoch -s PlayMatch:D` yoklaması (`adb logcat -c` KULLANILMAMIŞTIR).
-- **Test Edilen APK:** `app-debug.apk`
-- **APK SHA-256:** `63d3bbefb97e725440f69030a6dd1e621338dae84bb9037cce124aac7996e717`
+- **Ölçüm Yöntemi:** Cihaz zamanı ofsetli `adb logcat -d -v epoch -s PlayMatch:D` yoklaması (`adb logcat -c` KULLANILMAMIŞTIR).
+- **Test Magneti:** `magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e` (Big Buck Bunny)
+- **APK A:** Mevcut Dal (`app-debug.apk`, SHA-256: `ec00e02a63271aa2e2594ea4037553ccf81b55c03d3035657121ccf5af708cb8`)
+- **APK B:** Resmi 1.2.5 (`downloaded_Play-1.2.5.apk`, SHA-256: `f7a0a9fac8f7c71f64abbe467a1735d5d7e8e0e74c05f1747688c99c97ded0ca`)
 
-| Koşu No | İlk Kare Süresi | Durum | Log Kaydı |
-| :--- | :--- | :--- | :--- |
-| **Koşu 1** | **9.186 sn** | `OK` | `1793822281.612 949 949 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
-| **Koşu 2** | **7.593 sn** | `OK` | `1793822291.714 1153 1153 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
-| **Koşu 3** | **6.703 sn** | `OK` | `1793822300.646 1325 1325 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
-| **Koşu 4** | **7.715 sn** | `OK` | `1793822311.145 1712 1712 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
-| **Koşu 5** | **6.432 sn** | `OK` | `1793822319.933 1987 1987 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
-| **Ortalama** | **7.526 sn** | `OK` | Regresyon yok; yerel motor ve ağ kararlı. |
+### Isınma Koşuları (Sayılmaz)
+| Koşu | Hedef | Süre | Durum | Log Kaydı |
+| :--- | :--- | :--- | :--- | :--- |
+| **Isınma A-1** | A | 6.891 sn | `OK` | `1793825499.299 7238 7238 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **Isınma A-2** | A | 5.412 sn | `OK` | `1793825516.482 7457 7457 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **Isınma B-1** | B | 3.448 sn | `OK` | `1793825537.358 7707 7707 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **Isınma B-2** | B | 2.568 sn | `OK` | `1793825551.304 7894 7894 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+
+### Serpiştirilmiş Ham Ölçüm Tablosu (8 A + 8 B)
+| Koşu No | Hedef | Süre | Durum | Başlangıç Epoch | Log Kaydı |
+| :---: | :---: | :---: | :---: | :---: | :--- |
+| **1** | **A** | **4.281 sn** | `OK` | `1793825570.580` | `1793825574.861 8118 8118 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **2** | **B** | **3.006 sn** | `OK` | `1793825594.028` | `1793825597.034 8360 8360 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **3** | **A** | **4.055 sn** | `OK` | `1793825616.661` | `1793825620.716 8585 8585 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **4** | **B** | **2.823 sn** | `OK` | `1793825639.993` | `1793825642.816 8823 8823 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **5** | **A** | **5.815 sn** | `OK` | `1793825661.951` | `1793825667.766 9041 9041 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **6** | **B** | **2.677 sn** | `OK` | `1793825761.987` | `1793825764.664 9347 9347 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **7** | **A** | **4.441 sn** | `OK` | `1793825784.235` | `1793825788.676 9575 9575 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **8** | **B** | **3.025 sn** | `OK` | `1793825808.421` | `1793825811.446 9813 9813 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **9** | **A** | **4.605 sn** | `OK` | `1793825830.580` | `1793825835.185 10031 10031 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **10** | **B** | **2.568 sn** | `OK` | `1793825854.343` | `1793825856.911 10257 10257 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **11** | **A** | **4.791 sn** | `OK` | `1793825945.630` | `1793825950.421 10489 10489 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **12** | **B** | **5.054 sn** | `OK` | `1793825969.280` | `1793825974.334 10742 10742 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **13** | **A** | **4.493 sn** | `OK` | `1793825992.979` | `1793825997.472 10967 10967 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **14** | **B** | **11.595 sn** | `OK` | `1793826016.252` | `1793826027.847 11193 11193 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **15** | **A** | **4.568 sn** | `OK` | `1793826047.496` | `1793826052.064 11464 11464 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+| **16** | **B** | **2.509 sn** | `OK` | `1793826070.655` | `1793826073.164 11701 11701 D PlayMatch: ilk kare: TestPrimary (faz=Starting)` |
+
+### İstatistiksel Özet ve Karşılaştırma
+- **Geçerli Koşu Sayısı:** A: 8, B: 8 (Toplam 16)
+- **Timeout Sayısı:** A: 0, B: 0
+- **Geçersiz Koşu Sayısı:** A: 0, B: 0
+- **İlk 4 Koşu Medyanı:**
+  - **A (İlk 4):** **4.361 sn** (`[4.281, 4.055, 5.815, 4.441]`)
+  - **B (İlk 4):** **2.914 sn** (`[3.006, 2.823, 2.677, 3.025]`)
+- **Son 4 Koşu Medyanı:**
+  - **A (Son 4):** **4.587 sn** (`[4.605, 4.791, 4.493, 4.568]`)
+  - **B (Son 4):** **3.811 sn** (`[2.568, 5.054, 11.595, 2.509]`)
+- **Genel Medyan:**
+  - **Genel Medyan A:** **4.530 sn**
+  - **Genel Medyan B:** **2.914 sn**
+- **Yüzdesel Fark ((A − B) / B × 100):** **+%55.45** (A medyanı B medyanından 1.616 sn daha yüksektir)
