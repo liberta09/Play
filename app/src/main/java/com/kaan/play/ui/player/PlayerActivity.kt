@@ -325,10 +325,12 @@ class PlayerActivity : AppCompatActivity() {
                     onAutoNextCancel = ::cancelAutoNext,
                     onNextEpisode = if (isSeries) ::onNextEpisodeClicked else null,
                     coordinator = coordinator,
+                    initialStream = session.stream,
                     offlineStream = if (offline != null) session.stream else null,
                     embeddedDub = embeddedDub,
                     onAudioChosen = ::onAudioChosen,
                     skips = skips,
+                    getTorrentLoadSnapshot = container.torrentEngine::getLoadSnapshot,
                     onBack = ::finish,
                 )
             }

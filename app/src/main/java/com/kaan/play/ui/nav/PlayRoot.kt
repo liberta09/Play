@@ -449,15 +449,20 @@ fun PlayRoot() {
                 play(target, startAt, autoResumed = true)
                 return@launch
             }
-            val imdbId = try {
-
-                container.tmdb.detail(entry.type, entry.tmdbId).imdbId
+            val detail = try {
+                container.tmdb.detail(entry.type, entry.tmdbId)
             } catch (_: TmdbException) {
                 openDetail(entry.type, entry.tmdbId)
                 return@launch
             }
             // Kart/satır kayıtlı konumdan sormadan başlatır: oynatıcıda "Baştan başla" bildirimi çıkar.
-            val target = PlayTarget(StreamRequest(entry.tmdbId, imdbId, entry.type, season, episode), entry.title, entry.posterPath)
+            val target = PlayTarget(
+                request = StreamRequest(entry.tmdbId, detail.imdbId, entry.type, season, episode),
+                title = entry.title,
+                posterPath = entry.posterPath,
+                logoPath = detail.logoPath,
+                backdropPath = detail.summary.backdropPath,
+            )
             play(target, startAt, autoResumed = true)
         }
     }

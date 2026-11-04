@@ -104,6 +104,8 @@ import com.kaan.play.data.settings.ResizeMode
 import com.kaan.play.data.settings.SkipPlaybackSettings
 import com.kaan.play.data.settings.SubtitleStyle
 import com.kaan.play.data.stream.PlayTarget
+import com.kaan.play.data.stream.TorrentLinks
+import com.kaan.play.data.torrent.TorrentLoadProgressRules
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.SizeText
 import com.kaan.play.data.subtitle.SubtitleItem
@@ -119,8 +121,10 @@ import com.kaan.play.ui.settings.SubtitleStyleControls
 import com.kaan.play.ui.sources.SourcesSheet
 import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.requestWhenAttached
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 private const val HIDE_AFTER_MS = 4_000L
@@ -156,6 +160,8 @@ fun PlayerScreen(
     onNextEpisode: (() -> Unit)? = null,
     /** Kaynak seçimi (çevrimiçi); null: indirilmiş kopya. */
     coordinator: SourceCoordinator? = null,
+    /** Başlangıç akışı (session.stream) veya doğrudan açılan akış. */
+    initialStream: PlayableStream? = null,
     /** İndirilmiş kopyanın kaynak bilgisi (üst çubuk için). */
     offlineStream: PlayableStream? = null,
     /** Seçili ses parçası Türkçe (dosyanın içinde dublaj): "Dublajlı (gömülü ses)". */
@@ -164,6 +170,8 @@ fun PlayerScreen(
     onAudioChosen: (Int) -> Unit = {},
     /** İntro/özet/jenerik/önizleme atlama düğmeleri; null: yok. */
     skips: SkipController? = null,
+    /** Torrent yükleme ekranı için motor durumunu okuyan fonksiyon. */
+    getTorrentLoadSnapshot: () -> TorrentLoadProgressRules.TorrentLoadSnapshot = { TorrentLoadProgressRules.TorrentLoadSnapshot() },
     onBack: () -> Unit,
 ) {
     val container = rememberContainer()
@@ -173,6 +181,9 @@ fun PlayerScreen(
     val locale = remember { Locale.forLanguageTag(AppLanguage.effective().iso) }
 
     val ui = controller.ui
+    var torrentOverlayFallback by remember { mutableStateOf(false) }
+
+
     var controlsVisible by remember { mutableStateOf(true) }
     var interaction by remember { mutableIntStateOf(0) }
     var showPanel by remember { mutableStateOf(false) }
@@ -617,17 +628,61 @@ fun PlayerScreen(
         LevelIndicator(levelIndicator)
         SeekIndicator(seekIndicator)
 
+        val currentStream = coordinator?.current ?: initialStream ?: offlineStream
+        val isTorrent = currentStream != null && TorrentLinks.isMagnet(currentStream.url)
+        var lastRenderedStreamUrl by remember { mutableStateOf<String?>(null) }
+        var isOverlayDismissing by remember { mutableStateOf(false) }
+        var overlayDismissed by remember { mutableStateOf(false) }
+
+        val isNewStream = TorrentOverlayDisplayRules.isNewStream(currentStream?.url, lastRenderedStreamUrl)
+
+        // Yeni bir akış başladığında dismiss durumunu sıfırla
+        LaunchedEffect(currentStream?.url) {
+            if (isNewStream) {
+                isOverlayDismissing = false
+                overlayDismissed = false
+            }
+        }
+
+        // İlk kare geldiğinde çıkış animasyonu fazına geç
+        LaunchedEffect(ui.firstFrameRendered) {
+            if (ui.firstFrameRendered && !overlayDismissed) {
+                isOverlayDismissing = true
+            }
+        }
+
+        val shouldShowByRules = TorrentOverlayDisplayRules.evaluate(
+            isTorrent = isTorrent,
+            isNewStream = isNewStream && !overlayDismissed,
+            firstFrameRendered = ui.firstFrameRendered,
+            isDismissing = isOverlayDismissing,
+            isSeeking = controller.stallTracker.isSeeking,
+        )
+        val showTorrentOverlay = shouldShowByRules && !torrentOverlayFallback && ui.error == null && !sourcesFailed
+
         if (resolving && ui.error == null) {
             Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 CircularProgressIndicator(Modifier.size(40.dp), color = Color.White)
                 Text(stringResource(R.string.player_sources_loading), style = MaterialTheme.typography.bodyLarge, color = Color.White)
             }
+        } else if (showTorrentOverlay) {
+            TorrentLoadingOverlay(
+                target = target,
+                firstFrameRendered = ui.firstFrameRendered,
+                getSnapshot = getTorrentLoadSnapshot,
+                onFallback = { torrentOverlayFallback = true },
+                onDismissed = {
+                    isOverlayDismissing = false
+                    overlayDismissed = true
+                    lastRenderedStreamUrl = currentStream?.url
+                },
+            )
         } else if ((ui.buffering || coordinator?.switching == true) && ui.error == null && !sourcesFailed) {
             // Kaynak değişirken (kaldığı saniyeden devam) ve tamponlarken dönen yükleme göstergesi.
             CircularProgressIndicator(Modifier.align(Alignment.Center).size(40.dp), color = Color.White)
         }
 
-        if (showControls) {
+        if (showControls && !showTorrentOverlay) {
             val isLive = target.request.addonType in listOf("tv", "channel")
             val playing = coordinator?.current ?: offlineStream
             val sizeText = if (isLive) null else playing?.let { SizeText.format(coordinator?.sizeOf(it) ?: it.sizeBytes, locale) }
@@ -679,7 +734,7 @@ fun PlayerScreen(
             )
         }
 
-        if (resumeNotice && ui.error == null && !locked) {
+        if (resumeNotice && ui.error == null && !locked && !showTorrentOverlay) {
             ResumeNotice(
                 onRestart = { skips?.restartFromBeginning(); controller.seekTo(0L); position = 0L; resumeNotice = false; bump() },
                 focus = noticeFocus,
@@ -690,7 +745,7 @@ fun PlayerScreen(
             )
         }
 
-        if (autoNext != null && cardActive && ui.error == null && !locked) {
+        if (autoNext != null && cardActive && ui.error == null && !locked && !showTorrentOverlay) {
             NextEpisodeCard(
                 state = autoNext,
                 primaryFocus = cardFocus,
@@ -702,7 +757,7 @@ fun PlayerScreen(
         }
 
         AnimatedVisibility(
-            visible = skipVisible,
+            visible = skipVisible && !showTorrentOverlay,
             enter = fadeIn(),
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(end = 24.dp, bottom = 156.dp)

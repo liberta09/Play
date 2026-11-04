@@ -60,6 +60,7 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
     private val lock = Any()
     private var session: SessionManager? = null
     @Volatile private var active: Opened? = null
+    @Volatile private var openingHandle: TorrentHandle? = null
     private val users = AtomicInteger()
     private val background = Executors.newSingleThreadExecutor { r -> Thread(r, "torrent-engine").apply { isDaemon = true } }
     @Volatile private var firstFrameArrived: Boolean = false
@@ -103,95 +104,156 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
     fun open(magnet: String, fileHint: Int?): Opened {
         val hash = TorrentLinks.hexHashOf(magnet) ?: throw TorrentException(TorrentException.Reason.BadLink, "bad magnet")
         TorrentDiag.d("motor open: hash=$hash fileHint=$fileHint")
-        synchronized(lock) {
-            idleTask?.cancel(false)
-            idleTask = null
-            active?.let { if (it.hash == hash && it.fileHint == fileHint && it.handle.isValid) { TorrentDiag.d("motor open: hash=$hash (REUSING EXISTING ACTIVE TORRENT)"); return it } }
-            val s = ensureSession()
-            active?.let { prev ->
-                if (prev.hash != hash) {
-                    removeLocked(s, prev)
-                } else {
-                    active = null
+        try {
+            synchronized(lock) {
+                idleTask?.cancel(false)
+                idleTask = null
+                active?.let { if (it.hash == hash && it.fileHint == fileHint && it.handle.isValid) { TorrentDiag.d("motor open: hash=$hash (REUSING EXISTING ACTIVE TORRENT)"); return it } }
+                val s = ensureSession()
+                active?.let { prev ->
+                    if (prev.hash != hash) {
+                        removeLocked(s, prev)
+                    } else {
+                        active = null
+                    }
                 }
-            }
-
-            finishedBlocks.clear()
-            verifiedPieces.clear()
-            servedBlockCrcs.clear()
-            blockModeEnabled = BLOCK_MODE_ENABLED
-            totalBytesServed.set(0L)
-            firstPeerLogged = false
-            piece0Block0Logged = false
-            firstFrameArrived = false
-
-            val sha1 = Sha1Hash.parseHex(hash)
-            var handle = s.find(sha1)
-            if (handle == null || !handle.isValid) {
-                // DEFAULT_DONT_DOWNLOAD KULLANILMAZ (2026-10-31 ölçümü): üst bilgi gelince tüm dosyalar "indirme" olur, torrent anında
-                // "bitti" sayılır ve libtorrent tohum eşleri "gereksiz bağlantı" diye koparır; yeniden bağlanma uzun sürdüğü için soğuk
-                // açılışlarda 40 sn boyunca eş=0 kalıp ilk kare gelmiyordu (5 denemenin 4'ü). Şimdi dosyalar varsayılan önceliktedir;
-                // oynatılmayanlar üst bilgi gelir gelmez aşağıda IGNORE yapılır (en çok ~0,1 sn'lik boşluk, veri sonunda silinir).
-                val fullMagnet = TorrentLinks.appendTrackers(magnet, PUBLIC_TRACKERS)
-                s.download(fullMagnet, dir, TorrentFlags.SEQUENTIAL_DOWNLOAD)
-                handle = waitFor(METADATA_TIMEOUT_MS) { s.find(sha1)?.takeIf { it.isValid } }
-                    ?: throw TorrentException(TorrentException.Reason.Engine, "torrent not added")
-                PUBLIC_TRACKERS.forEach { runCatching { handle.addTracker(AnnounceEntry(it)) } }
-            }
-            val h = handle
-            waitFor(METADATA_TIMEOUT_MS) { h.takeIf { it.isValid && it.status().hasMetadata() } }
-                ?: run {
+    
+                finishedBlocks.clear()
+                verifiedPieces.clear()
+                servedBlockCrcs.clear()
+                blockModeEnabled = BLOCK_MODE_ENABLED
+                totalBytesServed.set(0L)
+                firstPeerLogged = false
+                piece0Block0Logged = false
+                firstFrameArrived = false
+    
+                val sha1 = Sha1Hash.parseHex(hash)
+                var handle = s.find(sha1)
+                if (handle == null || !handle.isValid) {
+                    // DEFAULT_DONT_DOWNLOAD KULLANILMAZ (2026-10-31 ölçümü): üst bilgi gelince tüm dosyalar "indirme" olur, torrent anında
+                    // "bitti" sayılır ve libtorrent tohum eşleri "gereksiz bağlantı" diye koparır; yeniden bağlanma uzun sürdüğü için soğuk
+                    // açılışlarda 40 sn boyunca eş=0 kalıp ilk kare gelmiyordu (5 denemenin 4'ü). Şimdi dosyalar varsayılan önceliktedir;
+                    // oynatılmayanlar üst bilgi gelir gelmez aşağıda IGNORE yapılır (en çok ~0,1 sn'lik boşluk, veri sonunda silinir).
+                    val fullMagnet = TorrentLinks.appendTrackers(magnet, PUBLIC_TRACKERS)
+                    s.download(fullMagnet, dir, TorrentFlags.SEQUENTIAL_DOWNLOAD)
+                    handle = waitFor(METADATA_TIMEOUT_MS) { s.find(sha1)?.takeIf { it.isValid } }
+                        ?: throw TorrentException(TorrentException.Reason.Engine, "torrent not added")
+                    PUBLIC_TRACKERS.forEach { runCatching { handle.addTracker(AnnounceEntry(it)) } }
+                }
+                openingHandle = handle
+                val h = handle
+                waitFor(METADATA_TIMEOUT_MS) { h.takeIf { it.isValid && it.status().hasMetadata() } }
+                    ?: run {
+                        s.remove(h, SessionHandle.DELETE_FILES)
+                        throw TorrentException(TorrentException.Reason.NoMetadata, "no metadata")
+                    }
+    
+                val info = h.torrentFile()
+                val files = info.files()
+                val entries = (0 until files.numFiles()).map {
+                    TorrentRules.FileEntry(files.fileName(it), files.fileSize(it), files.padFileAt(it))
+                }
+                val index = TorrentRules.pickFile(entries, fileHint) ?: run {
                     s.remove(h, SessionHandle.DELETE_FILES)
-                    throw TorrentException(TorrentException.Reason.NoMetadata, "no metadata")
+                    throw TorrentException(TorrentException.Reason.NoFile, "no playable file")
                 }
-
-            val info = h.torrentFile()
-            val files = info.files()
-            val entries = (0 until files.numFiles()).map {
-                TorrentRules.FileEntry(files.fileName(it), files.fileSize(it), files.padFileAt(it))
-            }
-            val index = TorrentRules.pickFile(entries, fileHint) ?: run {
-                s.remove(h, SessionHandle.DELETE_FILES)
-                throw TorrentException(TorrentException.Reason.NoFile, "no playable file")
-            }
-            val size = files.fileSize(index)
-            if (dir.usableSpace in 1 until size + SPACE_MARGIN) {
-                s.remove(h, SessionHandle.DELETE_FILES)
-                throw TorrentException(TorrentException.Reason.NoSpace, "not enough space")
-            }
-
-            h.prioritizeFiles(Array(files.numFiles()) { if (it == index) Priority.DEFAULT else Priority.IGNORE })
-            val offset = files.fileOffset(index)
-            val pieceLength = info.pieceLength()
-            val first = TorrentRules.pieceAt(offset, 0, pieceLength)
-            val last = TorrentRules.pieceAt(offset, size - 1, pieceLength)
-
-            if (STARTUP_FOCUS_ENABLED) {
-                h.unsetFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
-                for (p in first..last) {
-                    h.piecePriority(p, Priority.LOW)
+                val size = files.fileSize(index)
+                if (dir.usableSpace in 1 until size + SPACE_MARGIN) {
+                    s.remove(h, SessionHandle.DELETE_FILES)
+                    throw TorrentException(TorrentException.Reason.NoSpace, "not enough space")
                 }
-                val startupDeadlines = TorrentBlockRangeRules.startupFocusPieces(first, last) { h.havePiece(it) }
-                for (d in startupDeadlines) {
-                    h.piecePriority(d.pieceIndex, Priority.TOP_PRIORITY)
-                    h.setPieceDeadline(d.pieceIndex, d.deadlineMs)
+    
+                h.prioritizeFiles(Array(files.numFiles()) { if (it == index) Priority.DEFAULT else Priority.IGNORE })
+                val offset = files.fileOffset(index)
+                val pieceLength = info.pieceLength()
+                val first = TorrentRules.pieceAt(offset, 0, pieceLength)
+                val last = TorrentRules.pieceAt(offset, size - 1, pieceLength)
+    
+                if (STARTUP_FOCUS_ENABLED) {
+                    h.unsetFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
+                    for (p in first..last) {
+                        h.piecePriority(p, Priority.LOW)
+                    }
+                    val startupDeadlines = TorrentBlockRangeRules.startupFocusPieces(first, last) { h.havePiece(it) }
+                    for (d in startupDeadlines) {
+                        h.piecePriority(d.pieceIndex, Priority.TOP_PRIORITY)
+                        h.setPieceDeadline(d.pieceIndex, d.deadlineMs)
+                    }
+                } else {
+                    h.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
+                    listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEach { h.piecePriority(it, Priority.TOP_PRIORITY) }
+                    listOf(first, first + 1).filter { it in first..last }.forEachIndexed { idx, p ->
+                        if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 250)
+                    }
+                    listOf(last - 1, last).filter { it in first..last }.forEachIndexed { idx, p ->
+                        if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 500)
+                    }
                 }
+    
+                TorrentDiag.d("MILESTONE: metadata_ready pieces=${info.numPieces()} size=$size pieceLength=$pieceLength")
+                TorrentDiag.d("torrent açıldı: hash=$hash dosya[$index]=${files.fileName(index)} boyut=$size parça=$pieceLength (dosya sayısı ${files.numFiles()}, ipucu=$fileHint, blokModu=$blockModeEnabled)")
+                startOpeningStatsTracker(h)
+                return Opened(hash, fileHint, h, files.fileName(index), size, offset, pieceLength, File(h.savePath(), files.filePath(index)))
+                    .also { active = it }
+            }
+        } finally {
+            openingHandle = null
+        }
+    }
+
+    /**
+     * Torrent yükleme ekranı için anlık durum görüntüsü (kilitsiz, ana iş parçacığını engellemez).
+     */
+    fun getLoadSnapshot(): TorrentLoadProgressRules.TorrentLoadSnapshot {
+        return runCatching {
+            val currentActive = active
+            if (currentActive != null && currentActive.handle.isValid) {
+                val st = currentActive.handle.status()
+                val buffered = maxOf(st.totalWantedDone(), totalBytesServed.get())
+                TorrentLoadProgressRules.TorrentLoadSnapshot(
+                    hasMetadata = true,
+                    metadataFraction = 1f,
+                    bufferedBytes = buffered,
+                    requiredBytes = TorrentLoadProgressRules.DEFAULT_REQUIRED_BYTES,
+                )
             } else {
-                h.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
-                listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEach { h.piecePriority(it, Priority.TOP_PRIORITY) }
-                listOf(first, first + 1).filter { it in first..last }.forEachIndexed { idx, p ->
-                    if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 250)
-                }
-                listOf(last - 1, last).filter { it in first..last }.forEachIndexed { idx, p ->
-                    if (!h.havePiece(p)) h.setPieceDeadline(p, (idx + 1) * 500)
+                val h = openingHandle
+                if (h != null && h.isValid) {
+                    val st = h.status()
+                    val meta = st.hasMetadata()
+                    if (meta) {
+                        val buffered = maxOf(st.totalWantedDone(), totalBytesServed.get())
+                        TorrentLoadProgressRules.TorrentLoadSnapshot(
+                            hasMetadata = true,
+                            metadataFraction = 1f,
+                            bufferedBytes = buffered,
+                            requiredBytes = TorrentLoadProgressRules.DEFAULT_REQUIRED_BYTES,
+                        )
+                    } else {
+                        val frac = st.progress().coerceIn(0f, 1f)
+                        TorrentLoadProgressRules.TorrentLoadSnapshot(
+                            hasMetadata = false,
+                            metadataFraction = frac,
+                            bufferedBytes = 0L,
+                            requiredBytes = TorrentLoadProgressRules.DEFAULT_REQUIRED_BYTES,
+                        )
+                    }
+                } else {
+                    TorrentLoadProgressRules.TorrentLoadSnapshot(
+                        hasMetadata = false,
+                        metadataFraction = 0f,
+                        bufferedBytes = 0L,
+                        requiredBytes = TorrentLoadProgressRules.DEFAULT_REQUIRED_BYTES,
+                    )
                 }
             }
-
-            TorrentDiag.d("MILESTONE: metadata_ready pieces=${info.numPieces()} size=$size pieceLength=$pieceLength")
-            TorrentDiag.d("torrent açıldı: hash=$hash dosya[$index]=${files.fileName(index)} boyut=$size parça=$pieceLength (dosya sayısı ${files.numFiles()}, ipucu=$fileHint, blokModu=$blockModeEnabled)")
-            startOpeningStatsTracker(h)
-            return Opened(hash, fileHint, h, files.fileName(index), size, offset, pieceLength, File(h.savePath(), files.filePath(index)))
-                .also { active = it }
+        }.getOrElse {
+            TorrentLoadProgressRules.TorrentLoadSnapshot(
+                hasMetadata = false,
+                metadataFraction = 0f,
+                bufferedBytes = 0L,
+                requiredBytes = TorrentLoadProgressRules.DEFAULT_REQUIRED_BYTES,
+            )
         }
     }
 
