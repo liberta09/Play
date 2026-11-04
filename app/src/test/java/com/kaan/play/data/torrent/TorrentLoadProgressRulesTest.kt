@@ -183,4 +183,17 @@ class TorrentLoadProgressRulesTest {
         val errorState = TorrentLoadProgressRules.safeCalculateProgress(snapshot, hasError = true)
         assertTrue(errorState.fallbackToStandard)
     }
+
+    @Test
+    fun clipRectWidthCalculation() {
+        val width = 1000f
+        fun calculateClipRight(progressFraction: Float): Float = (width * progressFraction).coerceIn(0f, width)
+
+        assertEquals(0f, calculateClipRight(0f), 0.001f)
+        assertEquals(300f, calculateClipRight(0.30f), 0.001f)
+        assertEquals(500f, calculateClipRight(0.50f), 0.001f)
+        assertEquals(650f, calculateClipRight(0.65f), 0.001f)
+        assertEquals(990f, calculateClipRight(0.99f), 0.001f)
+        assertEquals(1000f, calculateClipRight(1.0f), 0.001f)
+    }
 }

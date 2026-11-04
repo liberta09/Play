@@ -11,6 +11,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -37,9 +39,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import coil3.request.CachePolicy
-import coil3.request.ImageRequest
+import coil3.SingletonImageLoader
+import coil3.memory.MemoryCache
+import coil3.toBitmap
 import com.kaan.play.data.stream.PlayTarget
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.data.torrent.TorrentLoadProgressRules
@@ -56,13 +58,12 @@ private val AccentCyan = Color(0xFF00E5FF)
  *
  * Kurallar (bağlayıcı):
  * 1. Görseller (backdrop ve logo) YALNIZCA Coil BELLEK önbelleğinden (MemoryCache) gelir.
- *    diskCachePolicy = DISABLED, networkCachePolicy = DISABLED, memoryCachePolicy = ENABLED.
- * 2. Bellekte yoksa: görsel yok sayılır, düz #07111A zemin ve metin başlık (#00E5FF) gösterilir.
- * 3. Açılış anında hiçbir disk okuma, internet isteği ya da görsel çözme yapılmaz.
- * 4. Tasarım: Logo iki katman (alt katman nefes alan/0.28, üst katman soldan sağa kırpılmış).
+ *    Bellekte yoksa: görsel yok sayılır, düz #07111A zemin ve metin başlık (#00E5FF) gösterilir.
+ * 2. Açılış anında hiçbir disk okuma, internet isteği ya da görsel çözme yapılmaz.
+ * 3. Tasarım: Logo iki katman (alt katman nefes alan/0.28, üst katman soldan sağa kırpılmış).
  *    Logo yoksa film adı büyük kalın yazı, aynı iki katman ama #00E5FF camgöbeği renginde.
- * 5. Durum yazısı, hız, eş, bayt, buton vb. başka HİÇBİR ŞEY yer almaz.
- * 6. İlk kare gelince dolum %100'e tamamlanır ve ekran ~300 ms içinde şeffaflaşarak kaybolur (fade-out).
+ * 4. Durum yazısı, hız, eş, bayt, buton vb. başka HİÇBİR ŞEY yer almaz.
+ * 5. İlk kare gelince dolum %100'e tamamlanır ve ekran ~300 ms içinde şeffaflaşarak kaybolur (fade-out).
  */
 @Composable
 fun TorrentLoadingOverlay(
@@ -70,9 +71,8 @@ fun TorrentLoadingOverlay(
     firstFrameRendered: Boolean,
     getSnapshot: () -> TorrentLoadProgressRules.TorrentLoadSnapshot,
     onFallback: () -> Unit,
+    onDismissed: () -> Unit = {},
     modifier: Modifier = Modifier,
-    overrideLogoPath: String? = null,
-    overrideBackdropPath: String? = null,
 ) {
     val context = LocalContext.current
     var rawProgress by remember { mutableFloatStateOf(0f) }
@@ -85,6 +85,8 @@ fun TorrentLoadingOverlay(
             rawProgress = 1.0f
             delay(120L)
             overlayVisible = false
+            delay(300L)
+            onDismissed()
             return@LaunchedEffect
         }
         withContext(Dispatchers.IO) {
@@ -138,33 +140,26 @@ fun TorrentLoadingOverlay(
     // İlerleme başladığında nefes alma durur, sabit 0.28f soluk katmana geçer
     val bottomLayerAlpha = if (hasMetadataArrived || animatedProgress > 0.01f) 0.28f else breathingAlpha
 
-    val activeBackdrop = overrideBackdropPath ?: target.backdropPath
-    val activeLogo = overrideLogoPath ?: target.logoPath
-    val backdropUrl = remember(activeBackdrop) { TmdbImages.url(activeBackdrop, TmdbImages.Size.BackdropLarge) }
-    val logoUrl = remember(activeLogo) { TmdbImages.url(activeLogo, TmdbImages.Size.Logo) }
+    val backdropUrl = remember(target.backdropPath) { TmdbImages.url(target.backdropPath, TmdbImages.Size.BackdropLarge) }
+    val logoUrl = remember(target.logoPath) { TmdbImages.url(target.logoPath, TmdbImages.Size.Logo) }
 
-    // SADECE BELLEK ÖNBELLEĞİ: diskCachePolicy = DISABLED, networkCachePolicy = DISABLED
-    var backdropFailed by remember(backdropUrl) { mutableStateOf(false) }
-    val backdropRequest = remember(backdropUrl, context) {
+    // SADECE BELLEK ÖNBELLEĞİ: MemoryCache doğrudan sorgulanır
+    val imageLoader = remember(context) { SingletonImageLoader.get(context) }
+    val cachedBackdropBitmap = remember(backdropUrl) {
         backdropUrl?.let { url ->
-            ImageRequest.Builder(context)
-                .data(url)
-                .diskCachePolicy(CachePolicy.DISABLED)
-                .networkCachePolicy(CachePolicy.DISABLED)
-                .memoryCachePolicy(CachePolicy.ENABLED)
-                .build()
+            val cache = imageLoader.memoryCache
+            val value = cache?.get(MemoryCache.Key(url))
+                ?: cache?.keys?.firstOrNull { it.key == url }?.let { cache.get(it) }
+            runCatching { value?.image?.toBitmap()?.asImageBitmap() }.getOrNull()
         }
     }
 
-    var logoFailed by remember(logoUrl) { mutableStateOf(false) }
-    val logoRequest = remember(logoUrl, context) {
+    val cachedLogoBitmap = remember(logoUrl) {
         logoUrl?.let { url ->
-            ImageRequest.Builder(context)
-                .data(url)
-                .diskCachePolicy(CachePolicy.DISABLED)
-                .networkCachePolicy(CachePolicy.DISABLED)
-                .memoryCachePolicy(CachePolicy.ENABLED)
-                .build()
+            val cache = imageLoader.memoryCache
+            val value = cache?.get(MemoryCache.Key(url))
+                ?: cache?.keys?.firstOrNull { it.key == url }?.let { cache.get(it) }
+            runCatching { value?.image?.toBitmap()?.asImageBitmap() }.getOrNull()
         }
     }
 
@@ -181,25 +176,22 @@ fun TorrentLoadingOverlay(
             contentAlignment = Alignment.Center,
         ) {
             // 1. En altta filmin arka plan görseli (YALNIZCA BELLEKTE VARSA) + %50 opak perde
-            if (backdropRequest != null && !backdropFailed) {
-                AsyncImage(
-                    model = backdropRequest,
+            if (cachedBackdropBitmap != null) {
+                Image(
+                    bitmap = cachedBackdropBitmap,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
-                    onError = { backdropFailed = true },
                 )
-                if (!backdropFailed) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(BackgroundColor.copy(alpha = 0.5f)),
-                    )
-                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(BackgroundColor.copy(alpha = 0.5f)),
+                )
             }
 
             // 2. Ortada logo (YALNIZCA BELLEKTE VARSA) veya yoksa/bellekte değilse camgöbeği metin başlık
-            if (logoRequest != null && !logoFailed) {
+            if (cachedLogoBitmap != null) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.38f)
@@ -207,21 +199,18 @@ fun TorrentLoadingOverlay(
                     contentAlignment = Alignment.Center,
                 ) {
                     // Alt katman: kendi renkleriyle soluk (0.28f veya nefes alan)
-                    AsyncImage(
-                        model = logoRequest,
+                    Image(
+                        bitmap = cachedLogoBitmap,
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .fillMaxSize()
                             .graphicsLayer { alpha = bottomLayerAlpha },
-                        onError = {
-                            logoFailed = true
-                        },
                     )
 
                     // Üst katman: kendi renkleriyle tam opak, soldan sağa ilerleme yüzdesi kadar kırpılmış (clip)
-                    AsyncImage(
-                        model = logoRequest,
+                    Image(
+                        bitmap = cachedLogoBitmap,
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
                         modifier = Modifier

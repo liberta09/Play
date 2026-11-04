@@ -202,12 +202,6 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
     }
 
     /**
-     * Yeni bir okuma (HTTP isteği) [position]'dan başlıyor:
-     * ADIM 2 (PARALEL öncelik): Başlık ve kuyruk önceliklerini silmeden, yeni konumun parçalarını öne alır.
-     */
-    /** İlk video karesi ekrana gelince çağrılır: sequential_download açılır ve normal pencere önceliği başlar. */
-
-    /**
      * Torrent yükleme ekranı için anlık durum görüntüsü (kilitsiz, ana iş parçacığını engellemez).
      */
     fun getLoadSnapshot(): TorrentLoadProgressRules.TorrentLoadSnapshot {
@@ -263,6 +257,11 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
         }
     }
 
+    /**
+     * Yeni bir okuma (HTTP isteği) [position]'dan başlıyor:
+     * ADIM 2 (PARALEL öncelik): Başlık ve kuyruk önceliklerini silmeden, yeni konumun parçalarını öne alır.
+     */
+    /** İlk video karesi ekrana gelince çağrılır: sequential_download açılır ve normal pencere önceliği başlar. */
     fun onFirstFrame() {
         TorrentDiag.d("motor: ilk kare bildirildi")
         firstFrameArrived = true

@@ -99,12 +99,32 @@ class TorrentOverlayDisplayRulesTest {
     }
 
     @Test
-    fun `ilk kare cizildikten sonra ekran cikmaz`() {
+    fun `ilk kare geldikten sonra cikis animasyonu surerken ekran gosterilir`() {
+        val show = TorrentOverlayDisplayRules.shouldShow(
+            isTorrent = true,
+            action = TorrentOverlayDisplayRules.PlaybackAction.InitialOpen,
+            firstFrameRendered = true,
+            isDismissing = true,
+        )
+        assertTrue("Çıkış animasyonu sürerken ekran görünür kalmalı", show)
+
+        val eval = TorrentOverlayDisplayRules.evaluate(
+            isTorrent = true,
+            isNewStream = true,
+            firstFrameRendered = true,
+            isDismissing = true,
+        )
+        assertTrue("Çıkış animasyonu sürerken evaluate true dönmeli", eval)
+    }
+
+    @Test
+    fun `ilk kare cizilip cikis animasyonu bittikten sonra ekran artik gosterilmez`() {
         assertFalse(
             TorrentOverlayDisplayRules.shouldShow(
                 isTorrent = true,
                 action = TorrentOverlayDisplayRules.PlaybackAction.InitialOpen,
                 firstFrameRendered = true,
+                isDismissing = false,
             )
         )
         assertFalse(
@@ -112,6 +132,7 @@ class TorrentOverlayDisplayRulesTest {
                 isTorrent = true,
                 isNewStream = true,
                 firstFrameRendered = true,
+                isDismissing = false,
             )
         )
     }
@@ -119,8 +140,8 @@ class TorrentOverlayDisplayRulesTest {
     @Test
     fun `isNewStream edge cases`() {
         assertFalse("currentStreamUrl null ise false dönmeli", TorrentOverlayDisplayRules.isNewStream(null, "some_url"))
-        assertTrue("lastRenderedStreamUrl null ise (ilk açılış) true dönmeli", TorrentOverlayDisplayRules.isNewStream("url1", null))
-        assertFalse("Aynı URL'ler false dönmeli", TorrentOverlayDisplayRules.isNewStream("url1", "url1"))
-        assertTrue("Farklı URL'ler true dönmeli", TorrentOverlayDisplayRules.isNewStream("url2", "url1"))
+        assertTrue("lastRenderedStreamUrl null ise ilk acilis true donmeli", TorrentOverlayDisplayRules.isNewStream("url1", null))
+        assertFalse("Aynı URLler false dönmeli", TorrentOverlayDisplayRules.isNewStream("url1", "url1"))
+        assertTrue("Farklı URLler true dönmeli", TorrentOverlayDisplayRules.isNewStream("url2", "url1"))
     }
 }

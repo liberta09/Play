@@ -160,6 +160,8 @@ fun PlayerScreen(
     onNextEpisode: (() -> Unit)? = null,
     /** Kaynak seçimi (çevrimiçi); null: indirilmiş kopya. */
     coordinator: SourceCoordinator? = null,
+    /** Başlangıç akışı (session.stream) veya doğrudan açılan akış. */
+    initialStream: PlayableStream? = null,
     /** İndirilmiş kopyanın kaynak bilgisi (üst çubuk için). */
     offlineStream: PlayableStream? = null,
     /** Seçili ses parçası Türkçe (dosyanın içinde dublaj): "Dublajlı (gömülü ses)". */
@@ -170,8 +172,6 @@ fun PlayerScreen(
     skips: SkipController? = null,
     /** Torrent yükleme ekranı için motor durumunu okuyan fonksiyon. */
     getTorrentLoadSnapshot: () -> TorrentLoadProgressRules.TorrentLoadSnapshot = { TorrentLoadProgressRules.TorrentLoadSnapshot() },
-    /** Eksikse logo/backdrop bilgisini arka planda TMDB'den getiren fonksiyon. */
-    onFetchMetadata: (suspend () -> Pair<String?, String?>?)? = null,
     onBack: () -> Unit,
 ) {
     val container = rememberContainer()
@@ -182,8 +182,6 @@ fun PlayerScreen(
 
     val ui = controller.ui
     var torrentOverlayFallback by remember { mutableStateOf(false) }
-    var activeLogoPath by remember(target) { mutableStateOf(target.logoPath) }
-    var activeBackdropPath by remember(target) { mutableStateOf(target.backdropPath) }
 
 
     var controlsVisible by remember { mutableStateOf(true) }
@@ -630,19 +628,34 @@ fun PlayerScreen(
         LevelIndicator(levelIndicator)
         SeekIndicator(seekIndicator)
 
-        val currentStream = coordinator?.current ?: offlineStream
+        val currentStream = coordinator?.current ?: initialStream ?: offlineStream
         val isTorrent = currentStream != null && TorrentLinks.isMagnet(currentStream.url)
         var lastRenderedStreamUrl by remember { mutableStateOf<String?>(null) }
-        LaunchedEffect(ui.firstFrameRendered, currentStream?.url) {
-            if (ui.firstFrameRendered && currentStream?.url != null) {
-                lastRenderedStreamUrl = currentStream.url
+        var isOverlayDismissing by remember { mutableStateOf(false) }
+        var overlayDismissed by remember { mutableStateOf(false) }
+
+        val isNewStream = TorrentOverlayDisplayRules.isNewStream(currentStream?.url, lastRenderedStreamUrl)
+
+        // Yeni bir akış başladığında dismiss durumunu sıfırla
+        LaunchedEffect(currentStream?.url) {
+            if (isNewStream) {
+                isOverlayDismissing = false
+                overlayDismissed = false
             }
         }
-        val isNewStream = TorrentOverlayDisplayRules.isNewStream(currentStream?.url, lastRenderedStreamUrl)
+
+        // İlk kare geldiğinde çıkış animasyonu fazına geç
+        LaunchedEffect(ui.firstFrameRendered) {
+            if (ui.firstFrameRendered && !overlayDismissed) {
+                isOverlayDismissing = true
+            }
+        }
+
         val shouldShowByRules = TorrentOverlayDisplayRules.evaluate(
             isTorrent = isTorrent,
-            isNewStream = isNewStream,
+            isNewStream = isNewStream && !overlayDismissed,
             firstFrameRendered = ui.firstFrameRendered,
+            isDismissing = isOverlayDismissing,
             isSeeking = controller.stallTracker.isSeeking,
         )
         val showTorrentOverlay = shouldShowByRules && !torrentOverlayFallback && ui.error == null && !sourcesFailed
@@ -658,8 +671,11 @@ fun PlayerScreen(
                 firstFrameRendered = ui.firstFrameRendered,
                 getSnapshot = getTorrentLoadSnapshot,
                 onFallback = { torrentOverlayFallback = true },
-                overrideLogoPath = activeLogoPath,
-                overrideBackdropPath = activeBackdropPath,
+                onDismissed = {
+                    isOverlayDismissing = false
+                    overlayDismissed = true
+                    lastRenderedStreamUrl = currentStream?.url
+                },
             )
         } else if ((ui.buffering || coordinator?.switching == true) && ui.error == null && !sourcesFailed) {
             // Kaynak değişirken (kaldığı saniyeden devam) ve tamponlarken dönen yükleme göstergesi.
@@ -718,7 +734,7 @@ fun PlayerScreen(
             )
         }
 
-        if (resumeNotice && ui.error == null && !locked) {
+        if (resumeNotice && ui.error == null && !locked && !showTorrentOverlay) {
             ResumeNotice(
                 onRestart = { skips?.restartFromBeginning(); controller.seekTo(0L); position = 0L; resumeNotice = false; bump() },
                 focus = noticeFocus,
@@ -729,7 +745,7 @@ fun PlayerScreen(
             )
         }
 
-        if (autoNext != null && cardActive && ui.error == null && !locked) {
+        if (autoNext != null && cardActive && ui.error == null && !locked && !showTorrentOverlay) {
             NextEpisodeCard(
                 state = autoNext,
                 primaryFocus = cardFocus,
@@ -741,7 +757,7 @@ fun PlayerScreen(
         }
 
         AnimatedVisibility(
-            visible = skipVisible,
+            visible = skipVisible && !showTorrentOverlay,
             enter = fadeIn(),
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(end = 24.dp, bottom = 156.dp)

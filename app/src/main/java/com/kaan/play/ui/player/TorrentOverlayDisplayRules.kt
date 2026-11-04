@@ -7,7 +7,7 @@ package com.kaan.play.ui.player
  * 1. Doğrudan (direct/CloudStream/Nuvio) kaynaklarda ÇIKMAZ.
  * 2. Oynatıcı ilk açıldığında torrent kaynağı hazırlanıyorsa ÇIKAR.
  * 3. Farklı bir torrent kaynağına geçiş yapılıyorsa (kullanıcı seçimi veya otomatik yedek) ÇIKAR.
- * 4. İlk video karesi ekrana çizildikten sonra ÇIKMAZ (ekran kaybolur).
+ * 4. İlk video karesi ekrana çizildikten sonra ÇIKMAZ (ekran kaybolur); ancak çıkış animasyonu (dolum tamamlama + 300ms fade-out) sürerken görünür kalır.
  * 5. Aynı kaynakta ileri/geri sarma yapılırken ÇIKMAZ.
  * 6. Oynatma sırasında geçici tamponlama durumunda ÇIKMAZ.
  * 7. Aynı akışın MidPlaybackRecovery ile yeniden hazırlanması durumunda ÇIKMAZ.
@@ -26,15 +26,17 @@ object TorrentOverlayDisplayRules {
      * @param isTorrent Kaynağın torrent (magnet/infoHash, TorrentEngine) olup olmadığı
      * @param action Oynatıcıda o an gerçekleşen aksiyon
      * @param firstFrameRendered Yeni kaynağın ilk karesi ekrana çizildi mi
+     * @param isDismissing İlk kare sonrası çıkış animasyonu (dolum tamamlama + 300ms fade-out) sürüyor mu
      * @return true ise özel torrent yükleme ekranı gösterilir
      */
     fun shouldShow(
         isTorrent: Boolean,
         action: PlaybackAction,
         firstFrameRendered: Boolean,
+        isDismissing: Boolean = false,
     ): Boolean {
         if (!isTorrent) return false
-        if (firstFrameRendered) return false
+        if (firstFrameRendered && !isDismissing) return false
         return when (action) {
             PlaybackAction.InitialOpen -> true
             PlaybackAction.SwitchSource -> true
@@ -63,6 +65,7 @@ object TorrentOverlayDisplayRules {
      * @param isTorrent Kaynak torrent mi
      * @param isNewStream Yeni/farklı bir akış mı
      * @param firstFrameRendered İlk kare çizildi mi
+     * @param isDismissing İlk kare sonrası çıkış animasyonu (dolum tamamlama + 300ms fade-out) sürüyor mu
      * @param isSeeking Aynı kaynakta sarma yapılıyor mu
      * @param isSameStreamRetry Aynı akış yeniden mi hazırlanıyor
      * @param isBufferingDuringPlayback Oynarken geçici tamponlama mı
@@ -71,12 +74,13 @@ object TorrentOverlayDisplayRules {
         isTorrent: Boolean,
         isNewStream: Boolean,
         firstFrameRendered: Boolean,
+        isDismissing: Boolean = false,
         isSeeking: Boolean = false,
         isSameStreamRetry: Boolean = false,
         isBufferingDuringPlayback: Boolean = false,
     ): Boolean {
         if (!isTorrent) return false
-        if (firstFrameRendered) return false
+        if (firstFrameRendered && !isDismissing) return false
         if (isSeeking) return false
         if (isSameStreamRetry) return false
         if (isBufferingDuringPlayback) return false

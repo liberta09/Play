@@ -325,19 +325,12 @@ class PlayerActivity : AppCompatActivity() {
                     onAutoNextCancel = ::cancelAutoNext,
                     onNextEpisode = if (isSeries) ::onNextEpisodeClicked else null,
                     coordinator = coordinator,
+                    initialStream = session.stream,
                     offlineStream = if (offline != null) session.stream else null,
                     embeddedDub = embeddedDub,
                     onAudioChosen = ::onAudioChosen,
                     skips = skips,
                     getTorrentLoadSnapshot = container.torrentEngine::getLoadSnapshot,
-                    onFetchMetadata = if (session.target.request.tmdbId > 0) {
-                        suspend {
-                            runCatching {
-                                val d = appContainer.tmdb.detail(session.target.request.type, session.target.request.tmdbId)
-                                d.logoPath to d.summary.backdropPath
-                            }.getOrNull()
-                        }
-                    } else null,
                     onBack = ::finish,
                 )
             }
