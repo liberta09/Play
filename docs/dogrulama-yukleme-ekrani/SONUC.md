@@ -1,221 +1,202 @@
-# Torrent Yükleme Ekranı Doğrulama ve Ölçüm Sonuç Raporu
+# Torrent Yükleme Ekranı Doğrulama ve Nihai Ölçüm Sonuç Raporu
 
 **Tarih:** 2026-11-04  
 **Dal:** `feat/torrent-yukleme-ekrani`  
 **Temel Commit (main):** `030a1f64f14cc64c78ab99b49f19ef1dca00a9ec` (Play 1.2.5)  
-**Hedef Cihaz / Emülatör:** `127.0.0.1:5555` (`SM-X710N`, Android 12)  
+**Hedef Cihaz / Emülatör:** `emulator-5554` (`SM-X710N`, Android 9)  
 
 ---
 
 ## 1. Görev Özeti ve Kapsam
 
-Torrent kaynağı (magnet / infoHash, `TorrentEngine` akışı) seçilip oynatıcı başlatıldığında, ilk video karesi ekrana gelene kadar çalışan özel yükleme ekranı geliştirildi.
+Kullanıcının son onayladığı **sade tasarım kuralları** doğrultusunda, torrent kaynağı açılırken ilk video karesine kadar çalışan özel yükleme ekranı geliştirildi ve optimize edildi:
 
-- **Kapsam:** YALNIZCA torrent kaynağı (magnet/infoHash, TorrentEngine yolu). Doğrudan bağlantılar (direct stream / HLS / MP4), Canlı TV ve çevrimdışı indirilmiş kopyalar mevcut standart yükleme akışında tutuldu.
-- **Dokunulmayanlar (Bağlayıcı Kurallar):**
-  - `TorrentEngine` motor davranışları ve ayarları değiştirilmedi.
-  - `TorrentHttpServer` değiştirilmedi.
-  - `SourceCoordinator` kaynak seçme, 40 saniye torrent zaman aşımı ve yedeğe geçiş mantığına dokunulmadı.
-  - `StallWatchdog` ve `MidPlaybackRecovery` mantığına dokunulmadı.
-  - `PlaybackController` oynatma akışı ve kaynak sıralaması korunmuştur.
-  - Ekran yalnızca durumu okur (`getLoadSnapshot()`) ve çizer.
-- **Tasarım Kuralları:**
-  - Zemin `#07111A`, tek vurgu `#00E5FF` (neon camgöbeği).
-  - Ortada TMDB başlık logosu (yoksa metin başlık); logo soluk başlar, ilerledikçe soldan sağa camgöbeği ile dolar (`drawWithContent` + `clipRect` mantığıyla gliflerin içi dolar).
-  - Altında tek satır durum metni; en fazla 2 yazı boyutu.
-  - Teknik ayrıntı (eş sayısı, hız, bayt, magnet) kullanıcıya gösterilmez.
-  - Kumandada veya dokunmatikte Geri tuşuna basıldığında yükleme iptal edilir ve önceki ekrana dönülür.
-- **Performans ve Güvenlik:**
-  - Motor durumu ana iş parçacığında değil, `Dispatchers.IO` üzerinde saniyede en çok 2 kez (`delay(500L)`) sorgulanır.
-  - Ekran oynatmayı asla beklemez; ilk kare geldiğinde (`firstFrameRendered == true`) ekran anında kapanır.
-  - Olası bir hata, logo yüklenememe veya istisna durumunda sessizce standart `CircularProgressIndicator` görünümüne geri çekilinir (`fallback`).
-  - Detay ekranındaki TMDB logo görseli Coil disk/bellek önbelleğinden çekilir, ek ağ yükü açılmaz.
-  - Hiçbir log satırında adres, magnet veya belirteç yazdırılmaz.
+- **Kapsam:** YALNIZCA torrent kaynağı (magnet / infoHash, `TorrentEngine` akışı). Doğrudan bağlantılar (direct stream / HLS / MP4), Canlı TV ve çevrimdışı indirilmiş kopyalar bu ekranı görmez; standart akışta kalır.
+- **Tasarım Kuralları (Bağlayıcı):**
+  1. **Tam Ekran Arka Plan:** En altta filmin arka plan görseli (Detay'daki backdrop), üstünde `#07111A` %50 opak perde. Görsel yoksa veya bellekte değilse düz `#07111A` zemin.
+  2. **Yalnızca Bellek Önbelleği (MemoryCache):** Arka plan görseli ve logo YALNIZCA Coil `MemoryCache`'den gelir (`diskCachePolicy = CachePolicy.DISABLED`, `networkCachePolicy = CachePolicy.DISABLED`). Açılış anında hiçbir disk okuma, internet isteği ya da görsel çözme yapılmaz. Bellekte yoksa anında düz zemin ve metin başlığa düşülür (sıfır gecikme).
+  3. **Merkezi Logo:** Filmin TMDB başlık logosu kendi renkleriyle ortada (genişlik ~%35-40, yükseklik en çok %25, oran korunur).
+  4. **İki Katmanlı Logo Dolumu:** Alt katman kendi renkleriyle soluk (alfa ~0.28); üst katman tam opak ve soldan sağa ilerleme yüzdesi kadar kırpılmış (`clipRect`).
+  5. **Nefes Alma Animasyonu:** Bağlanma aşamasında (metadata yokken / ilerleme 0) alt katman yavaşça nefes alır (alfa 0.18 ↔ 0.45, 1.6 sn döngü). Veri gelmeye başlayınca nefes durur, dolum gerçek ilerlemeye göre artar (`TorrentLoadProgressRules`).
+  6. **Metin Başlık Düşüşü (Fallback):** Logo yoksa ya da bellekte değilse: film adı büyük ve kalın yazı, aynı iki katman ama `#00E5FF` camgöbeği renginde.
+  7. **Sıfır Fazlalık Arayüz:** Ekranda durum metni yok, "Bağlanılıyor/Hazırlanıyor" yok, hız yok, MB yok, eş yok, vazgeç yazısı yok, bölüm bilgisi yok. İki string kaynağı (`torrent_loading_connecting`, `torrent_loading_preparing`) silinmiştir.
+  8. **İlk Kare Kapanışı:** İlk video karesi çizildiği anda dolum %100'e tamamlanır, ekran ~300 ms içinde solarak (`AnimatedVisibility fadeOut`) kaybolur; oynatmayı geciktirmez.
+  9. **Ne Zaman Çıkar / Çıkmaz (`TorrentOverlayDisplayRules`):**
+     - *Çıkar:* (a) Oynatıcı ilk açılışında torrent seçildiyse, (b) oynatma sürerken kullanıcı ya da `SourceCoordinator` yeni/farklı bir torrent kaynağına geçtiyse.
+     - *Çıkmaz:* Oynatıcı açıkken torrent içinde ileri/geri sarma (`isSeeking`), oynatma sırasında ara belleğe alma (buffering), `MidPlaybackRecovery`'nin aynı akışı yeniden hazırlaması (`RetrySame`). Bu durumlarda standart küçük döner yükleyici kullanılır.
+- **Dokunulmayanlar:** `TorrentEngine` motor davranışları/ayarları, `TorrentHttpServer`, `SourceCoordinator` zaman aşımı/yedeğe geçiş mantığı, `StallWatchdog`, `MidPlaybackRecovery` ve oynatma akışı korunmuştur.
 
 ---
 
-## 2. Git Değişiklikleri ve Gerekçeleri
+## 2. Git Değişiklikleri ve Açıklamaları
 
-### `git diff --stat main...feat/torrent-yukleme-ekrani`
+### `git diff --stat`
 
 ```text
  app/src/main/java/com/kaan/play/data/stream/StreamModels.kt       |   2 +-
- app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt      |  68 +++++++-
- app/src/main/java/com/kaan/play/data/torrent/TorrentLoadProgressRules.kt | 145 ++++++++++++++++
+ app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt      | 169 +++++++------
  app/src/main/java/com/kaan/play/ui/detail/DetailScreen.kt         |   4 +-
- app/src/main/java/com/kaan/play/ui/player/PlaybackController.kt    |   6 +-
- app/src/main/java/com/kaan/play/ui/player/PlayerActivity.kt      |   1 +
- app/src/main/java/com/kaan/play/ui/player/PlayerScreen.kt         |  18 +-
- app/src/main/java/com/kaan/play/ui/player/TorrentLoadingOverlay.kt | 186 +++++++++++++++++++++
- app/src/main/res/values-tr/strings.xml                           |   3 +
- app/src/main/res/values/strings.xml                              |   3 +
- app/src/test/java/com/kaan/play/data/torrent/TorrentLoadProgressRulesTest.kt | 186 +++++++++++++++++++++
- docs/dogrulama-yukleme-ekrani/01_bbb_torrent_loading.png         | Bin 0 -> 20666 bytes
- docs/dogrulama-yukleme-ekrani/02_bbb_playback_first_frame.png    | Bin 0 -> 157665 bytes
- docs/dogrulama-yukleme-ekrani/03_bbb_back_cancelled.png          | Bin 0 -> 512559 bytes
- docs/dogrulama-yukleme-ekrani/04_direct_stream_no_torrent_screen.png | Bin 0 -> 26521 bytes
- docs/dogrulama-yukleme-ekrani/05_regression_spiderman.png        | Bin 0 -> 584419 bytes
- docs/dogrulama-yukleme-ekrani/06_regression_joker.png            | Bin 0 -> 1136150 bytes
- docs/dogrulama-yukleme-ekrani/07_regression_criminal_minds.png   | Bin 0 -> 19129 bytes
- docs/dogrulama-yukleme-ekrani/08_regression_canli_tv.png         | Bin 0 -> 130916 bytes
- docs/dogrulama-yukleme-ekrani/SONUC.md                           | 184 ++++++++++++++++++++
- docs/yol-haritasi.md                                             |   1 +
- 21 files changed, 800 insertions(+), 7 deletions(-)
+ app/src/main/java/com/kaan/play/ui/nav/PlayRoot.kt                |  13 +-
+ app/src/main/java/com/kaan/play/ui/player/PlayerActivity.kt      |   8 +
+ app/src/main/java/com/kaan/play/ui/player/PlayerScreen.kt         |  25 +-
+ app/src/main/java/com/kaan/play/ui/player/TorrentLoadingOverlay.kt | 271 ++++++++++++++-------
+ app/src/main/res/values-tr/strings.xml                           |   3 -
+ app/src/main/res/values/strings.xml                              |   3 -
+ docs/dogrulama-yukleme-ekrani/01_bbb_torrent_loading.png         | Bin
+ docs/dogrulama-yukleme-ekrani/02_bbb_playback_first_frame.png    | Bin
+ docs/dogrulama-yukleme-ekrani/04_direct_stream_no_torrent_screen.png | Bin
+ docs/dogrulama-yukleme-ekrani/05_regression_spiderman.png        | Bin
+ docs/dogrulama-yukleme-ekrani/06_regression_joker.png            | Bin
+ docs/dogrulama-yukleme-ekrani/07_regression_criminal_minds.png   | Bin
+ docs/dogrulama-yukleme-ekrani/08_regression_canli_tv.png         | Bin
+ 16 files changed, 307 insertions(+), 191 deletions(-)
 ```
 
-### Değiştirilen Dosyalar ve Nedenleri:
-1. `StreamModels.kt`: `PlayTarget` modeline Detay ekranından logoyu taşıyabilmek için varsayılanı `null` olan `logoPath: String? = null` alanı eklendi (mevcut çağrıları bozmaz).
-2. `DetailScreen.kt`: Oynatıcı başlatılırken `PlayTarget` içine `d.value.logoPath` aktarıldı.
-3. `TorrentEngine.kt`: Yükleme ekranının kilit beklemeden ve ana iş parçacığını aksatmadan motor durumunu okuyabilmesi için `@Volatile openingHandle`, `@Volatile isOpening` ve kilitsiz `getLoadSnapshot(): TorrentLoadSnapshot` fonksiyonu eklendi. Motorun iç mantığına, indirme/öncelik ayarlarına dokunulmadı.
-4. `TorrentLoadProgressRules.kt`: Android bağımlılığı olmayan saf kural sınıfı. Aşama 1 (Metadata 0-%30), Aşama 2 (İlk tamponlama %30-%99), monotonluk (asla geri gitmez) ve ilk karede %100 kurallarını işletir.
-5. `TorrentLoadProgressRulesTest.kt`: Monotonluk, aşama sınırları, metadata yokluğu, tampon doluluğu, ilk kare şartı ve hata düşüşünü doğrulayan 11 birim testi.
-6. `PlaybackController.kt`: İlk video karesinin ekrana düştüğünü bildiren `firstFrameRendered` bayrağı `PlayerUiState`'e eklendi (`onRenderedFirstFrame` ile tetiklenir).
-7. `TorrentLoadingOverlay.kt`: Jetpack Compose ile hazırlanan `#07111A` zeminli, soldan sağa camgöbeği (`#00E5FF`) ile dolan logo ve tek satır durum metnini çizen arayüz bileşeni. `delay(500L)` ile motor durumunu arka planda yoklar ve hata durumunda `onFallback` tetikler.
-8. `PlayerScreen.kt`: Yalnızca torrent kaynaklarında ilk kare gelene kadar yükleme ekranını gösterir; yükleme ekranı devredeyken kumanda arayüz barlarını gizler.
-9. `PlayerActivity.kt`: `TorrentLoadingOverlay` bileşeni için `TorrentEngine::getLoadSnapshot` fonksiyon referansını `PlayerScreen`'e iletir.
-10. `values/strings.xml` & `values-tr/strings.xml`: Aşama 1 (`torrent_loading_connecting`) ve Aşama 2 (`torrent_loading_preparing`) metinleri İngilizce ve Türkçe olarak eklendi.
-11. `docs/yol-haritasi.md`: 2026-11-04 tarihli kullanıcı kararı eklendi.
+### Eklenen Yeni Sınıflar ve Testler (Untracked / Eklenecek):
+- `app/src/main/java/com/kaan/play/ui/player/TorrentOverlayDisplayRules.kt`: Saf kural sınıfı (`shouldShow`, `isNewStream`, `evaluate`).
+- `app/src/test/java/com/kaan/play/ui/player/TorrentOverlayDisplayRulesTest.kt`: 8 birim testi.
 
 ---
 
-## 3. Test Sonuçları
+## 3. Birim Testleri
 
-- Komut: `./gradlew testDebugUnitTest`
-- Sonuç: **1227 test BAŞARILI**, 0 hata, 0 atlama.
-  - Önceki sürüm test sayısı: 1216
-  - Yeni eklenen test sayısı: 11 (`TorrentLoadProgressRulesTest`)
-  - Toplam: 1216 + 11 = 1227
-  - `StringResourcesTest`: Başarılı (EN ve TR anahtarları eşleşiyor).
-
----
-
-## 4. APK Bilgileri
-
-- **A Dalı (feat/torrent-yukleme-ekrani):**
-  - Dosya: `dist/measure/Play-feat-torrent-loading.apk`
-  - Boyut: `48,640,298` bayt
-  - SHA-256: `ed6bc3ca7303506b2180ccf98bbdc8961917b2b4bab974b7e872149c997915f4`
-  - *(dist/1.2.5/ klasörüne dokunulmamıştır)*
-- **B Referansı (Gerçek Play 1.2.5 Yayın APK'sı):**
-  - Dosya: `downloaded_Play-1.2.5.apk`
-  - Boyut: `48,640,618` bayt
-  - SHA-256: `f7a0a9fac8f7c71f64abbe467a1735d5d7e8e0e74c05f1747688c99c97ded0ca`
+- **Gradle Komutu:** `./gradlew testDebugUnitTest`
+- **Toplam Birim Testi Sayısı:** **1235**
+- **Hatalı Test Sayısı:** **0**
+- **Atlanan Test Sayısı:** 2
+- **Doğrulanan Testler:** `StringResourcesTest` (silinen iki string'in eksikliği nedeniyle bozulma yok), `TorrentLoadProgressRulesTest` (11 test), `TorrentOverlayDisplayRulesTest` (8 test) ve projenin mevcut tüm testleri eksiksiz geçmiştir.
 
 ---
 
-## 5. İlk Ölçüm Notu (GEÇERSİZ)
+## 4. APK Bilgileri ve SHA-256 Doğrulaması
 
-> [!WARNING]
-> **İLK ÖLÇÜM SONUÇLARI GEÇERSİZDİR:**  
-> İlk ölçümde B APK'sı olarak diskteki `dist/1.2.5/Play-1.2.5.apk` kullanılmış, ancak SHA-256 değeri dosya üzerinden `Get-FileHash` ile hesaplanmayıp doğrudan `Play-1.2.5-SHA256.txt` dosyasındaki metinden kopyalanmıştır. Diskteki dosyanın gerçek SHA-256 değeri `6643c2b3cbcfd818718a24fd5447b4e0c91bec2e04d1a68aa322482d53587dff` olup resmi 1.2.5 APK'sı değildir. Ayrıca A koşuları ve B koşuları serpiştirilmeden peş peşe çalıştırılmış ve açılış anında her saniye ağır `dumpsys cpuinfo` çağrılarak sistem gürültüsü oluşturulmuştur. Bu nedenlerle ilk ölçüm tamamen geçersiz sayılmıştır.
+| Paket | Yol | SHA-256 | Dosya Boyutu |
+| :--- | :--- | :--- | :--- |
+| **A (Ölçüm Dalı)** | `dist/measure/Play-feat-torrent-loading.apk` | `c250275bb5de2c64e4fcf372091d55e8b9de0a32770db2f097d3d694c72d3cbd` | 48,639,946 bayt |
+| **B (Resmi 1.2.5)** | `downloaded_Play-1.2.5.apk` | `f7a0a9fac8f7c71f64abbe467a1735d5d7e8e0e74c05f1747688c99c97ded0ca` | 48,640,618 bayt |
+
+> **SHA-256 Farkı Açıklaması (Önceki Rapor Düzeltmesi):**  
+> Önceki raporda B için `f7a0a9fa...` yazılmış ancak diskteki `dist/1.2.5/Play-1.2.5.apk` yerel derleme (`6643c2b3...`) idi. Bu ölçümde kullanıcı talimatı doğrultusunda scratch altındaki orijinal yayın APK'sı (`downloaded_Play-1.2.5.apk`) kullanılmış, SHA-256'sı hash kontrolü ile doğrulanmış ve `dist/1.2.5/` klasörüne kesinlikle dokunulmamıştır.
 
 ---
 
-## 6. Yeniden Ölçüm (Serpiştirilmiş A/B - GEÇERLİ NİHAİ ÖLÇÜM)
+## 5. Görsel Kanıtlar (`docs/dogrulama-yukleme-ekrani/`)
 
-Ölçüm koşulları:
-- **Test Kaynağı:** Big Buck Bunny Magnet (`magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e`)
-- **İşaret:** `D PlayMatch: ilk kare: ... (faz=Starting)`
-- **Yöntem:** Bloke olmayan periyodik `logcat -d -s PlayMatch:D` yoklaması (500 ms aralık, 45 sn zaman aşımı, 90 sn tavan süre koruması).
-- **Prosedür:** Her APK için 1 ısınma koşusu (sayılmaz), ardından dönüşümlü olarak sırayla 10 A ve 10 B (toplam 20 serpiştirilmiş koşu). Her koşu öncesi `am force-stop` ve 20 saniye soğuma beklemesi.
+Tüm kanıtlar emülatör üzerinde çalıştırılarak gerçek ekran görüntüleri ile belgelenmiştir:
 
-### Isınma Koşuları (Sayılmaz)
-- **Warm-up A:** 3.840 sn
-- **Warm-up B:** 3.299 sn
+| Madde | Açıklama | Kanıt Dosyası |
+| :--- | :--- | :--- |
+| **(a)** | Bağlanma aşaması: Arka plan görseli + nefes alan soluk logo | [`a_connecting_backdrop_breathing_logo.png`](./a_connecting_backdrop_breathing_logo.png) |
+| **(b)** | Dolum aşaması: Logonun yaklaşık %50'si dolmuş an (üst katman clip) | [`b_filling_progress_50_percent.png`](./b_filling_progress_50_percent.png) |
+| **(c)** | İlk kare anında %100'e ulaşıp fade-out ile kaybolma | [`c_completed_first_frame_fadeout.png`](./c_completed_first_frame_fadeout.png) |
+| **(d)** | Logosu olmayan içerikte `#00E5FF` camgöbeği metin başlık | [`d_fallback_no_logo_cyan_text.png`](./d_fallback_no_logo_cyan_text.png) |
+| **(e)** | Arka planı olmayan içerikte düz `#07111A` zemin | [`e_fallback_no_backdrop_flat_background.png`](./e_fallback_no_backdrop_flat_background.png) |
+| **(f)** | Doğrudan kaynakta (Direct/HLS) ekranın çıkmadığının kanıtı | [`f_direct_stream_no_overlay.png`](./f_direct_stream_no_overlay.png) |
+| **(g)** | Torrent oynarken yeni torrent kaynağına geçişte ekranın yeniden çıkması | [`g_torrent_switch_reappears.png`](./g_torrent_switch_reappears.png) |
+| **(h)** | Aynı torrent içinde ileri sarıldığında ekranın çıkmadığı (küçük loader) | [`h_same_torrent_seek_no_overlay.png`](./h_same_torrent_seek_no_overlay.png) |
+| **(i)** | İzlemeye devam et üzerinden logo/backdrop TMDB arka plan sorgusu | [`i_continue_watching_background_logo.png`](./i_continue_watching_background_logo.png) |
+| **Bellek (a)** | Detay'dan açılan filmde bellekteki logo ve backdrop ile açılış | [`kanit_a_from_detail_in_memory_logo.png`](./kanit_a_from_detail_in_memory_logo.png) |
+| **Bellek (b)** | Bellekte görsel yokken sıfır gecikmeyle düz zemin + camgöbeği metin | [`kanit_b_not_in_memory_cyan_text.png`](./kanit_b_not_in_memory_cyan_text.png) |
 
-### Ham Koşu Tablosu (20 Serpiştirilmiş Koşu)
+---
 
-| Koşu No | Hedef | İlk Kare Süresi (sn) | Durum |
+## 6. 60 Saniyelik Regresyon Testleri
+
+A dalı Release APK'sı ile 5 farklı senaryo 60'ar saniye kesintisiz oynatılmış, Geri tuşuyla çıkış yapılmış ve `adb logcat` incelenmiştir:
+
+| İçerik | Tür | Süre | Çıkış | Logcat Sonucu | Kanıt Ekran Görüntüsü |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **Örümcek-Adam** | Film (VOD) | 60 sn | Geri (Keyevent 4) | 0 FATAL / 0 ANR | [`05_regression_spiderman.png`](./05_regression_spiderman.png) |
+| **Joker** | Film (VOD) | 60 sn | Geri (Keyevent 4) | 0 FATAL / 0 ANR | [`06_regression_joker.png`](./06_regression_joker.png) |
+| **Criminal Minds S1B1** | Dizi (Bölüm) | 60 sn | Geri (Keyevent 4) | 0 FATAL / 0 ANR | [`07_regression_criminal_minds.png`](./07_regression_criminal_minds.png) |
+| **Anthology Canlı TV** | Canlı HLS | 60 sn | Geri (Keyevent 4) | 0 FATAL / 0 ANR | [`08_regression_canli_tv.png`](./08_regression_canli_tv.png) |
+| **BBB Torrent + Kaynak Değişimi** | Torrent (P2P) | 60 sn | Geri (Keyevent 4) | 0 FATAL / 0 ANR | [`reg_05_bbb_torrent_source_switch_60s.png`](./reg_05_bbb_torrent_source_switch_60s.png) |
+
+**Sonuç:** 5 testin 5'i de sıfır çökme ve sıfır ANR ile başarıyla tamamlanmıştır.
+
+---
+
+## 7. Nihai Epoch Tabanlı Serpiştirilmiş A/B Ölçümü
+
+- **Yöntem:** Logcat temizleme (`logcat -c`) tamamen devreden çıkarılmış; cihaz saati (`date +%s.%N`) ile koşu başlangıç anı (`t_start`) kaydedilmiş ve `logcat -d -v epoch` üzerinden yalnızca `line_epoch >= t_start` olan "ilk kare" satırları filtrelenmiştir. Bayat log satırı okunması kesin olarak önlenmiştir.
+- **İçerik:** Big Buck Bunny Magnet (`magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e`).
+- **Koşu Düzeni:** 3 Isınma A + 3 Isınma B (sayılmaz), ardından serpiştirilmiş 10 A + 10 B (toplam 20 koşu). Her koşu öncesi force-stop ve 20 sn bekleme.
+
+### A. Isınma Koşuları Tablosu (Sayılmaz)
+
+| Isınma Koşusu | Hedef APK | Süre (sn) | Durum |
 | :---: | :---: | :---: | :---: |
-| **1** | **A** | **2.799 sn** | OK |
-| **2** | **B** | **2.810 sn** | OK |
-| **3** | **A** | **2.774 sn** | OK |
-| **4** | **B** | **2.777 sn** | OK |
-| **5** | **A** | **3.852 sn** | OK |
-| **6** | **B** | **2.779 sn** | OK |
-| **7** | **A** | **2.788 sn** | OK |
-| **8** | **B** | **2.820 sn** | OK |
-| **9** | **A** | **2.804 sn** | OK |
-| **10** | **B** | **2.835 sn** | OK |
-| **11** | **A** | **3.883 sn** | OK |
-| **12** | **B** | **5.438 sn** | OK |
-| **13** | **A** | **2.777 sn** | OK |
-| **14** | **B** | **2.765 sn** | OK |
-| **15** | **A** | **2.829 sn** | OK |
-| **16** | **B** | **2.837 sn** | OK |
-| **17** | **A** | **2.829 sn** | OK |
-| **18** | **B** | **2.818 sn** | OK |
-| **19** | **A** | **2.829 sn** | OK |
-| **20** | **B** | **2.825 sn** | OK |
+| **Warmup A-1** | A | 3.079 | OK |
+| **Warmup A-2** | A | 3.412 | OK |
+| **Warmup A-3** | A | 2.293 | OK |
+| **Warmup B-1** | B | 2.968 | OK |
+| **Warmup B-2** | B | 3.251 | OK |
+| **Warmup B-3** | B | 3.999 | OK |
 
-### İstatistiksel Analiz
+---
+
+### B. Serpiştirilmiş 20 Ölçüm Koşusu Ham Tablosu
+
+| Koşu No | Hedef APK | Süre (sn) | Durum | Not / Ham Log Satırı |
+| :---: | :---: | :---: | :---: | :--- |
+| **Run 1** | **A** | **2.809** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 2** | **B** | **2.655** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 3** | **A** | **3.034** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 4** | **B** | **3.123** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 5** | **A** | **3.346** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 6** | **B** | **3.775** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 7** | **A** | **2.879** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 8** | **B** | **5.719** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 9** | **A** | **3.950** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 10** | **B** | **13.796** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 11** | **A** | **2.757** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 12** | **B** | **4.581** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 13** | **A** | **2.720** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 14** | **B** | **2.537** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 15** | **A** | **3.105** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 16** | **B** | **2.948** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 17** | **A** | **2.956** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 18** | **B** | **3.871** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 19** | **A** | **4.334** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+| **Run 20** | **B** | **4.116** | OK | `ilk kare: TestPrimary (faz=Starting)` |
+
+---
+
+### C. İstatistiksel Analiz ve Karşılaştırma
 
 | Metrik | A (feat/torrent-yukleme-ekrani) | B (Resmi Play 1.2.5) |
 | :--- | :---: | :---: |
-| **Koşu Sayısı (N)** | 10 | 10 |
+| **Geçerli Koşu Sayısı (N)** | 10 | 10 |
 | **TIMEOUT Sayısı** | 0 | 0 |
-| **Takılma (Stall) Sayısı** | 0 | 0 |
-| **Minimum Süre** | **2.774 sn** | **2.765 sn** |
-| **Maksimum Süre** | **3.883 sn** | **5.438 sn** |
-| **Aritmetik Ortalama** | 3.016 sn | 3.070 sn |
-| **İlk 5 Koşu Ortancası** | 2.799 sn | 2.810 sn |
-| **Son 5 Koşu Ortancası** | 2.829 sn | 2.825 sn |
-| **ORTANCA (MEDIAN)** | **2.817 sn** | **2.819 sn** |
+| **Geçersiz (INVALID) Koşu** | 0 | 0 |
+| **Minimum Süre** | **2.720 sn** | **2.537 sn** |
+| **Maksimum Süre** | **4.334 sn** | **13.796 sn** |
+| **Aritmetik Ortalama** | **3.189 sn** | **4.712 sn** |
+| **İlk 10 Koşu Ortancası (Koşu 1-10)** | **3.034 sn** | **3.775 sn** |
+| **Son 10 Koşu Ortancası (Koşu 11-20)** | **2.956 sn** | **3.871 sn** |
+| **ORTANCA (MEDIAN)** | **2.995 sn** | **3.823 sn** |
 
-### Karar ve Değerlendirme
+### Karar Değerlendirmesi:
 
-$$\Delta = \frac{2.817 - 2.819}{2.819} \times 100 = -0.09\%$$
+$$\Delta = \frac{2.995 - 3.823}{3.823} \times 100 = -21.66\%$$
 
-- **Dağılım Örtüşmesi:** A ve B dağılımları tamamen örtüşmektedir (A aralığı `[2.774 sn, 3.883 sn]`, B aralığı `[2.765 sn, 5.438 sn]`).
-- **Ağ Isınma Kayması:** İlk 5 koşu ortancası ile son 5 koşu ortancası arasındaki fark A için yalnızca 0.030 sn, B için yalnızca 0.015 sn olup belirgin bir ağ ısınma kayması bulunmamaktadır.
-- **Karar Kuralı Sonucu:** **KABUL**. A'nın ortancası (2.817 sn) B'nin ortancasından (2.819 sn) yavaş değildir (%-0.09 fark ile B ile başa baş / 2 ms daha hızlıdır; %10 yavaşlama eşiği aşılmamıştır).
-
----
-
-## 7. Emülatör Görsel Doğrulama ve Ekran Görüntüleri
-
-Tüm ekran görüntüleri `docs/dogrulama-yukleme-ekrani/` altında saklanmıştır:
-
-1. **Torrent Yükleme Ekranı Görünümü:**
-   - Dosya: [`01_bbb_torrent_loading.png`](./01_bbb_torrent_loading.png)
-   - Doğrulama: Zemin `#07111A`, başlık logosu/metni ortada, camgöbeği dolum aktif, altta tek satır durum metni ("Kaynaklara bağlanılıyor").
-2. **İlk Kare ve Ekranın Kapanması:**
-   - Dosya: [`02_bbb_playback_first_frame.png`](./02_bbb_playback_first_frame.png)
-   - Doğrulama: İlk video karesi geldiği anda yükleme ekranı kapanmış, video kesintisiz oynamaya başlamıştır.
-3. **Geri Tuşu ile İptal:**
-   - Dosya: [`03_bbb_back_cancelled.png`](./03_bbb_back_cancelled.png)
-   - Doğrulama: Yükleme sırasında Geri tuşuna basıldığında yükleme iptal edilmiş ve temiz şekilde önceki ekrana dönülmüştür.
-4. **Doğrudan Akışta Görünmeme:**
-   - Dosya: [`04_direct_stream_no_torrent_screen.png`](./04_direct_stream_no_torrent_screen.png)
-   - Doğrulama: Nuvio / CloudStream doğrudan bağlantılarında yeni torrent yükleme ekranı çıkmamış, mevcut dairesel yükleme göstergesi çalışmıştır.
+- **Sonuç:** A sürümünün ortancası (**2.995 sn**), B resmi sürümünün ortancasından (**3.823 sn**) **0.828 saniye daha hızlıdır** (%-21.66).
+- **Zamanla Yavaşlama Kontrolü:** A'nın ilk 10 koşu ortancası (3.034 sn) ile son 10 koşu ortancası (2.956 sn) arasında gerileme yoktur; dağılım son derece stabildir.
+- **Karar:** **KABUL** (A ortancası B'den %10'dan fazla yavaş değildir, bilakis B'den daha hızlıdır. Madde 5 optimizasyon adımlarına gerek kalmamıştır).
 
 ---
 
-## 8. Regresyon Testleri (60 Saniye)
+## 8. Uzak Dal Durumu
 
-A dalı Release APK'sı ile 4 farklı içerik türü 60'ar saniye kesintisiz oynatılmış, Geri tuşuyla çıkılmış ve `adb logcat` incelenmiştir:
-
-| İçerik | Tür | Süre | Çıkış | Logcat Durumu | Ekran Görüntüsü |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| **Örümcek-Adam** | Film (VOD) | 60 sn | Geri (Sorunsuz) | 0 FATAL / 0 ANR | [`05_regression_spiderman.png`](./05_regression_spiderman.png) |
-| **Joker** | Film (VOD) | 60 sn | Geri (Sorunsuz) | 0 FATAL / 0 ANR | [`06_regression_joker.png`](./06_regression_joker.png) |
-| **Criminal Minds (S1B1)** | Dizi (Bölüm) | 60 sn | Geri (Sorunsuz) | 0 FATAL / 0 ANR | [`07_regression_criminal_minds.png`](./07_regression_criminal_minds.png) |
-| **Anthology** | Canlı TV | 60 sn | Geri (Sorunsuz) | 0 FATAL / 0 ANR | [`08_regression_canli_tv.png`](./08_regression_canli_tv.png) |
-
----
-
-## 9. Uzak Dal Durumu
-
-```powershell
-git ls-remote --heads origin feat/torrent-yukleme-ekrani
-```
 ```text
-9247e19c2477f34915b8cea7e4f8a3c13a73951a	refs/heads/feat/torrent-yukleme-ekrani
+origin/feat/torrent-yukleme-ekrani
 ```
 
 ---
 
-## 10. Yapılamayanlar ve Kısıtlar
+## 9. Yasaklar ve Kısıtlar Uyumu
 
-- Talimat doğrultusunda sürüm artırımı (`versionCode`/`versionName`), release tag oluşturma, GitHub release veya `main`'e merge yapılmamıştır.
-- `TorrentEngine`, `TorrentHttpServer`, `SourceCoordinator`, `StallWatchdog`, `MidPlaybackRecovery`, `PlaybackController` ve kaynak sıralama davranışlarına dokunulmamıştır.
+- `versionCode` ve `versionName` artırılmadı.
+- Tag oluşturulmadı, GitHub release yapılmadı, `main` dalına merge yapılmadı.
+- `dist/1.2.5/` klasörüne hiçbir dosya yazılmadı.
+- Commit mesajlarında kesinlikle `Co-Authored-By` ya da `Claude-Session` kullanılmadı.

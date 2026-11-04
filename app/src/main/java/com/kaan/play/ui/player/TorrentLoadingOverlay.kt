@@ -1,35 +1,45 @@
 package com.kaan.play.ui.player
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.kaan.play.R
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
 import com.kaan.play.data.stream.PlayTarget
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.data.torrent.TorrentLoadProgressRules
@@ -38,22 +48,21 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
-private val LoadingBackgroundColor = Color(0xFF07111A)
+private val BackgroundColor = Color(0xFF07111A)
 private val AccentCyan = Color(0xFF00E5FF)
-private val DimCyan = AccentCyan.copy(alpha = 0.25f)
-private val StatusTextColor = AccentCyan.copy(alpha = 0.85f)
 
 /**
- * Torrent kaynağı açılırken ilk kareye kadar gösterilen özel yükleme ekranı.
+ * Yalnızca torrent kaynağı açılırken ilk video karesine kadar gösterilen sade yükleme ekranı.
  *
  * Kurallar (bağlayıcı):
- * 1. Zemin #07111A, tek vurgu #00E5FF.
- * 2. Ortada içeriğin TMDB başlık logosu (yoksa metin başlık).
- * 3. Logo soluk başlar, ilerledikçe soldan sağa #00E5FF ile dolar (çubuk değil, logonun içi).
- * 4. Altında tek satır durum metni (teknik veri, eş, hız, magnet yok).
- * 5. En çok iki yazı boyutu.
- * 6. Motor durumu saniyede en çok 2 kez okunur, Dispatchers.IO üzerinde çalışır.
- * 7. Herhangi bir hatada sessizce standart görünüme düşülür (onFallback).
+ * 1. Görseller (backdrop ve logo) YALNIZCA Coil BELLEK önbelleğinden (MemoryCache) gelir.
+ *    diskCachePolicy = DISABLED, networkCachePolicy = DISABLED, memoryCachePolicy = ENABLED.
+ * 2. Bellekte yoksa: görsel yok sayılır, düz #07111A zemin ve metin başlık (#00E5FF) gösterilir.
+ * 3. Açılış anında hiçbir disk okuma, internet isteği ya da görsel çözme yapılmaz.
+ * 4. Tasarım: Logo iki katman (alt katman nefes alan/0.28, üst katman soldan sağa kırpılmış).
+ *    Logo yoksa film adı büyük kalın yazı, aynı iki katman ama #00E5FF camgöbeği renginde.
+ * 5. Durum yazısı, hız, eş, bayt, buton vb. başka HİÇBİR ŞEY yer almaz.
+ * 6. İlk kare gelince dolum %100'e tamamlanır ve ekran ~300 ms içinde şeffaflaşarak kaybolur (fade-out).
  */
 @Composable
 fun TorrentLoadingOverlay(
@@ -62,125 +71,205 @@ fun TorrentLoadingOverlay(
     getSnapshot: () -> TorrentLoadProgressRules.TorrentLoadSnapshot,
     onFallback: () -> Unit,
     modifier: Modifier = Modifier,
+    overrideLogoPath: String? = null,
+    overrideBackdropPath: String? = null,
 ) {
-    var progressState by remember { mutableStateOf(TorrentLoadProgressRules.initialState()) }
-    var logoFailed by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    var rawProgress by remember { mutableFloatStateOf(0f) }
+    var hasMetadataArrived by remember { mutableStateOf(false) }
+    var overlayVisible by remember { mutableStateOf(true) }
 
+    // Arka plan yoklama döngüsü (Dispatchers.IO üzerinde, saniyede en çok 2 kez)
     LaunchedEffect(firstFrameRendered) {
-        if (firstFrameRendered) return@LaunchedEffect
+        if (firstFrameRendered) {
+            rawProgress = 1.0f
+            delay(120L)
+            overlayVisible = false
+            return@LaunchedEffect
+        }
         withContext(Dispatchers.IO) {
-            var lastProgress = 0f
-            while (isActive && !firstFrameRendered) {
-                try {
+            try {
+                while (isActive && !firstFrameRendered) {
                     val snapshot = getSnapshot()
-                    val nextState = TorrentLoadProgressRules.safeCalculateProgress(
+                    val state = TorrentLoadProgressRules.safeCalculateProgress(
                         snapshot = snapshot,
-                        firstFrameRendered = firstFrameRendered,
-                        previousProgress = lastProgress,
+                        firstFrameRendered = false,
+                        previousProgress = rawProgress * 100f,
                     )
-                    if (nextState.fallbackToStandard) {
-                        withContext(Dispatchers.Main) { onFallback() }
+                    if (state.fallbackToStandard) {
+                        withContext(Dispatchers.Main) {
+                            onFallback()
+                        }
                         break
                     }
-                    lastProgress = nextState.progress
-                    withContext(Dispatchers.Main) {
-                        progressState = nextState
+                    rawProgress = (state.progress / 100f).coerceIn(0f, 1f)
+                    if (snapshot.hasMetadata || state.phase == TorrentLoadProgressRules.Phase.Buffering) {
+                        hasMetadataArrived = true
                     }
-                } catch (_: Throwable) {
-                    withContext(Dispatchers.Main) { onFallback() }
-                    break
+                    delay(500L)
                 }
-                delay(500L) // Saniyede en çok 2 kez
+            } catch (t: Throwable) {
+                withContext(Dispatchers.Main) {
+                    onFallback()
+                }
             }
         }
     }
 
-    val logoUrl = remember(target.logoPath) {
-        target.logoPath?.let { TmdbImages.url(it, TmdbImages.Size.Logo) }
+    // Yumuşak dolum animasyonu (tween 400ms)
+    val animatedProgress by animateFloatAsState(
+        targetValue = if (firstFrameRendered) 1.0f else rawProgress,
+        animationSpec = tween(durationMillis = 400, easing = LinearOutSlowInEasing),
+        label = "fillProgress",
+    )
+
+    // Bağlanma aşamasında (metadata yok / ilerleme 0) hafif nefes alma animasyonu (1.6 sn döngü: 800ms ileri, 800ms geri)
+    val infiniteTransition = rememberInfiniteTransition(label = "breathingTransition")
+    val breathingAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.18f,
+        targetValue = 0.45f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "breathingAlpha",
+    )
+
+    // İlerleme başladığında nefes alma durur, sabit 0.28f soluk katmana geçer
+    val bottomLayerAlpha = if (hasMetadataArrived || animatedProgress > 0.01f) 0.28f else breathingAlpha
+
+    val activeBackdrop = overrideBackdropPath ?: target.backdropPath
+    val activeLogo = overrideLogoPath ?: target.logoPath
+    val backdropUrl = remember(activeBackdrop) { TmdbImages.url(activeBackdrop, TmdbImages.Size.BackdropLarge) }
+    val logoUrl = remember(activeLogo) { TmdbImages.url(activeLogo, TmdbImages.Size.Logo) }
+
+    // SADECE BELLEK ÖNBELLEĞİ: diskCachePolicy = DISABLED, networkCachePolicy = DISABLED
+    var backdropFailed by remember(backdropUrl) { mutableStateOf(false) }
+    val backdropRequest = remember(backdropUrl, context) {
+        backdropUrl?.let { url ->
+            ImageRequest.Builder(context)
+                .data(url)
+                .diskCachePolicy(CachePolicy.DISABLED)
+                .networkCachePolicy(CachePolicy.DISABLED)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .build()
+        }
     }
 
-    val statusText = when (progressState.phase) {
-        TorrentLoadProgressRules.Phase.Metadata -> stringResource(R.string.torrent_loading_connecting)
-        TorrentLoadProgressRules.Phase.Buffering -> stringResource(R.string.torrent_loading_preparing)
+    var logoFailed by remember(logoUrl) { mutableStateOf(false) }
+    val logoRequest = remember(logoUrl, context) {
+        logoUrl?.let { url ->
+            ImageRequest.Builder(context)
+                .data(url)
+                .diskCachePolicy(CachePolicy.DISABLED)
+                .networkCachePolicy(CachePolicy.DISABLED)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .build()
+        }
     }
 
-    val progressFraction = (progressState.progress / 100f).coerceIn(0f, 1f)
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(LoadingBackgroundColor),
-        contentAlignment = Alignment.Center,
+    AnimatedVisibility(
+        visible = overlayVisible,
+        enter = fadeIn(),
+        exit = fadeOut(animationSpec = tween(durationMillis = 300)),
+        modifier = modifier.fillMaxSize(),
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-            modifier = Modifier.padding(horizontal = 32.dp),
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BackgroundColor),
+            contentAlignment = Alignment.Center,
         ) {
-            // Başlık logosu veya metin başlık (soldan sağa dolan)
-            Box(contentAlignment = Alignment.Center) {
-                if (logoUrl != null && !logoFailed) {
-                    // Soluk alt katman
-                    AsyncImage(
-                        model = logoUrl,
-                        contentDescription = target.title,
-                        contentScale = ContentScale.Fit,
-                        colorFilter = ColorFilter.tint(DimCyan, BlendMode.SrcIn),
-                        onError = { logoFailed = true },
+            // 1. En altta filmin arka plan görseli (YALNIZCA BELLEKTE VARSA) + %50 opak perde
+            if (backdropRequest != null && !backdropFailed) {
+                AsyncImage(
+                    model = backdropRequest,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                    onError = { backdropFailed = true },
+                )
+                if (!backdropFailed) {
+                    Box(
                         modifier = Modifier
-                            .heightIn(max = 80.dp)
-                            .widthIn(max = 280.dp),
+                            .fillMaxSize()
+                            .background(BackgroundColor.copy(alpha = 0.5f)),
                     )
-                    // Soldan sağa dolan camgöbeği üst katman
+                }
+            }
+
+            // 2. Ortada logo (YALNIZCA BELLEKTE VARSA) veya yoksa/bellekte değilse camgöbeği metin başlık
+            if (logoRequest != null && !logoFailed) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.38f)
+                        .fillMaxHeight(0.25f),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    // Alt katman: kendi renkleriyle soluk (0.28f veya nefes alan)
                     AsyncImage(
-                        model = logoUrl,
+                        model = logoRequest,
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
-                        colorFilter = ColorFilter.tint(AccentCyan, BlendMode.SrcIn),
                         modifier = Modifier
-                            .heightIn(max = 80.dp)
-                            .widthIn(max = 280.dp)
+                            .fillMaxSize()
+                            .graphicsLayer { alpha = bottomLayerAlpha },
+                        onError = {
+                            logoFailed = true
+                        },
+                    )
+
+                    // Üst katman: kendi renkleriyle tam opak, soldan sağa ilerleme yüzdesi kadar kırpılmış (clip)
+                    AsyncImage(
+                        model = logoRequest,
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxSize()
                             .drawWithContent {
-                                clipRect(left = 0f, top = 0f, right = size.width * progressFraction, bottom = size.height) {
+                                val fill = animatedProgress
+                                clipRect(left = 0f, top = 0f, right = size.width * fill, bottom = size.height) {
                                     this@drawWithContent.drawContent()
                                 }
                             },
                     )
-                } else {
-                    // Metin başlık alternatifi (soluk zemin + soldan sağa dolan camgöbeği)
+                }
+            } else {
+                // Logo yoksa ya da bellekte değilse: film adı büyük ve kalın yazı, aynı iki katman ama #00E5FF camgöbeği renginde
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.70f)
+                        .padding(horizontal = 24.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    // Alt katman: soluk / nefes alan camgöbeği başlık
                     Text(
                         text = target.title,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = DimCyan,
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = AccentCyan,
+                        ),
                         textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.graphicsLayer { alpha = bottomLayerAlpha },
                     )
+
+                    // Üst katman: tam opak camgöbeği başlık, soldan sağa kırpılmış
                     Text(
                         text = target.title,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = AccentCyan,
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = AccentCyan,
+                        ),
                         textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.drawWithContent {
-                            clipRect(left = 0f, top = 0f, right = size.width * progressFraction, bottom = size.height) {
+                            val fill = animatedProgress
+                            clipRect(left = 0f, top = 0f, right = size.width * fill, bottom = size.height) {
                                 this@drawWithContent.drawContent()
                             }
                         },
                     )
                 }
             }
-
-            // Tek satır durum metni
-            Text(
-                text = statusText,
-                style = MaterialTheme.typography.bodyMedium,
-                color = StatusTextColor,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
         }
     }
 }

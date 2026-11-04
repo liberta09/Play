@@ -634,7 +634,4 @@
     <string name="repo_catalog_type_cloudstream" translatable="false">CloudStream</string>
     <string name="repo_catalog_type_nuvio_repo">Nuvio repo</string>
     <string name="repo_catalog_type_nuvio_plugin">Nuvio plugin</string>
-    <!-- Torrent yükleme ekranı -->
-    <string name="torrent_loading_connecting">Connecting to sources</string>
-    <string name="torrent_loading_preparing">Preparing your video</string>
 </resources>

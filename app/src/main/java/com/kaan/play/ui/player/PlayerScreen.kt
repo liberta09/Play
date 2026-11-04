@@ -121,8 +121,10 @@ import com.kaan.play.ui.settings.SubtitleStyleControls
 import com.kaan.play.ui.sources.SourcesSheet
 import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.requestWhenAttached
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 private const val HIDE_AFTER_MS = 4_000L
@@ -168,6 +170,8 @@ fun PlayerScreen(
     skips: SkipController? = null,
     /** Torrent yükleme ekranı için motor durumunu okuyan fonksiyon. */
     getTorrentLoadSnapshot: () -> TorrentLoadProgressRules.TorrentLoadSnapshot = { TorrentLoadProgressRules.TorrentLoadSnapshot() },
+    /** Eksikse logo/backdrop bilgisini arka planda TMDB'den getiren fonksiyon. */
+    onFetchMetadata: (suspend () -> Pair<String?, String?>?)? = null,
     onBack: () -> Unit,
 ) {
     val container = rememberContainer()
@@ -178,6 +182,10 @@ fun PlayerScreen(
 
     val ui = controller.ui
     var torrentOverlayFallback by remember { mutableStateOf(false) }
+    var activeLogoPath by remember(target) { mutableStateOf(target.logoPath) }
+    var activeBackdropPath by remember(target) { mutableStateOf(target.backdropPath) }
+
+
     var controlsVisible by remember { mutableStateOf(true) }
     var interaction by remember { mutableIntStateOf(0) }
     var showPanel by remember { mutableStateOf(false) }
@@ -624,7 +632,20 @@ fun PlayerScreen(
 
         val currentStream = coordinator?.current ?: offlineStream
         val isTorrent = currentStream != null && TorrentLinks.isMagnet(currentStream.url)
-        val showTorrentOverlay = isTorrent && !ui.firstFrameRendered && !torrentOverlayFallback && ui.error == null && !sourcesFailed
+        var lastRenderedStreamUrl by remember { mutableStateOf<String?>(null) }
+        LaunchedEffect(ui.firstFrameRendered, currentStream?.url) {
+            if (ui.firstFrameRendered && currentStream?.url != null) {
+                lastRenderedStreamUrl = currentStream.url
+            }
+        }
+        val isNewStream = TorrentOverlayDisplayRules.isNewStream(currentStream?.url, lastRenderedStreamUrl)
+        val shouldShowByRules = TorrentOverlayDisplayRules.evaluate(
+            isTorrent = isTorrent,
+            isNewStream = isNewStream,
+            firstFrameRendered = ui.firstFrameRendered,
+            isSeeking = controller.stallTracker.isSeeking,
+        )
+        val showTorrentOverlay = shouldShowByRules && !torrentOverlayFallback && ui.error == null && !sourcesFailed
 
         if (resolving && ui.error == null) {
             Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -637,6 +658,8 @@ fun PlayerScreen(
                 firstFrameRendered = ui.firstFrameRendered,
                 getSnapshot = getTorrentLoadSnapshot,
                 onFallback = { torrentOverlayFallback = true },
+                overrideLogoPath = activeLogoPath,
+                overrideBackdropPath = activeBackdropPath,
             )
         } else if ((ui.buffering || coordinator?.switching == true) && ui.error == null && !sourcesFailed) {
             // Kaynak değişirken (kaldığı saniyeden devam) ve tamponlarken dönen yükleme göstergesi.

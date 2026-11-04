@@ -149,12 +149,12 @@ fun DetailScreen(
                 onOpenActor = onOpenActor,
                 onPlay = { s, e ->
                     val media = d.value.summary
-                    onPlay(PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath, d.value.logoPath))
+                    onPlay(PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath, d.value.logoPath, media.backdropPath))
                 },
                 downloads = downloads,
                 onDownload = { s, e ->
                     val media = d.value.summary
-                    downloadFor = PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath, d.value.logoPath)
+                    downloadFor = PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath, d.value.logoPath, media.backdropPath)
                 },
                 listState = listState,
             )
