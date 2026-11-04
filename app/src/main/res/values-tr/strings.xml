@@ -615,4 +615,7 @@
     <string name="repo_catalog_install_failure">Hata: %1$s</string>
     <string name="repo_catalog_type_nuvio_repo">Nuvio deposu</string>
     <string name="repo_catalog_type_nuvio_plugin">Nuvio eklentisi</string>
+    <!-- Torrent yükleme ekranı -->
+    <string name="torrent_loading_connecting">Kaynaklara bağlanılıyor</string>
+    <string name="torrent_loading_preparing">Videon hazırlanıyor</string>
 </resources>

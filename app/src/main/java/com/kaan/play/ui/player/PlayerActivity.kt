@@ -329,6 +329,7 @@ class PlayerActivity : AppCompatActivity() {
                     embeddedDub = embeddedDub,
                     onAudioChosen = ::onAudioChosen,
                     skips = skips,
+                    getTorrentLoadSnapshot = container.torrentEngine::getLoadSnapshot,
                     onBack = ::finish,
                 )
             }

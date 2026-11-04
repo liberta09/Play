@@ -60,6 +60,8 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
     private val lock = Any()
     private var session: SessionManager? = null
     @Volatile private var active: Opened? = null
+    @Volatile private var openingHandle: TorrentHandle? = null
+    @Volatile private var isOpening: Boolean = false
     private val users = AtomicInteger()
     private val background = Executors.newSingleThreadExecutor { r -> Thread(r, "torrent-engine").apply { isDaemon = true } }
     @Volatile private var firstFrameArrived: Boolean = false
@@ -103,7 +105,9 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
     fun open(magnet: String, fileHint: Int?): Opened {
         val hash = TorrentLinks.hexHashOf(magnet) ?: throw TorrentException(TorrentException.Reason.BadLink, "bad magnet")
         TorrentDiag.d("motor open: hash=$hash fileHint=$fileHint")
-        synchronized(lock) {
+        isOpening = true
+        try {
+            synchronized(lock) {
             idleTask?.cancel(false)
             idleTask = null
             active?.let { if (it.hash == hash && it.fileHint == fileHint && it.handle.isValid) { TorrentDiag.d("motor open: hash=$hash (REUSING EXISTING ACTIVE TORRENT)"); return it } }
@@ -138,6 +142,7 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
                     ?: throw TorrentException(TorrentException.Reason.Engine, "torrent not added")
                 PUBLIC_TRACKERS.forEach { runCatching { handle.addTracker(AnnounceEntry(it)) } }
             }
+            openingHandle = handle
             val h = handle
             waitFor(METADATA_TIMEOUT_MS) { h.takeIf { it.isValid && it.status().hasMetadata() } }
                 ?: run {
@@ -192,6 +197,10 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
             startOpeningStatsTracker(h)
             return Opened(hash, fileHint, h, files.fileName(index), size, offset, pieceLength, File(h.savePath(), files.filePath(index)))
                 .also { active = it }
+            }
+        } finally {
+            isOpening = false
+            openingHandle = null
         }
     }
 
@@ -200,6 +209,63 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
      * ADIM 2 (PARALEL öncelik): Başlık ve kuyruk önceliklerini silmeden, yeni konumun parçalarını öne alır.
      */
     /** İlk video karesi ekrana gelince çağrılır: sequential_download açılır ve normal pencere önceliği başlar. */
+
+    /**
+     * Torrent yükleme ekranı için anlık durum görüntüsü (kilitsiz, ana iş parçacığını engellemez).
+     */
+    fun getLoadSnapshot(): TorrentLoadProgressRules.TorrentLoadSnapshot {
+        return runCatching {
+            val currentActive = active
+            if (currentActive != null && currentActive.handle.isValid) {
+                val st = currentActive.handle.status()
+                val buffered = maxOf(st.totalWantedDone(), totalBytesServed.get())
+                TorrentLoadProgressRules.TorrentLoadSnapshot(
+                    hasMetadata = true,
+                    metadataFraction = 1f,
+                    bufferedBytes = buffered,
+                    requiredBytes = TorrentLoadProgressRules.DEFAULT_REQUIRED_BYTES,
+                )
+            } else {
+                val h = openingHandle
+                if (h != null && h.isValid) {
+                    val st = h.status()
+                    val meta = st.hasMetadata()
+                    if (meta) {
+                        val buffered = maxOf(st.totalWantedDone(), totalBytesServed.get())
+                        TorrentLoadProgressRules.TorrentLoadSnapshot(
+                            hasMetadata = true,
+                            metadataFraction = 1f,
+                            bufferedBytes = buffered,
+                            requiredBytes = TorrentLoadProgressRules.DEFAULT_REQUIRED_BYTES,
+                        )
+                    } else {
+                        val frac = st.progress().coerceIn(0f, 1f)
+                        TorrentLoadProgressRules.TorrentLoadSnapshot(
+                            hasMetadata = false,
+                            metadataFraction = frac,
+                            bufferedBytes = 0L,
+                            requiredBytes = TorrentLoadProgressRules.DEFAULT_REQUIRED_BYTES,
+                        )
+                    }
+                } else {
+                    TorrentLoadProgressRules.TorrentLoadSnapshot(
+                        hasMetadata = false,
+                        metadataFraction = 0f,
+                        bufferedBytes = 0L,
+                        requiredBytes = TorrentLoadProgressRules.DEFAULT_REQUIRED_BYTES,
+                    )
+                }
+            }
+        }.getOrElse {
+            TorrentLoadProgressRules.TorrentLoadSnapshot(
+                hasMetadata = false,
+                metadataFraction = 0f,
+                bufferedBytes = 0L,
+                requiredBytes = TorrentLoadProgressRules.DEFAULT_REQUIRED_BYTES,
+            )
+        }
+    }
+
     fun onFirstFrame() {
         TorrentDiag.d("motor: ilk kare bildirildi")
         firstFrameArrived = true

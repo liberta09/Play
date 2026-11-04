@@ -104,6 +104,8 @@ import com.kaan.play.data.settings.ResizeMode
 import com.kaan.play.data.settings.SkipPlaybackSettings
 import com.kaan.play.data.settings.SubtitleStyle
 import com.kaan.play.data.stream.PlayTarget
+import com.kaan.play.data.stream.TorrentLinks
+import com.kaan.play.data.torrent.TorrentLoadProgressRules
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.SizeText
 import com.kaan.play.data.subtitle.SubtitleItem
@@ -164,6 +166,8 @@ fun PlayerScreen(
     onAudioChosen: (Int) -> Unit = {},
     /** İntro/özet/jenerik/önizleme atlama düğmeleri; null: yok. */
     skips: SkipController? = null,
+    /** Torrent yükleme ekranı için motor durumunu okuyan fonksiyon. */
+    getTorrentLoadSnapshot: () -> TorrentLoadProgressRules.TorrentLoadSnapshot = { TorrentLoadProgressRules.TorrentLoadSnapshot() },
     onBack: () -> Unit,
 ) {
     val container = rememberContainer()
@@ -173,6 +177,7 @@ fun PlayerScreen(
     val locale = remember { Locale.forLanguageTag(AppLanguage.effective().iso) }
 
     val ui = controller.ui
+    var torrentOverlayFallback by remember { mutableStateOf(false) }
     var controlsVisible by remember { mutableStateOf(true) }
     var interaction by remember { mutableIntStateOf(0) }
     var showPanel by remember { mutableStateOf(false) }
@@ -617,17 +622,28 @@ fun PlayerScreen(
         LevelIndicator(levelIndicator)
         SeekIndicator(seekIndicator)
 
+        val currentStream = coordinator?.current ?: offlineStream
+        val isTorrent = currentStream != null && TorrentLinks.isMagnet(currentStream.url)
+        val showTorrentOverlay = isTorrent && !ui.firstFrameRendered && !torrentOverlayFallback && ui.error == null && !sourcesFailed
+
         if (resolving && ui.error == null) {
             Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 CircularProgressIndicator(Modifier.size(40.dp), color = Color.White)
                 Text(stringResource(R.string.player_sources_loading), style = MaterialTheme.typography.bodyLarge, color = Color.White)
             }
+        } else if (showTorrentOverlay) {
+            TorrentLoadingOverlay(
+                target = target,
+                firstFrameRendered = ui.firstFrameRendered,
+                getSnapshot = getTorrentLoadSnapshot,
+                onFallback = { torrentOverlayFallback = true },
+            )
         } else if ((ui.buffering || coordinator?.switching == true) && ui.error == null && !sourcesFailed) {
             // Kaynak değişirken (kaldığı saniyeden devam) ve tamponlarken dönen yükleme göstergesi.
             CircularProgressIndicator(Modifier.align(Alignment.Center).size(40.dp), color = Color.White)
         }
 
-        if (showControls) {
+        if (showControls && !showTorrentOverlay) {
             val isLive = target.request.addonType in listOf("tv", "channel")
             val playing = coordinator?.current ?: offlineStream
             val sizeText = if (isLive) null else playing?.let { SizeText.format(coordinator?.sizeOf(it) ?: it.sizeBytes, locale) }
