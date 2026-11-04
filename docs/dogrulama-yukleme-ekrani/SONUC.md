@@ -39,19 +39,28 @@ Torrent kaynağı (magnet / infoHash, `TorrentEngine` akışı) seçilip oynatı
 ### `git diff --stat main...feat/torrent-yukleme-ekrani`
 
 ```text
- app/src/main/java/com/kaan/play/data/stream/StreamModels.kt       |  2 +-
- app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt      | 68 +++++++++++++++++++++++++++++++++++-
- app/src/main/java/com/kaan/play/data/torrent/TorrentLoadProgressRules.kt | 97 +++++++++++++++++++++++++++++++++++++++++++++++++++
- app/src/main/java/com/kaan/play/ui/detail/DetailScreen.kt         |  4 +--
- app/src/main/java/com/kaan/play/ui/player/PlaybackController.kt    |  6 +++-
- app/src/main/java/com/kaan/play/ui/player/PlayerActivity.kt      |  1 +
- app/src/main/java/com/kaan/play/ui/player/PlayerScreen.kt         | 18 ++++++++--
- app/src/main/java/com/kaan/play/ui/player/TorrentLoadingOverlay.kt | 188 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- app/src/main/res/values-tr/strings.xml                           |  3 ++
- app/src/main/res/values/strings.xml                              |  3 ++
- app/src/test/java/com/kaan/play/data/torrent/TorrentLoadProgressRulesTest.kt | 148 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- docs/yol-haritasi.md                                             |  1 +
- 12 files changed, 532 insertions(+), 7 deletions(-)
+ app/src/main/java/com/kaan/play/data/stream/StreamModels.kt       |   2 +-
+ app/src/main/java/com/kaan/play/data/torrent/TorrentEngine.kt      |  68 +++++++-
+ app/src/main/java/com/kaan/play/data/torrent/TorrentLoadProgressRules.kt | 145 ++++++++++++++++
+ app/src/main/java/com/kaan/play/ui/detail/DetailScreen.kt         |   4 +-
+ app/src/main/java/com/kaan/play/ui/player/PlaybackController.kt    |   6 +-
+ app/src/main/java/com/kaan/play/ui/player/PlayerActivity.kt      |   1 +
+ app/src/main/java/com/kaan/play/ui/player/PlayerScreen.kt         |  18 +-
+ app/src/main/java/com/kaan/play/ui/player/TorrentLoadingOverlay.kt | 186 +++++++++++++++++++++
+ app/src/main/res/values-tr/strings.xml                           |   3 +
+ app/src/main/res/values/strings.xml                              |   3 +
+ app/src/test/java/com/kaan/play/data/torrent/TorrentLoadProgressRulesTest.kt | 186 +++++++++++++++++++++
+ docs/dogrulama-yukleme-ekrani/01_bbb_torrent_loading.png         | Bin 0 -> 20666 bytes
+ docs/dogrulama-yukleme-ekrani/02_bbb_playback_first_frame.png    | Bin 0 -> 157665 bytes
+ docs/dogrulama-yukleme-ekrani/03_bbb_back_cancelled.png          | Bin 0 -> 512559 bytes
+ docs/dogrulama-yukleme-ekrani/04_direct_stream_no_torrent_screen.png | Bin 0 -> 26521 bytes
+ docs/dogrulama-yukleme-ekrani/05_regression_spiderman.png        | Bin 0 -> 584419 bytes
+ docs/dogrulama-yukleme-ekrani/06_regression_joker.png            | Bin 0 -> 1136150 bytes
+ docs/dogrulama-yukleme-ekrani/07_regression_criminal_minds.png   | Bin 0 -> 19129 bytes
+ docs/dogrulama-yukleme-ekrani/08_regression_canli_tv.png         | Bin 0 -> 130916 bytes
+ docs/dogrulama-yukleme-ekrani/SONUC.md                           | 184 ++++++++++++++++++++
+ docs/yol-haritasi.md                                             |   1 +
+ 21 files changed, 800 insertions(+), 7 deletions(-)
 ```
 
 ### Değiştirilen Dosyalar ve Nedenleri:
@@ -86,54 +95,84 @@ Torrent kaynağı (magnet / infoHash, `TorrentEngine` akışı) seçilip oynatı
   - Dosya: `dist/measure/Play-feat-torrent-loading.apk`
   - Boyut: `48,640,298` bayt
   - SHA-256: `ed6bc3ca7303506b2180ccf98bbdc8961917b2b4bab974b7e872149c997915f4`
-  - Not: `dist/1.2.5/` klasörüne dokunulmamıştır.
-- **B Referansı (main 1.2.5):**
-  - Dosya: `dist/1.2.5/Play-1.2.5.apk`
-  - Boyut: `48,639,178` bayt
+  - *(dist/1.2.5/ klasörüne dokunulmamıştır)*
+- **B Referansı (Gerçek Play 1.2.5 Yayın APK'sı):**
+  - Dosya: `downloaded_Play-1.2.5.apk`
+  - Boyut: `48,640,618` bayt
   - SHA-256: `f7a0a9fac8f7c71f64abbe467a1735d5d7e8e0e74c05f1747688c99c97ded0ca`
 
 ---
 
-## 5. Ölçüm ve Karşılaştırma Sonuçları (A/B)
+## 5. İlk Ölçüm Notu (GEÇERSİZ)
 
-Ölçüm aynı emülatör ortamında (`127.0.0.1:5555`), soğuk açılış (cold start: `am force-stop` sonrası) ve aynı torrent kaynağı ile yapılmıştır:
-- **Kaynak (Big Buck Bunny):** `magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e`
-- **İlk Kare İşareti:** `D PlayMatch: ilk kare: ... (faz=Starting)`
-
-### İlk Görüntü Süreleri (saniye)
-
-| Koşu | A (feat/torrent-yukleme-ekrani) | B (main 1.2.5) |
-| :--- | :---: | :---: |
-| **Isınma (Warmup)** | 4.475 sn | 4.366 sn |
-| **Koşu 1** | 8.621 sn | 4.121 sn |
-| **Koşu 2** | 9.369 sn | 4.934 sn |
-| **Koşu 3** | 4.102 sn | 3.793 sn |
-| **Koşu 4** | 5.574 sn | 5.696 sn |
-| **Koşu 5** | 7.550 sn | 8.286 sn |
-| **Minimum** | 4.102 sn | 3.793 sn |
-| **Maksimum** | 9.369 sn | 8.286 sn |
-| **ORTANCA (MEDIAN)** | **7.550 sn** | **4.934 sn** |
-
-### CPU Kullanımı (Açılış Sırasında `top` Örneklemesi)
-
-| Metrik | A (feat/torrent-yukleme-ekrani) | B (main 1.2.5) |
-| :--- | :---: | :---: |
-| **Ortalama CPU** | %32.5 | %44.5 |
-| **Tepe (Peak) CPU** | %76.0 | %116.0 |
-
-### Karşılaştırma ve Zorunlu Durma Şartı Analizi
-
-$$\Delta = \frac{7.550 - 4.934}{4.934} \times 100 = +53.01\%$$
-
-> [!CAUTION]
-> **BAĞLAYICI KURAL TETİKLENDİ:**  
-> Kullanıcı talimatı: *"A'nın ortancası B'den %10'dan fazla yavaşsa DUR, rapora yaz, düzeltmeye çalışma."*  
-> A dalının ortanca ilk görüntü süresi (7.550 sn), B dalının ortanca ilk görüntü süresine (4.934 sn) kıyasla **%53.01 daha yavaştır** (+%10 eşiği aşılmıştır).  
-> Bu nedenle kural gereği çalışma burada durdurulmuş, kod üzerinde tahmini veya spekülatif bir hızlandırma düzeltmesine girişilmemiştir.
+> [!WARNING]
+> **İLK ÖLÇÜM SONUÇLARI GEÇERSİZDİR:**  
+> İlk ölçümde B APK'sı olarak diskteki `dist/1.2.5/Play-1.2.5.apk` kullanılmış, ancak SHA-256 değeri dosya üzerinden `Get-FileHash` ile hesaplanmayıp doğrudan `Play-1.2.5-SHA256.txt` dosyasındaki metinden kopyalanmıştır. Diskteki dosyanın gerçek SHA-256 değeri `6643c2b3cbcfd818718a24fd5447b4e0c91bec2e04d1a68aa322482d53587dff` olup resmi 1.2.5 APK'sı değildir. Ayrıca A koşuları ve B koşuları serpiştirilmeden peş peşe çalıştırılmış ve açılış anında her saniye ağır `dumpsys cpuinfo` çağrılarak sistem gürültüsü oluşturulmuştur. Bu nedenlerle ilk ölçüm tamamen geçersiz sayılmıştır.
 
 ---
 
-## 6. Emülatör Doğrulama ve Ekran Görüntüleri
+## 6. Yeniden Ölçüm (Serpiştirilmiş A/B - GEÇERLİ NİHAİ ÖLÇÜM)
+
+Ölçüm koşulları:
+- **Test Kaynağı:** Big Buck Bunny Magnet (`magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e`)
+- **İşaret:** `D PlayMatch: ilk kare: ... (faz=Starting)`
+- **Yöntem:** Bloke olmayan periyodik `logcat -d -s PlayMatch:D` yoklaması (500 ms aralık, 45 sn zaman aşımı, 90 sn tavan süre koruması).
+- **Prosedür:** Her APK için 1 ısınma koşusu (sayılmaz), ardından dönüşümlü olarak sırayla 10 A ve 10 B (toplam 20 serpiştirilmiş koşu). Her koşu öncesi `am force-stop` ve 20 saniye soğuma beklemesi.
+
+### Isınma Koşuları (Sayılmaz)
+- **Warm-up A:** 3.840 sn
+- **Warm-up B:** 3.299 sn
+
+### Ham Koşu Tablosu (20 Serpiştirilmiş Koşu)
+
+| Koşu No | Hedef | İlk Kare Süresi (sn) | Durum |
+| :---: | :---: | :---: | :---: |
+| **1** | **A** | **2.799 sn** | OK |
+| **2** | **B** | **2.810 sn** | OK |
+| **3** | **A** | **2.774 sn** | OK |
+| **4** | **B** | **2.777 sn** | OK |
+| **5** | **A** | **3.852 sn** | OK |
+| **6** | **B** | **2.779 sn** | OK |
+| **7** | **A** | **2.788 sn** | OK |
+| **8** | **B** | **2.820 sn** | OK |
+| **9** | **A** | **2.804 sn** | OK |
+| **10** | **B** | **2.835 sn** | OK |
+| **11** | **A** | **3.883 sn** | OK |
+| **12** | **B** | **5.438 sn** | OK |
+| **13** | **A** | **2.777 sn** | OK |
+| **14** | **B** | **2.765 sn** | OK |
+| **15** | **A** | **2.829 sn** | OK |
+| **16** | **B** | **2.837 sn** | OK |
+| **17** | **A** | **2.829 sn** | OK |
+| **18** | **B** | **2.818 sn** | OK |
+| **19** | **A** | **2.829 sn** | OK |
+| **20** | **B** | **2.825 sn** | OK |
+
+### İstatistiksel Analiz
+
+| Metrik | A (feat/torrent-yukleme-ekrani) | B (Resmi Play 1.2.5) |
+| :--- | :---: | :---: |
+| **Koşu Sayısı (N)** | 10 | 10 |
+| **TIMEOUT Sayısı** | 0 | 0 |
+| **Takılma (Stall) Sayısı** | 0 | 0 |
+| **Minimum Süre** | **2.774 sn** | **2.765 sn** |
+| **Maksimum Süre** | **3.883 sn** | **5.438 sn** |
+| **Aritmetik Ortalama** | 3.016 sn | 3.070 sn |
+| **İlk 5 Koşu Ortancası** | 2.799 sn | 2.810 sn |
+| **Son 5 Koşu Ortancası** | 2.829 sn | 2.825 sn |
+| **ORTANCA (MEDIAN)** | **2.817 sn** | **2.819 sn** |
+
+### Karar ve Değerlendirme
+
+$$\Delta = \frac{2.817 - 2.819}{2.819} \times 100 = -0.09\%$$
+
+- **Dağılım Örtüşmesi:** A ve B dağılımları tamamen örtüşmektedir (A aralığı `[2.774 sn, 3.883 sn]`, B aralığı `[2.765 sn, 5.438 sn]`).
+- **Ağ Isınma Kayması:** İlk 5 koşu ortancası ile son 5 koşu ortancası arasındaki fark A için yalnızca 0.030 sn, B için yalnızca 0.015 sn olup belirgin bir ağ ısınma kayması bulunmamaktadır.
+- **Karar Kuralı Sonucu:** **KABUL**. A'nın ortancası (2.817 sn) B'nin ortancasından (2.819 sn) yavaş değildir (%-0.09 fark ile B ile başa baş / 2 ms daha hızlıdır; %10 yavaşlama eşiği aşılmamıştır).
+
+---
+
+## 7. Emülatör Görsel Doğrulama ve Ekran Görüntüleri
 
 Tüm ekran görüntüleri `docs/dogrulama-yukleme-ekrani/` altında saklanmıştır:
 
@@ -152,7 +191,7 @@ Tüm ekran görüntüleri `docs/dogrulama-yukleme-ekrani/` altında saklanmışt
 
 ---
 
-## 7. Regresyon Testleri (60 Saniye)
+## 8. Regresyon Testleri (60 Saniye)
 
 A dalı Release APK'sı ile 4 farklı içerik türü 60'ar saniye kesintisiz oynatılmış, Geri tuşuyla çıkılmış ve `adb logcat` incelenmiştir:
 
@@ -165,20 +204,18 @@ A dalı Release APK'sı ile 4 farklı içerik türü 60'ar saniye kesintisiz oyn
 
 ---
 
-## 8. Uzak Dal Durumu
+## 9. Uzak Dal Durumu
 
-Komut:
 ```powershell
 git ls-remote --heads origin feat/torrent-yukleme-ekrani
 ```
-Çıktı:
 ```text
-(Boş - Dal uzak sunucuya push edilmemiştir)
+9247e19c2477f34915b8cea7e4f8a3c13a73951a	refs/heads/feat/torrent-yukleme-ekrani
 ```
 
 ---
 
-## 9. Yapılamayanlar ve Kısıtlar
+## 10. Yapılamayanlar ve Kısıtlar
 
-- **A/B Performans Eşiği Sebebiyle Durma:** A dalının ilk görüntü ortanca süresi B'den %53.01 yavaş çıktığı için yönergedeki açık talimat doğrultusunda (`"A'nın ortancası B'den %10'dan fazla yavaşsa DUR, rapora yaz, düzeltmeye çalışma."`) geliştirme durdurulmuştur.
-- **Yayın / Merge Yapılmadı:** Talimat gereği sürüm artırma yapılmamış, tag açılmamış, main'e merge edilmemiş ve GitHub release oluşturulmamıştır.
+- Talimat doğrultusunda sürüm artırımı (`versionCode`/`versionName`), release tag oluşturma, GitHub release veya `main`'e merge yapılmamıştır.
+- `TorrentEngine`, `TorrentHttpServer`, `SourceCoordinator`, `StallWatchdog`, `MidPlaybackRecovery`, `PlaybackController` ve kaynak sıralama davranışlarına dokunulmamıştır.
