@@ -71,27 +71,27 @@ Uygulama sürümü `versionCode = 33`, `versionName = "1.2.6"` olarak güncellen
 Oynatıcı içi kaynak geçişlerinde durum makinesi `TorrentOverlayDisplayRules.TorrentOverlayState` ile güncellenmiş ve ekranın doğru tetiklendiği `screenrecord` kareleri ile kanıtlanmıştır:
 
 ### Geçiş 1: Doğrudan (HTTP) Kaynaktan Torrent Kaynağına Geçiş
-1. `gecis_1_direct_to_torrent_oncesi.png` (MD5: `154f5b5460624bbd80e49414670f0bb9`): Doğrudan kaynak oynatılıyor.
-2. `gecis_1_direct_to_torrent_baglanma.png` (MD5: `83c07d1500e4282396cac6e924b2b948`): Torrent kaynağına geçildi, torrent yükleme ekranı açıldı, bağlanma fazı.
-3. `gecis_1_direct_to_torrent_dolum.png` (MD5: `15d500076335a7fe2ed5de64b65eab73`): Gerçek ilerlemeye göre logo soldan sağa doluyor.
-4. `gecis_1_direct_to_torrent_ilk_kare.png` (MD5: `3994ca69221156cfec3f6c6ef5eb6a83`): İlk video karesi geldi, ekran yumuşak solup kayboldu ve video oynuyor.
+1. `gecis_1_direct_to_torrent_oncesi.png` (MD5: `3eff3aad8a8516ac9cf7be81ec52fa56`): Doğrudan Mux HLS (Big Buck Bunny) yayını oynatılıyor (video karesi ekranda).
+2. `gecis_1_direct_to_torrent_baglanma.png` (MD5: `78f51ec356ab866cc4ac88b3731590f6`): Fight Club torrent kaynağına geçildi; TMDB yatay sahne görseli ve %50 karartma zemininde soluk pembe Fight Club logosu ile bağlanma aşaması gösteriliyor.
+3. `gecis_1_direct_to_torrent_dolum.png` (MD5: `5366ef4159faf61c6f062cbbd0064d88`): Tampon ilerlemesiyle Fight Club logosunun içi soldan sağa parlak pembe renkle doluyor.
+4. `gecis_1_direct_to_torrent_ilk_kare.png` (MD5: `d11db6c5f149c7f8c7d5bed8ec227844`): İlk video karesi geldi (02:41:51), yükleme ekranı solarak kapandı ve Fight Club torrent videosu oynuyor.
 
 ### Geçiş 2: Torrent'ten Başka Bir Torrent Kaynağına Geçiş
-1. `gecis_2_torrent_to_torrent_oncesi.png` (MD5: `87c0b3a569055c42029c2229be11399e`): İlk torrent akışı oynatılıyor.
-2. `gecis_2_torrent_to_torrent_baglanma.png` (MD5: `facf899fbe3eec1f7a703bca066c01b3`): İkinci torrent kaynağı seçildi, ekran sıfırlanıp yeniden açıldı.
-3. `gecis_2_torrent_to_torrent_dolum.png` (MD5: `260e6dcc5948b4b6478e78bb0a7b985e`): Yeni torrent için dolum yapılıyor.
-4. `gecis_2_torrent_to_torrent_ilk_kare.png` (MD5: `15de0722de1db5a30b20028d68fc469a`): İlk kare geldi, yükleme ekranı kapandı.
+1. `gecis_2_torrent_to_torrent_oncesi.png` (MD5: `99b73fb34905eb138fcc94a6890105ca`): İlk torrent kaynağı (Torrentio 1080p) oynatılıyor.
+2. `gecis_2_torrent_to_torrent_baglanma.png` (MD5: `96370faea198a362a036d9449b8a7553`): İkinci torrent kaynağı (Torrentio 480p) seçildi; durum makinesi sıfırlandı, yükleme ekranı TMDB sahnesi ve soluk logo ile tekrar açıldı.
+3. `gecis_2_torrent_to_torrent_dolum.png` (MD5: `1bb780e3af2d608c66a813aab468cf6c`): İkinci torrent için veri tamponlanırken logo ilerlemeye göre doluyor.
+4. `gecis_2_torrent_to_torrent_ilk_kare.png` (MD5: `c1ef5352337140c7b3bbe9b2fd6c6c2b`): İkinci torrent akışının ilk karesi işlendi (02:44:32), yükleme ekranı kapandı ve video oynatılıyor.
 
 ### Geçiş 3: Torrent'ten Doğrudan Kaynağa, Ardından Tekrar Torrent'e Geçiş
-1. `gecis_3_torrent_to_direct_oynuyor.png` (MD5: `5e09311f464748f6e834042451569575`): Doğrudan kaynağa geçildi, yükleme ekranı ÇIKMADI, video doğrudan başladı.
-2. `gecis_3_direct_to_torrent_baglanma.png` (MD5: `9cdea3097f6f97cc696ab1c5bc884c87`): Tekrar torrent'e geçildi, yükleme ekranı sorunsuz tetiklendi.
-3. `gecis_3_direct_to_torrent_dolum.png` (MD5: `ca11de8b5f905b52585a3feb2f4e31a5`): Dolum ilerlemesi devam ediyor.
-4. `gecis_3_direct_to_torrent_ilk_kare.png` (MD5: `828eec9d481eec878e3f8955151a1113`): İlk kare geldi, video başladı.
+1. `gecis_3_torrent_to_direct_oynuyor.png` (MD5: `3badcdcbc47b888391c3c895a4c160d3`): Doğrudan HLS kaynağına geçildi; yükleme ekranı HİÇ ÇIKMADI, doğrudan akış videosu oynuyor.
+2. `gecis_3_direct_to_torrent_baglanma.png` (MD5: `7eb5f653802d481b3f0726fde4907d98`): Doğrudan kaynaktan tekrar torrent kaynağına geçildi; torrent yükleme ekranı bağlanma aşamasıyla açıldı.
+3. `gecis_3_direct_to_torrent_dolum.png` (MD5: `65d616cc3c428e3c6eb76e7ff313b3a8`): Tamponlama devam ederken logo pembe renkle doluyor.
+4. `gecis_3_direct_to_torrent_ilk_kare.png` (MD5: `14ab3da4d357115b7cf0c2d34160a6dd`): İlk video karesi ekrana ulaştı, yükleme ekranı kayboldu ve torrent videosu oynuyor.
 
 ### Geçiş 4: Aynı Torrent İçinde İleri/Geri Sarma (Seek)
-1. `gecis_4_seek_oncesi_oynuyor.png` (MD5: `ebc5494a2efc6a022e06c4452ebf3f1a`): Seek öncesi video oynuyor.
-2. `gecis_4_seek_sirasi_cubuk_sariliyor.png` (MD5: `ceeae790a49fae8cbcb6e378b6ded3ce`): Kumanda ile sarma yapılıyor, yükleme ekranı KESİNLİKLE ÇIKMADI.
-3. `gecis_4_seek_sonrasi_oynuyor.png` (MD5: `bc4a0df1d47d9640a84e4726e6cdf973`): Yeni konumdan oynatma devam ediyor, arayüz temiz.
+1. `gecis_4_seek_oncesi_oynuyor.png` (MD5: `160d0c2365b1464bf5420b7d4a5781ea`): Oynatma devam ediyor.
+2. `gecis_4_seek_sirasi_cubuk_sariliyor.png` (MD5: `346a8c9f3593cbbff476af77a178c3e0`): İleri sarma çubuğu ve kumanda HUD görünür, video sarılıyor; torrent yükleme ekranı KESİNLİKLE AÇILMADI.
+3. `gecis_4_seek_sonrasi_oynuyor.png` (MD5: `e64d61db5e579d0b2a85718b85a3294a`): Yeni pozisyondan itibaren video oynatılmaya devam ediyor.
 
 ---
 
@@ -111,7 +111,7 @@ Release APK ile her içerik 60 saniye kesintisiz oynatılmış, Geri tuşuyla ka
 | Örümcek-Adam | Film | 60 sn | 0 FATAL / 0 ANR | Geri tuşu | `regresyon_1_spiderman.png` (`6a4640e40760c48e2d09423c6875e67e`) |
 | Joker (2019) | Film | 60 sn | 0 FATAL / 0 ANR | Geri tuşu | `regresyon_2_joker.png` (`4d93cea6bf39bd3e8228bc85a64a51c0`) |
 | Criminal Minds S1B1 | Dizi | 60 sn | 0 FATAL / 0 ANR | Geri tuşu | `regresyon_3_criminal_minds.png` (`ad29fd19355ba439fe3106dbbb65dc84`) |
-| Canlı TV (Anthology) | Canlı TV | 60 sn | 0 FATAL / 0 ANR | Geri tuşu | `regresyon_4_canli_tv.png` (`d7ffaee1ad568cf109c26bcc674c2444`) |
+| Canlı TV (Anthology) | Canlı TV | 60 sn | 0 FATAL / 0 ANR | Geri tuşu | `regresyon_4_canli_tv.png` (`9d7130935af711ab28fc63a00b8d2821`) |
 | BBB Torrent | Torrent | 60 sn | 0 FATAL / 0 ANR | Geri tuşu | `regresyon_5_bbb_torrent.png` (`66cdee29397e1f26d0a5342d6f30e94e`) |
 
 ---
