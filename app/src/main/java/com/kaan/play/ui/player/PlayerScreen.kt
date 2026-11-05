@@ -496,7 +496,7 @@ fun PlayerScreen(
             }
             AndroidView(
                 factory = { ctx ->
-                    val isTv = PlayerBufferConfig.isTv(ctx)
+                    val isTv = PlayerBufferConfig.isTvLayout(ctx)
                     val view = try {
                         val layoutId = if (isTv) R.layout.view_player_tv else R.layout.view_player
                         android.view.LayoutInflater.from(ctx).inflate(layoutId, null, false) as PlayerView

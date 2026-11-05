@@ -75,13 +75,20 @@ object PlayerBufferConfig {
 
     /**
      * Cihazın Android TV / TV kutusu olup olmadığını belirler.
-     * FEATURE_LEANBACK, UI_MODE_TYPE_TELEVISION veya yapılandırmadaki TV kipini kontrol eder.
+     * FEATURE_LEANBACK veya UI_MODE_TYPE_TELEVISION kontrol edilir.
      */
     fun isTv(context: Context): Boolean {
         val pm = context.packageManager
         val uiMode = context.getSystemService(Context.UI_MODE_SERVICE) as? UiModeManager
         return pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK) ||
-            uiMode?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION ||
+            uiMode?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+    }
+
+    /**
+     * PlayerView layout seçimi (TextureView vs SurfaceView) için TV kontrolü.
+     */
+    fun isTvLayout(context: Context): Boolean {
+        return isTv(context) ||
             (context.resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION
     }
 
