@@ -74,6 +74,25 @@ object PlayerBufferConfig {
     }
 
     /**
+     * Cihazın Android TV / TV kutusu olup olmadığını belirler.
+     * FEATURE_LEANBACK veya UI_MODE_TYPE_TELEVISION kontrol edilir.
+     */
+    fun isTv(context: Context): Boolean {
+        val pm = context.packageManager
+        val uiMode = context.getSystemService(Context.UI_MODE_SERVICE) as? UiModeManager
+        return pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK) ||
+            uiMode?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+    }
+
+    /**
+     * PlayerView layout seçimi (TextureView vs SurfaceView) için TV kontrolü.
+     */
+    fun isTvLayout(context: Context): Boolean {
+        return isTv(context) ||
+            (context.resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION
+    }
+
+    /**
      * Android Context üzerinden donanım parametrelerini okuyarak hedef arabellek baytını döner.
      */
     fun fromContext(context: Context): Int {
@@ -84,10 +103,7 @@ object PlayerBufferConfig {
         am?.getMemoryInfo(memInfo)
         val totalMemBytes = memInfo.totalMem
 
-        val pm = context.packageManager
-        val uiMode = context.getSystemService(Context.UI_MODE_SERVICE) as? UiModeManager
-        val isTv = pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK) ||
-            uiMode?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+        val isTv = isTv(context)
 
         return computeTargetBufferBytes(isLowRam, isTv, memoryClass, totalMemBytes)
     }
@@ -103,10 +119,7 @@ object PlayerBufferConfig {
         am?.getMemoryInfo(memInfo)
         val totalMemBytes = memInfo.totalMem
 
-        val pm = context.packageManager
-        val uiMode = context.getSystemService(Context.UI_MODE_SERVICE) as? UiModeManager
-        val isTv = pm.hasSystemFeature(PackageManager.FEATURE_LEANBACK) ||
-            uiMode?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+        val isTv = isTv(context)
 
         return shouldPrioritizeTimeOverSize(isLowRam, isTv, memoryClass, totalMemBytes)
     }
