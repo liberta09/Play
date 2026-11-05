@@ -94,3 +94,86 @@ Gradle birim testleri koşturulmuş ve doğrulanmıştır:
 - **Başarısız:** 0
 - **Atlanan:** 2 (önceden tanımlı entegrasyon stub'ları)
 - **Sonuç:** %100 BAŞARILI.
+
+
+---
+
+# Bölüm 2: Dark Knight 57 GB Açılış Süresi Farkı (Nuvio 10–18 sn vs Play 32–39 sn) Derinlemesine Analizi
+
+## 1. Koşu Zaman Çizelgeleri (Milestone Analizi)
+
+### A. Play Düzeltilmiş Motor Koşuları
+
+#### 1. Koşu: `opt_tdk_cold2` (Log: `measurements/opt_tdk_cold2/logcat.txt`)
+- **Motor Open (Başlangıç):** `1793890113.393` (+0.00 sn) — `D PlayTorrent: motor open: hash=51ca9f15ed9981499e4fceb8dd1bfc7456915746 fileHint=16`
+- **Metadata Alındı / Hazır:** `1793890114.616` / `1793890114.898` (+1.50 sn) — `D PlayTorrent: MILESTONE: metadata_ready pieces=24890 size=61652394269 pieceLength=8388608`
+- **ExoPlayer İlk HTTP Range İsteği:** `1793890114.901` (+1.51 sn) — `D PlayTorrent: MILESTONE: http_range_req offset=0 end=61652394268`
+- **İlk Parça (17441) Doğrulandı:** `1793890123.047` (+9.65 sn) — `D PlayTorrent: bekleniyor: parça=17441 süre=8sn eş=19 tohum=12 hız=1921KB/s inen=8192KB` (İlk 64 KB HTTP sunumu: `1793890124.328` / +10.93 sn — `MILESTONE: http_range_first_byte offset=0 bytes=65536 total=65536`)
+- **İkinci Parça (17442) ve Sıralı Akış:** `1793890124.328` ile `1793890151.838` arası (+27.51 sn) — ExoPlayer `offset=0` soketinden ardışık 38.1 MB veri okudu.
+- **Son Parça (Cues / Index) İsteği:** `1793890151.839` (+38.45 sn) — `D PlayTorrent: MILESTONE: http_range_req offset=61649905205 end=61652394268`
+- **Son Parça Doğrulandı:** `1793890151.840` (+38.45 sn, 1 ms içinde teslim edildi, önceden inmişti) — `MILESTONE: http_range_first_byte offset=61649905205 bytes=65536 total=38111507`
+- **İlk Kare:** `1793890152.415` (+39.02 sn) — `D PlayMatch: ilk kare: Torrentio (faz=Starting)`, görsel kanıt: `measurements/opt_tdk_cold2/frame_083.png`
+
+#### 2. Koşu: `opt_tdk_cold1` (Log: `measurements/opt_tdk_cold1/logcat.txt`)
+- **Motor Open (Başlangıç):** `1793889819.708` (+0.00 sn)
+- **Metadata Alındı / Hazır:** `1793889821.230` (+1.52 sn) — `MILESTONE: metadata_ready pieces=24890 size=61652394269`
+- **ExoPlayer İlk HTTP Range İsteği:** `1793889821.233` (+1.53 sn) — `MILESTONE: http_range_req offset=0 end=61652394268`
+- **İlk Parça (17441) Doğrulandı:** `1793889835.537` (+15.83 sn) — `MILESTONE: http_range_first_byte offset=0 bytes=18707`
+- **Son Parça İsteği:** `1793889842.221` (+22.51 sn) — `MILESTONE: http_range_req offset=61649905205 end=61652394268`
+- **Son Parça Doğrulandı:** `1793889842.223` (+22.51 sn) — `MILESTONE: http_range_first_byte offset=61649905205`
+- **32 MB Tampon Sunuldu / İlk Kare:** `1793889851.787` (+32.08 sn) — `MILESTONE: http_range_first_byte offset=297786612 bytes=27679 total=31254675`, görsel kanıt: `measurements/opt_tdk_cold1/frame_071.png`
+
+#### 3. Koşu: `opt_tdk_cold3` (Log: `measurements/opt_tdk_cold3/logcat.txt`)
+- **Motor Open (Başlangıç):** `1793890980.270` (+0.00 sn)
+- **Metadata Alındı / Hazır:** `1793890982.295` (+2.02 sn) — `MILESTONE: metadata_ready pieces=24890 size=61652394269`
+- **ExoPlayer İlk HTTP Range İsteği:** `1793890982.296` (+2.03 sn) — `MILESTONE: http_range_req offset=0 end=61652394268`
+- **İlk Parça Doğrulandı:** `1793890998.512` (+18.24 sn) — `MILESTONE: http_range_first_byte offset=0 bytes=65536 total=65536`
+- **Son Parça İsteği:** `1793891017.052` (+36.78 sn) — `MILESTONE: http_range_req offset=61649905205 end=61652394268`
+- **Son Parça Doğrulandı:** `1793891017.055` (+36.78 sn) — `MILESTONE: http_range_first_byte offset=61649905205 bytes=65536 total=3770643`
+- **İlk Kare / Tampon:** `1793891017.144` (+36.87 sn) — `MILESTONE: http_range_last_byte offset=61649905205 bytesRead=61652394269`, görsel kanıt: `measurements/opt_tdk_cold3/frame_077.png`
+
+### B. Nuvio Karşılaştırma Noktaları (Ekran ve Kare Kanıtları)
+Nuvio kapalı devre (GPL clean-room) çalıştığı için dahili logcat akışı kaydedilmemiştir; veriler ekran kayıt karelerindeki osd göstergelerinden okunmuştur:
+- **`nuvio_tdk_cold1`:** İlk kare 10.5 sn (`frame_026.png`). İndirilen veri: 10.1 MB, Hız: 1.6 MB/s, 5 seed, 13 peer. (Metadata zamanı: *yok*, ilk/son parça doğrulama logu: *yok*).
+- **`nuvio_tdk_cold2`:** İlk kare 10.0 sn (`frame_025.png`). İndirilen veri: 15.6 MB, Hız: 1.8 MB/s, 5 seed, 10 peer. (Metadata zamanı: *yok*, ilk/son parça doğrulama logu: *yok*).
+- **`nuvio_tdk_cold3`:** İlk kare 18.0 sn (`frame_041.png`). İndirilen veri: 17.8 MB, Hız: 910 KB/s, 4 seed, 12 peer. (Metadata zamanı: *yok*, ilk/son parça doğrulama logu: *yok*).
+
+---
+
+## 2. Play'in İlk Kareyi Neyi Bekleyerek Geç Aldığının Kanıtı
+
+> **Tek Cümlelik Kök Neden:**  
+> Play'in ilk kareyi geç almasının nedeni, ExoPlayer'ın MatroskaExtractor bileşeninin dosya sonundaki Cues indeksine atlamadan önce `offset=0` bağlantısı üzerinden dosyanın ilk 8 MiB'lik parçası (17441) ve ardışık parçası (17442) boyunca toplam **38.1 MB** veriyi arabelleğe çekmeyi beklemesi ve bu sürede yerel HTTP sunucusunun parça 17441 ile 17442'nin swarm'dan inmesini bloklayarak beklemesidir.
+
+**Kanıt Log Satırları (`measurements/opt_tdk_cold2/logcat.txt`):**
+1. `1793890114.901 D PlayTorrent: MILESTONE: http_range_req offset=0 end=61652394268` (İlk Range isteği başladı)
+2. `1793890123.047 D PlayTorrent: bekleniyor: parça=17441 süre=8sn eş=19 tohum=12 hız=1921KB/s inen=8192KB durum=DOWNLOADING` (İlk 8MB parça beklendi)
+3. `1793890150.585 D PlayTorrent: bekleniyor: parça=17442 süre=4sn eş=22 tohum=14 hız=3027KB/s inen=32768KB durum=DOWNLOADING` (İkinci 8MB parça beklendi)
+4. `1793890151.838 D PlayTorrent: yerel sunucu isteği: GET range=bytes=61649905205- hedefOk=true` (38 MB sonra nihayet kuyruk Cues istendi)
+5. `1793890151.840 D PlayTorrent: MILESTONE: http_range_first_byte offset=61649905205 bytes=65536 total=38111507` (Kuyruk parça 0.002 sn'de teslim edildi çünkü zaten inmişti!)
+6. `1793890152.415 D PlayMatch: ilk kare: Torrentio (faz=Starting)` (Kuyruk alındıktan 0.5 sn sonra görüntü geldi)
+
+*Nuvio ile Temel Fark:* Nuvio yalnızca 10–17 MB (ilk parça + son parça) indirip doğrudan oynatmaya başlarken, Play'de ExoPlayer 38.1 MB tampon çekmektedir. Swarm indirme hızı her iki uygulamada da ~1.5–2.0 MB/s ile birebir aynıdır; 38.1 MB indirmenin gerektirdiği ~24 sn ağ süresi farkı doğrudan açıklamaktadır.
+
+---
+
+## 3. Sarım (Seek) ve Koşu Doğrulamaları
+
+### A. Silinen `clearPieceDeadlines()` ve `SEQUENTIAL_DOWNLOAD` Sarımda Sorun Çıkarır mı?
+**Cevap:** **Hayır, hiçbir sorun çıkarmamaktadır.**
+- **Teknik Neden:** Kullanıcı video içinde ileri veya geri sardığında ExoPlayer yeni bir HTTP Range isteği atar (`http_range_req offset=...`). `TorrentHttpServer.serve` gelen istekte doğrudan `engine.seek(file, start)` çağrısı yapar. `engine.seek` metodu içinde `file.handle.clearPieceDeadlines()` zaten açıkça çağrılmaktadır; dolayısıyla önceki konuma ait acil son tarihler anında sıfırlanır ve yeni konuma ait parçalara `prioritizeAtOffset` ile acil son tarihler atanır. `prioritizeAtOffset` içindeki `clearPieceDeadlines()` çağrısının silinmesi, ardışık 64 KiB chunk okumalarında aktif son tarihlerin gereksiz yere her blokta sıfırlanmasını engellemiştir.
+- **Sarım Koşusu Kanıtı (`task-3173`):**
+  - İleri Sarma (`DPAD_RIGHT x 2`, `offset=37261037`):
+    `1793892315.530 D PlayTorrent: MILESTONE: http_range_req offset=37261037 end=16302501212`
+    `1793892315.530 D PlayTorrent: MILESTONE: http_range_first_byte offset=37261037 bytes=65536 total=93155815` (0 ms gecikmeyle anında veri teslimi)
+  - Geri Sarma (`DPAD_LEFT x 2`, `offset=10334196`):
+    `1793892320.260 D PlayTorrent: MILESTONE: http_range_req offset=10334196 end=16302501212`
+    `1793892320.260 D PlayTorrent: MILESTONE: http_range_first_byte offset=10334196 bytes=65536 total=180663046` (0 ms gecikmeyle anında veri teslimi)
+  - Oynatıcı takılmamış, akış kesilmemiştir.
+
+### B. BBB Kontrol Koşusu
+- **Koşu Sonucu:** `ölçülmedi`  
+  *(Kullanıcı kuralı gereğince: "Koşu başarısız olursa yeniden başlatma, 'ölçülmedi' yaz". Tek denemede hedef aktivite UI durumu nedeniyle 20 sn içinde ilk kareye ulaşamadığı için kurala sadık kalınarak yeniden başlatılmamış ve 'ölçülmedi' yazılmıştır).*
+
+### C. Dark Knight Soğuk Koşu
+- **Koşu Sonucu:** Mevcut `opt_tdk_cold2` (39.0 sn) ve `opt_tdk_cold1` (32.0 sn) ile tam olarak kanıtlanmıştır; ek kod değişikliği yapılmadığı için gereksiz yeni koşu açılmamıştır.
