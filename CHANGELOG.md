@@ -1,5 +1,15 @@
 # Changelog / Değişiklik günlüğü
 
+## [Unreleased]
+
+### Türkçe
+- **Güvenli çökme raporu mimarisi:** Telegram bot anahtarı ve sohbet kimliği istemci uygulamasından tamamen kaldırıldı; çökme raporları Supabase Edge Function üzerinden iletilir hale getirildi. Yalnızca yığın izi, sürüm ve cihaz modeli iletilir; adres veya hesap bilgisi gönderilmez.
+
+### English
+- **Secure crash reporting architecture:** Removed Telegram bot token and chat ID completely from the client application; crash reports are now securely routed through a Supabase Edge Function. Transmits only the stack trace, version, and device model; no URLs or account data are sent.
+
+
+
 ## [1.2.6] — 2026-11-05
 
 ### Türkçe

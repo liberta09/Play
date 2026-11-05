@@ -74,6 +74,8 @@
 
 Yeni sürümler, duyurular ve hata bildirimleri için Telegram kanalına katıl.
 
+Çökme raporları yalnızca yığın izi, sürüm ve cihaz modelini iletir; adres veya hesap bilgisi gönderilmez.
+
 <p align="center">
   <a href="https://t.me/+o-RFlV4U3UY5NGU8"><img src="https://img.shields.io/badge/Telegram-Kanala%20Kat%C4%B1l-229ED9?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram Kanalına Katıl" height="44" /></a>
 </p>
@@ -84,6 +86,8 @@ Yeni sürümler, duyurular ve hata bildirimleri için Telegram kanalına katıl.
 Play is a simple, original Android movie and TV client (Kotlin, Jetpack Compose). It ships with no content, add-ons or plugins: you add your own Nuvio add-ons, Nuvio plugins and CloudStream (.cs3) repositories. It starts playback right away, prefers Turkish dubbing, finds Turkish subtitles automatically, has a built-in torrent engine, offline downloads, volume/brightness swipe gestures, auto next episode, and works on phones, tablets and Android TV.
 
 **Download:** tap the APK button above (arm64-v8a for most phones). Requires Android 7.0+; allow "install unknown apps" to sideload. Join the Telegram channel for updates.
+
+Crash reports transmit only the stack trace, version, and device model; no URLs or account data are sent.
 </details>
 
 ---
