@@ -5,7 +5,7 @@
 **Derleme:** Release APK (`Play-1.2.7.apk`)  
 **SHA-256:** `194ebb28c0e77841487bee510a02465d8024eafbefdb5a061868aa1f3af60514`  
 **Ortam:** LDPlayer 9 Android Emülatörü (1600x900)  
-**Test Bitiş Saati:** 23:30 (TSİ)  
+**Test Bitiş Saati:** 23:58 (TSİ)  
 
 ---
 
@@ -51,6 +51,8 @@
 
 Her içerik için: açılış, 60 saniye kesintisiz oynatma, 30. saniyede orta kare (`mid`), HOME tuşuyla arka plana atılıp uygulamaya dönülmesi ve oynatmanın sürdürülmesi (`resume`), 60. saniyede bitiş karesi (`60s`) ve geri tuşuyla çıkış adımları uygulanmıştır.
 
+Criminal Minds S01E10 için test baştan tekrarlanmış; 30. sn, 60. sn ve 5 sn HOME dönüşü karelerinde kontrol çubuğu ve geçen süre açık olarak kaydedilmiştir. Oynatmanın kaldığı yerden devam ettiği doğrulanmış, süre başa dönmemiştir.
+
 Tüm kanıt kareleri oynarken alınmış gerçek video kareleridir (yükleme ekranı, siyah kare veya ana sayfa değildir). Tüm dosyaların MD5 özetleri birbirinden farklıdır.
 
 | İçerik | Aşama | Kanıt Dosyası | MD5 Hash | Ortalama RGB | Piksel Değişimi | Logcat FATAL | Durum |
@@ -61,26 +63,38 @@ Tüm kanıt kareleri oynarken alınmış gerçek video kareleridir (yükleme ekr
 | **Joker (2019)** | 30s (Mid) | `regresyon_2_joker_mid.png` | `2b58d5e032034666f155dafd603ea24c` | [45.96, 49.25, 45.15] | - | 0 Fatal | **GEÇTİ** |
 | | 60s (Son) | `regresyon_2_joker_60s.png` | `347fe600de99666e165e9c3cab86ef4e` | [40.36, 31.86, 25.20] | 197.790.822 | 0 Fatal | **GEÇTİ** |
 | | HOME/Dönüş | `regresyon_2_joker_resume.png` | `6f6314853a6ba7406dd0ec37e94df5e5` | [36.67, 30.39, 24.41] | - | 0 Fatal | **GEÇTİ** |
-| **Criminal Minds S01E10** | 30s (Mid) | `regresyon_3_criminal_minds_mid.png` | `ed75a391fe0833cd0c8a443465be9bba` | [7.00, 17.14, 26.15] | - | 0 Fatal | **GEÇTİ** |
-| | 60s (Son) | `regresyon_3_criminal_minds_60s.png` | `20b2f848e271e5f07c7c41a3668091e6` | [58.50, 49.89, 47.76] | 169.105.205 | 0 Fatal | **GEÇTİ** |
-| | HOME/Dönüş | `regresyon_3_criminal_minds_resume.png` | `44f205e6cc6104b9a50e4eb951495f8b` | [56.29, 55.72, 52.13] | - | 0 Fatal | **GEÇTİ** |
+| **Criminal Minds S01E10** | 30s (Kontrol Açık) | `regresyon_3b_cm_30s.png` | `65c976b0bc9179f5cf9a82d963538434` | [45.13, 42.22, 40.36] | - | 0 Fatal | **GEÇTİ** |
+| | 60s (Kontrol Açık) | `regresyon_3b_cm_60s.png` | `49b009c06bfe8621e1dda9f582eb6544` | [50.83, 49.07, 42.89] | 128.893.346 | 0 Fatal | **GEÇTİ** |
+| | HOME/5s Dönüş | `regresyon_3b_cm_resume.png` | `7c7ea96b58933a30581327e3321790d3` | [35.36, 30.41, 33.44] | - | 0 Fatal | **GEÇTİ** |
 | **Canlı TV (TRT 1 HD)** | 30s (Mid) | `regresyon_4_canli_tv_mid.png` | `61d2ca3a7fbfb952d69abe7a21338e77` | [63.21, 62.04, 69.12] | - | 0 Fatal | **GEÇTİ** |
 | | 60s (Son) | `regresyon_4_canli_tv_60s.png` | `faf4620ace084da99b091e01b7c8d582` | [92.93, 107.26, 62.12] | 244.391.760 | 0 Fatal | **GEÇTİ** |
 | | HOME/Dönüş | `regresyon_4_canli_tv_resume.png` | `01683fcc9e505796ae2a79d88a7c0bd7` | [17.76, 17.80, 22.57] | - | 0 Fatal | **GEÇTİ** |
 
 ---
 
-## 4. BBB Kontrol Magneti Açılış Hızı Ölçümü
+## 4. BBB Kontrol Magneti Açılış Hızı Ölçümü (3 Soğuk Koşu)
 
-- **Test Magneti:** `magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e` (Big Buck Bunny)
-- **Ölçüm Noktası:** Oynatıcı başlatma -> `PlayMatch: ilk kare: TestPrimary` logcat damgası
+BBB kontrol magneti (`magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c08e`) ile her koşudan önce uygulama `am force-stop` ile tamamen kapatılmış ve torrent oturumunun tamamen sonlanması için en az 4 dakika (245 saniye) beklenerek 3 bağımsız SOĞUK açılış ölçülmüştür.
+
+- **Ölçüm Yöntemi:** Motor açıldı (`PlayMatch: kaynak başlatılıyor`) -> İlk kare (`PlayMatch: ilk kare: TestPrimary`)
+- **Koşu 1 (Soğuk):**
+  - Süre: **2.445 sn**
+  - Motor Açılış Logu: `1793911677.149  4778  4778 D PlayMatch: kaynak başlatılıyor: TestPrimary (?)`
+  - İlk Kare Logu: `1793911679.594  4778  4778 D PlayMatch: ilk kare: TestPrimary (faz=Starting)`
+- **Koşu 2 (Soğuk):**
+  - Süre: **4.306 sn**
+  - Motor Açılış Logu: `1793911928.860  4965  4965 D PlayMatch: kaynak başlatılıyor: TestPrimary (?)`
+  - İlk Kare Logu: `1793911933.166  4965  4965 D PlayMatch: ilk kare: TestPrimary (faz=Starting)`
+- **Koşu 3 (Soğuk):**
+  - Süre: **2.192 sn**
+  - Motor Açılış Logu: `1793912182.340  5174  5174 D PlayMatch: kaynak başlatılıyor: TestPrimary (?)`
+  - İlk Kare Logu: `1793912184.532  5174  5174 D PlayMatch: ilk kare: TestPrimary (faz=Starting)`
+
+### İstatistikler ve Karşılaştırma
+- **Sıralı Süreler:** `[2.192 sn, 2.445 sn, 4.306 sn]`
+- **1.2.7 Soğuk Medyanı:** **2.445 sn**
 - **1.2.6 Referans Medyanı:** `2.784 sn`
-- **Koşu Sonuçları:**
-  - Koşu 1 (Soğuk): **2.216 sn**
-  - Koşu 2: **0.591 sn**
-  - Koşu 3: **0.608 sn**
-- **1.2.7 Medyanı:** **0.608 sn**
-- **Karşılaştırma:** 1.2.7 medyanı, 1.2.6 medyanından %78.1 daha hızlıdır. **Yavaşlama YOKTUR (GEÇTİ).**
+- **Sonuç:** **yavaşlama yok** (2.445 sn < 2.784 sn; %10 eşiği olan 3.062 sn'nin altındadır).
 - **Kanıt Karesi:** `regresyon_5_bbb_torrent.png` (MD5: `8d332a27d2269652dbae1c6ae8648b5a`, RGB: `[232.15, 214.95, 218.57]`)
 
 ---
@@ -117,13 +131,13 @@ Tüm kanıt kareleri oynarken alınmış gerçek video kareleridir (yükleme ekr
 | **3** | Derleme ve Birim Testler | Release APK, 1251 unit test | 1249 Geçti, 0 Hata, 2 Atlandı | **GEÇTİ** |
 | **4** | Regresyon Testi: Spider-Man (2002) | 60 sn oynatma, mid/resume/60s kareleri, 0 Fatal | 3 Benzersiz Kare, 0 Fatal | **GEÇTİ** |
 | **5** | Regresyon Testi: Joker (2019) | 60 sn oynatma, mid/resume/60s kareleri, 0 Fatal | 3 Benzersiz Kare, 0 Fatal | **GEÇTİ** |
-| **6** | Regresyon Testi: Criminal Minds S01E10 | 60 sn oynatma, mid/resume/60s kareleri, 0 Fatal | 3 Benzersiz Kare, 0 Fatal | **GEÇTİ** |
+| **6** | Regresyon Testi: Criminal Minds S01E10 | Kontrol çubuklu 30s/60s, 5s HOME dönüşü, 0 Fatal | 3 Benzersiz Kare (Kontroller Açık), 0 Fatal | **GEÇTİ** |
 | **7** | Regresyon Testi: Canlı TV (TRT 1 HD) | 60 sn oynatma, mid/resume/60s kareleri, 0 Fatal | 3 Benzersiz Kare, 0 Fatal | **GEÇTİ** |
-| **8** | BBB Kontrol Magneti Açılışı | 3 koşu ölçümü, 1.2.6 (2.78s) karşılaştırması | Medyan: 0.608s (%78.1 daha hızlı) | **GEÇTİ** |
+| **8** | BBB Kontrol Magneti Açılışı (3 Soğuk Koşu) | 4 dk bekleme ile 3 koşu ölçümü, 1.2.6 (2.784s) karşılaştırması | Medyan: 2.445s (yavaşlama yok) | **GEÇTİ** |
 | **9** | Telegram Çökme Raporu (Online) | HTTP 204 yanıtı, pending_crash.json silinmesi | Silindi, iletildi | **GEÇTİ** |
 | **10** | Telegram Çökme Raporu (Offline) | Ağ yokken çökme olmaması, güvenli yakalama | Çökmedi, 0 Fatal | **GEÇTİ** |
 
 - **Toplam Madde Sayısı:** 10
 - **Geçen Madde Sayısı:** 10
 - **Kalan / Başarısız Madde:** 0
-- **Bitiş Saati:** 23:30 (TSİ)
+- **Bitiş Saati:** 23:58 (TSİ)
