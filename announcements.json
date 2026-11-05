@@ -1,6 +1,13 @@
 {
   "announcements": [
     {
+      "id": "2026-11-05-play-126",
+      "title": "🎉 Play 1.2.6 yayında!",
+      "message": "✨ Yenilikler:\n✅ Torrent yükleme ekranı: torrent kaynağı açılırken filmin yatay sahnesi üzerinde, kendi renklerinde logosu gerçek ilerlemeye göre soldan sağa dolar; ilk görüntü gelince kaybolur. Başka yazı ya da düğme yok. Açılış süresini yavaşlatmaz. 🍿🎬",
+      "link": "https://github.com/liberta09/Play/releases/download/v1.2.6/Play-1.2.6.apk",
+      "until": "2026-11-30"
+    },
+    {
       "id": "2026-11-04-play-125",
       "title": "🎉 Play 1.2.5 yayında!",
       "message": "✨ Yenilikler:\n✅ İzlemeye devam et kartı artık kaldırılabiliyor (kumandada Tamam'ı basılı tutup bırakın ya da Menü tuşuna basın; dokunmatikte uzun basın)\n✅ Dizide tüm bölümler birlikte kaldırılır\n✅ Kaldırılan içerik Wi-Fi ve bulut senkronunda diğer cihazdan geri gelmez 🍿🎬",

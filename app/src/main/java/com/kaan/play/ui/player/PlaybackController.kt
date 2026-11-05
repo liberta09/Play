@@ -72,6 +72,7 @@ data class PlayerUiState(
     val videoHeight: Int = 0,
     /** Oynatma hızı (varsayılan 1×; oturumluk). */
     val speed: Float = 1.0f,
+    val firstFrameRendered: Boolean = false,
 )
 
 /** Videonun içindeki (Media3'ün okuduğu) altyazı parçası; [index] parça listesindeki sıradır. */
@@ -445,6 +446,7 @@ class PlaybackController(
 
             override fun onRenderedFirstFrame() {
                 stallTracker.onFirstFrameRendered()
+                ui = ui.copy(firstFrameRendered = true)
                 onFirstFrame?.invoke()
             }
 
@@ -536,7 +538,7 @@ class PlaybackController(
             .apply { mime?.let(::setMimeType) }
             .build()
 
-        ui = ui.copy(error = null, ended = false, buffering = true)
+        ui = ui.copy(error = null, ended = false, buffering = true, firstFrameRendered = false)
         val isHls = mime == MimeTypes.APPLICATION_M3U8 || stream.url.lowercase(Locale.ROOT).contains(".m3u8") || stream.url.lowercase(Locale.ROOT).contains("/hls/")
         if (isHls && offlineCache == null && !torrent) {
             val hlsExtractorFactory = DefaultHlsExtractorFactory(
@@ -573,7 +575,7 @@ class PlaybackController(
         activeHttpSession = PlaybackHttpSession(emptyMap(), StreamPlaybackCookieJar())
         onlineSource = createOnlineSource(activeHttpSession)
         stallTracker.reset("İndirilen")
-        ui = ui.copy(error = null, ended = false, buffering = true)
+        ui = ui.copy(error = null, ended = false, buffering = true, firstFrameRendered = false)
         player.setMediaItem(item, startMs)
         player.prepare()
         player.playWhenReady = true
