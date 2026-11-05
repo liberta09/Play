@@ -7,6 +7,8 @@ import android.net.Uri
 import android.os.SystemClock
 import android.graphics.SurfaceTexture
 import android.view.TextureView
+import android.view.SurfaceHolder
+import android.view.SurfaceView
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.runtime.mutableLongStateOf
@@ -494,10 +496,23 @@ fun PlayerScreen(
             }
             AndroidView(
                 factory = { ctx ->
+                    val isTv = PlayerBufferConfig.isTv(ctx)
                     val view = try {
-                        android.view.LayoutInflater.from(ctx).inflate(R.layout.view_player, null, false) as PlayerView
+                        val layoutId = if (isTv) R.layout.view_player_tv else R.layout.view_player
+                        android.view.LayoutInflater.from(ctx).inflate(layoutId, null, false) as PlayerView
                     } catch (t: Throwable) {
-                        PlayerView(ctx).apply {
+                        android.util.Log.w("PlayerScreen", "PlayerView XML inflate hatası (${if (isTv) "TV" else "Telefon"}): ${t.message}")
+                        if (isTv) {
+                            try {
+                                val parser = ctx.resources.getLayout(R.layout.view_player_tv)
+                                val attrs = android.util.Xml.asAttributeSet(parser)
+                                PlayerView(ctx, attrs)
+                            } catch (_: Throwable) {
+                                PlayerView(ctx)
+                            }
+                        } else {
+                            PlayerView(ctx)
+                        }.apply {
                             useController = false
                             setShutterBackgroundColor(android.graphics.Color.BLACK)
                         }
@@ -519,6 +534,7 @@ fun PlayerScreen(
                                 }
 
                                 val textureView = videoSurfaceView as? TextureView
+                                val surfaceView = videoSurfaceView as? SurfaceView
                                 if (textureView != null) {
                                     if (textureView.isAvailable) {
                                         controller.onSurfaceReady()
@@ -540,6 +556,20 @@ fun PlayerScreen(
                                             existingListener?.onSurfaceTextureUpdated(surface)
                                         }
                                     }
+                                } else if (surfaceView != null) {
+                                    if (surfaceView.holder.surface?.isValid == true) {
+                                        controller.onSurfaceReady()
+                                    }
+                                    surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
+                                        override fun surfaceCreated(holder: SurfaceHolder) {
+                                            controller.onSurfaceReady()
+                                        }
+                                        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
+                                        override fun surfaceDestroyed(holder: SurfaceHolder) {
+                                            controller.onSurfaceDestroyed()
+                                        }
+                                    })
+                                    controller.onSurfaceReady()
                                 } else {
                                     controller.onSurfaceReady()
                                 }
