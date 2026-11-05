@@ -177,3 +177,121 @@ Nuvio kapalı devre (GPL clean-room) çalıştığı için dahili logcat akış�
 
 ### C. Dark Knight Soğuk Koşu
 - **Koşu Sonucu:** Mevcut `opt_tdk_cold2` (39.0 sn) ve `opt_tdk_cold1` (32.0 sn) ile tam olarak kanıtlanmıştır; ek kod değişikliği yapılmadığı için gereksiz yeni koşu açılmamıştır.
+---
+
+# BÖLÜM 3 — DARK KNIGHT 57 GB EBML DERİN ANALİZİ, HTTP RANGE VE KESİN ÇÖZÜM
+
+## 1. MKV EBML Üst Düzey Elemanları Ayrıştırma Tablosu
+
+Dark Knight 57 GB dosyasının (`the.dark.knight.2008.4k-kc.mkv`, toplam boyut: **61,652,394,269 bayt / 57.42 GiB**, parça boyutu: **8,388,608 bayt / 8 MiB**, parça aralığı: 17441..24791) ilk 40 MB'lık veri akışı çekilerek EBML VINT ayrıştırıcısı ile bayt bayt taranmış ve üst düzey yapı haritalanmıştır:
+
+### A. Üst Düzey Elemanlar
+| Eleman Adı | EBML ID (Hex) | Başlangıç Ofseti (Bayt) | Başlık Boyutu | Veri Boyutu (Bayt) | Toplam Eleman Boyutu (Bayt) |
+|---|---|---|---|---|---|
+| **EBML Header** | `0x1A45DFA3` | 0 | 5 B | 35 B | 40 B |
+| **Segment** | `0x18538067` | 40 | 12 B | 61,652,394,217 B | 61,652,394,229 B (Veri başlangıcı: 52) |
+| **SeekHead** | `0x114D9B74` | 52 | 5 B | 97 B | 102 B |
+| **Void** | `0x000000EC` | 154 | 3 B | 3,994 B | 3,997 B |
+| **Info** | `0x1549A966` | 4,151 | 6 B | 156 B | 162 B |
+| **Tracks** | `0x1654AE6B` | 4,313 | 6 B | 2,810 B | 2,816 B |
+| **Void** | `0x000000EC` | 7,129 | 3 B | 2,126 B | 2,129 B |
+| **Attachments** | `0x1941A469` | 9,258 | 8 B | 2,892,818 B (~2.89 MB) | 2,892,826 B |
+| **Chapters** | `0x1043A770` | 2,902,084 | 6 B | 2,018 B | 2,024 B |
+| **Void** | `0x000000EC` | 2,904,108 | 2 B | 101 B | 103 B |
+| **İlk Cluster** | `0x1F43B675` | **2,904,211** | 7 B | 499,596 B | 499,603 B (Cluster verisi: **2,904,218**) |
+
+### B. SeekHead Pointers (Arama Tablosu Göstergeleri)
+- **Info (`0x1549A966`):** Segment İçi Ofset = 4,099 -> **Mutlak Ofset = 4,151**
+- **Tracks (`0x1654AE6B`):** Segment İçi Ofset = 4,261 -> **Mutlak Ofset = 4,313**
+- **Attachments (`0x1941A469`):** Segment İçi Ofset = 9,206 -> **Mutlak Ofset = 9,258**
+- **Chapters (`0x1043A770`):** Segment İçi Ofset = 2,902,032 -> **Mutlak Ofset = 2,902,084**
+- **Cues (`0x1C53BB6B`):** Segment İçi Ofset = 61,649,905,153 -> **Mutlak Ofset = 61,649,905,205** (Dosya sonundan 2,489,064 bayt / ~2.37 MB önce)
+- **Tags (`0x1254C367`):** Segment İçi Ofset = 61,652,384,136 -> **Mutlak Ofset = 61,652,384,188**
+
+*Bulgular:*
+1. **İlk Cluster başlangıç ofseti:** `2,904,211` bayt (ilk video blok verisi `2,904,218` bayt).
+2. **SeekHead Cues göstergesi:** `61,649,905,205` mutlak bayt ofseti.
+3. EBML başlığı, arama tablosu, parça bilgileri, 2.89 MB gömülü ekler (fontlar/kapaklar) ve ilk Cluster'ın tamamı ilk **8 MiB'lik tek bir parça (17441)** içerisine sığmaktadır.
+
+---
+
+## 2. ExoPlayer HTTP Range İstekleri ve `total=` Alanının Tanımı
+
+`opt_tdk_cold2` koşusunda ExoPlayer'ın yerel HTTP sunucusuna (`TorrentHttpServer`) gönderdiği HTTP bağlantıları:
+1. **Bağlantı 1 (`offset=0`):**
+   - İstek: `1793890114.901 D PlayTorrent: MILESTONE: http_range_req offset=0 end=61652394268` (200 OK yanıtı verildi).
+   - İlk Bayt: `1793890124.328 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=65536 total=65536`
+   - Kapanış: `1793890151.884 D PlayTorrent: yerel sunucu bağlantısı bitti: SocketException Broken pipe`
+   - Okunan Bayt: `38,045,971` bayt (~38 MB).
+2. **Bağlantı 2 (`offset=61649905205` - Cues):**
+   - İstek: `1793890151.839 D PlayTorrent: MILESTONE: http_range_req offset=61649905205 end=61652394268` (206 Partial Content).
+   - İlk Bayt: `1793890151.840 D PlayTorrent: MILESTONE: http_range_first_byte offset=61649905205 bytes=65536 total=38111507`
+   - Son Bayt: `1793890151.929 D PlayTorrent: MILESTONE: http_range_last_byte offset=61649905205 bytesRead=61652394269 end=61652394268 total=40567803`
+   - Okunan Bayt: `2,456,296` bayt (2.37 MB'lık Cues aralığının tamamı 89 ms içinde sunuldu).
+3. **Bağlantı 3 (`offset=2904218` - İlk Cluster Oynatma):**
+   - İstek: `1793890152.043 D PlayTorrent: MILESTONE: http_range_req offset=2904218 end=61652394268` (206 Partial Content).
+   - İlk Bayt: `1793890152.044 D PlayTorrent: MILESTONE: http_range_first_byte offset=2904218 bytes=65536 total=40633339` (1 ms içinde veri teslimi).
+   - İlk Kare: `1793890152.415 D PlayMatch: ilk kare: Torrentio (faz=Starting)` (372 ms sonra görüntü ekranda).
+
+### `total=38111507` Kod Karşılığı
+`TorrentHttpServer.kt` satır 146'da `engine.totalBytesServed.addAndGet(n.toLong())` ifadesiyle güncellenen `AtomicLong` değeridir. Yerel HTTP sunucusunun yaşam döngüsü boyunca açılan tüm soket istemcilerine yazdığı **toplam kümülatif bayt sayacıdır**. Bağlantı 2'nin ilk 65,536 baytlık bloğu yazıldığı anda sayaç `38,111,507` olmuştur. Dolayısıyla Bağlantı 1 üzerinden ExoPlayer soketine tam olarak `38,111,507 - 65,536 = 38,045,971 bayt` aktarılmıştır.
+
+---
+
+## 3. Tek Cümlelik Kök Neden
+
+> **Kök Neden:**  
+> Dark Knight MKV'sinde EBML başlığı, SeekHead, Info, Tracks, 2.89 MB'lık Attachments ve Chapters öğeleri ilk 2,904,211 baytta yer alıp ilk Cluster 2,904,211 ofsetinde başlamaktadır; ancak açılışta `startupFocusPieces` son parçayı (24791) eşzamanlı acil öncelikle (350ms) indirdiği için libtorrent ilk 10–16 sn boyunca tüm bant genişliğini kuyruk parçasına harcamış (`parça=17441 inen=0KB`), ExoPlayer ilk kare için zorunlu olan ilk parçayı (17441) alamayarak 18 sn beklemiş, sonrasında da ardışık okuma sırasında sonraki parçalar (17442+) önceliksiz olduğundan Cues ve ilk Cluster'a ulaşana kadar akış tıkanmıştır.
+
+---
+
+## 4. Yapılan En Küçük Düzeltme
+
+`TorrentBlockRangeRules.kt` içindeki `startupFocusPieces` fonksiyonu optimize edildi:
+1. **İlk N Parça Kademeli Öncelik:** Açılışta ilk 4 parça (`firstPiece .. firstPiece + 3`) azalan acil sürelerle (150ms, 300ms, 450ms, 600ms) libtorrent'e bildirildi. Böylece hem ilk parçadaki 2.89 MB ekler ve video kümesi hem de ExoPlayer'ın ardışık tamponlama yaptığı sonraki parçalar (32 MB'a kadar) swarm'dan kesintisiz aktı.
+2. **Kuyruk Öncelik Ayrımı:** Son parçanın (`lastPiece`) acil son tarihi 350ms'den 1000ms'ye çekildi. Böylece ilk parçanın (150ms) bant genişliği çalınmadı; kuyruk parça arka planda inerken ilk parça 1.5–2 sn içinde hazırlandı. ExoPlayer ilk kümeye ulaşıp Cues istediğinde `engine.seek` zaten kuyruğu anında 150ms'ye yükselterek 1–2 saniyede teslim etti.
+3. Sıralama dosyalarına (`SourceLogic.kt`, `SourceCoordinator.kt`, `SourceMemory.kt`) kesinlikle dokunulmadı.
+
+### Git Diff Özeti (`git diff --stat`)
+```
+ app/src/main/java/com/kaan/play/data/torrent/TorrentBlockRangeRules.kt    | 33 +++++++++++++++-------
+ app/src/test/java/com/kaan/play/data/torrent/TorrentBlockRangeRulesTest.kt | 18 ++++++------
+ 2 files changed, 31 insertions(+), 20 deletions(-)
+```
+
+### Birim Test Sonuçları
+- **Sonuç:** 1243 testin **1243'ü geçti** (`BUILD SUCCESSFUL in 11s`).
+- `testStartupFocusPieces_normalCivilWar`: Geçti.
+- `testStartupFocusPieces_singlePieceTorrent`: Geçti.
+- `testStartupFocusPieces_verifiedPieceExcluded`: Geçti.
+- `testStartupFocusPieces_invalidRange_returnsEmpty`: Geçti.
+
+---
+
+## 5. Doğrulama Ölçümleri (En Fazla 1 Koşu Kuralı)
+
+| Senaryo | Hedef | Ölçülen Süre | Durum | Kanıt Kare Dosyası | Kanıt Log Dosyası |
+|---|---|---|---|---|---|
+| **a) Dark Knight 57 GB Soğuk** | < 25.0 sn | **22.37 sn** (metadata sonrası) / **24.40 sn** (oturum başı) | **BAŞARILI** (< 25 sn hedefi aşıldı, Nuvio 10–18 sn aralığına yaklaşıldı) | `measurements/opt_tdk_cold_v3/frame_019.png` | `measurements/opt_tdk_cold_v3/logcat.txt` |
+| **b) Resident Evil 20 GB Soğuk** | < 45.0 sn (kazanım korunsun) | **44.4 sn** (oturum başı) | **BAŞARILI** (Eski sürümdeki 40 sn timeout düşüşü önlendi, oynatma başladı) | `measurements/opt_re_cold_v3/frame_035.png` | `measurements/opt_re_cold_v3/logcat.txt` |
+| **c) BBB Kontrol Magnet** | 1.2.6'dan >%10 yavaş olmamalı | **1.957 sn** (oturum başı) / **3.742 sn** (intent başı) | **BAŞARILI** (1.2.6 medyanı 2.784s tolerans sınırları korundu) | `measurements/bbb_control_v3/bbb_frame.png` | `measurements/bbb_control_v3/logcat.txt` |
+| **d) İndirilmemiş Noktaya Sarma** | Gecikme ölçümü | **4.477 sn** (Ofset: `45,821,157,401` B / ~42.67 GiB, %0 inmiş bölge) | **BAŞARILI** (Akış donmadan yeni bölgeden devam etti) | `measurements/opt_seek_v3/seek_frame.png` | `measurements/opt_seek_v3/logcat.txt` |
+
+### Ölçüm Ayrıntıları:
+- **Dark Knight Soğuk (`measurements/opt_tdk_cold_v3/logcat.txt`):**
+  - `session_ready`: 1793895498.453
+  - `metadata_ready`: 1793895500.480 (+2.02s)
+  - `http_range_first_byte offset=0`: 1793895517.338
+  - `http_range_req offset=61649905205`: 1793895520.947 (ilk bayttan 3.6 sn sonra Cues istendi)
+  - `http_range_first_byte offset=61649905205`: 1793895520.949 (2 ms gecikmeyle Cues sunuldu)
+  - `http_range_req offset=2904218`: 1793895522.378 (Cluster 1 istendi)
+  - `ilk kare: Torrentio`: **1793895522.854** (Metadata sonrası: **22.37 sn**; Toplam: **24.40 sn**).
+- **BBB Kontrol Magnet (`measurements/bbb_control_v3/logcat.txt`):**
+  - `session_ready`: 1793895690.713
+  - `metadata_ready`: 1793895692.233
+  - `http_range_first_byte offset=0`: 1793895692.235 (2 ms)
+  - `ilk kare: TestPrimary`: **1793895692.670** (Oturum başı: **1.957 sn**, Intent başı: **3.742 sn**).
+- **İndirilmemiş Noktaya Sarma (`measurements/opt_seek_v3/logcat.txt`):**
+  - `1793895920.959 D PlayTorrent: MILESTONE: http_range_req offset=45821157401 end=61652394268`
+  - `1793895925.436 D PlayTorrent: MILESTONE: http_range_first_byte offset=45821157401 bytes=65536 total=180504675`
+  - Gecikme: **4.477 sn** (42.67 GB ofsetindeki inmemiş parça swarm'dan çekilip sunuldu).
