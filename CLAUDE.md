@@ -164,6 +164,7 @@ Kanıt ve kök neden analizi: `docs/dogrulama-film/SONUC.md`.
 Aniyomi, ayrı Stremio ekosistemi, manga, IPTV, Telegram, tracker, profil/kilit, ayrı bir Android TV arayüzü (Compose for TV / Leanback ekranları; mevcut ekranlar kumandayla da kullanılır), torrent indirme (çevrimdışı saklama; torrent yalnızca izlenir, bkz. "Torrent — yerleşik motor"), toplu indirme (sezonu/diziyi tek dokunuşla indirme; bölüm başına indirme Faz 4/B'de vardır).
 
 ## Mimari kararlar
+- Uygulamaya bot anahtarı/gizli anahtar gömülmez; çökme raporu Supabase Edge Function üzerinden iletilir, Telegram anahtarı yalnızca sunucuda durur (Kullanıcı kararı 2026-11-05).
 - **Yığın:** Compose + M3, Navigation Compose, Coroutines/Flow, OkHttp, kotlinx.serialization (tek JSON kütüphanesi; **tek istisna:** Faz 3 eklenti uyumluluğu için Jackson, aşağıda), Media3 (exoplayer, hls, dash, ui, datasource-okhttp), Coil, Room, DataStore, libtorrent4j (yerleşik torrent motoru). DI framework yok; elle kurulan `AppContainer`.
 - **Metadata:** TMDB (trend, popüler, arama, detay, sezon/bölüm, poster). Anahtar `local.properties` → `TMDB_API_KEY` → `BuildConfig`. Anahtar git'e girmez. Hakkında ekranı TMDB'nin zorunlu atıf metnini gösterir.
   Katman: `data/tmdb` (`TmdbService` ince HTTP/DTO, `TmdbRepository` alan modeli + dil yedeği, `TmdbException` tek hata türü, `TmdbImages` görsel adresleri). Anahtar `api_key` sorgu parametresiyle gider (v3); URL asla loglanmaz ve hatalara girmez.

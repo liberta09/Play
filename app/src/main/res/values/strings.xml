@@ -356,6 +356,7 @@
     <string name="web_load_failed">The page couldn\'t be opened. Check your connection and refresh.</string>
     <string name="about_web_blocking">Website view blocks known ads and pop-ups; it may not catch every ad.</string>
     <string name="about_introdb_privacy">Skip buttons ask TheIntroDB for intro and credits times; only the TMDB ID, season/episode and video length are sent, and TheIntroDB sees your IP address and which title you are watching.</string>
+    <string name="about_crash_privacy">Crash reports transmit only the stack trace, version, and device model; no URLs or account data are sent.</string>
 
     <!-- Faz 4/B: indirme -->
     <string name="download_channel_name">Downloads</string>

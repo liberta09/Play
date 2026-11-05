@@ -27,7 +27,7 @@ Kural: `data/**` değişmedi, yalnızca `ui/**` ve iki satır string kaynağı.
 - Geçmiş eylemleri (uzun basınca favori / izlendi / sil), `PosterCard.onLongClick`.
 - Çocuk profili filtreleri, PIN diyaloğu ve profil kapısını kaldıran açılış mantığı (PlayRoot'ta 517469a'nın profil akışı alınmadı; bizdeki `profileGate` akışı olduğu gibi). Bu akışta gömülü Türkçe metinler vardı.
 - `SkipController`, `WifiSyncCard`, `PendingSourcesList`, Wi-Fi senkron: dokunulmadı (517469a'da silinmişti).
-- `CrashReporter.kt` (gömülü bot belirteci), `SpeedTestScreen`, `SyncScreen`, `ProfileScreen` yeniden yazımları.
+- `CrashReporter.kt` (Supabase Edge Function üzerinden çökme raporlama), `SpeedTestScreen`, `SyncScreen`, `ProfileScreen` yeniden yazımları.
 - `RepoManagerCatalogScreen.kt`, `CsRepos.kt` (alt repo kataloğu), `PluginRepos.kt`, `AddonsScreen.kt`, `AddonDetailScreen.kt`, `WebSites.kt`: 517469a bunlarda `rowControls`'u silip odağı yeniden kurmuş ve eski sürüme dönmüştü. Bizdeki sürümler korundu; yeni `focusRing` sayesinde satırlar, anahtarlar ve çöp kutuları zaten büyüme + parlama alır.
 - `ProviderSelectorSheet.kt`, `ProviderDetailScreen.kt`, `SourcesSheet.kt`, `PlayerActivity` ve diğer oynatıcı dosyaları: yalnızca mantık farkı, görsel fark yok.
 - `LibraryScreen` içindeki "Geçmiş" bölümü: 517469a kaldırmıştı, bizde kaldı.
