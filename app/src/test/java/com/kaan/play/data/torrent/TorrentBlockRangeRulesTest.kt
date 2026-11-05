@@ -244,20 +244,20 @@ class TorrentBlockRangeRulesTest {
     @Test
     fun testStartupFocusPieces_normalCivilWar() {
         // Civil War FLUX (parça 0..2357):
-        // Yalnızca son parça (2357) ve parça 0 seçilmeli;
+        // İlk parça (0) ve son parça (2357) seçilmeli (İlk parça başta);
         // Parça 1 ve son-1 (2356) KESİNLİKLE yer almamalıdır.
         val deadlines = TorrentBlockRangeRules.startupFocusPieces(
             firstPiece = 0,
             lastPiece = 2357,
         )
         val pieces = deadlines.map { it.pieceIndex }
-        assertEquals(listOf(2357, 0), pieces)
+        assertEquals(listOf(0, 2357), pieces)
         assertFalse(pieces.contains(1))
         assertFalse(pieces.contains(2356))
 
-        // Son parçaya en kısa deadline (150ms), parça 0'a ikinci (350ms)
-        assertEquals(150, deadlines.first { it.pieceIndex == 2357 }.deadlineMs)
-        assertEquals(350, deadlines.first { it.pieceIndex == 0 }.deadlineMs)
+        // İlk parçaya en kısa deadline (150ms), son parçaya ikinci (350ms)
+        assertEquals(150, deadlines.first { it.pieceIndex == 0 }.deadlineMs)
+        assertEquals(350, deadlines.first { it.pieceIndex == 2357 }.deadlineMs)
     }
 
     @Test
@@ -274,14 +274,14 @@ class TorrentBlockRangeRulesTest {
 
     @Test
     fun testStartupFocusPieces_verifiedPieceExcluded() {
-        // Son parça zaten inip doğrulanmışsa yalnızca parça 0 kalmalı
+        // İlk parça zaten inip doğrulanmışsa yalnızca son parça kalmalı
         val deadlines = TorrentBlockRangeRules.startupFocusPieces(
             firstPiece = 0,
             lastPiece = 2357,
-            isPieceVerified = { p -> p == 2357 },
+            isPieceVerified = { p -> p == 0 },
         )
         val pieces = deadlines.map { it.pieceIndex }
-        assertEquals(listOf(0), pieces)
+        assertEquals(listOf(2357), pieces)
         assertEquals(350, deadlines.first().deadlineMs)
     }
 

@@ -206,13 +206,13 @@ object TorrentBlockRangeRules {
     ): List<ActiveDeadline> {
         if (firstPiece > lastPiece) return emptyList()
         val result = mutableListOf<ActiveDeadline>()
-        // 1. Son parça (en acil: 150ms)
-        if (!isPieceVerified(lastPiece)) {
-            result.add(ActiveDeadline(lastPiece, 150))
+        // 1. İlk parça (en acil: 150ms) - ExoPlayer header okumak için hemen ilk parçayı bekler
+        if (!isPieceVerified(firstPiece)) {
+            result.add(ActiveDeadline(firstPiece, 150))
         }
-        // 2. İlk parça (350ms) - son parça ile aynı değilse
-        if (firstPiece != lastPiece && !isPieceVerified(firstPiece)) {
-            result.add(ActiveDeadline(firstPiece, 350))
+        // 2. Son parça (350ms) - ilk parça ile aynı değilse (Cues/moov için)
+        if (firstPiece != lastPiece && !isPieceVerified(lastPiece)) {
+            result.add(ActiveDeadline(lastPiece, 350))
         }
         return result
     }

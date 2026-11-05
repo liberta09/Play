@@ -170,10 +170,7 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
                 val last = TorrentRules.pieceAt(offset, size - 1, pieceLength)
     
                 if (STARTUP_FOCUS_ENABLED) {
-                    h.unsetFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
-                    for (p in first..last) {
-                        h.piecePriority(p, Priority.LOW)
-                    }
+                    h.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
                     val startupDeadlines = TorrentBlockRangeRules.startupFocusPieces(first, last) { h.havePiece(it) }
                     for (d in startupDeadlines) {
                         h.piecePriority(d.pieceIndex, Priority.TOP_PRIORITY)
@@ -295,8 +292,8 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
         firstFrameArrived = true
         val piece = TorrentRules.pieceAt(file.offset, position, file.pieceLength)
         file.windowStart = piece
+        file.handle.clearPieceDeadlines()
         if (!blockModeEnabled) {
-            file.handle.clearPieceDeadlines()
             prioritize(file, piece)
         } else {
             prioritizeAtOffset(file, piece)
@@ -458,9 +455,6 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
     private fun prioritizeAtOffset(file: Opened, piece: Int) {
         val h = file.handle
         if (!h.isValid) return
-        if (STARTUP_FOCUS_ENABLED && !firstFrameArrived) {
-            return
-        }
         val first = TorrentRules.pieceAt(file.offset, 0, file.pieceLength)
         val last = TorrentRules.pieceAt(file.offset, file.size - 1, file.pieceLength)
 
@@ -471,9 +465,6 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
             windowAhead = 2,
             isPieceVerified = { isPieceVerified(file, it) },
         )
-
-        // DÜZELTME 1: Eski sarmalardan kalan acil son tarihleri kaldır
-        h.clearPieceDeadlines()
 
         for (ad in activeDeadlines) {
             h.piecePriority(ad.pieceIndex, Priority.TOP_PRIORITY)
