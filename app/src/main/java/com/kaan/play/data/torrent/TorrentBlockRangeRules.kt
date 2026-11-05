@@ -194,26 +194,39 @@ object TorrentBlockRangeRules {
     }
 
     /**
-     * TUR 3 (AÇILIŞ ODAĞI):
-     * Metadata geldiğinde yalnızca parça 0 ve SON parça TOP öncelik + deadline alır.
-     * Son parçaya en kısa deadline (150ms), parça 0'a ikinci deadline (350ms).
-     * Parça 1 ve son-1 açılışta yer almaz.
+     * AÇILIŞ ODAĞI:
+     * Metadata geldiğinde ilk N parça (varsayılan 4) azalan öncelikle (150ms, 300ms, 450ms, 600ms)
+     * ve son parça (Cues/moov indeksi için: 1000ms) öncelik alır.
+     * Son parçaya 1000ms verilerek ilk parçanın (header, attachments, ilk cluster) bant genişliğini
+     * tüketmesi önlenir.
      */
     fun startupFocusPieces(
         firstPiece: Int,
         lastPiece: Int,
+        initialPiecesCount: Int = 4,
         isPieceVerified: (piece: Int) -> Boolean = { false },
     ): List<ActiveDeadline> {
         if (firstPiece > lastPiece) return emptyList()
         val result = mutableListOf<ActiveDeadline>()
-        // 1. Son parça (en acil: 150ms)
-        if (!isPieceVerified(lastPiece)) {
-            result.add(ActiveDeadline(lastPiece, 150))
+        val seen = mutableSetOf<Int>()
+
+        // 1. İlk N parça (150ms, 300ms, 450ms, 600ms)
+        for (i in 0 until initialPiecesCount) {
+            val p = firstPiece + i
+            if (p in firstPiece..lastPiece && seen.add(p)) {
+                if (!isPieceVerified(p)) {
+                    result.add(ActiveDeadline(p, 150 + i * 150))
+                }
+            }
         }
-        // 2. İlk parça (350ms) - son parça ile aynı değilse
-        if (firstPiece != lastPiece && !isPieceVerified(firstPiece)) {
-            result.add(ActiveDeadline(firstPiece, 350))
+
+        // 2. Kuyruk parçası (Cues/moov için: 1000ms)
+        if (firstPiece != lastPiece && seen.add(lastPiece)) {
+            if (!isPieceVerified(lastPiece)) {
+                result.add(ActiveDeadline(lastPiece, 1000))
+            }
         }
+
         return result
     }
 }

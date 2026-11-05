@@ -1,5 +1,17 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.2.7] — 2026-11-05
+
+### Türkçe
+- Torrent açılışı iyileştirildi
+- Oynatıcı görüntü yüzeyi değiştirildi
+
+### English
+- Improved torrent startup
+- Changed player video surface
+
+
+
 ## [1.2.6] — 2026-11-05
 
 ### Türkçe
