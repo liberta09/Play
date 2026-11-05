@@ -5,12 +5,10 @@
 ### Türkçe
 - Torrent açılışı iyileştirildi
 - Oynatıcı görüntü yüzeyi değiştirildi
-- Çökme raporu gönderimi sunucuya taşındı
 
 ### English
 - Improved torrent startup
 - Changed player video surface
-- Moved crash report delivery to server
 
 
 

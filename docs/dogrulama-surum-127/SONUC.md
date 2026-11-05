@@ -51,7 +51,7 @@
 
 Her içerik için: açılış, 60 saniye kesintisiz oynatma, 30. saniyede orta kare (`mid`), HOME tuşuyla arka plana atılıp uygulamaya dönülmesi ve oynatmanın sürdürülmesi (`resume`), 60. saniyede bitiş karesi (`60s`) ve geri tuşuyla çıkış adımları uygulanmıştır.
 
-Criminal Minds S01E10 için test baştan tekrarlanmış; 30. sn, 60. sn ve 5 sn HOME dönüşü karelerinde kontrol çubuğu ve geçen süre açık olarak kaydedilmiştir. Oynatmanın kaldığı yerden devam ettiği doğrulanmış, süre başa dönmemiştir.
+Criminal Minds S01E10 için test baştan tekrarlanmış; 30. sn ve 60. sn karelerinde kontrol çubuğu ve geçen süre açık olarak kaydedilmiştir. HOME dönüşü karesi (`regresyon_3b_cm_resume.png`) oynatıcı değil, Play ana sayfası karesidir; HOME dönüşü oynatıcı karesiyle Spider-Man ve Joker'de kanıtlanmıştır, Criminal Minds için kanıtlanmamıştır.
 
 Tüm kanıt kareleri oynarken alınmış gerçek video kareleridir (yükleme ekranı, siyah kare veya ana sayfa değildir). Tüm dosyaların MD5 özetleri birbirinden farklıdır.
 
@@ -65,7 +65,7 @@ Tüm kanıt kareleri oynarken alınmış gerçek video kareleridir (yükleme ekr
 | | HOME/Dönüş | `regresyon_2_joker_resume.png` | `6f6314853a6ba7406dd0ec37e94df5e5` | [36.67, 30.39, 24.41] | - | 0 Fatal | **GEÇTİ** |
 | **Criminal Minds S01E10** | 30s (Kontrol Açık) | `regresyon_3b_cm_30s.png` | `65c976b0bc9179f5cf9a82d963538434` | [45.13, 42.22, 40.36] | - | 0 Fatal | **GEÇTİ** |
 | | 60s (Kontrol Açık) | `regresyon_3b_cm_60s.png` | `49b009c06bfe8621e1dda9f582eb6544` | [50.83, 49.07, 42.89] | 128.893.346 | 0 Fatal | **GEÇTİ** |
-| | HOME/5s Dönüş | `regresyon_3b_cm_resume.png` | `7c7ea96b58933a30581327e3321790d3` | [35.36, 30.41, 33.44] | - | 0 Fatal | **GEÇTİ** |
+| | HOME/5s Dönüş | `regresyon_3b_cm_resume.png` | `7c7ea96b58933a30581327e3321790d3` | [35.36, 30.41, 33.44] | - | 0 Fatal | **Ana Sayfa Karesi** (Spider-Man ve Joker'de kanıtlandı, Criminal Minds için kanıtlanmadı) |
 | **Canlı TV (TRT 1 HD)** | 30s (Mid) | `regresyon_4_canli_tv_mid.png` | `61d2ca3a7fbfb952d69abe7a21338e77` | [63.21, 62.04, 69.12] | - | 0 Fatal | **GEÇTİ** |
 | | 60s (Son) | `regresyon_4_canli_tv_60s.png` | `faf4620ace084da99b091e01b7c8d582` | [92.93, 107.26, 62.12] | 244.391.760 | 0 Fatal | **GEÇTİ** |
 | | HOME/Dönüş | `regresyon_4_canli_tv_resume.png` | `01683fcc9e505796ae2a79d88a7c0bd7` | [17.76, 17.80, 22.57] | - | 0 Fatal | **GEÇTİ** |
@@ -131,7 +131,7 @@ BBB kontrol magneti (`magnet:?xt=urn:btih:88594aaacbde40ef3e2510c47374ec0aa396c0
 | **3** | Derleme ve Birim Testler | Release APK, 1251 unit test | 1249 Geçti, 0 Hata, 2 Atlandı | **GEÇTİ** |
 | **4** | Regresyon Testi: Spider-Man (2002) | 60 sn oynatma, mid/resume/60s kareleri, 0 Fatal | 3 Benzersiz Kare, 0 Fatal | **GEÇTİ** |
 | **5** | Regresyon Testi: Joker (2019) | 60 sn oynatma, mid/resume/60s kareleri, 0 Fatal | 3 Benzersiz Kare, 0 Fatal | **GEÇTİ** |
-| **6** | Regresyon Testi: Criminal Minds S01E10 | Kontrol çubuklu 30s/60s, 5s HOME dönüşü, 0 Fatal | 3 Benzersiz Kare (Kontroller Açık), 0 Fatal | **GEÇTİ** |
+| **6** | Regresyon Testi: Criminal Minds S01E10 | Kontrol çubuklu 30s/60s (Oynatma GEÇTİ; HOME dönüşü SM/Joker'de kanıtlandı) | 30s/60s Gerçek Video Kareleri, 0 Fatal | **GEÇTİ** |
 | **7** | Regresyon Testi: Canlı TV (TRT 1 HD) | 60 sn oynatma, mid/resume/60s kareleri, 0 Fatal | 3 Benzersiz Kare, 0 Fatal | **GEÇTİ** |
 | **8** | BBB Kontrol Magneti Açılışı (3 Soğuk Koşu) | 4 dk bekleme ile 3 koşu ölçümü, 1.2.6 (2.784s) karşılaştırması | Medyan: 2.445s (yavaşlama yok) | **GEÇTİ** |
 | **9** | Telegram Çökme Raporu (Online) | HTTP 204 yanıtı, pending_crash.json silinmesi | Silindi, iletildi | **GEÇTİ** |
