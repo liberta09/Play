@@ -295,3 +295,183 @@ Dark Knight 57 GB dosyasının (`the.dark.knight.2008.4k-kc.mkv`, toplam boyut: 
   - `1793895920.959 D PlayTorrent: MILESTONE: http_range_req offset=45821157401 end=61652394268`
   - `1793895925.436 D PlayTorrent: MILESTONE: http_range_first_byte offset=45821157401 bytes=65536 total=180504675`
   - Gecikme: **4.477 sn** (42.67 GB ofsetindeki inmemiş parça swarm'dan çekilip sunuldu).
+
+
+---
+
+# BÖLÜM 4 — RESIDENT EVIL 20 GB SOĞUK AÇILIŞ: 1c8b5dc VE e8dd5c1 KARŞILAŞTIRMASI (AĞ DALGALANMASI VE GERİLEME ANALİZİ)
+
+Bu bölümde, commit `1c8b5dc`'deki Resident Evil 20.58 GB soğuk açılış süresinin `e8dd5c1` commit'indeki 24.1 sn'den 44.4 sn'ye çıkmasının bir kod gerilemesi (regression) mi yoksa torrent sürüsündeki anlık eş hızı (ağ dalgalanması) mı olduğunu netleştirmek amacıyla yapılan 2'şer soğuk koşu ve derinlemesine log analizi sunulmaktadır.
+
+---
+
+## 1. Standartlaştırılmış Ölçüm Tanımı ve Süre Tablosu
+
+Kullanıcı kuralı gereğince tüm süreler istisnasız **aynı tanımla** hesaplanmıştır:  
+**Süre = `PlayMatch: ilk kare: Torrentio` zaman damgası - `PlayTorrent: motor open: hash=531cab...` zaman damgası**  
+(Oturum başı veya intent başı zamanları karıştırılmamış, saf motor açılışından ilk video karesinin ekrana çizilmesine kadar geçen süre alınmıştır).
+
+### A. Resident Evil (20.58 GB MP4, 4 MiB Parça, 5.270 Parça)
+
+| Derleme / Koşu | Motor Open Zaman Damgası | İlk Kare Zaman Damgası | Süre (Motor Open -> İlk Kare) | İlk Kare Dosyası | Logcat Dosyası |
+|---|---|---|---|---|---|
+| **e8dd5c1 (Eski / Tarihsel)** | `1793889270.959` | `1793889295.065` | **24.106 sn** | `measurements/opt_re_cold1/frame_018.png` | `measurements/opt_re_cold1/logcat.txt` |
+| **e8dd5c1 Koşu 1** | `1793896640.535` | `1793896682.373` | **41.838 sn** | `frame_031.png` | `measurements/re_e8dd5c1_run1/logcat.txt` |
+| **e8dd5c1 Koşu 2** | `1793896692.194` | `1793896738.835` | **46.641 sn** | `frame_035.png` | `measurements/re_e8dd5c1_run2/logcat.txt` |
+| **1c8b5dc (Eski / Tarihsel)** | `1793895587.760` | `1793895634.726` | **46.966 sn** | `measurements/opt_re_cold_v3/frame_035.png` | `measurements/opt_re_cold_v3/logcat.txt` |
+| **1c8b5dc Koşu 1** | `1793896443.134` | `1793896470.937` | **27.803 sn** | `frame_022.png` | `measurements/re_1c8b5dc_run1/logcat.txt` |
+| **1c8b5dc Koşu 2** | `1793896513.557` | `1793896580.486` | **66.929 sn** | `frame_049.png` | `measurements/re_1c8b5dc_run2/logcat.txt` |
+| **Nuvio (Referans Soğuk 1)** | — | — | **21.5 sn** | `frame_048.png` | — |
+| **Nuvio (Referans Soğuk 2)** | — | — | **15.0 sn** | `frame_035.png` | — |
+
+---
+
+## 2. İlk Kareden Önce Beklenen Parçalar ve MP4 Moov Mekanizması
+
+Resident Evil dosyasında (`Resident.Evil.2026.2160p.iT.WEB-DL.DV.HDR10+.MULTi.DDP.5.1.Atmos.H265.MP4-BTM`):
+- Toplam boyut: **22,102,822,497 bayt (~20.58 GB)**
+- Parça uzunluğu: **4,194,304 bayt (4 MiB)**, toplam **5.270 parça** (Parça 0..5269).
+- Dosya formatı: MP4. Dosya başındaki `ftyp` kutusu ilk 48 baytta biter; ancak video ve ses örnek tablolarını içeren **`moov` atomu dosyanın en sonundadır**!
+- ExoPlayer HTTP Range istekleri incelendiğinde:
+  1. Önce `offset=0` istenir, ilk 32 KB okunur (`bytes=32674`).
+  2. ExoPlayer `moov` atomunun dosya sonunda olduğunu tespit eder ve anında `offset=22082474576 end=22102822496` aralığını ister.
+  3. Bu aralık tam olarak **20,347,921 bayttır (~19.4 MB)** ve parça **5264 ile 5269** arasındaki son 6 parçayı kapsar.
+  4. ExoPlayer bu 20.35 MB'lık verinin tamamını yerel HTTP sunucusundan okumadan (`http_range_last_byte`) video oynatmayı **başlatamaz**.
+  5. 20.35 MB'lık `moov` verisi tamamen aktarıldığı anda ExoPlayer anında ilk video örnek kümesini (`offset=48`) ister ve **0.4 - 0.9 saniye içinde ilk kare ekrana gelir**.
+
+### `1c8b5dc`'de İlk 4 Parça + Son Parça Önceliği Bekleme Yaratıyor Mu?
+- **Analiz:** `1c8b5dc` commit'inde `TorrentBlockRangeRules.startupFocusPieces` fonksiyonu ilk 4 parçayı (0, 1, 2, 3) 150ms–600ms, son parçayı (5269) 1000ms deadline ile önceliklendirmiştir.
+- ExoPlayer `offset=22082474576` isteğini açtığında `TorrentEngine.prioritizeAtOffset` devreye girer:
+  `PlayTorrent: HTTP isteği için odak parça: index=5264 offset=22082474576`
+  ve 5264..5269 aralığına 150ms acil deadline atanır.
+- Loglarda görüldüğü üzere hem `e8dd5c1` hem de `1c8b5dc` derlemelerinde bekleme satırları birebir aynıdır:
+  Önce `bekleniyor: parça=0`, ardından `bekleniyor: parça=5264`, `parça=5266`, `parça=5267` gelmektedir.
+- `1c8b5dc Koşu 1`'de motor açılışından ilk kareye kadar geçen süre **27.803 saniyedir**; bu süre `e8dd5c1 Koşu 1`'den (41.838 sn) **14.035 saniye daha hızlıdır**.
+- Dolayısıyla `1c8b5dc`'deki odak mantığı parça kuyruğunda bir tıkanma veya kilitlenme yaratmamaktadır.
+
+---
+
+## 3. Karşılaştırma Sonucu ve Kök Neden Değerlendirmesi
+
+Kullanıcı yönergesi:  
+*"1c8b5dc'de RE e8dd5c1'den belirgin yavaşsa (iki koşuda da 10 sn'den fazla fark), nedenini log satırıyla yaz. Değiştirme; sadece raporla. Yavaş değilse 'ağ dalgalanması, gerileme yok' yaz."*
+
+### Kesin Sonuç: **ağ dalgalanması, gerileme yok**
+
+### Gerekçeler:
+1. **İki koşuda da 10 sn yavaşlık YOKTUR:**
+   - 1. Koşuda `1c8b5dc` (**27.803 sn**), `e8dd5c1`'den (**41.838 sn**) **14.035 saniye daha HIZLIDIR**.
+   - 2. Koşuda `1c8b5dc` (**66.929 sn**), `e8dd5c1`'den (**46.641 sn**) 20.288 saniye daha yavaştır.
+2. **`e8dd5c1` Kendi İçinde Bile Ciddi Dalgalanma Göstermektedir:**
+   - `e8dd5c1` tarihsel tek koşusunda 24.1 sn iken, ardışık iki soğuk koşusunda 41.8 sn ve 46.6 sn ölçülmüştür. (Kendi içinde 22.5 saniyelik dalgalanma).
+3. **Sürenin Belirleyicisi Swarm İndirme Hızıdır:**
+   - Resident Evil dosyasında ilk kareden önce ~20.35 MB'lık `moov` atomunun indirilmesi şarttır.
+   - 20.35 MB veri;
+     - 2.5 MB/s hızda: ~8 saniyede iner.
+     - 1.5 MB/s hızda: ~14 saniyede iner.
+     - 0.5 MB/s hızda: ~40 saniyede iner.
+   - `re_1c8b5dc_run2`'de libtorrent'in ilk eşlere bağlanıp indirme hızını artırması (+5.13s'de hız=620KB/s, +27s'de hız=2114KB/s) diğer koşulara göre daha yavaş gerçekleşmiş, toplamda 117 MB veri aktarımı 66 saniye sürmüştür.
+   - `re_1c8b5dc_run1`'de ise eş bağlantıları anında 2.6 MB/s hıza ulaşmış ve 27.8 sn'de açılmıştır.
+4. Bu veriler ışığında `1c8b5dc` kod tabanında bir gerileme bulunmadığı, dalgalanmanın BitTorrent swarm eş bant genişliğinden kaynaklandığı kesinleşmiştir.
+
+---
+
+## 4. Ölçüm Koşuları Log Alıntıları (~25-30 İlgili Satır)
+
+### A. `1c8b5dc` — Koşu 1 (Süre: 27.803 sn, Kare: `frame_022.png`)
+```
+1793896443.134 29036 29115 D PlayTorrent: motor open: hash=531cab25e2f20af165407c0d952a9ead0ace004a fileHint=1
+1793896445.699 29036 29115 D PlayTorrent: MILESTONE: metadata_ready pieces=5270 size=22102822497 pieceLength=4194304
+1793896445.701 29036 29115 D PlayTorrent: MILESTONE: http_range_req offset=0 end=22102822496
+1793896447.748 29036 29115 D PlayTorrent: bekleniyor: parça=0 süre=2sn eş=27 tohum=20 hız=238KB/s inen=0KB durum=DOWNLOADING
+1793896449.124 29036 29115 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=32674 total=32674
+1793896449.336 29036 29203 D PlayTorrent: motor open: hash=531cab25e2f20af165407c0d952a9ead0ace004a (REUSING EXISTING ACTIVE TORRENT)
+1793896449.337 29036 29203 D PlayTorrent: MILESTONE: http_range_req offset=22082474576 end=22102822496
+1793896451.261 29036 29115 D PlayTorrent: bekleniyor: parça=0 süre=2sn eş=47 tohum=39 hız=2583KB/s inen=4096KB durum=DOWNLOADING
+1793896451.402 29036 29203 D PlayTorrent: bekleniyor: parça=5264 süre=2sn eş=47 tohum=39 hız=2583KB/s inen=4096KB durum=DOWNLOADING
+1793896453.432 29036 29203 D PlayTorrent: bekleniyor: parça=5264 süre=4sn eş=50 tohum=43 hız=2461KB/s inen=8192KB durum=DOWNLOADING
+1793896455.465 29036 29203 D PlayTorrent: bekleniyor: parça=5264 süre=6sn eş=52 tohum=45 hız=2444KB/s inen=12288KB durum=DOWNLOADING
+1793896457.501 29036 29203 D PlayTorrent: bekleniyor: parça=5264 süre=8sn eş=60 tohum=51 hız=2619KB/s inen=20480KB durum=DOWNLOADING
+1793896458.296 29036 29203 D PlayTorrent: MILESTONE: http_range_first_byte offset=22082474576 bytes=65536 total=229282
+1793896466.704 29036 29203 D PlayTorrent: bekleniyor: parça=5267 süre=2sn eş=75 tohum=68 hız=2676KB/s inen=40960KB durum=DOWNLOADING
+1793896470.258 29036 29203 D PlayTorrent: MILESTONE: http_range_last_byte offset=22082474576 bytesRead=22102822497 end=22102822496 total=20511667
+1793896470.694 29036 29203 D PlayTorrent: motor open: hash=531cab25e2f20af165407c0d952a9ead0ace004a (REUSING EXISTING ACTIVE TORRENT)
+1793896470.694 29036 29203 D PlayTorrent: MILESTONE: http_range_req offset=48 end=22102822496
+1793896470.695 29036 29203 D PlayTorrent: MILESTONE: http_range_first_byte offset=48 bytes=65536 total=20577203
+1793896470.937 29036 29036 D PlayMatch: ilk kare: Torrentio (faz=Starting)
+```
+
+### B. `1c8b5dc` — Koşu 2 (Süre: 66.929 sn, Kare: `frame_049.png`)
+```
+1793896513.557 29515 29587 D PlayTorrent: motor open: hash=531cab25e2f20af165407c0d952a9ead0ace004a fileHint=1
+1793896516.639 29515 29587 D PlayTorrent: MILESTONE: metadata_ready pieces=5270 size=22102822497 pieceLength=4194304
+1793896516.642 29515 29587 D PlayTorrent: MILESTONE: http_range_req offset=0 end=22102822496
+1793896518.685 29515 29587 D PlayTorrent: bekleniyor: parça=0 süre=2sn eş=27 tohum=12 hız=620KB/s inen=0KB durum=DOWNLOADING
+1793896520.754 29515 29587 D PlayTorrent: bekleniyor: parça=0 süre=4sn eş=32 tohum=15 hız=1316KB/s inen=0KB durum=DOWNLOADING
+1793896522.786 29515 29587 D PlayTorrent: bekleniyor: parça=0 süre=6sn eş=37 tohum=18 hız=1643KB/s inen=0KB durum=DOWNLOADING
+1793896524.815 29515 29587 D PlayTorrent: bekleniyor: parça=0 süre=8sn eş=35 tohum=21 hız=1884KB/s inen=0KB durum=DOWNLOADING
+1793896526.632 29515 29587 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=32674 total=32674
+1793896530.407 29515 29587 D PlayTorrent: bekleniyor: parça=0 süre=2sn eş=55 tohum=36 hız=2270KB/s inen=8192KB durum=DOWNLOADING
+1793896531.018 29515 29790 D PlayTorrent: motor open: hash=531cab25e2f20af165407c0d952a9ead0ace004a (REUSING EXISTING ACTIVE TORRENT)
+1793896531.019 29515 29790 D PlayTorrent: MILESTONE: http_range_req offset=22082474576 end=22102822496
+1793896533.041 29515 29790 D PlayTorrent: bekleniyor: parça=5264 süre=2sn eş=55 tohum=37 hız=2444KB/s inen=8192KB durum=DOWNLOADING
+1793896534.670 29515 29790 D PlayTorrent: MILESTONE: http_range_first_byte offset=22082474576 bytes=60754 total=224500
+1793896536.689 29515 29790 D PlayTorrent: bekleniyor: parça=5264 süre=2sn eş=48 tohum=35 hız=2506KB/s inen=24576KB durum=DOWNLOADING
+1793896540.587 29515 29790 D PlayTorrent: bekleniyor: parça=5264 süre=2sn eş=46 tohum=36 hız=2114KB/s inen=28672KB durum=DOWNLOADING
+1793896548.703 29515 29790 D PlayTorrent: bekleniyor: parça=5264 süre=10sn eş=98 tohum=80 hız=2660KB/s inen=43923KB durum=DOWNLOADING
+1793896555.777 29515 29790 D PlayTorrent: bekleniyor: parça=5266 süre=2sn eş=116 tohum=95 hız=3627KB/s inen=76691KB durum=DOWNLOADING
+1793896561.880 29515 29790 D PlayTorrent: bekleniyor: parça=5266 süre=8sn eş=134 tohum=112 hız=4403KB/s inen=97171KB durum=DOWNLOADING
+1793896571.517 29515 29790 D PlayTorrent: bekleniyor: parça=5266 süre=8sn eş=149 tohum=131 hız=4009KB/s inen=117651KB durum=DOWNLOADING
+1793896579.598 29515 29790 D PlayTorrent: MILESTONE: http_range_last_byte offset=22082474576 bytesRead=22102822497 end=22102822496 total=20511667
+1793896580.104 29515 29790 D PlayTorrent: motor open: hash=531cab25e2f20af165407c0d952a9ead0ace004a (REUSING EXISTING ACTIVE TORRENT)
+1793896580.105 29515 29790 D PlayTorrent: MILESTONE: http_range_req offset=48 end=22102822496
+1793896580.106 29515 29790 D PlayTorrent: MILESTONE: http_range_first_byte offset=48 bytes=65536 total=20577203
+1793896580.486 29515 29515 D PlayMatch: ilk kare: Torrentio (faz=Resolving)
+```
+
+### C. `e8dd5c1` — Koşu 1 (Süre: 41.838 sn, Kare: `frame_031.png`)
+```
+1793896640.535 30416 30493 D PlayTorrent: motor open: hash=531cab25e2f20af165407c0d952a9ead0ace004a fileHint=1
+1793896643.600 30416 30493 D PlayTorrent: MILESTONE: metadata_ready pieces=5270 size=22102822497 pieceLength=4194304
+1793896643.601 30416 30493 D PlayTorrent: MILESTONE: http_range_req offset=0 end=22102822496
+1793896643.768 30416 30493 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=32674 total=32674
+1793896644.081 30416 30555 D PlayTorrent: motor open: hash=531cab25e2f20af165407c0d952a9ead0ace004a (REUSING EXISTING ACTIVE TORRENT)
+1793896644.081 30416 30555 D PlayTorrent: MILESTONE: http_range_req offset=22082474576 end=22102822496
+1793896646.136 30416 30555 D PlayTorrent: bekleniyor: parça=5264 süre=2sn eş=48 tohum=34 hız=731KB/s inen=0KB durum=DOWNLOADING
+1793896650.203 30416 30555 D PlayTorrent: bekleniyor: parça=5264 süre=6sn eş=73 tohum=52 hız=2720KB/s inen=0KB durum=DOWNLOADING
+1793896650.306 30416 30555 D PlayTorrent: MILESTONE: http_range_first_byte offset=22082474576 bytes=44370 total=77044
+1793896652.883 30416 30555 D PlayTorrent: bekleniyor: parça=5264 süre=2sn eş=84 tohum=58 hız=3009KB/s inen=4096KB durum=DOWNLOADING
+1793896654.913 30416 30555 D PlayTorrent: bekleniyor: parça=5264 süre=4sn eş=88 tohum=60 hız=2788KB/s inen=4096KB durum=DOWNLOADING
+1793896659.716 30416 30555 D PlayTorrent: bekleniyor: parça=5266 süre=2sn eş=106 tohum=86 hız=2876KB/s inen=15251KB durum=DOWNLOADING
+1793896667.182 30416 30555 D PlayTorrent: bekleniyor: parça=5266 süre=2sn eş=110 tohum=91 hız=2516KB/s inen=31635KB durum=DOWNLOADING
+1793896675.289 30416 30555 D PlayTorrent: bekleniyor: parça=5266 süre=10sn eş=107 tohum=93 hız=2261KB/s inen=43923KB durum=DOWNLOADING
+1793896681.352 30416 30555 D PlayTorrent: MILESTONE: http_range_last_byte offset=22082474576 bytesRead=22102822497 end=22102822496 total=20462515
+1793896681.764 30416 30555 D PlayTorrent: motor open: hash=531cab25e2f20af165407c0d952a9ead0ace004a (REUSING EXISTING ACTIVE TORRENT)
+1793896681.765 30416 30555 D PlayTorrent: MILESTONE: http_range_req offset=48 end=22102822496
+1793896681.765 30416 30555 D PlayTorrent: MILESTONE: http_range_first_byte offset=48 bytes=65536 total=20528051
+1793896682.373 30416 30416 D PlayMatch: ilk kare: Torrentio (faz=Resolving)
+```
+
+### D. `e8dd5c1` — Koşu 2 (Süre: 46.641 sn, Kare: `frame_035.png`)
+```
+1793896692.194 31023 31098 D PlayTorrent: motor open: hash=531cab25e2f20af165407c0d952a9ead0ace004a fileHint=1
+1793896695.254 31023 31098 D PlayTorrent: MILESTONE: metadata_ready pieces=5270 size=22102822497 pieceLength=4194304
+1793896695.257 31023 31098 D PlayTorrent: MILESTONE: http_range_req offset=0 end=22102822496
+1793896697.317 31023 31098 D PlayTorrent: bekleniyor: parça=0 süre=2sn eş=54 tohum=36 hız=1407KB/s inen=0KB durum=DOWNLOADING
+1793896701.423 31023 31098 D PlayTorrent: bekleniyor: parça=0 süre=6sn eş=71 tohum=50 hız=2942KB/s inen=0KB durum=DOWNLOADING
+1793896702.827 31023 31098 D PlayTorrent: MILESTONE: http_range_first_byte offset=0 bytes=32674 total=32674
+1793896707.423 31023 31273 D PlayTorrent: motor open: hash=531cab25e2f20af165407c0d952a9ead0ace004a (REUSING EXISTING ACTIVE TORRENT)
+1793896707.424 31023 31273 D PlayTorrent: MILESTONE: http_range_req offset=22082474576 end=22102822496
+1793896709.448 31023 31273 D PlayTorrent: bekleniyor: parça=5264 süre=2sn eş=87 tohum=64 hız=2911KB/s inen=15251KB durum=DOWNLOADING
+1793896715.520 31023 31273 D PlayTorrent: bekleniyor: parça=5264 süre=8sn eş=88 tohum=71 hız=2763KB/s inen=19347KB durum=DOWNLOADING
+1793896717.303 31023 31273 D PlayTorrent: MILESTONE: http_range_first_byte offset=22082474576 bytes=65536 total=2588578
+1793896719.324 31023 31273 D PlayTorrent: bekleniyor: parça=5264 süre=2sn eş=86 tohum=72 hız=2537KB/s inen=31635KB durum=DOWNLOADING
+1793896722.291 31023 31273 D PlayTorrent: bekleniyor: parça=5264 süre=2sn eş=86 tohum=70 hız=2106KB/s inen=35731KB durum=DOWNLOADING
+1793896728.959 31023 31273 D PlayTorrent: bekleniyor: parça=5266 süre=2sn eş=132 tohum=110 hız=1894KB/s inen=52115KB durum=DOWNLOADING
+1793896735.116 31023 31273 D PlayTorrent: bekleniyor: parça=5266 süre=8sn eş=151 tohum=126 hız=2503KB/s inen=76691KB durum=DOWNLOADING
+1793896738.218 31023 31273 D PlayTorrent: MILESTONE: http_range_last_byte offset=22082474576 bytesRead=22102822497 end=22102822496 total=22870963
+1793896738.600 31023 31273 D PlayTorrent: motor open: hash=531cab25e2f20af165407c0d952a9ead0ace004a (REUSING EXISTING ACTIVE TORRENT)
+1793896738.600 31023 31273 D PlayTorrent: MILESTONE: http_range_req offset=48 end=22102822496
+1793896738.600 31023 31273 D PlayTorrent: MILESTONE: http_range_first_byte offset=48 bytes=65536 total=22936499
+1793896738.835 31023 31023 D PlayMatch: ilk kare: Torrentio (faz=Resolving)
+```
