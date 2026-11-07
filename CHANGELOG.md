@@ -4,9 +4,11 @@
 
 ### Türkçe
 - Otomatik sonraki bölüm geçişi gerçek bölüm sonunu bekler; sayaç seçilen5/10/15medya saniyesini izler. Kaynak seçimi çözümlenmiş sonraki bölüm hedefini korur.
+- Dikey videolar için oynatıcıda dikey/yatay tam ekran düğmesi; yön seçimi sonraki bölüme taşınır ve yatay boyutlandırma ayarı korunur.
 
 ### English
 - Wait for the actual episode end before automatic advance; display the selected last 5/10/15 media seconds. Preserve the resolved next-episode target when choosing a source.
+- Add portrait/landscape fullscreen control for vertical videos; keep the choice for the next episode without changing the landscape resize preference.
 
 ## [1.3.2] — 2026-11-13
 

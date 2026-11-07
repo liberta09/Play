@@ -45,6 +45,8 @@ data class PlaySession(
     val noHistory: Boolean = false,
     /** Canlı TV kanalı anahtarı (`channelGroupKey`); ilk karede `live_channel_activity.lastWatchedAt` yazılır. */
     val liveChannelKey: String? = null,
+    /** Touch-device fullscreen orientation, kept for the next episode; old sessions remain landscape. */
+    val portraitMode: Boolean = false,
 ) {
     fun toIntent(
         context: Context,

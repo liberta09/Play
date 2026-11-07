@@ -1085,4 +1085,6 @@
     <string name="episodes_panel_searching">S%1$d B%2$d için kaynak aranıyor…</string>
     <string name="episodes_panel_source_not_found">Bu bölüm için kaynak bulunamadı</string>
     <string name="episodes_panel_list_failed">Bölüm listesi alınamadı</string>
+    <string name="player_portrait_fullscreen">Dikey tam ekran</string>
+    <string name="player_landscape_fullscreen">Yatay tam ekran</string>
 </resources>
