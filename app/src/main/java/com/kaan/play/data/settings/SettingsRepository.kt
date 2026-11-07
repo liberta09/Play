@@ -215,6 +215,13 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         store.edit { it[AUDIO_PROBE_TIMEOUT_SECONDS] = seconds }
     }
 
+    /** Follow rendered vertical video geometry; an explicit orientation choice still wins. */
+    val autoPortraitVideos: Flow<Boolean> = store.data.map { it[AUTO_PORTRAIT_VIDEOS] ?: true }.distinctUntilChanged()
+
+    suspend fun setAutoPortraitVideos(enabled: Boolean) {
+        store.edit { it[AUTO_PORTRAIT_VIDEOS] = enabled }
+    }
+
     /** Oynatıcıdaki "Yeniden boyutlandır" seçimi; bilinmeyen değer "sığdır"a düşer. */
     val resizeMode: Flow<ResizeMode> = store.data.map { prefs ->
         ResizeMode.entries.firstOrNull { it.name == prefs[RESIZE_MODE] } ?: ResizeMode.Fit
@@ -572,6 +579,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val SLOW_CONNECTION_MODE = booleanPreferencesKey("slow_connection_mode")
         private val SUGGEST_SLOW_CONNECTION = booleanPreferencesKey("suggest_slow_connection")
         private val AUTO_NEXT = booleanPreferencesKey("auto_next")
+        private val AUTO_PORTRAIT_VIDEOS = booleanPreferencesKey("auto_portrait_videos")
         private val AUTO_TRANSLATE_SUBS = booleanPreferencesKey("auto_translate_subs")
         private val AUTO_SOURCE = booleanPreferencesKey("auto_source")
         private val PREFER_DUB = booleanPreferencesKey("prefer_dub")
