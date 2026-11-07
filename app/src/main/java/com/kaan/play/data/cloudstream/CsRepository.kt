@@ -290,6 +290,42 @@ class CsRepository(
         return result
     }
 
+    /** Settings execute only for the same currently enabled, installed CS3 artifact before and after loading. */
+    internal suspend fun loadSettings(pluginRowId: Long): CsApiResult? {
+        val before = settingsIdentity(pluginRowId) ?: return null
+        val result = loadApis(pluginRowId, allowRedownload = false)
+        return result.takeIf { settingsIdentity(pluginRowId) == before }
+    }
+
+    private data class SettingsIdentity(
+        val rowId: Long, val repoId: Long, val pluginId: String, val version: String?,
+        val archiveHash: String, val dexHash: String, val manifestHash: String,
+    )
+
+    private suspend fun settingsIdentity(rowId: Long): SettingsIdentity? {
+        val row = pluginDao.byId(rowId)?.takeIf { it.enabled } ?: return null
+        val repo = addonDao.byId(row.repoId)?.takeIf { it.enabled && it.type == AddonType.CLOUDSTREAM_REPO } ?: return null
+        val dex = store.dexFile(rowId)
+        if (!dex.isFile || dex.canonicalFile.parentFile != dex.parentFile.canonicalFile || dex.canonicalFile.name != dex.name) return null
+        return try {
+            val digest = java.security.MessageDigest.getInstance("SHA-256")
+            dex.inputStream().use { input ->
+                val buffer = ByteArray(64 * 1024)
+                while (true) {
+                    val count = input.read(buffer)
+                    if (count < 0) break
+                    digest.update(buffer, 0, count)
+                }
+            }
+            val dexHash = digest.digest().joinToString("") { "%02x".format(it) }
+            val manifestHash = java.security.MessageDigest.getInstance("SHA-256")
+                .digest(store.readManifest(rowId).orEmpty().toByteArray()).joinToString("") { "%02x".format(it) }
+            SettingsIdentity(row.id, repo.id, row.pluginId, row.version, row.sha256, dexHash, manifestHash)
+        } catch (_: java.io.IOException) {
+            null
+        }
+    }
+
     suspend fun enabledPlugins(): List<InstalledCsPlugin> =
         pluginDao.enabledOfType(AddonType.CLOUDSTREAM_REPO).map { it.toInstalled() }
 

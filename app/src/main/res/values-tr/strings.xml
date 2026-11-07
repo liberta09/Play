@@ -616,4 +616,7 @@
     <string name="repo_catalog_install_failure">Hata: %1$s</string>
     <string name="repo_catalog_type_nuvio_repo">Nuvio deposu</string>
     <string name="repo_catalog_type_nuvio_plugin">Nuvio eklentisi</string>
+    <string name="cs_settings_open">%1$s ayarları</string>
+    <string name="cs_settings_unavailable">Bu eklenti için ayarlar kullanılamıyor.</string>
+    <string name="cs_settings_failed">Eklenti ayarları açılamadı.</string>
 </resources>

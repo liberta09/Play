@@ -1,5 +1,6 @@
 package com.kaan.play.data.cloudstream
 
+import android.content.Context
 import com.lagradost.cloudstream3.MainAPI
 
 /**
@@ -15,7 +16,11 @@ import com.lagradost.cloudstream3.MainAPI
  * - [NoApiRegistered]: Yükleme hatasız bitti ancak hiçbir MainAPI kaydedilmedi.
  */
 sealed interface CsApiResult {
-    data class Success(val apis: List<MainAPI>) : CsApiResult
+    data class Success(
+        val apis: List<MainAPI>,
+        /** Native settings belong to the loaded Android plugin, not to a scraper's JSON form. */
+        val openSettings: ((Context) -> Unit)? = null,
+    ) : CsApiResult
 
     sealed interface Failure : CsApiResult {
         val pluginId: String?
