@@ -32,7 +32,7 @@ import kotlin.math.abs
  */
 object AutoNextRules {
     /** Bölümün son bu kadarında "Sonraki bölüm" kartı çıkar. */
-    const val WINDOW_MS = 20_000L
+    const val WINDOW_MS = 10_000L
 
     /** Kaynaklar, kart çıkmadan bu kadar önce aranmaya başlar (geri sayım bitince hazır olsun). */
     const val PREFETCH_MS = 45_000L
@@ -54,11 +54,11 @@ object AutoNextRules {
     fun inPrefetchWindow(positionMs: Long, durationMs: Long): Boolean =
         durationMs >= MIN_DURATION_MS && remaining(positionMs, durationMs) in 0..PREFETCH_MS
 
-    fun inCardWindow(positionMs: Long, durationMs: Long): Boolean =
-        durationMs >= MIN_DURATION_MS && remaining(positionMs, durationMs) in 0..WINDOW_MS
+    fun inCardWindow(positionMs: Long, durationMs: Long, seconds: Int = (WINDOW_MS / 1000L).toInt()): Boolean =
+        durationMs >= MIN_DURATION_MS && remaining(positionMs, durationMs) in 0..(seconds * 1_000L)
 
-    fun leftCardWindow(positionMs: Long, durationMs: Long): Boolean =
-        remaining(positionMs, durationMs) > WINDOW_MS + SEEK_BACK_MARGIN_MS
+    fun leftCardWindow(positionMs: Long, durationMs: Long, seconds: Int = (WINDOW_MS / 1000L).toInt()): Boolean =
+        remaining(positionMs, durationMs) > seconds * 1_000L + SEEK_BACK_MARGIN_MS
     /**
      * Oynatıcı alt çubuğundaki "Sonraki bölüm" düğmesinin görünüp görünmeyeceğini belirler.
      * Yalnızca dizi bölümlerinde (sezon ve bölüm numarası olan, canlı tv/channel olmayan ve
@@ -201,8 +201,8 @@ enum class AutoNextPhase {
 data class AutoNextConfig(val enabled: Boolean, val seconds: Int)
 
 /**
- * Dizide "sonraki bölüm" kartının durum makinesi. Etkinlik yarım saniyede bir [tick] çağırır; geri sayım yalnızca video
- * oynarken işler. Yalnızca dizilerde çalışır; filmde, ayar kapalıyken, son bölümde ve kullanıcı iptal ettikten sonra hiçbir şey olmaz.
+ * Dizide "sonraki bölüm" kartının durum makinesi. Etkinlik yarım saniyede bir [tick] çağırır; geri sayım gerçek medya konumunu
+ * izler ve otomatik geçiş yalnız bölüm bitişinde yapılır. Yalnızca dizilerde çalışır; filmde, ayar kapalıyken, son bölümde ve kullanıcı iptal ettikten sonra hiçbir şey olmaz.
  *
  * Sonraki bölüm ([findNext]) açılışta bir kez bulunur (ağ hatasında kart penceresine girerken bir kez daha denenir); kaynaklar
  * ([prepare]) bölümün bitmesine ~45 sn kala aranmaya başlar. Hazırlanamazsa ([prepare] null) kart "Başka kaynak seç" der.
@@ -244,9 +244,8 @@ class AutoNextController(
     private var cancelled = false
     private var advancing = false
     private var prepared: Deferred<NextPlayback?>? = null
+    private var preparedTarget: PlayTarget? = null
     private var advanceJob: Job? = null
-    private var countdownLeftMs = 0L
-    private var lastTickMs = -1L
 
     private val isSeries: Boolean
         get() = AutoNextRules.canShowNextEpisodeButton(target.request.type, target.request.season, target.request.episode, target.request.addonType, 1L)
@@ -279,10 +278,9 @@ class AutoNextController(
     /** Kart gösterilebilir ve geçiş yapılabilir durumda mı. */
     private fun armed(): Boolean = isSeries && settings.enabled && !cancelled && next != null
 
-    /** Zaman ilerledi: pencereye giriş/çıkış, geri sayım, kaynak ön hazırlığı. [nowMs]: tekdüze saat. */
+    /** Sayaç gerçek medya konumunu izler; otomatik geçiş yalnız oynatıcı bitişiyle yapılır. */
+    @Suppress("UNUSED_PARAMETER") // Mevcut tick çağrısı korunur; duvar saati/playing sayaç kaynağı değildir.
     fun tick(nowMs: Long, positionMs: Long, durationMs: Long, playing: Boolean, ended: Boolean) {
-        val dt = if (lastTickMs < 0) 0L else (nowMs - lastTickMs).coerceIn(0L, MAX_TICK_MS)
-        lastTickMs = nowMs
         if (!isSeries || !settings.enabled || cancelled) return
         if (next == null) {
             if (AutoNextRules.inPrefetchWindow(positionMs, durationMs)) lookUp()
@@ -293,29 +291,24 @@ class AutoNextController(
                 if (AutoNextRules.inPrefetchWindow(positionMs, durationMs)) prefetch()
                 if (ended) {
                     advance()
-                } else if (AutoNextRules.inCardWindow(positionMs, durationMs)) {
-                    show()
+                } else if (AutoNextRules.inCardWindow(positionMs, durationMs, settings.seconds)) {
+                    show(positionMs, durationMs)
                 }
             }
             AutoNextPhase.Countdown -> when {
                 ended -> advance()
-                AutoNextRules.leftCardWindow(positionMs, durationMs) -> phase = AutoNextPhase.Hidden // geri sarıldı
-                playing -> {
-                    countdownLeftMs -= dt
-                    secondsLeft = secondsOf(countdownLeftMs)
-                    if (countdownLeftMs <= 0) advance()
-                }
+                AutoNextRules.leftCardWindow(positionMs, durationMs, settings.seconds) -> phase = AutoNextPhase.Hidden // geri sarıldı
+                else -> secondsLeft = secondsOf((durationMs - positionMs).coerceAtLeast(0))
             }
             AutoNextPhase.Loading, AutoNextPhase.NoSource -> Unit
         }
     }
 
-    private fun show() {
+    private fun show(positionMs: Long, durationMs: Long) {
         val (s, e) = next ?: return
         season = s
         episode = e
-        countdownLeftMs = settings.seconds * 1000L
-        secondsLeft = settings.seconds
+        secondsLeft = secondsOf((durationMs - positionMs).coerceAtLeast(0))
         phase = AutoNextPhase.Countdown
     }
 
@@ -386,6 +379,7 @@ class AutoNextController(
         advanceJob?.cancel()
         prepared?.cancel()
         prepared = null
+        preparedTarget = null
     }
 
     /** "Başka kaynak seç": kaynak listesi açılır. */
@@ -400,13 +394,20 @@ class AutoNextController(
     /** Kaynak listesinden seçilen akışla sonraki bölüm açılır. */
     fun picked(stream: PlayableStream) {
         picking = false
-        val request = target.request.copy(season = season, episode = episode, refresh = false)
-        onAdvance(NextPlayback.Online(target.copy(request = request), listOf(stream)))
+        onAdvance(NextPlayback.Online(nextTarget(), listOf(stream)))
+    }
+
+    /** Keep episode-specific provider data even when preparing its streams returns no source. */
+    fun rememberPreparedTarget(nextTarget: PlayTarget) {
+        val upcoming = next ?: return
+        if (cancelled || nextTarget.request.season != upcoming.first || nextTarget.request.episode != upcoming.second) return
+        preparedTarget = nextTarget
     }
 
     /** Sonraki bölümün hedefi (kaynak listesi için). */
-    fun nextTarget(): PlayTarget =
-        target.copy(request = target.request.copy(season = season, episode = episode, refresh = false))
+    fun nextTarget(): PlayTarget = preparedTarget?.takeIf {
+        it.request.season == season && it.request.episode == episode
+    } ?: target.copy(request = target.request.copy(season = season, episode = episode, refresh = false))
 
     private fun prefetch(): Deferred<NextPlayback?> {
         prepared?.let { return it }
@@ -449,6 +450,5 @@ class AutoNextController(
 
     private companion object {
         const val MAX_LOOKUPS = 2
-        const val MAX_TICK_MS = 1_000L
     }
 }

@@ -547,6 +547,7 @@ class PlayerActivity : AppCompatActivity() {
             refresh = false,
         )
         val target = session.target.copy(request = request)
+        autoNext.rememberPreparedTarget(target)
         appContainer.downloads.completedFor(request)?.let { return NextPlayback.Offline(target, it) }
         if (session.offline != null) return null
         val playing = currentStream

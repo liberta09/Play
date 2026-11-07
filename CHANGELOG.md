@@ -1,5 +1,13 @@
 # Changelog / Değişiklik günlüğü
 
+## [Unreleased / Yayımlanmamış]
+
+### Türkçe
+- Otomatik sonraki bölüm geçişi gerçek bölüm sonunu bekler; sayaç seçilen5/10/15medya saniyesini izler. Kaynak seçimi çözümlenmiş sonraki bölüm hedefini korur.
+
+### English
+- Wait for the actual episode end before automatic advance; display the selected last 5/10/15 media seconds. Preserve the resolved next-episode target when choosing a source.
+
 ## [1.2.7] — 2026-11-05
 
 ### Türkçe
