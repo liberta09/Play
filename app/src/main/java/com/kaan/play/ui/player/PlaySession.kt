@@ -43,6 +43,8 @@ data class PlaySession(
     val autoSource: Boolean = false,
     /** Yalnızca debug/duman testi oynatması ([testVideo]): izleme geçmişine ("İzlemeye devam et") yazılmaz. */
     val noHistory: Boolean = false,
+    /** Touch-device fullscreen orientation, kept for the next episode; old sessions remain landscape. */
+    val portraitMode: Boolean = false,
 ) {
     fun toIntent(context: Context): Intent =
         Intent(context, PlayerActivity::class.java).putExtra(EXTRA, PlayJson.encodeToString(serializer(), this))

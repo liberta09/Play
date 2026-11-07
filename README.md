@@ -216,6 +216,12 @@ Biçim ve çalışma ortamı sözleşmesi: [docs/nuvio-plugin-format.md](docs/nu
 - **Testler:** birim (`PluginStreamProviderTest`: yerel sahte sunucu + kendi eklentilerimiz; birleşik sağlayıcı, zaman aşımı, 6'lık paralel sınır, temizlik, başlık/altyazı aktarımı, önbellek; `PluginSettingsTest`: ayar saklama ve `onSettings` düzeni; `PluginRuntimeTest` genişletildi: `getRandomValues`, ayarlar, günlük maskeleme) — hepsi geçiyor.
 - **Bilinen sınırlar (dürüst):** (1) Eklentilerin çalışması üçüncü taraf sitelere bağlıdır; bir site değişince eklenti boş döner, Play bunu düzeltmez. (2) cheerio ve CryptoJS **kabuktur** (tam kütüphane değil); belgelenmeyen yöntemi çağıran eklenti hata verir. (3) `crypto.subtle`, `Buffer`, `window` API'si yok. (4) Önbellek yalnızca bellekte; ayar değişince anahtar değiştiği için yeniden sorulur. (5) Dil ve kalite metinden **tahmin** edilir. (6) Eklenti akışının gerçekten oynayıp oynamadığı eklenti/site tarafındadır; cihazda yalnızca yerel akış tam oynatıldı, gerçek eklenti akışları listelendi ama oynatılması denenmedi. (7) Gerçek bir TV cihazında yine denenmedi.
 
+### Dikey tam ekran / Portrait fullscreen
+
+Dokunmatik cihazda oynatıcı üst çubuğundaki yön düğmesi dikey ve yatay tam ekran arasında geçer. Dikey videoyu portre konumunda izleme seçimi oturumda ve sonraki bölüme geçerken korunur; eski oturumlar ve TV yatay kalır. Dikey mod sığdır ile başlar; bu moddaki boyutlandırma seçimi yatay oynatmanın kalıcı ayarını değiştirmez. Video oranından otomatik yön tahmini veya yeni bir kaynak/oynatma motoru eklenmez.
+
+On touch devices, the player header can switch between portrait and landscape fullscreen. The session carries that choice across recreation and the next episode; existing sessions default to landscape. Portrait fitting stays local to the viewing mode and leaves the saved landscape resize preference unchanged. This patch adds an explicit control rather than automatic aspect-ratio detection.
+
 ## Altyazı — Faz 4 / A
 Altyazı addon'ları, tek altyazı seçici, karakter kodlaması ve elle senkron. Otomatik altyazı üretme ve otomatik senkron **yapılmadı** (istenmedi, en sona ertelendi). Ayarlar'a yeni kalem eklenmedi (hâlâ beş), yeni renk yok, hiçbir varsayılan altyazı addon'u gömülmedi.
 

@@ -1,6 +1,7 @@
 package com.kaan.play.ui.player
 
-import android.media.AudioManager
+import android.media.AudioManager
+import android.content.pm.ActivityInfo
 import com.kaan.play.BuildConfig
 import android.os.Build
 import android.os.Bundle
@@ -59,7 +60,8 @@ import kotlinx.coroutines.withContext
  */
 class PlayerActivity : AppCompatActivity() {
 
-    private lateinit var session: PlaySession
+    private lateinit var session: PlaySession
+    private var portraitPlayback by mutableStateOf(false)
     private lateinit var controller: PlaybackController
     private lateinit var subtitles: SubtitleController
     private lateinit var autoNext: AutoNextController
@@ -101,7 +103,8 @@ class PlayerActivity : AppCompatActivity() {
             finish()
             return
         }
-        session = parsed
+        session = parsed
+        applyPlaybackOrientation(savedInstanceState?.getBoolean("play_portrait_mode", parsed.portraitMode) ?: parsed.portraitMode)
         if (parsed.fromAutoNext) noTransition(open = true)
         val container = (application as PlayApp).container
 
@@ -331,7 +334,9 @@ class PlayerActivity : AppCompatActivity() {
                     onAudioChosen = ::onAudioChosen,
                     skips = skips,
                     getTorrentLoadSnapshot = container.torrentEngine::getLoadSnapshot,
-                    onBack = ::finish,
+                    portraitMode = portraitPlayback,
+                    onToggleOrientation = if (DeviceLevels.supportsTouch(this)) ({ applyPlaybackOrientation(!portraitPlayback) }) else null,
+                    onBack = ::finish,
                 )
             }
         }
@@ -583,7 +588,7 @@ class PlayerActivity : AppCompatActivity() {
             finishedForAdvance = true
             saveProgress() // bu bölüm izlendi
             if (currentStream?.url?.let(TorrentLinks::isMagnet) == true) container.torrentEngine.closeActive()
-            startActivity(nextSession.toIntent(this@PlayerActivity))
+            startActivity(nextSession.copy(portraitMode = portraitPlayback).toIntent(this@PlayerActivity))
             noTransition(open = false)
             finish()
         }
@@ -596,6 +601,18 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /** Etkinlik geçişi animasyonsuz: bölümden bölüme geçiş kesintisiz görünür. */
+    private fun applyPlaybackOrientation(portrait: Boolean) {
+        portraitPlayback = portrait && DeviceLevels.supportsTouch(this)
+        session = session.copy(portraitMode = portraitPlayback)
+        requestedOrientation = if (portraitPlayback) ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+            else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("play_portrait_mode", portraitPlayback)
+        super.onSaveInstanceState(outState)
+    }
+
     private fun noTransition(open: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             overrideActivityTransition(
@@ -629,7 +646,8 @@ class PlayerActivity : AppCompatActivity() {
             finish()
             return
         }
-        session = parsed
+        session = parsed
+        applyPlaybackOrientation(parsed.portraitMode)
         if (::controller.isInitialized) {
             val stream = parsed.stream
             if (stream != null && !stream.url.isNullOrBlank()) {

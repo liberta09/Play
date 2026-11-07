@@ -351,6 +351,19 @@ object PlayIcons {
         }
     }
 
+    /** A display outline with a turning arrow, drawn in the same line style as the player controls. */
+    val RotateScreen: ImageVector by lazy {
+        icon("RotateScreen") {
+            line {
+                moveTo(8f, 4f); horizontalLineTo(16f); verticalLineTo(20f); horizontalLineTo(8f); close()
+                moveTo(4f, 10f); verticalLineTo(5f); horizontalLineTo(1f)
+                moveTo(4f, 5f); lineTo(1f, 8f)
+                moveTo(20f, 14f); verticalLineTo(19f); horizontalLineTo(23f)
+                moveTo(20f, 19f); lineTo(23f, 16f)
+            }
+        }
+    }
+
     /** Oynatıcı: altyazı senkronu (saat). */
     val SubtitleSync: ImageVector by lazy {
         icon("SubtitleSync") {

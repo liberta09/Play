@@ -1,5 +1,13 @@
 # Changelog / Değişiklik günlüğü
 
+## [Unreleased / Yayımlanmamış]
+
+### Türkçe
+- Dikey videolar için oynatıcıda dikey/yatay tam ekran düğmesi; yön seçimi sonraki bölüme taşınır ve yatay boyutlandırma ayarı korunur.
+
+### English
+- Add portrait/landscape fullscreen control for vertical videos; keep the choice for the next episode without changing the landscape resize preference.
+
 ## [1.2.7] — 2026-11-05
 
 ### Türkçe
