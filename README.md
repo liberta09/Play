@@ -218,9 +218,9 @@ Biçim ve çalışma ortamı sözleşmesi: [docs/nuvio-plugin-format.md](docs/nu
 
 ### Dikey tam ekran / Portrait fullscreen
 
-Dokunmatik cihazda oynatıcı üst çubuğundaki yön düğmesi dikey ve yatay tam ekran arasında geçer. Dikey videoyu portre konumunda izleme seçimi oturumda ve sonraki bölüme geçerken korunur; eski oturumlar ve TV yatay kalır. Dikey mod sığdır ile başlar; bu moddaki boyutlandırma seçimi yatay oynatmanın kalıcı ayarını değiştirmez. Video oranından otomatik yön tahmini veya yeni bir kaynak/oynatma motoru eklenmez.
+Dokunmatik cihazlarda gerçek video boyutu, piksel oranı ve henüz uygulanmamış dönüş bilgisi dikeyse oynatıcı otomatik dikey açılır. Ayarlar → Oynatıcı → “Dikey videoları otomatik dikey oynat” varsayılan açıktır; kapatılınca otomatik yön yatay kalır. Üst çubuktaki manuel yön seçimi otomatik karardan üstündür ve sonraki bölüme taşınır. Eski açık dikey seçimleri korunur; TV/dokunmasız cihazlar yatay kalır. Bilinmeyen video ölçüsü mevcut yönü korur. Dikey sığdır/boyutlandırma seçimi yatay oynatmanın kalıcı ayarını değiştirmez.
 
-On touch devices, the player header can switch between portrait and landscape fullscreen. The session carries that choice across recreation and the next episode; existing sessions default to landscape. Portrait fitting stays local to the viewing mode and leaves the saved landscape resize preference unchanged. This patch adds an explicit control rather than automatic aspect-ratio detection.
+On touch devices, rendered video geometry (including pixel aspect ratio and pending rotation) selects portrait automatically. Player settings includes “Automatically play vertical videos in portrait”, enabled by default. Turning it off keeps automatic playback in landscape. A manual header choice wins over metadata and carries across recreation and the next episode; legacy explicit portrait choices are retained. TV/non-touch devices stay landscape and unknown geometry keeps the current mode. Portrait fitting stays local and leaves the saved landscape resize preference unchanged.
 
 ## Altyazı — Faz 4 / A
 Altyazı addon'ları, tek altyazı seçici, karakter kodlaması ve elle senkron. Otomatik altyazı üretme ve otomatik senkron **yapılmadı** (istenmedi, en sona ertelendi). Ayarlar'a yeni kalem eklenmedi (hâlâ beş), yeni renk yok, hiçbir varsayılan altyazı addon'u gömülmedi.

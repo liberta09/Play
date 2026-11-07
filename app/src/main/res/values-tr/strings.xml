@@ -618,4 +618,5 @@
     <string name="repo_catalog_type_nuvio_plugin">Nuvio eklentisi</string>
     <string name="player_portrait_fullscreen">Dikey tam ekran</string>
     <string name="player_landscape_fullscreen">Yatay tam ekran</string>
+    <string name="settings_auto_portrait_videos">Dikey videoları otomatik dikey oynat</string>
 </resources>

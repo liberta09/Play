@@ -3,10 +3,10 @@
 ## [Unreleased / Yayımlanmamış]
 
 ### Türkçe
-- Dikey videolar için oynatıcıda dikey/yatay tam ekran düğmesi; yön seçimi sonraki bölüme taşınır ve yatay boyutlandırma ayarı korunur.
+- Dikey videolar gerçek oranından otomatik dikey açılır; Oynatıcı ayarından kapatılabilir. Manuel dikey/yatay seçimi sonraki bölüme taşınır ve yatay boyutlandırma ayarı korunur.
 
 ### English
-- Add portrait/landscape fullscreen control for vertical videos; keep the choice for the next episode without changing the landscape resize preference.
+- Automatically play vertical videos in portrait, with an optional Player setting; keep manual orientation across episodes without changing the landscape resize preference.
 
 ## [1.2.7] — 2026-11-05
 

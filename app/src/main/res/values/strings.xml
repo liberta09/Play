@@ -637,4 +637,5 @@
     <string name="repo_catalog_type_nuvio_plugin">Nuvio plugin</string>
     <string name="player_portrait_fullscreen">Portrait fullscreen</string>
     <string name="player_landscape_fullscreen">Landscape fullscreen</string>
+    <string name="settings_auto_portrait_videos">Automatically play vertical videos in portrait</string>
 </resources>
