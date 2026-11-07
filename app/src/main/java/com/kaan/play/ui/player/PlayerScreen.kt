@@ -174,12 +174,17 @@ fun PlayerScreen(
     skips: SkipController? = null,
     /** Torrent yükleme ekranı için motor durumunu okuyan fonksiyon. */
     getTorrentLoadSnapshot: () -> TorrentLoadProgressRules.TorrentLoadSnapshot = { TorrentLoadProgressRules.TorrentLoadSnapshot() },
+    portraitMode: Boolean = false,
+    onToggleOrientation: (() -> Unit)? = null,
     onBack: () -> Unit,
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
     val subtitleStyle by container.settings.subtitleStyle.collectAsStateWithLifecycle(initialValue = SubtitleStyle())
     val resize by container.settings.resizeMode.collectAsStateWithLifecycle(initialValue = ResizeMode.Fit)
+    // Portrait fitting is local to this viewing mode, never a rewrite of the landscape preference.
+    var portraitResize by remember(portraitMode) { mutableStateOf(ResizeMode.Fit) }
+    val displayResize = if (portraitMode) portraitResize else resize
     val locale = remember { Locale.forLanguageTag(AppLanguage.effective().iso) }
 
     val ui = controller.ui
@@ -283,8 +288,8 @@ fun PlayerScreen(
         if (step > 0) seek(direction * step) else bump()
     }
     fun nextResize() {
-        val next = ResizeMode.entries[(resize.ordinal + 1) % ResizeMode.entries.size]
-        scope.launch { container.settings.setResizeMode(next) }
+        val next = ResizeMode.entries[(displayResize.ordinal + 1) % ResizeMode.entries.size]
+        if (portraitMode) portraitResize = next else scope.launch { container.settings.setResizeMode(next) }
         resizeToast = next
         bump()
     }
@@ -484,7 +489,7 @@ fun PlayerScreen(
     ) {
         // Görüntü: sığdır / doldur (kırp) / uzat; 16:9 ve 4:3'te görüntü o oranda bir alana uzatılır.
         BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            val ratio = when (resize) {
+            val ratio = when (displayResize) {
                 ResizeMode.Ratio16x9 -> 16f / 9f
                 ResizeMode.Ratio4x3 -> 4f / 3f
                 else -> null
@@ -582,7 +587,7 @@ fun PlayerScreen(
                 // Ayar değişince anında uygulanır; oynatma kesilmez.
                 update = { view ->
                     try {
-                        view.resizeMode = when (resize) {
+                        view.resizeMode = when (displayResize) {
                             ResizeMode.Fit -> AspectRatioFrameLayout.RESIZE_MODE_FIT
                             ResizeMode.Fill -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
                             else -> AspectRatioFrameLayout.RESIZE_MODE_FILL
@@ -745,6 +750,8 @@ fun PlayerScreen(
                 onBarFocusChange = { barFocused = it },
                 noticeFocus = if (resumeNotice) noticeFocus else null,
                 actions = actions,
+                portraitMode = portraitMode,
+                onToggleOrientation = onToggleOrientation?.let { toggle -> { toggle(); bump() } },
                 onBack = onBack,
                 onTogglePlay = { controller.togglePlay(); bump() },
                 onSeek = ::seek,
@@ -1158,6 +1165,8 @@ private fun Controls(
     onBarFocusChange: (Boolean) -> Unit,
     noticeFocus: FocusRequester?,
     actions: List<BarAction>,
+    portraitMode: Boolean,
+    onToggleOrientation: (() -> Unit)?,
     onBack: () -> Unit,
     onTogglePlay: () -> Unit,
     onSeek: (Long) -> Unit,
@@ -1220,6 +1229,13 @@ private fun Controls(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
+            }
+            if (onToggleOrientation != null) {
+                IconButton(onClick = onToggleOrientation) {
+                    Icon(PlayIcons.RotateScreen,
+                        contentDescription = stringResource(if (portraitMode) R.string.player_landscape_fullscreen else R.string.player_portrait_fullscreen),
+                        tint = tint)
+                }
             }
         }
 

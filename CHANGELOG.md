@@ -1,5 +1,13 @@
 # Changelog / Değişiklik günlüğü
 
+## [Unreleased / Yayımlanmamış]
+
+### Türkçe
+- Dikey videolar gerçek oranından otomatik dikey açılır; Oynatıcı ayarından kapatılabilir. Manuel dikey/yatay seçimi sonraki bölüme taşınır ve yatay boyutlandırma ayarı korunur.
+
+### English
+- Automatically play vertical videos in portrait, with an optional Player setting; keep manual orientation across episodes without changing the landscape resize preference.
+
 ## [1.2.7] — 2026-11-05
 
 ### Türkçe

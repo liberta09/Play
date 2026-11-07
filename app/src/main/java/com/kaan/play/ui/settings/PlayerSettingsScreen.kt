@@ -62,6 +62,7 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_SOURCE)
     val preferDub by container.settings.preferDub
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_PREFER_DUB)
+    val autoPortrait by container.settings.autoPortraitVideos.collectAsStateWithLifecycle(initialValue = true)
     val autoNext by container.settings.autoNext
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_NEXT)
     val autoNextSeconds by container.settings.autoNextSeconds
@@ -96,6 +97,9 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
             }
             SwitchRow(stringResource(R.string.settings_prefer_dub), preferDub) {
                 scope.launch { container.settings.setPreferDub(it) }
+            }
+            SwitchRow(stringResource(R.string.settings_auto_portrait_videos), autoPortrait) {
+                scope.launch { container.settings.setAutoPortraitVideos(it) }
             }
             SwitchRow(stringResource(R.string.settings_always_resume), alwaysResume) {
                 scope.launch { container.settings.setAlwaysResume(it) }

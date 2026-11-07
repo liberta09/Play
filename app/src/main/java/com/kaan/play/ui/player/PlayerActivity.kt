@@ -1,6 +1,7 @@
 package com.kaan.play.ui.player
 
-import android.media.AudioManager
+import android.media.AudioManager
+import android.content.pm.ActivityInfo
 import com.kaan.play.BuildConfig
 import android.os.Build
 import android.os.Bundle
@@ -59,7 +60,10 @@ import kotlinx.coroutines.withContext
  */
 class PlayerActivity : AppCompatActivity() {
 
-    private lateinit var session: PlaySession
+    private lateinit var session: PlaySession
+    private var portraitPlayback by mutableStateOf(false)
+    private var orientationManuallyChosen = false
+    private var autoPortraitEnabled = false
     private lateinit var controller: PlaybackController
     private lateinit var subtitles: SubtitleController
     private lateinit var autoNext: AutoNextController
@@ -101,9 +105,15 @@ class PlayerActivity : AppCompatActivity() {
             finish()
             return
         }
-        session = parsed
+        session = parsed
+        orientationManuallyChosen = savedInstanceState?.getBoolean("play_orientation_manual",
+            VideoOrientationPolicy.wasManuallyChosen(parsed.orientationManuallyChosen, parsed.portraitMode))
+            ?: VideoOrientationPolicy.wasManuallyChosen(parsed.orientationManuallyChosen, parsed.portraitMode)
         if (parsed.fromAutoNext) noTransition(open = true)
-        val container = (application as PlayApp).container
+        val container = (application as PlayApp).container
+        autoPortraitEnabled = runBlocking { container.settings.autoPortraitVideos.first() }
+        val restoredPortrait = savedInstanceState?.getBoolean("play_portrait_mode", parsed.portraitMode) ?: parsed.portraitMode
+        applyPlaybackOrientation(if (orientationManuallyChosen || autoPortraitEnabled) restoredPortrait else false)
 
         runCatching {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -138,6 +148,10 @@ class PlayerActivity : AppCompatActivity() {
         )
         skips.attach(controller.player)
         controller.player.addListener(object : Player.Listener {
+            override fun onVideoSizeChanged(videoSize: androidx.media3.common.VideoSize) {
+                followVideoOrientation(videoSize)
+            }
+
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (!isPlaying) saveProgress() // duraklatma
             }
@@ -150,6 +164,14 @@ class PlayerActivity : AppCompatActivity() {
                 }
             }
         })
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                container.settings.autoPortraitVideos.collect { enabled ->
+                    autoPortraitEnabled = enabled
+                    followVideoOrientation(controller.player.videoSize)
+                }
+            }
+        }
         autoNext = AutoNextController(
             scope = lifecycleScope,
             target = session.target,
@@ -331,7 +353,9 @@ class PlayerActivity : AppCompatActivity() {
                     onAudioChosen = ::onAudioChosen,
                     skips = skips,
                     getTorrentLoadSnapshot = container.torrentEngine::getLoadSnapshot,
-                    onBack = ::finish,
+                    portraitMode = portraitPlayback,
+                    onToggleOrientation = if (DeviceLevels.supportsTouch(this)) ({ orientationManuallyChosen = true; applyPlaybackOrientation(!portraitPlayback) }) else null,
+                    onBack = ::finish,
                 )
             }
         }
@@ -583,7 +607,7 @@ class PlayerActivity : AppCompatActivity() {
             finishedForAdvance = true
             saveProgress() // bu bölüm izlendi
             if (currentStream?.url?.let(TorrentLinks::isMagnet) == true) container.torrentEngine.closeActive()
-            startActivity(nextSession.toIntent(this@PlayerActivity))
+            startActivity(nextSession.copy(portraitMode = portraitPlayback, orientationManuallyChosen = orientationManuallyChosen).toIntent(this@PlayerActivity))
             noTransition(open = false)
             finish()
         }
@@ -596,6 +620,26 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /** Etkinlik geçişi animasyonsuz: bölümden bölüme geçiş kesintisiz görünür. */
+    private fun followVideoOrientation(size: androidx.media3.common.VideoSize) {
+        val portrait = VideoOrientationPolicy.resolve(DeviceLevels.supportsTouch(this), autoPortraitEnabled,
+            orientationManuallyChosen, portraitPlayback, size.width, size.height,
+            size.pixelWidthHeightRatio, size.unappliedRotationDegrees)
+        if (portrait != portraitPlayback) applyPlaybackOrientation(portrait)
+    }
+
+    private fun applyPlaybackOrientation(portrait: Boolean) {
+        portraitPlayback = portrait && DeviceLevels.supportsTouch(this)
+        session = session.copy(portraitMode = portraitPlayback, orientationManuallyChosen = orientationManuallyChosen)
+        requestedOrientation = if (portraitPlayback) ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+            else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("play_portrait_mode", portraitPlayback)
+        outState.putBoolean("play_orientation_manual", orientationManuallyChosen)
+        super.onSaveInstanceState(outState)
+    }
+
     private fun noTransition(open: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             overrideActivityTransition(
@@ -629,7 +673,9 @@ class PlayerActivity : AppCompatActivity() {
             finish()
             return
         }
-        session = parsed
+        session = parsed
+        orientationManuallyChosen = VideoOrientationPolicy.wasManuallyChosen(parsed.orientationManuallyChosen, parsed.portraitMode)
+        applyPlaybackOrientation(if (orientationManuallyChosen || autoPortraitEnabled) parsed.portraitMode else false)
         if (::controller.isInitialized) {
             val stream = parsed.stream
             if (stream != null && !stream.url.isNullOrBlank()) {

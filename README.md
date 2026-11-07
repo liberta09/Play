@@ -216,6 +216,12 @@ Biçim ve çalışma ortamı sözleşmesi: [docs/nuvio-plugin-format.md](docs/nu
 - **Testler:** birim (`PluginStreamProviderTest`: yerel sahte sunucu + kendi eklentilerimiz; birleşik sağlayıcı, zaman aşımı, 6'lık paralel sınır, temizlik, başlık/altyazı aktarımı, önbellek; `PluginSettingsTest`: ayar saklama ve `onSettings` düzeni; `PluginRuntimeTest` genişletildi: `getRandomValues`, ayarlar, günlük maskeleme) — hepsi geçiyor.
 - **Bilinen sınırlar (dürüst):** (1) Eklentilerin çalışması üçüncü taraf sitelere bağlıdır; bir site değişince eklenti boş döner, Play bunu düzeltmez. (2) cheerio ve CryptoJS **kabuktur** (tam kütüphane değil); belgelenmeyen yöntemi çağıran eklenti hata verir. (3) `crypto.subtle`, `Buffer`, `window` API'si yok. (4) Önbellek yalnızca bellekte; ayar değişince anahtar değiştiği için yeniden sorulur. (5) Dil ve kalite metinden **tahmin** edilir. (6) Eklenti akışının gerçekten oynayıp oynamadığı eklenti/site tarafındadır; cihazda yalnızca yerel akış tam oynatıldı, gerçek eklenti akışları listelendi ama oynatılması denenmedi. (7) Gerçek bir TV cihazında yine denenmedi.
 
+### Dikey tam ekran / Portrait fullscreen
+
+Dokunmatik cihazlarda gerçek video boyutu, piksel oranı ve henüz uygulanmamış dönüş bilgisi dikeyse oynatıcı otomatik dikey açılır. Ayarlar → Oynatıcı → “Dikey videoları otomatik dikey oynat” varsayılan açıktır; kapatılınca otomatik yön yatay kalır. Üst çubuktaki manuel yön seçimi otomatik karardan üstündür ve sonraki bölüme taşınır. Eski açık dikey seçimleri korunur; TV/dokunmasız cihazlar yatay kalır. Bilinmeyen video ölçüsü mevcut yönü korur. Dikey sığdır/boyutlandırma seçimi yatay oynatmanın kalıcı ayarını değiştirmez.
+
+On touch devices, rendered video geometry (including pixel aspect ratio and pending rotation) selects portrait automatically. Player settings includes “Automatically play vertical videos in portrait”, enabled by default. Turning it off keeps automatic playback in landscape. A manual header choice wins over metadata and carries across recreation and the next episode; legacy explicit portrait choices are retained. TV/non-touch devices stay landscape and unknown geometry keeps the current mode. Portrait fitting stays local and leaves the saved landscape resize preference unchanged.
+
 ## Altyazı — Faz 4 / A
 Altyazı addon'ları, tek altyazı seçici, karakter kodlaması ve elle senkron. Otomatik altyazı üretme ve otomatik senkron **yapılmadı** (istenmedi, en sona ertelendi). Ayarlar'a yeni kalem eklenmedi (hâlâ beş), yeni renk yok, hiçbir varsayılan altyazı addon'u gömülmedi.
 
