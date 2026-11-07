@@ -1456,6 +1456,7 @@ class PlayerActivity : AppCompatActivity() {
             ageRating = resolvedAgeRating?.rating ?: session.target.ageRating,
             ageRatingRegion = resolvedAgeRating?.region ?: session.target.ageRatingRegion,
         )
+        autoNext.rememberPreparedTarget(target)
         appContainer.downloads.completedFor(request)?.let { return NextPlayback.Offline(target, it) }
         if (session.offline != null) return null
         val playing = currentStream
