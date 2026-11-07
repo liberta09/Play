@@ -1,5 +1,13 @@
 # Changelog / Değişiklik günlüğü
 
+## [Unreleased / Yayımlanmamış]
+
+### Türkçe
+- CloudStream eklentilerinin kendi giriş/ayar ekranları, yüklü eklenti satırındaki dişliden açılabilir. Ekran sunmayan veya açılamayan eklentide kısa bilgi gösterilir.
+
+### English
+- Open a CloudStream provider’s native account/settings UI from its installed-addon row. Missing or unavailable settings show a short message.
+
 ## [1.2.7] — 2026-11-05
 
 ### Türkçe

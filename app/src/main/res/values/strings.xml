@@ -635,4 +635,7 @@
     <string name="repo_catalog_type_cloudstream" translatable="false">CloudStream</string>
     <string name="repo_catalog_type_nuvio_repo">Nuvio repo</string>
     <string name="repo_catalog_type_nuvio_plugin">Nuvio plugin</string>
+    <string name="cs_settings_open">Settings for %1$s</string>
+    <string name="cs_settings_unavailable">Settings are unavailable for this addon.</string>
+    <string name="cs_settings_failed">The addon settings could not be opened.</string>
 </resources>

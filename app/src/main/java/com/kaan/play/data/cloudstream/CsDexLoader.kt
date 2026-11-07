@@ -27,6 +27,10 @@ internal fun resolveMainClassName(manifestJson: String?, fallbackInternalName: S
     }
 }
 
+/** Keep the Android SDK callback after Plugin.load has registered it. Plain MainAPI/JVM plugins have none. */
+internal fun nativeSettingsCallback(plugin: BasePlugin): ((Context) -> Unit)? =
+    (plugin as? Plugin)?.openSettings
+
 interface PluginDexLoader {
     suspend fun loadPlugin(dexFile: File, className: String, pluginId: String = ""): CsApiResult
 }
@@ -66,6 +70,7 @@ class CsDexLoader(private val context: Context) : PluginDexLoader {
             val clazz = cl.loadClass(className)
             CommonActivity.context = context
 
+            var openSettings: ((Context) -> Unit)? = null
             val apis = when {
                 BasePlugin::class.java.isAssignableFrom(clazz) -> {
                     val plugin = clazz.getDeclaredConstructor().newInstance() as BasePlugin
@@ -76,23 +81,24 @@ class CsDexLoader(private val context: Context) : PluginDexLoader {
                             try {
                                 plugin.load()
                             } catch (t: Throwable) {
-                                Log.w(TAG, "plugin.load() hatasi [${pluginId}]: ${t.javaClass.simpleName}: ${t.message}")
+                                Log.w(TAG, "plugin.load() hatasi [${pluginId}]: ${t.javaClass.simpleName}")
                             }
                         } catch (t: Throwable) {
-                            Log.w(TAG, "plugin.load(context) hatasi [${pluginId}]: ${t.javaClass.simpleName}: ${t.message}")
+                            Log.w(TAG, "plugin.load(context) hatasi [${pluginId}]: ${t.javaClass.simpleName}")
                             try {
                                 plugin.load()
                             } catch (t2: Throwable) {
-                                Log.w(TAG, "plugin.load() fallback hatasi [${pluginId}]: ${t2.javaClass.simpleName}: ${t2.message}")
+                                Log.w(TAG, "plugin.load() fallback hatasi [${pluginId}]: ${t2.javaClass.simpleName}")
                             }
                         }
                     } else {
                         try {
                             plugin.load()
                         } catch (t: Throwable) {
-                            Log.w(TAG, "plugin.load() hatasi [${pluginId}]: ${t.javaClass.simpleName}: ${t.message}")
+                            Log.w(TAG, "plugin.load() hatasi [${pluginId}]: ${t.javaClass.simpleName}")
                         }
                     }
+                    openSettings = nativeSettingsCallback(plugin)
                     APIHolder.allProviders.drop(beforeCount).distinctBy { it.name }
                 }
                 MainAPI::class.java.isAssignableFrom(clazz) -> {
@@ -113,7 +119,7 @@ class CsDexLoader(private val context: Context) : PluginDexLoader {
                 failure
             } else {
                 Log.d(TAG, "$pluginId: Success (${apis.size} MainAPI)")
-                CsApiResult.Success(apis)
+                CsApiResult.Success(apis, openSettings)
             }
         } catch (t: Throwable) {
             val failure = classifyDexError(t, pluginId)

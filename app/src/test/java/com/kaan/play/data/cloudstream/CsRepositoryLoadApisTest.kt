@@ -20,6 +20,7 @@ class CsRepositoryLoadApisTest {
 
     private class TestDb {
         val pluginRows = MutableStateFlow<List<PluginEntity>>(emptyList())
+        val addonRows = MutableStateFlow<List<AddonEntity>>(emptyList())
 
         val addons = object : AddonDao {
             override fun observeOfType(type: AddonType): Flow<List<AddonEntity>> = MutableStateFlow(emptyList())
@@ -31,7 +32,7 @@ class CsRepositoryLoadApisTest {
             override suspend fun setAllEnabledOfType(type: AddonType, enabled: Boolean) {}
             override suspend fun delete(id: Long) {}
             override suspend fun updateInfo(id: Long, name: String, version: String?, description: String?, manifestJson: String) {}
-            override suspend fun byId(id: Long): AddonEntity? = null
+            override suspend fun byId(id: Long): AddonEntity? = addonRows.value.firstOrNull { it.id == id }
         }
 
         val plugins = object : PluginDao {
@@ -265,4 +266,54 @@ class CsRepositoryLoadApisTest {
         assertTrue(result is CsApiResult.NoApiRegistered)
         assertEquals("EmptyPlugin", (result as CsApiResult.NoApiRegistered).pluginId)
     }
+    private fun settingsRepo(db: TestDb, changeWhileLoading: () -> Unit = {}): CsRepository {
+        val tempDir = kotlin.io.path.createTempDirectory("cs_settings_identity").toFile()
+        val store = CsDexStore(tempDir)
+        store.dexFile(1).writeText("synthetic dex")
+        store.manifestFile(1).writeText("{}")
+        return CsRepository(db.addons, db.plugins, ManifestFetcher { error("No settings download") }, OkHttpClient(), store,
+            object : PluginDexLoader {
+                override suspend fun loadPlugin(dexFile: File, className: String, pluginId: String): CsApiResult {
+                    changeWhileLoading()
+                    return CsApiResult.Success(listOf(object : MainAPI() {}), { })
+                }
+            })
+    }
+
+    private fun settingsDb(): TestDb = TestDb().apply {
+        pluginRows.value = listOf(sampleEntity().copy(enabled = true))
+        addonRows.value = listOf(AddonEntity(id = 10, type = AddonType.CLOUDSTREAM_REPO,
+            sourceUrl = "https://example.invalid/repo.json", addonId = "fixture", name = "Fixture",
+            version = null, description = null, logoUrl = null, manifestJson = "{}", addedAt = 0))
+    }
+
+    @Test fun `settings retain callback for unchanged enabled artifact`() = runTest {
+        val result = settingsRepo(settingsDb()).loadSettings(1)
+        assertTrue(result is CsApiResult.Success && result.openSettings != null)
+    }
+
+    @Test fun `settings never load disabled plugin or disabled parent`() = runTest {
+        for (disableParent in listOf(false, true)) {
+            val db = settingsDb(); var loaded = false
+            if (disableParent) db.addonRows.value = db.addonRows.value.map { it.copy(enabled = false) }
+            else db.pluginRows.value = db.pluginRows.value.map { it.copy(enabled = false) }
+            val result = settingsRepo(db) { loaded = true }.loadSettings(1)
+            assertEquals(null, result); assertEquals(false, loaded)
+        }
+    }
+
+    @Test fun `settings discard callback when row changes during loading`() = runTest {
+        for (change in listOf("disable", "remove", "update")) {
+            val db = settingsDb()
+            val result = settingsRepo(db) {
+                db.pluginRows.value = when (change) {
+                    "disable" -> db.pluginRows.value.map { it.copy(enabled = false) }
+                    "remove" -> emptyList()
+                    else -> db.pluginRows.value.map { it.copy(version = "2", sha256 = "changed") }
+                }
+            }.loadSettings(1)
+            assertEquals(null, result)
+        }
+    }
+
 }

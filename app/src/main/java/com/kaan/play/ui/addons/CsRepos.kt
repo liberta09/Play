@@ -146,7 +146,7 @@ internal fun CsRepoRow(repo: CsRepo, onRemove: () -> Unit) {
  * [onToggle]: eklentiyi aç/kapat.
  */
 @Composable
-fun CsPluginRow(plugin: InstalledCsPlugin, onToggle: (Boolean) -> Unit) {
+fun CsPluginRow(plugin: InstalledCsPlugin, onToggle: (Boolean) -> Unit, onSettings: () -> Unit) {
     androidx.compose.material3.Surface(
         shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -173,6 +173,13 @@ fun CsPluginRow(plugin: InstalledCsPlugin, onToggle: (Boolean) -> Unit) {
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
+            }
+            IconButton(onClick = onSettings, enabled = plugin.enabled, modifier = Modifier.focusRing()) {
+                Icon(
+                    PlayIcons.Gear,
+                    contentDescription = stringResource(R.string.cs_settings_open, plugin.name),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
             Switch(
                 checked = plugin.enabled,

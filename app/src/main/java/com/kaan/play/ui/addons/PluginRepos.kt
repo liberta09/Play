@@ -261,6 +261,7 @@ fun InstalledAddonsScreen(onBack: () -> Unit, onOpenPlugin: (Long) -> Unit, onOp
     val addons by vm.addons.collectAsStateWithLifecycle()
     val groups by vm.groups.collectAsStateWithLifecycle()
     val csGroups by vm.csGroups.collectAsStateWithLifecycle()
+    val openCsSettings = rememberCsPluginSettingsLauncher()
     var toRemove by remember { mutableStateOf<Addon?>(null) }
 
     val addonList = addons
@@ -364,7 +365,7 @@ fun InstalledAddonsScreen(onBack: () -> Unit, onOpenPlugin: (Long) -> Unit, onOp
                         }
                     }
                     items(group.plugins, key = { "csp-${it.id}" }) { plugin ->
-                        CsPluginRow(plugin = plugin, onToggle = { vm.setCsPluginEnabled(plugin, it) })
+                        CsPluginRow(plugin = plugin, onToggle = { vm.setCsPluginEnabled(plugin, it) }, onSettings = { openCsSettings(plugin.id) })
                     }
                 }
             }
