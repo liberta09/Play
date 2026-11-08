@@ -45,7 +45,7 @@ class CatalogInstallCoordinator(
         _outcome.value = null
         appScope.launch {
             try {
-                val res = installer.add(url, sourceType)
+                val res = installer.add(url)
                 _outcome.value = CatalogInstallOutcome.Success(url, res)
             } catch (e: Exception) {
                 _outcome.value = CatalogInstallOutcome.Failure(url, e.message ?: "Kurulum başarısız")
