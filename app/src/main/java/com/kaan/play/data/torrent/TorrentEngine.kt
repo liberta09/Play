@@ -170,20 +170,20 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
                 val last = TorrentRules.pieceAt(offset, size - 1, pieceLength)
     
                 if (STARTUP_FOCUS_ENABLED) {
-                    h.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
+                    safeHandle(h) { setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD) }
                     val startupDeadlines = TorrentBlockRangeRules.startupFocusPieces(first, last) { safeHavePiece(h, it) }
                     for (d in startupDeadlines) {
-                        h.piecePriority(d.pieceIndex, Priority.TOP_PRIORITY)
-                        h.setPieceDeadline(d.pieceIndex, d.deadlineMs)
+                        safeHandle(h) { piecePriority(d.pieceIndex, Priority.TOP_PRIORITY) }
+                        safeHandle(h) { setPieceDeadline(d.pieceIndex, d.deadlineMs) }
                     }
                 } else {
-                    h.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
-                    listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEach { h.piecePriority(it, Priority.TOP_PRIORITY) }
+                    safeHandle(h) { setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD) }
+                    listOf(first, first + 1, last - 1, last).filter { it in first..last }.forEach { safeHandle(h) { piecePriority(it, Priority.TOP_PRIORITY) } }
                     listOf(first, first + 1).filter { it in first..last }.forEachIndexed { idx, p ->
-                        if (!safeHavePiece(h, p)) h.setPieceDeadline(p, (idx + 1) * 250)
+                        if (!safeHavePiece(h, p)) safeHandle(h) { setPieceDeadline(p, (idx + 1) * 250) }
                     }
                     listOf(last - 1, last).filter { it in first..last }.forEachIndexed { idx, p ->
-                        if (!safeHavePiece(h, p)) h.setPieceDeadline(p, (idx + 1) * 500)
+                        if (!safeHavePiece(h, p)) safeHandle(h) { setPieceDeadline(p, (idx + 1) * 500) }
                     }
                 }
     
@@ -268,12 +268,12 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
             synchronized(lock) {
                 if (!file.handle.isValid) return@synchronized
                 if (STARTUP_FOCUS_ENABLED) {
-                    file.handle.setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD)
+                    safeHandle(file.handle) { setFlags(TorrentFlags.SEQUENTIAL_DOWNLOAD) }
                     val first = TorrentRules.pieceAt(file.offset, 0, file.pieceLength)
                     val last = TorrentRules.pieceAt(file.offset, file.size - 1, file.pieceLength)
                     for (p in first..last) {
                         if (!safeHavePiece(file.handle, p)) {
-                            file.handle.piecePriority(p, Priority.DEFAULT)
+                            safeHandle(file.handle) { piecePriority(p, Priority.DEFAULT) }
                         }
                     }
                     val piece = file.windowStart.takeIf { it >= 0 } ?: TorrentRules.pieceAt(file.offset, 0, file.pieceLength)
@@ -413,6 +413,15 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
             throw IOException("torrent closed", e)
         }
 
+    private inline fun safeHandle(handle: TorrentHandle, action: TorrentHandle.() -> Unit) {
+        if (!handle.isValid) return
+        try {
+            handle.action()
+        } catch (e: RuntimeException) {
+            // tutamak kapandiysa veya gecersizse sessizce gec
+        }
+    }
+
     private fun safeHavePiece(handle: TorrentHandle, piece: Int): Boolean {
         if (!handle.isValid) return true
         return try {
@@ -452,7 +461,7 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
         for (i in 0 until window) {
             val p = piece + i
             if (p > last) break
-            if (!safeHavePiece(file.handle, p)) file.handle.setPieceDeadline(p, DEADLINE_STEP_MS * (i + 1))
+            if (!safeHavePiece(file.handle, p)) safeHandle(file.handle) { setPieceDeadline(p, DEADLINE_STEP_MS * (i + 1)) }
         }
     }
 
@@ -476,8 +485,8 @@ class TorrentEngine(private val dir: File, private val stateDir: File? = null) {
         )
 
         for (ad in activeDeadlines) {
-            h.piecePriority(ad.pieceIndex, Priority.TOP_PRIORITY)
-            h.setPieceDeadline(ad.pieceIndex, ad.deadlineMs)
+            safeHandle(h) { piecePriority(ad.pieceIndex, Priority.TOP_PRIORITY) }
+            safeHandle(h) { setPieceDeadline(ad.pieceIndex, ad.deadlineMs) }
         }
     }
 
