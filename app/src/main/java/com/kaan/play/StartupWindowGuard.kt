@@ -7,6 +7,9 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.Window
 import java.io.PrintWriter
 import java.io.StringWriter
 
@@ -106,6 +109,12 @@ object StartupWindowGuard {
                 .append(" (SDK ").append(Build.VERSION.SDK_INT).append(", Android ").append(Build.VERSION.RELEASE).append(")\n")
             append("- UI Modu: ").append(if (isTv) "TV" else "Standart").append(" (isTv=").append(isTv).append(")\n")
             append("- Güvenli tema: ").append(if (isSafeTheme) "evet" else "hayır").append("\n")
+            val probeLines = runCatching {
+                collectProbeLines(activity)
+            }.getOrElse {
+                "- Düzen sondası: başarısız\n"
+            }
+            append(probeLines)
             append("- Tema Özellikleri: windowNoTitle=").append(windowNoTitle)
                 .append(", windowActionBar=").append(windowActionBar)
                 .append(", windowIsFloating=").append(windowIsFloating)
@@ -176,6 +185,56 @@ object StartupWindowGuard {
             }
         }
     }
+
+    @Suppress("DEPRECATION")
+    private fun collectProbeLines(activity: Activity): String {
+        val layoutNames = listOf("screen_simple", "screen_simple_overlay_action_mode", "screen_title")
+        val layoutResults = linkedMapOf<String, String>()
+        val inflater = LayoutInflater.from(activity)
+        for (name in layoutNames) {
+            val id = runCatching { activity.resources.getIdentifier(name, "layout", "android") }.getOrDefault(0)
+            val status = StartupGuardRules.evaluateLayoutStatus(id) {
+                val view = inflater.inflate(id, null, false)
+                view?.findViewById<View>(android.R.id.content) != null
+            }
+            layoutResults[name] = status
+        }
+
+        val window = activity.window
+        val featureResults = linkedMapOf<String, String>()
+        fun checkFeature(key: String, featureId: Int) {
+            featureResults[key] = runCatching {
+                window?.hasFeature(featureId)?.toString() ?: "?"
+            }.getOrDefault("?")
+        }
+        checkFeature("noTitle", Window.FEATURE_NO_TITLE)
+        checkFeature("actionBar", Window.FEATURE_ACTION_BAR)
+        checkFeature("actionBarOverlay", Window.FEATURE_ACTION_BAR_OVERLAY)
+        checkFeature("customTitle", Window.FEATURE_CUSTOM_TITLE)
+        checkFeature("swipeToDismiss", Window.FEATURE_SWIPE_TO_DISMISS)
+        checkFeature("contentTransitions", Window.FEATURE_CONTENT_TRANSITIONS)
+
+        val fingerprint = Build.FINGERPRINT ?: "bilinmiyor"
+        val patch = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Build.VERSION.SECURITY_PATCH
+        } else {
+            null
+        }
+
+        return StartupGuardRules.formatProbeLines(
+            layoutResults = layoutResults,
+            featureResults = featureResults,
+            fingerprint = fingerprint,
+            securityPatch = patch
+        )
+    }
+
+    fun formatProbeLines(
+        layoutResults: Map<String, String>,
+        featureResults: Map<String, String>,
+        fingerprint: String,
+        securityPatch: String? = null,
+    ): String = StartupGuardRules.formatProbeLines(layoutResults, featureResults, fingerprint, securityPatch)
 
     private fun applyNoAnimation(activity: Activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

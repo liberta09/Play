@@ -16,6 +16,7 @@ object StartupGuardRules {
     const val WINDOW_MS = 10 * 60 * 1000L // 10 dakika
     const val KEY_SAFE_WINDOW = "safe_window"
     const val EXTRA_SAFE_WINDOW = "play_safe_window"
+    const val MAX_FINGERPRINT_LENGTH = 120
 
     enum class Decision {
         RETRY,
@@ -150,4 +151,37 @@ object StartupGuardRules {
 
     fun recordSuccess(context: Context, activityName: String) =
         recordSuccess(getStore(context), activityName)
+
+    fun evaluateLayoutStatus(layoutId: Int, hasContent: (() -> Boolean)?): String {
+        if (layoutId == 0) return "yok"
+        return try {
+            if (hasContent?.invoke() == true) "icerik=var" else "icerik=YOK"
+        } catch (e: Throwable) {
+            "sisirme hatasi=${e.javaClass.simpleName}"
+        }
+    }
+
+    fun formatProbeLines(
+        layoutResults: Map<String, String>,
+        featureResults: Map<String, String>,
+        fingerprint: String,
+        securityPatch: String? = null,
+    ): String {
+        val sb = StringBuilder()
+        val layoutLine = layoutResults.entries.joinToString("; ") { "${it.key}=${it.value}" }
+        sb.append("- Düzen sondası: ").append(layoutLine).append("\n")
+
+        val featureLine = featureResults.entries.joinToString(", ") { "${it.key}=${it.value}" }
+        sb.append("- Pencere özellikleri: ").append(featureLine).append("\n")
+
+        val safeFingerprint = if (fingerprint.length > MAX_FINGERPRINT_LENGTH) {
+            fingerprint.take(MAX_FINGERPRINT_LENGTH)
+        } else {
+            fingerprint
+        }
+        val patch = securityPatch?.takeIf { it.isNotBlank() } ?: "bilinmiyor"
+        sb.append("- ROM: ").append(safeFingerprint).append(", yama=").append(patch).append("\n")
+
+        return sb.toString()
+    }
 }
