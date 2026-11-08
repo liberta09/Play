@@ -14,6 +14,8 @@ object StartupGuardRules {
 
     const val PREFS_NAME = "play_startup_guard"
     const val WINDOW_MS = 10 * 60 * 1000L // 10 dakika
+    const val KEY_SAFE_WINDOW = "safe_window"
+    const val EXTRA_SAFE_WINDOW = "play_safe_window"
 
     enum class Decision {
         RETRY,
@@ -27,6 +29,11 @@ object StartupGuardRules {
         fun getString(key: String): String?
         fun putString(key: String, value: String)
         fun remove(key: String)
+        fun getBoolean(key: String, defValue: Boolean = false): Boolean =
+            getString(key)?.toBooleanStrictOrNull() ?: defValue
+        fun putBoolean(key: String, value: Boolean) {
+            putString(key, value.toString())
+        }
     }
 
     fun parseTimestamps(raw: String?): List<Long> {
@@ -92,6 +99,33 @@ object StartupGuardRules {
         store.remove(keyFor(activityName))
     }
 
+    fun shouldUseSafeTheme(intentFlag: Boolean, storedFlag: Boolean): Boolean =
+        intentFlag || storedFlag
+
+    fun isSafeWindow(store: Store): Boolean =
+        store.getBoolean(KEY_SAFE_WINDOW, false)
+
+    fun isSafeWindow(context: Context): Boolean =
+        isSafeWindow(getStore(context))
+
+    fun setSafeWindow(store: Store, enabled: Boolean) {
+        if (enabled) {
+            store.putBoolean(KEY_SAFE_WINDOW, true)
+        } else {
+            store.remove(KEY_SAFE_WINDOW)
+        }
+    }
+
+    fun setSafeWindow(context: Context, enabled: Boolean) =
+        setSafeWindow(getStore(context), enabled)
+
+    fun clearSafeWindow(store: Store) {
+        store.remove(KEY_SAFE_WINDOW)
+    }
+
+    fun clearSafeWindow(context: Context) =
+        clearSafeWindow(getStore(context))
+
     // Android Context / SharedPreferences bağlayıcıları
     fun getStore(context: Context): Store {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -102,6 +136,11 @@ object StartupGuardRules {
             }
             override fun remove(key: String) {
                 prefs.edit().remove(key).apply()
+            }
+            override fun getBoolean(key: String, defValue: Boolean): Boolean =
+                prefs.getBoolean(key, defValue)
+            override fun putBoolean(key: String, value: Boolean) {
+                prefs.edit().putBoolean(key, value).apply()
             }
         }
     }

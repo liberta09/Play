@@ -1,6 +1,7 @@
 package com.kaan.play
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -110,5 +111,43 @@ class StartupGuardRulesTest {
 
         val serialized = StartupGuardRules.serializeTimestamps(listOf(100L, 200L, 300L))
         assertEquals("100,200,300", serialized)
+    }
+
+    @Test
+    fun `shouldUseSafeTheme intent ve kayit durumlarini dogru degerlendirir`() {
+        assertFalse(StartupGuardRules.shouldUseSafeTheme(intentFlag = false, storedFlag = false))
+        assertTrue(StartupGuardRules.shouldUseSafeTheme(intentFlag = true, storedFlag = false))
+        assertTrue(StartupGuardRules.shouldUseSafeTheme(intentFlag = false, storedFlag = true))
+        assertTrue(StartupGuardRules.shouldUseSafeTheme(intentFlag = true, storedFlag = true))
+    }
+
+    @Test
+    fun `safe_window kayit ve sorgulama calisir ve recordSuccess ile silinmez`() {
+        assertFalse(StartupGuardRules.isSafeWindow(store))
+
+        StartupGuardRules.setSafeWindow(store, true)
+        assertTrue(StartupGuardRules.isSafeWindow(store))
+
+        // recordSuccess yalnizca etkinlik gecmisini siler, safe_window kalmalidir
+        StartupGuardRules.recordSuccess(store, "MainActivity")
+        assertTrue("recordSuccess sonrasinda safe_window korunmali", StartupGuardRules.isSafeWindow(store))
+
+        StartupGuardRules.clearSafeWindow(store)
+        assertFalse(StartupGuardRules.isSafeWindow(store))
+    }
+
+    @Test
+    fun `GIVE_UP kararinda safe_window temizlenir`() {
+        StartupGuardRules.setSafeWindow(store, true)
+        assertTrue(StartupGuardRules.isSafeWindow(store))
+
+        val now = 1_000_000L
+        StartupGuardRules.recordFailureAndDecide(store, "MainActivity", now)
+        val d2 = StartupGuardRules.recordFailureAndDecide(store, "MainActivity", now + 1000)
+        assertEquals(StartupGuardRules.Decision.GIVE_UP, d2)
+
+        // StartupWindowGuard give_up dalinda clearSafeWindow cagirir
+        StartupGuardRules.clearSafeWindow(store)
+        assertFalse("GIVE_UP sonrasinda safe_window temizlenmis olmali", StartupGuardRules.isSafeWindow(store))
     }
 }

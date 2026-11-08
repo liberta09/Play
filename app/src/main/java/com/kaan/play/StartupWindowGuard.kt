@@ -15,6 +15,7 @@ import java.io.StringWriter
  */
 object StartupWindowGuard {
 
+    const val EXTRA_SAFE_WINDOW = StartupGuardRules.EXTRA_SAFE_WINDOW
     const val EXTRA_DEBUG_FAIL_SETCONTENT = "play_debug_fail_setcontent"
 
     fun getDebugFailCount(intent: Intent?): Int {
@@ -87,6 +88,9 @@ object StartupWindowGuard {
             false
         }
 
+        val intentSafe = activity.intent?.getBooleanExtra(EXTRA_SAFE_WINDOW, false) ?: false
+        val storedSafe = StartupGuardRules.isSafeWindow(activity)
+        val isSafeTheme = StartupGuardRules.shouldUseSafeTheme(intentSafe, storedSafe)
         val elapsedMs = PlayApp.getElapsedProcessTimeMs()
         val intentAction = activity.intent?.action ?: "null"
         val intentFlags = "0x" + Integer.toHexString(activity.intent?.flags ?: 0)
@@ -101,6 +105,7 @@ object StartupWindowGuard {
             append("- Cihaz: ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL)
                 .append(" (SDK ").append(Build.VERSION.SDK_INT).append(", Android ").append(Build.VERSION.RELEASE).append(")\n")
             append("- UI Modu: ").append(if (isTv) "TV" else "Standart").append(" (isTv=").append(isTv).append(")\n")
+            append("- Güvenli tema: ").append(if (isSafeTheme) "evet" else "hayır").append("\n")
             append("- Tema Özellikleri: windowNoTitle=").append(windowNoTitle)
                 .append(", windowActionBar=").append(windowActionBar)
                 .append(", windowIsFloating=").append(windowIsFloating)
@@ -137,9 +142,11 @@ object StartupWindowGuard {
         // (ii) & (iii) Kural kontrolü
         val decision = StartupGuardRules.recordFailureAndDecide(activity, activityName)
         if (decision == StartupGuardRules.Decision.RETRY) {
+            StartupGuardRules.setSafeWindow(activity, true)
             Log.w("StartupWindowGuard", "Açılış kalkanı: YENİDEN DENE ($activityName)")
             val restartIntent = Intent(activity.intent).apply {
                 setClass(activity, activity.javaClass)
+                putExtra(EXTRA_SAFE_WINDOW, true)
                 addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 if (activityName == "MainActivity") {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -160,6 +167,7 @@ object StartupWindowGuard {
             activity.startActivity(restartIntent)
             applyNoAnimation(activity)
         } else {
+            StartupGuardRules.clearSafeWindow(activity)
             Log.e("StartupWindowGuard", "Açılış kalkanı: VAZGEÇ ($activityName, son 10 dk içinde >= 2 başarısızlık). Sessizce kapanıyor.")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 runCatching { activity.finishAndRemoveTask() }.onFailure { activity.finish() }

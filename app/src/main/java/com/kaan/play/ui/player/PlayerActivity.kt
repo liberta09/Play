@@ -91,7 +91,12 @@ class PlayerActivity : AppCompatActivity() {
     /** İntro/özet/jenerik/önizleme atlama düğmeleri ve isteğe bağlı otomatik atlama (TheIntroDB + chapter işaretleri). */
     private lateinit var skips: SkipController
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        val intentSafe = intent?.getBooleanExtra(StartupGuardRules.EXTRA_SAFE_WINDOW, false) ?: false
+        val storedSafe = StartupGuardRules.isSafeWindow(this)
+        if (StartupGuardRules.shouldUseSafeTheme(intentSafe, storedSafe)) {
+            setTheme(R.style.Theme_Play_Safe)
+        }
         super.onCreate(savedInstanceState)
         val incomingIntent = intent ?: run {
             finish()
