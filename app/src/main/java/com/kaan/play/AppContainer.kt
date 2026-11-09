@@ -31,6 +31,7 @@ import com.kaan.play.data.cloudstream.CsDexStore
 import com.kaan.play.data.cloudstream.CsRepository
 import com.kaan.play.data.cloudstream.CsRuntime
 import com.kaan.play.data.cloudstream.CsStreamProvider
+import com.kaan.play.data.cloudstream.PluginRepoRequestHandler
 import com.kaan.play.data.match.toContentIdentity
 import com.kaan.play.data.plugin.FilePluginCodeStore
 import com.kaan.play.data.plugin.OkHttpPluginCodeFetcher
@@ -725,6 +726,18 @@ class AppContainer(context: Context) {
 
     /** `play://add?repo=` / `play://add?nuvio=` bağlantıları: mevcut [sourceInstaller] ile ekler, sonucu Snackbar'a iletir. */
     val deepLinks: DeepLinkHandler by lazy { DeepLinkHandler(sourceInstaller, appScope) }
+
+    val manifestFetcher: com.kaan.play.data.addon.ManifestFetcher by lazy { com.kaan.play.data.addon.OkHttpManifestFetcher(httpClient) }
+
+    /** Eklentilerin 'depo ekle' istekleri (MegaWio vb.): 1.5 sn toplanır, kullanıcı onaylarsa kurulur. */
+    val pluginRepoRequests: PluginRepoRequestHandler by lazy {
+        PluginRepoRequestHandler(
+            installer = sourceInstaller,
+            addonDao = database.addonDao(),
+            dataStore = settings.store,
+            scope = appScope,
+        )
+    }
 
     /** Uygulama içi duyuru kontrolü (GitHub raw announcements.json); oturumda bir kez, arka planda. */
     val announcementChecker: AnnouncementChecker by lazy {
