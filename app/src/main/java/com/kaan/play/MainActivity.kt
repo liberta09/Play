@@ -32,7 +32,7 @@ import kotlinx.coroutines.runBlocking
 // AppCompatActivity: uygulama başına dil (AppCompatDelegate.setApplicationLocales) için gerekli.
 class MainActivity : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         val intentSafe = intent?.getBooleanExtra(StartupGuardRules.EXTRA_SAFE_WINDOW, false) ?: false
         val storedSafe = StartupGuardRules.isSafeWindow(this)
         if (StartupGuardRules.shouldUseSafeTheme(intentSafe, storedSafe)) {

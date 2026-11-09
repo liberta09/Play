@@ -36,6 +36,7 @@
 | 🇹🇷 **Türkçe dublaj önce** | Türkçe dublajlı kaynak varsa ilk o seçilir. Yoksa Türkçe altyazıyla başlar. Her kaynak "Dublajlı" ya da "Altyazılı" diye etiketlenir, boyutu (GB) yanında görünür. |
 | 📝 **Otomatik Türkçe altyazı** | Videoda altyazı yoksa çevrimiçi aranır, Türkçe önce gelir. Elle .srt ekleyebilir, senkronu ve görünümü (boyut, kalın, italik) ayarlayabilirsin. |
 | 🧩 **Nuvio ve CloudStream** | Nuvio addon'larını, Nuvio plugin'lerini ve CloudStream (.cs3) eklenti depolarını kaynak olarak kullanır. Tek listede, eklentiye göre gruplu. |
+| 📦 **Depo onay akışı** | Eklentilerin önerdiği ek depoları onay penceresiyle güvenle ekler; kullanıcı onayı olmadan hiçbir depo kurulmaz. |
 | 🧭 **Sağlayıcı seçici** | Ana sayfa eklenti merkezli çalışabilir. Sağ alttaki hap butonla sağlayıcı seçilir; arama, Hepsi/CloudStream/Nuvio filtreleri, sabitleme ve çoklu seçim desteklenir. |
 | 🧲 **Yerleşik torrent motoru** | Torrent kaynakları için ayrı uygulama, TorrServer ya da Debrid gerekmez. |
 | 🎛️ **Akıllı oynatıcı** | Sağ tarafı kaydırarak ses, sol tarafı kaydırarak parlaklık. Kilit, kaynak, ses ve video kalitesi panelleri. Dizide sonraki bölüm otomatik açılır. |

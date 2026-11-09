@@ -1,5 +1,21 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.2.8] — 2026-11-09
+
+### Türkçe
+- Depo kataloglarından Nuvio eklenti depoları yüklenemiyordu, düzeltildi.
+- Torrent açılışında nadir görülen bir hata giderildi.
+- Bazı cihazlarda açılış hatasını daha iyi tespit edebilmek için tanı bilgisi eklendi.
+- MegaWio gibi eklentiler artık depo ekleme isteklerini onayınla yapabiliyor.
+
+### English
+- Fixed an issue where Nuvio plugin repositories could not be installed from repository catalogs.
+- Fixed a rare issue during torrent startup.
+- Added diagnostics to better detect startup errors on certain devices.
+- Addons like MegaWio can now request repository installations with user confirmation.
+
+
+
 ## [1.2.7] — 2026-11-05
 
 ### Türkçe
