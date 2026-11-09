@@ -39,6 +39,9 @@ object PluginRepoRequestRules {
             } catch (_: Exception) {
                 continue
             }
+            if (!uri.userInfo.isNullOrEmpty()) {
+                continue
+            }
             val host = uri.host ?: continue
             val port = if (uri.port != -1) uri.port else 443
             if (isBlockedHost(host, port)) {

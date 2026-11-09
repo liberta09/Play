@@ -106,4 +106,35 @@ class PluginRepoRequestRulesTest {
         )
         assertTrue(filtered.isEmpty())
     }
+
+    @Test
+    fun rejectsUrlsWithUserInfo() {
+        val candidates = listOf(
+            PluginRepoItem("Spoofed Repo", "https://raw.githubusercontent.com@baska-site.com/x.json"),
+            PluginRepoItem("User Pass Repo", "https://user:password@example.com/repo.json"),
+            PluginRepoItem("Legit Repo", "https://raw.githubusercontent.com/user/repo/main/repo.json"),
+        )
+        val filtered = PluginRepoRequestRules.filterRequests(
+            candidates = candidates,
+            installedUrls = emptySet(),
+            declinedUrls = emptySet(),
+            isBlockedHost = { _, _ -> false },
+        )
+        assertEquals(1, filtered.size)
+        assertEquals("https://raw.githubusercontent.com/user/repo/main/repo.json", filtered[0].url)
+    }
+
+    @Test
+    fun userInfoUrlCannotEnterList() {
+        val candidates = listOf(
+            PluginRepoItem("Spoofed Repo", "https://raw.githubusercontent.com@baska-site.com/x.json"),
+        )
+        val filtered = PluginRepoRequestRules.filterRequests(
+            candidates = candidates,
+            installedUrls = emptySet(),
+            declinedUrls = emptySet(),
+            isBlockedHost = { _, _ -> false },
+        )
+        assertTrue(filtered.isEmpty())
+    }
 }

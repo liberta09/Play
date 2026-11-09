@@ -43,6 +43,7 @@ import com.kaan.play.data.cloudstream.PluginRepoEvent
 import com.kaan.play.data.cloudstream.PluginRepoRequestHandler
 import com.kaan.play.data.plugin.SourceType
 import kotlinx.coroutines.flow.Flow
+import java.net.URI
 
 /**
  * `play://add` bağlantısı: önce onay penceresi (adres ve tür görünür, "Ekle" / "Vazgeç"), sonra sonucu
@@ -177,12 +178,19 @@ fun DeepLinkHost(
 }
 
 internal fun formatRepoUrlForDisplay(url: String): String {
-    val clean = url.trim().removePrefix("https://").removePrefix("http://")
-    val parts = clean.split('/')
-    return if (parts.size > 3) {
-        "${parts[0]}/${parts[1]}/${parts[2]}/..."
+    val uri = try {
+        URI(url.trim())
+    } catch (_: Exception) {
+        return ""
+    }
+    val host = uri.host ?: return ""
+    val segments = uri.path?.split('/')?.filter { it.isNotEmpty() }.orEmpty()
+    return if (segments.size > 2) {
+        "$host/${segments[0]}/${segments[1]}/..."
+    } else if (segments.isNotEmpty()) {
+        "$host/${segments.joinToString("/")}"
     } else {
-        clean
+        host
     }
 }
 

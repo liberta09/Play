@@ -227,4 +227,26 @@ class PluginRepoRequestHandlerTest {
         assertNull(handler.pendingRequest.value)
         assertTrue(addedUrls.isEmpty())
     }
+
+    @Test
+    fun userInfoUrlDoesNotEnterPendingList() = runTest {
+        val store = MemoryPreferencesStore()
+        val dao = FakeAddonDao()
+        val addedUrls = mutableListOf<String>()
+        val handler = PluginRepoRequestHandler(
+            installRepo = { addedUrls.add(it) },
+            addonDao = dao,
+            dataStore = store,
+            scope = this,
+            debounceDelayMs = 50L,
+            isBlockedHost = { _, _ -> false },
+        )
+
+        handler.enqueue("Spoofed", "https://raw.githubusercontent.com@baska-site.com/x.json")
+        advanceTimeBy(100L)
+        runCurrent()
+
+        assertNull(handler.pendingRequest.value)
+        assertTrue(addedUrls.isEmpty())
+    }
 }
