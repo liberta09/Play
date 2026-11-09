@@ -433,7 +433,6 @@
     <string name="plugin_repo_confirm_message">The following repositories will be added:</string>
     <string name="plugin_repo_confirm_add">Add</string>
     <string name="plugin_repo_confirm_decline">Decline</string>
-    <string name="plugin_repo_and_more">and %1$d more</string>
     <string name="plugin_repo_added_result">%1$d repositories added</string>
     <string name="plugin_repo_add_failed">Failed to add repositories</string>
 

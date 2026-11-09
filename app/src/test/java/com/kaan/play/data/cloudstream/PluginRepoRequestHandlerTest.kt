@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
@@ -56,6 +57,7 @@ class PluginRepoRequestHandlerTest {
             dataStore = store,
             scope = this,
             debounceDelayMs = 100L,
+            isBlockedHost = { _, _ -> false },
         )
 
         handler.enqueue("Repo 1", "https://example.com/repo1.json")
@@ -80,6 +82,7 @@ class PluginRepoRequestHandlerTest {
             dataStore = store,
             scope = this,
             debounceDelayMs = 50L,
+            isBlockedHost = { _, _ -> false },
         )
 
         handler.enqueue("Repo 1", "https://example.com/declined.json")
@@ -97,7 +100,7 @@ class PluginRepoRequestHandlerTest {
     }
 
     @Test
-    fun confirmInstallsReposAndEmitsEvent() = runTest {
+    fun confirmInstallsReposAndEmitsCompletedEvent() = runTest {
         val store = MemoryPreferencesStore()
         val dao = FakeAddonDao()
         val addedUrls = mutableListOf<String>()
@@ -107,7 +110,11 @@ class PluginRepoRequestHandlerTest {
             dataStore = store,
             scope = this,
             debounceDelayMs = 50L,
+            isBlockedHost = { _, _ -> false },
         )
+
+        val events = mutableListOf<PluginRepoEvent>()
+        val collectJob = launch { handler.events.collect { events.add(it) } }
 
         handler.enqueue("Repo 1", "https://example.com/add1.json")
         handler.enqueue("Repo 2", "https://example.com/add2.json")
@@ -119,5 +126,105 @@ class PluginRepoRequestHandlerTest {
 
         assertEquals(2, addedUrls.size)
         assertNull(handler.pendingRequest.value)
+        assertEquals(1, events.size)
+        val completed = events.first() as PluginRepoEvent.Completed
+        assertEquals(2, completed.successCount)
+        assertEquals(2, completed.total)
+
+        collectJob.cancel()
+    }
+
+    @Test
+    fun enqueueAndDebounceDoesNotInstallBeforeConfirm() = runTest {
+        val store = MemoryPreferencesStore()
+        val dao = FakeAddonDao()
+        val addedUrls = mutableListOf<String>()
+        val handler = PluginRepoRequestHandler(
+            installRepo = { addedUrls.add(it) },
+            addonDao = dao,
+            dataStore = store,
+            scope = this,
+            debounceDelayMs = 50L,
+            isBlockedHost = { _, _ -> false },
+        )
+
+        handler.enqueue("Repo 1", "https://example.com/pending.json")
+        advanceTimeBy(100L)
+        runCurrent()
+
+        assertNotNull(handler.pendingRequest.value)
+        assertTrue(addedUrls.isEmpty())
+    }
+
+    @Test
+    fun confirmWithFailingRepoDecrementsSuccessCount() = runTest {
+        val store = MemoryPreferencesStore()
+        val dao = FakeAddonDao()
+        val addedUrls = mutableListOf<String>()
+        val failingUrl = "https://example.com/fail.json"
+        val handler = PluginRepoRequestHandler(
+            installRepo = { url ->
+                if (url == failingUrl) {
+                    error("Indirme basarisiz")
+                } else {
+                    addedUrls.add(url)
+                }
+            },
+            addonDao = dao,
+            dataStore = store,
+            scope = this,
+            debounceDelayMs = 50L,
+            isBlockedHost = { _, _ -> false },
+        )
+
+        val events = mutableListOf<PluginRepoEvent>()
+        val collectJob = launch { handler.events.collect { events.add(it) } }
+
+        handler.enqueue("Good Repo", "https://example.com/good.json")
+        handler.enqueue("Bad Repo", failingUrl)
+        advanceTimeBy(100L)
+        runCurrent()
+
+        handler.confirm()
+        advanceUntilIdle()
+
+        assertEquals(listOf("https://example.com/good.json"), addedUrls)
+        assertEquals(1, events.size)
+        val completed = events.first() as PluginRepoEvent.Completed
+        assertEquals(1, completed.successCount)
+        assertEquals(2, completed.total)
+
+        collectJob.cancel()
+    }
+
+    @Test
+    fun dismissedRepoDoesNotShowOnSubsequentEnqueue() = runTest {
+        val store = MemoryPreferencesStore()
+        val dao = FakeAddonDao()
+        val addedUrls = mutableListOf<String>()
+        val handler = PluginRepoRequestHandler(
+            installRepo = { addedUrls.add(it) },
+            addonDao = dao,
+            dataStore = store,
+            scope = this,
+            debounceDelayMs = 50L,
+            isBlockedHost = { _, _ -> false },
+        )
+
+        handler.enqueue("Repo 1", "https://example.com/once.json")
+        advanceTimeBy(100L)
+        runCurrent()
+        assertNotNull(handler.pendingRequest.value)
+
+        handler.dismiss()
+        advanceUntilIdle()
+        assertNull(handler.pendingRequest.value)
+
+        // Ayni adres tekrar geldigi zaman pendingRequest null kalmali
+        handler.enqueue("Repo 1", "https://example.com/once.json")
+        advanceTimeBy(100L)
+        runCurrent()
+        assertNull(handler.pendingRequest.value)
+        assertTrue(addedUrls.isEmpty())
     }
 }

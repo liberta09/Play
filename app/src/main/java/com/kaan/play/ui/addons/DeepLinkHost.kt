@@ -1,15 +1,10 @@
 package com.kaan.play.ui.addons
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -23,21 +18,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.kaan.play.PlayApp
 import com.kaan.play.R
-import com.kaan.play.data.cloudstream.PluginRepoEvent
-import com.kaan.play.data.cloudstream.PluginRepoRequestHandler
 import com.kaan.play.data.plugin.AddResult
 import com.kaan.play.data.plugin.DeepLinkEvent
 import com.kaan.play.data.plugin.DeepLinkHandler
-import com.kaan.play.data.plugin.SourceType
 import com.kaan.play.ui.components.TextButton
 import com.kaan.play.ui.tv.rememberInitialFocus
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.platform.LocalContext
+import com.kaan.play.PlayApp
+import com.kaan.play.data.cloudstream.PluginRepoEvent
+import com.kaan.play.data.cloudstream.PluginRepoRequestHandler
+import com.kaan.play.data.plugin.SourceType
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -116,24 +120,32 @@ fun DeepLinkHost(
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.padding(vertical = 4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 240.dp)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
                         ) {
-                            items.take(8).forEach { item ->
-                                Text(
-                                    text = "• ${item.name.ifBlank { item.url }}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
-                            if (items.size > 8) {
-                                Text(
-                                    text = stringResource(R.string.plugin_repo_and_more, items.size - 8),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
+                            items.forEach { item ->
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                                ) {
+                                    Text(
+                                        text = "• ${item.name.ifBlank { item.url }}",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    Text(
+                                        text = formatRepoUrlForDisplay(item.url),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(start = 12.dp),
+                                    )
+                                }
                             }
                         }
                         if (repoBusy) {
@@ -164,12 +176,23 @@ fun DeepLinkHost(
     }
 }
 
+internal fun formatRepoUrlForDisplay(url: String): String {
+    val clean = url.trim().removePrefix("https://").removePrefix("http://")
+    val parts = clean.split('/')
+    return if (parts.size > 3) {
+        "${parts[0]}/${parts[1]}/${parts[2]}/..."
+    } else {
+        clean
+    }
+}
+
 @Composable
 private fun DeepLinkSnackbar(events: Flow<DeepLinkEvent>) {
     val host = remember { SnackbarHostState() }
     var current by remember { mutableStateOf<DeepLinkEvent?>(null) }
     LaunchedEffect(events) { events.collect { current = it } }
 
+    // Metin kompozisyonda çözülür (hata iletileri @Composable); sonra Snackbar gösterilir.
     val text = when (val e = current) {
         null -> null
         is DeepLinkEvent.Added -> when (e.result) {

@@ -452,7 +452,10 @@ class AppContainer(context: Context) {
     }
 
     /** "Eklenti ekle": adresin içeriğine bakıp addon mu eklenti deposu mu CloudStream deposu mu olduğunu kendisi anlar. */
-    val sourceInstaller: SourceInstaller by lazy { SourceInstaller(addons, plugins, csRepos, OkHttpManifestFetcher(httpClient)) }
+    val manifestFetcher: com.kaan.play.data.addon.ManifestFetcher by lazy { OkHttpManifestFetcher(httpClient) }
+
+    /** "Eklenti ekle": adresin içeriğine bakıp addon mu eklenti deposu mu CloudStream deposu mu olduğunu kendisi anlar. */
+    val sourceInstaller: SourceInstaller by lazy { SourceInstaller(addons, plugins, csRepos, manifestFetcher) }
 
     /** Sağlayıcı merkezli ana sayfa için sağlayıcı listesi ve seçim durumu (Aşama A). */
     val providers: com.kaan.play.data.provider.ProviderRepository by lazy {
@@ -726,8 +729,6 @@ class AppContainer(context: Context) {
 
     /** `play://add?repo=` / `play://add?nuvio=` bağlantıları: mevcut [sourceInstaller] ile ekler, sonucu Snackbar'a iletir. */
     val deepLinks: DeepLinkHandler by lazy { DeepLinkHandler(sourceInstaller, appScope) }
-
-    val manifestFetcher: com.kaan.play.data.addon.ManifestFetcher by lazy { com.kaan.play.data.addon.OkHttpManifestFetcher(httpClient) }
 
     /** Eklentilerin 'depo ekle' istekleri (MegaWio vb.): 1.5 sn toplanır, kullanıcı onaylarsa kurulur. */
     val pluginRepoRequests: PluginRepoRequestHandler by lazy {

@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import com.kaan.play.BuildConfig
 import com.kaan.play.data.db.AddonDao
 import com.kaan.play.data.db.AddonType
 import com.kaan.play.data.plugin.SourceInstaller
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import java.util.concurrent.atomic.AtomicInteger
 
 sealed interface PluginRepoEvent {
     data class Completed(val successCount: Int, val total: Int) : PluginRepoEvent
@@ -32,6 +34,7 @@ class PluginRepoRequestHandler(
     private val dataStore: DataStore<Preferences>,
     private val scope: CoroutineScope,
     private val debounceDelayMs: Long = 1500L,
+    private val isBlockedHost: (host: String, port: Int) -> Boolean = { host, port -> PlayNetworkGuard.isBlockedHost(host, port) },
 ) {
     constructor(
         installer: SourceInstaller,
@@ -39,13 +42,16 @@ class PluginRepoRequestHandler(
         dataStore: DataStore<Preferences>,
         scope: CoroutineScope,
         debounceDelayMs: Long = 1500L,
+        isBlockedHost: (host: String, port: Int) -> Boolean = { host, port -> PlayNetworkGuard.isBlockedHost(host, port) },
     ) : this(
         installRepo = { installer.add(it) },
         addonDao = addonDao,
         dataStore = dataStore,
         scope = scope,
         debounceDelayMs = debounceDelayMs,
+        isBlockedHost = isBlockedHost,
     )
+
     private val lock = Any()
     private val rawCandidates = mutableListOf<PluginRepoItem>()
     private var debounceJob: Job? = null
@@ -60,7 +66,9 @@ class PluginRepoRequestHandler(
     val events: Flow<PluginRepoEvent> = eventChannel.receiveAsFlow()
 
     fun enqueue(name: String, url: String) {
-        android.util.Log.i("PlayCs", "PluginRepoRequestHandler.enqueue: name='$name' url='$url'")
+        if (BuildConfig.DEBUG) {
+            android.util.Log.d("PlayCs", "PluginRepoRequestHandler.enqueue: istek kuyruga alindi")
+        }
         synchronized(lock) {
             rawCandidates.add(PluginRepoItem(name = name, url = url))
             debounceJob?.cancel()
@@ -91,12 +99,15 @@ class PluginRepoRequestHandler(
             candidates = candidates,
             installedUrls = installed,
             declinedUrls = declined,
+            isBlockedHost = isBlockedHost,
         )
 
-        android.util.Log.i(
-            "PlayCs",
-            "PluginRepoRequestHandler.processQueue: raw=${candidates.size}, installed=${installed.size}, declined=${declined.size}, filtered=${filtered.size}"
-        )
+        if (BuildConfig.DEBUG) {
+            android.util.Log.d(
+                "PlayCs",
+                "PluginRepoRequestHandler.processQueue: raw=${candidates.size}, installed=${installed.size}, declined=${declined.size}, filtered=${filtered.size}"
+            )
+        }
 
         if (filtered.isEmpty()) {
             _pendingRequest.value = null
@@ -108,18 +119,17 @@ class PluginRepoRequestHandler(
 
     fun confirm() {
         val items = _pendingRequest.value ?: return
-        if (_busy.value) return
-        _busy.value = true
+        if (!_busy.compareAndSet(expect = false, update = true)) return
         scope.launch {
             val gate = Semaphore(2)
-            var successCount = 0
+            val successCount = AtomicInteger(0)
             coroutineScope {
                 items.map { item ->
                     launch {
                         gate.withPermit {
                             val res = runCatching { installRepo(item.url) }
                             if (res.isSuccess) {
-                                successCount++
+                                successCount.incrementAndGet()
                             }
                         }
                     }
@@ -127,7 +137,7 @@ class PluginRepoRequestHandler(
             }
             _pendingRequest.value = null
             _busy.value = false
-            eventChannel.trySend(PluginRepoEvent.Completed(successCount = successCount, total = items.size))
+            eventChannel.trySend(PluginRepoEvent.Completed(successCount = successCount.get(), total = items.size))
         }
     }
 
