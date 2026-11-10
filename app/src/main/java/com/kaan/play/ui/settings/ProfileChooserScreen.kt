@@ -121,13 +121,13 @@ fun ProfileChooserScreen(
                 selected = selectedTab == ProfileChooserTab.Profiles,
                 onClick = { selectedTab = ProfileChooserTab.Profiles },
                 modifier = Modifier.focusMemory(focus, "tab-profiles").focusRing(RoundedCornerShape(8.dp)),
-                text = { Text("Profiller") },
+                text = { Text(stringResource(R.string.profile_tab_profiles)) },
             )
             Tab(
                 selected = selectedTab == ProfileChooserTab.Account,
                 onClick = { selectedTab = ProfileChooserTab.Account },
                 modifier = Modifier.focusMemory(focus, "tab-account").focusRing(RoundedCornerShape(8.dp)),
-                text = { Text("Bulut Hesabı") },
+                text = { Text(stringResource(R.string.profile_tab_account)) },
             )
         }
 
@@ -136,13 +136,13 @@ fun ProfileChooserScreen(
         when (selectedTab) {
             ProfileChooserTab.Profiles -> {
                 Text(
-                    text = "Kimin İzlediğini Seçin",
+                    text = stringResource(R.string.profile_chooser_title),
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onBackground,
                 )
 
                 Text(
-                    text = "İzleme geçmişi, favoriler ve tercihler seçilen profile göre tutulur.",
+                    text = stringResource(R.string.profile_chooser_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -155,12 +155,12 @@ fun ProfileChooserScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     TextButton(onClick = onToggleManage) {
-                        Text(if (managingProfiles) "Bitti" else "Profilleri Yönet")
+                        Text(if (managingProfiles) stringResource(R.string.profile_manage_done) else stringResource(R.string.profile_manage_action))
                     }
                     Button(onClick = onCreateProfile) {
                         Icon(PlayIcons.Plus, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Yeni Profil")
+                        Text(stringResource(R.string.profile_new_action))
                     }
                 }
 
@@ -210,10 +210,10 @@ fun ProfileChooserScreen(
     pinDialogTarget?.let { target ->
         AlertDialog(
             onDismissRequest = { pinDialogTarget = null },
-            title = { Text("PIN Kodu Girin") },
+            title = { Text(stringResource(R.string.profile_pin_prompt_title)) },
             text = {
                 Column {
-                    Text("${target.name} profilinin kilidini açmak için 4 haneli PIN kodunu girin:")
+                    Text(stringResource(R.string.profile_pin_prompt_message, target.name))
                     Spacer(modifier = Modifier.height(12.dp))
                     OutlinedTextField(
                         value = pinInput,
@@ -226,7 +226,7 @@ fun ProfileChooserScreen(
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                         isError = pinError,
-                        supportingText = { if (pinError) Text("Hatalı PIN kodu!", color = MaterialTheme.colorScheme.error) },
+                        supportingText = { if (pinError) Text(stringResource(R.string.profile_pin_prompt_error), color = MaterialTheme.colorScheme.error) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -245,12 +245,12 @@ fun ProfileChooserScreen(
                     },
                     enabled = pinInput.length == 4,
                 ) {
-                    Text("Giriş")
+                    Text(stringResource(R.string.profile_pin_prompt_submit))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { pinDialogTarget = null }) {
-                    Text("İptal")
+                    Text(stringResource(R.string.common_cancel))
                 }
             },
         )
@@ -265,13 +265,13 @@ fun ProfileChooserScreen(
 
         AlertDialog(
             onDismissRequest = { editDialogTarget = null },
-            title = { Text("Profili Düzenle") },
+            title = { Text(stringResource(R.string.profile_edit_dialog_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
                         value = editName,
                         onValueChange = { editName = it },
-                        label = { Text("Profil Adı") },
+                        label = { Text(stringResource(R.string.profile_edit_name_label)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
@@ -281,14 +281,14 @@ fun ProfileChooserScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("Çocuk Profili")
+                        Text(stringResource(R.string.profile_child_toggle_title))
                         Switch(checked = editChild, onCheckedChange = { editChild = it }, modifier = Modifier.focusRing(CircleShape))
                     }
 
                     OutlinedTextField(
                         value = editPin,
                         onValueChange = { if (it.length <= 4 && it.all { c -> c.isDigit() }) editPin = it },
-                        label = { Text("Yeni PIN (Boş = Değişmez/Kalkar)") },
+                        label = { Text(stringResource(R.string.profile_edit_pin_label)) },
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                         singleLine = true,
@@ -303,7 +303,7 @@ fun ProfileChooserScreen(
                         editDialogTarget = null
                     },
                 ) {
-                    Text("Kaydet")
+                    Text(stringResource(R.string.common_save))
                 }
             },
             dismissButton = {
@@ -313,7 +313,7 @@ fun ProfileChooserScreen(
                         editDialogTarget = null
                     },
                 ) {
-                    Text("Profili Sil", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.profile_edit_delete_action), color = MaterialTheme.colorScheme.error)
                 }
             },
         )
@@ -354,7 +354,7 @@ fun ProfileChoice(
                     ) {
                         Icon(
                             PlayIcons.Lock,
-                            contentDescription = "PIN Korumalı",
+                            contentDescription = stringResource(R.string.profile_pin_protected_badge),
                             tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(12.dp),
                         )
@@ -374,7 +374,7 @@ fun ProfileChoice(
 
             if (profile.isChild) {
                 Text(
-                    text = "Çocuk",
+                    text = stringResource(R.string.profile_badge_child),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.padding(top = 2.dp),
@@ -392,6 +392,16 @@ fun AccountAccessPanel() {
     val pendingSources by container.cloudSync.pendingSources.collectAsStateWithLifecycle()
     val installingSources by container.cloudSync.installingSources.collectAsStateWithLifecycle()
     var installFailed by remember { mutableStateOf(0) }
+
+    val syncingText = stringResource(R.string.cloud_sync_syncing)
+    val syncSuccessText = stringResource(R.string.cloud_sync_success)
+    val syncGenericErrorText = stringResource(R.string.cloud_sync_error_generic)
+    val signedOutText = stringResource(R.string.cloud_sync_signed_out)
+    val regSignedInText = stringResource(R.string.cloud_auth_registered_signed_in)
+    val regEmailConfirmText = stringResource(R.string.cloud_auth_registered_email_confirm)
+    val regFailedText = stringResource(R.string.cloud_auth_register_failed)
+    val loginSuccessText = stringResource(R.string.cloud_auth_login_success)
+    val loginFailedText = stringResource(R.string.cloud_auth_login_failed)
 
     var email by remember { mutableStateOf(com.kaan.play.MainActivity.testSyncEmail ?: "") }
     var password by remember { mutableStateOf(com.kaan.play.MainActivity.testSyncPassword ?: "") }
@@ -412,7 +422,7 @@ fun AccountAccessPanel() {
         ) {
             if (account != null) {
                 Text(
-                    text = "Bağlı Bulut Hesabı",
+                    text = stringResource(R.string.cloud_account_linked_title),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 )
                 Text(
@@ -438,34 +448,34 @@ fun AccountAccessPanel() {
                         onClick = {
                             scope.launch {
                                 loading = true
-                                statusMessage = "Eşitleniyor..."
+                                statusMessage = syncingText
                                 isError = false
                                 val res = container.cloudSync.synchronize()
                                 loading = false
                                 if (res.isSuccess) {
-                                    statusMessage = "Senkronizasyon başarılı!"
+                                    statusMessage = syncSuccessText
                                 } else {
                                     isError = true
-                                    statusMessage = res.exceptionOrNull()?.message ?: "Hata oluştu."
+                                    statusMessage = res.exceptionOrNull()?.message ?: syncGenericErrorText
                                 }
                             }
                         },
                         enabled = !loading,
                         modifier = Modifier.weight(1f),
                     ) {
-                        Text(if (loading) "Eşitleniyor..." else "Şimdi Senkronize Et")
+                        Text(if (loading) stringResource(R.string.cloud_sync_syncing) else stringResource(R.string.cloud_sync_action_now))
                     }
 
                     OutlinedButton(
                         onClick = {
                             scope.launch {
                                 container.cloudSync.signOut()
-                                statusMessage = "Çıkış yapıldı."
+                                statusMessage = signedOutText
                             }
                         },
                         modifier = Modifier.weight(1f),
                     ) {
-                        Text("Çıkış Yap")
+                        Text(stringResource(R.string.cloud_sync_sign_out))
                     }
                 }
 
@@ -486,11 +496,11 @@ fun AccountAccessPanel() {
                 }
             } else {
                 Text(
-                    text = if (isRegister) "Hesap Oluştur" else "E-posta ile Giriş Yap",
+                    text = if (isRegister) stringResource(R.string.cloud_auth_title_register) else stringResource(R.string.cloud_auth_title_login),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 )
                 Text(
-                    text = "Farklı cihazlarınız arasında izleme geçmişinizi ve profillerinizi eşitleyin.",
+                    text = stringResource(R.string.cloud_auth_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -498,7 +508,7 @@ fun AccountAccessPanel() {
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it; statusMessage = null },
-                    label = { Text("E-posta Adresi") },
+                    label = { Text(stringResource(R.string.cloud_auth_email_label)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                     modifier = Modifier.fillMaxWidth(),
@@ -507,7 +517,7 @@ fun AccountAccessPanel() {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it; statusMessage = null },
-                    label = { Text("Şifre") },
+                    label = { Text(stringResource(R.string.cloud_auth_password_label)) },
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
@@ -530,22 +540,22 @@ fun AccountAccessPanel() {
                                     loading = false
                                     if (res.isSuccess) {
                                         when (res.getOrNull()) {
-                                            CloudRegistrationResult.SIGNED_IN -> statusMessage = "Hesap açıldı ve giriş yapıldı!"
-                                            CloudRegistrationResult.EMAIL_CONFIRMATION_REQUIRED -> statusMessage = "Kayıt başarılı! Lütfen e-posta kutunuzdan onaylayın."
+                                            CloudRegistrationResult.SIGNED_IN -> statusMessage = regSignedInText
+                                            CloudRegistrationResult.EMAIL_CONFIRMATION_REQUIRED -> statusMessage = regEmailConfirmText
                                             null -> Unit
                                         }
                                     } else {
                                         isError = true
-                                        statusMessage = res.exceptionOrNull()?.let { it.message?.takeIf { m -> m.isNotBlank() } ?: it.javaClass.simpleName } ?: "Kayıt başarısız."
+                                        statusMessage = res.exceptionOrNull()?.let { it.message?.takeIf { m -> m.isNotBlank() } ?: it.javaClass.simpleName } ?: regFailedText
                                     }
                                 } else {
                                     val res = container.cloudSync.signIn(email, password)
                                     loading = false
                                     if (res.isSuccess) {
-                                        statusMessage = "Giriş başarılı!"
+                                        statusMessage = loginSuccessText
                                     } else {
                                         isError = true
-                                        statusMessage = res.exceptionOrNull()?.let { it.message?.takeIf { m -> m.isNotBlank() } ?: it.javaClass.simpleName } ?: "Giriş başarısız."
+                                        statusMessage = res.exceptionOrNull()?.let { it.message?.takeIf { m -> m.isNotBlank() } ?: it.javaClass.simpleName } ?: loginFailedText
                                     }
                                 }
                             }
@@ -557,7 +567,7 @@ fun AccountAccessPanel() {
                     if (loading) {
                         CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                     } else {
-                        Text(if (isRegister) "Kayıt Ol" else "Giriş Yap")
+                        Text(if (isRegister) stringResource(R.string.cloud_auth_submit_register) else stringResource(R.string.cloud_auth_submit_login))
                     }
                 }
 
@@ -568,7 +578,7 @@ fun AccountAccessPanel() {
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                 ) {
-                    Text(if (isRegister) "Zaten hesabınız var mı? Giriş Yapın" else "Hesabınız yok mu? Yeni Hesap Oluşturun")
+                    Text(if (isRegister) stringResource(R.string.cloud_auth_switch_to_login) else stringResource(R.string.cloud_auth_switch_to_register))
                 }
             }
         }

@@ -13,7 +13,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.kaan.play.R
 import com.kaan.play.ui.components.ScreenHeader
 
 @Composable
@@ -27,18 +29,18 @@ fun SyncScreen(onBack: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         ScreenHeader(
-            title = "Senkronizasyon",
+            title = stringResource(R.string.sync_screen_title),
             onBack = onBack,
         )
 
         Text(
-            text = "Bulut Eşitlemesi",
+            text = stringResource(R.string.sync_cloud_section_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary,
         )
 
         Text(
-            text = "Hesabınıza giriş yaparak izleme geçmişinizi, profillerinizi ve favorilerinizi bulutta saklayabilir, tüm cihazlarınızda kaldığınız yerden devam edebilirsiniz.",
+            text = stringResource(R.string.sync_cloud_section_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

@@ -210,7 +210,7 @@ fun SeekIndicator(state: SeekIndicatorState, modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = "$sign${seconds} sn",
+            text = stringResource(R.string.player_seek_seconds, sign, seconds),
             style = MaterialTheme.typography.titleLarge,
             color = Color.White,
             modifier = Modifier
