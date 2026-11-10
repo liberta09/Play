@@ -54,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -76,6 +77,7 @@ import com.kaan.play.data.web.WebKeyboardRules
 import com.kaan.play.ui.player.DeviceLevels
 import com.kaan.play.R
 import com.kaan.play.data.settings.ThemeMode
+import com.kaan.play.data.settings.ThemeRules
 import com.kaan.play.data.web.AdHideLoader
 import com.kaan.play.data.web.AdHostLoader
 import com.kaan.play.data.web.WebPolicy
@@ -175,11 +177,9 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
             ComposeView(this).apply {
                 setContent {
                     val mode by settings.themeMode.collectAsStateWithLifecycle(initialValue = initialTheme)
-                    val dark = when (mode) {
-                        ThemeMode.Dark -> true
-                        ThemeMode.Light -> false
-                        ThemeMode.System -> isSystemInDarkTheme()
-                    }
+                    val systemDark = isSystemInDarkTheme()
+                    val resolvedTheme = ThemeRules.resolve(mode, systemDark)
+                    val dark = ThemeRules.isDark(mode, systemDark)
                     DisposableEffect(dark) {
                         runCatching {
                             val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
@@ -187,7 +187,11 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
                         }
                         onDispose { }
                     }
-                    PlayTheme(darkTheme = dark) {
+                    PlayTheme(themeMode = resolvedTheme) {
+                        val cursorArgb = MaterialTheme.colorScheme.primary.toArgb()
+                        LaunchedEffect(cursorView, cursorArgb) {
+                            cursorView?.setCursorColor(cursorArgb)
+                        }
                         WebScreen(
                             name = name.ifEmpty { url },
                             web = view,

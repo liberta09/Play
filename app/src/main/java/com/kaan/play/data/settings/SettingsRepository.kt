@@ -16,8 +16,45 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
-/** Koyu tema varsayılandır. */
-enum class ThemeMode { Dark, Light, System }
+/** Koyu tema varsayılandır. Eski sürümlerdeki Dark/Light/System değerleriyle geriye uyumludur. */
+enum class ThemeMode {
+    Dark,
+    Light,
+    Amoled,
+    OceanBlue,
+    PurpleNight,
+    HighContrast,
+    System;
+
+    companion object {
+        /** Arayüzde sunulan 6 tema seçeneği. */
+        val SELECTABLE: List<ThemeMode> = listOf(Dark, Light, Amoled, OceanBlue, PurpleNight, HighContrast)
+
+        fun fromStored(raw: String?, defaultMode: ThemeMode = Dark): ThemeMode {
+            val trimmed = raw?.trim().orEmpty()
+            if (trimmed.isEmpty()) return defaultMode
+            return entries.firstOrNull { it.name.equals(trimmed, ignoreCase = true) }
+                ?: when (trimmed.lowercase(java.util.Locale.ROOT)) {
+                    "amoled_black", "amoled_siyah" -> Amoled
+                    "ocean_blue", "okyanus_mavisi" -> OceanBlue
+                    "purple_night", "mor_gece" -> PurpleNight
+                    "high_contrast", "yuksek_kontrast" -> HighContrast
+                    else -> defaultMode
+                }
+        }
+    }
+}
+
+/** Tema çözümleme ve koyu/açık çubuk kararları (Android bağımsız). */
+object ThemeRules {
+    fun resolve(mode: ThemeMode, systemIsDark: Boolean): ThemeMode = when (mode) {
+        ThemeMode.System -> if (systemIsDark) ThemeMode.Dark else ThemeMode.Light
+        else -> mode
+    }
+
+    fun isDark(mode: ThemeMode, systemIsDark: Boolean): Boolean =
+        resolve(mode, systemIsDark) != ThemeMode.Light
+}
 
 /** Oynatıcıda görüntünün ekrana oturma biçimi (seçim kaydedilir): sığdır, doldur (kırp), uzat, 16:9, 4:3. */
 enum class ResizeMode { Fit, Fill, Stretch, Ratio16x9, Ratio4x3 }
@@ -48,7 +85,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
     }
 
     val themeMode: Flow<ThemeMode> = store.data.map { prefs ->
-        ThemeMode.entries.firstOrNull { it.name == prefs[THEME] } ?: DEFAULT_THEME
+        ThemeMode.fromStored(prefs[THEME], DEFAULT_THEME)
     }
 
     /** Addon başına kaynak isteği zaman aşımı (saniye). */

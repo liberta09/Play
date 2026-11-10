@@ -133,6 +133,10 @@
     <string name="settings_about">Hakkında</string>
     <string name="theme_dark">Koyu</string>
     <string name="theme_light">Açık</string>
+    <string name="theme_amoled">AMOLED siyah</string>
+    <string name="theme_ocean_blue">Okyanus mavisi</string>
+    <string name="theme_purple_night">Mor gece</string>
+    <string name="theme_high_contrast">Yüksek kontrast</string>
     <string name="about_version">Sürüm %1$s</string>
     <string name="about_telegram">Telegram topluluğu</string>
     <string name="about_telegram_title">Telegram Topluluğumuz</string>

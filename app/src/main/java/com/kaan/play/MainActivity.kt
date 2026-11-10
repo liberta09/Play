@@ -14,6 +14,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.data.settings.ThemeMode
+import com.kaan.play.data.settings.ThemeRules
 import com.kaan.play.data.plugin.DeepLink
 import com.kaan.play.data.subtitle.DebugEndpoints
 import com.kaan.play.ui.player.PlayerNoticeLogic
@@ -176,11 +177,9 @@ class MainActivity : AppCompatActivity() {
             StartupWindowGuard.checkDebugFailSetContent(intent)
             setContent {
             val mode by settings.themeMode.collectAsStateWithLifecycle(initialValue = initialTheme)
-            val dark = when (mode) {
-                ThemeMode.Dark -> true
-                ThemeMode.Light -> false
-                ThemeMode.System -> isSystemInDarkTheme()
-            }
+            val systemDark = isSystemInDarkTheme()
+            val resolvedTheme = ThemeRules.resolve(mode, systemDark)
+            val dark = ThemeRules.isDark(mode, systemDark)
             // Durum/gezinme çubuğu ikonları temaya uysun.
             // Durum/gezinme çubuğu ikonları temaya uysun (TV Box zırhı: getChildAt / decorView korumalı).
             DisposableEffect(dark) {
@@ -205,7 +204,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 onDispose { }
             }
-            PlayTheme(darkTheme = dark) {
+            PlayTheme(themeMode = resolvedTheme) {
                 Box {
                     PlayRoot()
                     SplashOverlay()

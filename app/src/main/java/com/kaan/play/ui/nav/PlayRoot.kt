@@ -137,6 +137,7 @@ import com.kaan.play.ui.settings.SettingsScreen
 import com.kaan.play.ui.settings.SpeedTestScreen
 import com.kaan.play.ui.settings.ProfileScreen
 import com.kaan.play.ui.settings.SyncScreen
+import com.kaan.play.ui.settings.ThemeSettingsScreen
 import com.kaan.play.ui.settings.ProfileChooserScreen
 import com.kaan.play.ui.settings.ProfileSetupScreen
 import com.kaan.play.ui.addons.RepoManagerCatalogScreen
@@ -161,6 +162,7 @@ private const val SOURCE_HEALTH_ROUTE = "settings/addons/health"
 private const val PLUGIN_ROUTE = "settings/addons/plugin/{id}"
 private const val ADDON_DETAIL_ROUTE = "settings/addons/detail/{id}"
 private const val PLAYER_SETTINGS_ROUTE = "settings/player"
+private const val THEME_SETTINGS_ROUTE = "settings/theme"
 private const val ABOUT_ROUTE = "settings/about"
 private const val DETAIL_ROUTE = "detail/{type}/{id}"
 private const val PROVIDER_DETAIL_ROUTE = "provider_detail/{providerId}/{encodedUrl}"
@@ -707,6 +709,7 @@ fun PlayRoot() {
                     SettingsScreen(
                         onOpenAddons = { navController.navigate(addonsRoute(false)) },
                         onOpenPlayer = { navController.navigate(PLAYER_SETTINGS_ROUTE) },
+                        onOpenTheme = { navController.navigate(THEME_SETTINGS_ROUTE) },
                         onOpenSpeedTest = { navController.navigate(SPEED_TEST_ROUTE) },
                         onOpenProfile = { profileGate = true },
                         onOpenSync = { navController.navigate(SYNC_ROUTE) },
@@ -717,6 +720,7 @@ fun PlayRoot() {
                 }
             }
             composable(PLAYER_SETTINGS_ROUTE) { ReadableWidth { PlayerSettingsScreen(onBack = { navController.popBackStack() }) } }
+            composable(THEME_SETTINGS_ROUTE) { ReadableWidth { ThemeSettingsScreen(onBack = { navController.popBackStack() }) } }
             composable(
                 route = ADDONS_ROUTE,
                 arguments = listOf(navArgument("add") { type = NavType.BoolType; defaultValue = false }),

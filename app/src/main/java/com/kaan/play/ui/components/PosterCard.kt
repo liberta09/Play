@@ -208,7 +208,7 @@ fun PosterCard(
                 .aspectRatio(2f / 3f)
                 .tvFocusableScaleGlow(
                     scale = 1.06f,
-                    glowColor = Color(0xFF00E5FF),
+                    glowColor = MaterialTheme.colorScheme.primary,
                     shape = shape,
                     isFocused = focused,
                     zIndex = 10f,

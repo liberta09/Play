@@ -29,7 +29,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.kaan.play.data.settings.ThemeMode
 import com.kaan.play.ui.nav.PlayIcons
+import com.kaan.play.ui.theme.LocalPlayThemeMode
 import com.kaan.play.ui.tv.focusRing
 
 /**
@@ -90,11 +92,12 @@ fun PlayCardRow(
     trailing: (@Composable () -> Unit)? = null,
 ) {
     val shape = MaterialTheme.shapes.medium
+    val highContrast = LocalPlayThemeMode.current == ThemeMode.HighContrast
     Surface(
         onClick = onClick,
         shape = shape,
         color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f),
-        border = null,
+        border = if (highContrast) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
         modifier = modifier
             .fillMaxWidth()
             .focusRing(shape, scale = 1.02f),

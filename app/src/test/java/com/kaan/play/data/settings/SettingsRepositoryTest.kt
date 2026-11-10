@@ -96,4 +96,36 @@ class SettingsRepositoryTest {
         repo.setSubtitleLanguage("en")
         assertEquals("en", repo.subtitleLanguage.first())
     }
+
+    @Test
+    fun themeSelectableContainsAllSixThemesAndMapsStoredValues() {
+        assertEquals(
+            listOf(
+                ThemeMode.Dark,
+                ThemeMode.Light,
+                ThemeMode.Amoled,
+                ThemeMode.OceanBlue,
+                ThemeMode.PurpleNight,
+                ThemeMode.HighContrast,
+            ),
+            ThemeMode.SELECTABLE,
+        )
+        assertEquals(ThemeMode.Dark, ThemeMode.fromStored("Dark"))
+        assertEquals(ThemeMode.Light, ThemeMode.fromStored("Light"))
+        assertEquals(ThemeMode.System, ThemeMode.fromStored("System"))
+        assertEquals(ThemeMode.Amoled, ThemeMode.fromStored("Amoled"))
+        assertEquals(ThemeMode.OceanBlue, ThemeMode.fromStored("ocean_blue"))
+        assertEquals(ThemeMode.PurpleNight, ThemeMode.fromStored("PurpleNight"))
+        assertEquals(ThemeMode.HighContrast, ThemeMode.fromStored("HighContrast"))
+        assertEquals(ThemeMode.Dark, ThemeMode.fromStored("Unknown"))
+        assertEquals(false, ThemeRules.isDark(ThemeMode.Light, systemIsDark = true))
+        assertEquals(true, ThemeRules.isDark(ThemeMode.HighContrast, systemIsDark = false))
+        assertEquals(ThemeMode.Amoled, ThemeRules.resolve(ThemeMode.Amoled, systemIsDark = false))
+    }
+
+    @Test
+    fun newThemesAreStoredAndReadBack() = runBlocking {
+        repo.setThemeMode(ThemeMode.PurpleNight)
+        assertEquals(ThemeMode.PurpleNight, repo.themeMode.first())
+    }
 }

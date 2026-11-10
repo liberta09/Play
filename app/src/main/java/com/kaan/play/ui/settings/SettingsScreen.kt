@@ -44,7 +44,7 @@ import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.rememberFocusMemory
 import kotlinx.coroutines.launch
 
-private enum class OpenDialog { Theme, Language, Poster }
+private enum class OpenDialog { Language, Poster }
 
 /**
  * Ayarlar ekranı: Eklentiler, Oynatıcı, Hız Testi, Tema, Dil, Poster URL,
@@ -54,6 +54,7 @@ private enum class OpenDialog { Theme, Language, Poster }
 fun SettingsScreen(
     onOpenAddons: () -> Unit,
     onOpenPlayer: () -> Unit,
+    onOpenTheme: () -> Unit,
     onOpenSpeedTest: () -> Unit,
     onOpenProfile: () -> Unit,
     onOpenSync: () -> Unit,
@@ -119,7 +120,7 @@ fun SettingsScreen(
             icon = PlayIcons.Palette,
             iconTint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.focusMemory(focus, "theme"),
-            onClick = { dialog = OpenDialog.Theme },
+            onClick = onOpenTheme,
         )
         PlayCardRow(
             title = stringResource(R.string.settings_language),
@@ -185,14 +186,6 @@ fun SettingsScreen(
     }
 
     when (dialog) {
-        OpenDialog.Theme -> ChoiceDialog(
-            title = stringResource(R.string.settings_theme),
-            options = ThemeMode.entries,
-            selected = theme,
-            label = { stringResource(it.labelRes()) },
-            onSelect = { scope.launch { container.settings.setThemeMode(it) }; dialog = null },
-            onDismiss = { dialog = null },
-        )
         OpenDialog.Language -> ChoiceDialog(
             title = stringResource(R.string.settings_language),
             options = LanguageChoice.entries,
@@ -232,9 +225,13 @@ fun SettingsScreen(
     }
 }
 
-private fun ThemeMode.labelRes(): Int = when (this) {
+internal fun ThemeMode.labelRes(): Int = when (this) {
     ThemeMode.Dark -> R.string.theme_dark
     ThemeMode.Light -> R.string.theme_light
+    ThemeMode.Amoled -> R.string.theme_amoled
+    ThemeMode.OceanBlue -> R.string.theme_ocean_blue
+    ThemeMode.PurpleNight -> R.string.theme_purple_night
+    ThemeMode.HighContrast -> R.string.theme_high_contrast
     ThemeMode.System -> R.string.common_system
 }
 

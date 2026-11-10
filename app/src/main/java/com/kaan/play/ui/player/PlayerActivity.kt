@@ -10,6 +10,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +20,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.Player
@@ -42,6 +44,8 @@ import com.kaan.play.data.player.TurkishAudioVerifier
 import com.kaan.play.data.player.TurkishVerifyDecision
 import com.kaan.play.data.provider.LiveCatalogRules
 import com.kaan.play.data.settings.SettingsRepository
+import com.kaan.play.data.settings.ThemeMode
+import com.kaan.play.data.settings.ThemeRules
 import com.kaan.play.data.provider.LiveRoutePlanner
 import com.kaan.play.data.provider.LiveSourceRoute
 import com.kaan.play.data.provider.LiveZapChannel
@@ -495,10 +499,15 @@ class PlayerActivity : AppCompatActivity() {
             }
         }
 
+        val initialTheme = runBlocking { container.settings.themeMode.first() }
         try {
             StartupWindowGuard.checkDebugFailSetContent(intent)
             setContent {
-            PlayTheme(darkTheme = true) {
+            val mode by container.settings.themeMode.collectAsStateWithLifecycle(initialValue = initialTheme)
+            val resolvedTheme = ThemeRules.resolve(mode, isSystemInDarkTheme()).let {
+                if (it == ThemeMode.Light) ThemeMode.Dark else it
+            }
+            PlayTheme(themeMode = resolvedTheme) {
                 val isSeries = AutoNextRules.canShowNextEpisodeButton(session.target.request.type, session.target.request.season, session.target.request.episode, session.target.request.addonType, 1L)
                 PlayerScreen(
                     controller = controller,

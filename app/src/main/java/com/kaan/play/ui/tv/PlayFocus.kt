@@ -68,6 +68,7 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.withFrameNanos
+import com.kaan.play.ui.theme.LocalPlayFocusStyle
 import kotlinx.coroutines.launch
 
 private val RingWidth = 3.dp
@@ -146,14 +147,19 @@ fun Modifier.tvFocusableScaleGlow(
         label = "tv_focus_progress",
     )
 
+    val focusStyle = LocalPlayFocusStyle.current
     // İç çizgi: açık renklerde (turkuaz) rengin beyaza yarım karışımı, koyu renklerde (dolu düğmedeki ters renk) rengin kendisi.
     val innerColor = if (glowColor.luminance() > 0.5f) lerp(glowColor, Color.White, 0.5f) else glowColor
-    val borderModifier = if (focusProgress > 0.01f) {
-        Modifier
+    val borderModifier = when {
+        focusStyle.opaqueRing && currentFocused -> Modifier.border(
+            width = focusStyle.ringWidthDp.dp,
+            color = glowColor,
+            shape = shape,
+        )
+        focusProgress > 0.01f -> Modifier
             .border(width = if (strong) 4.dp else 3.dp, color = glowColor.copy(alpha = (if (strong) 0.5f else 0.25f) * focusProgress), shape = shape)
             .border(width = if (strong) 2.dp else 1.dp, color = innerColor.copy(alpha = (if (strong) 1f else 0.85f) * focusProgress), shape = shape)
-    } else {
-        Modifier
+        else -> Modifier
     }
 
     return this
