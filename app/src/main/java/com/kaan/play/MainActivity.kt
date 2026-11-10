@@ -25,6 +25,7 @@ import com.kaan.play.ui.components.SplashOverlay
 import com.kaan.play.ui.nav.PlayRoot
 import com.kaan.play.ui.theme.PlayTheme
 import com.kaan.play.ui.addons.DeepLinkHost
+import com.kaan.play.ui.settings.WhatsNewDialog
 import com.kaan.play.ui.update.UpdateDialog
 import com.kaan.play.ui.announcement.AnnouncementDialog
 import kotlinx.coroutines.flow.first
@@ -48,8 +49,10 @@ class MainActivity : AppCompatActivity() {
         // Yalnızca debug derlemede, sahte release sunucusuyla denemek için: --es play_update_endpoint <adres>.
         val debugEndpoint = if (BuildConfig.DEBUG) intent.getStringExtra("play_update_endpoint") else null
         container.updateChecker.checkOnce(container.appScope, debugEndpoint)
+        val debugWhatsNew = BuildConfig.DEBUG && intent.getBooleanExtra("play_test_whats_new", false)
+        container.whatsNewCoordinator.checkOnce(container.appScope, container.updateChecker, debugForceShow = debugWhatsNew)
         val debugAnnounce = if (BuildConfig.DEBUG) intent.getStringExtra("play_announcements_endpoint") else null
-        container.announcementChecker.checkOnce(container.appScope, container.updateChecker, debugAnnounce)
+        container.announcementChecker.checkOnce(container.appScope, container.updateChecker, debugAnnounce, container.whatsNewCoordinator)
         container.appScope.launch(Dispatchers.IO) {
             if (settings.newEpisodeNotifications.first()) {
                 NewEpisodeScheduler.schedule(applicationContext)
@@ -221,6 +224,7 @@ class MainActivity : AppCompatActivity() {
                     PlayRoot()
                     SplashOverlay()
                     UpdateDialog(container.updateFlow)
+                    WhatsNewDialog(container.whatsNewCoordinator)
                     AnnouncementDialog(container.announcementChecker, container.updateFlow)
                     DeepLinkHost(container.deepLinks)
                 }
@@ -252,6 +256,9 @@ class MainActivity : AppCompatActivity() {
         handleLink(intent)
         handleUpdateIntent(intent)
         handleNotificationIntent(intent)
+        if (BuildConfig.DEBUG && intent.getBooleanExtra("play_test_whats_new", false)) {
+            (application as PlayApp).container.whatsNewCoordinator.forceDebugShow()
+        }
         handlePlayIntent(intent)
         if (BuildConfig.DEBUG) {
             if (intent.hasExtra("play_debug_fail_native")) {

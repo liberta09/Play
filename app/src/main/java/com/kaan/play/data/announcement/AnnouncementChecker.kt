@@ -3,6 +3,7 @@ package com.kaan.play.data.announcement
 import com.kaan.play.data.net.PlayJson
 import com.kaan.play.data.net.await
 import com.kaan.play.data.settings.SettingsRepository
+import com.kaan.play.data.settings.WhatsNewCoordinator
 import com.kaan.play.data.update.UpdateChecker
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -57,6 +58,7 @@ class AnnouncementChecker(
         scope: CoroutineScope,
         updateChecker: UpdateChecker? = null,
         debugEndpoint: String? = null,
+        whatsNewCoordinator: WhatsNewCoordinator? = null,
     ) {
         if (!started.compareAndSet(false, true)) return
         if (debugEndpoint != null) {
@@ -69,6 +71,13 @@ class AnnouncementChecker(
                 updateChecker.completed.first { it }
                 if (updateChecker.available.value != null) {
                     // Güncelleme penceresi çıkıyor: duyuru aynı açılışta gösterilmez (sırayla, önce güncelleme)
+                    return@launch
+                }
+            }
+            if (whatsNewCoordinator != null) {
+                whatsNewCoordinator.decided.first { it }
+                if (whatsNewCoordinator.blocksAnnouncementThisLaunch()) {
+                    // Sürüm notları penceresi bu açılışta gösteriliyor: duyuru bir sonraki açılışa bırakılır
                     return@launch
                 }
             }

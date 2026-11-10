@@ -42,6 +42,7 @@ import com.kaan.play.data.plugin.DeepLinkHandler
 import com.kaan.play.data.plugin.SourceInstaller
 import com.kaan.play.data.plugin.runtime.PluginRuntime
 import com.kaan.play.data.settings.SettingsRepository
+import com.kaan.play.data.settings.WhatsNewCoordinator
 import com.kaan.play.data.stream.AddonStreamProvider
 import com.kaan.play.data.stream.CompositeStreamProvider
 import com.kaan.play.data.download.SourceProbe
@@ -798,6 +799,11 @@ class AppContainer(context: Context) {
     /** Uygulama içi duyuru kontrolü (GitHub raw announcements.json); oturumda bir kez, arka planda. */
     val announcementChecker: AnnouncementChecker by lazy {
         AnnouncementChecker(httpClient, json, BuildConfig.VERSION_NAME, settings)
+    }
+
+    /** Sürüm yükseltmesinden sonraki tek seferlik "Bu sürümde neler yeni?" koordinatörü. */
+    val whatsNewCoordinator: WhatsNewCoordinator by lazy {
+        WhatsNewCoordinator(BuildConfig.VERSION_NAME, settings)
     }
 
     /** Uygulama içi güncelleme kontrolü (GitHub releases/latest); oturumda bir kez, etkinlik yeniden oluşsa da tekrarlanmaz. */

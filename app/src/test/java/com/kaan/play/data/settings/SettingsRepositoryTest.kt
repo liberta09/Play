@@ -150,4 +150,11 @@ class SettingsRepositoryTest {
         repo.setNewEpisodeNotifications(true)
         assertEquals(true, repo.newEpisodeNotifications.first())
     }
+
+    @Test
+    fun lastWhatsNewVersionDefaultsToNullAndPersistsVersion() = runBlocking {
+        assertEquals(null, repo.lastWhatsNewVersion.first())
+        repo.setLastWhatsNewVersion("1.3.0")
+        assertEquals("1.3.0", repo.lastWhatsNewVersion.first())
+    }
 }

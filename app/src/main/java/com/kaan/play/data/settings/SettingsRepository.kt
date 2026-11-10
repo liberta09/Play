@@ -322,6 +322,14 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         store.edit { it[LAST_NOTIFIED_EPISODES] = NewEpisodeRules.encodeState(map) }
     }
 
+    /** Kullanıcının en son gördüğü sürüm notu sürümü; ilk kurulumda sessizce kaydedilir. */
+    val lastWhatsNewVersion: Flow<String?> =
+        store.data.map { it[LAST_WHATS_NEW_VERSION] }.distinctUntilChanged()
+
+    suspend fun setLastWhatsNewVersion(version: String) {
+        store.edit { it[LAST_WHATS_NEW_VERSION] = version }
+    }
+
     suspend fun setSourceTimeoutSeconds(seconds: Int) {
         require(seconds in TIMEOUT_OPTIONS) { "Desteklenmeyen zaman aşımı: $seconds" }
         store.edit { it[TIMEOUT] = seconds }
@@ -508,6 +516,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val PERFORMANCE_MODE = booleanPreferencesKey("performance_mode")
         private val NEW_EPISODE_NOTIFICATIONS = booleanPreferencesKey("new_episode_notifications")
         private val LAST_NOTIFIED_EPISODES = stringPreferencesKey("last_notified_episodes")
+        private val LAST_WHATS_NEW_VERSION = stringPreferencesKey("last_whats_new_version")
 
         private val APPEARANCE_AND_PLAYER_KEYS: List<Preferences.Key<*>> = listOf(
             THEME,
