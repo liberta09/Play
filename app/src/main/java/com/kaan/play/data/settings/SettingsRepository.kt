@@ -12,6 +12,7 @@ import com.kaan.play.data.player.AutoRetryPolicy
 import com.kaan.play.data.provider.LiveTvSortMode
 import com.kaan.play.data.stream.TorrentLinks
 import com.kaan.play.data.tmdb.PosterUrlTemplate
+import com.kaan.play.ui.nav.NavBarPosition
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -86,6 +87,15 @@ class SettingsRepository(val store: DataStore<Preferences>) {
 
     val themeMode: Flow<ThemeMode> = store.data.map { prefs ->
         ThemeMode.fromStored(prefs[THEME], DEFAULT_THEME)
+    }
+
+    /** Ana gezinti çubuğunun ekrandaki konumu; varsayılan Üst (yüzen hap menü). */
+    val navBarPosition: Flow<NavBarPosition> = store.data.map { prefs ->
+        NavBarPosition.fromStored(prefs[NAV_BAR_POSITION])
+    }.distinctUntilChanged()
+
+    suspend fun setNavBarPosition(position: NavBarPosition) {
+        store.edit { it[NAV_BAR_POSITION] = position.name }
     }
 
     /** Addon başına kaynak isteği zaman aşımı (saniye). */
@@ -466,9 +476,11 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val DISABLED_CATALOGS = stringSetPreferencesKey("disabled_catalogs")
         private val LIVE_TV_SORT_MODE = stringPreferencesKey("live_tv_sort_mode")
         private val CONTINUE_SORT_MODE = stringPreferencesKey("continue_sort_mode")
+        private val NAV_BAR_POSITION = stringPreferencesKey("nav_bar_position")
 
         private val APPEARANCE_AND_PLAYER_KEYS: List<Preferences.Key<*>> = listOf(
             THEME,
+            NAV_BAR_POSITION,
             POSTER_URL_TEMPLATE,
             ALWAYS_RESUME,
             DOWNLOAD_WIFI_ONLY,

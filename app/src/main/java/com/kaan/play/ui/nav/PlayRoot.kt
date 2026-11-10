@@ -47,11 +47,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import com.kaan.play.ui.theme.homeBackdropBrush
 import com.kaan.play.ui.theme.topBarBorderColor
 import com.kaan.play.ui.theme.topBarSurfaceColor
+import com.kaan.play.ui.tv.LocalNavBarPosition
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.NavigationRail
@@ -247,6 +252,7 @@ fun PlayRoot() {
     val profiles by container.localProfile.profiles.collectAsStateWithLifecycle(initialValue = emptyList())
     val activeProfile by container.localProfile.activeProfile.collectAsStateWithLifecycle(initialValue = null)
     val rememberLastProfile by container.settings.rememberLastProfile.collectAsStateWithLifecycle(initialValue = true)
+    val navPosition by container.settings.navBarPosition.collectAsStateWithLifecycle(initialValue = NavBarPosition.DEFAULT)
     var profileGate by remember { mutableStateOf(false) }
     var gateDecided by remember { mutableStateOf(false) }
     var showProfileSetup by remember { mutableStateOf(false) }
@@ -572,6 +578,12 @@ fun PlayRoot() {
     var onHomeScrollToTop: (suspend () -> Unit)? by remember { mutableStateOf(null) }
 
     fun returnFocusToContent(): Boolean {
+        val exitDirection = when (NavBarRules.menuExitDirection(navPosition)) {
+            EdgeDirection.Down -> FocusDirection.Down
+            EdgeDirection.Up -> FocusDirection.Up
+            EdgeDirection.Right -> FocusDirection.Right
+            EdgeDirection.Left -> FocusDirection.Left
+        }
         val initialSuccess = runCatching { currentContentFocusRequester.requestFocus() }.getOrDefault(false)
         val isHome = currentRoute == Tab.Home.route || currentRoute == null
         val scrollAction = onHomeScrollToTop
@@ -582,7 +594,7 @@ fun PlayRoot() {
             isScrolled = scrollAction != null,
         )
         if (com.kaan.play.BuildConfig.DEBUG) {
-            android.util.Log.d("PlayFocus", "returnFocusToContent: step=$step route=$currentRoute initialSuccess=$initialSuccess")
+            android.util.Log.d("PlayFocus", "returnFocusToContent: step=$step route=$currentRoute initialSuccess=$initialSuccess pos=$navPosition")
         }
         return when (step) {
             TopBarFocusRules.Step.INITIAL_TARGET -> true
@@ -595,26 +607,31 @@ fun PlayRoot() {
                         android.util.Log.d("PlayFocus", "returnFocusToContent: retryAfterScroll=$retry")
                     }
                     if (!retry) {
-                        focusManager.moveFocus(FocusDirection.Down)
+                        focusManager.moveFocus(exitDirection)
                     }
                 }
                 true
             }
             TopBarFocusRules.Step.MOVE_FOCUS_DOWN -> {
-                focusManager.moveFocus(FocusDirection.Down)
+                focusManager.moveFocus(exitDirection)
             }
         }
     }
 
-    // Kumanda: odak üst menüdeyken Geri uygulamadan çıkarmaz, odağı içeriğe döndürür.
+    // Kumanda: odak gezinti çubuğundayken Geri uygulamadan çıkarmaz, odağı içeriğe döndürür.
     BackHandler(enabled = topBarHasFocus && !isSubScreen) {
         returnFocusToContent()
     }
     val avatarKey = activeProfile?.avatar ?: "space_astro"
     fun selected(tab: Tab) = currentRoute == tab.route || currentRoute?.startsWith(tab.route + "/") == true || currentRoute?.startsWith(tab.route + "?") == true
 
+    val isHome = currentRoute == Tab.Home.route || currentRoute == null
+    val contentPad = NavBarRules.contentPaddingDp(navPosition, showNav, isHome)
+    val navStripHomeBackdrop = isHome && showNav && NavBarRules.isVerticalStrip(navPosition)
+
     // Ana sayfa, Detay ve yüzen üst menü durum çubuğunun arkasına uzanır.
     val bleedsUnderStatusBar = showNav || currentRoute == Tab.Home.route || currentRoute == DETAIL_ROUTE
+    CompositionLocalProvider(LocalNavBarPosition provides navPosition) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = if (bleedsUnderStatusBar) {
@@ -627,13 +644,20 @@ fun PlayRoot() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .then(if (navStripHomeBackdrop) Modifier.background(homeBackdropBrush()) else Modifier)
                 .padding(padding),
         ) {
-            // İçerik alanı: tüm genişliği kullanır; Ana sayfa dışında yüzen üst menünün altından başlar
+            // İçerik alanı: konum kurallarına göre kenar/alt/üst boşluk bırakır; Alt konumda Ana sayfa zemin fırçası taşsın diye
+            // alt dolgu HomeContent/ProviderPillButton içinde uygulanır.
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = if (showNav && currentRoute != Tab.Home.route) 58.dp else 0.dp),
+                    .padding(
+                        top = contentPad.top.dp,
+                        start = contentPad.start.dp,
+                        end = contentPad.end.dp,
+                        bottom = if (isHome) 0.dp else contentPad.bottom.dp,
+                    ),
             ) {
                 NavHost(
                     navController = navController,
@@ -867,9 +891,21 @@ fun PlayRoot() {
         }
             }
 
-            // Yüzen üst menü (hap): ana sekmeler + profil. Kumandayla sağ-sol gezilir, aşağı içeriğe iner.
+            // Yüzen gezinti çubuğu: Üst / Alt / Sol / Sağ konumlarında ana sekmeler + profil.
             if (showNav) {
-                PlayTopBar(
+                val barModifier = Modifier
+                    .onFocusChanged { topBarHasFocus = it.hasFocus }
+                    .let { m ->
+                        when (navPosition) {
+                            NavBarPosition.Top -> m.align(Alignment.TopCenter).statusBarsPadding().padding(top = 10.dp)
+                            NavBarPosition.Bottom -> m.align(Alignment.BottomCenter).padding(bottom = 10.dp)
+                            NavBarPosition.Left -> m.align(Alignment.CenterStart).statusBarsPadding().padding(start = 8.dp)
+                            NavBarPosition.Right -> m.align(Alignment.CenterEnd).statusBarsPadding().padding(end = 8.dp)
+                        }
+                    }
+                    .zIndex(100f)
+                PlayNavBar(
+                    position = navPosition,
                     currentRoute = currentRoute,
                     avatarKey = avatarKey,
                     onOpenTab = ::openTab,
@@ -878,16 +914,12 @@ fun PlayRoot() {
                     topBarFocusRequester = topBarFocusRequester,
                     profileFocusRequester = profileFocusRequester,
                     pillFocusRequester = pillFocusRequester.takeIf { currentRoute == Tab.Home.route || currentRoute == null },
-                    onDown = ::returnFocusToContent,
-                    modifier = Modifier
-                        .onFocusChanged { topBarHasFocus = it.hasFocus }
-                        .align(Alignment.TopCenter)
-                        .statusBarsPadding()
-                        .padding(top = 10.dp)
-                        .zIndex(100f),
+                    onExitToContent = ::returnFocusToContent,
+                    modifier = barModifier,
                 )
             }
         }
+    }
     }
 
     sourcesFor?.let { start ->
@@ -916,13 +948,45 @@ fun PlayRoot() {
     }
 }
 
+private data class NavEntrySpec(
+    val icon: ImageVector?,
+    val label: String,
+    val selected: Boolean,
+    val focusRequester: FocusRequester?,
+    val isProfile: Boolean = false,
+    val onClick: () -> Unit,
+)
+
+@Composable
+private fun rememberNavEntries(
+    currentRoute: String?,
+    topBarFocusRequester: FocusRequester,
+    profileFocusRequester: FocusRequester,
+    onOpenTab: (Tab) -> Unit,
+    onOpenProfile: () -> Unit,
+): List<NavEntrySpec> {
+    val homeSelected = currentRoute == Tab.Home.route || currentRoute == null
+    val searchSelected = currentRoute == Tab.Search.route || currentRoute?.startsWith("search") == true
+    val tvSelected = currentRoute == Tab.Tv.route || currentRoute?.startsWith("tv") == true
+    val librarySelected = currentRoute == Tab.Library.route || currentRoute?.startsWith("library") == true
+    val settingsSelected = currentRoute == Tab.Settings.route || currentRoute?.startsWith("settings") == true
+    return listOf(
+        NavEntrySpec(PlayIcons.Home, stringResource(R.string.tab_home), homeSelected, topBarFocusRequester.takeIf { homeSelected }) { onOpenTab(Tab.Home) },
+        NavEntrySpec(PlayIcons.Search, stringResource(R.string.tab_search), searchSelected, topBarFocusRequester.takeIf { searchSelected }) { onOpenTab(Tab.Search) },
+        NavEntrySpec(PlayIcons.Tv, stringResource(R.string.tab_tv), tvSelected, topBarFocusRequester.takeIf { tvSelected }) { onOpenTab(Tab.Tv) },
+        NavEntrySpec(PlayIcons.Folder, stringResource(R.string.tab_library), librarySelected, topBarFocusRequester.takeIf { librarySelected }) { onOpenTab(Tab.Library) },
+        NavEntrySpec(PlayIcons.Gear, stringResource(R.string.tab_settings), settingsSelected, topBarFocusRequester.takeIf { settingsSelected }) { onOpenTab(Tab.Settings) },
+        NavEntrySpec(null, stringResource(R.string.tab_profile), false, profileFocusRequester, isProfile = true, onClick = onOpenProfile),
+    )
+}
+
 /**
- * Ekranın üstünde yüzen hap menü: Ana sayfa, Ara, Canlı TV, Kütüphane, Ayarlar ve profil avatarı.
- * Kumanda: sağ-sol öğeler arasında gezer, aşağı (ve içerik tarafında yukarı) [contentFocusRequester] / [topBarFocusRequester]
- * köprüsüyle içerik ile menü arasında geçer.
+ * Konumlanabilir yüzen gezinti çubuğu: Üst / Alt konumda hap menü, Sol / Sağ konumda dikey şerit.
+ * Kumanda ile öğeler arasında gezinir ve içerik–menü köprüleriyle [contentFocusRequester] hedeflerine geçer.
  */
 @Composable
-fun PlayTopBar(
+fun PlayNavBar(
+    position: NavBarPosition,
     currentRoute: String?,
     avatarKey: String,
     onOpenTab: (Tab) -> Unit,
@@ -931,34 +995,88 @@ fun PlayTopBar(
     topBarFocusRequester: FocusRequester,
     profileFocusRequester: FocusRequester,
     pillFocusRequester: FocusRequester?,
-    onDown: () -> Boolean = { false },
+    onExitToContent: () -> Boolean = { false },
     modifier: Modifier = Modifier,
 ) {
+    val entries = rememberNavEntries(currentRoute, topBarFocusRequester, profileFocusRequester, onOpenTab, onOpenProfile)
+    val verticalStrip = NavBarRules.isVerticalStrip(position)
+    val exitKey = when (NavBarRules.menuExitDirection(position)) {
+        EdgeDirection.Down -> Key.DirectionDown
+        EdgeDirection.Up -> Key.DirectionUp
+        EdgeDirection.Right -> Key.DirectionRight
+        EdgeDirection.Left -> Key.DirectionLeft
+    }
+    val shape = if (verticalStrip) RoundedCornerShape(24.dp) else CircleShape
     Surface(
-        modifier = modifier.shadow(12.dp, CircleShape),
-        shape = CircleShape,
+        modifier = modifier.shadow(12.dp, shape),
+        shape = shape,
         color = topBarSurfaceColor(),
         border = BorderStroke(1.dp, topBarBorderColor()),
     ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 10.dp, vertical = 6.dp)
-                .focusProperties { down = contentFocusRequester },
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            val homeSelected = currentRoute == Tab.Home.route || currentRoute == null
-            val searchSelected = currentRoute == Tab.Search.route || currentRoute?.startsWith("search") == true
-            val tvSelected = currentRoute == Tab.Tv.route || currentRoute?.startsWith("tv") == true
-            val librarySelected = currentRoute == Tab.Library.route || currentRoute?.startsWith("library") == true
-            val settingsSelected = currentRoute == Tab.Settings.route || currentRoute?.startsWith("settings") == true
-            PlayTopBarItem(PlayIcons.Home, stringResource(R.string.tab_home), homeSelected, contentFocusRequester, topBarFocusRequester.takeIf { homeSelected }, onDown = onDown) { onOpenTab(Tab.Home) }
-            PlayTopBarItem(PlayIcons.Search, stringResource(R.string.tab_search), searchSelected, contentFocusRequester, topBarFocusRequester.takeIf { searchSelected }, onDown = onDown) { onOpenTab(Tab.Search) }
-            PlayTopBarItem(PlayIcons.Tv, stringResource(R.string.tab_tv), tvSelected, contentFocusRequester, topBarFocusRequester.takeIf { tvSelected }, onDown = onDown) { onOpenTab(Tab.Tv) }
-            PlayTopBarItem(PlayIcons.Folder, stringResource(R.string.tab_library), librarySelected, contentFocusRequester, topBarFocusRequester.takeIf { librarySelected }, onDown = onDown) { onOpenTab(Tab.Library) }
-            PlayTopBarItem(PlayIcons.Gear, stringResource(R.string.tab_settings), settingsSelected, contentFocusRequester, topBarFocusRequester.takeIf { settingsSelected }, onDown = onDown) { onOpenTab(Tab.Settings) }
-            PlayTopBarItem(null, stringResource(R.string.tab_profile), false, contentFocusRequester, profileFocusRequester, avatarKey = avatarKey, rightFocusRequester = pillFocusRequester, onDown = onDown, onClick = onOpenProfile)
+        if (verticalStrip) {
+            CappedFontScale {
+                Column(
+                    modifier = Modifier
+                        .width(74.dp)
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 6.dp, vertical = 10.dp)
+                        .navItemExitFocus(position, contentFocusRequester),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    entries.forEach { entry ->
+                        PlayVerticalNavItem(
+                            entry = entry,
+                            avatarKey = avatarKey,
+                            position = position,
+                            exitKey = exitKey,
+                            contentFocusRequester = contentFocusRequester,
+                            onExitToContent = onExitToContent,
+                        )
+                    }
+                }
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                    .navItemExitFocus(position, contentFocusRequester),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                entries.forEach { entry ->
+                    PlayTopBarItem(
+                        icon = entry.icon,
+                        contentDescription = entry.label,
+                        selected = entry.selected,
+                        position = position,
+                        exitKey = exitKey,
+                        contentFocusRequester = contentFocusRequester,
+                        itemFocusRequester = entry.focusRequester,
+                        avatarKey = avatarKey.takeIf { entry.isProfile },
+                        rightFocusRequester = pillFocusRequester.takeIf { entry.isProfile },
+                        onExitToContent = onExitToContent,
+                        onClick = entry.onClick,
+                    )
+                }
+            }
         }
+    }
+}
+
+private fun Modifier.navItemExitFocus(
+    position: NavBarPosition,
+    contentFocusRequester: FocusRequester,
+    rightFocusRequester: FocusRequester? = null,
+): Modifier = focusProperties {
+    when (NavBarRules.menuExitDirection(position)) {
+        EdgeDirection.Down -> down = contentFocusRequester
+        EdgeDirection.Up -> up = contentFocusRequester
+        EdgeDirection.Right -> right = contentFocusRequester
+        EdgeDirection.Left -> left = contentFocusRequester
+    }
+    if (rightFocusRequester != null && !NavBarRules.isVerticalStrip(position)) {
+        right = rightFocusRequester
     }
 }
 
@@ -967,11 +1085,13 @@ private fun PlayTopBarItem(
     icon: ImageVector?,
     contentDescription: String,
     selected: Boolean,
+    position: NavBarPosition,
+    exitKey: Key,
     contentFocusRequester: FocusRequester,
     itemFocusRequester: FocusRequester?,
     avatarKey: String? = null,
     rightFocusRequester: FocusRequester? = null,
-    onDown: () -> Boolean = { false },
+    onExitToContent: () -> Boolean = { false },
     onClick: () -> Unit,
 ) {
     var boxFocused by remember { mutableStateOf(false) }
@@ -985,13 +1105,10 @@ private fun PlayTopBarItem(
         modifier = Modifier
             .size(42.dp)
             .then(if (itemFocusRequester != null) Modifier.focusRequester(itemFocusRequester) else Modifier)
-            .focusProperties {
-                down = contentFocusRequester
-                if (rightFocusRequester != null) right = rightFocusRequester
-            }
+            .navItemExitFocus(position, contentFocusRequester, rightFocusRequester)
             .onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
-                    onDown()
+                if (event.type == KeyEventType.KeyDown && event.key == exitKey) {
+                    onExitToContent()
                 } else {
                     false
                 }
@@ -999,7 +1116,7 @@ private fun PlayTopBarItem(
             .onFocusChanged {
                 boxFocused = it.isFocused
                 if (it.isFocused && com.kaan.play.BuildConfig.DEBUG) {
-                    android.util.Log.d("PlayFocus", "PlayTopBarItem focused: $contentDescription")
+                    android.util.Log.d("PlayFocus", "PlayNavBarItem focused: $contentDescription")
                 }
             }
             .tvFocusableScaleGlow(
@@ -1015,7 +1132,7 @@ private fun PlayTopBarItem(
                 indication = null,
                 onClick = {
                     if (com.kaan.play.BuildConfig.DEBUG) {
-                        android.util.Log.d("PlayFocus", "PlayTopBarItem click: $contentDescription")
+                        android.util.Log.d("PlayFocus", "PlayNavBarItem click: $contentDescription")
                     }
                     onClick()
                 },
@@ -1025,6 +1142,78 @@ private fun PlayTopBarItem(
             ProfileAvatar(avatar = avatarKey, size = 34)
         } else if (icon != null) {
             Icon(imageVector = icon, contentDescription = contentDescription, tint = tint, modifier = Modifier.size(22.dp))
+        }
+    }
+}
+
+@Composable
+private fun PlayVerticalNavItem(
+    entry: NavEntrySpec,
+    avatarKey: String,
+    position: NavBarPosition,
+    exitKey: Key,
+    contentFocusRequester: FocusRequester,
+    onExitToContent: () -> Boolean,
+) {
+    var boxFocused by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val interactionFocused by interactionSource.collectIsFocusedAsState()
+    val focused = boxFocused || interactionFocused
+    val tint = if (focused || entry.selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+    val showLabel = NavBarRules.showStripItemLabel(focused = focused, selected = entry.selected)
+    val itemShape = RoundedCornerShape(14.dp)
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .width(62.dp)
+            .then(if (entry.focusRequester != null) Modifier.focusRequester(entry.focusRequester) else Modifier)
+            .navItemExitFocus(position, contentFocusRequester)
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown && event.key == exitKey) {
+                    onExitToContent()
+                } else {
+                    false
+                }
+            }
+            .onFocusChanged { boxFocused = it.isFocused }
+            .tvFocusableScaleGlow(
+                scale = 1.06f,
+                glowColor = MaterialTheme.colorScheme.primary,
+                shape = itemShape,
+                isFocused = focused,
+                zIndex = 10f,
+                fillGlowAlpha = 0.16f,
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = entry.onClick,
+            )
+            .padding(vertical = 7.dp, horizontal = 4.dp),
+    ) {
+        if (entry.isProfile) {
+            ProfileAvatar(avatar = avatarKey, size = 28)
+        } else if (entry.icon != null) {
+            Icon(
+                imageVector = entry.icon,
+                contentDescription = entry.label,
+                tint = tint,
+                modifier = Modifier.size(22.dp),
+            )
+        }
+        if (showLabel) {
+            Text(
+                text = entry.label,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                color = tint,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 2.dp),
+            )
         }
     }
 }

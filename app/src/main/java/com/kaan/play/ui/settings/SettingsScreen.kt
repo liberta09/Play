@@ -41,6 +41,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import com.kaan.play.ui.tv.focusMemory
+import com.kaan.play.ui.tv.navBarReturnEdge
 import com.kaan.play.ui.tv.rememberFocusMemory
 import kotlinx.coroutines.launch
 
@@ -95,7 +96,7 @@ fun SettingsScreen(
             iconTint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                .navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = false)
                 .focusMemory(focus, "addons", isDefault = true),
             onClick = onOpenAddons,
         )
@@ -103,7 +104,9 @@ fun SettingsScreen(
             title = stringResource(R.string.settings_player),
             icon = PlayIcons.PlayCircle,
             iconTint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.focusMemory(focus, "player"),
+            modifier = Modifier
+                .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                .focusMemory(focus, "player"),
             onClick = onOpenPlayer,
         )
         PlayCardRow(
@@ -111,7 +114,9 @@ fun SettingsScreen(
             subtitle = stringResource(R.string.settings_speed_test_summary),
             icon = PlayIcons.Globe,
             iconTint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.focusMemory(focus, "speed-test"),
+            modifier = Modifier
+                .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                .focusMemory(focus, "speed-test"),
             onClick = onOpenSpeedTest,
         )
         PlayCardRow(
@@ -119,7 +124,9 @@ fun SettingsScreen(
             value = stringResource(theme.labelRes()),
             icon = PlayIcons.Palette,
             iconTint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.focusMemory(focus, "theme"),
+            modifier = Modifier
+                .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                .focusMemory(focus, "theme"),
             onClick = onOpenTheme,
         )
         PlayCardRow(
@@ -127,7 +134,9 @@ fun SettingsScreen(
             value = stringResource(language.labelRes()),
             icon = PlayIcons.Globe,
             iconTint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.focusMemory(focus, "language"),
+            modifier = Modifier
+                .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                .focusMemory(focus, "language"),
             onClick = { dialog = OpenDialog.Language },
         )
         PlayCardRow(
@@ -138,7 +147,9 @@ fun SettingsScreen(
             ),
             icon = PlayIcons.Library,
             iconTint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.focusMemory(focus, "poster-url"),
+            modifier = Modifier
+                .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                .focusMemory(focus, "poster-url"),
             onClick = {
                 posterDraft = posterTemplate
                 dialog = OpenDialog.Poster
@@ -149,7 +160,9 @@ fun SettingsScreen(
             subtitle = "Profil oluştur ve geçiş yap",
             icon = PlayIcons.Library,
             iconTint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.focusMemory(focus, "profile"),
+            modifier = Modifier
+                .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                .focusMemory(focus, "profile"),
             onClick = onOpenProfile,
         )
         PlayCardRow(
@@ -157,7 +170,9 @@ fun SettingsScreen(
             subtitle = if (rememberLastProfile) "Uygulama açılışında son profil otomatik seçilir" else "Her açılışta profili sen seç",
             icon = PlayIcons.Lock,
             iconTint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.focusMemory(focus, "remember-profile"),
+            modifier = Modifier
+                .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                .focusMemory(focus, "remember-profile"),
             onClick = { scope.launch { container.settings.setRememberLastProfile(!rememberLastProfile) } },
             trailing = {
                 Switch(
@@ -171,7 +186,9 @@ fun SettingsScreen(
             subtitle = "E-posta ile giriş; cihazlar arası otomatik eşitleme",
             icon = PlayIcons.Tv,
             iconTint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.focusMemory(focus, "sync"),
+            modifier = Modifier
+                .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                .focusMemory(focus, "sync"),
             onClick = onOpenSync,
         )
         WifiSyncCard()
@@ -180,7 +197,9 @@ fun SettingsScreen(
             value = BuildConfig.VERSION_NAME,
             icon = PlayIcons.InfoCircle,
             iconTint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.focusMemory(focus, "about"),
+            modifier = Modifier
+                .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = true)
+                .focusMemory(focus, "about"),
             onClick = onOpenAbout,
         )
     }

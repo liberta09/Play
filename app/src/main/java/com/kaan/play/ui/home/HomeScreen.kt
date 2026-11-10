@@ -89,7 +89,11 @@ import com.kaan.play.ui.components.PosterCard
 import com.kaan.play.ui.components.StatusBarScrim
 import com.kaan.play.ui.components.posterUrl
 import com.kaan.play.ui.containerViewModel
+import com.kaan.play.ui.nav.NavBarPosition
+import com.kaan.play.ui.nav.NavBarRules
 import com.kaan.play.ui.nav.PlayIcons
+import com.kaan.play.ui.tv.LocalNavBarPosition
+import com.kaan.play.ui.tv.navBarReturnEdge
 import com.kaan.play.ui.provider.ProviderSelectorSheet
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.tv.focusMemory
@@ -213,16 +217,18 @@ fun HomeScreen(
 
         StatusBarScrim()
 
-        // Yüzen hap buton (sağ altta, alt menünün hemen üzerinde)
+        // Yüzen hap buton (sağ altta; Alt menüde üstüne kayar)
+        val pillBottomDp = NavBarRules.homeProviderPillBottomPaddingDp(LocalNavBarPosition.current).dp
         ProviderPillButton(
             text = pillText,
             isSelected = !effectiveIsAll,
             onClick = { showProviderSelector = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 20.dp, bottom = 20.dp)
+                .padding(end = 20.dp, bottom = pillBottomDp)
                 .let { if (pillFocusRequester != null) it.focusRequester(pillFocusRequester) else it }
-                .let { if (profileFocusRequester != null) it.focusProperties { left = profileFocusRequester } else it },
+                .let { if (profileFocusRequester != null) it.focusProperties { left = profileFocusRequester } else it }
+                .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = true),
         )
 
         if (showProviderSelector) {
@@ -280,7 +286,7 @@ private fun HomeEmptyState(
             modifier = Modifier
                 .focusRequester(focus)
                 .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it },
+                .navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = true),
         ) { Text(stringResource(R.string.home_empty_action)) }
     }
 }
@@ -355,10 +361,11 @@ private fun HomeContent(
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
+        val extraBottom = NavBarRules.homeListExtraBottomDp(LocalNavBarPosition.current).dp
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 80.dp),
+            contentPadding = PaddingValues(bottom = 80.dp + extraBottom),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
         item(key = "hero") {
@@ -403,12 +410,19 @@ private fun HomeContent(
                                 continueRequesters.getOrPut(itemKey) { FocusRequester() }
                             }
                             val isFirstContinue = !hasHero && item === continueWatching.first()
+                            val navPos = LocalNavBarPosition.current
+                            val isContinueEdge = (navPos == NavBarPosition.Left && item === continueWatching.first()) ||
+                                (navPos == NavBarPosition.Right && item === continueWatching.last())
                             ContinueCard(
                                 item,
                                 modifier = Modifier
                                     .focusRequester(cardRequester)
                                     .let { if (isFirstContinue && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                                    .let { if (isFirstContinue && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                                    .let {
+                                        if (isFirstContinue || isContinueEdge) {
+                                            it.navBarReturnEdge(topBarFocusRequester, includeTop = isFirstContinue, includeBottom = false)
+                                        } else it
+                                    }
                                     .focusMemory(
                                         focus, "c-${item.entry.type}-${item.entry.tmdbId}",
                                         isDefault = isFirstContinue,
@@ -454,6 +468,9 @@ private fun HomeContent(
                         ) {
                             items(state.value, key = { "${it.type}-${it.id}" }) { media ->
                                 val isFirstTrending = !hasHero && !hasContinue && row == HomeRow.TrendingMovies && media == state.value.first()
+                                val navPos = LocalNavBarPosition.current
+                                val isRowEdge = (navPos == NavBarPosition.Left && media == state.value.first()) ||
+                                    (navPos == NavBarPosition.Right && media == state.value.last())
                                 PosterCard(
                                     title = media.title,
                                     subtitle = media.year?.toString(),
@@ -464,7 +481,11 @@ private fun HomeContent(
                                     modifier = Modifier
                                         .width(cardWidth)
                                         .let { if (isFirstTrending && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                                        .let { if (isFirstTrending && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                                        .let {
+                                            if (isFirstTrending || isRowEdge) {
+                                                it.navBarReturnEdge(topBarFocusRequester, includeTop = isFirstTrending, includeBottom = false)
+                                            } else it
+                                        }
                                         .focusMemory(
                                             focus,
                                             "${row.name}-${media.type}-${media.id}",
@@ -1178,7 +1199,7 @@ private fun ProviderCatalogView(
                         onClick = { refreshKey++ },
                         modifier = Modifier
                             .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                            .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                            .navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = true)
                             .focusRing(MaterialTheme.shapes.medium),
                     ) {
                         Text(stringResource(R.string.provider_catalog_retry))
@@ -1314,7 +1335,7 @@ private fun ProviderCatalogView(
                                     },
                                     modifier = Modifier.width(cardWidth)
                                         .let { if (isFirstProviderCard && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                                        .let { if (isFirstProviderCard && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it },
+                                        .let { if (isFirstProviderCard) it.navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = false) else it },
                                 )
 
                             }

@@ -74,6 +74,7 @@ fun HeroCarousel(
     topBarFocusRequester: FocusRequester? = null,
     modifier: Modifier = Modifier,
 ) {
+    val navPosition = com.kaan.play.ui.tv.LocalNavBarPosition.current
     val pager = rememberPagerState { items.size }
     val scope = rememberCoroutineScope()
     val requesters = remember(items.size) { List(items.size) { FocusRequester() } }
@@ -97,9 +98,19 @@ fun HeroCarousel(
                 if (!hasFocus || event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                 val page = pager.currentPage
                 when (event.key) {
-                    Key.DirectionRight -> if (page < items.lastIndex) { go(page + 1); true } else false
-                    Key.DirectionLeft -> if (page > 0) { go(page - 1); true } else focusManager.moveFocus(FocusDirection.Left)
-                    Key.DirectionUp -> if (topBarFocusRequester != null) {
+                    Key.DirectionRight -> when {
+                        page < items.lastIndex -> { go(page + 1); true }
+                        navPosition == com.kaan.play.ui.nav.NavBarPosition.Right && topBarFocusRequester != null ->
+                            runCatching { topBarFocusRequester.requestFocus() }.getOrDefault(false)
+                        else -> false
+                    }
+                    Key.DirectionLeft -> when {
+                        page > 0 -> { go(page - 1); true }
+                        navPosition == com.kaan.play.ui.nav.NavBarPosition.Left && topBarFocusRequester != null ->
+                            runCatching { topBarFocusRequester.requestFocus() }.getOrDefault(false)
+                        else -> focusManager.moveFocus(FocusDirection.Left)
+                    }
+                    Key.DirectionUp -> if (navPosition == com.kaan.play.ui.nav.NavBarPosition.Top && topBarFocusRequester != null) {
                         runCatching { topBarFocusRequester.requestFocus() }.getOrDefault(false)
                     } else false
                     else -> false
@@ -117,7 +128,14 @@ fun HeroCarousel(
                     .let { if (page == pager.currentPage) it.focusMemory(focus, "hero", isDefault = isDefaultFocus) else it }
                     .let {
                         if (topBarFocusRequester != null) {
-                            it.focusProperties { up = topBarFocusRequester }
+                            it.focusProperties {
+                                when (navPosition) {
+                                    com.kaan.play.ui.nav.NavBarPosition.Top -> up = topBarFocusRequester
+                                    com.kaan.play.ui.nav.NavBarPosition.Left -> if (page == 0) left = topBarFocusRequester
+                                    com.kaan.play.ui.nav.NavBarPosition.Right -> if (page == items.lastIndex) right = topBarFocusRequester
+                                    com.kaan.play.ui.nav.NavBarPosition.Bottom -> Unit
+                                }
+                            }
                         } else it
                     },
             )

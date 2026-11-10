@@ -30,6 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -68,6 +69,7 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.withFrameNanos
+import com.kaan.play.ui.nav.NavBarPosition
 import com.kaan.play.ui.theme.LocalPlayFocusStyle
 import kotlinx.coroutines.launch
 
@@ -256,6 +258,27 @@ fun Modifier.focusRing(
         shape = shape,
         strong = strong,
     )
+}
+
+val LocalNavBarPosition = staticCompositionLocalOf { NavBarPosition.Top }
+
+/** Gezinti çubuğunun aktif konumuna göre içerik öğesinden çubuğa dönen D-pad kenarını bağlar. */
+@Composable
+fun Modifier.navBarReturnEdge(
+    navFocusRequester: FocusRequester?,
+    includeTop: Boolean = true,
+    includeBottom: Boolean = false,
+): Modifier {
+    if (navFocusRequester == null) return this
+    val navPosition = LocalNavBarPosition.current
+    return this.focusProperties {
+        when (navPosition) {
+            NavBarPosition.Top -> if (includeTop) up = navFocusRequester
+            NavBarPosition.Bottom -> if (includeBottom) down = navFocusRequester
+            NavBarPosition.Left -> left = navFocusRequester
+            NavBarPosition.Right -> right = navFocusRequester
+        }
+    }
 }
 
 /**

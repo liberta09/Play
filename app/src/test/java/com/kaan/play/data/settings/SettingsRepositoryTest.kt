@@ -4,6 +4,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.kaan.play.ui.nav.NavBarPosition
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -127,5 +128,12 @@ class SettingsRepositoryTest {
     fun newThemesAreStoredAndReadBack() = runBlocking {
         repo.setThemeMode(ThemeMode.PurpleNight)
         assertEquals(ThemeMode.PurpleNight, repo.themeMode.first())
+    }
+
+    @Test
+    fun navBarPositionDefaultsToTopAndPersistsChoice() = runBlocking {
+        assertEquals(NavBarPosition.Top, repo.navBarPosition.first())
+        repo.setNavBarPosition(NavBarPosition.Left)
+        assertEquals(NavBarPosition.Left, repo.navBarPosition.first())
     }
 }

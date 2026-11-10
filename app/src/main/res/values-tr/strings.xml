@@ -137,6 +137,11 @@
     <string name="theme_ocean_blue">Okyanus mavisi</string>
     <string name="theme_purple_night">Mor gece</string>
     <string name="theme_high_contrast">Yüksek kontrast</string>
+    <string name="nav_bar_position_title">Gezinti çubuğu konumu</string>
+    <string name="nav_bar_position_top">Üst</string>
+    <string name="nav_bar_position_bottom">Alt</string>
+    <string name="nav_bar_position_left">Sol</string>
+    <string name="nav_bar_position_right">Sağ</string>
     <string name="about_version">Sürüm %1$s</string>
     <string name="about_telegram">Telegram topluluğu</string>
     <string name="about_telegram_title">Telegram Topluluğumuz</string>

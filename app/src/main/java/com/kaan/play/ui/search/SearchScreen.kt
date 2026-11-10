@@ -30,6 +30,7 @@ import androidx.compose.ui.focus.focusRequester
 import com.kaan.play.ui.tv.dpadLeavesTextField
 import com.kaan.play.ui.tv.rememberCursorField
 import com.kaan.play.ui.tv.focusMemory
+import com.kaan.play.ui.tv.navBarReturnEdge
 import com.kaan.play.ui.tv.rememberFocusMemory
 import com.kaan.play.ui.tv.rememberInitialFocus
 import androidx.compose.runtime.snapshotFlow
@@ -112,10 +113,8 @@ fun SearchScreen(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp)
                 .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
                 .focusRequester(fieldFocus)
-                .focusProperties {
-                    down = chipFocus
-                    if (topBarFocusRequester != null) up = topBarFocusRequester
-                }
+                .focusProperties { down = chipFocus }
+                .navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = false)
                 .dpadLeavesTextField(field),
         )
 
@@ -131,7 +130,11 @@ fun SearchScreen(
                     text = stringResource(filter.labelRes()),
                     selected = state.filter == filter,
                     onClick = { vm.onFilterChange(filter) },
-                    modifier = if (state.filter == filter) Modifier.focusRequester(chipFocus) else Modifier,
+                    modifier = Modifier
+                        .let { if (state.filter == filter) it.focusRequester(chipFocus) else it }
+                        .let {
+                            if (state.items.isEmpty()) it.navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = true) else it
+                        },
                 )
             }
         }

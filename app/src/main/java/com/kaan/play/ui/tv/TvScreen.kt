@@ -2,6 +2,7 @@ package com.kaan.play.ui.tv
 
 import androidx.compose.foundation.background
 import com.kaan.play.ui.tv.focusRing
+import com.kaan.play.ui.tv.navBarReturnEdge
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -247,7 +248,7 @@ fun TvScreen(
                 .fillMaxWidth()
                 .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
                 .focusRequester(initialFocus)
-                .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                .navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = allChannels.isEmpty())
                 .dpadLeavesTextField(field),
             placeholder = { Text(stringResource(R.string.tv_search_hint)) },
             leadingIcon = { Icon(PlayIcons.Search, contentDescription = null) },
