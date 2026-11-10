@@ -304,8 +304,10 @@ private fun HomeContent(
     onRegisterScrollToTop: (suspend () -> Unit) -> Unit = {},
 ) {
     val container = rememberContainer()
+    val perfPolicy = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current
     val homeProviders by container.providers.homeProviders.collectAsStateWithLifecycle(initialValue = emptyList())
-    val loadSemaphore = remember { Semaphore(3) }
+    val loadSemaphore = remember(perfPolicy.maxConcurrentProviderLoads) { Semaphore(perfPolicy.maxConcurrentProviderLoads) }
+    val loadedProviderIds = remember(homeProviders) { mutableStateMapOf<String, Boolean>() }
 
     // Dil değişince (etkinlik yeniden kurulur) yeni dille taze bir ViewModel: satırlar yeni dilde yüklenir.
     val vm = containerViewModel(key = "home-${AppLanguage.effective().iso}") { HomeViewModel(it.tmdb, it.continueWatching, it.library, it.settings) }
@@ -437,7 +439,12 @@ private fun HomeContent(
                 }
             }
         }
-        homeProviders.forEach { provider ->
+        val visibleProviderCount = com.kaan.play.data.settings.PerformanceBatchRules.visibleCount(
+            totalCount = homeProviders.size,
+            completedLoads = loadedProviderIds.size,
+            batchSize = perfPolicy.providerShelfBatchSize,
+        )
+        homeProviders.take(visibleProviderCount).forEach { provider ->
             item(key = "home_provider_${provider.id}") {
                 LazyProviderSection(
                     provider = provider,
@@ -449,6 +456,7 @@ private fun HomeContent(
                     onOpenProviderCategory = onOpenProviderCategory,
                     onOpenSearch = onOpenSearch,
                     onShownTitles = { titles -> shownProviderTitles[provider.id] = titles },
+                    onLoadFinished = { loadedProviderIds[provider.id] = true },
                 )
             }
         }
@@ -751,10 +759,11 @@ private fun ContinueCard(
             progress = null
         }
     }
+    val smallerPosters = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
     PosterCard(
         title = entry.title,
         subtitle = subtitle,
-        imageUrl = TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster),
+        imageUrl = TmdbImages.url(entry.posterPath, TmdbImages.posterSize(smallerPosters)),
         tmdbId = entry.tmdbId,
         mediaType = entry.type,
         onClick = onClick,
@@ -824,6 +833,7 @@ private fun LazyProviderSection(
     onOpenProviderCategory: (CatalogRow) -> Unit,
     onOpenSearch: (String) -> Unit,
     onShownTitles: (List<String>) -> Unit = {},
+    onLoadFinished: () -> Unit = {},
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
@@ -846,6 +856,7 @@ private fun LazyProviderSection(
         val visible = cached?.let { ProviderRules.withoutLiveRows(CatalogVisibility.filterRows(it, disabledCatalogs)) }
         if (visible != null) {
             state = if (visible.isNotEmpty()) ProviderSectionUiState.Ready(visible) else ProviderSectionUiState.Hidden
+            onLoadFinished()
             return@LaunchedEffect
         }
         loadSemaphore.withPermit {
@@ -857,6 +868,8 @@ private fun LazyProviderSection(
                 state = if (filtered.isNotEmpty()) ProviderSectionUiState.Ready(filtered) else ProviderSectionUiState.Hidden
             } catch (_: Throwable) {
                 state = ProviderSectionUiState.Hidden
+            } finally {
+                onLoadFinished()
             }
         }
     }

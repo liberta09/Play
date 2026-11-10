@@ -42,17 +42,21 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.kaan.play.R
 import com.kaan.play.data.model.HeroItem
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.ui.components.Button
 import com.kaan.play.ui.components.TitleOrLogo
+import com.kaan.play.ui.theme.LocalPlayPerformancePolicy
 import com.kaan.play.ui.tv.FocusMemory
 import com.kaan.play.ui.tv.focusMemory
 import kotlinx.coroutines.launch
@@ -117,32 +121,38 @@ fun HeroCarousel(
                 }
             },
     ) {
-        HorizontalPager(state = pager, beyondViewportPageCount = 1, modifier = Modifier.fillMaxSize()) { page ->
-            val item = items[page]
-            HeroPage(
-                item = item,
-                onOpen = { onOpen(item.media.type, item.media.id) },
-                buttonModifier = Modifier
-                    .focusRequester(requesters[page])
-                    .let { if (page == pager.currentPage && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                    .let { if (page == pager.currentPage) it.focusMemory(focus, "hero", isDefault = isDefaultFocus) else it }
-                    .let {
-                        if (topBarFocusRequester != null) {
-                            it.focusProperties {
-                                when (navPosition) {
-                                    com.kaan.play.ui.nav.NavBarPosition.Top -> up = topBarFocusRequester
-                                    com.kaan.play.ui.nav.NavBarPosition.Left -> if (page == 0) left = topBarFocusRequester
-                                    com.kaan.play.ui.nav.NavBarPosition.Right -> if (page == items.lastIndex) right = topBarFocusRequester
-                                    com.kaan.play.ui.nav.NavBarPosition.Bottom -> Unit
-                                }
+        val perfPolicy = LocalPlayPerformancePolicy.current
+    HorizontalPager(
+        state = pager,
+        beyondViewportPageCount = if (perfPolicy.heroAutoAdvanceEnabled) 1 else 0,
+        modifier = Modifier.fillMaxSize(),
+    ) { page ->
+        val item = items[page]
+        HeroPage(
+            item = item,
+            onOpen = { onOpen(item.media.type, item.media.id) },
+            buttonModifier = Modifier
+                .focusRequester(requesters[page])
+                .let { if (page == pager.currentPage && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                .let { if (page == pager.currentPage) it.focusMemory(focus, "hero", isDefault = isDefaultFocus) else it }
+                .let {
+                    if (topBarFocusRequester != null) {
+                        it.focusProperties {
+                            when (navPosition) {
+                                com.kaan.play.ui.nav.NavBarPosition.Top -> up = topBarFocusRequester
+                                com.kaan.play.ui.nav.NavBarPosition.Left -> if (page == 0) left = topBarFocusRequester
+                                com.kaan.play.ui.nav.NavBarPosition.Right -> if (page == items.lastIndex) right = topBarFocusRequester
+                                com.kaan.play.ui.nav.NavBarPosition.Bottom -> Unit
                             }
-                        } else it
-                    },
-            )
-        }
+                        }
+                    } else it
+                },
+        )
+    }
         PageDots(
             count = items.size,
             selected = pager.currentPage,
+            animateWidth = perfPolicy.heroAutoAdvanceEnabled,
             modifier = Modifier.align(Alignment.BottomStart).padding(start = 20.dp, bottom = 14.dp),
         )
     }
@@ -152,9 +162,19 @@ fun HeroCarousel(
 private fun HeroPage(item: HeroItem, onOpen: () -> Unit, buttonModifier: Modifier) {
     val media = item.media
     val background = MaterialTheme.colorScheme.background
+    val perfPolicy = LocalPlayPerformancePolicy.current
+    val context = LocalContext.current
     Box(Modifier.fillMaxSize()) {
-        TmdbImages.url(media.backdropPath, TmdbImages.Size.BackdropLarge)?.let {
-            AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+        TmdbImages.url(media.backdropPath, TmdbImages.backdropSize(perfPolicy.useSmallerPosters))?.let { url ->
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(url)
+                    .crossfade(perfPolicy.heroAutoAdvanceEnabled)
+                    .build(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
         }
         // Üstte durum çubuğu için hafif karartma, altta sayfa rengine eriyen geçiş (yazı okunur, görsel "kesilmiş" görünmez).
         Box(Modifier.fillMaxSize().background(Brush.verticalGradient(0f to Color.Black.copy(alpha = 0.4f), 0.28f to Color.Transparent)))
@@ -188,11 +208,16 @@ private fun heroLine(item: HeroItem): String? {
 
 
 @Composable
-private fun PageDots(count: Int, selected: Int, modifier: Modifier = Modifier) {
+private fun PageDots(count: Int, selected: Int, animateWidth: Boolean, modifier: Modifier = Modifier) {
     if (count < 2) return
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
         repeat(count) { index ->
-            val width by animateDpAsState(if (index == selected) 18.dp else 6.dp, label = "dot")
+            val targetWidth = if (index == selected) 18.dp else 6.dp
+            val width by if (animateWidth) {
+                animateDpAsState(targetWidth, label = "dot")
+            } else {
+                androidx.compose.runtime.rememberUpdatedState(targetWidth)
+            }
             Box(
                 Modifier
                     .size(width = width, height = 6.dp)

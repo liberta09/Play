@@ -165,6 +165,7 @@ class MainActivity : AppCompatActivity() {
 
         // Açılışta tek seferlik okuma (milisaniyeler): kayıtlı tema ilk karede doğru çıksın, yanıp sönmesin.
         val initialTheme = runBlocking { settings.themeMode.first() }
+        val initialPerf = runBlocking { settings.performanceMode.first() }
 
         // Yalnızca ilk açılışta: dil değişimi gibi yeniden oluşturmalarda aynı bağlantı tekrar işlenmesin.
         if (savedInstanceState == null) {
@@ -177,6 +178,7 @@ class MainActivity : AppCompatActivity() {
             StartupWindowGuard.checkDebugFailSetContent(intent)
             setContent {
             val mode by settings.themeMode.collectAsStateWithLifecycle(initialValue = initialTheme)
+            val performanceMode by settings.performanceMode.collectAsStateWithLifecycle(initialValue = initialPerf)
             val systemDark = isSystemInDarkTheme()
             val resolvedTheme = ThemeRules.resolve(mode, systemDark)
             val dark = ThemeRules.isDark(mode, systemDark)
@@ -204,7 +206,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 onDispose { }
             }
-            PlayTheme(themeMode = resolvedTheme) {
+            PlayTheme(themeMode = resolvedTheme, performanceMode = performanceMode) {
                 Box {
                     PlayRoot()
                     SplashOverlay()

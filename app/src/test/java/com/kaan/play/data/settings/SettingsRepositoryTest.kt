@@ -136,4 +136,11 @@ class SettingsRepositoryTest {
         repo.setNavBarPosition(NavBarPosition.Left)
         assertEquals(NavBarPosition.Left, repo.navBarPosition.first())
     }
+
+    @Test
+    fun performanceModeDefaultsToOffAndPersistsChoice() = runBlocking {
+        assertEquals(false, repo.performanceMode.first())
+        repo.setPerformanceMode(true)
+        assertEquals(true, repo.performanceMode.first())
+    }
 }

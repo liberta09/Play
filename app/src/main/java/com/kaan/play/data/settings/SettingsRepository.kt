@@ -296,6 +296,14 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         store.edit { it[THEME] = mode.name }
     }
 
+    /** Performans modu: varsayılan kapalı. Açıkken görsel efektler ve paralel katalog yüklemeleri azaltılır. */
+    val performanceMode: Flow<Boolean> =
+        store.data.map { it[PERFORMANCE_MODE] ?: DEFAULT_PERFORMANCE_MODE }.distinctUntilChanged()
+
+    suspend fun setPerformanceMode(enabled: Boolean) {
+        store.edit { it[PERFORMANCE_MODE] = enabled }
+    }
+
     suspend fun setSourceTimeoutSeconds(seconds: Int) {
         require(seconds in TIMEOUT_OPTIONS) { "Desteklenmeyen zaman aşımı: $seconds" }
         store.edit { it[TIMEOUT] = seconds }
@@ -417,6 +425,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_ALWAYS_RESUME = true
         const val DEFAULT_REMEMBER_LAST_PROFILE = true
         const val DEFAULT_DOWNLOAD_WIFI_ONLY = true
+        const val DEFAULT_PERFORMANCE_MODE = false
         const val DEFAULT_SLOW_CONNECTION_MODE = false
         const val DEFAULT_SUGGEST_SLOW_CONNECTION = true
         const val DEFAULT_AUTO_NEXT = true
@@ -477,10 +486,12 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val LIVE_TV_SORT_MODE = stringPreferencesKey("live_tv_sort_mode")
         private val CONTINUE_SORT_MODE = stringPreferencesKey("continue_sort_mode")
         private val NAV_BAR_POSITION = stringPreferencesKey("nav_bar_position")
+        private val PERFORMANCE_MODE = booleanPreferencesKey("performance_mode")
 
         private val APPEARANCE_AND_PLAYER_KEYS: List<Preferences.Key<*>> = listOf(
             THEME,
             NAV_BAR_POSITION,
+            PERFORMANCE_MODE,
             POSTER_URL_TEMPLATE,
             ALWAYS_RESUME,
             DOWNLOAD_WIFI_ONLY,

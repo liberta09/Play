@@ -291,8 +291,9 @@ internal fun DetailContent(
         ) {
             item {
                 val background = MaterialTheme.colorScheme.background
+                val smaller = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
                 Box(Modifier.fillMaxWidth().heightIn(min = headerHeight)) {
-                    TmdbImages.url(preferredPoster, TmdbImages.Size.BackdropLarge)?.let {
+                    TmdbImages.url(preferredPoster, TmdbImages.backdropSize(smaller))?.let {
                         AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.matchParentSize())
                     }
                     // Alt kenar sayfa rengine erir: başlık okunur, kapak "kesilmiş" görünmez.
@@ -489,10 +490,11 @@ private fun LazyListScope.similarSection(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 items(items, key = { "similar-${it.type}-${it.id}" }) { media ->
+                    val smaller = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
                     PosterCard(
                         title = media.title,
                         subtitle = media.year?.toString(),
-                        imageUrl = TmdbImages.url(media.posterPath, TmdbImages.Size.Poster),
+                        imageUrl = TmdbImages.url(media.posterPath, TmdbImages.posterSize(smaller)),
                         tmdbId = media.id,
                         mediaType = media.type,
                         onClick = { onOpen(media.type, media.id) },
@@ -591,8 +593,9 @@ private fun LazyListScope.episodeSection(
 @Composable
 private fun WideBackdrop(path: String?) {
     val background = MaterialTheme.colorScheme.background
+    val smaller = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
     Box(Modifier.fillMaxSize()) {
-        TmdbImages.url(path, TmdbImages.Size.BackdropLarge)?.let {
+        TmdbImages.url(path, TmdbImages.backdropSize(smaller))?.let {
             AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, alignment = Alignment.CenterEnd, modifier = Modifier.fillMaxSize())
         }
         Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(0f to background, 0.45f to background.copy(alpha = 0.94f), 1f to background.copy(alpha = 0.3f))))

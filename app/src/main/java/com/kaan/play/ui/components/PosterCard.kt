@@ -48,11 +48,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.kaan.play.R
 import com.kaan.play.data.model.MediaSummary
 import com.kaan.play.data.model.MediaType
@@ -217,8 +220,13 @@ fun PosterCard(
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
             if (resolvedImageUrl != null) {
+                val context = LocalContext.current
+                val crossfadeEnabled = !com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.enabled
                 AsyncImage(
-                    model = resolvedImageUrl,
+                    model = coil3.request.ImageRequest.Builder(context)
+                        .data(resolvedImageUrl)
+                        .crossfade(crossfadeEnabled)
+                        .build(),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
@@ -365,4 +373,7 @@ fun MediaSummary.cardSubtitle(): String {
 }
 
 @Composable
-fun MediaSummary.posterUrl(): String? = TmdbImages.url(posterPath, TmdbImages.Size.Poster)
+fun MediaSummary.posterUrl(): String? = TmdbImages.url(
+    posterPath,
+    TmdbImages.posterSize(com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters),
+)

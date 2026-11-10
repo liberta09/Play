@@ -155,6 +155,8 @@
     <string name="nav_bar_position_bottom">Bottom</string>
     <string name="nav_bar_position_left">Left</string>
     <string name="nav_bar_position_right">Right</string>
+    <string name="settings_performance_title">Performance</string>
+    <string name="settings_performance_summary">Limits resource usage; catalogs load smoothly in small batches</string>
     <!-- Dil adları her zaman kendi dillerinde yazılır. -->
     <string name="language_english" translatable="false">English</string>
     <string name="language_turkish" translatable="false">Türkçe</string>

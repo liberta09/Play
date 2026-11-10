@@ -1007,8 +1007,9 @@ fun PlayNavBar(
         EdgeDirection.Left -> Key.DirectionLeft
     }
     val shape = if (verticalStrip) RoundedCornerShape(24.dp) else CircleShape
+    val shadowsEnabled = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.shadowsAndEffectsEnabled
     Surface(
-        modifier = modifier.shadow(12.dp, shape),
+        modifier = modifier.let { if (shadowsEnabled) it.shadow(12.dp, shape) else it },
         shape = shape,
         color = topBarSurfaceColor(),
         border = BorderStroke(1.dp, topBarBorderColor()),

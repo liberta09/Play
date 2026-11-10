@@ -142,6 +142,8 @@
     <string name="nav_bar_position_bottom">Alt</string>
     <string name="nav_bar_position_left">Sol</string>
     <string name="nav_bar_position_right">Sağ</string>
+    <string name="settings_performance_title">Performans</string>
+    <string name="settings_performance_summary">Kaynak kullanımı sınırlanır; kataloglar takılmadan küçük gruplar hâlinde yüklenir</string>
     <string name="about_version">Sürüm %1$s</string>
     <string name="about_telegram">Telegram topluluğu</string>
     <string name="about_telegram_title">Telegram Topluluğumuz</string>

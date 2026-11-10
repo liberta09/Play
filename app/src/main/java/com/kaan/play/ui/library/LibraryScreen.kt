@@ -129,10 +129,11 @@ fun LibraryScreen(
             items(favs, key = { "fav-${it.type}-${it.tmdbId}" }) { fav ->
                 val removeLabel = stringResource(R.string.detail_favorite_remove)
                 val isFirstFav = fav == favs.first()
+                val smaller = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
                 PosterCard(
                     title = fav.title,
                     subtitle = stringResource(if (fav.type == MediaType.Movie) R.string.type_movie else R.string.type_series),
-                    imageUrl = TmdbImages.url(fav.posterPath, TmdbImages.Size.Poster),
+                    imageUrl = TmdbImages.url(fav.posterPath, TmdbImages.posterSize(smaller)),
                     tmdbId = fav.tmdbId,
                     mediaType = fav.type,
                     onClick = { onOpenDetail(fav.type, fav.tmdbId) },
@@ -340,7 +341,8 @@ private fun HistoryRow(entry: WatchHistoryEntity, onClick: () -> Unit, onRemove:
                     .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainer),
             ) {
-                resolvePosterImageUrl(TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster), null, entry.tmdbId, entry.type)?.let {
+                val smaller = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
+                resolvePosterImageUrl(TmdbImages.url(entry.posterPath, TmdbImages.posterSize(smaller)), null, entry.tmdbId, entry.type)?.let {
                     AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                 }
             }
@@ -430,7 +432,8 @@ private fun DownloadRow(
                     .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainer),
             ) {
-                resolvePosterImageUrl(TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster), null, entry.tmdbId, entry.type)?.let {
+                val smaller = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
+                resolvePosterImageUrl(TmdbImages.url(entry.posterPath, TmdbImages.posterSize(smaller)), null, entry.tmdbId, entry.type)?.let {
                     AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                 }
             }

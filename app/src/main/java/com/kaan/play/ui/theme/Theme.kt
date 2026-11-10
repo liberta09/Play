@@ -13,6 +13,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.dp
+import com.kaan.play.data.settings.PerformancePolicy
 import com.kaan.play.data.settings.ThemeMode
 import com.kaan.play.ui.tv.PlayIndication
 
@@ -26,6 +27,7 @@ data class PlayFocusStyle(
 
 val LocalPlayThemeMode = staticCompositionLocalOf { ThemeMode.Dark }
 val LocalPlayFocusStyle = staticCompositionLocalOf { PlayFocusStyle() }
+val LocalPlayPerformancePolicy = staticCompositionLocalOf { PerformancePolicy.Standard }
 
 private val DarkScheme = darkColorScheme(
     primary = PlayColors.Accent,
@@ -156,6 +158,7 @@ private val PlayShapes = Shapes(
 fun PlayTheme(
     themeMode: ThemeMode = ThemeMode.Dark,
     darkTheme: Boolean? = null,
+    performanceMode: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val resolvedMode = when {
@@ -170,12 +173,14 @@ fun PlayTheme(
     } else {
         PlayFocusStyle()
     }
+    val performancePolicy = remember(performanceMode) { PerformancePolicy.forMode(performanceMode) }
     MaterialTheme(colorScheme = scheme, shapes = PlayShapes, typography = PlayTypography) {
         val indication = remember(scheme.primary) { PlayIndication(scheme.primary) }
         CompositionLocalProvider(
             LocalIndication provides indication,
             LocalPlayThemeMode provides resolvedMode,
             LocalPlayFocusStyle provides focusStyle,
+            LocalPlayPerformancePolicy provides performancePolicy,
             content = content,
         )
     }

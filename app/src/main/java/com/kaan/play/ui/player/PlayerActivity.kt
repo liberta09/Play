@@ -500,14 +500,16 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         val initialTheme = runBlocking { container.settings.themeMode.first() }
+        val initialPerf = runBlocking { container.settings.performanceMode.first() }
         try {
             StartupWindowGuard.checkDebugFailSetContent(intent)
             setContent {
             val mode by container.settings.themeMode.collectAsStateWithLifecycle(initialValue = initialTheme)
+            val performanceMode by container.settings.performanceMode.collectAsStateWithLifecycle(initialValue = initialPerf)
             val resolvedTheme = ThemeRules.resolve(mode, isSystemInDarkTheme()).let {
                 if (it == ThemeMode.Light) ThemeMode.Dark else it
             }
-            PlayTheme(themeMode = resolvedTheme) {
+            PlayTheme(themeMode = resolvedTheme, performanceMode = performanceMode) {
                 val isSeries = AutoNextRules.canShowNextEpisodeButton(session.target.request.type, session.target.request.season, session.target.request.episode, session.target.request.addonType, 1L)
                 PlayerScreen(
                     controller = controller,

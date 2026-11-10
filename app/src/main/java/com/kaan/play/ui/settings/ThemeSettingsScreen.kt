@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +51,9 @@ fun ThemeSettingsScreen(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val theme by container.settings.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.Dark)
     val navPosition by container.settings.navBarPosition.collectAsStateWithLifecycle(initialValue = NavBarPosition.DEFAULT)
+    val performanceMode by container.settings.performanceMode.collectAsStateWithLifecycle(
+        initialValue = com.kaan.play.data.settings.SettingsRepository.DEFAULT_PERFORMANCE_MODE,
+    )
     val resolvedTheme = ThemeRules.resolve(theme, isSystemInDarkTheme())
     var pickNavPosition by remember { mutableStateOf(false) }
     val focus = rememberFocusMemory()
@@ -112,6 +117,25 @@ fun ThemeSettingsScreen(onBack: () -> Unit) {
                 iconTint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.focusMemory(focus, key = "nav_bar_position"),
                 onClick = { pickNavPosition = true },
+            )
+
+            PlayCardRow(
+                title = stringResource(R.string.settings_performance_title),
+                subtitle = stringResource(R.string.settings_performance_summary),
+                icon = PlayIcons.Clock,
+                iconTint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.focusMemory(focus, key = "performance_mode"),
+                onClick = { scope.launch { container.settings.setPerformanceMode(!performanceMode) } },
+                trailing = {
+                    Switch(
+                        checked = performanceMode,
+                        onCheckedChange = null,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary,
+                        ),
+                    )
+                },
             )
         }
     }

@@ -114,6 +114,7 @@ class CloudflareVerifyActivity : AppCompatActivity() {
 
         val appSettings = (application as PlayApp).container.settings
         val initialTheme = runBlocking { appSettings.themeMode.first() }
+        val initialPerf = runBlocking { appSettings.performanceMode.first() }
 
         val view = WebView(this).apply {
             this.settings.apply {
@@ -199,6 +200,7 @@ class CloudflareVerifyActivity : AppCompatActivity() {
             ComposeView(this).apply {
                 setContent {
                     val mode by appSettings.themeMode.collectAsStateWithLifecycle(initialValue = initialTheme)
+                    val performanceMode by appSettings.performanceMode.collectAsStateWithLifecycle(initialValue = initialPerf)
                     val systemDark = isSystemInDarkTheme()
                     val resolvedTheme = ThemeRules.resolve(mode, systemDark)
                     val dark = ThemeRules.isDark(mode, systemDark)
@@ -209,7 +211,7 @@ class CloudflareVerifyActivity : AppCompatActivity() {
                         }
                         onDispose { }
                     }
-                    PlayTheme(themeMode = resolvedTheme) {
+                    PlayTheme(themeMode = resolvedTheme, performanceMode = performanceMode) {
                         CloudflareVerifyScreen(
                             providerName = providerName.ifEmpty { targetHost },
                             host = targetHost,

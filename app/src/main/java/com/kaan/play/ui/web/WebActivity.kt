@@ -131,6 +131,7 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
 
         val settings = (application as PlayApp).container.settings
         val initialTheme = runBlocking { settings.themeMode.first() }
+        val initialPerf = runBlocking { settings.performanceMode.first() }
 
         // Arka plan WebView'ın varsayılanı (beyaz) kalır: arka planı olmayan sayfalar tarayıcıdaki gibi okunur.
         val view = WebView(this).apply {
@@ -177,6 +178,7 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
             ComposeView(this).apply {
                 setContent {
                     val mode by settings.themeMode.collectAsStateWithLifecycle(initialValue = initialTheme)
+                    val performanceMode by settings.performanceMode.collectAsStateWithLifecycle(initialValue = initialPerf)
                     val systemDark = isSystemInDarkTheme()
                     val resolvedTheme = ThemeRules.resolve(mode, systemDark)
                     val dark = ThemeRules.isDark(mode, systemDark)
@@ -187,7 +189,7 @@ class WebActivity : AppCompatActivity(), WebPageListener, PlayWebChromeClient.Fu
                         }
                         onDispose { }
                     }
-                    PlayTheme(themeMode = resolvedTheme) {
+                    PlayTheme(themeMode = resolvedTheme, performanceMode = performanceMode) {
                         val cursorArgb = MaterialTheme.colorScheme.primary.toArgb()
                         LaunchedEffect(cursorView, cursorArgb) {
                             cursorView?.setCursorColor(cursorArgb)
