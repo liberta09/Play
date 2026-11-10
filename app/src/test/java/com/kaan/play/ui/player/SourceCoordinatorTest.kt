@@ -1108,4 +1108,44 @@ class SourceCoordinatorTest {
         assertEquals(SourceNotice.AudioSyncNoOtherSource, coordinator.notice)
         assertEquals(SourcePhase.Playing, coordinator.phase)
     }
+
+    @Test
+    fun reportsAskedAnsweredCountsAndElapsedSecondsWhileResolving() = runTest {
+        val sources = listOf(StreamSource(1L, "A"), StreamSource(2L, "B"), StreamSource(3L, "C"))
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            askedFor = { sources },
+            streamsFor = {
+                flow {
+                    delay(2_000)
+                    emit(StreamResult.Failed(sources[0], FailureReason.Timeout))
+                    delay(1_000)
+                    emit(found(sources[1], stream(sources[1], "https://b/dub.mp4", dub = true)))
+                    delay(10_000)
+                }
+            },
+            preferDub = true,
+            load = { _, _ -> },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+
+        coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        assertEquals(SourcePhase.Resolving, coordinator.phase)
+        assertEquals(3, coordinator.askedCount)
+        assertEquals(0, coordinator.answeredCount)
+        assertEquals(0, coordinator.resolveElapsedSeconds())
+
+        advanceTimeBy(2_000)
+        runCurrent()
+        assertEquals(1, coordinator.answeredCount)
+        assertEquals(2, coordinator.resolveElapsedSeconds())
+
+        advanceTimeBy(1_000)
+        runCurrent()
+        assertEquals(SourcePhase.Starting, coordinator.phase)
+        assertEquals(2, coordinator.answeredCount)
+    }
 }

@@ -717,4 +717,13 @@
     <string name="slow_prompt_title">Slow connection?</string>
     <string name="slow_prompt_enable">Turn on slow mode</string>
     <string name="slow_prompt_later">Not now</string>
+    <string name="player_sources_searching">Searching for sources…</string>
+    <plurals name="player_sources_progress">
+        <item quantity="one">%1$d/%2$d addon responded</item>
+        <item quantity="other">%1$d/%2$d addons responded</item>
+    </plurals>
+    <plurals name="player_elapsed_seconds">
+        <item quantity="one">Elapsed: %1$d s</item>
+        <item quantity="other">Elapsed: %1$d s</item>
+    </plurals>
 </resources>

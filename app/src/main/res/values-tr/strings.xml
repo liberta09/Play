@@ -698,4 +698,13 @@
     <string name="slow_prompt_title">Bağlantı yavaş mı?</string>
     <string name="slow_prompt_enable">Yavaş modu aç</string>
     <string name="slow_prompt_later">Şimdi değil</string>
+    <string name="player_sources_searching">Kaynaklar aranıyor…</string>
+    <plurals name="player_sources_progress">
+        <item quantity="one">%1$d/%2$d eklenti yanıt verdi</item>
+        <item quantity="other">%1$d/%2$d eklenti yanıt verdi</item>
+    </plurals>
+    <plurals name="player_elapsed_seconds">
+        <item quantity="one">Geçen süre: %1$d sn</item>
+        <item quantity="other">Geçen süre: %1$d sn</item>
+    </plurals>
 </resources>

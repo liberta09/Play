@@ -89,6 +89,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -774,10 +775,41 @@ fun PlayerScreen(
             hasError = ui.error != null || sourcesFailed,
         )
 
-        if (resolving && ui.error == null) {
-            Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (resolving && ui.error == null && !ui.firstFrameRendered) {
+            var resolvingElapsedSec by remember(coordinator, resolving) {
+                mutableIntStateOf(coordinator?.resolveElapsedSeconds() ?: 0)
+            }
+            LaunchedEffect(coordinator, resolving, ui.firstFrameRendered) {
+                val coord = coordinator ?: return@LaunchedEffect
+                while (resolving && !ui.firstFrameRendered) {
+                    resolvingElapsedSec = coord.resolveElapsedSeconds()
+                    delay(1_000L)
+                }
+            }
+            val askedTotal = coordinator?.askedCount ?: 0
+            val answeredDone = coordinator?.answeredCount ?: 0
+            Column(
+                Modifier
+                    .align(Alignment.Center)
+                    .background(Color.Black.copy(alpha = 0.65f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 24.dp, vertical = 18.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 CircularProgressIndicator(Modifier.size(40.dp), color = Color.White)
-                Text(stringResource(R.string.player_sources_loading), style = MaterialTheme.typography.bodyLarge, color = Color.White)
+                Text(stringResource(R.string.player_sources_searching), style = MaterialTheme.typography.titleMedium, color = Color.White)
+                if (askedTotal > 0) {
+                    Text(
+                        text = pluralStringResource(R.plurals.player_sources_progress, askedTotal, answeredDone, askedTotal),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.9f),
+                    )
+                }
+                Text(
+                    text = pluralStringResource(R.plurals.player_elapsed_seconds, resolvingElapsedSec, resolvingElapsedSec),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.78f),
+                )
             }
         } else if (showTorrentOverlay) {
             TorrentLoadingOverlay(

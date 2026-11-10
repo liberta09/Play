@@ -179,6 +179,18 @@ class SourceCoordinator(
     var failedSources by mutableStateOf<List<StreamSource>>(emptyList())
         private set
 
+    val askedCount: Int
+        get() = asked.size
+
+    val answeredCount: Int
+        get() = if (asked.isEmpty()) answered.size else asked.count { it.addonId in answered }
+
+    fun resolveElapsedSeconds(): Int {
+        val started = resolveElapsedBaseAt ?: return 0
+        if (phase != SourcePhase.Resolving) return 0
+        return ((clock() - started) / 1_000L).toInt().coerceAtLeast(0)
+    }
+
     var notice by mutableStateOf<SourceNotice?>(null)
         private set
 
@@ -205,6 +217,7 @@ class SourceCoordinator(
     private var suggestionDismissed = false
     private var finished = false
     private var resolveStartedAt = 0L
+    private var resolveElapsedBaseAt: Long? = null
     private var collectJob: Job? = null
     private var firstFrameJob: Job? = null
     private var probeJob: Job? = null
@@ -332,6 +345,7 @@ class SourceCoordinator(
             } else {
                 phase = SourcePhase.Resolving
                 resolveStartedAt = clock()
+                resolveElapsedBaseAt = resolveStartedAt
                 ensureSources()
                 if (preferDub) {
                     scope.launch {
@@ -719,6 +733,7 @@ class SourceCoordinator(
         if (shouldWaitForDub) {
             phase = SourcePhase.Resolving
             resolveStartedAt = clock()
+            if (resolveElapsedBaseAt == null) resolveElapsedBaseAt = resolveStartedAt
             activeDubWaitMs = FALLBACK_DUB_WAIT_MS
             fallbackDubWaitJob?.cancel()
             fallbackDubWaitJob = scope.launch {
@@ -732,7 +747,9 @@ class SourceCoordinator(
         } else if (!finished) {
             // Daha kaynak gelebilir: gelince denenir.
             phase = SourcePhase.Resolving
-            resolveStartedAt = clock() - StartPolicy.DUB_WAIT_MS
+            val now = clock()
+            if (resolveElapsedBaseAt == null) resolveElapsedBaseAt = now
+            resolveStartedAt = now - StartPolicy.DUB_WAIT_MS
         } else {
             phase = SourcePhase.Failed
             switching = false
