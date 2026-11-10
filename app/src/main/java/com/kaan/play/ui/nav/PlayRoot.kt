@@ -525,7 +525,15 @@ fun PlayRoot() {
             }
             // Kart/satır kayıtlı konumdan sormadan başlatır: oynatıcıda "Baştan başla" bildirimi çıkar.
             val target = PlayTarget(
-                request = StreamRequest(entry.tmdbId, detail.imdbId, entry.type, season, episode),
+                request = StreamRequest(
+                    tmdbId = entry.tmdbId,
+                    imdbId = detail.imdbId,
+                    type = entry.type,
+                    season = season,
+                    episode = episode,
+                    title = entry.title,
+                    year = detail.summary.year,
+                ),
                 title = entry.title,
                 posterPath = entry.posterPath,
                 logoPath = detail.logoPath,

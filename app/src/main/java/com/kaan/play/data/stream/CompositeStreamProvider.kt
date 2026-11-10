@@ -37,18 +37,33 @@ class CompositeStreamProvider(
     }
 
     private fun StreamResult.forContent(request: StreamRequest, key: String): StreamResult = when (this) {
-        is StreamResult.Found -> StreamResult.Found(
-            source,
-            if (isBlocked(request, source)) emptyList()
+        is StreamResult.Found -> {
+            val filtered = if (isBlocked(request, source)) emptyList()
             else streams
                 .filter { stream ->
-                    StreamOwnership.belongs(stream, request) &&
-                        verdicts?.isRejected(key, stream.url) != true &&
-                        SourceMediaRules.isAcceptable(stream, request.type) &&
-                        passesLabelGuard(stream, request)
+                    val belongs = StreamOwnership.belongs(stream, request)
+                    val rejected = verdicts?.isRejected(key, stream.url) == true
+                    val mediaOk = SourceMediaRules.isAcceptable(stream, request.type)
+                    val labelOk = passesLabelGuard(stream, request)
+                    if (!belongs || rejected || !mediaOk || !labelOk) {
+                        if (com.kaan.play.BuildConfig.DEBUG) {
+                            android.util.Log.d(
+                                "PlayMatch",
+                                "Akış elendi (${source.addonName}): belongs=$belongs rejected=$rejected mediaOk=$mediaOk labelOk=$labelOk label='${stream.label}'",
+                            )
+                        }
+                        false
+                    } else true
                 }
-                .map { it.copy(forKey = key) },
-        )
+                .map { it.copy(forKey = key) }
+            if (com.kaan.play.BuildConfig.DEBUG) {
+                android.util.Log.d(
+                    "PlayMatch",
+                    "Akış sonucu (${source.addonName}): toplam=${streams.size} kabul=${filtered.size} başlık='${request.title}'",
+                )
+            }
+            StreamResult.Found(source, filtered)
+        }
         is StreamResult.Failed -> this
     }
 

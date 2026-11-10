@@ -154,7 +154,15 @@ fun DetailScreen(
                     val media = d.value.summary
                     onPlay(
                         PlayTarget(
-                            request = StreamRequest(media.id, d.value.imdbId, media.type, s, e),
+                            request = StreamRequest(
+                                tmdbId = media.id,
+                                imdbId = d.value.imdbId,
+                                type = media.type,
+                                season = s,
+                                episode = e,
+                                title = media.title,
+                                year = media.year,
+                            ),
                             title = media.title,
                             posterPath = media.posterPath,
                             logoPath = d.value.logoPath,
@@ -168,7 +176,15 @@ fun DetailScreen(
                 onDownload = { s, e ->
                     val media = d.value.summary
                     downloadFor = PlayTarget(
-                        request = StreamRequest(media.id, d.value.imdbId, media.type, s, e),
+                        request = StreamRequest(
+                            tmdbId = media.id,
+                            imdbId = d.value.imdbId,
+                            type = media.type,
+                            season = s,
+                            episode = e,
+                            title = media.title,
+                            year = media.year,
+                        ),
                         title = media.title,
                         posterPath = media.posterPath,
                         logoPath = d.value.logoPath,
