@@ -114,13 +114,23 @@ class AppContainer(context: Context) {
     @Volatile
     private var slowConnectionModeEnabled: Boolean = SettingsRepository.DEFAULT_SLOW_CONNECTION_MODE
 
+    val playDns: com.kaan.play.data.net.PlayDns = com.kaan.play.data.net.PlayDns(
+        initialLoader = {
+            kotlinx.coroutines.runBlocking {
+                settings.dnsMode.first() to settings.customDohUrl.first()
+            }
+        },
+    )
+
     val httpClient: OkHttpClient = OkHttpClient.Builder()
+        .dns(playDns)
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(20, TimeUnit.SECONDS)
         .followRedirects(true)
-        // Güvenlik denetimi (ilk sırada): engellenen istek IOException ile reddedilir, uygulamayı çökertmez.
+        // Güvenlik denetimi (ilk sırada ve ağ katmanında): engellenen istek IOException ile reddedilir, DNS/DoH rebind dahil engellenir.
         .addInterceptor(com.lagradost.cloudstream3.SafePluginInterceptor())
         .addInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
+        .addNetworkInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
         .addInterceptor(com.kaan.play.data.net.SlowConnectionInterceptor { slowConnectionModeEnabled })
         .addInterceptor { chain ->
             val req = chain.request()
@@ -256,6 +266,11 @@ class AppContainer(context: Context) {
             appScope.launch {
                 slowConnectionMode.collect { slowConnectionModeEnabled = it }
             }
+            appScope.launch {
+                combine(dnsMode, customDohUrl, ::Pair).collect { (mode, customUrl) ->
+                    playDns.updateConfig(mode, customUrl)
+                }
+            }
             onCatalogVisibilityChanged = { addonId ->
                 catalogRepository.cache.removeForAddon(addonId)
                 catalogRepository.cache.clear()
@@ -281,6 +296,7 @@ class AppContainer(context: Context) {
      */
     val skipSegmentProvider: com.kaan.play.data.skip.SkipSegmentProvider by lazy {
         val client = OkHttpClient.Builder()
+            .dns(playDns)
             .connectTimeout(7, TimeUnit.SECONDS)
             .readTimeout(7, TimeUnit.SECONDS)
             .addInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
@@ -319,6 +335,7 @@ class AppContainer(context: Context) {
             data = localSyncData,
             projectUrl = BuildConfig.SUPABASE_URL,
             publishableKey = BuildConfig.SUPABASE_PUBLISHABLE_KEY,
+            dns = playDns,
         )
     }
 

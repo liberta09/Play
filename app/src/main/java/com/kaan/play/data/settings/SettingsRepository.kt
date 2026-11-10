@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.kaan.play.data.library.ContinueSortMode
+import com.kaan.play.data.net.DnsMode
 import com.kaan.play.data.notify.NewEpisodeRules
 import com.kaan.play.data.notify.StoredEpisodeState
 import com.kaan.play.data.player.AutoRetryPolicy
@@ -339,6 +340,33 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         return map.keys.any { it.name != LAST_WHATS_NEW_VERSION.name }
     }
 
+    /** Uygulama içi şifreli DNS (DoH) modu; varsayılan [DnsMode.Auto]. */
+    val dnsMode: Flow<DnsMode> = store.data.map { prefs ->
+        DnsMode.fromStored(prefs[DNS_MODE], DEFAULT_DNS_MODE)
+    }.distinctUntilChanged()
+
+    /** Seçili "Özel DoH" sunucu adresi. */
+    val customDohUrl: Flow<String> = store.data.map { prefs ->
+        prefs[CUSTOM_DOH_URL]?.trim().orEmpty()
+    }.distinctUntilChanged()
+
+    suspend fun setDnsMode(mode: DnsMode) {
+        store.edit { it[DNS_MODE] = mode.name }
+    }
+
+    suspend fun setCustomDohUrl(normalizedUrl: String) {
+        store.edit { it[CUSTOM_DOH_URL] = normalizedUrl.trim() }
+    }
+
+    suspend fun setDnsConfig(mode: DnsMode, customUrl: String) {
+        store.edit { prefs ->
+            prefs[DNS_MODE] = mode.name
+            if (customUrl.isNotBlank()) {
+                prefs[CUSTOM_DOH_URL] = customUrl.trim()
+            }
+        }
+    }
+
     suspend fun setSourceTimeoutSeconds(seconds: Int) {
         require(seconds in TIMEOUT_OPTIONS) { "Desteklenmeyen zaman aşımı: $seconds" }
         store.edit { it[TIMEOUT] = seconds }
@@ -479,6 +507,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_AUTO_NEXT_SECONDS = 10
         val DEFAULT_LIVE_TV_SORT_MODE = LiveTvSortMode.TitleAscending
         val DEFAULT_CONTINUE_SORT_MODE = ContinueSortMode.Recent
+        val DEFAULT_DNS_MODE = DnsMode.Auto
         val AUTO_NEXT_OPTIONS = listOf(5, 10, 15)
         val TIMEOUT_OPTIONS = listOf(10, 15, 30, 60)
         const val DEFAULT_SUBTITLE_LANGUAGE = "tr"
@@ -526,6 +555,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val NEW_EPISODE_NOTIFICATIONS = booleanPreferencesKey("new_episode_notifications")
         private val LAST_NOTIFIED_EPISODES = stringPreferencesKey("last_notified_episodes")
         private val LAST_WHATS_NEW_VERSION = stringPreferencesKey("last_whats_new_version")
+        private val DNS_MODE = stringPreferencesKey("dns_mode")
+        private val CUSTOM_DOH_URL = stringPreferencesKey("custom_doh_url")
 
         private val APPEARANCE_AND_PLAYER_KEYS: List<Preferences.Key<*>> = listOf(
             THEME,

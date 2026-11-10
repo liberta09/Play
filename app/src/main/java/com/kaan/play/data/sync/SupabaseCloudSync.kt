@@ -48,6 +48,7 @@ class SupabaseCloudSync(
     private val data: LocalSyncData,
     private val projectUrl: String = "",
     private val publishableKey: String = "",
+    dns: okhttp3.Dns = okhttp3.Dns.SYSTEM,
 ) {
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
     private val sessionStore = EncryptedCloudSessionStore(appContext)
@@ -56,6 +57,7 @@ class SupabaseCloudSync(
     private val syncMutex = Mutex()
 
     private val http = OkHttpClient.Builder()
+        .dns(dns)
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(20, TimeUnit.SECONDS)
         .writeTimeout(20, TimeUnit.SECONDS)

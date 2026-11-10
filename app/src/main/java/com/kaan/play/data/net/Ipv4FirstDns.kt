@@ -15,6 +15,9 @@ import java.net.InetAddress
 object Ipv4FirstDns : Dns {
     override fun lookup(hostname: String): List<InetAddress> = order(Dns.SYSTEM.lookup(hostname))
 
+    /** Verilen [delegate] çözücüsünün sonuçlarında IPv4 adreslerini öne alır; [delegate] değişimlerini korur. */
+    fun wrapping(delegate: Dns): Dns = Dns { hostname -> order(delegate.lookup(hostname)) }
+
     /** IPv4'ler önce; kendi aralarında ve IPv6'lar arasında özgün sıra korunur. */
     fun order(addresses: List<InetAddress>): List<InetAddress> {
         val (v4, other) = addresses.partition { it is Inet4Address }

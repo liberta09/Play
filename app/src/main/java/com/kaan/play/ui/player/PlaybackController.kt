@@ -145,7 +145,7 @@ class PlaybackController(
     private fun createOnlineSource(session: PlaybackHttpSession): ResolvingDataSource.Factory = ResolvingDataSource.Factory(
         DataSource.Factory {
             val okHttpClient = client.newBuilder()
-                .dns(com.kaan.play.data.net.Ipv4FirstDns)
+                .dns(com.kaan.play.data.net.Ipv4FirstDns.wrapping(client.dns))
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(15, TimeUnit.SECONDS)
                 .followRedirects(true)
@@ -793,7 +793,7 @@ class PlaybackController(
                 if (session.headers.keys.none { it.equals("User-Agent", ignoreCase = true) }) builder.header("User-Agent", DEFAULT_USER_AGENT)
                 session.headers.forEach { (k, v) -> builder.header(k, v) }
                 client.newBuilder()
-                    .dns(com.kaan.play.data.net.Ipv4FirstDns)
+                    .dns(com.kaan.play.data.net.Ipv4FirstDns.wrapping(client.dns))
                     .cookieJar(session.cookieJar)
                     .callTimeout(8, TimeUnit.SECONDS)
                     .build()

@@ -145,6 +145,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)
+    implementation(libs.okhttp.dnsoverhttps)
     // Android Harmony DOM uyumlu yamalanmış Jsoup (W3CDom NPE düzeltmesi)
     implementation(files("libs/jsoup-1.23.2-patched.jar"))
     implementation(libs.quickjs.kt)

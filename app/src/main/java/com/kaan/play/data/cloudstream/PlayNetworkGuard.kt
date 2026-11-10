@@ -1,7 +1,9 @@
 package com.kaan.play.data.cloudstream
 
+import com.kaan.play.data.plugin.NetworkPolicy
 import okhttp3.Interceptor
 import java.io.IOException
+import java.net.InetAddress
 import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 
@@ -50,14 +52,30 @@ object PlayNetworkGuard {
      * sıradan bir ağ hatası gibi işlenir ve uygulamayı çökertmez. [checkUrl] SecurityException fırlatmaya devam eder.
      */
     val interceptor: Interceptor = Interceptor { chain ->
-        val url = chain.request().url.toString()
+        val request = chain.request()
+        val url = request.url.toString()
         try {
             checkUrl(url)
+            chain.connection()?.socket()?.inetAddress?.let { resolvedIp ->
+                if (isBlockedResolvedAddress(resolvedIp, request.url.port)) {
+                    throw SecurityException("CS plugin: resolved private address blocked")
+                }
+            }
         } catch (e: SecurityException) {
             throw BlockedAddressException(e.message, e)
         }
-        chain.proceed(chain.request())
+        chain.proceed(request)
     }
+
+    /** DNS veya DoH ile çözülmüş IP adresini (yeniden bağlama / DNS rebind saldırısına karşı) denetler. */
+    fun isBlockedResolvedAddress(address: InetAddress, port: Int = -1): Boolean {
+        if (address.isLoopbackAddress) {
+            return port !in allowedLoopbackPorts
+        }
+        return RESOLVED_IP_POLICY.isBlocked(address)
+    }
+
+    private val RESOLVED_IP_POLICY = NetworkPolicy()
 
     fun checkUrl(url: String) {
         val lower = url.lowercase()
