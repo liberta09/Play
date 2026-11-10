@@ -238,6 +238,9 @@ fun PlayerScreen(
     var lastSeekKeyAt by remember { mutableLongStateOf(0L) }
     var position by remember { mutableLongStateOf(0L) }
     var duration by remember { mutableLongStateOf(0L) }
+    var etaRefreshKey by remember { mutableIntStateOf(0) }
+    var etaNowEpochMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var etaPositionMs by remember { mutableLongStateOf(0L) }
     // "Kaldığın yerden devam ediliyor · Baştan başla": ~5 sn; düğmede odak varken (kumanda) süre işlemez.
     var resumeNotice by remember { mutableStateOf(showResumeNotice) }
     var noticeFocused by remember { mutableStateOf(false) }
@@ -301,11 +304,13 @@ fun PlayerScreen(
     fun seek(deltaMs: Long) {
         controller.seekBy(deltaMs)
         position = controller.positionMs()
+        etaRefreshKey++
         reveal()
     }
     fun seekFromGesture(deltaMs: Long) {
         controller.seekBy(deltaMs)
         position = controller.positionMs()
+        etaRefreshKey++
         controlsVisible = false
         resumeNotice = false
     }
@@ -429,6 +434,14 @@ fun PlayerScreen(
             position = controller.positionMs()
             duration = controller.durationMs()
             delay(500)
+        }
+    }
+    LaunchedEffect(showControls, isLiveBroadcast, duration, ui.speed, etaRefreshKey) {
+        if (!showControls || isLiveBroadcast || duration <= 0L) return@LaunchedEffect
+        while (true) {
+            etaNowEpochMs = System.currentTimeMillis()
+            etaPositionMs = controller.positionMs()
+            delay(60_000L)
         }
     }
 
@@ -779,6 +792,22 @@ fun PlayerScreen(
                 else -> null
             }
             val speedBadge = PlaybackSpeeds.badgeLabel(ui.speed)
+            val minimalControls = ui.error != null || sourcesFailed || resolving
+            val estimatedEndEpoch = if (!minimalControls && !isLiveBroadcast) {
+                com.kaan.play.data.player.EstimatedEndTime.calculateEndEpochMs(
+                    nowEpochMs = etaNowEpochMs,
+                    positionMs = etaPositionMs,
+                    durationMs = duration,
+                    speed = ui.speed,
+                    isLive = false,
+                )
+            } else null
+            val estimatedEndText = estimatedEndEpoch?.let { epoch ->
+                val timeStr = remember(epoch, locale) {
+                    android.text.format.DateFormat.getTimeFormat(context).format(java.util.Date(epoch))
+                }
+                stringResource(R.string.player_estimated_end, timeStr)
+            }
             val infoLine = listOfNotNull(playing?.source?.addonName, dims, sizeText, dubTag)
                 .reduceOrNull { acc, part -> stringResource(R.string.dot_join, acc, part) }
             val canSync = subtitles.selected is SubtitleItem.External && subtitles.status == SubtitleStatus.Idle
@@ -822,10 +851,11 @@ fun PlayerScreen(
             Controls(
                 infoLine = infoLine,
                 speedBadge = speedBadge,
+                estimatedEndText = estimatedEndText,
                 title = titleOf(target),
                 isPlaying = ui.isPlaying,
                 // Hata, kaynak yok ya da kaynaklar aranırken yalnızca üst çubuk (geri) görünür; oynat/sar/alt düğmeler anlamsızdır.
-                minimal = ui.error != null || sourcesFailed || resolving,
+                minimal = minimalControls,
                 position = position,
                 duration = duration,
                 zones = zones,
@@ -838,7 +868,7 @@ fun PlayerScreen(
                 onBack = onBack,
                 onTogglePlay = { controller.togglePlay(); bump() },
                 onSeek = ::seek,
-                onSeekTo = { controller.seekTo(it); position = it; bump() },
+                onSeekTo = { controller.seekTo(it); position = it; etaRefreshKey++; bump() },
                 onInteract = ::bump,
             )
         }
@@ -1344,6 +1374,7 @@ private fun DubSuggestionCard(
 private fun Controls(
     infoLine: String?,
     speedBadge: String? = null,
+    estimatedEndText: String? = null,
     title: String,
     isPlaying: Boolean,
     minimal: Boolean,
@@ -1417,6 +1448,16 @@ private fun Controls(
                     color = if (infoLine != null) tint.copy(alpha = 0.75f) else tint,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                )
+            }
+            if (estimatedEndText != null) {
+                Text(
+                    text = estimatedEndText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = tint.copy(alpha = 0.85f),
+                    textAlign = TextAlign.End,
+                    maxLines = 2,
+                    modifier = Modifier.padding(end = 12.dp),
                 )
             }
         }
