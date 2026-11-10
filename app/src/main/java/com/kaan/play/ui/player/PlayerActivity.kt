@@ -417,6 +417,7 @@ class PlayerActivity : AppCompatActivity() {
             }
             controller.onDurationKnown = { coordinator?.onDuration(it) }
             controller.onFailure = { detail -> leaving || (coordinator?.onFailure(detail) == true) }
+            controller.onTransientRecovery = { detail -> if (!leaving) coordinator?.onTransientRefresh(detail) }
             lifecycleScope.launch {
                 snapshotFlow { Pair(coordinator, coordinator?.phase) }.collect { (coord, phase) ->
                     if (coord != null && phase == SourcePhase.Failed && !leaving) {

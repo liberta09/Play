@@ -185,4 +185,59 @@ class MidPlaybackRecoveryRulesTest {
         assertFalse(MidPlaybackRecoveryRules.isNetworkError("ERROR_CODE_DECODER_INIT_FAILED (4001)"))
         assertFalse(MidPlaybackRecoveryRules.isNetworkError("ERROR_CODE_PARSING_CONTAINER_MALFORMED (3001)"))
     }
+
+    @Test
+    fun transientHttpRecovery_refreshesThreeTimesThenEscalates() {
+        repeat(3) { attempt ->
+            assertEquals(
+                MidPlaybackRecoveryRules.TransientRefreshDecision.RefreshSameStream,
+                MidPlaybackRecoveryRules.evaluateTransientRecovery(
+                    isBehindLive = false,
+                    isHttpError = true,
+                    recoveryAttempts = attempt,
+                    released = false,
+                ),
+            )
+        }
+        assertEquals(
+            MidPlaybackRecoveryRules.TransientRefreshDecision.EscalateToCoordinator,
+            MidPlaybackRecoveryRules.evaluateTransientRecovery(
+                isBehindLive = false,
+                isHttpError = true,
+                recoveryAttempts = 3,
+                released = false,
+            ),
+        )
+    }
+
+    @Test
+    fun transientRecovery_skipsWhenReleasedOrNeitherHttpNorBehindLive() {
+        assertEquals(
+            MidPlaybackRecoveryRules.TransientRefreshDecision.EscalateToCoordinator,
+            MidPlaybackRecoveryRules.evaluateTransientRecovery(
+                isBehindLive = false,
+                isHttpError = true,
+                recoveryAttempts = 0,
+                released = true,
+            ),
+        )
+        assertEquals(
+            MidPlaybackRecoveryRules.TransientRefreshDecision.EscalateToCoordinator,
+            MidPlaybackRecoveryRules.evaluateTransientRecovery(
+                isBehindLive = false,
+                isHttpError = false,
+                recoveryAttempts = 0,
+                released = false,
+            ),
+        )
+        assertEquals(
+            MidPlaybackRecoveryRules.TransientRefreshDecision.RefreshSameStream,
+            MidPlaybackRecoveryRules.evaluateTransientRecovery(
+                isBehindLive = true,
+                isHttpError = false,
+                recoveryAttempts = 2,
+                released = false,
+            ),
+        )
+    }
 }

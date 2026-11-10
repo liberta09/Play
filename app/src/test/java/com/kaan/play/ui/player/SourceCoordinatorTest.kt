@@ -1266,4 +1266,90 @@ class SourceCoordinatorTest {
         assertEquals(5, unlimitedLoaded.size)
         assertEquals(SourcePhase.Starting, unlimited.phase)
     }
+
+    private fun TestScope.verifyHttpThreeRefreshesThenRetrySameThenFallback(primaryUrl: String, fallbackUrl: String) {
+        val primary = stream(source1, primaryUrl, size = 2_000_000_000L)
+        val fallback = stream(source2, fallbackUrl, size = 1_500_000_000L)
+        val rig = Rig(
+            this,
+            flow {
+                emit(found(source1, primary))
+                emit(found(source2, fallback))
+            },
+            preferDub = false,
+            request = request,
+        )
+        rig.coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        assertEquals(primaryUrl, rig.lastUrl)
+        rig.coordinator.onFirstFrame()
+
+        rig.positionMs = 42_000L
+        val detail = "ERROR_CODE_IO_BAD_HTTP_STATUS (2004) http=503"
+        var recoveryAttempts = 0
+        var lastLoadedUrl: String? = primaryUrl
+
+        fun simulatePlayerHttpError() {
+            val decision = MidPlaybackRecoveryRules.evaluateTransientRecovery(
+                isBehindLive = false,
+                isHttpError = true,
+                recoveryAttempts = recoveryAttempts,
+                released = false,
+            )
+            if (decision == MidPlaybackRecoveryRules.TransientRefreshDecision.RefreshSameStream) {
+                recoveryAttempts++
+                rig.coordinator.onTransientRefresh(detail)
+            } else {
+                val handled = rig.coordinator.onFailure(detail)
+                assertTrue(handled)
+                val nextLoaded = rig.loaded.last().first.url
+                if (nextLoaded != lastLoadedUrl) {
+                    recoveryAttempts = 0
+                    lastLoadedUrl = nextLoaded
+                }
+            }
+        }
+
+        // 1..3: sessiz tazeleme + kısa RetryingCurrent bildirimi; henüz yeniden yükleme/geçiş yapılmaz
+        repeat(3) { idx ->
+            simulatePlayerHttpError()
+            assertEquals(idx + 1, recoveryAttempts)
+            assertEquals(1, rig.loaded.size)
+            assertEquals(SourceNotice.RetryingCurrent(detail), rig.coordinator.notice)
+        }
+
+        // 4. HTTP hatası: 3 tazeleme tükendiği için MidPlaybackRecoveryRules RetrySame aynı kaynağı kaldığı konumdan bir kez daha dener
+        rig.coordinator.clearNotice()
+        simulatePlayerHttpError()
+        assertEquals(2, rig.loaded.size)
+        assertEquals(primaryUrl, rig.loaded.last().first.url)
+        assertEquals(42_000L, rig.loaded.last().second)
+        assertEquals(SourceNotice.RetryingCurrent(detail), rig.coordinator.notice)
+        // Aynı URL ile RetrySame recoveryAttempts sayacını sıfırlamaz: RetrySame hemen HTTP hatası verirse doğrudan yedeğe geçer
+        assertEquals(3, recoveryAttempts)
+
+        // 5. HTTP hatası: yedek kaynağa düşer
+        simulatePlayerHttpError()
+        assertEquals(3, rig.loaded.size)
+        assertEquals(fallbackUrl, rig.loaded.last().first.url)
+        assertEquals(42_000L, rig.loaded.last().second)
+        assertEquals(0, recoveryAttempts)
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun vodHttpFailureDoesThreeTransientRefreshesThenRetrySameThenFallback() = runTest {
+        verifyHttpThreeRefreshesThenRetrySameThenFallback(
+            primaryUrl = "https://cdn.example.com/movie-1080p.mp4",
+            fallbackUrl = "https://mirror.example.com/movie-720p.mp4",
+        )
+    }
+
+    @Test
+    fun localTorrentHttpFailureDoesThreeTransientRefreshesThenRetrySameThenFallback() = runTest {
+        verifyHttpThreeRefreshesThenRetrySameThenFallback(
+            primaryUrl = "http://127.0.0.1:41234/stream.mkv",
+            fallbackUrl = "https://mirror.example.com/movie-720p.mp4",
+        )
+    }
 }

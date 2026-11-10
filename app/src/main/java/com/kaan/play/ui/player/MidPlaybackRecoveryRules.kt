@@ -9,6 +9,34 @@ import java.util.Locale
  */
 object MidPlaybackRecoveryRules {
     const val MAX_SWITCHES = 3
+    const val MAX_TRANSIENT_REFRESHES = 3
+
+    enum class TransientRefreshDecision {
+        /** Aynı akışı kaldığı konumdan yeniden hazırla ve kısa bildirim göster. */
+        RefreshSameStream,
+
+        /** 3 tazeleme tükendi (veya geçici HTTP/BehindLiveWindow hatası değil): üst katman kurtarma kararına geç. */
+        EscalateToCoordinator,
+    }
+
+    /**
+     * [PlaybackController.onPlayerError] anlık HTTP veya BehindLiveWindow hatasında
+     * önce aynı akışı en fazla [maxRefreshes] kez (varsayılan 3) tazeler; tüketilince
+     * [SourceCoordinator.onFailure] üzerinden [Decision.RetrySame] ve yedek geçişi devreye girer.
+     */
+    fun evaluateTransientRecovery(
+        isBehindLive: Boolean,
+        isHttpError: Boolean,
+        recoveryAttempts: Int,
+        released: Boolean,
+        maxRefreshes: Int = MAX_TRANSIENT_REFRESHES,
+    ): TransientRefreshDecision {
+        if (released) return TransientRefreshDecision.EscalateToCoordinator
+        if ((isBehindLive || isHttpError) && recoveryAttempts < maxRefreshes) {
+            return TransientRefreshDecision.RefreshSameStream
+        }
+        return TransientRefreshDecision.EscalateToCoordinator
+    }
 
     private val NON_NETWORK_MARKERS = listOf(
         "DECODER",

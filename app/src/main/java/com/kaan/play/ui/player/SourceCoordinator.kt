@@ -675,6 +675,13 @@ class SourceCoordinator(
         }
     }
 
+    /** PlaybackController anlık HTTP hatasında akışı tazelerken kısa bilgi bildirimi gösterir. */
+    fun onTransientRefresh(detail: String) {
+        if (!isLive && phase == SourcePhase.Playing) {
+            notice = SourceNotice.RetryingCurrent(detail)
+        }
+    }
+
     fun onFailure(detail: String): Boolean {
         Log.d(TAG, "oynatıcı hatası: ${current?.source?.addonName} (faz=$phase) $detail")
         Log.d("PlayMatch", "oynatıcı hatası: ${current?.source?.addonName} ($detail) faz=$phase")

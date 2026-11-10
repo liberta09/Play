@@ -320,6 +320,9 @@ class PlaybackController(
      */
     var onFailure: ((String) -> Boolean)? = null
 
+    /** Geçici HTTP / canlı pencere hatasında aynı akış tazelenirken kısa bildirim göstermek için çağrılır. */
+    var onTransientRecovery: ((String) -> Unit)? = null
+
     /** İlk video karesi çizildi (kaynak gerçekten açıldı); kaynak seçimi 10 sn'lik süreyi buna göre izler. */
     var onFirstFrame: (() -> Unit)? = null
 
@@ -366,24 +369,31 @@ class PlaybackController(
 
             override fun onPlayerError(error: PlaybackException) {
                 try {
-                    // [ADIM 5] Hata anında otomatik kurtarma (BehindLiveWindow veya HttpDataSource)
+                    // [ADIM 5] Hata anında otomatik kurtarma (BehindLiveWindow veya HttpDataSource; VOD ve yerel torrent HTTP dahil)
                     val isBehindLive = generateSequence<Throwable>(error) { it.cause }
                         .any { it is androidx.media3.exoplayer.source.BehindLiveWindowException }
                     val isHttpError = generateSequence<Throwable>(error) { it.cause }
                         .any { it is HttpDataSource.HttpDataSourceException }
+                    val http = generateSequence<Throwable>(error) { it.cause }
+                        .filterIsInstance<HttpDataSource.InvalidResponseCodeException>().firstOrNull()
 
-                    if ((isBehindLive || (player.isCurrentMediaItemLive && isHttpError)) && recoveryAttempts < 3 && !released) {
+                    if (MidPlaybackRecoveryRules.evaluateTransientRecovery(
+                            isBehindLive = isBehindLive,
+                            isHttpError = isHttpError,
+                            recoveryAttempts = recoveryAttempts,
+                            released = released,
+                        ) == MidPlaybackRecoveryRules.TransientRefreshDecision.RefreshSameStream
+                    ) {
                         recoveryAttempts++
                         val currentPos = player.currentPosition
                         Log.w("PlayMatch", "Ağ veya HLS canlı pencere hatası yakalandı (${error.errorCodeName}): akış tazeleniyor pos=$currentPos deneme=$recoveryAttempts")
+                        onTransientRecovery?.invoke(failureDetail(error, http?.responseCode))
                         player.seekTo(currentPos)
                         player.prepare()
                         player.play()
                         return
                     }
 
-                    val http = generateSequence<Throwable>(error) { it.cause }
-                        .filterIsInstance<HttpDataSource.InvalidResponseCodeException>().firstOrNull()
                     TorrentDiag.e(
                         "ExoPlayer hata: ${error.errorCodeName} (${error.errorCode}) → ${errorOf(error)}" +
                             (http?.let { " http=${it.responseCode} ctype=${it.headerFields["Content-Type"]}" } ?: ""),
@@ -481,6 +491,10 @@ class PlaybackController(
         if (forcedMime == null) {
             decoderRetried = false
             mimeProbed = false
+            // RetrySame (aynı adresle yeniden açma) geçici 3 tazeleme sayacını sıfırlamaz; yeni kaynakta veya hata ekranı sonrası sıfırlanır.
+            if (lastStream?.url != stream.url || ui.error != null) {
+                recoveryAttempts = 0
+            }
         }
         cancelSeekWatchdog()
         watchdogReprepareCount = 0
