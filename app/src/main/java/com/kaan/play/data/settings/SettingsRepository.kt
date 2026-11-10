@@ -330,6 +330,15 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         store.edit { it[LAST_WHATS_NEW_VERSION] = version }
     }
 
+    /** `last_whats_new_version` dışında önceden kaydedilmiş DataStore anahtarı varsa true (önceki sürümden kalma veri). */
+    suspend fun hasPriorAppState(): Boolean {
+        val map = store.data.first().asMap()
+        if (map.containsKey(DEFAULT_CATALOG_ADDON_SEEDED) || map.containsKey(DEFAULT_SUBTITLE_ADDONS_SEEDED)) {
+            return true
+        }
+        return map.keys.any { it.name != LAST_WHATS_NEW_VERSION.name }
+    }
+
     suspend fun setSourceTimeoutSeconds(seconds: Int) {
         require(seconds in TIMEOUT_OPTIONS) { "Desteklenmeyen zaman aşımı: $seconds" }
         store.edit { it[TIMEOUT] = seconds }

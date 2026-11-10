@@ -32,12 +32,23 @@ sealed interface WhatsNewDecision {
  * 1) Güncelleme -> sonraki açılış 2) Neler Yeni -> sonraki açılış 3) Duyuru.
  */
 object WhatsNewRules {
+    /**
+     * İlk kurulum ile sürüm yükseltmesini ayırır: paket yükleme/güncelleme zamanları farklıysa veya
+     * daha önce yazılmış uygulama ayarları (`default_catalog_addon_seeded` vb.) varsa güncellemedir.
+     */
+    fun isAppUpgrade(
+        firstInstallTime: Long,
+        lastUpdateTime: Long,
+        hasPriorStoredState: Boolean,
+    ): Boolean = (firstInstallTime != lastUpdateTime) || hasPriorStoredState
+
     fun decide(
         currentVersionName: String,
         storedSeenVersion: String?,
         updateCheckCompleted: Boolean,
         hasUpdatePopup: Boolean,
         debugForceShow: Boolean = false,
+        isAppUpgrade: Boolean = false,
     ): WhatsNewDecision {
         if (debugForceShow) return WhatsNewDecision.ShowDialog
         val cleanCurrent = currentVersionName.trim()
@@ -45,7 +56,10 @@ object WhatsNewRules {
         if (!updateCheckCompleted) return WhatsNewDecision.Wait
 
         val cleanStored = storedSeenVersion?.trim().orEmpty()
-        if (cleanStored.isEmpty()) return WhatsNewDecision.RecordSilently(cleanCurrent)
+        if (cleanStored.isEmpty()) {
+            if (!isAppUpgrade) return WhatsNewDecision.RecordSilently(cleanCurrent)
+            return if (hasUpdatePopup) WhatsNewDecision.DeferToNextLaunch else WhatsNewDecision.ShowDialog
+        }
         if (cleanStored == cleanCurrent) return WhatsNewDecision.None
         if (hasUpdatePopup) return WhatsNewDecision.DeferToNextLaunch
         return WhatsNewDecision.ShowDialog
@@ -61,6 +75,7 @@ object WhatsNewRules {
 class WhatsNewCoordinator(
     private val currentVersionName: String,
     private val settings: SettingsRepository,
+    private val detectUpgrade: suspend () -> Boolean = { settings.hasPriorAppState() },
 ) {
     private val started = AtomicBoolean(false)
 
@@ -93,12 +108,14 @@ class WhatsNewCoordinator(
             }
             val stored = settings.lastWhatsNewVersion.first()
             val hasUpdate = updateChecker?.available?.value != null
+            val isUpgrade = if (stored.isNullOrBlank()) detectUpgrade() else false
             when (
                 val decision = WhatsNewRules.decide(
                     currentVersionName = currentVersionName,
                     storedSeenVersion = stored,
                     updateCheckCompleted = true,
                     hasUpdatePopup = hasUpdate,
+                    isAppUpgrade = isUpgrade,
                 )
             ) {
                 WhatsNewDecision.ShowDialog -> {

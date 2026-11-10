@@ -43,6 +43,7 @@ import com.kaan.play.data.plugin.SourceInstaller
 import com.kaan.play.data.plugin.runtime.PluginRuntime
 import com.kaan.play.data.settings.SettingsRepository
 import com.kaan.play.data.settings.WhatsNewCoordinator
+import com.kaan.play.data.settings.WhatsNewRules
 import com.kaan.play.data.stream.AddonStreamProvider
 import com.kaan.play.data.stream.CompositeStreamProvider
 import com.kaan.play.data.download.SourceProbe
@@ -409,15 +410,24 @@ class AppContainer(context: Context) {
         )
     }
 
+    private val preSeedHasPriorState = kotlinx.coroutines.CompletableDeferred<Boolean>()
+    @Volatile
+    private var preSeedCaptureStarted: Boolean = false
+
     /**
      * İlk açılışta varsayılan addon'ları ekler: altyazı (AltyazıDB, AltyazıTR; kullanıcı kararı 2026-10-20) ve
      * Play Özel Kataloglar (kullanıcı kararı 2026-10-21). Her grubun kendi bayrağı var; ağa çıkılmaz.
      */
-    fun seedDefaultAddons(): Job = appScope.launch {
-        DefaultSubtitleAddons.seedIfNeeded(database.addonDao(), settings.store)
-        DefaultCatalogAddons.seedIfNeeded(database.addonDao(), settings.store)
-        wrongContentBlocks.ensureLoaded()
-        cleanupTraktPlugins()
+    fun seedDefaultAddons(): Job {
+        preSeedCaptureStarted = true
+        return appScope.launch {
+            val hadPrior = runCatching { settings.hasPriorAppState() }.getOrDefault(false)
+            preSeedHasPriorState.complete(hadPrior)
+            DefaultSubtitleAddons.seedIfNeeded(database.addonDao(), settings.store)
+            DefaultCatalogAddons.seedIfNeeded(database.addonDao(), settings.store)
+            wrongContentBlocks.ensureLoaded()
+            cleanupTraktPlugins()
+        }
     }
 
     private suspend fun cleanupTraktPlugins() {
@@ -803,7 +813,31 @@ class AppContainer(context: Context) {
 
     /** Sürüm yükseltmesinden sonraki tek seferlik "Bu sürümde neler yeni?" koordinatörü. */
     val whatsNewCoordinator: WhatsNewCoordinator by lazy {
-        WhatsNewCoordinator(BuildConfig.VERSION_NAME, settings)
+        WhatsNewCoordinator(
+            currentVersionName = BuildConfig.VERSION_NAME,
+            settings = settings,
+            detectUpgrade = {
+                val info = runCatching {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        appContext.packageManager.getPackageInfo(
+                            appContext.packageName,
+                            android.content.pm.PackageManager.PackageInfoFlags.of(0),
+                        )
+                    } else {
+                        @Suppress("DEPRECATION")
+                        appContext.packageManager.getPackageInfo(appContext.packageName, 0)
+                    }
+                }.getOrNull()
+                val hasPriorStore = runCatching {
+                    if (preSeedCaptureStarted) preSeedHasPriorState.await() else settings.hasPriorAppState()
+                }.getOrDefault(false)
+                WhatsNewRules.isAppUpgrade(
+                    firstInstallTime = info?.firstInstallTime ?: 0L,
+                    lastUpdateTime = info?.lastUpdateTime ?: 0L,
+                    hasPriorStoredState = hasPriorStore,
+                )
+            },
+        )
     }
 
     /** Uygulama içi güncelleme kontrolü (GitHub releases/latest); oturumda bir kez, etkinlik yeniden oluşsa da tekrarlanmaz. */
