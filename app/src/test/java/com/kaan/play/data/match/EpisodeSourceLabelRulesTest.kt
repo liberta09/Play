@@ -95,6 +95,19 @@ class EpisodeSourceLabelRulesTest {
         assertFalse(EpisodeSourceLabelRules.evaluate("Joker (1985) 1080p", jokerReq).accept)
         assertFalse(EpisodeSourceLabelRules.evaluate("Joker.2024.WEB-DL.x264", jokerReq).accept)
 
+        // F1: Çözünürlük, boyut ve birim sayıları yıl SAYILMAZ (yanlış eleme önlenir)
+        assertTrue(EpisodeSourceLabelRules.evaluate("Joker 1920x1080 WEB-DL", jokerReq).accept)
+        assertTrue(EpisodeSourceLabelRules.evaluate("Joker · 1350×720 · TR Dublaj", jokerReq).accept)
+        assertTrue(EpisodeSourceLabelRules.evaluate("Joker 1998 MB", jokerReq).accept)
+        assertTrue(EpisodeSourceLabelRules.evaluate("Joker 2000kbps", jokerReq).accept)
+        assertTrue(EpisodeSourceLabelRules.evaluate("Joker 2160p 2019", jokerReq).accept)
+
+        // Yanlış yıl içeren ama yanında boyut/çözünürlük olan kaynak elenmeli
+        assertFalse(EpisodeSourceLabelRules.evaluate("Joker (1985) 1920x1080", jokerReq).accept)
+
+        // Çoklu aday yıldan HERHANGİ biri ±1 içindeyse kabul
+        assertTrue(EpisodeSourceLabelRules.evaluate("Joker 1989 2019 Remastered", jokerReq).accept)
+
         // Film adının kendisinde yıl varsa (Wonder Woman 1984 / Blade Runner 2049) yanlışlıkla elenmez!
         val wwReq = movieReq(2020, "Wonder Woman 1984")
         assertTrue(EpisodeSourceLabelRules.evaluate("Wonder Woman 1984 1080p WEB-DL", wwReq).accept)

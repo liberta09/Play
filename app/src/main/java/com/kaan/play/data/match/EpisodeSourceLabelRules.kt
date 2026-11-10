@@ -2,6 +2,7 @@ package com.kaan.play.data.match
 
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.stream.StreamRequest
+import java.util.Calendar
 import java.util.Locale
 import kotlin.math.abs
 
@@ -43,8 +44,37 @@ object EpisodeSourceLabelRules {
         """(?i)\b(?:complete|pack|full\s*season|tüm\s*bölümler|tum\s*bolumler|bütün\s*bölümler|butun\s*bolumler)\b""",
     )
 
-    // Film yılı (1900-2039 arası: 2160p ile çakışmaz)
-    private val YEAR_REGEX = Regex("""(?<!\d)(19\d{2}|20[0-3]\d)(?!\d)""")
+    // Film yılı adayları için 4 haneli sayı (önünde # veya bitişik harf/rakam olmayanlar)
+    private val FOUR_DIGIT_YEAR_REGEX = Regex("""(?<![#\p{L}\p{N}])(\d{4})(?!\d)""")
+    private val DIM_AFTER_REGEX = Regex("""^\s*[xX×*]\s*\d+""")
+    private val DIM_BEFORE_REGEX = Regex("""\d+\s*[xX×*]\s*$""")
+    private val UNIT_AFTER_REGEX = Regex(
+        """^\s*(?:[MGTK]i?B|[KMGT]?bps|fps|bit|Hz|[pi])(?![a-zA-Z0-9])""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    fun extractCandidateYears(
+        text: String,
+        currentYear: Int = Calendar.getInstance().get(Calendar.YEAR),
+    ): List<Int> {
+        val maxYear = currentYear + 1
+        val candidates = mutableListOf<Int>()
+        for (m in FOUR_DIGIT_YEAR_REGEX.findAll(text)) {
+            val num = m.groupValues[1].toIntOrNull() ?: continue
+            if (num !in 1900..maxYear) continue
+
+            val before = text.substring(0, m.range.first)
+            if (DIM_BEFORE_REGEX.containsMatchIn(before)) continue
+
+            val after = text.substring(m.range.last + 1)
+            if (DIM_AFTER_REGEX.containsMatchIn(after)) continue
+            if (UNIT_AFTER_REGEX.containsMatchIn(after)) continue
+            if (after.isNotEmpty() && after[0].isLetterOrDigit()) continue
+
+            candidates += num
+        }
+        return candidates
+    }
 
     private val NON_EPISODE_X_EPISODES = setOf(264, 265, 266, 360, 480, 576, 720, 1080, 1440, 2160)
 
@@ -142,13 +172,11 @@ object EpisodeSourceLabelRules {
         if (wantedYear == null || wantedYear !in 1900..2039) return Decision(accept = true)
 
         val titleYears = requestedTitle
-            ?.let { t -> YEAR_REGEX.findAll(t).mapNotNull { it.groupValues[1].toIntOrNull() }.toSet() }
+            ?.let { t -> extractCandidateYears(t).toSet() }
             .orEmpty()
 
-        val labelYears = YEAR_REGEX.findAll(text)
-            .mapNotNull { it.groupValues[1].toIntOrNull() }
+        val labelYears = extractCandidateYears(text)
             .filter { it !in titleYears }
-            .toList()
 
         if (labelYears.isEmpty()) return Decision(accept = true)
         if (labelYears.any { abs(it - wantedYear) <= 1 }) return Decision(accept = true)
