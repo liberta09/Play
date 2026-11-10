@@ -143,6 +143,8 @@ class SourceCoordinator(
     private val persistAudioSyncReport: suspend (StreamSource) -> Unit = {},
     /** Kaynağı oynatıcıya verir: ([stream], başlangıç konumu ms). */
     private val load: (PlayableStream, Long) -> Unit,
+    /** Yanlış içerik engellendiğinde alternatif beklenirken/kalmadığında oynatıcıyı duraklatır. */
+    private val pausePlayback: () -> Unit = {},
     private val position: () -> Long = { 0L },
     /** Tekdüze saat (ms); testte sanal zaman verilir. */
     private val clock: () -> Long,
@@ -864,7 +866,9 @@ class SourceCoordinator(
                 switching = false
                 phase = SourcePhase.Resolving
                 resolveStartedAt = clock()
+                resolveElapsedBaseAt = resolveStartedAt
                 notice = SourceNotice.WrongContentBlockedWaiting
+                pausePlayback()
                 ensureSources()
                 return false
             }
@@ -873,6 +877,7 @@ class SourceCoordinator(
                 switching = false
                 phase = SourcePhase.Failed
                 notice = SourceNotice.WrongContentBlockedNone
+                pausePlayback()
                 return false
             }
         }

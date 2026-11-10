@@ -663,6 +663,7 @@ class PlayerActivity : AppCompatActivity() {
             persistSourceBlock = { src -> container.wrongContentBlocks.block(request, src, session.target.title, request.year) },
             persistAudioSyncReport = { src -> container.audioSyncReports.increment(src) },
             load = ::loadStream,
+            pausePlayback = controller::pause,
             position = { controller.positionMs() },
             clock = SystemClock::elapsedRealtime,
             sourceProbe = { stream ->

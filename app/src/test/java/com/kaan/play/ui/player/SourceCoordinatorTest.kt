@@ -1059,6 +1059,81 @@ class SourceCoordinatorTest {
     }
 
     @Test
+    fun blockingWrongContentPausesOnNoneAndWhileWaitingForLateSource() = runTest {
+        val s1 = stream(source1, "https://a/1.mp4")
+        val s2 = stream(source2, "https://b/1.mp4")
+        var pauses = 0
+        val loaded = mutableListOf<Pair<String, Long>>()
+
+        // 1) Yeni kaynak beklenirken duraklatılır; geç kaynak gelince otomatik açılır
+        val waitingCoordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = {
+                flow {
+                    emit(found(source1, s1))
+                    delay(5_000L)
+                    emit(found(source2, s2))
+                }
+            },
+            preferDub = false,
+            load = { stream, pos -> loaded += stream.url to pos },
+            pausePlayback = { pauses++ },
+            position = { 42_000L },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        waitingCoordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        waitingCoordinator.onFirstFrame()
+
+        assertFalse(waitingCoordinator.blockCurrentSourceAndAdvance())
+        runCurrent()
+        assertEquals(1, pauses)
+        assertEquals(SourcePhase.Resolving, waitingCoordinator.phase)
+        assertEquals(SourceNotice.WrongContentBlockedWaiting, waitingCoordinator.notice)
+        assertNull(waitingCoordinator.current)
+
+        advanceTimeBy(5_100L)
+        assertEquals("https://b/1.mp4", loaded.last().first)
+        assertEquals(42_000L, loaded.last().second)
+
+        // 2) Kalan kaynak da bitmişken engellenirse duraklatılır + Failed + WrongContentBlockedNone
+        waitingCoordinator.onFirstFrame()
+        assertFalse(waitingCoordinator.blockCurrentSourceAndAdvance())
+        runCurrent()
+        assertEquals(2, pauses)
+        assertEquals(SourcePhase.Failed, waitingCoordinator.phase)
+        assertEquals(SourceNotice.WrongContentBlockedNone, waitingCoordinator.notice)
+    }
+
+    @Test
+    fun blockingWrongContentDoesNotPauseWhenNextCandidateIsReadyImmediately() = runTest {
+        val s1 = stream(source1, "https://a/1.mp4")
+        val s2 = stream(source2, "https://b/1.mp4")
+        var pauses = 0
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, s1)); emit(found(source2, s2)) } },
+            preferDub = false,
+            load = { _, _ -> },
+            pausePlayback = { pauses++ },
+            position = { 15_000L },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        coordinator.onFirstFrame()
+
+        assertTrue(coordinator.blockCurrentSourceAndAdvance())
+        runCurrent()
+        assertEquals(0, pauses)
+        assertEquals("https://b/1.mp4", coordinator.current?.url)
+    }
+
+    @Test
     fun blockingWrongContentIsDisabledOnLiveStreams() = runTest {
         val liveRequest = StreamRequest(0, null, MediaType.Tv, addonType = "tv", pluginId = "cs:1")
         val liveStream = stream(source1, "https://tv/live.m3u8")

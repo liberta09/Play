@@ -608,6 +608,23 @@ class PlaybackController(
         if (player.isPlaying) player.pause() else player.play()
     }
 
+    /** Yanlış içerik engellendiğinde veya beklemeye geçerken sesi/oynatmayı duraklatır. */
+    fun pause() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            Handler(Looper.getMainLooper()).post {
+                if (!released) {
+                    player.playWhenReady = false
+                    player.pause()
+                }
+            }
+            return
+        }
+        if (!released) {
+            player.playWhenReady = false
+            player.pause()
+        }
+    }
+
     fun seekBy(deltaMs: Long) {
         stallTracker.onSeekStarted()
         isSeeking = true
