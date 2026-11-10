@@ -3,6 +3,8 @@ package com.kaan.play.ui.player
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.StreamSource
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MidPlaybackRecoveryRulesTest {
@@ -134,5 +136,53 @@ class MidPlaybackRecoveryRulesTest {
             isLeaving = true,
         )
         assertEquals(MidPlaybackRecoveryRules.Decision.Fail, decision)
+    }
+
+    @Test
+    fun whenLive_skipsSameSourceRetryAndSwitchesDirectly() {
+        val decision = MidPlaybackRecoveryRules.evaluate(
+            phase = SourcePhase.Playing,
+            currentStream = stream1,
+            hasRetriedCurrentStream = false,
+            switchCount = 0,
+            candidates = listOf(stream2),
+            isLive = true,
+            isNetworkError = true,
+        )
+        assertEquals(
+            MidPlaybackRecoveryRules.Decision.Switch(
+                candidate = stream2,
+                notice = MidPlaybackRecoveryRules.NoticeType.STREAM_DROPPED_TRYING_NEXT,
+            ),
+            decision,
+        )
+    }
+
+    @Test
+    fun whenNonNetworkError_skipsSameSourceRetryAndSwitchesDirectly() {
+        val decision = MidPlaybackRecoveryRules.evaluate(
+            phase = SourcePhase.Playing,
+            currentStream = stream1,
+            hasRetriedCurrentStream = false,
+            switchCount = 0,
+            candidates = listOf(stream2),
+            isLive = false,
+            isNetworkError = false,
+        )
+        assertEquals(
+            MidPlaybackRecoveryRules.Decision.Switch(
+                candidate = stream2,
+                notice = MidPlaybackRecoveryRules.NoticeType.STREAM_DROPPED_TRYING_NEXT,
+            ),
+            decision,
+        )
+    }
+
+    @Test
+    fun isNetworkErrorRecognizesIoAndExcludesDecoderOrParsing() {
+        assertTrue(MidPlaybackRecoveryRules.isNetworkError("ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)"))
+        assertTrue(MidPlaybackRecoveryRules.isNetworkError("ERROR_CODE_IO_BAD_HTTP_STATUS (2004) http=503"))
+        assertFalse(MidPlaybackRecoveryRules.isNetworkError("ERROR_CODE_DECODER_INIT_FAILED (4001)"))
+        assertFalse(MidPlaybackRecoveryRules.isNetworkError("ERROR_CODE_PARSING_CONTAINER_MALFORMED (3001)"))
     }
 }

@@ -76,6 +76,9 @@ sealed interface SourceNotice {
     /** Kullanıcının elle seçtiği kaynak yavaşladı (otomatik değiştirilmez). */
     data object ManualSlow : SourceNotice
 
+    /** Oynatma sırasında akış ağ hatasıyla koptu, aynı kaynak kaldığı konumdan bir kez yeniden deneniyor. */
+    data class RetryingCurrent(val detail: String) : SourceNotice
+
     /** Oynatma sırasında kaynak koptu, sıradaki kaynak deneniyor. */
     data class StreamDropped(val detail: String) : SourceNotice
 
@@ -664,11 +667,16 @@ class SourceCoordinator(
                 isManual = userPicked,
                 isOffline = false,
                 isLeaving = false,
+                isLive = isLive,
+                isNetworkError = MidPlaybackRecoveryRules.isNetworkError(detail),
             )
             Log.d("PlayMatch", "oynatirken kurtarma karari: $decision (gecis=$midPlaybackSwitches)")
             when (decision) {
                 is MidPlaybackRecoveryRules.Decision.RetrySame -> {
                     hasRetriedCurrentStream = true
+                    revertTo = null
+                    switching = false
+                    notice = SourceNotice.RetryingCurrent(detail)
                     val pos = position().takeIf { it > 0 } ?: lastStartMs
                     lastStartMs = pos
                     firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS

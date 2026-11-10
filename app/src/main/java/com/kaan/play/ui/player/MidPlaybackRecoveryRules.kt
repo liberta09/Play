@@ -1,6 +1,7 @@
 package com.kaan.play.ui.player
 
 import com.kaan.play.data.stream.PlayableStream
+import java.util.Locale
 
 /**
  * Film/dizi oynarken (SourcePhase.Playing) kaynak kopması veya ölümcül hata durumunda
@@ -8,6 +9,24 @@ import com.kaan.play.data.stream.PlayableStream
  */
 object MidPlaybackRecoveryRules {
     const val MAX_SWITCHES = 3
+
+    private val NON_NETWORK_MARKERS = listOf(
+        "DECODER",
+        "DECODING",
+        "PARSING",
+        "DRM",
+        "AUDIO_TRACK",
+        "UNSUPPORTED",
+        "FORMAT",
+        "SIZE-TOO-SMALL",
+        "MISMATCH",
+    )
+
+    fun isNetworkError(detail: String): Boolean {
+        val upper = detail.trim().uppercase(Locale.ROOT)
+        if (upper.isEmpty()) return true
+        return NON_NETWORK_MARKERS.none { upper.contains(it) }
+    }
 
     sealed interface Decision {
         /** Aynı kaynağı kaldığı saniyeden bir kez yeniden dene. */
@@ -34,6 +53,8 @@ object MidPlaybackRecoveryRules {
      * @param isManual Kullanıcı bu kaynağı elle mi seçti
      * @param isOffline İndirilmiş (çevrimdışı) dosya mı oynatılıyor
      * @param isLeaving Kullanıcı oynatıcıdan çıkıyor mu
+     * @param isLive Canlı TV yayınında konumdan yeniden deneme yapılmaz, doğrudan yedek/hata akışına geçilir
+     * @param isNetworkError Yalnızca ağ/bağlantı kopmasında aynı kaynak bir kez yeniden denenir
      */
     fun evaluate(
         phase: SourcePhase,
@@ -44,12 +65,14 @@ object MidPlaybackRecoveryRules {
         isManual: Boolean = false,
         isOffline: Boolean = false,
         isLeaving: Boolean = false,
+        isLive: Boolean = false,
+        isNetworkError: Boolean = true,
     ): Decision {
         if (isLeaving || isOffline || currentStream == null) return Decision.Fail
         if (phase != SourcePhase.Playing) return Decision.Fail
         if (switchCount >= MAX_SWITCHES) return Decision.Fail
 
-        if (!hasRetriedCurrentStream) {
+        if (!isLive && isNetworkError && !hasRetriedCurrentStream) {
             return Decision.RetrySame(currentStream)
         }
 

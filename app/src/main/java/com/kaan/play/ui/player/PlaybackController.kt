@@ -372,7 +372,7 @@ class PlaybackController(
                     val isHttpError = generateSequence<Throwable>(error) { it.cause }
                         .any { it is HttpDataSource.HttpDataSourceException }
 
-                    if ((isBehindLive || isHttpError) && recoveryAttempts < 3 && !released) {
+                    if ((isBehindLive || (player.isCurrentMediaItemLive && isHttpError)) && recoveryAttempts < 3 && !released) {
                         recoveryAttempts++
                         val currentPos = player.currentPosition
                         Log.w("PlayMatch", "Ağ veya HLS canlı pencere hatası yakalandı (${error.errorCodeName}): akış tazeleniyor pos=$currentPos deneme=$recoveryAttempts")

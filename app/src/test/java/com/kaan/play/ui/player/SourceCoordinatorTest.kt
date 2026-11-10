@@ -240,10 +240,14 @@ class SourceCoordinatorTest {
         assertEquals("https://a/1", rig.lastUrl)
         rig.coordinator.onFirstFrame()
 
-        // 1. hata: aynı kaynak kaldığı konumdan denenir
+        // 1. hata: aynı kaynak kaldığı konumdan denenir ve bildirim gösterilir
         assertTrue(rig.coordinator.onFailure("ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)"))
         assertEquals("https://a/1", rig.lastUrl)
         assertEquals(20_000L, rig.loaded.last().second)
+        assertEquals(
+            SourceNotice.RetryingCurrent("ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)"),
+            rig.coordinator.notice,
+        )
         advanceTimeBy(SourceCoordinator.STALE_FRAME_GUARD_MS + 100)
         rig.coordinator.onFirstFrame()
 
@@ -1147,5 +1151,37 @@ class SourceCoordinatorTest {
         runCurrent()
         assertEquals(SourcePhase.Starting, coordinator.phase)
         assertEquals(2, coordinator.answeredCount)
+    }
+
+    @Test
+    fun liveMidPlaybackNetworkFailureSkipsSameSourceRetry() = runTest {
+        val liveReq = StreamRequest(0, null, MediaType.Tv, addonType = "tv", pluginId = "cs:1")
+        val a = stream(source1, "https://tv/1.m3u8")
+        val b = stream(source2, "https://tv/2.m3u8")
+        val rig = Rig(this, flow { emit(found(source1, a, b)) }, request = liveReq)
+        rig.coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        assertEquals("https://tv/1.m3u8", rig.lastUrl)
+        rig.coordinator.onFirstFrame()
+
+        assertTrue(rig.coordinator.onFailure("ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)"))
+        assertEquals("https://tv/2.m3u8", rig.lastUrl)
+        assertTrue(rig.coordinator.notice is SourceNotice.StreamDropped)
+    }
+
+    @Test
+    fun midPlaybackDecoderFailureSkipsSameSourceRetry() = runTest {
+        val a = stream(source1, "https://a/1", size = 1_000_000_000L)
+        val b = stream(source2, "https://b/2", size = 2_000_000_000L)
+        val rig = Rig(this, flow { emit(found(source1, a, b)) }, request = request)
+        rig.positionMs = 42_000L
+        rig.coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        rig.coordinator.onFirstFrame()
+
+        assertTrue(rig.coordinator.onFailure("ERROR_CODE_DECODING_FAILED (4003)"))
+        assertEquals("https://b/2", rig.lastUrl)
+        assertEquals(42_000L, rig.loaded.last().second)
+        assertTrue(rig.coordinator.notice is SourceNotice.StreamDropped)
     }
 }
