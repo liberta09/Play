@@ -201,6 +201,8 @@ fun PlayerScreen(
     onNextAudioTrack: (() -> Unit)? = null,
     audioTrackBanner: String? = null,
     onClearAudioTrackBanner: () -> Unit = {},
+    /** Dublaj önerisi köşe kartında "Geç"e basınca doğrulama ve geri dönüş korumalı geçiş. */
+    onAcceptDubSuggestion: (() -> Unit)? = null,
     /** Kilit durumu değişince etkinliğe bildirilir (`Activity.onKeyDown` kilitliyken zap yapmasın). */
     onLockedChanged: (Boolean) -> Unit = {},
     onBack: () -> Unit,
@@ -884,7 +886,9 @@ fun PlayerScreen(
 
         if (coordinator != null && dubVisible) {
             DubSuggestionCard(
-                onSwitch = coordinator::acceptDubSuggestion,
+                onSwitch = {
+                    if (onAcceptDubSuggestion != null) onAcceptDubSuggestion() else coordinator.acceptDubSuggestion()
+                },
                 onClose = coordinator::dismissDubSuggestion,
                 primaryFocus = dubFocus,
                 modifier = Modifier.align(Alignment.BottomStart).navigationBarsPadding().padding(start = 24.dp, bottom = 156.dp)
@@ -1319,6 +1323,11 @@ private fun DubSuggestionCard(
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text(stringResource(R.string.dub_suggest_title), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            stringResource(R.string.dub_suggest_subtitle),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Button(onClick = onSwitch, modifier = Modifier.focusRequester(primaryFocus)) { Text(stringResource(R.string.dub_suggest_switch)) }
             TextButton(onClick = onClose) { Text(stringResource(R.string.dub_suggest_close)) }

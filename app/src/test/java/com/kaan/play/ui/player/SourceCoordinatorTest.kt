@@ -60,6 +60,7 @@ class SourceCoordinatorTest {
         results: Flow<StreamResult>,
         preferDub: Boolean = true,
         autoSource: Boolean = true,
+        showDubSuggestion: Boolean = true,
         preference: SourcePref? = null,
         probe: suspend (PlayableStream) -> Long? = { null },
         request: StreamRequest,
@@ -77,6 +78,7 @@ class SourceCoordinatorTest {
             sizeProbe = probe,
             preferDub = preferDub,
             autoSource = autoSource,
+            showDubSuggestion = showDubSuggestion,
             load = { s, p -> loaded += s to p },
             position = { positionMs },
             clock = { scope.testScheduler.currentTime },
@@ -379,6 +381,27 @@ class SourceCoordinatorTest {
         advanceUntilIdle()
         assertNull(rig.coordinator.dubSuggestion)
         assertEquals(1, rig.loaded.size)
+    }
+
+    @Test
+    fun dubSuggestionNotShownWhenDisabledInSettings() = runTest {
+        val sub = stream(source1, "https://a/sub")
+        val dub = stream(source2, "https://b/dub", dub = true)
+        val rig = Rig(
+            this,
+            flow {
+                emit(found(source1, sub))
+                delay(StartPolicy.DUB_WAIT_MS + 1_000)
+                emit(found(source2, dub))
+            },
+            showDubSuggestion = false,
+            request = request,
+        )
+        rig.coordinator.start(null, emptyList(), 0)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
+        rig.coordinator.onFirstFrame()
+        advanceTimeBy(2_000)
+        assertNull(rig.coordinator.dubSuggestion)
     }
 
     @Test

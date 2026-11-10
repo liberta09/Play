@@ -102,6 +102,7 @@ class PlayerActivity : AppCompatActivity() {
     private var userAudioLanguage: String? = null
     private var preferDub = true
     private var tryUntilTurkishAudio = SettingsRepository.DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO
+    private var showDubSuggestionSetting = SettingsRepository.DEFAULT_SHOW_DUB_SUGGESTION
     private var audioProbeTimeoutSeconds = SettingsRepository.DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS
     private lateinit var audioVerifier: TurkishAudioVerifier
     private var audioVerificationScanning by mutableStateOf(false)
@@ -312,6 +313,7 @@ class PlayerActivity : AppCompatActivity() {
             autoSourceSetting = runBlocking { settings.autoSource.first() }
             preferDub = runBlocking { settings.preferDub.first() }
             tryUntilTurkishAudio = runBlocking { settings.trySourcesUntilTurkishAudio.first() }
+            showDubSuggestionSetting = runBlocking { settings.showDubSuggestion.first() }
             audioProbeTimeoutSeconds = runBlocking { settings.audioProbeTimeoutSeconds.first() }
         }
         audioVerifier = TurkishAudioVerifier(scanTimeoutMs = audioProbeTimeoutSeconds * 1000L)
@@ -471,6 +473,7 @@ class PlayerActivity : AppCompatActivity() {
                     onNextAudioTrack = ::selectNextAudioTrack,
                     audioTrackBanner = audioTrackBanner,
                     onClearAudioTrackBanner = { audioTrackBanner = null },
+                    onAcceptDubSuggestion = ::acceptDubSuggestionWithVerification,
                     onLockedChanged = { playbackLocked = it },
                     onBack = ::finish,
                 )
@@ -584,6 +587,7 @@ class PlayerActivity : AppCompatActivity() {
             maxHeight = DeviceCodecs.maxDecodableHeight(),
             preferDub = preferDub,
             autoSource = autoSourceSetting,
+            showDubSuggestion = showDubSuggestionSetting,
             load = ::loadStream,
             position = { controller.positionMs() },
             clock = SystemClock::elapsedRealtime,
@@ -873,7 +877,8 @@ class PlayerActivity : AppCompatActivity() {
         pendingAudioLearnJob?.cancel()
         currentStream = stream
         val isLive = LiveCatalogRules.isLiveRequest(session.target.request)
-        val shouldVerifyTurkish = session.offline == null && !isLive && preferDub && tryUntilTurkishAudio && !userAudioChosen && (stream.dubbed || pendingDubRevertStream != null)
+        val fromDubSuggestion = pendingDubRevertStream != null
+        val shouldVerifyTurkish = session.offline == null && !isLive && !userAudioChosen && ((preferDub && tryUntilTurkishAudio && stream.dubbed) || fromDubSuggestion)
         val revertStream = pendingDubRevertStream
         pendingDubRevertStream = null
         if (::audioVerifier.isInitialized) {
@@ -887,6 +892,15 @@ class PlayerActivity : AppCompatActivity() {
         subtitles.setStream(stream)
         if (previous != null) saveProgress()
         controller.load(stream, startMs)
+    }
+
+    private fun acceptDubSuggestionWithVerification() {
+        val coord = coordinator ?: return
+        pendingDubRevertStream = coord.current ?: currentStream
+        if (::audioVerifier.isInitialized) {
+            audioVerifier.resetForExplicitDubSwitch()
+        }
+        coord.acceptDubSuggestion()
     }
 
     private fun stopTurkishAudioScan() {

@@ -50,8 +50,15 @@ class SourceSettingsTest {
         assertTrue(repo.autoSource.first())
         assertTrue(repo.preferDub.first())
         assertTrue(repo.trySourcesUntilTurkishAudio.first())
+        assertTrue(repo.showDubSuggestion.first())
         assertEquals(7, repo.audioProbeTimeoutSeconds.first())
         assertEquals(ResizeMode.Fit, repo.resizeMode.first())
+    }
+
+    @Test
+    fun showDubSuggestionCanBeTurnedOff() = runBlocking {
+        repo.setShowDubSuggestion(false)
+        assertFalse(repo.showDubSuggestion.first())
     }
 
     @Test

@@ -91,6 +91,10 @@ class SettingsRepository(val store: DataStore<Preferences>) {
     val trySourcesUntilTurkishAudio: Flow<Boolean> =
         store.data.map { it[TRY_SOURCES_UNTIL_TURKISH_AUDIO] ?: DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO }.distinctUntilChanged()
 
+    /** Açıkken altyazılı oynarken sonradan bulunan dublajlı kaynak köşe kartıyla önerilir. Varsayılan açık. */
+    val showDubSuggestion: Flow<Boolean> =
+        store.data.map { it[SHOW_DUB_SUGGESTION] ?: DEFAULT_SHOW_DUB_SUGGESTION }.distinctUntilChanged()
+
     /** Dublajlı kaynakta Türkçe ses izi tarama süresi (5 / 7 / 10 sn). */
     val audioProbeTimeoutSeconds: Flow<Int> = store.data.map { prefs ->
         prefs[AUDIO_PROBE_TIMEOUT_SECONDS]?.takeIf { it in AUDIO_PROBE_TIMEOUT_OPTIONS } ?: DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS
@@ -106,6 +110,10 @@ class SettingsRepository(val store: DataStore<Preferences>) {
 
     suspend fun setTrySourcesUntilTurkishAudio(enabled: Boolean) {
         store.edit { it[TRY_SOURCES_UNTIL_TURKISH_AUDIO] = enabled }
+    }
+
+    suspend fun setShowDubSuggestion(enabled: Boolean) {
+        store.edit { it[SHOW_DUB_SUGGESTION] = enabled }
     }
 
     suspend fun setAudioProbeTimeoutSeconds(seconds: Int) {
@@ -325,6 +333,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_AUTO_SOURCE = true
         const val DEFAULT_PREFER_DUB = true
         const val DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO = true
+        const val DEFAULT_SHOW_DUB_SUGGESTION = true
         const val DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS = 7
         val AUDIO_PROBE_TIMEOUT_OPTIONS = listOf(5, 7, 10)
         const val DEFAULT_AUTO_NEXT_SECONDS = 10
@@ -347,6 +356,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val AUTO_SOURCE = booleanPreferencesKey("auto_source")
         private val PREFER_DUB = booleanPreferencesKey("prefer_dub")
         private val TRY_SOURCES_UNTIL_TURKISH_AUDIO = booleanPreferencesKey("try_sources_until_turkish_audio")
+        private val SHOW_DUB_SUGGESTION = booleanPreferencesKey("show_dub_suggestion")
         private val AUDIO_PROBE_TIMEOUT_SECONDS = intPreferencesKey("audio_probe_timeout_seconds")
         private val RESIZE_MODE = stringPreferencesKey("resize_mode")
         private val AUTO_NEXT_SECONDS = intPreferencesKey("auto_next_seconds")
@@ -377,6 +387,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
             AUTO_SOURCE,
             PREFER_DUB,
             TRY_SOURCES_UNTIL_TURKISH_AUDIO,
+            SHOW_DUB_SUGGESTION,
             AUDIO_PROBE_TIMEOUT_SECONDS,
             RESIZE_MODE,
             AUTO_NEXT_SECONDS,

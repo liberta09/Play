@@ -202,4 +202,23 @@ class TurkishAudioTrackRulesTest {
             ),
         )
     }
+
+    @Test
+    fun unverifiedDubSuggestionRevertsToPreviousWorkingStream() {
+        val original = stream("https://a/orig", dubbed = false)
+        val suggestedDub = stream("https://a/dub-suggested", dubbed = true)
+        val otherDub = stream("https://a/dub-other", dubbed = true)
+        val verifier = TurkishAudioVerifier(scanTimeoutMs = 5_000L)
+        verifier.begin(suggestedDub, shouldVerify = true, revertIfUnverified = original)
+
+        val noLangTracks = listOf(AudioTrackInfo(0, "en", "English", isSelected = true))
+        assertEquals(
+            TurkishVerifyDecision.KeepWaiting,
+            verifier.evaluate(suggestedDub, noLangTracks, playbackStarted = true, nowMs = 1_000L, listOf(otherDub), listOf(original), original),
+        )
+        assertEquals(
+            TurkishVerifyDecision.FallbackToAlternative(original, TurkishAudioNotice.NotFoundOpeningFastAlternative),
+            verifier.evaluate(suggestedDub, noLangTracks, playbackStarted = true, nowMs = 6_000L, listOf(otherDub), listOf(original), original),
+        )
+    }
 }

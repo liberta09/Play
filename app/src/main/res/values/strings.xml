@@ -702,4 +702,6 @@
     <string name="player_audio_unknown_hint">Audio tracks unrecognized; you can switch between tracks.</string>
     <string name="player_audio_unknown_named">%1$s · Audio track unrecognized; you can switch between tracks.</string>
     <string name="player_audio_selecting_learned">Selecting probable audio track…</string>
+    <string name="settings_show_dub_suggestion">Show dubbed source suggestion when found later</string>
+    <string name="dub_suggest_subtitle">Opens from your current position; keeps current source if Turkish audio is not verified.</string>
 </resources>

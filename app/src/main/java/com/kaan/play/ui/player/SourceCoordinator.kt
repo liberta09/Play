@@ -113,6 +113,7 @@ class SourceCoordinator(
     private val maxHeight: Int = 1080,
     private val preferDub: Boolean = true,
     private val autoSource: Boolean = true,
+    private val showDubSuggestion: Boolean = true,
     /** Kaynağı oynatıcıya verir: ([stream], başlangıç konumu ms). */
     private val load: (PlayableStream, Long) -> Unit,
     private val position: () -> Long = { 0L },
@@ -842,7 +843,7 @@ class SourceCoordinator(
     // ---- iç işler ----
 
     private fun maybeSuggestDub() {
-        if (!autoSource || !preferDub || userPicked || suggestionDismissed || dubSuggestion != null) return
+        if (!showDubSuggestion || !autoSource || !preferDub || userPicked || suggestionDismissed || dubSuggestion != null) return
         val playing = current ?: return
         if (playing.dubbed) return
         dubSuggestion = ranked().firstOrNull { it.dubbed && !SourceRanking.isTooHeavy(it, ctx) && it.url != playing.url && it.url !in attempted }
