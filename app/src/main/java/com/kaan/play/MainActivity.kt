@@ -255,6 +255,9 @@ class MainActivity : AppCompatActivity() {
                     if (intent?.hasExtra("play_test_fail_repeats") == true) {
                         playIntent.putExtra("play_test_fail_repeats", intent.getIntExtra("play_test_fail_repeats", 1))
                     }
+                    if (intent?.getBooleanExtra("play_test_slow_prompt", false) == true) {
+                        playIntent.putExtra("play_test_slow_prompt", true)
+                    }
                     startActivity(playIntent)
                     return
                 } else {
@@ -296,6 +299,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 if (intent?.hasExtra("play_test_fail_repeats") == true) {
                     playIntent.putExtra("play_test_fail_repeats", intent.getIntExtra("play_test_fail_repeats", 1))
+                }
+                if (intent?.getBooleanExtra("play_test_slow_prompt", false) == true) {
+                    playIntent.putExtra("play_test_slow_prompt", true)
                 }
             }
             startActivity(playIntent)
