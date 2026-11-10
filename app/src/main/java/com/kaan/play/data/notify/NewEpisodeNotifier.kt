@@ -70,8 +70,14 @@ object NewEpisodeNotifier {
             .setAutoCancel(true)
             .build()
 
-        runCatching {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        try {
             NotificationManagerCompat.from(context).notify(NOTIFICATION_ID_BASE + tmdbId, notification)
+        } catch (_: SecurityException) {
         }
     }
 }
