@@ -640,4 +640,10 @@
     <string name="live_route_retrying">Canlı kaynak kesildi; alternatif kaynak deneniyor</string>
     <string name="live_route_not_found">Kaynak bulunamadı</string>
     <string name="player_btn_scan_provider">Başka sağlayıcıyı tara</string>
+    <string name="continue_sort">Sırala</string>
+    <string name="continue_sort_recent">En son izlenen</string>
+    <string name="continue_sort_oldest">En eski önce</string>
+    <string name="continue_sort_movies_first">Filmler önce</string>
+    <string name="continue_sort_series_first">Diziler önce</string>
+    <string name="continue_sort_title_asc">Başlığa göre (A–Z)</string>
 </resources>

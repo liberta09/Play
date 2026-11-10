@@ -67,6 +67,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.kaan.play.R
 import com.kaan.play.data.cloudstream.cloudflare.CloudflareSolver
 import com.kaan.play.data.library.ContinueItem
+import com.kaan.play.data.library.ContinueSortMode
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.provider.ProviderRules
 import com.kaan.play.data.addon.CatalogVisibility
@@ -75,8 +76,10 @@ import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.i18n.AppLanguage
 import com.kaan.play.ui.components.Button
+import com.kaan.play.ui.components.ChoiceDialog
 import com.kaan.play.ui.components.ErrorMessage
 import com.kaan.play.ui.components.Loadable
+import com.kaan.play.ui.components.OutlinedButton
 import com.kaan.play.ui.components.PosterCard
 import com.kaan.play.ui.components.StatusBarScrim
 import com.kaan.play.ui.components.posterUrl
@@ -294,8 +297,10 @@ private fun HomeContent(
     val loadSemaphore = remember { Semaphore(3) }
 
     // Dil değişince (etkinlik yeniden kurulur) yeni dille taze bir ViewModel: satırlar yeni dilde yüklenir.
-    val vm = containerViewModel(key = "home-${AppLanguage.effective().iso}") { HomeViewModel(it.tmdb, it.continueWatching, it.library) }
+    val vm = containerViewModel(key = "home-${AppLanguage.effective().iso}") { HomeViewModel(it.tmdb, it.continueWatching, it.library, it.settings) }
     var itemToRemove by remember { mutableStateOf<ContinueItem?>(null) }
+    var showContinueSortDialog by remember { mutableStateOf(false) }
+    val continueSortMode by vm.continueSortMode.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val continueRequesters = remember { mutableMapOf<String, FocusRequester>() }
     val rows by vm.rows.collectAsStateWithLifecycle()
@@ -359,7 +364,20 @@ private fun HomeContent(
         }
         if (hasContinue) {
             item(key = "continue") {
-                Section(title = stringResource(R.string.home_row_continue)) {
+                Section(
+                    title = stringResource(R.string.home_row_continue),
+                    headerTrailing = {
+                        OutlinedButton(onClick = { showContinueSortDialog = true }) {
+                            Icon(PlayIcons.Sort, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Text(
+                                text = stringResource(R.string.continue_sort),
+                                modifier = Modifier.padding(start = 6.dp),
+                                maxLines = 1,
+                                softWrap = false,
+                            )
+                        }
+                    },
+                ) {
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = ScreenPadding),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -445,6 +463,28 @@ private fun HomeContent(
         }
     }
 
+    if (showContinueSortDialog) {
+        ChoiceDialog(
+            title = stringResource(R.string.continue_sort),
+            options = ContinueSortMode.entries,
+            selected = continueSortMode,
+            label = { mode ->
+                when (mode) {
+                    ContinueSortMode.Recent -> stringResource(R.string.continue_sort_recent)
+                    ContinueSortMode.Oldest -> stringResource(R.string.continue_sort_oldest)
+                    ContinueSortMode.MoviesFirst -> stringResource(R.string.continue_sort_movies_first)
+                    ContinueSortMode.SeriesFirst -> stringResource(R.string.continue_sort_series_first)
+                    ContinueSortMode.TitleAsc -> stringResource(R.string.continue_sort_title_asc)
+                }
+            },
+            onSelect = { chosen ->
+                showContinueSortDialog = false
+                vm.setContinueSortMode(chosen)
+            },
+            onDismiss = { showContinueSortDialog = false },
+        )
+    }
+
     itemToRemove?.let { targetItem ->
         val cancelFocus = rememberInitialFocus()
         AlertDialog(
@@ -526,6 +566,7 @@ private fun Section(
     title: String,
     onSeeAll: (() -> Unit)? = null,
     headerModifier: Modifier = Modifier,
+    headerTrailing: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -535,15 +576,21 @@ private fun Section(
             modifier = headerModifier
                 .fillMaxWidth()
                 .padding(horizontal = ScreenPadding)
-                .categoryHeaderFocusable(
-                    interactionSource = interactionSource,
-                    onClick = onSeeAll,
-                    scale = 1.02f,
-                )
+                .let {
+                    if (onSeeAll != null) {
+                        it.categoryHeaderFocusable(
+                            interactionSource = interactionSource,
+                            onClick = onSeeAll,
+                            scale = 1.02f,
+                        )
+                    } else it
+                }
                 .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(text = title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            headerTrailing?.invoke()
             if (onSeeAll != null) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

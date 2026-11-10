@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import com.kaan.play.data.library.ContinueSortMode
 import com.kaan.play.data.provider.LiveTvSortMode
 import com.kaan.play.data.stream.TorrentLinks
 import com.kaan.play.data.tmdb.PosterUrlTemplate
@@ -244,6 +245,15 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         store.edit { it[LIVE_TV_SORT_MODE] = mode.name }
     }
 
+    /** Ana sayfadaki "İzlemeye devam et" sıralaması; varsayılan en son izlenen. */
+    val continueSortMode: Flow<ContinueSortMode> = store.data.map { prefs ->
+        ContinueSortMode.entries.firstOrNull { it.name == prefs[CONTINUE_SORT_MODE] } ?: DEFAULT_CONTINUE_SORT_MODE
+    }.distinctUntilChanged()
+
+    suspend fun setContinueSortMode(mode: ContinueSortMode) {
+        store.edit { it[CONTINUE_SORT_MODE] = mode.name }
+    }
+
     /** Kullanıcının kapattığı Nuvio addon katalog anahtarları (`addonId:type:catalogId`). */
     val disabledCatalogs: Flow<Set<String>> = store.data.map { prefs ->
         prefs[DISABLED_CATALOGS] ?: emptySet()
@@ -288,6 +298,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_PREFER_DUB = true
         const val DEFAULT_AUTO_NEXT_SECONDS = 10
         val DEFAULT_LIVE_TV_SORT_MODE = LiveTvSortMode.TitleAscending
+        val DEFAULT_CONTINUE_SORT_MODE = ContinueSortMode.Recent
         val AUTO_NEXT_OPTIONS = listOf(5, 10, 15)
         val TIMEOUT_OPTIONS = listOf(10, 15, 30, 60)
         const val DEFAULT_SUBTITLE_LANGUAGE = "tr"
@@ -321,5 +332,6 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         val SEEN_ANNOUNCEMENT_IDS = stringSetPreferencesKey("seen_announcement_ids")
         private val DISABLED_CATALOGS = stringSetPreferencesKey("disabled_catalogs")
         private val LIVE_TV_SORT_MODE = stringPreferencesKey("live_tv_sort_mode")
+        private val CONTINUE_SORT_MODE = stringPreferencesKey("continue_sort_mode")
     }
 }
