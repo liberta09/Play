@@ -68,6 +68,7 @@ fun DeepLinkHost(
             SourceType.CLOUDSTREAM -> stringResource(R.string.addons_choice_cs_title)
             SourceType.NUVIO_REPO -> stringResource(R.string.addons_choice_nuvio_repo_title)
             SourceType.NUVIO_PLUGIN -> stringResource(R.string.addons_choice_nuvio_plugin_title)
+            SourceType.EXTERNAL_CATALOG -> stringResource(R.string.addons_choice_external_catalog_title)
             null -> stringResource(R.string.addons_title)
         }
         AlertDialog(

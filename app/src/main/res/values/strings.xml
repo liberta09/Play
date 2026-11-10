@@ -239,11 +239,13 @@
     <string name="addon_error_mismatch_cloudstream">This link is not a CloudStream repository. Please select the correct source type.</string>
     <string name="addon_error_mismatch_nuvio_repo">This link is not a Nuvio repository. Please select the correct source type.</string>
     <string name="addon_error_mismatch_nuvio_plugin">This link is not a Nuvio plugin. Please select the correct source type.</string>
+    <string name="addon_error_mismatch_external_catalog">This link is not an external catalog manifest. Please select the correct source type.</string>
     <string name="addon_suggest_type">This is a %1$s. Add as %1$s?</string>
     <string name="addon_suggest_add_action">Add as %1$s</string>
     <string name="source_type_cloudstream">CloudStream Repository</string>
     <string name="source_type_nuvio_repo">Nuvio Addon</string>
     <string name="source_type_nuvio_plugin">Nuvio Plugin</string>
+    <string name="source_type_external_catalog">External catalog</string>
 
     <!-- Add Addon Choice Dialog -->
     <string name="addons_choice_title">Add addon</string>
@@ -253,9 +255,13 @@
     <string name="addons_choice_nuvio_repo_subtitle">Add via Nuvio addon manifest link</string>
     <string name="addons_choice_nuvio_plugin_title">Add Nuvio Plugin</string>
     <string name="addons_choice_nuvio_plugin_subtitle">Add via Nuvio JavaScript plugin link</string>
+    <string name="addons_choice_external_catalog_title">Add external catalog</string>
+    <string name="addons_choice_external_catalog_subtitle">Import catalog manifest and show on Home</string>
     <string name="addons_add_cs_hint" translatable="false">https://.../manifest.json or .cs3</string>
     <string name="addons_add_nuvio_repo_hint" translatable="false">https://.../manifest.json</string>
     <string name="addons_add_nuvio_plugin_hint" translatable="false">https://.../scrapers.json</string>
+    <string name="addons_add_external_catalog_hint" translatable="false">https://.../manifest.json</string>
+    <string name="addon_badge_external_catalog">External catalog</string>
     <string name="nuvio_repos_title">Nuvio Addons</string>
     <string name="nuvio_repos_subtitle">Manage Nuvio addons</string>
     <string name="nuvio_repos_empty">No Nuvio addons added yet.</string>
@@ -674,6 +680,7 @@
     <string name="repo_catalog_type_cloudstream" translatable="false">CloudStream</string>
     <string name="repo_catalog_type_nuvio_repo">Nuvio repo</string>
     <string name="repo_catalog_type_nuvio_plugin">Nuvio plugin</string>
+    <string name="repo_catalog_type_external_catalog">External catalog</string>
     <string name="tv_sort">Sort</string>
     <string name="tv_sort_title_asc">Name (A–Z)</string>
     <string name="tv_sort_title_desc">Name (Z–A)</string>

@@ -219,11 +219,13 @@
     <string name="addon_error_mismatch_cloudstream">Bu bağlantı bir CloudStream deposu değil. Lütfen doğru kaynak türünü seçin.</string>
     <string name="addon_error_mismatch_nuvio_repo">Bu bağlantı bir Nuvio deposu değil. Lütfen doğru kaynak türünü seçin.</string>
     <string name="addon_error_mismatch_nuvio_plugin">Bu bağlantı bir Nuvio plugin kaynağı değil. Lütfen doğru kaynak türünü seçin.</string>
+    <string name="addon_error_mismatch_external_catalog">Bu bağlantı bir harici katalog manifesti değil. Lütfen doğru kaynak türünü seçin.</string>
     <string name="addon_suggest_type">Bu bir %1$s. %1$s olarak ekleyeyim mi?</string>
     <string name="addon_suggest_add_action">%1$s olarak ekle</string>
     <string name="source_type_cloudstream">CloudStream Deposu</string>
     <string name="source_type_nuvio_repo">Nuvio Eklentisi</string>
     <string name="source_type_nuvio_plugin">Nuvio Plugin</string>
+    <string name="source_type_external_catalog">Harici katalog</string>
 
     <!-- Eklenti Ekle Seçenekleri -->
     <string name="addons_choice_title">Eklenti ekle</string>
@@ -233,9 +235,13 @@
     <string name="addons_choice_nuvio_repo_subtitle">Nuvio addon manifest linki ile ekle</string>
     <string name="addons_choice_nuvio_plugin_title">Nuvio Plugin Ekle</string>
     <string name="addons_choice_nuvio_plugin_subtitle">Nuvio JavaScript plugin linki ile ekle</string>
+    <string name="addons_choice_external_catalog_title">Harici katalog ekle</string>
+    <string name="addons_choice_external_catalog_subtitle">Katalog manifestini içe aktar ve ana sayfada göster</string>
     <string name="addons_add_cs_hint" translatable="false">https://.../manifest.json veya .cs3</string>
     <string name="addons_add_nuvio_repo_hint" translatable="false">https://.../manifest.json</string>
     <string name="addons_add_nuvio_plugin_hint" translatable="false">https://.../scrapers.json</string>
+    <string name="addons_add_external_catalog_hint" translatable="false">https://.../manifest.json</string>
+    <string name="addon_badge_external_catalog">Harici katalog</string>
     <string name="nuvio_repos_title">"Nuvio Addon'ları"</string>
     <string name="nuvio_repos_subtitle">"Nuvio addon'larını yönet"</string>
     <string name="nuvio_repos_empty">"Henüz Nuvio addon'u eklenmedi."</string>
@@ -655,6 +661,7 @@
     <string name="repo_catalog_install_failure">Hata: %1$s</string>
     <string name="repo_catalog_type_nuvio_repo">Nuvio deposu</string>
     <string name="repo_catalog_type_nuvio_plugin">Nuvio eklentisi</string>
+    <string name="repo_catalog_type_external_catalog">Harici katalog</string>
     <string name="tv_sort">Sırala</string>
     <string name="tv_sort_title_asc">Ada göre (A–Z)</string>
     <string name="tv_sort_title_desc">Ada göre (Z–A)</string>

@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -413,11 +415,11 @@ internal fun AddonRow(
     val host = remember(addon.sourceUrl) { addon.sourceUrl.toHttpUrlOrNull()?.host ?: addon.sourceUrl }
     val toggleLabel = stringResource(R.string.addons_enabled_toggle, name)
     val typeLabel = when {
-        !addon.manifest.providesStreams && addon.manifest.providesCatalogs -> stringResource(R.string.addon_type_catalog)
         !addon.manifest.providesStreams && addon.manifest.providesSubtitles -> stringResource(R.string.addon_type_subtitles)
         else -> null
     }
     val detail = if (typeLabel != null) "$typeLabel • $host" else host
+    val isExternalCatalog = !addon.manifest.providesStreams && addon.manifest.providesCatalogs
     val controls = rememberRowControls(2)
 
     Surface(
@@ -436,7 +438,34 @@ internal fun AddonRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f).alpha(if (addon.enabled) 1f else 0.5f)) {
-                Text(text = name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    if (isExternalCatalog) {
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.addon_badge_external_catalog),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            )
+                        }
+                    }
+                }
                 Text(
                     text = stringResource(R.string.addons_row_info, addon.manifest.version ?: "—", detail),
                     style = MaterialTheme.typography.bodyMedium,
@@ -542,7 +571,10 @@ private fun AddChoiceDialog(
             }
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+            ) {
                 ChoiceOptionCard(
                     title = stringResource(R.string.addons_choice_cs_title),
                     subtitle = stringResource(R.string.addons_choice_cs_subtitle),
@@ -563,6 +595,13 @@ private fun AddChoiceDialog(
                     icon = PlayIcons.Extension,
                     accentColor = PlayColors.NuvioGreen,
                     onClick = { onSelect(SourceType.NUVIO_PLUGIN) },
+                )
+                ChoiceOptionCard(
+                    title = stringResource(R.string.addons_choice_external_catalog_title),
+                    subtitle = stringResource(R.string.addons_choice_external_catalog_subtitle),
+                    icon = PlayIcons.Library,
+                    accentColor = MaterialTheme.colorScheme.primary,
+                    onClick = { onSelect(SourceType.EXTERNAL_CATALOG) },
                 )
             }
         },
@@ -650,19 +689,19 @@ private fun AddSourceInputDialog(
         SourceType.CLOUDSTREAM -> stringResource(R.string.addons_choice_cs_title)
         SourceType.NUVIO_REPO -> stringResource(R.string.addons_choice_nuvio_repo_title)
         SourceType.NUVIO_PLUGIN -> stringResource(R.string.addons_choice_nuvio_plugin_title)
-        else -> stringResource(R.string.addons_choice_cs_title)
+        SourceType.EXTERNAL_CATALOG -> stringResource(R.string.addons_choice_external_catalog_title)
     }
     val hint = when (state.type) {
         SourceType.CLOUDSTREAM -> stringResource(R.string.addons_add_cs_hint)
         SourceType.NUVIO_REPO -> stringResource(R.string.addons_add_nuvio_repo_hint)
         SourceType.NUVIO_PLUGIN -> stringResource(R.string.addons_add_nuvio_plugin_hint)
-        else -> stringResource(R.string.addons_add_cs_hint)
+        SourceType.EXTERNAL_CATALOG -> stringResource(R.string.addons_add_external_catalog_hint)
     }
     val accentColor = when (state.type) {
         SourceType.CLOUDSTREAM -> PlayColors.CloudStreamBlue
         SourceType.NUVIO_REPO -> PlayColors.NuvioPurple
         SourceType.NUVIO_PLUGIN -> PlayColors.NuvioGreen
-        else -> PlayColors.CloudStreamBlue
+        SourceType.EXTERNAL_CATALOG -> MaterialTheme.colorScheme.primary
     }
 
     AlertDialog(
@@ -715,6 +754,7 @@ private fun AddSourceInputDialog(
                                 SourceType.CLOUDSTREAM -> stringResource(R.string.source_type_cloudstream)
                                 SourceType.NUVIO_REPO -> stringResource(R.string.source_type_nuvio_repo)
                                 SourceType.NUVIO_PLUGIN -> stringResource(R.string.source_type_nuvio_plugin)
+                                SourceType.EXTERNAL_CATALOG -> stringResource(R.string.source_type_external_catalog)
                             }
                             Column(
                                 modifier = Modifier.fillMaxWidth().padding(top = 4.dp),

@@ -246,4 +246,24 @@ class AddonStreamProviderTest {
 
         assertEquals(FailureReason.InvalidResponse, small.streams(movie).toList().single().failed().reason)
     }
+
+    @Test
+    fun externalCatalogOnlyAddonNeverReceivesStreamRequests() = runTest {
+        val catalogOnlyManifest = com.kaan.play.data.addon.AddonManifestParser.parseCatalogOnly(
+            """{"id":"org.catonly","name":"Katalog Only","types":["movie","series"],"resources":["catalog","stream"],"catalogs":[{"type":"movie","id":"top"}]}"""
+        )
+        val catalogAddon = Addon(
+            id = 99L,
+            type = AddonType.NUVIO_ADDON,
+            sourceUrl = "${server.url("/catonly/manifest.json")}",
+            manifest = catalogOnlyManifest,
+            enabled = true,
+            addedAt = 1L,
+        )
+        val p = provider(listOf(catalogAddon))
+        assertTrue(p.sources(movie).isEmpty())
+        assertTrue(p.streams(movie).toList().isEmpty())
+        assertEquals(0, server.requestCount)
+        assertTrue(requestedPaths.isEmpty())
+    }
 }

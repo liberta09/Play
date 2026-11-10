@@ -20,6 +20,7 @@ enum class SourceType {
     CLOUDSTREAM,
     NUVIO_REPO,
     NUVIO_PLUGIN,
+    EXTERNAL_CATALOG,
 }
 
 /**
@@ -73,7 +74,8 @@ class SourceInstaller(
             ManifestKind.Unknown -> null
         }
 
-        if (expectedType != null && detectedType != null && detectedType != expectedType) {
+        val compatibleExternalCatalog = expectedType == SourceType.EXTERNAL_CATALOG && kind == ManifestKind.Addon
+        if (expectedType != null && detectedType != null && detectedType != expectedType && !compatibleExternalCatalog) {
             throw AddonException(
                 kind = Kind.KindMismatch,
                 detail = expectedType.name.lowercase(),
@@ -101,6 +103,12 @@ class SourceInstaller(
                     throw AddonException(Kind.KindMismatch, "nuvio_plugin", detectedType = detectedType)
                 }
                 plugins.addFetched(url, raw).let { AddResult.PluginRepo(it.repo.name, it.installed, it.skipped) }
+            }
+            SourceType.EXTERNAL_CATALOG -> {
+                if (kind == ManifestKind.PluginRepo || kind == ManifestKind.External) {
+                    throw AddonException(Kind.KindMismatch, "external_catalog", detectedType = detectedType)
+                }
+                AddResult.Addon(addons.addFetched(url, raw, catalogOnly = true).manifest.name)
             }
         }
     }

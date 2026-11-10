@@ -55,9 +55,14 @@ class AddonRepository(
      * Zaten indirilmiş [raw] manifest'i addon olarak doğrular ve kaydeder (içerik türü ayrımı yukarıda yapılmıştır).
      * @throws AddonException
      */
-    suspend fun addFetched(url: String, raw: String, type: AddonType = AddonType.NUVIO_ADDON): Addon {
+    suspend fun addFetched(
+        url: String,
+        raw: String,
+        type: AddonType = AddonType.NUVIO_ADDON,
+        catalogOnly: Boolean = false,
+    ): Addon {
         if (dao.countBySourceUrl(url) > 0) throw AddonException(Kind.AlreadyAdded)
-        val manifest = AddonManifestParser.parse(raw)
+        val manifest = if (catalogOnly) AddonManifestParser.parseCatalogOnly(raw) else AddonManifestParser.parse(raw)
 
         val entity = AddonEntity(
             type = type,

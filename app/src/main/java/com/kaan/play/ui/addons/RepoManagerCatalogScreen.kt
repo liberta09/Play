@@ -348,4 +348,5 @@ private fun label(sourceType: SourceType): Int = when (sourceType) {
     SourceType.CLOUDSTREAM -> R.string.repo_catalog_type_cloudstream
     SourceType.NUVIO_REPO -> R.string.repo_catalog_type_nuvio_repo
     SourceType.NUVIO_PLUGIN -> R.string.repo_catalog_type_nuvio_plugin
+    SourceType.EXTERNAL_CATALOG -> R.string.repo_catalog_type_external_catalog
 }

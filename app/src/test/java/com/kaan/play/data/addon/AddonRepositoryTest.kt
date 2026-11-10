@@ -180,4 +180,16 @@ class AddonRepositoryTest {
         assertEquals(1, repo.addons.first().size) // depo satırı listeye girmez
         assertEquals(2, dao.all().size)
     }
+
+    @Test
+    fun catalogOnlyAddonNeverProvidesStreams() = runTest {
+        response = {
+            """{"id":"org.cat","name":"Harici Katalog","types":["movie","series"],"resources":["catalog","stream"],"catalogs":[{"type":"movie","id":"top"}]}"""
+        }
+        val added = repo.addFetched("https://cat.example/manifest.json", response(), catalogOnly = true)
+        assertTrue(added.manifest.providesCatalogs)
+        assertFalse(added.manifest.providesStreams)
+        assertFalse(added.manifest.supportsStream("movie", "tt0111161"))
+        assertFalse(added.manifest.supportsStream("series", "tt0944947:1:1"))
+    }
 }

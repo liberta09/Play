@@ -266,6 +266,7 @@ class CentralReposCompatibilityTest {
                     SourceType.NUVIO_PLUGIN -> SourceType.NUVIO_REPO
                     SourceType.NUVIO_REPO -> SourceType.NUVIO_PLUGIN
                     SourceType.CLOUDSTREAM -> SourceType.NUVIO_PLUGIN
+                    SourceType.EXTERNAL_CATALOG -> SourceType.NUVIO_PLUGIN
                 }
 
                 val db = TestDb()
@@ -323,6 +324,11 @@ class CentralReposCompatibilityTest {
                         val root = CsRepoManifestParser.parseRoot(rawManifest!!)
                         contentSummary = "${root.pluginLists.size} eklenti listesi"
                         addedSuccessfully = root.pluginLists.isNotEmpty()
+                    }
+                    SourceType.EXTERNAL_CATALOG -> {
+                        val parsed = AddonManifestParser.parseCatalogOnly(rawManifest!!)
+                        contentSummary = "${parsed.catalogs.size} katalog"
+                        addedSuccessfully = parsed.catalogs.isNotEmpty()
                     }
                     null -> {
                         addError = "Desteklenmeyen format"
