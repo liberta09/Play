@@ -469,6 +469,9 @@ Ana sayfa, seçilen eklentinin/sağlayıcının kendi kataloğuyla beslenir. "T�
   - **Mükerrer Öğe ve Arayüz Çökmesi Koruması:** Bazı sağlayıcıların (ör. DiziKorea "Çin Dizileri") aynı içeriği tek bir kategoride birden fazla kez döndürmesi durumunda Compose'da oluşan `IllegalArgumentException: Key was already used` hatası; `CsCatalog` / `NuvioAddonCatalog` içinde `distinctBy` tekilleştirmesi ve `HomeScreen` `LazyRow`/`LazyColumn` anahtarlarında indeks birleştirmesi (`itemsIndexed`) ile kesin olarak çözüldü.
 - **Bilinen Sınırlar:** İnteraktif Turnstile gerektiren sitelerde (örn. DiziBox) ilk istekte kullanıcıya "Doğrula" butonu çıkar; kullanıcı kutucuğa bir kez dokunduğunda çerez önbelleğe alınır ve oturum boyunca tekrar sormaz. Alan adına ISP erişim engeli (Dizipal SSL) veya dış sunucu arızası (SineWix 404) bulunan siteler hata kartı verir, uygulamayı etkilemez.
 
+## Bilinen sınırlar
+- Favori silme henüz senkronda yayılmaz; bir cihazda silinen favori diğer cihazdan geri gelebilir.
+
 ## Yayın Hazırlığı
 
 ### 1. Keystore oluşturma (bir kez; şifreler git'e girmez)
