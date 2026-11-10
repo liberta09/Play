@@ -60,6 +60,8 @@ import coil3.compose.AsyncImage
 import com.kaan.play.R
 import com.kaan.play.data.provider.CatalogItem
 import com.kaan.play.data.provider.CatalogResult
+import com.kaan.play.data.provider.LiveCatalogRules
+import com.kaan.play.data.provider.LiveSourceRoute
 import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.ui.components.resolvePosterImageUrl
 import com.kaan.play.ui.components.IconButton
@@ -78,7 +80,13 @@ private data class LiveChannelEntry(
     val providerName: String,
 )
 
-private data class LiveChannelGroup(val key: String, val sources: List<LiveChannelEntry>) {
+private data class LiveChannelGroup(
+    val key: String,
+    val title: String,
+    val logoUrl: String?,
+    val routes: List<LiveSourceRoute>,
+    val sources: List<LiveChannelEntry>,
+) {
     val primary: LiveChannelEntry get() = sources.first()
 }
 
@@ -117,8 +125,25 @@ fun TvScreen(
         rows.flatMap { row ->
             row.items.map { item -> LiveChannelEntry(item, row.title, row.providerName) }
         }.distinctBy { "${it.item.providerId}:${it.item.id}" }
-            .groupBy { it.item.title.tvSearchKey().ifBlank { "${it.item.providerId}:${it.item.id}" } }
-            .map { (key, sources) -> LiveChannelGroup(key, sources) }
+            .groupBy {
+                LiveCatalogRules.channelGroupKey(it.item.title).ifBlank {
+                    "${it.item.providerId.trim()}:${it.item.id.trim()}"
+                }
+            }
+            .map { (key, sources) ->
+                val title = sources.first().item.title
+                val logoUrl = sources.firstNotNullOfOrNull { entry ->
+                    entry.item.posterUrl?.trim()?.takeIf { it.isNotEmpty() }
+                }
+                val routes = sources.mapNotNull { LiveCatalogRules.routeFor(it.item) }.distinct()
+                LiveChannelGroup(
+                    key = key,
+                    title = title,
+                    logoUrl = logoUrl,
+                    routes = routes,
+                    sources = sources,
+                )
+            }
     }
     val visibleChannels = remember(allChannels, query, sourceFilter) {
         val needle = query.tvSearchKey()
@@ -310,16 +335,16 @@ private fun LiveChannelCard(channel: LiveChannelGroup, onClick: () -> Unit) {
                 ),
         ) {
             val posterUrl = resolvePosterImageUrl(
-                fallbackUrl = entry.item.posterUrl,
+                fallbackUrl = channel.logoUrl,
                 posterId = PosterUrlTemplate.findImdbId(
                     entry.item.id,
                     entry.item.rawUrl,
-                    entry.item.posterUrl,
+                    channel.logoUrl,
                 ),
                 tmdbId = entry.item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(
                     entry.item.id,
                     entry.item.rawUrl,
-                    entry.item.posterUrl,
+                    channel.logoUrl,
                 ),
                 mediaType = entry.item.mediaType,
             )
@@ -332,7 +357,7 @@ private fun LiveChannelCard(channel: LiveChannelGroup, onClick: () -> Unit) {
                 )
             } else {
                 Text(
-                    text = entry.item.title,
+                    text = channel.title,
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
@@ -354,8 +379,9 @@ private fun LiveChannelCard(channel: LiveChannelGroup, onClick: () -> Unit) {
                     modifier = Modifier.padding(start = 5.dp),
                 )
             }
+            val routeCount = if (channel.routes.isNotEmpty()) channel.routes.size else channel.sources.size
             Text(
-                text = if (channel.sources.size > 1) stringResource(R.string.tv_sources_count, channel.sources.size) else entry.providerName,
+                text = if (routeCount > 1) stringResource(R.string.tv_sources_count, routeCount) else entry.providerName,
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.White,
                 maxLines = 1,
@@ -365,7 +391,7 @@ private fun LiveChannelCard(channel: LiveChannelGroup, onClick: () -> Unit) {
             )
         }
         Text(
-            text = entry.item.title,
+            text = channel.title,
             style = MaterialTheme.typography.titleMedium,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
