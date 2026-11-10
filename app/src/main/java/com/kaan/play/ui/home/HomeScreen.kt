@@ -42,6 +42,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -326,8 +327,15 @@ private fun HomeContent(
     val focus = rememberFocusMemory(enabled = firstReady)
 
     // LazyColumn anahtar bazlı konumu korur: en üste sonradan eklenen "devam et" satırı ekranın üstüne itilirdi.
+    // Geri dönüşte kaydırma konumunu sıfırlamamak için yalnızca ilk açılışta (restoreKey yokken) başa kaydırılır.
     val listState = rememberLazyListState()
-    LaunchedEffect(hasContinue) { if (hasContinue) listState.scrollToItem(0) }
+    var hadContinue by rememberSaveable { mutableStateOf(hasContinue) }
+    LaunchedEffect(hasContinue) {
+        if (hasContinue && !hadContinue && focus.restoreKey == null && listState.firstVisibleItemIndex <= 1) {
+            listState.scrollToItem(0)
+        }
+        hadContinue = hasContinue
+    }
     LaunchedEffect(listState) {
         onRegisterScrollToTop {
             if (listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0) {

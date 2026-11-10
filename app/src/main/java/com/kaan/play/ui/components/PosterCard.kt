@@ -47,8 +47,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.kaan.play.R
@@ -198,86 +200,119 @@ fun PosterCard(
         Modifier
     }
 
-    Column(modifier = modifier.zIndex(if (focused) 10f else 0f)) {
-        Column(modifier = Modifier.fillMaxWidth().then(keyModifier).then(clickModifier)) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(2f / 3f)
-                    .tvFocusableScaleGlow(
-                        scale = 1.06f,
-                        glowColor = Color(0xFF00E5FF),
-                        shape = shape,
-                        isFocused = focused,
-                        zIndex = 10f,
-                    )
-                    .clip(shape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-            ) {
-                if (resolvedImageUrl != null) {
-                    AsyncImage(
-                        model = resolvedImageUrl,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
-                overlay()
-                if (progress != null) {
-                    Box(
-                        Modifier.align(Alignment.BottomStart).fillMaxWidth().height(3.dp)
-                            .background(Color.Black.copy(alpha = 0.55f)),
-                    ) {
-                        Box(
-                            Modifier.fillMaxHeight().fillMaxWidth(progress.coerceIn(0f, 1f))
-                                .background(MaterialTheme.colorScheme.primary),
-                        )
-                    }
-                }
-            }
-            if (trailingAction == null) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = 8.dp),
+    @Composable
+    fun PosterImage() {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(2f / 3f)
+                .tvFocusableScaleGlow(
+                    scale = 1.06f,
+                    glowColor = Color(0xFF00E5FF),
+                    shape = shape,
+                    isFocused = focused,
+                    zIndex = 10f,
                 )
-                if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
+                .clip(shape)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+        ) {
+            if (resolvedImageUrl != null) {
+                AsyncImage(
+                    model = resolvedImageUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+            overlay()
+            if (progress != null) {
+                Box(
+                    Modifier.align(Alignment.BottomStart).fillMaxWidth().height(3.dp)
+                        .background(Color.Black.copy(alpha = 0.55f)),
+                ) {
+                    Box(
+                        Modifier.fillMaxHeight().fillMaxWidth(progress.coerceIn(0f, 1f))
+                            .background(MaterialTheme.colorScheme.primary),
                     )
                 }
             }
         }
-        if (trailingAction != null) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    if (subtitle != null) {
+    }
+
+    val clickableModifier = modifier.then(keyModifier).then(clickModifier)
+
+    if (trailingAction == null) {
+        Column(modifier = clickableModifier.zIndex(if (focused) 10f else 0f)) {
+            PosterImage()
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    } else {
+        // Çağıranın modifier'ı (focusRequester/focusMemory/width) doğrudan odaklanabilir afiş sütununa gider;
+        // alttaki başlık+eylem satırı afişin ölçülen genişliğine sabitlenir.
+        Layout(
+            modifier = Modifier.zIndex(if (focused) 10f else 0f),
+            content = {
+                Column(modifier = clickableModifier) {
+                    PosterImage()
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = subtitle,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            text = title,
+                            style = MaterialTheme.typography.titleMedium,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
+                        if (subtitle != null) {
+                            Text(
+                                text = subtitle,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
                     }
+                    trailingAction()
                 }
-                trailingAction()
+            },
+        ) { measurables, constraints ->
+            val posterPlaceable = measurables[0].measure(constraints)
+            val rowMaxHeight = if (constraints.hasBoundedHeight) {
+                (constraints.maxHeight - posterPlaceable.height).coerceAtLeast(0)
+            } else {
+                Constraints.Infinity
+            }
+            val rowPlaceable = measurables[1].measure(
+                Constraints(
+                    minWidth = posterPlaceable.width,
+                    maxWidth = posterPlaceable.width,
+                    minHeight = 0,
+                    maxHeight = rowMaxHeight,
+                ),
+            )
+            layout(posterPlaceable.width, posterPlaceable.height + rowPlaceable.height) {
+                posterPlaceable.placeRelative(0, 0)
+                rowPlaceable.placeRelative(0, posterPlaceable.height)
             }
         }
     }
