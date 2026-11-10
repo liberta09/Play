@@ -203,14 +203,16 @@ class InstalledAddonsViewModel(
     }
 }
 
-/** CloudStream depo yönetimi: listele ve kaldır. */
+/** CloudStream depo yönetimi: listele ve kaldır (varsa alt depoları basamaklı silme onayıyla). */
 class CsReposViewModel(private val csRepos: CsRepository) : ViewModel() {
 
     val repos: StateFlow<List<CsRepo>?> =
         csRepos.repos.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    fun remove(repo: CsRepo) {
-        viewModelScope.launch { csRepos.remove(repo.id) }
+    suspend fun removableSubRepoCount(repo: CsRepo): Int = csRepos.removableSubRepos(repo).size
+
+    fun remove(repo: CsRepo, cascadeSubRepos: Boolean = false) {
+        viewModelScope.launch { csRepos.remove(repo.id, cascadeSubRepos = cascadeSubRepos) }
     }
 }
 

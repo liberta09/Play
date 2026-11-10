@@ -426,6 +426,12 @@
     <string name="cs_repos_empty">Henüz CloudStream deposu eklenmedi.</string>
     <string name="cs_repo_remove_title">Depoyu kaldır</string>
     <string name="cs_repo_remove_body">"%1$s" deposu ve tüm eklentileri kaldırılsın mı?</string>
+    <plurals name="cs_repo_remove_with_subs_body">
+        <item quantity="one">"%1$s" kaldırılacak.\nBu depodan eklenen %2$d alt depo da kaldırılsın mı?</item>
+        <item quantity="other">"%1$s" kaldırılacak.\nBu depodan eklenen %2$d alt depo da kaldırılsın mı?</item>
+    </plurals>
+    <string name="cs_repo_remove_yes">Evet</string>
+    <string name="cs_repo_remove_only_this">Yalnızca bu depo</string>
     <string name="add_done_cs_repo">CloudStream deposu eklendi.</string>
     <string name="add_done_cs_repo_skipped">CloudStream deposu eklendi (%1$d eklenti atlandı).</string>
     <string name="update_title">Güncelleme mevcut</string>

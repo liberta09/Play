@@ -35,6 +35,8 @@ class PluginRepoRequestHandler(
     private val scope: CoroutineScope,
     private val debounceDelayMs: Long = 1500L,
     private val isBlockedHost: (host: String, port: Int) -> Boolean = { host, port -> PlayNetworkGuard.isBlockedHost(host, port) },
+    private val ownershipStore: SubRepoOwnershipStore? = null,
+    private val installSubRepo: (suspend (String) -> Unit)? = null,
 ) {
     constructor(
         installer: SourceInstaller,
@@ -43,6 +45,7 @@ class PluginRepoRequestHandler(
         scope: CoroutineScope,
         debounceDelayMs: Long = 1500L,
         isBlockedHost: (host: String, port: Int) -> Boolean = { host, port -> PlayNetworkGuard.isBlockedHost(host, port) },
+        ownershipStore: SubRepoOwnershipStore? = null,
     ) : this(
         installRepo = { installer.add(it) },
         addonDao = addonDao,
@@ -50,6 +53,8 @@ class PluginRepoRequestHandler(
         scope = scope,
         debounceDelayMs = debounceDelayMs,
         isBlockedHost = isBlockedHost,
+        ownershipStore = ownershipStore,
+        installSubRepo = { installer.add(it, com.kaan.play.data.plugin.SourceType.CLOUDSTREAM, fromSubRepo = true) },
     )
 
     private val lock = Any()
@@ -66,11 +71,18 @@ class PluginRepoRequestHandler(
     val events: Flow<PluginRepoEvent> = eventChannel.receiveAsFlow()
 
     fun enqueue(name: String, url: String) {
+        enqueueFromParent(parentRepoUrl = null, candidates = listOf(PluginRepoItem(name = name, url = url)))
+    }
+
+    fun enqueueFromParent(parentRepoUrl: String?, candidates: List<PluginRepoItem>) {
+        if (candidates.isEmpty()) return
         if (BuildConfig.DEBUG) {
-            android.util.Log.d("PlayCs", "PluginRepoRequestHandler.enqueue: istek kuyruga alindi")
+            android.util.Log.d("PlayCs", "PluginRepoRequestHandler.enqueue: ${candidates.size} istek kuyruga alindi")
         }
         synchronized(lock) {
-            rawCandidates.add(PluginRepoItem(name = name, url = url))
+            candidates.forEach { c ->
+                rawCandidates.add(if (parentRepoUrl != null && c.parentRepoUrl == null) c.copy(parentRepoUrl = parentRepoUrl) else c)
+            }
             debounceJob?.cancel()
             debounceJob = scope.launch {
                 delay(debounceDelayMs)
@@ -90,6 +102,16 @@ class PluginRepoRequestHandler(
         val installed = runCatching {
             addonDao.observeOfType(AddonType.CLOUDSTREAM_REPO).first().map { it.sourceUrl }.toSet()
         }.getOrDefault(emptySet())
+
+        val normalizedInstalled = installed.mapTo(HashSet(), PluginRepoRequestRules::normalizeUrl)
+        ownershipStore?.let { store ->
+            candidates
+                .filter { it.parentRepoUrl != null && PluginRepoRequestRules.normalizeUrl(it.url) in normalizedInstalled }
+                .groupBy { it.parentRepoUrl!! }
+                .forEach { (parent, shared) ->
+                    runCatching { store.recordSubRepos(parent, shared.map { it.url }) }
+                }
+        }
 
         val declined = runCatching {
             dataStore.data.first()[DECLINED_PLUGIN_REPOS] ?: emptySet()
@@ -127,9 +149,13 @@ class PluginRepoRequestHandler(
                 items.map { item ->
                     launch {
                         gate.withPermit {
-                            val res = runCatching { installRepo(item.url) }
+                            val installerFn = if (item.parentRepoUrl != null) (installSubRepo ?: installRepo) else installRepo
+                            val res = runCatching { installerFn(item.url) }
                             if (res.isSuccess) {
                                 successCount.incrementAndGet()
+                                item.parentRepoUrl?.let { parent ->
+                                    runCatching { ownershipStore?.recordSubRepos(parent, listOf(item.url)) }
+                                }
                             }
                         }
                     }

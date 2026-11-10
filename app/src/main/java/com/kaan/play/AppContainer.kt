@@ -496,6 +496,11 @@ class AppContainer(context: Context) {
     /** CloudStream eklenti çalıştırıcısı (search → load → loadLinks akışı). */
     val csRuntime: CsRuntime by lazy { CsRuntime() }
 
+    /** CloudStream alt depo sahiplik kayıtları (manual vs üst depodan onaylanan). */
+    val subRepoOwnership: com.kaan.play.data.cloudstream.SubRepoOwnershipStore by lazy {
+        com.kaan.play.data.cloudstream.SubRepoOwnershipStore(settings.store)
+    }
+
     /** CloudStream depo yöneticisi (Faz 3). Depo satırı `addons`, eklentiler `plugins` tablosunda. */
     val csRepos: CsRepository by lazy {
         CsRepository(
@@ -505,6 +510,10 @@ class AppContainer(context: Context) {
             httpClient = httpClient,
             store = csDexStore,
             loader = csDexLoader,
+            ownershipStore = subRepoOwnership,
+            onSubReposDiscovered = { parentUrl, subs ->
+                pluginRepoRequests.enqueueFromParent(parentUrl, subs)
+            },
         )
     }
 
@@ -825,6 +834,7 @@ class AppContainer(context: Context) {
             addonDao = database.addonDao(),
             dataStore = settings.store,
             scope = appScope,
+            ownershipStore = subRepoOwnership,
         )
     }
 

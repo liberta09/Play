@@ -2,9 +2,11 @@ package com.kaan.play.data.cloudstream
 
 import java.net.URI
 
+@kotlinx.serialization.Serializable
 data class PluginRepoItem(
     val name: String,
     val url: String,
+    val parentRepoUrl: String? = null,
 )
 
 object PluginRepoRequestRules {

@@ -444,6 +444,12 @@
     <string name="cs_repos_empty">No CloudStream repos added yet.</string>
     <string name="cs_repo_remove_title">Remove repo</string>
     <string name="cs_repo_remove_body">Remove "%1$s" and all its plugins?</string>
+    <plurals name="cs_repo_remove_with_subs_body">
+        <item quantity="one">"%1$s" will be removed.\nAlso remove %2$d sub-repository added from this repo?</item>
+        <item quantity="other">"%1$s" will be removed.\nAlso remove %2$d sub-repositories added from this repo?</item>
+    </plurals>
+    <string name="cs_repo_remove_yes">Yes</string>
+    <string name="cs_repo_remove_only_this">Only this repo</string>
     <string name="add_done_cs_repo">CloudStream repo added.</string>
     <string name="add_done_cs_repo_skipped">CloudStream repo added (%1$d plugins skipped).</string>
     <string name="update_title">Update available</string>

@@ -22,7 +22,8 @@ data class CsRepoRoot(
     val description: String? = null,
     val manifestVersion: Int = 1,
     @SerialName("pluginLists")
-    val pluginLists: List<String>,
+    val pluginLists: List<String> = emptyList(),
+    val subRepos: List<PluginRepoItem> = emptyList(),
 )
 
 /**
@@ -91,7 +92,7 @@ object CsRepoManifestParser {
      * Her `pluginLists` adresi indirilip birleştirilir (paralel değil; hata tek tek atlanır).
      * @throws AddonException
      */
-    fun parseRoot(raw: String): CsRepoRoot {
+    fun parseRoot(raw: String, baseUrl: String? = null): CsRepoRoot {
         val root = try {
             PlayJson.decodeFromString<JsonElement>(raw)
         } catch (e: SerializationException) {
@@ -101,15 +102,44 @@ object CsRepoManifestParser {
         }
         if (root !is JsonObject) throw AddonException(Kind.NotJson)
 
-        // pluginLists dizisi zorunludur
-        val listsEl = root["pluginLists"] as? JsonArray ?: throw AddonException(Kind.MissingField, "pluginLists")
-        val pluginLists = listsEl.mapNotNull { (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.content?.trim() }
-        if (pluginLists.isEmpty()) throw AddonException(Kind.NoPlugins)
+        val base = baseUrl?.toHttpUrlOrNull()
+        val listsEl = root["pluginLists"] as? JsonArray
+        val subRepos = parseSubRepos(root, base)
+        if (listsEl == null && subRepos.isEmpty()) throw AddonException(Kind.MissingField, "pluginLists")
 
-        val name = (root["name"] as? JsonPrimitive)?.content?.trim() ?: "CloudStream Repo"
+        val pluginLists = listsEl?.mapNotNull { (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.content?.trim()?.ifEmpty { null } }.orEmpty()
+        if (pluginLists.isEmpty() && subRepos.isEmpty()) throw AddonException(Kind.NoPlugins)
+
+        val name = (root["name"] as? JsonPrimitive)?.content?.trim()?.ifEmpty { null } ?: "CloudStream Repo"
         val description = (root["description"] as? JsonPrimitive)?.content?.trim()
 
-        return CsRepoRoot(name = name, description = description, pluginLists = pluginLists)
+        return CsRepoRoot(name = name, description = description, pluginLists = pluginLists, subRepos = subRepos)
+    }
+
+    private fun parseSubRepos(root: JsonObject, base: okhttp3.HttpUrl?): List<PluginRepoItem> {
+        val keys = listOf("repositories", "repos", "subRepos", "includedRepos", "includedRepositories")
+        val result = mutableListOf<PluginRepoItem>()
+        for (key in keys) {
+            val arr = root[key] as? JsonArray ?: continue
+            for (el in arr) {
+                when (el) {
+                    is JsonPrimitive -> if (el.isString) {
+                        val rawUrl = el.content.trim()
+                        val resolved = resolveUrl(rawUrl, base) ?: continue
+                        result += PluginRepoItem(name = "", url = resolved)
+                    }
+                    is JsonObject -> {
+                        val rawUrl = (el["url"] ?: el["repoUrl"] ?: el["href"]).let { (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.content?.trim() }
+                            ?: continue
+                        val resolved = resolveUrl(rawUrl, base) ?: continue
+                        val itemName = (el["name"] ?: el["title"]).let { (it as? JsonPrimitive)?.takeIf { p -> p.isString }?.content?.trim() }.orEmpty()
+                        result += PluginRepoItem(name = itemName, url = resolved)
+                    }
+                    else -> Unit
+                }
+            }
+        }
+        return result.distinctBy { PluginRepoRequestRules.normalizeUrl(it.url) }
     }
 
     /** `plugins.json` içeriğini eklenti listesine dönüştürür; bozuk girişler atlanır. */

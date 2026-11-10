@@ -85,12 +85,16 @@ enum class ManifestKind {
                 return PluginRepo
             }
 
-            // Kural 2: CloudStream deposu (pluginLists veya manifestVersion + plugins)
+            // Kural 2: CloudStream deposu (pluginLists, manifestVersion+plugins veya alt depo listesi)
             val pluginLists = root["pluginLists"]
             if (pluginLists is JsonArray && pluginLists.isNotEmpty()) {
                 return External
             }
             if (root["manifestVersion"] != null && root["plugins"] is JsonArray) {
+                return External
+            }
+            val subRepoKeys = listOf("repositories", "repos", "subRepos", "includedRepos", "includedRepositories")
+            if (subRepoKeys.any { key -> (root[key] as? JsonArray)?.isNotEmpty() == true }) {
                 return External
             }
 

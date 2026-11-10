@@ -156,7 +156,11 @@ fun RepositoriesScreen(onBack: () -> Unit, onOpenAddon: (Long) -> Unit = {}) {
                 if (csList.isNotEmpty()) {
                     item(key = "section-cs") { RepoSectionTitle(stringResource(R.string.repos_section_cloudstream)) }
                     items(csList, key = { "cs-${it.id}" }) { repo ->
-                        CsRepoRow(repo = repo, onRemove = { csVm.remove(repo) })
+                        CsRepoRow(
+                            repo = repo,
+                            removableSubCount = { csVm.removableSubRepoCount(it) },
+                            onRemove = { cascade -> csVm.remove(repo, cascadeSubRepos = cascade) },
+                        )
                     }
                 }
             }
