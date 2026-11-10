@@ -252,6 +252,11 @@ class AppContainer(context: Context) {
     /** Elle seçilen kaynak (film/dizi başına): sonraki açılışta ve dizinin sonraki bölümünde önce denenir. Ayarlarla aynı DataStore. */
     val sourceMemory: SourceMemory by lazy { SourceMemory(settings.store) }
 
+    /** Dil bilgisi olmayan ses parçalarında kullanıcının elle seçtiği parçayı öğrenme deposu. */
+    val audioTrackLearning: com.kaan.play.data.player.AudioTrackLearningStore by lazy {
+        com.kaan.play.data.player.AudioTrackLearningStore(settings.store)
+    }
+
     /** Doğrudan HTTP kaynakların dosya boyutu (HEAD ile; hata sessizce geçilir). */
     val sizeProbe: SizeProbe by lazy { SizeProbe(httpClient) }
 

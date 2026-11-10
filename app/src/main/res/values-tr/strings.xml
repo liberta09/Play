@@ -682,4 +682,5 @@
     <string name="player_btn_next_audio">Sonraki ses izi</string>
     <string name="player_audio_unknown_hint">Ses izi tanınamadı; parçalar arasında geçiş yapabilirsin.</string>
     <string name="player_audio_unknown_named">%1$s · Ses izi tanınamadı; parçalar arasında geçiş yapabilirsin.</string>
+    <string name="player_audio_selecting_learned">Olası ses izi seçiliyor…</string>
 </resources>
