@@ -707,4 +707,5 @@
         <item quantity="one">Geçen süre: %1$d sn</item>
         <item quantity="other">Geçen süre: %1$d sn</item>
     </plurals>
+    <string name="player_age_rating">Yaş sınıfı %1$s · %2$s</string>
 </resources>

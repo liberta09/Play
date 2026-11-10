@@ -1,6 +1,7 @@
 package com.kaan.play.data.tmdb
 
 import com.kaan.play.data.match.toContentIdentity
+import com.kaan.play.data.model.AgeRating
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.net.PlayJson
 import com.kaan.play.i18n.UiLanguage
@@ -455,5 +456,35 @@ class TmdbRepositoryTest {
         fixtures["find/tt0000000|tr-TR"] = """{"movie_results":[],"tv_results":[]}"""
         val found = repo().findByImdb("tt0000000")
         assertNull(found)
+    }
+
+    @Test
+    fun ageRatingPrefersTrEvenUnderEnglishUiAndFallsBackToUs() = runTest {
+        language = UiLanguage.English
+        fixtures["movie/101|en-US"] = """
+            {"id":101,"title":"Film","overview":"x","release_dates":{"results":[
+              {"iso_3166_1":"US","release_dates":[{"certification":"R"}]},
+              {"iso_3166_1":"TR","release_dates":[{"certification":"16+"}]}
+            ]}}
+        """
+        val movie = repo().detail(MediaType.Movie, 101)
+        assertEquals("R", movie.certification)
+        assertEquals(AgeRating("16+", "TR"), movie.ageRating)
+
+        fixtures["tv/102|en-US"] = """
+            {"id":102,"name":"Show","overview":"x","content_ratings":{"results":[
+              {"iso_3166_1":"DE","rating":"12"},
+              {"iso_3166_1":"US","rating":"TV-14"}
+            ]}}
+        """
+        val tv = repo().detail(MediaType.Tv, 102)
+        assertEquals(AgeRating("TV-14", "US"), tv.ageRating)
+
+        fixtures["movie/103|en-US"] = """
+            {"id":103,"title":"NoTRUS","overview":"x","release_dates":{"results":[
+              {"iso_3166_1":"GB","release_dates":[{"certification":"15"}]}
+            ]}}
+        """
+        assertNull(repo().detail(MediaType.Movie, 103).ageRating)
     }
 }

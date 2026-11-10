@@ -45,7 +45,15 @@ data class StreamRequest(
  * dizide dizi adıdır; [posterPath] dizinin/filmin afişidir.
  */
 @Serializable
-data class PlayTarget(val request: StreamRequest, val title: String, val posterPath: String?, val logoPath: String? = null, val backdropPath: String? = null)
+data class PlayTarget(
+    val request: StreamRequest,
+    val title: String,
+    val posterPath: String?,
+    val logoPath: String? = null,
+    val backdropPath: String? = null,
+    val ageRating: String? = null,
+    val ageRatingRegion: String? = null,
+)
 
 /** Sonucu veren addon. */
 @Serializable

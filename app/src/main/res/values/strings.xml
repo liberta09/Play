@@ -726,4 +726,5 @@
         <item quantity="one">Elapsed: %1$d s</item>
         <item quantity="other">Elapsed: %1$d s</item>
     </plurals>
+    <string name="player_age_rating">Age rating %1$s · %2$s</string>
 </resources>

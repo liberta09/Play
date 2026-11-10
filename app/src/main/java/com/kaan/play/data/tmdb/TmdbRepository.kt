@@ -1,5 +1,6 @@
 package com.kaan.play.data.tmdb
 
+import com.kaan.play.data.model.AgeRating
 import com.kaan.play.data.model.CastMember
 import com.kaan.play.data.model.Episode
 import com.kaan.play.data.model.HeroItem
@@ -209,6 +210,7 @@ private fun DetailDto.toDetail(
     },
     logoPath = images?.logos?.let { pickLogo(it, language.iso) },
     certification = certificationFor(type, language),
+    ageRating = ageRatingFor(type),
     directors = credits?.crew.orEmpty().filter { it.job == "Director" }.names(),
     writers = credits?.crew.orEmpty().filter { it.job in WRITER_JOBS }.names(),
     creators = createdBy.mapNotNull { it.name }.names(),
@@ -260,18 +262,28 @@ private fun List<String>.names(): List<String> = filter { it.isNotBlank() }.dist
  */
 private fun DetailDto.certificationFor(type: MediaType, language: UiLanguage): String? {
     val regions = listOf(language.region, UiLanguage.English.region).distinct()
-    val byRegion: Map<String, String> = when (type) {
-        MediaType.Movie -> releaseDates?.results.orEmpty().mapNotNull { c ->
-            val cert = c.releases.firstNotNullOfOrNull { it.certification?.trim()?.takeIf(String::isNotEmpty) }
-            if (c.country != null && cert != null) c.country to cert else null
-        }
-        MediaType.Tv -> contentRatings?.results.orEmpty().mapNotNull { c ->
-            val cert = c.rating?.trim()?.takeIf(String::isNotEmpty)
-            if (c.country != null && cert != null) c.country to cert else null
-        }
-    }.toMap()
+    val byRegion = certificationMap(type)
     return regions.firstNotNullOfOrNull { byRegion[it] }
 }
+
+/** Oynatma başlangıcındaki yaş sınırı etiketi: önce TR, yoksa US. */
+private fun DetailDto.ageRatingFor(type: MediaType): AgeRating? {
+    val byRegion = certificationMap(type)
+    return listOf("TR", "US").firstNotNullOfOrNull { region ->
+        byRegion[region]?.let { cert -> AgeRating(cert, region) }
+    }
+}
+
+private fun DetailDto.certificationMap(type: MediaType): Map<String, String> = when (type) {
+    MediaType.Movie -> releaseDates?.results.orEmpty().mapNotNull { c ->
+        val cert = c.releases.firstNotNullOfOrNull { it.certification?.trim()?.takeIf(String::isNotEmpty) }
+        if (c.country != null && cert != null) c.country to cert else null
+    }
+    MediaType.Tv -> contentRatings?.results.orEmpty().mapNotNull { c ->
+        val cert = c.rating?.trim()?.takeIf(String::isNotEmpty)
+        if (c.country != null && cert != null) c.country to cert else null
+    }
+}.toMap()
 
 /** TMDB `include_image_language` değeri: arayüz dili, İngilizce, dilsiz. */
 internal fun imageLanguagesFor(language: UiLanguage): String =

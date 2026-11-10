@@ -497,6 +497,8 @@ fun PlayRoot() {
                 posterPath = entry.posterPath,
                 logoPath = detail.logoPath,
                 backdropPath = detail.summary.backdropPath,
+                ageRating = detail.ageRating?.rating,
+                ageRatingRegion = detail.ageRating?.region,
             )
             play(target, startAt, autoResumed = true)
         }

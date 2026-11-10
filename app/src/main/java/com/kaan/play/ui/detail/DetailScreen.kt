@@ -149,12 +149,30 @@ fun DetailScreen(
                 onOpenActor = onOpenActor,
                 onPlay = { s, e ->
                     val media = d.value.summary
-                    onPlay(PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath, d.value.logoPath, media.backdropPath))
+                    onPlay(
+                        PlayTarget(
+                            request = StreamRequest(media.id, d.value.imdbId, media.type, s, e),
+                            title = media.title,
+                            posterPath = media.posterPath,
+                            logoPath = d.value.logoPath,
+                            backdropPath = media.backdropPath,
+                            ageRating = d.value.ageRating?.rating,
+                            ageRatingRegion = d.value.ageRating?.region,
+                        ),
+                    )
                 },
                 downloads = downloads,
                 onDownload = { s, e ->
                     val media = d.value.summary
-                    downloadFor = PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath, d.value.logoPath, media.backdropPath)
+                    downloadFor = PlayTarget(
+                        request = StreamRequest(media.id, d.value.imdbId, media.type, s, e),
+                        title = media.title,
+                        posterPath = media.posterPath,
+                        logoPath = d.value.logoPath,
+                        backdropPath = media.backdropPath,
+                        ageRating = d.value.ageRating?.rating,
+                        ageRatingRegion = d.value.ageRating?.region,
+                    )
                 },
                 listState = listState,
             )

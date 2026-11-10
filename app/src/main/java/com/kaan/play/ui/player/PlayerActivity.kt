@@ -29,6 +29,8 @@ import com.kaan.play.R
 import com.kaan.play.data.db.DownloadStatus
 import com.kaan.play.data.download.DownloadedSubtitleLoader
 import com.kaan.play.data.library.WatchRules
+import com.kaan.play.data.model.AgeRating
+import com.kaan.play.data.model.MediaDetail
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.player.AudioTrackLearning
 import com.kaan.play.data.player.AudioTrackRules
@@ -49,7 +51,9 @@ import com.kaan.play.data.provider.LiveZapRules
 import com.kaan.play.data.provider.LiveZapTicket
 import com.kaan.play.data.stream.PlayTarget
 import com.kaan.play.data.stream.StreamRequest
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withTimeoutOrNull
 import com.kaan.play.data.stream.DeviceCodecs
 import com.kaan.play.data.stream.PlayableStream
@@ -90,6 +94,9 @@ class PlayerActivity : AppCompatActivity() {
     /** Çevrimiçi oynatmada kaynak seçimi; indirilmiş kopyada (çevrimdışı) null. */
     private var coordinator by mutableStateOf<SourceCoordinator?>(null)
     private var activeTarget by mutableStateOf<PlayTarget?>(null)
+    private var resolvedAgeRating by mutableStateOf<AgeRating?>(null)
+    private var sessionDetailKey: Pair<MediaType, Int>? = null
+    private var sessionDetailDeferred: Deferred<MediaDetail?>? = null
 
     /** Şu an oynayan akış (kaynak değişince güncellenir); sonraki bölümde "aynı eklenti" bundan bulunur. */
     private var currentStream: PlayableStream? = null
@@ -204,6 +211,17 @@ class PlayerActivity : AppCompatActivity() {
             showLiveChannelBanner(parsed.target.title, switching = false)
         }
         val container = (application as PlayApp).container
+        if (!isLiveSession && parsed.offline == null) {
+            val targetRating = parsed.target.ageRating?.takeIf { it.isNotBlank() }
+            val targetRegion = parsed.target.ageRatingRegion?.takeIf { it.isNotBlank() }
+            if (targetRating != null && targetRegion != null) {
+                resolvedAgeRating = AgeRating(targetRating, targetRegion)
+            } else if (parsed.target.request.tmdbId > 0) {
+                lifecycleScope.launch {
+                    resolvedAgeRating = sessionDetailAsync(parsed.target.request.type, parsed.target.request.tmdbId).await()?.ageRating
+                }
+            }
+        }
 
         runCatching {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -516,6 +534,8 @@ class PlayerActivity : AppCompatActivity() {
                         container.appScope.launch { container.settings.setSlowConnectionMode(true) }
                     },
                     onDismissSlowPrompt = { slowConnectionPromptVisible = false },
+                    ageRating = resolvedAgeRating?.rating,
+                    ageRatingRegion = resolvedAgeRating?.region,
                     onLockedChanged = { playbackLocked = it },
                     onBack = ::finish,
                 )
@@ -1136,15 +1156,27 @@ class PlayerActivity : AppCompatActivity() {
      * İçerik doğrulaması için TMDB süresi (dk): film süresi; dizide önce o bölümün süresi, yoksa dizinin bölüm süresi.
      * Ağ/TMDB hatasında null: süre kontrolü yapılmaz (kaynak elenmez).
      */
+    private fun sessionDetailAsync(type: MediaType, tmdbId: Int): Deferred<MediaDetail?> {
+        val key = type to tmdbId
+        val existing = sessionDetailDeferred
+        if (sessionDetailKey == key && existing != null) return existing
+        val created = lifecycleScope.async(Dispatchers.IO) {
+            runCatching { appContainer.tmdb.detail(type, tmdbId) }.getOrNull()
+        }
+        sessionDetailKey = key
+        sessionDetailDeferred = created
+        return created
+    }
+
     private suspend fun expectedRuntimeMinutes(request: com.kaan.play.data.stream.StreamRequest): Int? = runCatching {
-        val detail = appContainer.tmdb.detail(request.type, request.tmdbId)
+        val detail = if (request.tmdbId > 0) sessionDetailAsync(request.type, request.tmdbId).await() else null
         val season = request.season
         val episode = request.episode
         if (request.type == MediaType.Tv && season != null && episode != null) {
             appContainer.tmdb.season(request.tmdbId, season).episodes.firstOrNull { it.number == episode }?.runtimeMinutes
-                ?: detail.runtimeMinutes
+                ?: detail?.runtimeMinutes
         } else {
-            detail.runtimeMinutes
+            detail?.runtimeMinutes
         }
     }.getOrNull()
 
@@ -1188,7 +1220,11 @@ class PlayerActivity : AppCompatActivity() {
             dataUrl = dataUrl,
             refresh = false,
         )
-        val target = session.target.copy(request = request)
+        val target = session.target.copy(
+            request = request,
+            ageRating = resolvedAgeRating?.rating ?: session.target.ageRating,
+            ageRatingRegion = resolvedAgeRating?.region ?: session.target.ageRatingRegion,
+        )
         appContainer.downloads.completedFor(request)?.let { return NextPlayback.Offline(target, it) }
         if (session.offline != null) return null
         val playing = currentStream

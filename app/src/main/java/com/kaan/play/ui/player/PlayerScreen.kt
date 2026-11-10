@@ -208,6 +208,9 @@ fun PlayerScreen(
     slowPromptVisible: Boolean = false,
     onEnableSlowConnection: () -> Unit = {},
     onDismissSlowPrompt: () -> Unit = {},
+    /** Oynatma başlangıcında ilk ~4-5 sn gösterilen TMDB yaş sınıfı (TR varsa TR, yoksa US). */
+    ageRating: String? = null,
+    ageRatingRegion: String? = null,
     /** Kilit durumu değişince etkinliğe bildirilir (`Activity.onKeyDown` kilitliyken zap yapmasın). */
     onLockedChanged: (Boolean) -> Unit = {},
     onBack: () -> Unit,
@@ -1033,6 +1036,51 @@ fun PlayerScreen(
                 if (liveZapSwitching) {
                     CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.primary)
                 }
+            }
+        }
+
+        val effectiveAgeRating = (ageRating ?: target.ageRating)?.takeIf { it.isNotBlank() }
+        val effectiveAgeRegion = (ageRatingRegion ?: target.ageRatingRegion)?.takeIf { it.isNotBlank() }
+        val ageRatingLabel = if (!isLiveBroadcast && effectiveAgeRating != null && effectiveAgeRegion != null) {
+            stringResource(R.string.player_age_rating, effectiveAgeRating, effectiveAgeRegion)
+        } else null
+        var ageRatingVisible by remember(target.request.tmdbId, target.request.season, target.request.episode) {
+            mutableStateOf(false)
+        }
+        var ageRatingShown by remember(target.request.tmdbId, target.request.season, target.request.episode) {
+            mutableStateOf(false)
+        }
+        LaunchedEffect(ui.firstFrameRendered, ageRatingLabel, isLiveBroadcast) {
+            if (!isLiveBroadcast && ui.firstFrameRendered && ageRatingLabel != null && !ageRatingShown) {
+                ageRatingShown = true
+                ageRatingVisible = true
+                delay(4_500L)
+                ageRatingVisible = false
+            }
+        }
+        AnimatedVisibility(
+            visible = ageRatingVisible && ageRatingLabel != null && !locked && !showTorrentOverlay && ui.error == null,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .statusBarsPadding()
+                .padding(start = 24.dp, top = if (controlsVisible) 84.dp else 20.dp),
+        ) {
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = Color.Black.copy(alpha = 0.78f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
+            ) {
+                Text(
+                    text = ageRatingLabel.orEmpty(),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                )
             }
         }
 
