@@ -586,6 +586,10 @@ class PlaybackController(
         ui = ui.copy(error = PlaybackError.Unavailable, buffering = false)
     }
 
+    fun clearError() {
+        ui = ui.copy(error = null)
+    }
+
     fun togglePlay() {
         if (player.isPlaying) player.pause() else player.play()
     }

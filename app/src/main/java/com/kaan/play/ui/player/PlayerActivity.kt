@@ -31,6 +31,8 @@ import com.kaan.play.data.download.DownloadedSubtitleLoader
 import com.kaan.play.data.library.WatchRules
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.provider.LiveCatalogRules
+import com.kaan.play.data.provider.LiveRoutePlanner
+import com.kaan.play.data.provider.LiveSourceRoute
 import com.kaan.play.data.provider.LiveZapChannel
 import com.kaan.play.data.provider.LiveZapListHolder
 import com.kaan.play.data.provider.LiveZapListSource
@@ -122,11 +124,18 @@ class PlayerActivity : AppCompatActivity() {
     private var lastZapConsumedDownTime = -1L
     private var activeZapRollback: ZapRollback? = null
     private var autoSourceSetting = true
+    private val sessionFailedRouteKeys = LinkedHashSet<String>()
+    private var currentChannelRoutes: List<LiveSourceRoute> = emptyList()
+    private var currentRouteIndex = 0
+    private var allLiveRoutesExhausted by mutableStateOf(false)
+    private var routeSwitchJob: Job? = null
 
     private data class ZapRollback(
         val previousSession: PlaySession,
         val previousStream: PlayableStream?,
         val previousIndex: Int,
+        val previousRoutes: List<LiveSourceRoute>,
+        val previousRouteIndex: Int,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -162,6 +171,12 @@ class PlayerActivity : AppCompatActivity() {
             else -> 0
         }
         canZapChannels = isLiveSession && zapSource != LiveZapListSource.Unavailable && liveZapChannels.isNotEmpty()
+        currentChannelRoutes = if (isLiveSession) {
+            liveZapChannels.getOrNull(currentZapIndex)?.routes?.takeIf { it.isNotEmpty() }
+                ?: listOfNotNull(LiveRoutePlanner.routeFromRequest(parsed.target.request))
+        } else emptyList()
+        currentRouteIndex = 0
+        allLiveRoutesExhausted = false
         if (isLiveSession) {
             showLiveChannelBanner(parsed.target.title, switching = false)
         }
@@ -281,6 +296,7 @@ class PlayerActivity : AppCompatActivity() {
             val sources = createSourceCoordinator(session.target.request)
             coordinator = sources
             controller.onFirstFrame = {
+                allLiveRoutesExhausted = false
                 coordinator?.onFirstFrame()
                 container.torrentEngine.onFirstFrame()
                 val ticket = pendingZapTicket
@@ -333,9 +349,13 @@ class PlayerActivity : AppCompatActivity() {
             controller.onDurationKnown = { coordinator?.onDuration(it) }
             controller.onFailure = { detail -> leaving || (coordinator?.onFailure(detail) == true) }
             lifecycleScope.launch {
-                snapshotFlow { Pair(coordinator, coordinator?.phase) }.collect { (_, phase) ->
-                    if (phase == SourcePhase.Failed && activeZapRollback != null && !leaving) {
-                        revertFailedLiveZap()
+                snapshotFlow { Pair(coordinator, coordinator?.phase) }.collect { (coord, phase) ->
+                    if (coord != null && phase == SourcePhase.Failed && !leaving) {
+                        if (LiveCatalogRules.isLiveRequest(session.target.request)) {
+                            handleLiveSourceCoordinatorFailed(coord)
+                        } else if (activeZapRollback != null) {
+                            revertFailedLiveZap()
+                        }
                     }
                 }
             }
@@ -406,6 +426,8 @@ class PlayerActivity : AppCompatActivity() {
                     liveChannelBanner = liveChannelBanner,
                     liveZapSwitching = liveZapSwitching,
                     liveNotice = liveNotice,
+                    allLiveRoutesExhausted = allLiveRoutesExhausted,
+                    onScanLiveProvider = if (offline == null && LiveCatalogRules.isLiveRequest((activeTarget ?: session.target).request)) ::scanAnotherLiveProvider else null,
                     onLockedChanged = { playbackLocked = it },
                     onBack = ::finish,
                 )
@@ -559,9 +581,10 @@ class PlayerActivity : AppCompatActivity() {
         pendingZapTicket = ticket
         liveNotice = null
         showLiveChannelBanner(targetChannel.title, switching = true)
+        routeSwitchJob?.cancel()
         zapJob?.cancel()
         zapJob = lifecycleScope.launch {
-            val found = discoverFirstLiveRouteStreams(targetChannel)
+            val found = discoverFirstLiveRouteStreams(targetChannel.routes, startIndex = 0, title = targetChannel.title, markEmptyFailed = true)
             if (!zapSequencer.isLatest(ticket)) return@launch
             if (found == null) {
                 pendingZapIndex = null
@@ -571,48 +594,186 @@ class PlayerActivity : AppCompatActivity() {
                 showLiveNotice(getString(R.string.live_zap_reverted))
                 return@launch
             }
-            val (route, streams) = found
+            val (routeIdx, route, streams) = found
             val rollback = activeZapRollback ?: ZapRollback(
                 previousSession = session,
                 previousStream = currentStream,
                 previousIndex = currentZapIndex.takeIf { it in liveZapChannels.indices } ?: base,
+                previousRoutes = currentChannelRoutes,
+                previousRouteIndex = currentRouteIndex,
             )
             activeZapRollback = rollback
-            coordinator?.cancel()
-            val newRequest = LiveZapRules.toStreamRequest(route, targetChannel.title)
-            val newTarget = PlayTarget(
-                request = newRequest,
+            currentChannelRoutes = targetChannel.routes
+            currentRouteIndex = routeIdx
+            allLiveRoutesExhausted = false
+            controller.clearError()
+            startLiveRouteCoordinator(
+                route = route,
                 title = targetChannel.title,
-                posterPath = targetChannel.logoUrl,
+                posterUrl = targetChannel.logoUrl,
+                channelKey = targetChannel.channelKey,
+                streams = streams,
             )
-            val newSession = session.copy(
-                target = newTarget,
-                stream = streams.first(),
-                fallbacks = streams.drop(1),
-                startPositionMs = 0L,
-                autoSource = false,
-                liveChannelKey = targetChannel.channelKey,
-            )
-            session = newSession
-            activeTarget = newTarget
-            val nextCoord = createSourceCoordinator(newRequest)
-            coordinator = nextCoord
-            controller.onDurationKnown = { nextCoord.onDuration(it) }
-            controller.onFailure = { detail -> leaving || nextCoord.onFailure(detail) }
-            nextCoord.start(initial = streams.first(), fallbacks = streams.drop(1), startMs = 0L)
         }
     }
 
+    private fun scanAnotherLiveProvider() {
+        if (leaving || !LiveCatalogRules.isLiveRequest(session.target.request)) return
+        val nextIdx = LiveRoutePlanner.nextUntriedRouteIndex(
+            routes = currentChannelRoutes,
+            currentIndex = currentRouteIndex,
+            failedKeys = sessionFailedRouteKeys,
+        )
+        if (nextIdx == null) {
+            showLiveNotice(getString(R.string.live_route_not_found))
+            return
+        }
+        switchToLiveRoute(
+            startRouteIndex = nextIdx,
+            statusNotice = getString(R.string.live_route_retrying),
+            markFailedOnEmpty = true,
+            revertZapIfExhausted = false,
+        )
+    }
+
+    private fun handleLiveSourceCoordinatorFailed(failedCoordinator: SourceCoordinator) {
+        if (leaving || coordinator !== failedCoordinator) return
+        val currentRoute = currentChannelRoutes.getOrNull(currentRouteIndex)
+            ?: LiveRoutePlanner.routeFromRequest(session.target.request)
+        if (currentRoute != null) {
+            sessionFailedRouteKeys += LiveRoutePlanner.routeKey(currentRoute)
+        }
+        val nextIdx = LiveRoutePlanner.nextUntriedRouteIndex(
+            routes = currentChannelRoutes,
+            currentIndex = currentRouteIndex,
+            failedKeys = sessionFailedRouteKeys,
+        )
+        if (nextIdx != null) {
+            switchToLiveRoute(
+                startRouteIndex = nextIdx,
+                statusNotice = getString(R.string.live_route_retrying),
+                markFailedOnEmpty = true,
+                revertZapIfExhausted = activeZapRollback != null,
+            )
+            return
+        }
+        if (activeZapRollback != null) {
+            revertFailedLiveZap()
+        } else {
+            allLiveRoutesExhausted = true
+            showLiveNotice(getString(R.string.live_route_not_found))
+        }
+    }
+
+    private fun switchToLiveRoute(
+        startRouteIndex: Int,
+        statusNotice: String,
+        markFailedOnEmpty: Boolean,
+        revertZapIfExhausted: Boolean,
+    ) {
+        val routes = currentChannelRoutes
+        if (routes.isEmpty()) {
+            if (revertZapIfExhausted && activeZapRollback != null) {
+                revertFailedLiveZap()
+            } else {
+                showLiveNotice(getString(R.string.live_route_not_found))
+            }
+            return
+        }
+        val channelTitle = session.target.title
+        val channelLogo = session.target.posterPath
+        val channelKey = session.liveChannelKey
+        showLiveNotice(statusNotice)
+        showLiveChannelBanner(channelTitle, switching = true)
+        routeSwitchJob?.cancel()
+        val avoidIdx = currentRouteIndex
+        routeSwitchJob = lifecycleScope.launch {
+            val found = discoverFirstLiveRouteStreams(
+                routes = routes,
+                startIndex = startRouteIndex,
+                title = channelTitle,
+                markEmptyFailed = markFailedOnEmpty,
+                excludeIndex = avoidIdx,
+            )
+            if (found == null) {
+                liveZapSwitching = false
+                if (revertZapIfExhausted && activeZapRollback != null) {
+                    revertFailedLiveZap()
+                } else {
+                    allLiveRoutesExhausted = allLiveRoutesExhausted || (coordinator?.phase == SourcePhase.Failed)
+                    showLiveChannelBanner(channelTitle, switching = false)
+                    showLiveNotice(getString(R.string.live_route_not_found))
+                }
+                return@launch
+            }
+            val (foundIdx, route, streams) = found
+            currentRouteIndex = foundIdx
+            allLiveRoutesExhausted = false
+            controller.clearError()
+            startLiveRouteCoordinator(
+                route = route,
+                title = channelTitle,
+                posterUrl = channelLogo,
+                channelKey = channelKey,
+                streams = streams,
+            )
+        }
+    }
+
+    private fun startLiveRouteCoordinator(
+        route: LiveSourceRoute,
+        title: String,
+        posterUrl: String?,
+        channelKey: String?,
+        streams: List<PlayableStream>,
+    ) {
+        coordinator?.cancel()
+        val newRequest = LiveZapRules.toStreamRequest(route, title)
+        val newTarget = PlayTarget(
+            request = newRequest,
+            title = title,
+            posterPath = posterUrl,
+        )
+        session = session.copy(
+            target = newTarget,
+            stream = streams.first(),
+            fallbacks = streams.drop(1),
+            startPositionMs = 0L,
+            autoSource = false,
+            liveChannelKey = channelKey,
+        )
+        activeTarget = newTarget
+        val nextCoord = createSourceCoordinator(newRequest)
+        coordinator = nextCoord
+        controller.onDurationKnown = { nextCoord.onDuration(it) }
+        controller.onFailure = { detail -> leaving || nextCoord.onFailure(detail) }
+        nextCoord.start(initial = streams.first(), fallbacks = streams.drop(1), startMs = 0L)
+    }
+
     private suspend fun discoverFirstLiveRouteStreams(
-        channel: LiveZapChannel,
-    ): Pair<com.kaan.play.data.provider.LiveSourceRoute, List<PlayableStream>>? {
-        for (route in channel.routes) {
-            val request = LiveZapRules.toStreamRequest(route, channel.title)
+        routes: List<LiveSourceRoute>,
+        startIndex: Int,
+        title: String,
+        markEmptyFailed: Boolean,
+        excludeIndex: Int = -1,
+    ): Triple<Int, LiveSourceRoute, List<PlayableStream>>? {
+        if (routes.isEmpty()) return null
+        val start = startIndex.coerceIn(0, routes.lastIndex)
+        for (offset in routes.indices) {
+            val idx = (start + offset) % routes.size
+            if (idx == excludeIndex) continue
+            val route = routes[idx]
+            val key = LiveRoutePlanner.routeKey(route)
+            if (key in sessionFailedRouteKeys) continue
+            val request = LiveZapRules.toStreamRequest(route, title)
             val collected = withTimeoutOrNull(8_000L) {
                 AutoNextRules.collect(appContainer.streams.streams(request), preferredAddonId = null)
             }.orEmpty().filter { !it.url.isNullOrBlank() }
             if (collected.isNotEmpty()) {
-                return route to collected
+                return Triple(idx, route, collected)
+            }
+            if (markEmptyFailed) {
+                sessionFailedRouteKeys += key
             }
         }
         return null
@@ -624,10 +785,15 @@ class PlayerActivity : AppCompatActivity() {
         pendingZapIndex = null
         pendingZapTicket = null
         liveZapSwitching = false
+        allLiveRoutesExhausted = false
+        routeSwitchJob?.cancel()
         coordinator?.cancel()
+        controller.clearError()
         session = rollback.previousSession
         activeTarget = rollback.previousSession.target
         currentZapIndex = rollback.previousIndex
+        currentChannelRoutes = rollback.previousRoutes
+        currentRouteIndex = rollback.previousRouteIndex
         val restored = createSourceCoordinator(rollback.previousSession.target.request)
         coordinator = restored
         controller.onDurationKnown = { restored.onDuration(it) }

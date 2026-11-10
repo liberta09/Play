@@ -637,4 +637,7 @@
     <string name="player_btn_prev_channel">Önceki kanal</string>
     <string name="player_btn_next_channel">Sonraki kanal</string>
     <string name="live_zap_reverted">Kanal açılamadı; önceki kanala dönüldü</string>
+    <string name="live_route_retrying">Canlı kaynak kesildi; alternatif kaynak deneniyor</string>
+    <string name="live_route_not_found">Kaynak bulunamadı</string>
+    <string name="player_btn_scan_provider">Başka sağlayıcıyı tara</string>
 </resources>

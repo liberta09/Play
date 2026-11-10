@@ -187,6 +187,10 @@ fun PlayerScreen(
     liveZapSwitching: Boolean = false,
     /** Canlı TV geçiş/hata kısa bildirimi (ör. önceki kanala dönüldü / alternatif kaynak). */
     liveNotice: String? = null,
+    /** Tüm canlı alternatif rotalar tükendiyse hata ekranında "Kaynak bulunamadı" gösterilir. */
+    allLiveRoutesExhausted: Boolean = false,
+    /** Canlı yayında kullanıcının sıradaki alternatif sağlayıcı rotasına geçmesi; null: yalnızca canlı TV'de. */
+    onScanLiveProvider: (() -> Unit)? = null,
     /** Kilit durumu değişince etkinliğe bildirilir (`Activity.onKeyDown` kilitliyken zap yapmasın). */
     onLockedChanged: (Boolean) -> Unit = {},
     onBack: () -> Unit,
@@ -769,6 +773,12 @@ fun PlayerScreen(
                     })
                 }
                 add(BarAction(PlayIcons.SwitchSource, stringResource(R.string.player_btn_source), ::openPanel))
+                if (isLiveBroadcast && onScanLiveProvider != null) {
+                    add(BarAction(PlayIcons.Refresh, stringResource(R.string.player_btn_scan_provider)) {
+                        onScanLiveProvider()
+                        bump()
+                    })
+                }
                 add(BarAction(PlayIcons.Tracks, stringResource(R.string.player_btn_tracks)) { showTracks = true; bump() })
                 val canShowNext = onNextEpisode != null && AutoNextRules.canShowNextEpisodeButton(target.request.type, target.request.season, target.request.episode, target.request.addonType, duration)
                 if (canShowNext) {
@@ -855,15 +865,14 @@ fun PlayerScreen(
         }
 
         // Kaynak açılmadı / hata: ana ileti sade, hata kodu ayrıntı satırında.
-        if (ui.error != null || sourcesFailed) {
+        if (ui.error != null || sourcesFailed || allLiveRoutesExhausted) {
             Column(
                 modifier = Modifier.align(Alignment.Center).gestureZone(zones, "error").padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
-                val isLive = target.request.addonType in listOf("tv", "channel")
                 val message = when {
-                    isLive && sourcesFailed -> R.string.live_channel_unavailable
+                    isLiveBroadcast && (sourcesFailed || allLiveRoutesExhausted) -> R.string.live_route_not_found
                     sourcesFailed && coordinator?.streams.isNullOrEmpty() -> R.string.player_no_sources
                     sourcesFailed -> R.string.player_all_failed
                     canSwitchSource -> ui.error!!.messageRes()

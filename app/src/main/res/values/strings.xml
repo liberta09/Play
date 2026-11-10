@@ -656,4 +656,7 @@
     <string name="player_btn_prev_channel">Previous channel</string>
     <string name="player_btn_next_channel">Next channel</string>
     <string name="live_zap_reverted">Could not open channel; returned to previous channel</string>
+    <string name="live_route_retrying">Live stream interrupted; trying alternative source</string>
+    <string name="live_route_not_found">Source not found</string>
+    <string name="player_btn_scan_provider">Scan another provider</string>
 </resources>
