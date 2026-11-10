@@ -202,6 +202,22 @@ class SourceRankingTest {
         val a = s(1, "https://a/1")
         assertEquals(1, SourceRanking.recommended(listOf(a, a.copy(source = StreamSource(9, "X"))), ctx).size)
     }
+
+    @Test
+    fun blacklistedHostsDropToBottomAcrossAllSortModesWhileStayingInList() {
+        val badDub = s(1, "https://badcdn.example.com/dub-1080p.mp4", dub = true, res = 1080, size = 3_000_000_000L)
+        val okSub = s(2, "https://goodcdn.example.com/sub-720p.mp4", dub = false, res = 720, size = 1_000_000_000L)
+        val rankingCtx = ctx.copy(isBlacklistedHost = { url -> "badcdn.example.com" in url })
+
+        val recommended = SourceRanking.recommended(listOf(badDub, okSub), rankingCtx)
+        assertEquals(listOf(okSub, badDub), recommended)
+
+        val bySize = SourceRanking.sorted(listOf(badDub, okSub), SourceSort.SizeDesc, rankingCtx)
+        assertEquals(listOf(okSub, badDub), bySize)
+
+        val byRes = SourceRanking.sorted(listOf(badDub, okSub), SourceSort.ResolutionDesc, rankingCtx)
+        assertEquals(listOf(okSub, badDub), byRes)
+    }
 }
 
 class StartPolicyTest {

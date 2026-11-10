@@ -498,6 +498,7 @@
     <string name="tag_dubbed_embedded">Dubbed (embedded audio)</string>
     <string name="tag_torrent">Torrent</string>
     <string name="tag_direct">Direct</string>
+    <string name="tag_temporarily_skipped">temporarily skipped</string>
     <string name="panel_title_sources">Source and subtitles</string>
     <string name="panel_sources">Sources</string>
     <string name="panel_subtitles">Subtitles</string>

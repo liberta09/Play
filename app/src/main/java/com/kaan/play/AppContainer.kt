@@ -46,9 +46,13 @@ import com.kaan.play.data.stream.AddonStreamProvider
 import com.kaan.play.data.stream.CompositeStreamProvider
 import com.kaan.play.data.download.SourceProbe
 import com.kaan.play.data.stream.SizeProbe
+import com.kaan.play.data.stream.SourceHealthStore
 import com.kaan.play.data.stream.SourceMemory
 import com.kaan.play.data.stream.TorrentStreamProvider
 import com.kaan.play.data.stream.StreamProvider
+import com.kaan.play.data.stream.StreamRequest
+import com.kaan.play.data.stream.StreamResult
+import com.kaan.play.data.stream.StreamSource
 import com.kaan.play.data.stream.StreamVerdicts
 import com.kaan.play.data.subtitle.AddonSubtitleProvider
 import com.kaan.play.data.subtitle.CompositeSubtitleProvider
@@ -83,6 +87,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -528,7 +533,24 @@ class AppContainer(context: Context) {
      * Zaman aşımı Ayarlar'daki ortak kaynak zaman aşımıdır; her istekte yeniden okunur.
      */
     val streams: StreamProvider by lazy {
-        TorrentStreamProvider(rawStreams, server = { settings.torrentServer.first() }, onBuiltIn = torrentEngine::warmUp)
+        TorrentStreamProvider(recordedRawStreams, server = { settings.torrentServer.first() }, onBuiltIn = torrentEngine::warmUp)
+    }
+
+    /** Yerel kaynak sağlığı deposu (hata geçmişi, sunucu güvenilirliği, kara liste, eklenti sağlığı). */
+    val sourceHealth: SourceHealthStore by lazy {
+        SourceHealthStore(settings.store)
+    }
+
+    private val recordedRawStreams: StreamProvider by lazy {
+        object : StreamProvider {
+            override fun streams(request: StreamRequest): Flow<StreamResult> =
+                rawStreams.streams(request).onEach { result ->
+                    sourceHealth.recordPluginResult(result)
+                }
+
+            override suspend fun sources(request: StreamRequest): List<StreamSource> =
+                rawStreams.sources(request)
+        }
     }
 
     /**

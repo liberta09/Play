@@ -311,6 +311,7 @@ fun SourcePanel(
                             playing = current?.url == s.url,
                             embeddedDub = embeddedDub,
                             sizeText = if (ctx.isLive) null else SizeText.format(SourceRanking.sizeOf(s, ctx.sizes), locale),
+                            blacklisted = ctx.isBlacklistedHost(s.url),
                             onClick = { staged = s },
                             modifier = if (staged?.url == s.url) Modifier.focusRequester(focus) else Modifier,
                         )
@@ -502,6 +503,7 @@ private fun SourceRow(
     sizeText: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    blacklisted: Boolean = false,
 ) {
     val tag = when {
         playing && embeddedDub -> stringResource(R.string.tag_dubbed_embedded)
@@ -529,6 +531,16 @@ private fun SourceRow(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
+        if (blacklisted) {
+            Text(
+                text = stringResource(R.string.tag_temporarily_skipped),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.error.copy(alpha = 0.9f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 2.dp),
+            )
+        }
     }
 }
 

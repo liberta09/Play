@@ -80,6 +80,7 @@ data class RankContext(
     /** Dosya boyutları (adres → bayt): eklentinin verdiğine ek olarak sonradan bulunanlar (HEAD, torrent üst bilgisi). */
     val sizes: Map<String, Long> = emptyMap(),
     val isSlowHost: (String) -> Boolean = { false },
+    val isBlacklistedHost: (String) -> Boolean = { false },
     val isLive: Boolean = false,
 )
 
@@ -116,6 +117,7 @@ object SourceRanking {
 
     private data class DecoratedRecommended(
         val stream: PlayableStream,
+        val blacklisted: Int,
         val tooHeavy: Int,
         val notDubbed: Int,
         val slowHost: Int,
@@ -128,12 +130,14 @@ object SourceRanking {
 
     private data class DecoratedSize(
         val stream: PlayableStream,
+        val blacklisted: Int,
         val size: Long,
         val res: Int,
     )
 
     private data class DecoratedResolution(
         val stream: PlayableStream,
+        val blacklisted: Int,
         val res: Int,
         val size: Long,
     )
@@ -142,19 +146,27 @@ object SourceRanking {
         val distinct = streams.distinctBy { it.url }
         if (distinct.size <= 1) return distinct
 
-        // Host başına isSlowHost sonucunu tek seferde önbellekle
+        // Host başına isSlowHost ve kara liste sonucunu tek seferde önbellekle
         val slowHostCache = HashMap<String, Boolean>()
+        val blacklistedHostCache = HashMap<String, Boolean>()
         fun checkSlow(url: String): Int {
             val host = StreamLog.hostOf(url)
             if (host == "?") return 0
             val isSlow = slowHostCache.getOrPut(host) { ctx.isSlowHost(url) }
             return if (isSlow) 1 else 0
         }
+        fun checkBlacklisted(url: String): Int {
+            val host = SourceHealthRules.hostOf(url)
+            if (!SourceHealthRules.isBlacklistEligibleHost(host)) return 0
+            val blocked = blacklistedHostCache.getOrPut(host) { ctx.isBlacklistedHost(url) }
+            return if (blocked) 1 else 0
+        }
 
         if (ctx.isLive) {
             val decorated = distinct.map { s ->
                 DecoratedRecommended(
                     stream = s,
+                    blacklisted = checkBlacklisted(s.url),
                     tooHeavy = if (isTooHeavy(s, ctx)) 1 else 0,
                     notDubbed = 0,
                     slowHost = checkSlow(s.url),
@@ -167,6 +179,7 @@ object SourceRanking {
             }
             return decorated.sortedWith(
                 compareBy(
+                    { it.blacklisted },
                     { it.tooHeavy },
                     { it.slowHost },
                     { it.notPreferred },
@@ -177,6 +190,7 @@ object SourceRanking {
             val decorated = distinct.map { s ->
                 DecoratedRecommended(
                     stream = s,
+                    blacklisted = checkBlacklisted(s.url),
                     tooHeavy = if (isTooHeavy(s, ctx)) 1 else 0,
                     notDubbed = if (ctx.preferDub && !s.dubbed) 1 else 0,
                     slowHost = checkSlow(s.url),
@@ -189,6 +203,7 @@ object SourceRanking {
             }
             return decorated.sortedWith(
                 compareBy(
+                    { it.blacklisted },
                     { it.tooHeavy },
                     { it.notDubbed },
                     { it.slowHost },
@@ -210,11 +225,12 @@ object SourceRanking {
             else distinct.map { s ->
                 DecoratedSize(
                     stream = s,
+                    blacklisted = if (ctx.isBlacklistedHost(s.url)) 1 else 0,
                     size = sizeOf(s, ctx.sizes) ?: -1L,
                     res = s.resolution ?: 0,
                 )
             }.sortedWith(
-                compareByDescending<DecoratedSize> { it.size }.thenByDescending { it.res }
+                compareBy<DecoratedSize> { it.blacklisted }.thenByDescending { it.size }.thenByDescending { it.res }
             ).map { it.stream }
         }
         SourceSort.ResolutionDesc -> {
@@ -223,11 +239,12 @@ object SourceRanking {
             else distinct.map { s ->
                 DecoratedResolution(
                     stream = s,
+                    blacklisted = if (ctx.isBlacklistedHost(s.url)) 1 else 0,
                     res = s.resolution ?: 0,
                     size = sizeOf(s, ctx.sizes) ?: -1L,
                 )
             }.sortedWith(
-                compareByDescending<DecoratedResolution> { it.res }.thenByDescending { it.size }
+                compareBy<DecoratedResolution> { it.blacklisted }.thenByDescending { it.res }.thenByDescending { it.size }
             ).map { it.stream }
         }
     }

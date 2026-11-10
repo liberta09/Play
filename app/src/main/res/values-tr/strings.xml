@@ -480,6 +480,7 @@
     <string name="tag_dubbed_embedded">Dublajlı (gömülü ses)</string>
     <string name="tag_torrent">Torrent</string>
     <string name="tag_direct">Doğrudan</string>
+    <string name="tag_temporarily_skipped">geçici olarak atlandı</string>
     <string name="panel_title_sources">Kaynak ve altyazı</string>
     <string name="panel_sources">Kaynaklar</string>
     <string name="panel_subtitles">Altyazılar</string>

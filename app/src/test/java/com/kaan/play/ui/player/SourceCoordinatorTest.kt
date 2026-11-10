@@ -1427,4 +1427,47 @@ class SourceCoordinatorTest {
             fallbackUrl = "https://mirror.example.com/movie-720p.mp4",
         )
     }
+
+    @Test
+    fun blacklistedHostIsSkippedAutomaticallyButPlaysOnManualPickAndLiftsOnFirstFrame() = runTest {
+        val badUrl = "https://bad.example.com/dub-1080.mp4"
+        val goodUrl = "https://good.example.com/sub-720.mp4"
+        val badStream = stream(source1, badUrl, dub = true, res = 1080)
+        val goodStream = stream(source2, goodUrl, dub = false, res = 720)
+        var state = com.kaan.play.data.stream.SourceHealthState()
+        val now = 5_000_000L
+        repeat(3) {
+            state = com.kaan.play.data.stream.SourceHealthRules.recordFailure(state, source1, badUrl, "HTTP 503", now)
+        }
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, badStream)); emit(found(source2, goodStream)) } },
+            preferDub = true,
+            isBlacklistedHost = { url -> com.kaan.play.data.stream.SourceHealthRules.isUrlBlacklisted(state, url, now) },
+            onSourceFirstFrame = { s -> state = com.kaan.play.data.stream.SourceHealthRules.recordSuccess(state, s.source, s.url, now + 1_000L) },
+            onSourceFailure = { s, detail -> state = com.kaan.play.data.stream.SourceHealthRules.recordFailure(state, s.source, s.url, detail, now + 1_000L) },
+            load = { _, _ -> },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        coordinator.start(null, emptyList(), 0L)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
+
+        // Otomatik seçim engelli badStream (dublajlı) yerine goodStream'i seçer; ancak panel için streams listesinde badStream sona atılmış hâlde durur
+        assertEquals(goodUrl, coordinator.current?.url)
+        assertEquals(listOf(goodStream, badStream), coordinator.ranked())
+
+        // Kullanıcı panelden kara listedeki kaynağı elle seçerse yine açılır
+        coordinator.onFirstFrame()
+        coordinator.pick(badStream)
+        assertEquals(badUrl, coordinator.current?.url)
+
+        // İlk kare gelince kara liste ve ardışık hata sayacı kalkar
+        advanceTimeBy(SourceCoordinator.STALE_FRAME_GUARD_MS + 100)
+        coordinator.onFirstFrame()
+        runCurrent()
+        assertFalse(com.kaan.play.data.stream.SourceHealthRules.isUrlBlacklisted(state, badUrl, now + 1_000L))
+        assertEquals(listOf(badStream, goodStream), coordinator.ranked())
+    }
 }
