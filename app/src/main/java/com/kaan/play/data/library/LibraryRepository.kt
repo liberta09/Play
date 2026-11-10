@@ -121,6 +121,12 @@ class LibraryRepository(
 
     suspend fun clearHistory() {
         val (u, p) = scope()
+        val entries = history.all(u, p)
+            .map { it.tmdbId to it.type.name.lowercase() }
+            .distinct()
+        if (entries.isNotEmpty()) {
+            profile?.recordDeletedHistory(u, p, entries, clock())
+        }
         history.clear(u, p)
     }
 

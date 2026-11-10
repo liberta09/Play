@@ -296,17 +296,31 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
         tmdbId: Int,
         type: String,
         deletedAt: Long = System.currentTimeMillis(),
+    ) = recordDeletedHistory(userId, profileId, listOf(tmdbId to type), deletedAt)
+
+    /** Tek DataStore işleminde birden fazla içerik için silme kaydı (tombstone) yazar. */
+    suspend fun recordDeletedHistory(
+        userId: String,
+        profileId: String,
+        items: Collection<Pair<Int, String>>,
+        deletedAt: Long = System.currentTimeMillis(),
     ) {
+        if (items.isEmpty()) return
         store.edit { prefs ->
             val current = decodeDeletedHistory(prefs[DELETED_HISTORY] ?: "")
-            val newItem = DeletedHistoryItem(
-                userId = userId,
-                profileId = profileId,
-                tmdbId = tmdbId,
-                type = type.lowercase(),
-                deletedAt = deletedAt,
-            )
-            val updated = LocalSyncMerge.pruneDeletedHistory(current + newItem, nowMs = deletedAt)
+            val added = items
+                .map { (tmdbId, type) -> tmdbId to type.lowercase() }
+                .distinct()
+                .map { (tmdbId, normalizedType) ->
+                    DeletedHistoryItem(
+                        userId = userId,
+                        profileId = profileId,
+                        tmdbId = tmdbId,
+                        type = normalizedType,
+                        deletedAt = deletedAt,
+                    )
+                }
+            val updated = LocalSyncMerge.pruneDeletedHistory(current + added, nowMs = deletedAt)
             prefs[DELETED_HISTORY] = encodeDeletedHistory(updated)
         }
     }
