@@ -15,9 +15,11 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,6 +27,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -53,15 +56,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -706,70 +712,73 @@ private fun LiveChannelCard(
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            IconButton(
+            LiveChannelCardAction(
+                icon = if (isFavorite) PlayIcons.StarFilled else PlayIcons.Star,
+                contentDescription = stringResource(
+                    if (isFavorite) R.string.tv_favorite_remove else R.string.tv_favorite_add,
+                ),
+                tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                 onClick = onToggleFavorite,
-                modifier = Modifier.size(40.dp),
-            ) {
-                Icon(
-                    imageVector = if (isFavorite) PlayIcons.StarFilled else PlayIcons.Star,
-                    contentDescription = stringResource(
-                        if (isFavorite) R.string.tv_favorite_remove else R.string.tv_favorite_add,
-                    ),
-                    tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp),
-                )
-            }
-            IconButton(
+            )
+            LiveChannelCardAction(
+                icon = PlayIcons.Plus,
+                contentDescription = stringResource(R.string.tv_list_add),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 onClick = onAddToList,
-                modifier = Modifier.size(40.dp),
-            ) {
-                Icon(
-                    imageVector = PlayIcons.Plus,
-                    contentDescription = stringResource(R.string.tv_list_add),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp),
-                )
-            }
+            )
             if (showRemoveFromList) {
-                IconButton(
+                LiveChannelCardAction(
+                    icon = PlayIcons.Trash,
+                    contentDescription = stringResource(R.string.tv_list_remove_channel),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     onClick = onRemoveFromList,
-                    modifier = Modifier.size(40.dp),
-                ) {
-                    Icon(
-                        imageVector = PlayIcons.Trash,
-                        contentDescription = stringResource(R.string.tv_list_remove_channel),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
+                )
             }
             if (showReorder) {
-                IconButton(
-                    onClick = onMoveUp,
+                LiveChannelCardAction(
+                    icon = PlayIcons.ChevronUp,
+                    contentDescription = stringResource(R.string.tv_move_up),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     enabled = canMoveUp,
-                    modifier = Modifier.size(40.dp),
-                ) {
-                    Icon(
-                        imageVector = PlayIcons.ChevronUp,
-                        contentDescription = stringResource(R.string.tv_move_up),
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
-                IconButton(
-                    onClick = onMoveDown,
+                    onClick = onMoveUp,
+                )
+                LiveChannelCardAction(
+                    icon = PlayIcons.ChevronDown,
+                    contentDescription = stringResource(R.string.tv_move_down),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     enabled = canMoveDown,
-                    modifier = Modifier.size(40.dp),
-                ) {
-                    Icon(
-                        imageVector = PlayIcons.ChevronDown,
-                        contentDescription = stringResource(R.string.tv_move_down),
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
+                    onClick = onMoveDown,
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun RowScope.LiveChannelCardAction(
+    icon: ImageVector,
+    contentDescription: String,
+    tint: Color,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .weight(1f)
+            .height(34.dp)
+            .clip(CircleShape)
+            .focusRing(CircleShape, scale = 1.10f)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .alpha(if (enabled) 1f else 0.38f),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = tint,
+            modifier = Modifier.size(18.dp),
+        )
     }
 }
 
