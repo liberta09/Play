@@ -82,6 +82,8 @@ data class PlayableStream(
     val dubbed: Boolean = false,
     /** Kaynağın ait olduğu içeriğin anahtarı ([StreamOwnership.keyOf]); birleşik sağlayıcı damgalar. Başka içeriğin kaynağı oynatılmaz. */
     val forKey: String? = null,
+    /** Kaynak/dosya etiketi (eklentiden gelen ad/başlık/dosya adı; bölüm ve yıl doğrulaması için). */
+    val label: String? = null,
 )
 
 /** Akışla gelen altyazı; [language] addon'un verdiği ham etiket (`eng`, `tur` ...). */

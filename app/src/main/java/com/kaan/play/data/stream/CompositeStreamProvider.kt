@@ -1,5 +1,6 @@
 package com.kaan.play.data.stream
 
+import com.kaan.play.data.match.EpisodeSourceLabelRules
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -40,10 +41,28 @@ class CompositeStreamProvider(
             source,
             if (isBlocked(request, source)) emptyList()
             else streams
-                .filter { StreamOwnership.belongs(it, request) && verdicts?.isRejected(key, it.url) != true && SourceMediaRules.isAcceptable(it, request.type) }
+                .filter { stream ->
+                    StreamOwnership.belongs(stream, request) &&
+                        verdicts?.isRejected(key, stream.url) != true &&
+                        SourceMediaRules.isAcceptable(stream, request.type) &&
+                        passesLabelGuard(stream, request)
+                }
                 .map { it.copy(forKey = key) },
         )
         is StreamResult.Failed -> this
+    }
+
+    private fun passesLabelGuard(stream: PlayableStream, request: StreamRequest): Boolean {
+        val decision = EpisodeSourceLabelRules.evaluate(stream.label, request)
+        if (!decision.accept) {
+            runCatching {
+                android.util.Log.d(
+                    "PlayMatch",
+                    "Etiket elemesi (${stream.source.addonName}): ${decision.reason.orEmpty()}",
+                )
+            }
+        }
+        return decision.accept
     }
 
     override suspend fun sources(request: StreamRequest): List<StreamSource> = coroutineScope {
