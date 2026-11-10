@@ -50,7 +50,8 @@ class MainActivity : AppCompatActivity() {
         val debugEndpoint = if (BuildConfig.DEBUG) intent.getStringExtra("play_update_endpoint") else null
         container.updateChecker.checkOnce(container.appScope, debugEndpoint)
         val debugWhatsNew = BuildConfig.DEBUG && intent.getBooleanExtra("play_test_whats_new", false)
-        container.whatsNewCoordinator.checkOnce(container.appScope, container.updateChecker, debugForceShow = debugWhatsNew)
+        val debugUpgradeWhatsNew = BuildConfig.DEBUG && intent.getBooleanExtra("play_test_upgrade_whats_new", false)
+        container.whatsNewCoordinator.checkOnce(container.appScope, container.updateChecker, debugForceShow = debugWhatsNew, debugSimulateUpgrade = debugUpgradeWhatsNew)
         val debugAnnounce = if (BuildConfig.DEBUG) intent.getStringExtra("play_announcements_endpoint") else null
         container.announcementChecker.checkOnce(container.appScope, container.updateChecker, debugAnnounce, container.whatsNewCoordinator)
         container.appScope.launch(Dispatchers.IO) {

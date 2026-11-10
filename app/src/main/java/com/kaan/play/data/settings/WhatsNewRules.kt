@@ -94,6 +94,7 @@ class WhatsNewCoordinator(
         scope: CoroutineScope,
         updateChecker: UpdateChecker? = null,
         debugForceShow: Boolean = false,
+        debugSimulateUpgrade: Boolean = false,
     ) {
         if (debugForceShow) {
             shownThisLaunch = true
@@ -106,9 +107,9 @@ class WhatsNewCoordinator(
             if (updateChecker != null) {
                 updateChecker.completed.first { it }
             }
-            val stored = settings.lastWhatsNewVersion.first()
-            val hasUpdate = updateChecker?.available?.value != null
-            val isUpgrade = if (stored.isNullOrBlank()) detectUpgrade() else false
+            val stored = if (debugSimulateUpgrade) null else settings.lastWhatsNewVersion.first()
+            val hasUpdate = if (debugSimulateUpgrade) false else updateChecker?.available?.value != null
+            val isUpgrade = if (debugSimulateUpgrade) true else if (stored.isNullOrBlank()) detectUpgrade() else false
             when (
                 val decision = WhatsNewRules.decide(
                     currentVersionName = currentVersionName,
