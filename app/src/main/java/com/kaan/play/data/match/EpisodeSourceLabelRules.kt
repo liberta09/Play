@@ -13,6 +13,19 @@ import kotlin.math.abs
  */
 object EpisodeSourceLabelRules {
 
+    /**
+     * Sadece DEBUG derlemelerde ve gerçek ölçüm testlerinde kuralı devre dışı bırakmak için kanca.
+     * Release derlemede etkisi yoktur (her zaman false kabul edilir).
+     */
+    @Volatile
+    var debugDisableFiltering: Boolean = false
+        get() = com.kaan.play.BuildConfig.DEBUG && field
+        set(value) {
+            if (com.kaan.play.BuildConfig.DEBUG) {
+                field = value
+            }
+        }
+
     data class Decision(val accept: Boolean, val reason: String? = null)
 
     // S01E03, s1e3, S01.E03, S01-E03 ve opsiyonel bitiş aralığı (-E05 / -05 / -S01E05)
@@ -79,6 +92,7 @@ object EpisodeSourceLabelRules {
     private val NON_EPISODE_X_EPISODES = setOf(264, 265, 266, 360, 480, 576, 720, 1080, 1440, 2160)
 
     fun evaluate(label: String?, request: StreamRequest): Decision {
+        if (debugDisableFiltering) return Decision(accept = true)
         val text = label?.trim().orEmpty()
         if (text.isEmpty()) return Decision(accept = true)
 

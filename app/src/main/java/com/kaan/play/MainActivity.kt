@@ -54,6 +54,10 @@ class MainActivity : AppCompatActivity() {
         container.whatsNewCoordinator.checkOnce(container.appScope, container.updateChecker, debugForceShow = debugWhatsNew, debugSimulateUpgrade = debugUpgradeWhatsNew)
         val debugAnnounce = if (BuildConfig.DEBUG) intent.getStringExtra("play_announcements_endpoint") else null
         container.announcementChecker.checkOnce(container.appScope, container.updateChecker, debugAnnounce, container.whatsNewCoordinator)
+        if (BuildConfig.DEBUG && intent?.hasExtra("play_debug_disable_label_filtering") == true) {
+            com.kaan.play.data.match.EpisodeSourceLabelRules.debugDisableFiltering =
+                intent.getBooleanExtra("play_debug_disable_label_filtering", false)
+        }
         container.appScope.launch(Dispatchers.IO) {
             if (settings.newEpisodeNotifications.first()) {
                 NewEpisodeScheduler.schedule(applicationContext)
@@ -186,6 +190,10 @@ class MainActivity : AppCompatActivity() {
             handleUpdateIntent(intent)
             handleNotificationIntent(intent)
             handlePlayIntent(intent)
+        if (BuildConfig.DEBUG && intent?.hasExtra("play_debug_disable_label_filtering") == true) {
+            com.kaan.play.data.match.EpisodeSourceLabelRules.debugDisableFiltering =
+                intent.getBooleanExtra("play_debug_disable_label_filtering", false)
+        }
         }
 
         try {

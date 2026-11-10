@@ -58,7 +58,7 @@ class CompositeStreamProvider(
             runCatching {
                 android.util.Log.d(
                     "PlayMatch",
-                    "Etiket elemesi (${stream.source.addonName}): ${decision.reason.orEmpty()}",
+                    "Etiket elemesi (${stream.source.addonName}): ${decision.reason.orEmpty()}${if (!stream.label.isNullOrBlank()) " [etiket=${stream.label}]" else ""}",
                 )
             }
         }

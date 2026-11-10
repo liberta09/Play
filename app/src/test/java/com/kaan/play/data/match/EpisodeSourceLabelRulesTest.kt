@@ -112,4 +112,18 @@ class EpisodeSourceLabelRulesTest {
         val wwReq = movieReq(2020, "Wonder Woman 1984")
         assertTrue(EpisodeSourceLabelRules.evaluate("Wonder Woman 1984 1080p WEB-DL", wwReq).accept)
     }
+
+    @Test
+    fun debugHookDisablesFiltering() {
+        val jokerReq = movieReq(2019)
+        val mismatchLabel = "Joker (1985) 1080p"
+        assertFalse(EpisodeSourceLabelRules.evaluate(mismatchLabel, jokerReq).accept)
+
+        try {
+            EpisodeSourceLabelRules.debugDisableFiltering = true
+            assertTrue(EpisodeSourceLabelRules.evaluate(mismatchLabel, jokerReq).accept)
+        } finally {
+            EpisodeSourceLabelRules.debugDisableFiltering = false
+        }
+    }
 }
