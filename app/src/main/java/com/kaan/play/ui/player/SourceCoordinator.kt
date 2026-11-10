@@ -248,6 +248,18 @@ class SourceCoordinator(
         pendingSizeProbes.clear()
     }
 
+    /** Kanal geçişi/kapanış gibi durumlarda tüm aktif kaynak arama ve bekleyen işleri durdurur. */
+    fun cancel() {
+        finished = true
+        collectJob?.cancel()
+        firstFrameJob?.cancel()
+        probeJob?.cancel()
+        runtimeJob?.cancel()
+        fallbackDubWaitJob?.cancel()
+        discoveryStopJob?.cancel()
+        cancelSizeProbes()
+    }
+
 
     // ---- başlatma ----
 

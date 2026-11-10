@@ -165,7 +165,14 @@ private const val PROVIDER_DETAIL_ROUTE = "provider_detail/{providerId}/{encoded
 private const val CATEGORY_ROUTE = "home/category/{row}"
 
 /** Kaynak seçimine giden iş: hedef, başlangıç konumu ve konumun sormadan (otomatik) seçilip seçilmediği. */
-private data class PlayStart(val target: PlayTarget, val startMs: Long, val autoResumed: Boolean)
+private data class PlayStart(
+    val target: PlayTarget,
+    val startMs: Long,
+    val autoResumed: Boolean,
+    val liveChannelKey: String? = null,
+    val liveZapKey: String? = null,
+    val liveZapIndex: Int = -1,
+)
 
 /** "Devam / baştan" sorusu; [download] doluysa seçim indirilmiş kopya için. */
 private data class ResumeAsk(val target: PlayTarget, val positionMs: Long, val download: DownloadEntity?)
@@ -376,9 +383,12 @@ fun PlayRoot() {
         autoResumed: Boolean = false,
         download: DownloadEntity? = null,
         liveChannelKey: String? = null,
+        liveZapKey: String? = null,
+        liveZapIndex: Int = -1,
     ) {
         scope.launch {
             if (download == null && target.request.pluginId == null && !container.hasEnabledSources()) {
+                com.kaan.play.data.provider.LiveZapListHolder.remove(liveZapKey)
                 openAddons(startAdding = true)
                 return@launch
             }
@@ -387,7 +397,10 @@ fun PlayRoot() {
             val autoSource = container.settings.autoSource.first()
             fun begin(startMs: Long, auto: Boolean) {
                 when {
-                    download != null -> playOffline(download, startMs, auto)
+                    download != null -> {
+                        com.kaan.play.data.provider.LiveZapListHolder.remove(liveZapKey)
+                        playOffline(download, startMs, auto)
+                    }
                     autoSource -> context.startActivity(
                         PlaySession(
                             target = target,
@@ -396,9 +409,9 @@ fun PlayRoot() {
                             autoResumed = auto,
                             autoSource = true,
                             liveChannelKey = liveChannelKey,
-                        ).toIntent(context),
+                        ).toIntent(context, zapKey = liveZapKey, zapIndex = liveZapIndex),
                     )
-                    else -> sourcesFor = PlayStart(target, startMs, auto)
+                    else -> sourcesFor = PlayStart(target, startMs, auto, liveChannelKey, liveZapKey, liveZapIndex)
                 }
             }
             if (startAtMs == null) {
@@ -421,7 +434,11 @@ fun PlayRoot() {
     fun playDownload(download: DownloadEntity) = play(download.toTarget(), download = download)
 
     /** TV katalog öğesi TMDB içeriği değildir; addonContentId ile doğrudan canlı akış aranır. */
-    fun playLiveChannel(item: CatalogItem) {
+    fun playLiveChannel(
+        item: CatalogItem,
+        zapChannels: List<com.kaan.play.data.provider.LiveZapChannel>,
+        zapIndex: Int,
+    ) {
         val target = PlayTarget(
             request = StreamRequest(
                 tmdbId = 0,
@@ -438,7 +455,10 @@ fun PlayRoot() {
         )
         val channelKey = com.kaan.play.data.provider.LiveCatalogRules.channelGroupKey(item.title)
             .ifBlank { "${item.providerId.trim()}:${item.id.trim()}" }
-        play(target, liveChannelKey = channelKey)
+        val zapKey = if (zapChannels.isNotEmpty()) {
+            com.kaan.play.data.provider.LiveZapListHolder.put(zapChannels)
+        } else null
+        play(target, liveChannelKey = channelKey, liveZapKey = zapKey, liveZapIndex = zapIndex)
     }
 
     // Geçmiş/"devam et" kaydından oynatma. IMDb kimliği için TMDB'ye bir kez sorulur; olmazsa detay açılır.
@@ -521,7 +541,15 @@ fun PlayRoot() {
     fun onSourcePicked(stream: PlayableStream) {
         val start = sourcesFor ?: return
         sourcesFor = null
-        context.startActivity(PlaySession(start.target, stream, start.startMs, start.autoResumed).toIntent(context))
+        context.startActivity(
+            PlaySession(
+                start.target,
+                stream,
+                start.startMs,
+                start.autoResumed,
+                liveChannelKey = start.liveChannelKey,
+            ).toIntent(context, zapKey = start.liveZapKey, zapIndex = start.liveZapIndex),
+        )
     }
 
     val layout = rememberPlayLayout()

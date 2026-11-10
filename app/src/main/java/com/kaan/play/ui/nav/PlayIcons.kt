@@ -516,6 +516,24 @@ object PlayIcons {
         }
     }
 
+    val ChannelPrev: ImageVector by lazy {
+        icon("ChannelPrev") {
+            line {
+                moveTo(7f, 6f); verticalLineTo(18f)
+                moveTo(17f, 6f); lineTo(11f, 12f); lineTo(17f, 18f)
+            }
+        }
+    }
+
+    val ChannelNext: ImageVector by lazy {
+        icon("ChannelNext") {
+            line {
+                moveTo(7f, 6f); lineTo(13f, 12f); lineTo(7f, 18f)
+                moveTo(17f, 6f); verticalLineTo(18f)
+            }
+        }
+    }
+
     val Nuvio: ImageVector by lazy {
         icon("Nuvio") {
             line {

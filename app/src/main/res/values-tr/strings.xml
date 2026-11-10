@@ -634,4 +634,7 @@
     <string name="tv_favorite_remove">Favorilerden çıkar</string>
     <string name="tv_move_up">Yukarı taşı</string>
     <string name="tv_move_down">Aşağı taşı</string>
+    <string name="player_btn_prev_channel">Önceki kanal</string>
+    <string name="player_btn_next_channel">Sonraki kanal</string>
+    <string name="live_zap_reverted">Kanal açılamadı; önceki kanala dönüldü</string>
 </resources>

@@ -102,6 +102,7 @@ import com.kaan.play.R
 import androidx.compose.ui.text.font.FontWeight
 import com.kaan.play.data.player.PlaybackSpeeds
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.provider.LiveCatalogRules
 import com.kaan.play.data.settings.ResizeMode
 import com.kaan.play.data.settings.SkipPlaybackSettings
 import com.kaan.play.data.settings.SubtitleStyle
@@ -174,6 +175,20 @@ fun PlayerScreen(
     skips: SkipController? = null,
     /** Torrent yükleme ekranı için motor durumunu okuyan fonksiyon. */
     getTorrentLoadSnapshot: () -> TorrentLoadProgressRules.TorrentLoadSnapshot = { TorrentLoadProgressRules.TorrentLoadSnapshot() },
+    /** Canlı TV kanal listesi hazırsa (`Unavailable` değilse) true; önceki/sonraki kanal düğmeleri gösterilir. */
+    canZapChannels: Boolean = false,
+    /** Canlı TV kanal geçişi (`-1` önceki, `+1` sonraki kanal). */
+    onZapChannel: ((Int) -> Unit)? = null,
+    /** Kök yakalayıcının tükettiği `KeyEvent.downTime` değeri (`Activity.onKeyDown` çift basışı önlesin). */
+    onZapKeyConsumed: ((Long) -> Unit)? = null,
+    /** Kanal değişiminde/başlangıcında kısa süre görünen kanal adı bandı. */
+    liveChannelBanner: String? = null,
+    /** Yeni kanal akışı arka planda yüklenirken eski kanal sürerken gösterilen küçük dönen gösterge. */
+    liveZapSwitching: Boolean = false,
+    /** Canlı TV geçiş/hata kısa bildirimi (ör. önceki kanala dönüldü / alternatif kaynak). */
+    liveNotice: String? = null,
+    /** Kilit durumu değişince etkinliğe bildirilir (`Activity.onKeyDown` kilitliyken zap yapmasın). */
+    onLockedChanged: (Boolean) -> Unit = {},
     onBack: () -> Unit,
 ) {
     val container = rememberContainer()
@@ -183,6 +198,7 @@ fun PlayerScreen(
     val locale = remember { Locale.forLanguageTag(AppLanguage.effective().iso) }
 
     val ui = controller.ui
+    val isLiveBroadcast = LiveCatalogRules.isLiveRequest(target.request) && canSwitchSource
 
 
     var controlsVisible by remember { mutableStateOf(true) }
@@ -336,6 +352,7 @@ fun PlayerScreen(
         }
     }
     LaunchedEffect(locked) {
+        onLockedChanged(locked)
         if (locked) {
             controlsVisible = false
             showUnlockHint()
@@ -458,7 +475,14 @@ fun PlayerScreen(
                 val repeat = event.nativeKeyEvent.repeatCount
                 // Sarma sürerken (basılı tutma) kontroller açılsa da Sol/Sağ sarmaya devam eder, odağı gezdirmez.
                 val seeking = SystemClock.uptimeMillis() - lastSeekKeyAt < SEEK_HOLD_MS
-                when (PlayerKeys.actionFor(event.key, controlsVisible = showControls && (!seeking || barFocused), progressFocused = barFocused)) {
+                when (
+                    PlayerKeys.actionFor(
+                        event.key,
+                        controlsVisible = showControls && (!seeking || barFocused),
+                        progressFocused = barFocused,
+                        isLive = isLiveBroadcast && canZapChannels && onZapChannel != null,
+                    )
+                ) {
                     PlayerKeyAction.PassThrough -> false
                     PlayerKeyAction.TogglePlay -> { if (repeat == 0) controller.togglePlay(); reveal(); true }
                     PlayerKeyAction.SeekBack -> { seekByKey(-1, repeat); true }
@@ -467,6 +491,20 @@ fun PlayerScreen(
                     PlayerKeyAction.OpenMenu -> { reveal(); openPanel(); true }
                     PlayerKeyAction.GoToButtons -> { runCatching { bottomFocus.requestFocus() }; true }
                     PlayerKeyAction.LeaveBarUp -> focusManager.moveFocus(FocusDirection.Up)
+                    PlayerKeyAction.ZapPrev -> {
+                        if (repeat == 0) {
+                            onZapKeyConsumed?.invoke(event.nativeKeyEvent.downTime)
+                            onZapChannel?.invoke(-1)
+                        }
+                        true
+                    }
+                    PlayerKeyAction.ZapNext -> {
+                        if (repeat == 0) {
+                            onZapKeyConsumed?.invoke(event.nativeKeyEvent.downTime)
+                            onZapChannel?.invoke(+1)
+                        }
+                        true
+                    }
                 }
             }
             // Açık focusable(): clickable dokunmatik modda odak almaz; gizli kontrollerde tuşlar buraya gelmeli.
@@ -582,6 +620,7 @@ fun PlayerScreen(
                 // Ayar değişince anında uygulanır; oynatma kesilmez.
                 update = { view ->
                     try {
+                        view.setKeepContentOnPlayerReset(isLiveBroadcast)
                         view.resizeMode = when (resize) {
                             ResizeMode.Fit -> AspectRatioFrameLayout.RESIZE_MODE_FIT
                             ResizeMode.Fill -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
@@ -719,6 +758,16 @@ fun PlayerScreen(
                 add(BarAction(PlayIcons.Lock, stringResource(R.string.player_btn_lock)) { locked = true })
                 add(BarAction(PlayIcons.Resize, stringResource(R.string.player_btn_resize), ::nextResize))
                 if (canSync) add(BarAction(PlayIcons.SubtitleSync, stringResource(R.string.player_btn_sync)) { showSync = true })
+                if (isLiveBroadcast && canZapChannels && onZapChannel != null) {
+                    add(BarAction(PlayIcons.ChannelPrev, stringResource(R.string.player_btn_prev_channel)) {
+                        onZapChannel(-1)
+                        bump()
+                    })
+                    add(BarAction(PlayIcons.ChannelNext, stringResource(R.string.player_btn_next_channel)) {
+                        onZapChannel(+1)
+                        bump()
+                    })
+                }
                 add(BarAction(PlayIcons.SwitchSource, stringResource(R.string.player_btn_source), ::openPanel))
                 add(BarAction(PlayIcons.Tracks, stringResource(R.string.player_btn_tracks)) { showTracks = true; bump() })
                 val canShowNext = onNextEpisode != null && AutoNextRules.canShowNextEpisodeButton(target.request.type, target.request.season, target.request.episode, target.request.addonType, duration)
@@ -834,11 +883,55 @@ fun PlayerScreen(
             }
         }
 
+        AnimatedVisibility(
+            visible = isLiveBroadcast && liveChannelBanner != null && !locked && ui.error == null,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 24.dp),
+        ) {
+            Row(
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(24.dp))
+                    .padding(horizontal = 18.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Box(Modifier.size(8.dp).clip(CircleShape).background(MaterialTheme.colorScheme.error))
+                Text(
+                    text = liveChannelBanner.orEmpty(),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (liveZapSwitching) {
+                    CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        }
+
         val activeNotice = coordinator?.notice ?: if (BuildConfig.DEBUG && PlayerNoticeLogic.forceNoticeForTest) {
             SourceNotice.Skipped("TEST_SIMULATED_ERROR (500)")
         } else null
         activeNotice?.let { notice ->
             SourceNoticePill(notice, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 84.dp))
+        }
+        if (activeNotice == null) {
+            liveNotice?.let { message ->
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .statusBarsPadding()
+                        .padding(top = 84.dp)
+                        .widthIn(max = 480.dp)
+                        .background(Color.Black.copy(alpha = 0.85f), RoundedCornerShape(16.dp))
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                )
+            }
         }
 
         resizeToast?.let { mode ->
@@ -1295,7 +1388,8 @@ private fun BarButton(icon: ImageVector, label: String, onClick: () -> Unit, mod
             text = label,
             style = MaterialTheme.typography.labelMedium,
             color = Color.White,
-            maxLines = 1,
+            maxLines = 2,
+            textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
         )
     }

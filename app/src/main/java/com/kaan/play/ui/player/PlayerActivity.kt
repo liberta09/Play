@@ -5,11 +5,13 @@ import com.kaan.play.BuildConfig
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -29,6 +31,16 @@ import com.kaan.play.data.download.DownloadedSubtitleLoader
 import com.kaan.play.data.library.WatchRules
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.provider.LiveCatalogRules
+import com.kaan.play.data.provider.LiveZapChannel
+import com.kaan.play.data.provider.LiveZapListHolder
+import com.kaan.play.data.provider.LiveZapListSource
+import com.kaan.play.data.provider.LiveZapRequestSequencer
+import com.kaan.play.data.provider.LiveZapRules
+import com.kaan.play.data.provider.LiveZapTicket
+import com.kaan.play.data.stream.PlayTarget
+import com.kaan.play.data.stream.StreamRequest
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.withTimeoutOrNull
 import com.kaan.play.data.stream.DeviceCodecs
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.TorrentLinks
@@ -66,7 +78,8 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var autoNext: AutoNextController
 
     /** Çevrimiçi oynatmada kaynak seçimi; indirilmiş kopyada (çevrimdışı) null. */
-    private var coordinator: SourceCoordinator? = null
+    private var coordinator by mutableStateOf<SourceCoordinator?>(null)
+    private var activeTarget by mutableStateOf<PlayTarget?>(null)
 
     /** Şu an oynayan akış (kaynak değişince güncellenir); sonraki bölümde "aynı eklenti" bundan bulunur. */
     private var currentStream: PlayableStream? = null
@@ -92,6 +105,30 @@ class PlayerActivity : AppCompatActivity() {
     /** İntro/özet/jenerik/önizleme atlama düğmeleri ve isteğe bağlı otomatik atlama (TheIntroDB + chapter işaretleri). */
     private lateinit var skips: SkipController
 
+    private var liveZapKey: String? = null
+    private var liveZapChannels: List<LiveZapChannel> = emptyList()
+    private var currentZapIndex by mutableIntStateOf(-1)
+    private var canZapChannels by mutableStateOf(false)
+    private var pendingZapIndex: Int? = null
+    private val zapSequencer = LiveZapRequestSequencer()
+    private var pendingZapTicket: LiveZapTicket? = null
+    private var zapJob: Job? = null
+    private var bannerJob: Job? = null
+    private var noticeJob: Job? = null
+    private var liveChannelBanner by mutableStateOf<String?>(null)
+    private var liveZapSwitching by mutableStateOf(false)
+    private var liveNotice by mutableStateOf<String?>(null)
+    private var playbackLocked = false
+    private var lastZapConsumedDownTime = -1L
+    private var activeZapRollback: ZapRollback? = null
+    private var autoSourceSetting = true
+
+    private data class ZapRollback(
+        val previousSession: PlaySession,
+        val previousStream: PlayableStream?,
+        val previousIndex: Int,
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val intentSafe = intent?.getBooleanExtra(StartupGuardRules.EXTRA_SAFE_WINDOW, false) ?: false
         val storedSafe = StartupGuardRules.isSafeWindow(this)
@@ -108,7 +145,26 @@ class PlayerActivity : AppCompatActivity() {
             return
         }
         session = parsed
+        activeTarget = parsed.target
         if (parsed.fromAutoNext) noTransition(open = true)
+        val incomingZapKey = PlaySession.liveZapKey(incomingIntent)
+        liveZapKey = incomingZapKey
+        val holderChannels = LiveZapListHolder.get(incomingZapKey) ?: emptyList()
+        val zapCatalogId = PlaySession.liveCatalogId(incomingIntent)
+        val zapSource = LiveZapRules.sourceFor(zapCatalogId, holderChannels.isNotEmpty())
+        val isLiveSession = parsed.offline == null && LiveCatalogRules.isLiveRequest(parsed.target.request)
+        liveZapChannels = if (isLiveSession) holderChannels else emptyList()
+        val rawZapIdx = PlaySession.liveZapIndex(incomingIntent)
+        currentZapIndex = when {
+            !isLiveSession || liveZapChannels.isEmpty() -> -1
+            rawZapIdx in liveZapChannels.indices -> rawZapIdx
+            !parsed.liveChannelKey.isNullOrBlank() -> liveZapChannels.indexOfFirst { it.channelKey == parsed.liveChannelKey }
+            else -> 0
+        }
+        canZapChannels = isLiveSession && zapSource != LiveZapListSource.Unavailable && liveZapChannels.isNotEmpty()
+        if (isLiveSession) {
+            showLiveChannelBanner(parsed.target.title, switching = false)
+        }
         val container = (application as PlayApp).container
 
         runCatching {
@@ -220,32 +276,25 @@ class PlayerActivity : AppCompatActivity() {
         if (offline == null) {
             // Ayarlar: tek seferlik okuma (milisaniyeler); oynatma başlamadan önce bilinmeli.
             val settings = container.settings
-            val autoSource = runBlocking { settings.autoSource.first() }
+            autoSourceSetting = runBlocking { settings.autoSource.first() }
             preferDub = runBlocking { settings.preferDub.first() }
-            val sources = SourceCoordinator(
-                scope = lifecycleScope,
-                request = session.target.request,
-                streamsFor = container.streams::streams,
-                askedFor = container.streams::sources,
-                preferenceFor = container.sourceMemory::get,
-                remember = container.sourceMemory::remember,
-                sizeProbe = container.sizeProbe::size,
-                runtimeFor = ::expectedRuntimeMinutes,
-                verdicts = container.streamVerdicts,
-                maxHeight = DeviceCodecs.maxDecodableHeight(),
-                preferDub = preferDub,
-                autoSource = autoSource,
-                load = ::loadStream,
-                position = { controller.positionMs() },
-                clock = SystemClock::elapsedRealtime,
-                sourceProbe = { stream ->
-                    container.sourceProbe.probe(stream.url, stream.headers, timeoutMs = 1_500L)
-                },
-            )
+            val sources = createSourceCoordinator(session.target.request)
             coordinator = sources
             controller.onFirstFrame = {
-                sources.onFirstFrame()
+                coordinator?.onFirstFrame()
                 container.torrentEngine.onFirstFrame()
+                val ticket = pendingZapTicket
+                val targetZapIdx = pendingZapIndex
+                if (targetZapIdx != null && (ticket == null || zapSequencer.isLatest(ticket))) {
+                    currentZapIndex = targetZapIdx
+                    pendingZapIndex = null
+                    pendingZapTicket = null
+                }
+                activeZapRollback = null
+                if (liveZapSwitching) {
+                    liveZapSwitching = false
+                    showLiveChannelBanner(session.target.title, switching = false)
+                }
                 if (!session.noHistory && LiveCatalogRules.isLiveRequest(session.target.request)) {
                     val channelKey = session.liveChannelKey
                         ?: LiveCatalogRules.channelGroupKey(session.target.title)
@@ -281,8 +330,15 @@ class PlayerActivity : AppCompatActivity() {
                     }
                 }
             }
-            controller.onDurationKnown = { sources.onDuration(it) }
-            controller.onFailure = { detail -> leaving || sources.onFailure(detail) }
+            controller.onDurationKnown = { coordinator?.onDuration(it) }
+            controller.onFailure = { detail -> leaving || (coordinator?.onFailure(detail) == true) }
+            lifecycleScope.launch {
+                snapshotFlow { Pair(coordinator, coordinator?.phase) }.collect { (_, phase) ->
+                    if (phase == SourcePhase.Failed && activeZapRollback != null && !leaving) {
+                        revertFailedLiveZap()
+                    }
+                }
+            }
             // Arabelleğe alma sırasında takılma analizi (500 ms aralıkla)
             lifecycleScope.launch {
                 snapshotFlow { controller.ui.buffering }
@@ -303,7 +359,7 @@ class PlayerActivity : AppCompatActivity() {
             }
             // Torrent açılınca dosya boyutu panelde ve üst çubukta görünsün.
             container.torrentServer.onOpened = { magnet, size ->
-                runOnUiThread { sources.reportSize(magnet, size) }
+                runOnUiThread { coordinator?.reportSize(magnet, size) }
             }
             sources.start(
                 initial = if (session.autoSource) null else session.stream,
@@ -330,7 +386,7 @@ class PlayerActivity : AppCompatActivity() {
                 PlayerScreen(
                     controller = controller,
                     subtitles = subtitles,
-                    target = session.target,
+                    target = activeTarget ?: session.target,
                     showResumeNotice = session.autoResumed && session.startPositionMs > 0,
                     canSwitchSource = offline == null,
                     levels = levels,
@@ -344,6 +400,13 @@ class PlayerActivity : AppCompatActivity() {
                     onAudioChosen = ::onAudioChosen,
                     skips = skips,
                     getTorrentLoadSnapshot = container.torrentEngine::getLoadSnapshot,
+                    canZapChannels = canZapChannels,
+                    onZapChannel = if (canZapChannels) ::zapChannel else null,
+                    onZapKeyConsumed = { downTime -> lastZapConsumedDownTime = downTime },
+                    liveChannelBanner = liveChannelBanner,
+                    liveZapSwitching = liveZapSwitching,
+                    liveNotice = liveNotice,
+                    onLockedChanged = { playbackLocked = it },
                     onBack = ::finish,
                 )
             }
@@ -412,8 +475,26 @@ class PlayerActivity : AppCompatActivity() {
         super.finish()
     }
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (::session.isInitialized && ::controller.isInitialized) {
+            val isLive = session.offline == null && LiveCatalogRules.isLiveRequest(session.target.request)
+            val direction = PlayerKeys.zapDirectionForKeyCode(keyCode, isLive = isLive && canZapChannels)
+            if (direction != 0 && !leaving && !playbackLocked) {
+                if (event.repeatCount == 0 && event.downTime != lastZapConsumedDownTime) {
+                    lastZapConsumedDownTime = event.downTime
+                    zapChannel(direction)
+                }
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        if (isFinishing) {
+            LiveZapListHolder.remove(liveZapKey)
+        }
         levels?.restoreBrightness()
         if (::controller.isInitialized) {
             controller.release()
@@ -421,6 +502,143 @@ class PlayerActivity : AppCompatActivity() {
             container.torrentServer.onOpened = null
             container.torrentEngine.release()
         }
+    }
+
+    private fun createSourceCoordinator(request: StreamRequest): SourceCoordinator {
+        val container = appContainer
+        return SourceCoordinator(
+            scope = lifecycleScope,
+            request = request,
+            streamsFor = container.streams::streams,
+            askedFor = container.streams::sources,
+            preferenceFor = container.sourceMemory::get,
+            remember = container.sourceMemory::remember,
+            sizeProbe = container.sizeProbe::size,
+            runtimeFor = ::expectedRuntimeMinutes,
+            verdicts = container.streamVerdicts,
+            maxHeight = DeviceCodecs.maxDecodableHeight(),
+            preferDub = preferDub,
+            autoSource = autoSourceSetting,
+            load = ::loadStream,
+            position = { controller.positionMs() },
+            clock = SystemClock::elapsedRealtime,
+            sourceProbe = { stream ->
+                container.sourceProbe.probe(stream.url, stream.headers, timeoutMs = 1_500L)
+            },
+        )
+    }
+
+    private fun showLiveChannelBanner(title: String, switching: Boolean) {
+        liveChannelBanner = title
+        liveZapSwitching = switching
+        bannerJob?.cancel()
+        if (!switching) {
+            bannerJob = lifecycleScope.launch {
+                delay(3_000L)
+                liveChannelBanner = null
+            }
+        }
+    }
+
+    private fun showLiveNotice(message: String) {
+        liveNotice = message
+        noticeJob?.cancel()
+        noticeJob = lifecycleScope.launch {
+            delay(4_500L)
+            liveNotice = null
+        }
+    }
+
+    private fun zapChannel(direction: Int) {
+        if (!canZapChannels || leaving || liveZapChannels.size <= 1) return
+        val base = (pendingZapIndex ?: currentZapIndex).takeIf { it in liveZapChannels.indices } ?: 0
+        val nextIdx = LiveZapRules.nextAvailableIndex(liveZapChannels, base, direction) ?: return
+        val targetChannel = liveZapChannels[nextIdx]
+        pendingZapIndex = nextIdx
+        val ticket = zapSequencer.issue(nextIdx)
+        pendingZapTicket = ticket
+        liveNotice = null
+        showLiveChannelBanner(targetChannel.title, switching = true)
+        zapJob?.cancel()
+        zapJob = lifecycleScope.launch {
+            val found = discoverFirstLiveRouteStreams(targetChannel)
+            if (!zapSequencer.isLatest(ticket)) return@launch
+            if (found == null) {
+                pendingZapIndex = null
+                pendingZapTicket = null
+                liveZapSwitching = false
+                showLiveChannelBanner(session.target.title, switching = false)
+                showLiveNotice(getString(R.string.live_zap_reverted))
+                return@launch
+            }
+            val (route, streams) = found
+            val rollback = activeZapRollback ?: ZapRollback(
+                previousSession = session,
+                previousStream = currentStream,
+                previousIndex = currentZapIndex.takeIf { it in liveZapChannels.indices } ?: base,
+            )
+            activeZapRollback = rollback
+            coordinator?.cancel()
+            val newRequest = LiveZapRules.toStreamRequest(route, targetChannel.title)
+            val newTarget = PlayTarget(
+                request = newRequest,
+                title = targetChannel.title,
+                posterPath = targetChannel.logoUrl,
+            )
+            val newSession = session.copy(
+                target = newTarget,
+                stream = streams.first(),
+                fallbacks = streams.drop(1),
+                startPositionMs = 0L,
+                autoSource = false,
+                liveChannelKey = targetChannel.channelKey,
+            )
+            session = newSession
+            activeTarget = newTarget
+            val nextCoord = createSourceCoordinator(newRequest)
+            coordinator = nextCoord
+            controller.onDurationKnown = { nextCoord.onDuration(it) }
+            controller.onFailure = { detail -> leaving || nextCoord.onFailure(detail) }
+            nextCoord.start(initial = streams.first(), fallbacks = streams.drop(1), startMs = 0L)
+        }
+    }
+
+    private suspend fun discoverFirstLiveRouteStreams(
+        channel: LiveZapChannel,
+    ): Pair<com.kaan.play.data.provider.LiveSourceRoute, List<PlayableStream>>? {
+        for (route in channel.routes) {
+            val request = LiveZapRules.toStreamRequest(route, channel.title)
+            val collected = withTimeoutOrNull(8_000L) {
+                AutoNextRules.collect(appContainer.streams.streams(request), preferredAddonId = null)
+            }.orEmpty().filter { !it.url.isNullOrBlank() }
+            if (collected.isNotEmpty()) {
+                return route to collected
+            }
+        }
+        return null
+    }
+
+    private fun revertFailedLiveZap() {
+        val rollback = activeZapRollback ?: return
+        activeZapRollback = null
+        pendingZapIndex = null
+        pendingZapTicket = null
+        liveZapSwitching = false
+        coordinator?.cancel()
+        session = rollback.previousSession
+        activeTarget = rollback.previousSession.target
+        currentZapIndex = rollback.previousIndex
+        val restored = createSourceCoordinator(rollback.previousSession.target.request)
+        coordinator = restored
+        controller.onDurationKnown = { restored.onDuration(it) }
+        controller.onFailure = { detail -> leaving || restored.onFailure(detail) }
+        restored.start(
+            initial = rollback.previousStream,
+            fallbacks = rollback.previousSession.fallbacks,
+            startMs = 0L,
+        )
+        showLiveChannelBanner(rollback.previousSession.target.title, switching = false)
+        showLiveNotice(getString(R.string.live_zap_reverted))
     }
 
     // ---- kaynak ----

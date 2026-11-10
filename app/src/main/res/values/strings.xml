@@ -653,4 +653,7 @@
     <string name="tv_favorite_remove">Remove from favorites</string>
     <string name="tv_move_up">Move up</string>
     <string name="tv_move_down">Move down</string>
+    <string name="player_btn_prev_channel">Previous channel</string>
+    <string name="player_btn_next_channel">Next channel</string>
+    <string name="live_zap_reverted">Could not open channel; returned to previous channel</string>
 </resources>

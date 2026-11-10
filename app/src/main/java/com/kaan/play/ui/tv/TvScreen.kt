@@ -71,6 +71,7 @@ import com.kaan.play.data.provider.LiveCatalogRules
 import com.kaan.play.data.provider.LiveChannelSort
 import com.kaan.play.data.provider.LiveSourceRoute
 import com.kaan.play.data.provider.LiveTvSortMode
+import com.kaan.play.data.provider.LiveZapChannel
 import com.kaan.play.data.settings.SettingsRepository
 import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.ui.components.resolvePosterImageUrl
@@ -104,7 +105,7 @@ private data class LiveChannelGroup(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TvScreen(
-    onPlay: (CatalogItem) -> Unit,
+    onPlay: (item: CatalogItem, zapChannels: List<LiveZapChannel>, zapIndex: Int) -> Unit,
     contentFocusRequester: FocusRequester? = null,
     topBarFocusRequester: FocusRequester? = null,
 ) {
@@ -325,7 +326,12 @@ fun TvScreen(
                             canMoveUp = index > 0,
                             canMoveDown = index < visibleChannels.lastIndex,
                             onClick = {
-                                if (channel.sources.size == 1) onPlay(channel.primary.item) else selectedChannel = channel
+                                if (channel.sources.size == 1) {
+                                    val zapList = buildZapChannels(visibleChannels, channel.key, LiveCatalogRules.routeFor(channel.primary.item))
+                                    onPlay(channel.primary.item, zapList, index)
+                                } else {
+                                    selectedChannel = channel
+                                }
                             },
                             onToggleFavorite = {
                                 scope.launch { container.liveChannels.toggleFavorite(channel.key) }
@@ -392,7 +398,9 @@ fun TvScreen(
                     group.sources.forEach { source ->
                         TextButton(onClick = {
                             selectedChannel = null
-                            onPlay(source.item)
+                            val index = visibleChannels.indexOfFirst { it.key == group.key }.coerceAtLeast(0)
+                            val zapList = buildZapChannels(visibleChannels, group.key, LiveCatalogRules.routeFor(source.item))
+                            onPlay(source.item, zapList, index)
                         }) {
                             Text("${source.providerName} · ${source.rowTitle}", maxLines = 2, overflow = TextOverflow.Ellipsis)
                         }
@@ -558,6 +566,26 @@ private fun LiveChannelCard(
             }
         }
     }
+}
+
+private fun buildZapChannels(
+    channels: List<LiveChannelGroup>,
+    selectedKey: String,
+    selectedRoute: LiveSourceRoute?,
+): List<LiveZapChannel> = channels.map { group ->
+    val baseRoutes = group.routes.ifEmpty { listOfNotNull(LiveCatalogRules.routeFor(group.primary.item)) }
+    val orderedRoutes = if (group.key == selectedKey && selectedRoute != null) {
+        listOf(selectedRoute) + baseRoutes.filter { it != selectedRoute }
+    } else {
+        baseRoutes
+    }
+    LiveZapChannel(
+        channelKey = group.key,
+        title = group.title,
+        logoUrl = group.logoUrl,
+        routes = orderedRoutes,
+        isAvailable = orderedRoutes.isNotEmpty(),
+    )
 }
 
 private fun String.tvSearchKey(): String = Normalizer.normalize(
