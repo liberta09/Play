@@ -149,7 +149,10 @@ private fun AddonDetailContent(
     val catalogCounts = remember { mutableStateMapOf<String, CatalogCountState>() }
     val catalogItems = remember { mutableStateMapOf<String, List<CatalogItem>>() }
 
-    LaunchedEffect(addon.id, catalogs) {
+    val seriesLabel = stringResource(R.string.type_series)
+    val liveLabel = stringResource(R.string.tag_live)
+
+    LaunchedEffect(addon.id, catalogs, seriesLabel, liveLabel) {
         val semaphore = Semaphore(3)
         for (cat in catalogs) {
             val key = "${cat.type}:${cat.id}"
@@ -171,8 +174,8 @@ private fun AddonDetailContent(
                                     id = meta.id,
                                     title = meta.name,
                                     subtitle = when (meta.type.lowercase()) {
-                                        "series" -> "Dizi"
-                                        "tv", "channel" -> if (java.util.Locale.getDefault().language == "tr") "Canlı" else "Live"
+                                        "series" -> seriesLabel
+                                        "tv", "channel" -> liveLabel
                                         else -> null
                                     },
                                     posterUrl = meta.poster,
