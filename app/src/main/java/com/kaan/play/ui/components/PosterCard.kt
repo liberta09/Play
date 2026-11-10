@@ -26,8 +26,10 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -85,6 +87,8 @@ fun PosterCard(
     /** TMDB kartlarında IMDb eşleştirmesi için isteğe bağlı kimlik. */
     tmdbId: Int? = null,
     mediaType: MediaType? = null,
+    /** Başlık satırının yanında (odak yakalayıcısının dışında) gösterilen ikincil eylem düğmesi (ör. '⋯'). */
+    trailingAction: (@Composable () -> Unit)? = null,
     overlay: @Composable BoxScope.() -> Unit = {},
 ) {
     val resolvedImageUrl = resolvePosterImageUrl(imageUrl, posterId, tmdbId, mediaType)
@@ -194,57 +198,87 @@ fun PosterCard(
         Modifier
     }
 
-    Column(modifier = modifier.then(keyModifier).then(clickModifier).zIndex(if (focused) 10f else 0f)) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(2f / 3f)
-                .tvFocusableScaleGlow(
-                    scale = 1.06f,
-                    glowColor = Color(0xFF00E5FF),
-                    shape = shape,
-                    isFocused = focused,
-                    zIndex = 10f,
-                )
-                .clip(shape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-        ) {
-            if (resolvedImageUrl != null) {
-                AsyncImage(
-                    model = resolvedImageUrl,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-            overlay()
-            if (progress != null) {
-                Box(
-                    Modifier.align(Alignment.BottomStart).fillMaxWidth().height(3.dp)
-                        .background(Color.Black.copy(alpha = 0.55f)),
-                ) {
+    Column(modifier = modifier.zIndex(if (focused) 10f else 0f)) {
+        Column(modifier = Modifier.fillMaxWidth().then(keyModifier).then(clickModifier)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(2f / 3f)
+                    .tvFocusableScaleGlow(
+                        scale = 1.06f,
+                        glowColor = Color(0xFF00E5FF),
+                        shape = shape,
+                        isFocused = focused,
+                        zIndex = 10f,
+                    )
+                    .clip(shape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+            ) {
+                if (resolvedImageUrl != null) {
+                    AsyncImage(
+                        model = resolvedImageUrl,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+                overlay()
+                if (progress != null) {
                     Box(
-                        Modifier.fillMaxHeight().fillMaxWidth(progress.coerceIn(0f, 1f))
-                            .background(MaterialTheme.colorScheme.primary),
+                        Modifier.align(Alignment.BottomStart).fillMaxWidth().height(3.dp)
+                            .background(Color.Black.copy(alpha = 0.55f)),
+                    ) {
+                        Box(
+                            Modifier.fillMaxHeight().fillMaxWidth(progress.coerceIn(0f, 1f))
+                                .background(MaterialTheme.colorScheme.primary),
+                        )
+                    }
+                }
+            }
+            if (trailingAction == null) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
         }
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 8.dp),
-        )
-        if (subtitle != null) {
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
+        if (trailingAction != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    if (subtitle != null) {
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+                trailingAction()
+            }
         }
     }
 }

@@ -665,4 +665,10 @@
     <string name="continue_sort_movies_first">Movies first</string>
     <string name="continue_sort_series_first">Series first</string>
     <string name="continue_sort_title_asc">Title (A–Z)</string>
+    <string name="continue_quick_actions">Quick actions</string>
+    <string name="continue_action_favorite">Add to favorites</string>
+    <string name="continue_action_mark_watched">Mark as watched</string>
+    <string name="continue_action_remove">Remove from history</string>
+    <string name="continue_added_favorite">Added to favorites</string>
+    <string name="continue_marked_watched">Marked as watched</string>
 </resources>

@@ -84,6 +84,18 @@ class HomeViewModel(
         }
     }
 
+    fun addContinueToFavorites(item: ContinueItem) {
+        viewModelScope.launch {
+            library?.addHistoryToFavorites(item.entry)
+        }
+    }
+
+    fun markContinueWatched(item: ContinueItem) {
+        viewModelScope.launch {
+            library?.markAsWatched(item)
+        }
+    }
+
     fun load(row: HomeRow) {
         _rows.update { it + (row to Loadable.Loading) }
         viewModelScope.launch {

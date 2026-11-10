@@ -477,4 +477,24 @@ class LibraryManagementTest {
         assertEquals(1, retrieved?.season)
         assertEquals(3, retrieved?.episode)
     }
+
+    @Test
+    fun markAsWatchedSetsPositionEqualToDurationAndKeepsFavoritesIndependent() = runTest {
+        repo.saveProgress(movie(7), 45_000L, 120_000L)
+        val resumeItem = ContinueItem.Resume(repo.latestPerContent.first().single())
+
+        repo.addHistoryToFavorites(resumeItem.entry)
+        assertTrue(repo.isFavorite(MediaType.Movie, 7).first())
+
+        repo.markAsWatched(resumeItem)
+        val updated = repo.progress(movie(7))!!
+        assertEquals(120_000L, updated.durationMs)
+        assertEquals(updated.durationMs, updated.positionMs)
+
+        repo.saveProgress(episode(10, 1, 1), 99_000L, 100_000L)
+        val ep1 = repo.latestPerContent.first().first { it.tmdbId == 10 }
+        repo.markAsWatched(ContinueItem.Next(ep1, season = 1, episode = 2))
+        val ep2 = repo.progress(episode(10, 1, 2))!!
+        assertEquals(ep2.durationMs, ep2.positionMs)
+    }
 }

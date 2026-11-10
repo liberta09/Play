@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -31,6 +32,8 @@ import kotlinx.coroutines.delay
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -78,6 +81,7 @@ import com.kaan.play.i18n.AppLanguage
 import com.kaan.play.ui.components.Button
 import com.kaan.play.ui.components.ChoiceDialog
 import com.kaan.play.ui.components.ErrorMessage
+import com.kaan.play.ui.components.IconButton
 import com.kaan.play.ui.components.Loadable
 import com.kaan.play.ui.components.OutlinedButton
 import com.kaan.play.ui.components.PosterCard
@@ -299,7 +303,9 @@ private fun HomeContent(
     // Dil değişince (etkinlik yeniden kurulur) yeni dille taze bir ViewModel: satırlar yeni dilde yüklenir.
     val vm = containerViewModel(key = "home-${AppLanguage.effective().iso}") { HomeViewModel(it.tmdb, it.continueWatching, it.library, it.settings) }
     var itemToRemove by remember { mutableStateOf<ContinueItem?>(null) }
+    var quickActionItem by remember { mutableStateOf<ContinueItem?>(null) }
     var showContinueSortDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
     val continueSortMode by vm.continueSortMode.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val continueRequesters = remember { mutableMapOf<String, FocusRequester>() }
@@ -340,12 +346,13 @@ private fun HomeContent(
         shownProviderTitles.filterKeys { it in providerIds }.values.flatten(),
     )
 
-    LazyColumn(
-        state = listState,
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 80.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 80.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+        ) {
         item(key = "hero") {
             when {
                 hasHero -> HeroCarousel(
@@ -400,7 +407,8 @@ private fun HomeContent(
                                     ),
                                 width = cardWidth,
                                 onClick = { onContinue(item) },
-                                onLongClick = { itemToRemove = item },
+                                onLongClick = { quickActionItem = item },
+                                onMoreClick = { quickActionItem = item },
                             )
                         }
                     }
@@ -463,90 +471,161 @@ private fun HomeContent(
         }
     }
 
-    if (showContinueSortDialog) {
-        ChoiceDialog(
-            title = stringResource(R.string.continue_sort),
-            options = ContinueSortMode.entries,
-            selected = continueSortMode,
-            label = { mode ->
-                when (mode) {
-                    ContinueSortMode.Recent -> stringResource(R.string.continue_sort_recent)
-                    ContinueSortMode.Oldest -> stringResource(R.string.continue_sort_oldest)
-                    ContinueSortMode.MoviesFirst -> stringResource(R.string.continue_sort_movies_first)
-                    ContinueSortMode.SeriesFirst -> stringResource(R.string.continue_sort_series_first)
-                    ContinueSortMode.TitleAsc -> stringResource(R.string.continue_sort_title_asc)
-                }
-            },
-            onSelect = { chosen ->
-                showContinueSortDialog = false
-                vm.setContinueSortMode(chosen)
-            },
-            onDismiss = { showContinueSortDialog = false },
-        )
-    }
+        if (showContinueSortDialog) {
+            ChoiceDialog(
+                title = stringResource(R.string.continue_sort),
+                options = ContinueSortMode.entries,
+                selected = continueSortMode,
+                label = { mode ->
+                    when (mode) {
+                        ContinueSortMode.Recent -> stringResource(R.string.continue_sort_recent)
+                        ContinueSortMode.Oldest -> stringResource(R.string.continue_sort_oldest)
+                        ContinueSortMode.MoviesFirst -> stringResource(R.string.continue_sort_movies_first)
+                        ContinueSortMode.SeriesFirst -> stringResource(R.string.continue_sort_series_first)
+                        ContinueSortMode.TitleAsc -> stringResource(R.string.continue_sort_title_asc)
+                    }
+                },
+                onSelect = { chosen ->
+                    showContinueSortDialog = false
+                    vm.setContinueSortMode(chosen)
+                },
+                onDismiss = { showContinueSortDialog = false },
+            )
+        }
 
-    itemToRemove?.let { targetItem ->
-        val cancelFocus = rememberInitialFocus()
-        AlertDialog(
-            onDismissRequest = { itemToRemove = null },
-            shape = RoundedCornerShape(20.dp),
-            containerColor = MaterialTheme.colorScheme.surface,
-            title = {
-                Text(
-                    text = targetItem.entry.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            },
-            text = {
-                Text(
-                    text = stringResource(R.string.continue_remove_message),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val ruleTarget = ContinueDeletionRules.targetFrom(targetItem)
-                        val currentIndex = continueWatching.indexOfFirst {
-                            ContinueDeletionRules.shouldDelete(it, ruleTarget)
-                        }
-                        val remaining = ContinueDeletionRules.filterRemaining(continueWatching, ruleTarget)
-                        val nextItem = ContinueDeletionRules.nextFocusedItem(currentIndex, remaining)
-                        val nextKey = nextItem?.let { "${it.entry.type}-${it.entry.tmdbId}" }
-                        if (nextItem != null) {
-                            focus.lastKey = "c-${nextItem.entry.type}-${nextItem.entry.tmdbId}"
-                        } else {
-                            focus.lastKey = null
-                        }
-                        continueRequesters.remove("${ruleTarget.type}-${ruleTarget.tmdbId}")
-                        vm.removeContinueWatching(targetItem)
-                        itemToRemove = null
-                        if (nextKey != null) {
-                            coroutineScope.launch {
-                                delay(100)
-                                try {
-                                    continueRequesters[nextKey]?.requestFocus()
-                                } catch (_: Exception) {}
-                            }
-                        }
-                    },
-                ) {
+        fun advanceContinueFocusAfterRemoval(targetItem: ContinueItem) {
+            val ruleTarget = ContinueDeletionRules.targetFrom(targetItem)
+            val currentIndex = continueWatching.indexOfFirst {
+                ContinueDeletionRules.shouldDelete(it, ruleTarget)
+            }
+            val remaining = ContinueDeletionRules.filterRemaining(continueWatching, ruleTarget)
+            val nextItem = ContinueDeletionRules.nextFocusedItem(currentIndex, remaining)
+            val nextKey = nextItem?.let { "${it.entry.type}-${it.entry.tmdbId}" }
+            focus.lastKey = nextItem?.let { "c-${it.entry.type}-${it.entry.tmdbId}" }
+            continueRequesters.remove("${ruleTarget.type}-${ruleTarget.tmdbId}")
+            if (nextKey != null) {
+                coroutineScope.launch {
+                    delay(100)
+                    runCatching { continueRequesters[nextKey]?.requestFocus() }
+                }
+            }
+        }
+
+        quickActionItem?.let { targetItem ->
+            val firstActionFocus = rememberInitialFocus()
+            val addedFavoriteMessage = stringResource(R.string.continue_added_favorite)
+            val markedWatchedMessage = stringResource(R.string.continue_marked_watched)
+            AlertDialog(
+                onDismissRequest = { quickActionItem = null },
+                shape = RoundedCornerShape(20.dp),
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = {
                     Text(
-                        text = stringResource(R.string.continue_remove_confirm),
-                        color = MaterialTheme.colorScheme.error,
+                        text = targetItem.entry.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { itemToRemove = null },
-                    modifier = Modifier.focusRequester(cancelFocus),
-                ) {
-                    Text(stringResource(R.string.continue_remove_cancel))
-                }
-            },
+                },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(
+                            onClick = {
+                                vm.addContinueToFavorites(targetItem)
+                                quickActionItem = null
+                                coroutineScope.launch { snackbarHostState.showSnackbar(addedFavoriteMessage) }
+                            },
+                            modifier = Modifier.fillMaxWidth().focusRequester(firstActionFocus),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.continue_action_favorite),
+                                maxLines = 2,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                advanceContinueFocusAfterRemoval(targetItem)
+                                vm.markContinueWatched(targetItem)
+                                quickActionItem = null
+                                coroutineScope.launch { snackbarHostState.showSnackbar(markedWatchedMessage) }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.continue_action_mark_watched),
+                                maxLines = 2,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                quickActionItem = null
+                                itemToRemove = targetItem
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.continue_action_remove),
+                                color = MaterialTheme.colorScheme.error,
+                                maxLines = 2,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { quickActionItem = null }) {
+                        Text(stringResource(R.string.common_cancel))
+                    }
+                },
+            )
+        }
+
+        itemToRemove?.let { targetItem ->
+            val cancelFocus = rememberInitialFocus()
+            AlertDialog(
+                onDismissRequest = { itemToRemove = null },
+                shape = RoundedCornerShape(20.dp),
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = {
+                    Text(
+                        text = targetItem.entry.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(R.string.continue_remove_message),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            advanceContinueFocusAfterRemoval(targetItem)
+                            vm.removeContinueWatching(targetItem)
+                            itemToRemove = null
+                        },
+                    ) {
+                        Text(
+                            text = stringResource(R.string.continue_remove_confirm),
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { itemToRemove = null }, modifier = Modifier.focusRequester(cancelFocus)) {
+                        Text(stringResource(R.string.continue_remove_cancel))
+                    }
+                },
+            )
+        }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(16.dp),
         )
     }
 }
@@ -621,6 +700,7 @@ private fun ContinueCard(
     width: Dp,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
+    onMoreClick: (() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
     val entry = item.entry
@@ -652,6 +732,21 @@ private fun ContinueCard(
         onLongClick = onLongClick,
         modifier = modifier.width(width),
         progress = progress,
+        trailingAction = onMoreClick?.let { openActions ->
+            {
+                IconButton(
+                    onClick = openActions,
+                    modifier = Modifier.size(36.dp),
+                ) {
+                    Icon(
+                        imageVector = PlayIcons.More,
+                        contentDescription = stringResource(R.string.continue_quick_actions),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+            }
+        },
     )
 }
 

@@ -70,6 +70,55 @@ class LibraryRepository(
         removeContinueWatching(item.entry.type, item.entry.tmdbId)
     }
 
+    /** "İzlemeye devam et" kartını izlendi olarak işaretler (konum = süre). */
+    suspend fun markAsWatched(item: ContinueItem) {
+        val (u, p) = scope()
+        val now = clock()
+        when (item) {
+            is ContinueItem.Resume -> {
+                val entry = item.entry
+                if (entry.durationMs > 0L) {
+                    history.markFinished(u, p, entry.id, now)
+                } else {
+                    val dur = entry.positionMs.coerceAtLeast(1L)
+                    history.upsert(
+                        entry.copy(
+                            userId = u,
+                            profileId = p,
+                            positionMs = dur,
+                            durationMs = dur,
+                            lastWatchedAt = now,
+                        ),
+                    )
+                }
+            }
+            is ContinueItem.Next -> {
+                val entry = item.entry
+                val existing = history.find(u, p, entry.tmdbId, entry.type, item.season, item.episode)
+                val dur = (existing?.durationMs ?: entry.durationMs).coerceAtLeast(1L)
+                history.upsert(
+                    WatchHistoryEntity(
+                        id = existing?.id ?: 0L,
+                        tmdbId = entry.tmdbId,
+                        type = entry.type,
+                        userId = u,
+                        profileId = p,
+                        season = item.season,
+                        episode = item.episode,
+                        positionMs = dur,
+                        durationMs = dur,
+                        lastWatchedAt = now,
+                        title = entry.title,
+                        posterPath = entry.posterPath,
+                        pluginId = entry.pluginId,
+                        dataUrl = entry.dataUrl,
+                        contentUrl = entry.contentUrl,
+                    ),
+                )
+            }
+        }
+    }
+
     suspend fun clearHistory() {
         val (u, p) = scope()
         history.clear(u, p)
