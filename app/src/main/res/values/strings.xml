@@ -733,4 +733,50 @@
     <string name="settings_auto_retry_limit">Automatic source attempts</string>
     <string name="settings_auto_retry_unlimited">Unlimited</string>
     <string name="settings_show_preplay_poster">Show pre-playback poster</string>
+    <string name="source_health_title">Source health</string>
+    <string name="source_health_subtitle">Review problematic servers or re-enable them</string>
+    <string name="source_health_empty">No records</string>
+    <string name="source_health_section_blacklist">Temporarily skipped servers</string>
+    <string name="source_health_section_errors">Error history</string>
+    <string name="source_health_section_reliability">Reliability</string>
+    <string name="source_health_section_wrong_content">Wrong-content blocks</string>
+    <string name="source_health_section_plugins">Addon health</string>
+    <string name="source_health_section_exits">Crash and exit diagnostics</string>
+    <string name="source_health_err_timeout">timeout</string>
+    <string name="source_health_err_format">unsupported format</string>
+    <string name="source_health_err_network">connection error</string>
+    <string name="source_health_err_not_media">invalid media response</string>
+    <string name="source_health_err_unknown">playback error</string>
+    <plurals name="source_health_reliability_line">
+        <item quantity="one">%1$d%% success · %2$d attempt</item>
+        <item quantity="other">%1$d%% success · %2$d attempts</item>
+    </plurals>
+    <plurals name="source_health_audio_sync_count">
+        <item quantity="one">audio sync: %1$d report</item>
+        <item quantity="other">audio sync: %1$d reports</item>
+    </plurals>
+    <string name="source_health_reenable">Re-enable</string>
+    <string name="source_health_remaining_hours_mins">Remaining: %1$dh %2$dm</string>
+    <string name="source_health_remaining_mins">Remaining: %1$dm</string>
+    <string name="source_health_remove">Remove</string>
+    <string name="source_health_unknown_content">Unknown title</string>
+    <string name="source_health_unknown_addon">Unknown addon</string>
+    <string name="source_health_title_with_year">%1$s (%2$d)</string>
+    <string name="source_health_exit_anr">ANR / not responding</string>
+    <string name="source_health_exit_crash">App crash</string>
+    <string name="source_health_exit_native">Native crash</string>
+    <string name="source_health_exit_init">Startup failure</string>
+    <string name="source_health_exit_resource">Excessive resource usage</string>
+    <string name="source_health_exit_low_mem">Killed due to low memory</string>
+    <string name="source_health_exit_system">Terminated by system</string>
+    <string name="source_health_exit_attr_app">App issue</string>
+    <string name="source_health_exit_attr_system">Device/system issue</string>
+    <plurals name="source_health_plugin_unresponsive">
+        <item quantity="one">Unresponsive %1$d time in last 20 calls</item>
+        <item quantity="other">Unresponsive %1$d times in last 20 calls</item>
+    </plurals>
+    <string name="source_health_plugin_breakdown">%1$d returned streams · %2$d empty</string>
+    <string name="source_health_clear_logs">Clear records</string>
+    <string name="source_health_clear_confirm">Error history, reliability ratings, temporary server skips, addon health, and audio sync counters will be cleared. Wrong-content blocks are kept.</string>
+    <string name="source_health_clear_action">Clear</string>
 </resources>

@@ -714,4 +714,50 @@
     <string name="settings_auto_retry_limit">Otomatik kaynak deneme sayısı</string>
     <string name="settings_auto_retry_unlimited">Sınırsız</string>
     <string name="settings_show_preplay_poster">Oynatma öncesi posteri göster</string>
+    <string name="source_health_title">Kaynak sağlığı</string>
+    <string name="source_health_subtitle">Sorunlu sunucuları incele veya yeniden etkinleştir</string>
+    <string name="source_health_empty">Kayıt yok</string>
+    <string name="source_health_section_blacklist">Geçici olarak atlanan sunucular</string>
+    <string name="source_health_section_errors">Hata geçmişi</string>
+    <string name="source_health_section_reliability">Güvenilirlik</string>
+    <string name="source_health_section_wrong_content">Yanlış içerik engelleri</string>
+    <string name="source_health_section_plugins">Eklenti sağlığı</string>
+    <string name="source_health_section_exits">Çökme ve kapanma teşhisi</string>
+    <string name="source_health_err_timeout">zaman aşımı</string>
+    <string name="source_health_err_format">biçim desteklenmiyor</string>
+    <string name="source_health_err_network">ağ bağlantısı hatası</string>
+    <string name="source_health_err_not_media">geçersiz medya yanıtı</string>
+    <string name="source_health_err_unknown">oynatma hatası</string>
+    <plurals name="source_health_reliability_line">
+        <item quantity="one">%%%1$d başarı · %2$d deneme</item>
+        <item quantity="other">%%%1$d başarı · %2$d deneme</item>
+    </plurals>
+    <plurals name="source_health_audio_sync_count">
+        <item quantity="one">ses senkronu: %1$d bildirim</item>
+        <item quantity="other">ses senkronu: %1$d bildirim</item>
+    </plurals>
+    <string name="source_health_reenable">Yeniden etkinleştir</string>
+    <string name="source_health_remaining_hours_mins">Kalan: %1$d sa %2$d dk</string>
+    <string name="source_health_remaining_mins">Kalan: %1$d dk</string>
+    <string name="source_health_remove">Kaldır</string>
+    <string name="source_health_unknown_content">Bilinmeyen içerik</string>
+    <string name="source_health_unknown_addon">Bilinmeyen eklenti</string>
+    <string name="source_health_title_with_year">%1$s (%2$d)</string>
+    <string name="source_health_exit_anr">ANR / yanıt vermeme</string>
+    <string name="source_health_exit_crash">Çökme</string>
+    <string name="source_health_exit_native">Yerel (native) çökme</string>
+    <string name="source_health_exit_init">Başlatma hatası</string>
+    <string name="source_health_exit_resource">Aşırı kaynak kullanımı</string>
+    <string name="source_health_exit_low_mem">Düşük bellek nedeniyle sonlandırma</string>
+    <string name="source_health_exit_system">Sistem tarafından sonlandırıldı</string>
+    <string name="source_health_exit_attr_app">Uygulama kaynaklı</string>
+    <string name="source_health_exit_attr_system">Cihaz/sistem kaynaklı</string>
+    <plurals name="source_health_plugin_unresponsive">
+        <item quantity="one">Son 20 çağrıda %1$d kez yanıt vermedi</item>
+        <item quantity="other">Son 20 çağrıda %1$d kez yanıt vermedi</item>
+    </plurals>
+    <string name="source_health_plugin_breakdown">%1$d kaynak verdi · %2$d kaynak yok</string>
+    <string name="source_health_clear_logs">Kayıtları temizle</string>
+    <string name="source_health_clear_confirm">Hata geçmişi, güvenilirlik puanları, geçici sunucu engelleri, eklenti sağlığı ve ses senkronu sayaçları silinir. Yanlış içerik engelleri korunur.</string>
+    <string name="source_health_clear_action">Temizle</string>
 </resources>

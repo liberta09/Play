@@ -120,6 +120,37 @@ class MainActivity : AppCompatActivity() {
                 val ids = raw.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
                 container.appScope.launch { container.providers.setSelectedProviders(ids) }
             }
+            if (intent.getBooleanExtra("play_test_seed_health", false)) {
+                container.appScope.launch {
+                    container.sourceHealth.seedSampleForDebug()
+                    val syncSrc = com.kaan.play.data.stream.StreamSource(902L, "HDFilmDemo")
+                    container.audioSyncReports.increment(syncSrc)
+                    container.audioSyncReports.increment(syncSrc)
+                    val sampleReq = com.kaan.play.data.stream.StreamRequest(
+                        tmdbId = 999_901,
+                        imdbId = "tt9999901",
+                        type = com.kaan.play.data.model.MediaType.Movie,
+                        title = "Örnek Test Filmi",
+                        year = 2024,
+                    )
+                    container.wrongContentBlocks.block(sampleReq, com.kaan.play.data.stream.StreamSource(904L, "WrongAddonDemo"))
+                }
+            }
+            if (intent.getBooleanExtra("play_test_clear_health", false)) {
+                container.appScope.launch {
+                    container.sourceHealth.clearHealthLogs()
+                    container.audioSyncReports.clear()
+                    val sampleReq = com.kaan.play.data.stream.StreamRequest(
+                        tmdbId = 999_901,
+                        imdbId = "tt9999901",
+                        type = com.kaan.play.data.model.MediaType.Movie,
+                        title = "Örnek Test Filmi",
+                        year = 2024,
+                    )
+                    val key = com.kaan.play.data.stream.WrongContentBlocker.blockKey(sampleReq, com.kaan.play.data.stream.StreamSource(904L, "WrongAddonDemo"))
+                    container.wrongContentBlocks.remove(key)
+                }
+            }
             val runDiag = intent.getBooleanExtra("play_diag", false) || intent.getStringExtra("play_diag") == "true"
             if (runDiag) {
                 val filter = intent.getStringExtra("diag_plugins")?.split(",")?.map { it.trim() }

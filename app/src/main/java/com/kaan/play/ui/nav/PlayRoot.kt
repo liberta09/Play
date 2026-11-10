@@ -118,6 +118,7 @@ import com.kaan.play.ui.addons.NuvioPluginsScreen
 import com.kaan.play.ui.addons.NuvioReposScreen
 import com.kaan.play.ui.addons.PluginSettingsScreen
 import com.kaan.play.ui.addons.RepositoriesScreen
+import com.kaan.play.ui.addons.SourceHealthScreen
 import com.kaan.play.data.plugin.AddResult
 import com.kaan.play.data.plugin.DeepLinkEvent
 import com.kaan.play.ui.detail.DetailScreen
@@ -156,6 +157,7 @@ private const val ADDONS_INSTALLED_ROUTE = "settings/addons/installed"
 private const val CS_REPOS_ROUTE = "settings/addons/csrepos"
 private const val NUVIO_REPOS_ROUTE = "settings/addons/nuviorepos"
 private const val NUVIO_PLUGINS_ROUTE = "settings/addons/nuvioplugins"
+private const val SOURCE_HEALTH_ROUTE = "settings/addons/health"
 private const val PLUGIN_ROUTE = "settings/addons/plugin/{id}"
 private const val ADDON_DETAIL_ROUTE = "settings/addons/detail/{id}"
 private const val PLAYER_SETTINGS_ROUTE = "settings/player"
@@ -729,7 +731,13 @@ fun PlayRoot() {
                         onOpenNuvioRepos = { navController.navigate(NUVIO_REPOS_ROUTE) },
                         onOpenNuvioPlugins = { navController.navigate(NUVIO_PLUGINS_ROUTE) },
                         onOpenCatalog = { navController.navigate(REPO_MANAGER_CATALOG_ROUTE) },
+                        onOpenSourceHealth = { navController.navigate(SOURCE_HEALTH_ROUTE) },
                     )
+                }
+            }
+            composable(SOURCE_HEALTH_ROUTE) {
+                ReadableWidth {
+                    SourceHealthScreen(onBack = { navController.popBackStack() })
                 }
             }
             composable(ADDONS_REPOS_ROUTE) {
