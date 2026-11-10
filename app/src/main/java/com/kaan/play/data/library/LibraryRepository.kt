@@ -53,6 +53,7 @@ class LibraryRepository(
     suspend fun removeFavorite(type: MediaType, tmdbId: Int) {
         val (u, p) = scope()
         favorites.remove(u, p, tmdbId, type)
+        profile?.recordDeletedFavorite(u, p, tmdbId, type.name.lowercase(), clock())
     }
 
     suspend fun removeHistory(id: Long) {
@@ -132,6 +133,12 @@ class LibraryRepository(
 
     suspend fun clearFavorites() {
         val (u, p) = scope()
+        val entries = favorites.all(u, p)
+            .map { it.tmdbId to it.type.name.lowercase() }
+            .distinct()
+        if (entries.isNotEmpty()) {
+            profile?.recordDeletedFavorites(u, p, entries, clock())
+        }
         favorites.clear(u, p)
     }
 
@@ -161,8 +168,10 @@ class LibraryRepository(
                     addedAt = clock(),
                 ),
             )
+            profile?.removeDeletedFavorite(p, media.id, media.type.name)
         } else {
             favorites.remove(u, p, media.id, media.type)
+            profile?.recordDeletedFavorite(u, p, media.id, media.type.name.lowercase(), clock())
         }
     }
 
@@ -179,6 +188,7 @@ class LibraryRepository(
                 addedAt = clock(),
             )
         )
+        profile?.removeDeletedFavorite(p, entry.tmdbId, entry.type.name)
     }
 
     suspend fun progress(target: PlayTarget): WatchHistoryEntity? {

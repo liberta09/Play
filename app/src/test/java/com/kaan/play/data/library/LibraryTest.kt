@@ -590,4 +590,44 @@ class LibraryManagementTest {
         assertTrue(plan.libraries[profileId]!!.history.isEmpty())
         assertEquals(3, plan.deletedHistory.size)
     }
+
+    @Test
+    fun clearFavoritesAndRemoveFavoriteWriteTombstonesAndReaddRemovesThem() = runTest {
+        val store = object : DataStore<Preferences> {
+            private val state = MutableStateFlow(emptyPreferences())
+            var writeCount = 0
+            override val data: Flow<Preferences> = state
+            override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
+                writeCount++
+                return transform(state.value).also { state.value = it }
+            }
+        }
+        val profileRepo = LocalProfileRepository(store)
+        val userId = profileRepo.ensureUserId()
+        val profileId = profileRepo.ensureId()
+
+        var now = 1_000_000_000_000L
+        val syncedRepo = LibraryRepository(history, favorites, profile = profileRepo, clock = { ++now })
+        syncedRepo.setFavorite(summary(201), true)
+        syncedRepo.setFavorite(summary(202), true)
+        syncedRepo.setFavorite(summary(203), true)
+        assertEquals(3, syncedRepo.allFavorites.first().size)
+
+        // Tekli removeFavorite tombstone yazar; yeniden eklemek o tombstone'u kaldırır.
+        syncedRepo.removeFavorite(MediaType.Movie, 201)
+        assertEquals(listOf(201), profileRepo.allDeletedFavorites().map { it.tmdbId })
+
+        syncedRepo.setFavorite(summary(201), true)
+        assertTrue(profileRepo.allDeletedFavorites().isEmpty())
+
+        // clearFavorites tüm kayıtlar için tek DataStore işleminde toplu tombstone yazar.
+        store.writeCount = 0
+        syncedRepo.clearFavorites()
+        assertTrue(syncedRepo.allFavorites.first().isEmpty())
+        assertEquals(1, store.writeCount)
+        val tombstones = profileRepo.allDeletedFavorites()
+        assertEquals(3, tombstones.size)
+        assertEquals(setOf(201, 202, 203), tombstones.map { it.tmdbId }.toSet())
+        assertTrue(tombstones.all { it.profileId == profileId && it.userId == userId })
+    }
 }
