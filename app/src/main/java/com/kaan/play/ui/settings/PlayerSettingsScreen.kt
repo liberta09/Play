@@ -73,6 +73,10 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
     val autoNextSeconds by container.settings.autoNextSeconds
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_NEXT_SECONDS)
     val skipSettings by container.settings.skipPlayback.collectAsStateWithLifecycle(initialValue = SkipPlaybackSettings.Default)
+    val slowConnectionMode by container.settings.slowConnectionMode
+        .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SLOW_CONNECTION_MODE)
+    val suggestSlowConnection by container.settings.suggestSlowConnection
+        .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SUGGEST_SLOW_CONNECTION)
     var pickLanguage by remember { mutableStateOf(false) }
     var pickCountdown by remember { mutableStateOf(false) }
     var pickAudioTimeout by remember { mutableStateOf(false) }
@@ -153,6 +157,13 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
             // İndirmeler (Faz 4/B): Ayarlar'a yeni ana kalem eklenmez, bu ayar Oynatıcı'nın içindedir.
             SwitchRow(stringResource(R.string.settings_download_wifi_only), downloadWifiOnly) {
                 scope.launch { container.settings.setDownloadWifiOnly(it) }
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+            SwitchRow(stringResource(R.string.settings_slow_connection_mode), slowConnectionMode) {
+                scope.launch { container.settings.setSlowConnectionMode(it) }
+            }
+            SwitchRow(stringResource(R.string.settings_suggest_slow_connection), suggestSlowConnection) {
+                scope.launch { container.settings.setSuggestSlowConnection(it) }
             }
         }
     }

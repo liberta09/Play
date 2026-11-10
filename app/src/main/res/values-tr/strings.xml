@@ -693,4 +693,9 @@
     <string name="player_audio_sync_switching">Ses senkronu bildirildi; sıradaki kaynağa geçiliyor.</string>
     <string name="player_audio_sync_no_other">Ses senkronu bildirildi. Şu anda başka kaynak yok.</string>
     <string name="player_estimated_end">Tahmini bitiş · %1$s</string>
+    <string name="settings_slow_connection_mode">Yavaş bağlantı modu</string>
+    <string name="settings_suggest_slow_connection">Oynatma yavaşsa öner</string>
+    <string name="slow_prompt_title">Bağlantı yavaş mı?</string>
+    <string name="slow_prompt_enable">Yavaş modu aç</string>
+    <string name="slow_prompt_later">Şimdi değil</string>
 </resources>

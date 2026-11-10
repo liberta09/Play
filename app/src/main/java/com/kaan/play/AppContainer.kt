@@ -104,6 +104,9 @@ class AppContainer(context: Context) {
 
     val json: Json = PlayJson
 
+    @Volatile
+    private var slowConnectionModeEnabled: Boolean = SettingsRepository.DEFAULT_SLOW_CONNECTION_MODE
+
     val httpClient: OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(20, TimeUnit.SECONDS)
@@ -111,6 +114,7 @@ class AppContainer(context: Context) {
         // Güvenlik denetimi (ilk sırada): engellenen istek IOException ile reddedilir, uygulamayı çökertmez.
         .addInterceptor(com.lagradost.cloudstream3.SafePluginInterceptor())
         .addInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
+        .addInterceptor(com.kaan.play.data.net.SlowConnectionInterceptor { slowConnectionModeEnabled })
         .addInterceptor { chain ->
             val req = chain.request()
             // 1. sn.hotlinger.com -> four.pichive.online rewrite
@@ -242,6 +246,9 @@ class AppContainer(context: Context) {
 
     val settings: SettingsRepository by lazy {
         SettingsRepository(PreferenceDataStoreFactory.create { appContext.preferencesDataStoreFile("settings") }).apply {
+            appScope.launch {
+                slowConnectionMode.collect { slowConnectionModeEnabled = it }
+            }
             onCatalogVisibilityChanged = { addonId ->
                 catalogRepository.cache.removeForAddon(addonId)
                 catalogRepository.cache.clear()

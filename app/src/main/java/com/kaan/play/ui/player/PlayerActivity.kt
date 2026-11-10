@@ -112,6 +112,10 @@ class PlayerActivity : AppCompatActivity() {
     private var unknownAudioHintStreamUrl: String? = null
     private var learnedAppliedForUrl: String? = null
     private var pendingAudioLearnJob: Job? = null
+    private var slowConnectionPromptVisible by mutableStateOf(false)
+    private var slowConnectionPromptedSession = false
+    private var slowConnectionModeState = SettingsRepository.DEFAULT_SLOW_CONNECTION_MODE
+    private var suggestSlowConnectionState = SettingsRepository.DEFAULT_SUGGEST_SLOW_CONNECTION
 
     /** Sonraki bölüme geçiliyor: bu bölüm "izlendi" yazılır, oynatıcı hataları (kapanan torrent vb.) gösterilmez. */
     private var leaving = false
@@ -308,6 +312,10 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         val settings = container.settings
+        slowConnectionModeState = runBlocking { settings.slowConnectionMode.first() }
+        suggestSlowConnectionState = runBlocking { settings.suggestSlowConnection.first() }
+        lifecycleScope.launch { settings.slowConnectionMode.collect { slowConnectionModeState = it } }
+        lifecycleScope.launch { settings.suggestSlowConnection.collect { suggestSlowConnectionState = it } }
         if (offline == null) {
             // Ayarlar: tek seferlik okuma (milisaniyeler); oynatma başlamadan önce bilinmeli.
             autoSourceSetting = runBlocking { settings.autoSource.first() }
@@ -343,6 +351,17 @@ class PlayerActivity : AppCompatActivity() {
                         ?: LiveCatalogRules.channelGroupKey(session.target.title)
                     if (channelKey.isNotBlank()) {
                         lifecycleScope.launch { container.liveChannels.markWatched(channelKey) }
+                    }
+                }
+                if (BuildConfig.DEBUG && intent.getBooleanExtra("play_test_slow_prompt", false) && !slowConnectionPromptedSession) {
+                    intent.removeExtra("play_test_slow_prompt")
+                    val isTorrent = currentStream?.url?.let(TorrentLinks::isMagnet) == true
+                    if (offline == null && !isTorrent) {
+                        slowConnectionPromptedSession = true
+                        lifecycleScope.launch {
+                            delay(1_200L)
+                            if (!leaving) slowConnectionPromptVisible = true
+                        }
                     }
                 }
                 if (BuildConfig.DEBUG && PlayerNoticeLogic.testForceStall) {
@@ -401,6 +420,22 @@ class PlayerActivity : AppCompatActivity() {
                                 currentStallStartMs = tracker.currentStallStartMs,
                                 pastStalls = tracker.pastStalls,
                             )
+                            val isTorrent = currentStream?.url?.let(TorrentLinks::isMagnet) == true
+                            if (com.kaan.play.data.net.SlowConnectionPromptRules.shouldShowPrompt(
+                                    suggestEnabled = suggestSlowConnectionState,
+                                    slowModeEnabled = slowConnectionModeState,
+                                    promptedThisSession = slowConnectionPromptedSession,
+                                    isOffline = false,
+                                    isTorrent = isTorrent,
+                                    firstFrameRendered = tracker.firstFrameRendered,
+                                    isSeeking = tracker.isSeeking,
+                                    currentBufferingStartMs = tracker.currentStallStartMs,
+                                    nowMs = tracker.now(),
+                                )
+                            ) {
+                                slowConnectionPromptedSession = true
+                                slowConnectionPromptVisible = true
+                            }
                         }
                     }
             }
@@ -474,6 +509,13 @@ class PlayerActivity : AppCompatActivity() {
                     audioTrackBanner = audioTrackBanner,
                     onClearAudioTrackBanner = { audioTrackBanner = null },
                     onAcceptDubSuggestion = ::acceptDubSuggestionWithVerification,
+                    slowPromptVisible = slowConnectionPromptVisible,
+                    onEnableSlowConnection = {
+                        slowConnectionPromptVisible = false
+                        slowConnectionModeState = true
+                        container.appScope.launch { container.settings.setSlowConnectionMode(true) }
+                    },
+                    onDismissSlowPrompt = { slowConnectionPromptVisible = false },
                     onLockedChanged = { playbackLocked = it },
                     onBack = ::finish,
                 )

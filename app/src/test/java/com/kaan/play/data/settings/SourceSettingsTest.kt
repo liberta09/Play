@@ -51,8 +51,22 @@ class SourceSettingsTest {
         assertTrue(repo.preferDub.first())
         assertTrue(repo.trySourcesUntilTurkishAudio.first())
         assertTrue(repo.showDubSuggestion.first())
+        assertFalse(repo.slowConnectionMode.first())
+        assertTrue(repo.suggestSlowConnection.first())
         assertEquals(7, repo.audioProbeTimeoutSeconds.first())
         assertEquals(ResizeMode.Fit, repo.resizeMode.first())
+    }
+
+    @Test
+    fun slowConnectionSettingsAreSaved() = runBlocking {
+        repo.setSlowConnectionMode(true)
+        assertTrue(repo.slowConnectionMode.first())
+    }
+
+    @Test
+    fun suggestSlowConnectionCanBeTurnedOff() = runBlocking {
+        repo.setSuggestSlowConnection(false)
+        assertFalse(repo.suggestSlowConnection.first())
     }
 
     @Test

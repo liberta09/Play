@@ -199,6 +199,22 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         return normalized
     }
 
+    /** Açıkken Play'in HTTP istemcisinde zaman aşımları 3× ve GET/HEAD ağ hatasında 1 kez yenilenir. Varsayılan kapalı. */
+    val slowConnectionMode: Flow<Boolean> =
+        store.data.map { it[SLOW_CONNECTION_MODE] ?: DEFAULT_SLOW_CONNECTION_MODE }.distinctUntilChanged()
+
+    /** Açıkken çevrimiçi oynatmada ~15 sn kesintisiz beklemede "Bağlantı yavaş mı?" önerisi gösterilir. Varsayılan açık. */
+    val suggestSlowConnection: Flow<Boolean> =
+        store.data.map { it[SUGGEST_SLOW_CONNECTION] ?: DEFAULT_SUGGEST_SLOW_CONNECTION }.distinctUntilChanged()
+
+    suspend fun setSlowConnectionMode(enabled: Boolean) {
+        store.edit { it[SLOW_CONNECTION_MODE] = enabled }
+    }
+
+    suspend fun setSuggestSlowConnection(enabled: Boolean) {
+        store.edit { it[SUGGEST_SLOW_CONNECTION] = enabled }
+    }
+
     suspend fun setDownloadWifiOnly(enabled: Boolean) {
         store.edit { it[DOWNLOAD_WIFI_ONLY] = enabled }
     }
@@ -328,6 +344,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_ALWAYS_RESUME = true
         const val DEFAULT_REMEMBER_LAST_PROFILE = true
         const val DEFAULT_DOWNLOAD_WIFI_ONLY = true
+        const val DEFAULT_SLOW_CONNECTION_MODE = false
+        const val DEFAULT_SUGGEST_SLOW_CONNECTION = true
         const val DEFAULT_AUTO_NEXT = true
         const val DEFAULT_AUTO_TRANSLATE_SUBS = true
         const val DEFAULT_AUTO_SOURCE = true
@@ -351,6 +369,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val REMEMBER_LAST_PROFILE = booleanPreferencesKey("remember_last_profile")
         private val TORRENT_SERVER = stringPreferencesKey("torrent_server")
         private val DOWNLOAD_WIFI_ONLY = booleanPreferencesKey("download_wifi_only")
+        private val SLOW_CONNECTION_MODE = booleanPreferencesKey("slow_connection_mode")
+        private val SUGGEST_SLOW_CONNECTION = booleanPreferencesKey("suggest_slow_connection")
         private val AUTO_NEXT = booleanPreferencesKey("auto_next")
         private val AUTO_TRANSLATE_SUBS = booleanPreferencesKey("auto_translate_subs")
         private val AUTO_SOURCE = booleanPreferencesKey("auto_source")
@@ -382,6 +402,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
             POSTER_URL_TEMPLATE,
             ALWAYS_RESUME,
             DOWNLOAD_WIFI_ONLY,
+            SLOW_CONNECTION_MODE,
+            SUGGEST_SLOW_CONNECTION,
             AUTO_NEXT,
             AUTO_TRANSLATE_SUBS,
             AUTO_SOURCE,

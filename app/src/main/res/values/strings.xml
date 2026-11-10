@@ -712,4 +712,9 @@
     <string name="player_audio_sync_switching">Audio sync issue noted; switching to another source.</string>
     <string name="player_audio_sync_no_other">Audio sync issue noted. No other source available right now.</string>
     <string name="player_estimated_end">Ends at · %1$s</string>
+    <string name="settings_slow_connection_mode">Slow connection mode</string>
+    <string name="settings_suggest_slow_connection">Suggest when playback is slow</string>
+    <string name="slow_prompt_title">Slow connection?</string>
+    <string name="slow_prompt_enable">Turn on slow mode</string>
+    <string name="slow_prompt_later">Not now</string>
 </resources>
