@@ -31,17 +31,35 @@ import com.kaan.play.ui.tv.rememberInitialFocus
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.platform.LocalContext
+import com.kaan.play.PlayApp
+import com.kaan.play.data.cloudstream.PluginRepoEvent
+import com.kaan.play.data.cloudstream.PluginRepoRequestHandler
 import com.kaan.play.data.plugin.SourceType
 import kotlinx.coroutines.flow.Flow
+import java.net.URI
 
 /**
  * `play://add` bağlantısı: önce onay penceresi (adres ve tür görünür, "Ekle" / "Vazgeç"), sonra sonucu
  * (eklendi / hata / geçersiz) alttan kısa bir Snackbar ile gösterir.
+ *
+ * Eklentilerden gelen toplu depo ekleme istekleri de ([PluginRepoRequestHandler]) burada onay penceresiyle
+ * karşılanır.
  */
 @Composable
-fun DeepLinkHost(handler: DeepLinkHandler) {
+fun DeepLinkHost(
+    handler: DeepLinkHandler,
+    repoRequests: PluginRepoRequestHandler? = null,
+) {
+    val context = LocalContext.current
+    val actualRepoRequests = repoRequests ?: (context.applicationContext as? PlayApp)?.container?.pluginRepoRequests
+
     val pending by handler.pending.collectAsStateWithLifecycle()
     val busy by handler.busy.collectAsStateWithLifecycle()
     pending?.let { payload ->
@@ -87,6 +105,93 @@ fun DeepLinkHost(handler: DeepLinkHandler) {
         )
     }
     DeepLinkSnackbar(handler.events)
+
+    actualRepoRequests?.let { requests ->
+        val pendingBatch by requests.pendingRequest.collectAsStateWithLifecycle()
+        val repoBusy by requests.busy.collectAsStateWithLifecycle()
+        pendingBatch?.let { items ->
+            val focus = rememberInitialFocus()
+            AlertDialog(
+                onDismissRequest = { if (!repoBusy) requests.dismiss() },
+                title = { Text(stringResource(R.string.plugin_repo_confirm_title)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            text = stringResource(R.string.plugin_repo_confirm_message),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 240.dp)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            items.forEach { item ->
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                                ) {
+                                    Text(
+                                        text = "• ${item.name.ifBlank { item.url }}",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    Text(
+                                        text = formatRepoUrlForDisplay(item.url),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(start = 12.dp),
+                                    )
+                                }
+                            }
+                        }
+                        if (repoBusy) {
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
+                                CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                                Text(
+                                    text = stringResource(R.string.addons_add_checking),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(start = 12.dp),
+                                )
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = requests::confirm, enabled = !repoBusy, modifier = Modifier.focusRequester(focus)) {
+                        Text(stringResource(R.string.plugin_repo_confirm_add))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = requests::dismiss, enabled = !repoBusy) {
+                        Text(stringResource(R.string.plugin_repo_confirm_decline))
+                    }
+                },
+            )
+        }
+        PluginRepoSnackbar(requests.events)
+    }
+}
+
+internal fun formatRepoUrlForDisplay(url: String): String {
+    val uri = try {
+        URI(url.trim())
+    } catch (_: Exception) {
+        return ""
+    }
+    val host = uri.host ?: return ""
+    val segments = uri.path?.split('/')?.filter { it.isNotEmpty() }.orEmpty()
+    return if (segments.size > 2) {
+        "$host/${segments[0]}/${segments[1]}/..."
+    } else if (segments.isNotEmpty()) {
+        "$host/${segments.joinToString("/")}"
+    } else {
+        host
+    }
 }
 
 @Composable
@@ -104,6 +209,37 @@ private fun DeepLinkSnackbar(events: Flow<DeepLinkEvent>) {
         }
         is DeepLinkEvent.Failed -> e.error.userMessage()
         DeepLinkEvent.Invalid -> stringResource(R.string.deeplink_invalid)
+    }
+    LaunchedEffect(current, text) {
+        if (text != null) {
+            host.showSnackbar(text)
+            current = null
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        SnackbarHost(
+            hostState = host,
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 72.dp),
+        )
+    }
+}
+
+@Composable
+private fun PluginRepoSnackbar(events: Flow<PluginRepoEvent>) {
+    val host = remember { SnackbarHostState() }
+    var current by remember { mutableStateOf<PluginRepoEvent?>(null) }
+    LaunchedEffect(events) { events.collect { current = it } }
+
+    val text = when (val e = current) {
+        null -> null
+        is PluginRepoEvent.Completed -> {
+            if (e.successCount > 0) {
+                stringResource(R.string.plugin_repo_added_result, e.successCount)
+            } else {
+                stringResource(R.string.plugin_repo_add_failed)
+            }
+        }
     }
     LaunchedEffect(current, text) {
         if (text != null) {

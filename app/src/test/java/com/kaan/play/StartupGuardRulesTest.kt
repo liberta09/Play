@@ -1,6 +1,7 @@
 package com.kaan.play
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -110,5 +111,94 @@ class StartupGuardRulesTest {
 
         val serialized = StartupGuardRules.serializeTimestamps(listOf(100L, 200L, 300L))
         assertEquals("100,200,300", serialized)
+    }
+
+    @Test
+    fun `shouldUseSafeTheme intent ve kayit durumlarini dogru degerlendirir`() {
+        assertFalse(StartupGuardRules.shouldUseSafeTheme(intentFlag = false, storedFlag = false))
+        assertTrue(StartupGuardRules.shouldUseSafeTheme(intentFlag = true, storedFlag = false))
+        assertTrue(StartupGuardRules.shouldUseSafeTheme(intentFlag = false, storedFlag = true))
+        assertTrue(StartupGuardRules.shouldUseSafeTheme(intentFlag = true, storedFlag = true))
+    }
+
+    @Test
+    fun `safe_window kayit ve sorgulama calisir ve recordSuccess ile silinmez`() {
+        assertFalse(StartupGuardRules.isSafeWindow(store))
+
+        StartupGuardRules.setSafeWindow(store, true)
+        assertTrue(StartupGuardRules.isSafeWindow(store))
+
+        // recordSuccess yalnizca etkinlik gecmisini siler, safe_window kalmalidir
+        StartupGuardRules.recordSuccess(store, "MainActivity")
+        assertTrue("recordSuccess sonrasinda safe_window korunmali", StartupGuardRules.isSafeWindow(store))
+
+        StartupGuardRules.clearSafeWindow(store)
+        assertFalse(StartupGuardRules.isSafeWindow(store))
+    }
+
+    @Test
+    fun `GIVE_UP kararinda safe_window temizlenir`() {
+        StartupGuardRules.setSafeWindow(store, true)
+        assertTrue(StartupGuardRules.isSafeWindow(store))
+
+        val now = 1_000_000L
+        StartupGuardRules.recordFailureAndDecide(store, "MainActivity", now)
+        val d2 = StartupGuardRules.recordFailureAndDecide(store, "MainActivity", now + 1000)
+        assertEquals(StartupGuardRules.Decision.GIVE_UP, d2)
+
+        // StartupWindowGuard give_up dalinda clearSafeWindow cagirir
+        StartupGuardRules.clearSafeWindow(store)
+        assertFalse("GIVE_UP sonrasinda safe_window temizlenmis olmali", StartupGuardRules.isSafeWindow(store))
+    }
+
+    @Test
+    fun `evaluateLayoutStatus id 0 ve icerik durumlari dogru degerlendirilir`() {
+        // 0 id -> "yok"
+        assertEquals("yok", StartupGuardRules.evaluateLayoutStatus(0, null))
+        assertEquals("yok", StartupGuardRules.evaluateLayoutStatus(0) { true })
+
+        // icerik var
+        assertEquals("icerik=var", StartupGuardRules.evaluateLayoutStatus(101) { true })
+
+        // icerik YOK
+        assertEquals("icerik=YOK", StartupGuardRules.evaluateLayoutStatus(102) { false })
+
+        // sisirme hatasi
+        val err = StartupGuardRules.evaluateLayoutStatus(103) { throw RuntimeException("sisirme patladi") }
+        assertEquals("sisirme hatasi=RuntimeException", err)
+    }
+
+    @Test
+    fun `formatProbeLines tum parcalari dogru birlestirir ve uzun FINGERPRINT kesilir`() {
+        val layouts = linkedMapOf(
+            "screen_simple" to "icerik=var",
+            "screen_simple_overlay_action_mode" to "icerik=YOK",
+            "screen_title" to "sisirme hatasi=InflateException",
+            "screen_custom" to "yok"
+        )
+        val features = linkedMapOf(
+            "noTitle" to "true",
+            "actionBar" to "false",
+            "actionBarOverlay" to "false",
+            "customTitle" to "false",
+            "swipeToDismiss" to "false",
+            "contentTransitions" to "true"
+        )
+        val normalFingerprint = "google/cheetah/cheetah:14/UQ1A.240205.004/11269751:user/release-keys"
+        val outNormal = StartupGuardRules.formatProbeLines(layouts, features, normalFingerprint, "2024-02-01")
+
+        assertTrue(outNormal.contains("- Düzen sondası: screen_simple=icerik=var; screen_simple_overlay_action_mode=icerik=YOK; screen_title=sisirme hatasi=InflateException; screen_custom=yok\n"))
+        assertTrue(outNormal.contains("- Pencere özellikleri: noTitle=true, actionBar=false, actionBarOverlay=false, customTitle=false, swipeToDismiss=false, contentTransitions=true\n"))
+        assertTrue(outNormal.contains("- ROM: $normalFingerprint, yama=2024-02-01\n"))
+
+        // Uzun fingerprint testi (> 120 karakter)
+        val longFingerprint = "A".repeat(200)
+        val outLong = StartupGuardRules.formatProbeLines(layouts, features, longFingerprint, null)
+        assertTrue(outLong.contains("- ROM: " + "A".repeat(120) + ", yama=bilinmiyor\n"))
+        assertFalse(outLong.contains("A".repeat(121)))
+
+        // CrashReporter.sanitizeText ile bozulmama kontrolu
+        val sanitized = CrashReporter.sanitizeText(outNormal)
+        assertEquals(outNormal, sanitized)
     }
 }

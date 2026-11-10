@@ -410,6 +410,14 @@
     <string name="deeplink_confirm_add">Ekle</string>
     <string name="deeplink_invalid">Geçersiz bağlantı</string>
 
+    <!-- Eklenti depo ekleme isteği (MegaWio vb.) -->
+    <string name="plugin_repo_confirm_title">Bir eklenti depo eklemek istiyor</string>
+    <string name="plugin_repo_confirm_message">Aşağıdaki depolar eklenecek:</string>
+    <string name="plugin_repo_confirm_add">Ekle</string>
+    <string name="plugin_repo_confirm_decline">Vazgeç</string>
+    <string name="plugin_repo_added_result">%1$d depo eklendi</string>
+    <string name="plugin_repo_add_failed">Depolar eklenemedi</string>
+
     <!-- Otomatik sonraki bölüm -->
     <string name="next_episode_countdown">Sonraki bölüm: S%1$d B%2$d · %3$d sn</string>
     <string name="next_episode_loading">S%1$d B%2$d hazırlanıyor…</string>

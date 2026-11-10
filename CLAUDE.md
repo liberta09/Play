@@ -53,6 +53,9 @@ Kullanıcının 2026-10-17 kararıyla Play GNU GPL-3.0 lisansına geçirilmiş; 
 - **Release (R8):** `proguard-rules.pro` içinde `com.lagradost.**`, `kotlin.**`, `kotlinx.coroutines.**`, `com.fasterxml.jackson.**`, `org.jsoup.**`, `okhttp3.**`, `okio.**`, `org.mozilla.javascript.**` ve `dev.whyoleg.cryptography.**` korunur/dontwarn verilir.
 - **Bilinen Sınırlar:** (1) Cloudflare Turnstile manuel doğrulama gerektirebilir. (2) Üçüncü taraf siteler alan adı değiştirdiğinde eklenti repo güncellemesi gerektirir. (3) CloudStream eklenti kataloglarında TMDB eşleşmesi yerine doğrudan eklenti detayı ve oynatımı (Faz D) desteklenir.
 
+## Eklenti depo ekleme isteği (Kullanıcı kararı 2026-11-09; bağlayıcı)
+eklentinin RepositoryManager köprüsü depoyu doğrudan eklemez, istek kuyruğa girer (PluginRepoRequestHandler, 1,5 sn toplanır); yalnızca https, en çok 20, tekilleştirme, kurulu ve reddedilenler (DataStore declined_plugin_repos) elenir, kullanıcı bilgisi içeren (@) adresler reddedilir, yerel/özel adresler PlayNetworkGuard ile engellenir; onay penceresi her deponun adını ve gerçek host+yolunu gösterir, Ekle/Vazgeç; Vazgeç ya da Geri o adresleri kalıcı reddeder (elle eklenebilir); kurulum SourceInstaller ile en çok 2 paralel; adresler loglanmaz; varsayılan depo gömülmez.
+
 
 ## Faz 4 / A — Altyazı (tamam; kullanıcı onayıyla)
 Ayrıntı ve testler README "Altyazı — Faz 4 / A" bölümünde. Bağlayıcı kurallar:

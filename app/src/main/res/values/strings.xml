@@ -428,6 +428,14 @@
     <string name="deeplink_confirm_add">Add</string>
     <string name="deeplink_invalid">Invalid link</string>
 
+    <!-- Eklenti depo ekleme isteği (MegaWio vb.) -->
+    <string name="plugin_repo_confirm_title">A plugin wants to add repositories</string>
+    <string name="plugin_repo_confirm_message">The following repositories will be added:</string>
+    <string name="plugin_repo_confirm_add">Add</string>
+    <string name="plugin_repo_confirm_decline">Decline</string>
+    <string name="plugin_repo_added_result">%1$d repositories added</string>
+    <string name="plugin_repo_add_failed">Failed to add repositories</string>
+
     <!-- Otomatik sonraki bölüm -->
     <string name="next_episode_countdown">Next episode: S%1$d E%2$d · %3$d s</string>
     <string name="next_episode_loading">Getting S%1$d E%2$d ready…</string>

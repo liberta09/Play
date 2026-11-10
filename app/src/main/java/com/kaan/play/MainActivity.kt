@@ -33,6 +33,11 @@ import kotlinx.coroutines.runBlocking
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val intentSafe = intent?.getBooleanExtra(StartupGuardRules.EXTRA_SAFE_WINDOW, false) ?: false
+        val storedSafe = StartupGuardRules.isSafeWindow(this)
+        if (StartupGuardRules.shouldUseSafeTheme(intentSafe, storedSafe)) {
+            setTheme(R.style.Theme_Play_Safe)
+        }
         super.onCreate(savedInstanceState)
         val container = (application as PlayApp).container
         val settings = container.settings
