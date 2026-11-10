@@ -187,6 +187,7 @@ private data class PlayStart(
     val liveChannelKey: String? = null,
     val liveZapKey: String? = null,
     val liveZapIndex: Int = -1,
+    val liveCatalogId: String? = null,
 )
 
 /** "Devam / baştan" sorusu; [download] doluysa seçim indirilmiş kopya için. */
@@ -411,6 +412,7 @@ fun PlayRoot() {
         liveChannelKey: String? = null,
         liveZapKey: String? = null,
         liveZapIndex: Int = -1,
+        liveCatalogId: String? = null,
     ) {
         scope.launch {
             if (download == null && target.request.pluginId == null && !container.hasEnabledSources()) {
@@ -435,9 +437,9 @@ fun PlayRoot() {
                             autoResumed = auto,
                             autoSource = true,
                             liveChannelKey = liveChannelKey,
-                        ).toIntent(context, zapKey = liveZapKey, zapIndex = liveZapIndex),
+                        ).toIntent(context, zapKey = liveZapKey, zapIndex = liveZapIndex, liveCatalogId = liveCatalogId),
                     )
-                    else -> sourcesFor = PlayStart(target, startMs, auto, liveChannelKey, liveZapKey, liveZapIndex)
+                    else -> sourcesFor = PlayStart(target, startMs, auto, liveChannelKey, liveZapKey, liveZapIndex, liveCatalogId)
                 }
             }
             if (startAtMs == null) {
@@ -464,6 +466,7 @@ fun PlayRoot() {
         item: CatalogItem,
         zapChannels: List<com.kaan.play.data.provider.LiveZapChannel>,
         zapIndex: Int,
+        liveCatalogId: String? = null,
     ) {
         val target = PlayTarget(
             request = StreamRequest(
@@ -484,7 +487,7 @@ fun PlayRoot() {
         val zapKey = if (zapChannels.isNotEmpty()) {
             com.kaan.play.data.provider.LiveZapListHolder.put(zapChannels)
         } else null
-        play(target, liveChannelKey = channelKey, liveZapKey = zapKey, liveZapIndex = zapIndex)
+        play(target, liveChannelKey = channelKey, liveZapKey = zapKey, liveZapIndex = zapIndex, liveCatalogId = liveCatalogId)
     }
 
     // Geçmiş/"devam et" kaydından oynatma. IMDb kimliği için TMDB'ye bir kez sorulur; olmazsa detay açılır.
@@ -576,7 +579,7 @@ fun PlayRoot() {
                 start.startMs,
                 start.autoResumed,
                 liveChannelKey = start.liveChannelKey,
-            ).toIntent(context, zapKey = start.liveZapKey, zapIndex = start.liveZapIndex),
+            ).toIntent(context, zapKey = start.liveZapKey, zapIndex = start.liveZapIndex, liveCatalogId = start.liveCatalogId),
         )
     }
 

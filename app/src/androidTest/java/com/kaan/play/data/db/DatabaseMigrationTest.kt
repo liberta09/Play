@@ -121,9 +121,9 @@ class DatabaseMigrationTest {
         v6Db.close()
         helper.close()
 
-        // Adım 2: Room v7 olarak MIGRATION_6_7 ile aç — Room şemayı doğrular; hata verirse başarısız olur.
+        // Adım 2: Room v8 olarak MIGRATION_6_7 + MIGRATION_7_8 ile aç — Room şemayı doğrular.
         val migrated = Room.databaseBuilder(context, PlayDatabase::class.java, dbName)
-            .addMigrations(PlayDatabase.MIGRATION_6_7)
+            .addMigrations(PlayDatabase.MIGRATION_6_7, PlayDatabase.MIGRATION_7_8)
             .allowMainThreadQueries()
             .build()
 
@@ -144,10 +144,22 @@ class DatabaseMigrationTest {
 
             assertEquals("tr", migrated.subtitleDao().language("movie:42"))
 
-            // Yeni tablolar okunup yazılabilmeli
+            // Yeni v7 ve v8 tabloları okunup yazılabilmeli
             migrated.liveChannelDao().markWatched("trt1", 99_000L)
             migrated.liveChannelDao().setFavorite("trt1", true)
             migrated.liveChannelDao().replaceOrders(listOf(LiveChannelOrderEntity("trt1", 0)))
+
+            val catalogId = migrated.liveCatalogDao().createCatalogWithChannel(
+                name = "Spor Listem",
+                createdAt = 10_000L,
+                channelKey = "trtspor",
+                title = "TRT Spor",
+                logoUrl = null,
+                routesJson = "[]",
+            )
+            assertEquals(1, migrated.liveCatalogDao().channelsForCatalog(catalogId).size)
+            migrated.liveCatalogDao().deleteCatalog(catalogId)
+            assertTrue(migrated.liveCatalogDao().channelsForCatalog(catalogId).isEmpty())
 
             val activity = migrated.liveChannelDao().observeActivity().first().single()
             assertTrue(activity.isFavorite)

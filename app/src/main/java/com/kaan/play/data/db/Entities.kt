@@ -194,3 +194,34 @@ data class LiveChannelOrderEntity(
     @PrimaryKey val channelKey: String,
     val sortIndex: Int,
 )
+
+/** Kullanıcı tanımlı Canlı TV kanalları listesi. */
+@Entity(tableName = "live_catalog")
+data class LiveCatalogEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val createdAt: Long,
+)
+
+/** Kullanıcı listesi içindeki kanal kaydı. [routesJson] yalnızca rota üst bilgisidir, loglanmaz. */
+@Entity(
+    tableName = "live_catalog_channel",
+    primaryKeys = ["catalogId", "channelKey"],
+    foreignKeys = [
+        ForeignKey(
+            entity = LiveCatalogEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["catalogId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index("catalogId")],
+)
+data class LiveCatalogChannelEntity(
+    val catalogId: Long,
+    val channelKey: String,
+    val sortIndex: Int,
+    val title: String,
+    val logoUrl: String? = null,
+    val routesJson: String,
+)

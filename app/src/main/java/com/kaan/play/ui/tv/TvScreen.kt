@@ -1,5 +1,6 @@
 package com.kaan.play.ui.tv
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.navBarReturnEdge
@@ -58,6 +59,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -71,6 +73,8 @@ import com.kaan.play.data.provider.CatalogResult
 import com.kaan.play.data.provider.LiveCatalogRules
 import com.kaan.play.data.provider.LiveChannelSort
 import com.kaan.play.data.provider.LiveSourceRoute
+import com.kaan.play.data.provider.LiveTvCatalog
+import com.kaan.play.data.provider.LiveTvCatalogRules
 import com.kaan.play.data.provider.LiveTvSortMode
 import com.kaan.play.data.provider.LiveZapChannel
 import com.kaan.play.data.settings.SettingsRepository
@@ -106,15 +110,18 @@ private data class LiveChannelGroup(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TvScreen(
-    onPlay: (item: CatalogItem, zapChannels: List<LiveZapChannel>, zapIndex: Int) -> Unit,
+    onPlay: (item: CatalogItem, zapChannels: List<LiveZapChannel>, zapIndex: Int, liveCatalogId: String?) -> Unit,
     contentFocusRequester: FocusRequester? = null,
     topBarFocusRequester: FocusRequester? = null,
 ) {
     val container = rememberContainer()
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val sortMode by container.settings.liveTvSortMode.collectAsStateWithLifecycle(SettingsRepository.DEFAULT_LIVE_TV_SORT_MODE)
     val activityByKey by container.liveChannels.activityByKey.collectAsStateWithLifecycle(emptyMap())
     val orderByKey by container.liveChannels.orderByKey.collectAsStateWithLifecycle(emptyMap())
+    val userCatalogs by container.liveCatalogs.catalogs.collectAsStateWithLifecycle(emptyList())
+    var activeCatalogId by remember { mutableStateOf<Long?>(null) }
     var showSortDialog by remember { mutableStateOf(false) }
     var refreshKey by remember { mutableIntStateOf(0) }
     var result by remember { mutableStateOf<CatalogResult?>(null) }
@@ -122,6 +129,18 @@ fun TvScreen(
     var query by remember { mutableStateOf("") }
     var sourceFilter by remember { mutableStateOf(ChannelSourceFilter.All) }
     var selectedChannel by remember { mutableStateOf<LiveChannelGroup?>(null) }
+    var addToListTarget by remember { mutableStateOf<LiveChannelGroup?>(null) }
+    var showRenameDialog by remember { mutableStateOf(false) }
+    var showDeleteListConfirm by remember { mutableStateOf(false) }
+
+    val activeCatalog = remember(userCatalogs, activeCatalogId) {
+        activeCatalogId?.let { id -> userCatalogs.firstOrNull { it.id == id } }
+    }
+    LaunchedEffect(userCatalogs, activeCatalogId) {
+        if (activeCatalogId != null && userCatalogs.none { it.id == activeCatalogId }) {
+            activeCatalogId = null
+        }
+    }
 
     LaunchedEffect(refreshKey) {
         loading = true
@@ -163,27 +182,57 @@ fun TvScreen(
                 )
             }
     }
-    val visibleChannels = remember(allChannels, query, sourceFilter, sortMode, activityByKey, orderByKey) {
-        val needle = query.tvSearchKey()
-        val filtered = allChannels.filter { channel ->
-            val sourceMatches = when (sourceFilter) {
-                ChannelSourceFilter.All -> true
-                ChannelSourceFilter.Nuvio -> channel.sources.any { it.item.providerId.startsWith("nuvio_addon:") }
-                ChannelSourceFilter.CloudStream -> channel.sources.any { it.item.providerId.startsWith("cs:") }
-            }
-            val textMatches = needle.isBlank() || channel.sources.any { source ->
-                listOf(source.item.title, source.rowTitle, source.providerName).any { it.tvSearchKey().contains(needle) }
-            }
-            sourceMatches && textMatches
+    val allChannelsByKey = remember(allChannels) { allChannels.associateBy { it.key } }
+    val catalogGroups = remember(activeCatalog, allChannelsByKey) {
+        if (activeCatalog == null) emptyList()
+        else activeCatalog.channels.mapNotNull { ch ->
+            val live = allChannelsByKey[ch.channelKey]
+            val routes = live?.routes?.takeIf { it.isNotEmpty() } ?: ch.routes
+            val sources = live?.sources ?: listOfNotNull(
+                LiveTvCatalogRules.catalogItemFor(ch, activeCatalog.name, routes)?.let {
+                    LiveChannelEntry(it, activeCatalog.name, activeCatalog.name)
+                },
+            )
+            if (sources.isEmpty()) null
+            else LiveChannelGroup(
+                key = ch.channelKey,
+                title = live?.title ?: ch.title,
+                logoUrl = live?.logoUrl ?: ch.logoUrl,
+                routes = routes,
+                sources = sources,
+            )
         }
-        LiveChannelSort.sort(
-            channels = filtered,
-            mode = sortMode,
-            keyOf = { it.key },
-            titleOf = { it.title },
-            activity = activityByKey,
-            order = orderByKey,
-        )
+    }
+    val visibleChannels = remember(allChannels, catalogGroups, activeCatalog, query, sourceFilter, sortMode, activityByKey, orderByKey) {
+        val needle = query.tvSearchKey()
+        if (activeCatalog != null) {
+            if (needle.isBlank()) catalogGroups
+            else catalogGroups.filter { channel ->
+                channel.title.tvSearchKey().contains(needle) || channel.sources.any { source ->
+                    listOf(source.item.title, source.rowTitle, source.providerName).any { it.tvSearchKey().contains(needle) }
+                }
+            }
+        } else {
+            val filtered = allChannels.filter { channel ->
+                val sourceMatches = when (sourceFilter) {
+                    ChannelSourceFilter.All -> true
+                    ChannelSourceFilter.Nuvio -> channel.sources.any { it.item.providerId.startsWith("nuvio_addon:") }
+                    ChannelSourceFilter.CloudStream -> channel.sources.any { it.item.providerId.startsWith("cs:") }
+                }
+                val textMatches = needle.isBlank() || channel.sources.any { source ->
+                    listOf(source.item.title, source.rowTitle, source.providerName).any { it.tvSearchKey().contains(needle) }
+                }
+                sourceMatches && textMatches
+            }
+            LiveChannelSort.sort(
+                channels = filtered,
+                mode = sortMode,
+                keyOf = { it.key },
+                titleOf = { it.title },
+                activity = activityByKey,
+                order = orderByKey,
+            )
+        }
     }
     val manualOrderKeys = remember(allChannels, activityByKey, orderByKey) {
         LiveChannelSort.sort(
@@ -272,27 +321,48 @@ fun TvScreen(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             FilterChip(
-                selected = sourceFilter == ChannelSourceFilter.All,
-                onClick = { sourceFilter = ChannelSourceFilter.All },
+                selected = activeCatalogId == null && sourceFilter == ChannelSourceFilter.All,
+                onClick = { activeCatalogId = null; sourceFilter = ChannelSourceFilter.All },
                 label = { Text(stringResource(R.string.tv_filter_all, allChannels.size), maxLines = 1, softWrap = false) },
             )
+            userCatalogs.forEach { catalog ->
+                FilterChip(
+                    selected = activeCatalogId == catalog.id,
+                    onClick = { activeCatalogId = catalog.id; sourceFilter = ChannelSourceFilter.All },
+                    label = { Text("${catalog.name} (${catalog.channels.size})", maxLines = 1, softWrap = false) },
+                )
+            }
             FilterChip(
-                selected = sourceFilter == ChannelSourceFilter.Nuvio,
-                onClick = { sourceFilter = ChannelSourceFilter.Nuvio },
+                selected = activeCatalogId == null && sourceFilter == ChannelSourceFilter.Nuvio,
+                onClick = { activeCatalogId = null; sourceFilter = ChannelSourceFilter.Nuvio },
                 label = { Text(stringResource(R.string.tv_filter_nuvio, nuvioCount), maxLines = 1, softWrap = false) },
             )
             FilterChip(
-                selected = sourceFilter == ChannelSourceFilter.CloudStream,
-                onClick = { sourceFilter = ChannelSourceFilter.CloudStream },
+                selected = activeCatalogId == null && sourceFilter == ChannelSourceFilter.CloudStream,
+                onClick = { activeCatalogId = null; sourceFilter = ChannelSourceFilter.CloudStream },
                 label = { Text(stringResource(R.string.tv_filter_cloudstream, cloudStreamCount), maxLines = 1, softWrap = false) },
             )
         }
 
+        if (activeCatalog != null) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                OutlinedButton(onClick = { showRenameDialog = true }) {
+                    Text(stringResource(R.string.tv_list_rename), maxLines = 1, softWrap = false)
+                }
+                OutlinedButton(onClick = { showDeleteListConfirm = true }) {
+                    Text(stringResource(R.string.tv_list_delete), color = MaterialTheme.colorScheme.error, maxLines = 1, softWrap = false)
+                }
+            }
+        }
+
         when {
-            loading && result == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            activeCatalog == null && loading && result == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-            !loading && error != null -> Column(
+            activeCatalog == null && !loading && error != null -> Column(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 28.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -302,7 +372,8 @@ fun TvScreen(
             }
             visibleChannels.isEmpty() -> Text(
                 text = when {
-                    allChannels.isEmpty() -> stringResource(R.string.tv_empty)
+                    activeCatalog != null && catalogGroups.isEmpty() -> stringResource(R.string.tv_list_empty)
+                    activeCatalog == null && allChannels.isEmpty() -> stringResource(R.string.tv_empty)
                     query.isNotBlank() -> stringResource(R.string.tv_no_results, query)
                     else -> stringResource(R.string.tv_filtered_empty)
                 },
@@ -311,6 +382,9 @@ fun TvScreen(
             )
             else -> {
                 val visibleKeys = remember(visibleChannels) { visibleChannels.map { it.key } }
+                val activeList = activeCatalog
+                val isCustomListView = activeList != null
+                val canReorderCards = if (isCustomListView) query.isBlank() else sortMode == LiveTvSortMode.Manual
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 156.dp),
                     modifier = Modifier.weight(1f).fillMaxWidth(),
@@ -323,13 +397,17 @@ fun TvScreen(
                         LiveChannelCard(
                             channel = channel,
                             isFavorite = isFav,
-                            showReorder = sortMode == LiveTvSortMode.Manual,
+                            showReorder = canReorderCards,
+                            showRemoveFromList = isCustomListView,
                             canMoveUp = index > 0,
                             canMoveDown = index < visibleChannels.lastIndex,
                             onClick = {
+                                val zapSourceGroups = if (isCustomListView) catalogGroups else visibleChannels
+                                val zapIdx = zapSourceGroups.indexOfFirst { it.key == channel.key }.coerceAtLeast(0)
+                                val zapCatalogId = activeList?.let { "user_catalog:${it.id}" }
                                 if (channel.sources.size == 1) {
-                                    val zapList = buildZapChannels(visibleChannels, channel.key, LiveCatalogRules.routeFor(channel.primary.item))
-                                    onPlay(channel.primary.item, zapList, index)
+                                    val zapList = buildZapChannels(zapSourceGroups, channel.key, LiveCatalogRules.routeFor(channel.primary.item))
+                                    onPlay(channel.primary.item, zapList, zapIdx, zapCatalogId)
                                 } else {
                                     selectedChannel = channel
                                 }
@@ -337,24 +415,38 @@ fun TvScreen(
                             onToggleFavorite = {
                                 scope.launch { container.liveChannels.toggleFavorite(channel.key) }
                             },
+                            onAddToList = { addToListTarget = channel },
+                            onRemoveFromList = {
+                                activeList?.let { list ->
+                                    scope.launch { container.liveCatalogs.removeChannel(list.id, channel.key) }
+                                }
+                            },
                             onMoveUp = {
                                 scope.launch {
-                                    container.liveChannels.moveOrder(
-                                        visibleKeys = visibleKeys,
-                                        allManualKeys = manualOrderKeys,
-                                        channelKey = channel.key,
-                                        delta = -1,
-                                    )
+                                    if (activeList != null) {
+                                        container.liveCatalogs.moveChannel(activeList.id, channel.key, -1)
+                                    } else {
+                                        container.liveChannels.moveOrder(
+                                            visibleKeys = visibleKeys,
+                                            allManualKeys = manualOrderKeys,
+                                            channelKey = channel.key,
+                                            delta = -1,
+                                        )
+                                    }
                                 }
                             },
                             onMoveDown = {
                                 scope.launch {
-                                    container.liveChannels.moveOrder(
-                                        visibleKeys = visibleKeys,
-                                        allManualKeys = manualOrderKeys,
-                                        channelKey = channel.key,
-                                        delta = +1,
-                                    )
+                                    if (activeList != null) {
+                                        container.liveCatalogs.moveChannel(activeList.id, channel.key, +1)
+                                    } else {
+                                        container.liveChannels.moveOrder(
+                                            visibleKeys = visibleKeys,
+                                            allManualKeys = manualOrderKeys,
+                                            channelKey = channel.key,
+                                            delta = +1,
+                                        )
+                                    }
                                 }
                             },
                         )
@@ -399,9 +491,11 @@ fun TvScreen(
                     group.sources.forEach { source ->
                         TextButton(onClick = {
                             selectedChannel = null
-                            val index = visibleChannels.indexOfFirst { it.key == group.key }.coerceAtLeast(0)
-                            val zapList = buildZapChannels(visibleChannels, group.key, LiveCatalogRules.routeFor(source.item))
-                            onPlay(source.item, zapList, index)
+                            val activeList = activeCatalog
+                            val zapSourceGroups = if (activeList != null) catalogGroups else visibleChannels
+                            val index = zapSourceGroups.indexOfFirst { it.key == group.key }.coerceAtLeast(0)
+                            val zapList = buildZapChannels(zapSourceGroups, group.key, LiveCatalogRules.routeFor(source.item))
+                            onPlay(source.item, zapList, index, activeList?.let { "user_catalog:${it.id}" })
                         }) {
                             Text("${source.providerName} · ${source.rowTitle}", maxLines = 2, overflow = TextOverflow.Ellipsis)
                         }
@@ -413,6 +507,80 @@ fun TvScreen(
             },
         )
     }
+
+    addToListTarget?.let { target ->
+        AddChannelToListDialog(
+            channel = target,
+            catalogs = userCatalogs,
+            onAddToExisting = { cat ->
+                addToListTarget = null
+                val zapChannel = LiveZapChannel(
+                    channelKey = target.key,
+                    title = target.title,
+                    logoUrl = target.logoUrl,
+                    routes = target.routes.ifEmpty { listOfNotNull(LiveCatalogRules.routeFor(target.primary.item)) },
+                    isAvailable = true,
+                )
+                scope.launch {
+                    container.liveCatalogs.addChannel(cat.id, zapChannel)
+                    Toast.makeText(context, context.getString(R.string.tv_list_added, cat.name), Toast.LENGTH_SHORT).show()
+                }
+            },
+            onCreateAndAdd = { newName ->
+                addToListTarget = null
+                val zapChannel = LiveZapChannel(
+                    channelKey = target.key,
+                    title = target.title,
+                    logoUrl = target.logoUrl,
+                    routes = target.routes.ifEmpty { listOfNotNull(LiveCatalogRules.routeFor(target.primary.item)) },
+                    isAvailable = true,
+                )
+                scope.launch {
+                    val createdId = container.liveCatalogs.createAndAddChannel(newName, zapChannel)
+                    if (createdId != null) {
+                        Toast.makeText(context, context.getString(R.string.tv_list_added, newName.trim()), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            },
+            onDismiss = { addToListTarget = null },
+        )
+    }
+
+    if (showRenameDialog && activeCatalog != null) {
+        RenameListDialog(
+            currentName = activeCatalog.name,
+            onRename = { nextName ->
+                showRenameDialog = false
+                scope.launch { container.liveCatalogs.renameCatalog(activeCatalog.id, nextName) }
+            },
+            onDismiss = { showRenameDialog = false },
+        )
+    }
+
+    if (showDeleteListConfirm && activeCatalog != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteListConfirm = false },
+            title = { Text(stringResource(R.string.tv_list_delete_title)) },
+            text = { Text(stringResource(R.string.tv_list_delete_message, activeCatalog.name)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val id = activeCatalog.id
+                        showDeleteListConfirm = false
+                        activeCatalogId = null
+                        scope.launch { container.liveCatalogs.deleteCatalog(id) }
+                    },
+                ) {
+                    Text(stringResource(R.string.addons_remove), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteListConfirm = false }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            },
+        )
+    }
 }
 
 @Composable
@@ -420,10 +588,13 @@ private fun LiveChannelCard(
     channel: LiveChannelGroup,
     isFavorite: Boolean,
     showReorder: Boolean,
+    showRemoveFromList: Boolean,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
     onClick: () -> Unit,
     onToggleFavorite: () -> Unit,
+    onAddToList: () -> Unit,
+    onRemoveFromList: () -> Unit,
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit,
 ) {
@@ -541,6 +712,30 @@ private fun LiveChannelCard(
                     modifier = Modifier.size(18.dp),
                 )
             }
+            IconButton(
+                onClick = onAddToList,
+                modifier = Modifier.size(40.dp),
+            ) {
+                Icon(
+                    imageVector = PlayIcons.Plus,
+                    contentDescription = stringResource(R.string.tv_list_add),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+            if (showRemoveFromList) {
+                IconButton(
+                    onClick = onRemoveFromList,
+                    modifier = Modifier.size(40.dp),
+                ) {
+                    Icon(
+                        imageVector = PlayIcons.Trash,
+                        contentDescription = stringResource(R.string.tv_list_remove_channel),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+            }
             if (showReorder) {
                 IconButton(
                     onClick = onMoveUp,
@@ -567,6 +762,123 @@ private fun LiveChannelCard(
             }
         }
     }
+}
+
+@Composable
+private fun AddChannelToListDialog(
+    channel: LiveChannelGroup,
+    catalogs: List<LiveTvCatalog>,
+    onAddToExisting: (LiveTvCatalog) -> Unit,
+    onCreateAndAdd: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var newName by remember { mutableStateOf("") }
+    val nameField = rememberCursorField(newName) { newName = it }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(20.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = { Text(stringResource(R.string.tv_list_add_title), style = MaterialTheme.typography.titleLarge) },
+        text = {
+            Column(
+                modifier = Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text(
+                    text = channel.title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                catalogs.forEach { cat ->
+                    val alreadyIn = cat.channels.any { it.channelKey == channel.key }
+                    OutlinedButton(
+                        onClick = { onAddToExisting(cat) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = if (alreadyIn) {
+                                "${cat.name} (${stringResource(R.string.tv_list_already_added)})"
+                            } else {
+                                "${cat.name} (${cat.channels.size})"
+                            },
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+                Text(
+                    text = stringResource(R.string.tv_list_new),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
+                OutlinedTextField(
+                    value = nameField.value,
+                    onValueChange = nameField.onValueChange,
+                    placeholder = { Text(stringResource(R.string.tv_list_name_hint)) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {
+                        if (newName.isNotBlank()) onCreateAndAdd(newName)
+                    }),
+                    modifier = Modifier.fillMaxWidth().dpadLeavesTextField(nameField),
+                )
+                Button(
+                    onClick = { if (newName.isNotBlank()) onCreateAndAdd(newName) },
+                    enabled = newName.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.tv_list_create_and_add))
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
+        },
+    )
+}
+
+@Composable
+private fun RenameListDialog(
+    currentName: String,
+    onRename: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var name by remember(currentName) { mutableStateOf(currentName) }
+    val field = rememberCursorField(name) { name = it }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(20.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = { Text(stringResource(R.string.tv_list_rename_title), style = MaterialTheme.typography.titleLarge) },
+        text = {
+            OutlinedTextField(
+                value = field.value,
+                onValueChange = field.onValueChange,
+                placeholder = { Text(stringResource(R.string.tv_list_name_hint)) },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = {
+                    if (name.isNotBlank()) onRename(name)
+                }),
+                modifier = Modifier.fillMaxWidth().dpadLeavesTextField(field),
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = { if (name.isNotBlank()) onRename(name) }, enabled = name.isNotBlank()) {
+                Text(stringResource(R.string.common_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
+        },
+    )
 }
 
 private fun buildZapChannels(

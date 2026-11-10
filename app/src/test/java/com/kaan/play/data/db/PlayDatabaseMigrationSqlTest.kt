@@ -64,4 +64,54 @@ class PlayDatabaseMigrationSqlTest {
             assertTrue(upper.startsWith("CREATE TABLE IF NOT EXISTS"))
         }
     }
+
+    @Test
+    fun version8PreservesAllVersion7EntitiesAndMigration7To8MatchesSchema() {
+        val v7 = Json.parseToJsonElement(schemaFile(7).readText()).jsonObject["database"]!!.jsonObject
+        val v8 = Json.parseToJsonElement(schemaFile(8).readText()).jsonObject["database"]!!.jsonObject
+
+        val v7Entities = v7["entities"]!!.jsonArray.associateBy { it.jsonObject["tableName"]!!.jsonPrimitive.content }
+        val v8Entities = v8["entities"]!!.jsonArray.associateBy { it.jsonObject["tableName"]!!.jsonPrimitive.content }
+
+        for ((tableName, entity) in v7Entities) {
+            assertEquals("v7 tablosu v8'de değişmemeli: $tableName", entity, v8Entities[tableName])
+        }
+
+        val expectedCatalogSql = v8Entities["live_catalog"]!!.jsonObject["createSql"]!!
+            .jsonPrimitive.content.replace("\${TABLE_NAME}", "live_catalog")
+        val catalogChannelObj = v8Entities["live_catalog_channel"]!!.jsonObject
+        val expectedChannelSql = catalogChannelObj["createSql"]!!
+            .jsonPrimitive.content.replace("\${TABLE_NAME}", "live_catalog_channel")
+        val expectedIndexSql = catalogChannelObj["indices"]!!.jsonArray.single().jsonObject["createSql"]!!
+            .jsonPrimitive.content.replace("\${TABLE_NAME}", "live_catalog_channel")
+
+        val executedSql = mutableListOf<String>()
+        val db = Proxy.newProxyInstance(
+            SupportSQLiteDatabase::class.java.classLoader,
+            arrayOf(SupportSQLiteDatabase::class.java),
+        ) { _, method, args ->
+            when (method.name) {
+                "execSQL" -> {
+                    executedSql += args[0] as String
+                    null
+                }
+                else -> error("Beklenmeyen SupportSQLiteDatabase çağrısı: ${method.name}")
+            }
+        } as SupportSQLiteDatabase
+
+        assertEquals(7, PlayDatabase.MIGRATION_7_8.startVersion)
+        assertEquals(8, PlayDatabase.MIGRATION_7_8.endVersion)
+        PlayDatabase.MIGRATION_7_8.migrate(db)
+
+        assertEquals(listOf(expectedCatalogSql, expectedChannelSql, expectedIndexSql), executedSql)
+        for (sql in executedSql) {
+            val upper = sql.uppercase()
+            assertFalse("Veri silen göç SQL'i yasak: $sql", upper.contains("DROP "))
+            assertFalse("Veri silen göç SQL'i yasak: $sql", upper.contains("DELETE FROM"))
+            assertFalse("Veri silen göç SQL'i yasak: $sql", upper.contains("TRUNCATE "))
+            assertTrue(
+                upper.startsWith("CREATE TABLE IF NOT EXISTS") || upper.startsWith("CREATE INDEX IF NOT EXISTS"),
+            )
+        }
+    }
 }
