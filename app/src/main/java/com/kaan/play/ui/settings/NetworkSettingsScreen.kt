@@ -44,13 +44,16 @@ import com.kaan.play.data.net.CustomDohResult
 import com.kaan.play.data.net.DnsCheckResult
 import com.kaan.play.data.net.DnsMode
 import com.kaan.play.data.net.DnsRules
+import com.kaan.play.data.settings.ThemeMode
 import com.kaan.play.ui.components.Button
-import com.kaan.play.ui.components.PlayCard
 import com.kaan.play.ui.components.PlayCardRow
 import com.kaan.play.ui.components.ScreenHeader
 import com.kaan.play.ui.components.TextButton
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.rememberContainer
+import com.kaan.play.ui.theme.LocalPlayThemeMode
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.Surface
 import com.kaan.play.ui.tv.dpadLeavesTextField
 import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.rememberCursorField
@@ -92,6 +95,9 @@ fun NetworkSettingsScreen(
             onBack = onBack,
         )
 
+        val highContrast = LocalPlayThemeMode.current == ThemeMode.HighContrast
+        val cardBorder = if (highContrast) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f))
+
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
@@ -100,18 +106,32 @@ fun NetworkSettingsScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             item(key = "info") {
-                PlayCard(modifier = Modifier.fillMaxWidth()) {
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f),
+                    border = cardBorder,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
                     Text(
                         text = stringResource(R.string.network_settings_info),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
                     )
                 }
             }
 
             item(key = "dns_check") {
-                PlayCard(modifier = Modifier.fillMaxWidth()) {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f),
+                    border = cardBorder,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
                         Text(
                             text = stringResource(R.string.network_dns_section) + ": " + stringResource(dnsMode.titleRes()),
                             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),

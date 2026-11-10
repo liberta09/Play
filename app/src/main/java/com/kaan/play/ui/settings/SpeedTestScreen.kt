@@ -31,7 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.Surface
 import com.kaan.play.R
+import com.kaan.play.data.settings.ThemeMode
 import com.kaan.play.data.speedtest.InternetSpeedResult
 import com.kaan.play.data.speedtest.InternetSpeedTest
 import com.kaan.play.data.speedtest.SpeedTestError
@@ -39,9 +42,9 @@ import com.kaan.play.data.speedtest.SpeedTestOutcome
 import com.kaan.play.i18n.AppLanguage
 import com.kaan.play.ui.components.Button
 import com.kaan.play.ui.components.OutlinedButton
-import com.kaan.play.ui.components.PlayCard
 import com.kaan.play.ui.components.ScreenHeader
 import com.kaan.play.ui.rememberContainer
+import com.kaan.play.ui.theme.LocalPlayThemeMode
 import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.rememberFocusMemory
 import kotlinx.coroutines.CancellationException
@@ -113,8 +116,17 @@ fun SpeedTestScreen(onBack: () -> Unit) {
         }
 
         if (running) {
-            PlayCard(modifier = Modifier.fillMaxWidth()) {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            val highContrast = LocalPlayThemeMode.current == ThemeMode.HighContrast
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f),
+                border = if (highContrast) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(
+                    modifier = Modifier.padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
                     val fraction = (downloadedBytes.toFloat() / totalBytes.coerceAtLeast(1L).toFloat()).coerceIn(0f, 1f)
                     LinearProgressIndicator(
                         progress = { fraction },
@@ -212,8 +224,17 @@ fun SpeedTestScreen(onBack: () -> Unit) {
 
 @Composable
 private fun SpeedResultCard(result: InternetSpeedResult, locale: Locale) {
-    PlayCard(modifier = Modifier.fillMaxWidth()) {
-        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    val highContrast = LocalPlayThemeMode.current == ThemeMode.HighContrast
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f),
+        border = if (highContrast) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
             Text(
                 text = stringResource(R.string.speed_test_result_title),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
