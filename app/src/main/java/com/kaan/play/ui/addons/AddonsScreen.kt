@@ -131,27 +131,42 @@ fun AddonsScreen(
     val focus = rememberFocusMemory()
     val appContext = LocalContext.current
 
+    var importFeedback by remember { mutableStateOf<CollectionImportFeedback?>(null) }
+    val importMessage = when (val fb = importFeedback) {
+        null -> null
+        is CollectionImportFeedback.Partial -> stringResource(R.string.collection_import_partial, fb.folders, fb.unsupported)
+        is CollectionImportFeedback.Success -> stringResource(R.string.collection_import_success, fb.folders)
+        CollectionImportFeedback.TooLarge -> stringResource(R.string.collection_error_file_too_large)
+        CollectionImportFeedback.StorageFull -> stringResource(R.string.collection_error_storage_full)
+        CollectionImportFeedback.InvalidJson -> stringResource(R.string.collection_error_invalid_json)
+    }
+    LaunchedEffect(importFeedback, importMessage) {
+        if (importMessage != null) {
+            Toast.makeText(appContext, importMessage, Toast.LENGTH_LONG).show()
+            importFeedback = null
+        }
+    }
+
     val importCollectionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
     ) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch {
-            val message = try {
+            importFeedback = try {
                 val (bytes, fallbackTitle) = withContext(Dispatchers.IO) { readCollectionUri(appContext, uri) }
                 val res = container.collections.importBytes(bytes, fallbackTitle)
                 if (res.unsupportedSourcesCount > 0) {
-                    appContext.getString(R.string.collection_import_partial, res.foldersAdded, res.unsupportedSourcesCount)
+                    CollectionImportFeedback.Partial(res.foldersAdded, res.unsupportedSourcesCount)
                 } else {
-                    appContext.getString(R.string.collection_import_success, res.foldersAdded)
+                    CollectionImportFeedback.Success(res.foldersAdded)
                 }
             } catch (_: CollectionImportException.FileTooLarge) {
-                appContext.getString(R.string.collection_error_file_too_large)
+                CollectionImportFeedback.TooLarge
             } catch (_: CollectionImportException.StorageFull) {
-                appContext.getString(R.string.collection_error_storage_full)
+                CollectionImportFeedback.StorageFull
             } catch (_: Throwable) {
-                appContext.getString(R.string.collection_error_invalid_json)
+                CollectionImportFeedback.InvalidJson
             }
-            Toast.makeText(appContext, message, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -880,5 +895,13 @@ private fun readCollectionUri(context: Context, uri: Uri): Pair<ByteArray, Strin
     } ?: throw CollectionImportException.InvalidJson()
 
     return bytes to fallbackTitle
+}
+
+private sealed interface CollectionImportFeedback {
+    data class Success(val folders: Int) : CollectionImportFeedback
+    data class Partial(val folders: Int, val unsupported: Int) : CollectionImportFeedback
+    data object TooLarge : CollectionImportFeedback
+    data object StorageFull : CollectionImportFeedback
+    data object InvalidJson : CollectionImportFeedback
 }
 

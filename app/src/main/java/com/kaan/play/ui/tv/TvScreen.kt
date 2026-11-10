@@ -132,6 +132,15 @@ fun TvScreen(
     var addToListTarget by remember { mutableStateOf<LiveChannelGroup?>(null) }
     var showRenameDialog by remember { mutableStateOf(false) }
     var showDeleteListConfirm by remember { mutableStateOf(false) }
+    var listAddedToastName by remember { mutableStateOf<String?>(null) }
+
+    val listAddedToastText = listAddedToastName?.let { stringResource(R.string.tv_list_added, it) }
+    LaunchedEffect(listAddedToastName, listAddedToastText) {
+        if (listAddedToastText != null) {
+            Toast.makeText(context, listAddedToastText, Toast.LENGTH_SHORT).show()
+            listAddedToastName = null
+        }
+    }
 
     val activeCatalog = remember(userCatalogs, activeCatalogId) {
         activeCatalogId?.let { id -> userCatalogs.firstOrNull { it.id == id } }
@@ -523,7 +532,7 @@ fun TvScreen(
                 )
                 scope.launch {
                     container.liveCatalogs.addChannel(cat.id, zapChannel)
-                    Toast.makeText(context, context.getString(R.string.tv_list_added, cat.name), Toast.LENGTH_SHORT).show()
+                    listAddedToastName = cat.name
                 }
             },
             onCreateAndAdd = { newName ->
@@ -538,7 +547,7 @@ fun TvScreen(
                 scope.launch {
                     val createdId = container.liveCatalogs.createAndAddChannel(newName, zapChannel)
                     if (createdId != null) {
-                        Toast.makeText(context, context.getString(R.string.tv_list_added, newName.trim()), Toast.LENGTH_SHORT).show()
+                        listAddedToastName = newName.trim()
                     }
                 }
             },

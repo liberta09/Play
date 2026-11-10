@@ -293,6 +293,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun handlePlayIntent(intent: Intent?) {
         if (BuildConfig.DEBUG) {
+            if (intent?.getBooleanExtra("play_test_sub_repo_prompt", false) == true) triggerDebugSubRepoPrompt((application as PlayApp).container)
             val testUrl = intent?.getStringExtra("play_test_video")
             if (!testUrl.isNullOrBlank()) {
                 val scheme = runCatching { android.net.Uri.parse(testUrl)?.scheme?.lowercase() }.getOrNull()
@@ -399,6 +400,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    private fun triggerDebugSubRepoPrompt(container: AppContainer) {
+        if (!BuildConfig.DEBUG) return
+        container.pluginRepoRequests.enqueueFromParent(
+            parentRepoUrl = "https://parent.example.com/repo.json",
+            candidates = listOf(
+                com.kaan.play.data.cloudstream.PluginRepoItem("Örnek Alt Depo 1", "https://example.com/sub1/repo.json"),
+                com.kaan.play.data.cloudstream.PluginRepoItem("Örnek Alt Depo 2", "https://example.org/sub2/repo.json"),
+            ),
+        )
+    }
+
     companion object {
         var testManyProviders: Boolean = false
         var testSyncEmail: String? = null
