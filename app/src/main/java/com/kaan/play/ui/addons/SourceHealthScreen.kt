@@ -301,7 +301,7 @@ fun SourceHealthScreen(onBack: () -> Unit) {
                     WrongContentBlockRow(
                         entry = entry,
                         locale = locale,
-                        buttonModifier = Modifier.focusMemory(focus, "wc-${entry.key}"),
+                        modifier = Modifier.focusMemory(focus, "wc-${entry.key}"),
                         onRemove = { scope.launch { container.wrongContentBlocks.remove(entry.key) } },
                     )
                 }
@@ -410,8 +410,8 @@ fun SourceHealthScreen(onBack: () -> Unit) {
 private fun WrongContentBlockRow(
     entry: WrongContentBlockEntry,
     locale: Locale,
-    buttonModifier: Modifier,
     onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val contentLabel = when {
         !entry.contentTitle.isNullOrBlank() && (entry.year ?: 0) > 0 ->
@@ -449,7 +449,7 @@ private fun WrongContentBlockRow(
             }
             OutlinedButton(
                 onClick = onRemove,
-                modifier = buttonModifier,
+                modifier = modifier,
             ) {
                 Text(stringResource(R.string.source_health_remove))
             }

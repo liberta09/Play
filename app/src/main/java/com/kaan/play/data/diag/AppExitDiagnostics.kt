@@ -1,9 +1,9 @@
 package com.kaan.play.data.diag
 
 import android.app.ActivityManager
-import android.app.ApplicationExitInfo
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RequiresApi
 
 enum class ExitCategory {
     Anr,
@@ -105,21 +105,22 @@ object AppExitDiagnostics {
         sdkInt >= Build.VERSION_CODES.R
 
     fun read(context: Context): AppExitSnapshot {
-        if (!isSupported()) return AppExitSnapshot(supported = false, exits = emptyList())
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return AppExitSnapshot(supported = false, exits = emptyList())
+        }
         return try {
             val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
                 ?: return AppExitSnapshot(supported = true, exits = emptyList())
-            val reasons = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                am.getHistoricalProcessExitReasons(context.packageName, 0, RAW_FETCH_LIMIT)
-            } else {
-                emptyList()
-            }
-            val mapped = AppExitClassifier.filterRecentAbnormal(
-                reasons.map { info: ApplicationExitInfo -> info.reason to info.timestamp },
-            )
+            val rawReasons = readRawReasonsApi30(am, context.packageName)
+            val mapped = AppExitClassifier.filterRecentAbnormal(rawReasons)
             AppExitSnapshot(supported = true, exits = mapped)
         } catch (_: Throwable) {
             AppExitSnapshot(supported = true, exits = emptyList())
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun readRawReasonsApi30(am: ActivityManager, packageName: String): List<Pair<Int, Long>> =
+        am.getHistoricalProcessExitReasons(packageName, 0, RAW_FETCH_LIMIT)
+            .map { info -> info.reason to info.timestamp }
 }
