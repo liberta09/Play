@@ -197,6 +197,10 @@ fun PlayerScreen(
     audioVerificationNotice: com.kaan.play.data.player.TurkishAudioNotice? = null,
     onClearAudioVerificationNotice: () -> Unit = {},
     onStopTurkishAudioScan: () -> Unit = {},
+    /** Birden çok ses parçası varsa sıradakine geçme eylemi ve kısa parça adı bildirimi. */
+    onNextAudioTrack: (() -> Unit)? = null,
+    audioTrackBanner: String? = null,
+    onClearAudioTrackBanner: () -> Unit = {},
     /** Kilit durumu değişince etkinliğe bildirilir (`Activity.onKeyDown` kilitliyken zap yapmasın). */
     onLockedChanged: (Boolean) -> Unit = {},
     onBack: () -> Unit,
@@ -359,6 +363,12 @@ fun PlayerScreen(
         if (audioVerificationNotice != null) {
             delay(SOURCE_NOTICE_MS)
             onClearAudioVerificationNotice()
+        }
+    }
+    LaunchedEffect(audioTrackBanner) {
+        if (audioTrackBanner != null) {
+            delay(NOTICE_MS)
+            onClearAudioTrackBanner()
         }
     }
     LaunchedEffect(resizeToast) {
@@ -792,6 +802,13 @@ fun PlayerScreen(
                     })
                 }
                 add(BarAction(PlayIcons.Tracks, stringResource(R.string.player_btn_tracks)) { showTracks = true; bump() })
+                val audioCount = remember(ui.tracksVersion) { controller.audioTracks().size }
+                if (audioCount > 1 && onNextAudioTrack != null) {
+                    add(BarAction(PlayIcons.AudioNext, stringResource(R.string.player_btn_next_audio)) {
+                        onNextAudioTrack()
+                        bump()
+                    })
+                }
                 val canShowNext = onNextEpisode != null && AutoNextRules.canShowNextEpisodeButton(target.request.type, target.request.season, target.request.episode, target.request.addonType, duration)
                 if (canShowNext) {
                     add(BarAction(PlayIcons.NextEpisode, stringResource(R.string.player_btn_next_episode)) {
@@ -988,6 +1005,21 @@ fun PlayerScreen(
                     .widthIn(max = 480.dp)
                     .background(Color.Black.copy(alpha = 0.78f), RoundedCornerShape(16.dp))
                     .padding(horizontal = 18.dp, vertical = 8.dp),
+            )
+        }
+        if (!audioTrackBanner.isNullOrBlank() && !locked && ui.error == null) {
+            Text(
+                text = audioTrackBanner,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .padding(top = if (activeNotice != null || audioVerificationNotice != null || audioVerificationScanning) 144.dp else 84.dp)
+                    .widthIn(max = 480.dp)
+                    .background(Color.Black.copy(alpha = 0.85f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
             )
         }
 

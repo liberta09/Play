@@ -679,4 +679,7 @@
     <string name="player_audio_verify_not_found">Türkçe ses izi bulunamadı; hızlı alternatif açılıyor</string>
     <string name="player_audio_verify_select_failed">Türkçe iz bulundu ancak seçilemedi; varsayılan ses sürüyor</string>
     <string name="player_audio_verify_unsupported">Türkçe ses bu cihazda desteklenmiyor; başka kaynak aranıyor</string>
+    <string name="player_btn_next_audio">Sonraki ses izi</string>
+    <string name="player_audio_unknown_hint">Ses izi tanınamadı; parçalar arasında geçiş yapabilirsin.</string>
+    <string name="player_audio_unknown_named">%1$s · Ses izi tanınamadı; parçalar arasında geçiş yapabilirsin.</string>
 </resources>

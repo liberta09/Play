@@ -698,4 +698,7 @@
     <string name="player_audio_verify_not_found">Turkish audio track not found; opening fast alternative</string>
     <string name="player_audio_verify_select_failed">Turkish track found but could not be selected; continuing with default audio</string>
     <string name="player_audio_verify_unsupported">Turkish audio is not supported on this device; searching for another source</string>
+    <string name="player_btn_next_audio">Next audio</string>
+    <string name="player_audio_unknown_hint">Audio tracks unrecognized; you can switch between tracks.</string>
+    <string name="player_audio_unknown_named">%1$s · Audio track unrecognized; you can switch between tracks.</string>
 </resources>

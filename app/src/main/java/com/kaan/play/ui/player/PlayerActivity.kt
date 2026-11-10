@@ -30,7 +30,9 @@ import com.kaan.play.data.db.DownloadStatus
 import com.kaan.play.data.download.DownloadedSubtitleLoader
 import com.kaan.play.data.library.WatchRules
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.player.AudioTrackRules
 import com.kaan.play.data.player.TurkishAudioNotice
+import com.kaan.play.i18n.AppLanguage
 import com.kaan.play.data.player.TurkishAudioTrackRules
 import com.kaan.play.data.player.TurkishAudioVerifier
 import com.kaan.play.data.player.TurkishVerifyDecision
@@ -104,6 +106,8 @@ class PlayerActivity : AppCompatActivity() {
     private var audioVerificationScanning by mutableStateOf(false)
     private var audioVerificationNotice by mutableStateOf<TurkishAudioNotice?>(null)
     private var pendingDubRevertStream: PlayableStream? = null
+    private var audioTrackBanner by mutableStateOf<String?>(null)
+    private var unknownAudioHintStreamUrl: String? = null
 
     /** Sonraki bölüme geçiliyor: bu bölüm "izlendi" yazılır, oynatıcı hataları (kapanan torrent vb.) gösterilmez. */
     private var leaving = false
@@ -461,6 +465,9 @@ class PlayerActivity : AppCompatActivity() {
                     audioVerificationNotice = audioVerificationNotice,
                     onClearAudioVerificationNotice = { audioVerificationNotice = null },
                     onStopTurkishAudioScan = ::stopTurkishAudioScan,
+                    onNextAudioTrack = ::selectNextAudioTrack,
+                    audioTrackBanner = audioTrackBanner,
+                    onClearAudioTrackBanner = { audioTrackBanner = null },
                     onLockedChanged = { playbackLocked = it },
                     onBack = ::finish,
                 )
@@ -958,8 +965,32 @@ class PlayerActivity : AppCompatActivity() {
         embeddedDub = selected != null &&
             TurkishAudioTrackRules.isTurkishTrack(selected.language, selected.label) &&
             (tracks.size > 1 || currentStream?.dubbed == true)
+        val infos = controller.allAudioTrackInfos()
+        val supported = infos.filter { it.isSupported }
+        val streamUrl = currentStream?.url
+        if (!userAudioChosen && !audioVerificationScanning && supported.size > 1 && !AudioTrackRules.hasAnyLanguageInfo(infos) && streamUrl != null && unknownAudioHintStreamUrl != streamUrl) {
+            unknownAudioHintStreamUrl = streamUrl
+            audioTrackBanner = getString(R.string.player_audio_unknown_hint)
+        }
         // Türkçe ses seçiliyken Türkçe altyazıya gerek yok; yoksa otomatik altyazı yeniden açılır.
         if (embeddedDub) subtitles.suppressAuto() else if (currentStream?.dubbed != true) subtitles.resumeAuto()
+    }
+
+    /** Alt çubuktan "Sonraki ses izi": sıradaki ses parçasına geçer ve elle seçim sayılır. */
+    private fun selectNextAudioTrack() {
+        val infos = controller.allAudioTrackInfos()
+        val next = AudioTrackRules.nextTrack(infos) ?: return
+        val hasLang = AudioTrackRules.hasAnyLanguageInfo(infos)
+        onAudioChosen(next.index)
+        val supportedPos = infos.filter { it.isSupported }.indexOfFirst { it.index == next.index }.coerceAtLeast(0) + 1
+        val uiIso = AppLanguage.effective().iso
+        val name = AudioTrackRules.displayNameForUi(
+            track = next,
+            displayIndexOneBased = supportedPos,
+            fallbackLabel = { getString(R.string.player_audio_track, it) },
+            languageDisplayName = { SubtitleLanguages.displayName(it, uiIso) },
+        )
+        audioTrackBanner = if (hasLang) name else getString(R.string.player_audio_unknown_named, name)
     }
 
     /** Kullanıcı sesi Parçalar panelinden seçti: dil hatırlanır (kaynak değişince aynı dil aranır), otomatik seçim ve tarama durur. */

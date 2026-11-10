@@ -834,4 +834,15 @@ object PlayIcons {
             }
         }.build()
     }
+
+    /** Hoparlör ve sağ ok: sonraki ses izine geç. */
+    val AudioNext: ImageVector by lazy {
+        icon("AudioNext") {
+            line {
+                moveTo(3.5f, 9.5f); horizontalLineTo(6.5f); lineTo(10.5f, 5.5f); verticalLineTo(18.5f); lineTo(6.5f, 14.5f); horizontalLineTo(3.5f); close()
+                moveTo(14f, 9f); lineTo(17.5f, 12f); lineTo(14f, 15f)
+                moveTo(18f, 9f); lineTo(21.5f, 12f); lineTo(18f, 15f)
+            }
+        }
+    }
 }
