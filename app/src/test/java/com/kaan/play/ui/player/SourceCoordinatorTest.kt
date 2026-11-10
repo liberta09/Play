@@ -1220,4 +1220,50 @@ class SourceCoordinatorTest {
         assertEquals(30_000L, loaded.last().second)
         assertTrue(coordinator.notice is SourceNotice.Skipped)
     }
+
+    @Test
+    fun autoRetryLimitStopsAfterThreeAttemptsWhileUnlimitedTriesAllFive() = runTest {
+        val candidates = (1..5).map { i -> stream(source1, "https://s/$i") }
+
+        val limitedLoaded = mutableListOf<String>()
+        val limited = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, *candidates.toTypedArray())) } },
+            preferDub = false,
+            autoRetryLimit = 3,
+            load = { s, _ -> limitedLoaded += s.url },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        limited.start(null, emptyList(), 0L)
+        runCurrent()
+        assertEquals(1, limitedLoaded.size)
+        assertTrue(limited.onFailure("fail-1"))
+        assertEquals(2, limitedLoaded.size)
+        assertTrue(limited.onFailure("fail-2"))
+        assertEquals(3, limitedLoaded.size)
+        assertTrue(limited.onFailure("fail-3"))
+        assertEquals(3, limitedLoaded.size)
+        assertEquals(SourcePhase.Failed, limited.phase)
+
+        val unlimitedLoaded = mutableListOf<String>()
+        val unlimited = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, *candidates.toTypedArray())) } },
+            preferDub = false,
+            autoRetryLimit = null,
+            load = { s, _ -> unlimitedLoaded += s.url },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        unlimited.start(null, emptyList(), 0L)
+        runCurrent()
+        repeat(4) { idx ->
+            assertTrue(unlimited.onFailure("fail-${idx + 1}"))
+        }
+        assertEquals(5, unlimitedLoaded.size)
+        assertEquals(SourcePhase.Starting, unlimited.phase)
+    }
 }

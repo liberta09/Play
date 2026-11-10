@@ -2,6 +2,7 @@ package com.kaan.play.data.settings
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.player.AutoRetryPolicy
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.SourceMemory
 import com.kaan.play.data.stream.StreamRequest
@@ -51,6 +52,7 @@ class SourceSettingsTest {
         assertTrue(repo.preferDub.first())
         assertTrue(repo.trySourcesUntilTurkishAudio.first())
         assertTrue(repo.revertOnSelectedFailure.first())
+        assertEquals(AutoRetryPolicy.UNLIMITED, repo.autoSourceRetryLimit.first())
         assertTrue(repo.showDubSuggestion.first())
         assertFalse(repo.slowConnectionMode.first())
         assertTrue(repo.suggestSlowConnection.first())
@@ -86,6 +88,12 @@ class SourceSettingsTest {
     fun revertOnSelectedFailureCanBeTurnedOff() = runBlocking {
         repo.setRevertOnSelectedFailure(false)
         assertFalse(repo.revertOnSelectedFailure.first())
+    }
+
+    @Test
+    fun autoSourceRetryLimitIsSaved() = runBlocking {
+        repo.setAutoSourceRetryLimit(5)
+        assertEquals(5, repo.autoSourceRetryLimit.first())
     }
 
     @Test

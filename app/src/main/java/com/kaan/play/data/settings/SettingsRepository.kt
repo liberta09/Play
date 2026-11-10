@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.kaan.play.data.library.ContinueSortMode
+import com.kaan.play.data.player.AutoRetryPolicy
 import com.kaan.play.data.provider.LiveTvSortMode
 import com.kaan.play.data.stream.TorrentLinks
 import com.kaan.play.data.tmdb.PosterUrlTemplate
@@ -97,6 +98,15 @@ class SettingsRepository(val store: DataStore<Preferences>) {
 
     suspend fun setRevertOnSelectedFailure(enabled: Boolean) {
         store.edit { it[REVERT_ON_SELECTED_FAILURE] = enabled }
+    }
+
+    /** Otomatik kaynak deneme sayısı sınırı (`0` = Sınırsız; seçenekler: 3 / 5 / 10 / 0). */
+    val autoSourceRetryLimit: Flow<Int> =
+        store.data.map { prefs -> AutoRetryPolicy.normalize(prefs[AUTO_SOURCE_RETRY_LIMIT]) }.distinctUntilChanged()
+
+    suspend fun setAutoSourceRetryLimit(limit: Int) {
+        require(limit in AUTO_SOURCE_RETRY_OPTIONS) { "Desteklenmeyen kaynak deneme sınırı: $limit" }
+        store.edit { it[AUTO_SOURCE_RETRY_LIMIT] = limit }
     }
 
     /** Açıkken altyazılı oynarken sonradan bulunan dublajlı kaynak köşe kartıyla önerilir. Varsayılan açık. */
@@ -360,6 +370,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_PREFER_DUB = true
         const val DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO = true
         const val DEFAULT_REVERT_ON_SELECTED_FAILURE = true
+        const val DEFAULT_AUTO_SOURCE_RETRY_LIMIT = AutoRetryPolicy.UNLIMITED
+        val AUTO_SOURCE_RETRY_OPTIONS = AutoRetryPolicy.OPTIONS
         const val DEFAULT_SHOW_DUB_SUGGESTION = true
         const val DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS = 7
         val AUDIO_PROBE_TIMEOUT_OPTIONS = listOf(5, 7, 10)
@@ -386,6 +398,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val PREFER_DUB = booleanPreferencesKey("prefer_dub")
         private val TRY_SOURCES_UNTIL_TURKISH_AUDIO = booleanPreferencesKey("try_sources_until_turkish_audio")
         private val REVERT_ON_SELECTED_FAILURE = booleanPreferencesKey("revert_on_selected_failure")
+        private val AUTO_SOURCE_RETRY_LIMIT = intPreferencesKey("auto_source_retry_limit")
         private val SHOW_DUB_SUGGESTION = booleanPreferencesKey("show_dub_suggestion")
         private val AUDIO_PROBE_TIMEOUT_SECONDS = intPreferencesKey("audio_probe_timeout_seconds")
         private val RESIZE_MODE = stringPreferencesKey("resize_mode")
@@ -420,6 +433,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
             PREFER_DUB,
             TRY_SOURCES_UNTIL_TURKISH_AUDIO,
             REVERT_ON_SELECTED_FAILURE,
+            AUTO_SOURCE_RETRY_LIMIT,
             SHOW_DUB_SUGGESTION,
             AUDIO_PROBE_TIMEOUT_SECONDS,
             RESIZE_MODE,

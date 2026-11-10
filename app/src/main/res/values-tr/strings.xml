@@ -710,4 +710,6 @@
     <string name="player_age_rating">Yaş sınıfı %1$s · %2$s</string>
     <string name="player_retrying_current">Akış kesildi; aynı kaynak kaldığın konumdan bir kez daha deneniyor</string>
     <string name="settings_revert_on_selected_failure">Seçilen kaynak açılmazsa önceki kaynağa dön</string>
+    <string name="settings_auto_retry_limit">Otomatik kaynak deneme sayısı</string>
+    <string name="settings_auto_retry_unlimited">Sınırsız</string>
 </resources>

@@ -729,4 +729,6 @@
     <string name="player_age_rating">Age rating %1$s · %2$s</string>
     <string name="player_retrying_current">Stream disconnected; retrying the same source from your current position</string>
     <string name="settings_revert_on_selected_failure">Revert to previous source if selected source fails</string>
+    <string name="settings_auto_retry_limit">Automatic source attempts</string>
+    <string name="settings_auto_retry_unlimited">Unlimited</string>
 </resources>

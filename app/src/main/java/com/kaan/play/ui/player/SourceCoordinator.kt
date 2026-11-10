@@ -9,6 +9,7 @@ import com.kaan.play.data.stream.SourceMediaRules
 import com.kaan.play.data.match.ContentDurationCheck
 import com.kaan.play.data.match.ContentKind
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.player.AutoRetryPolicy
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.SlowHostMemory
 import com.kaan.play.data.stream.RankContext
@@ -134,6 +135,8 @@ class SourceCoordinator(
     private val autoSource: Boolean = true,
     private val showDubSuggestion: Boolean = true,
     private val revertOnSelectedFailure: Boolean = true,
+    /** Otomatik deneme sayısı sınırı (`null` = Sınırsız). Yalnızca otomatik seçilen kaynak denemelerini sınırlar. */
+    private val autoRetryLimit: Int? = null,
     private val loadBlocked: suspend () -> Unit = {},
     private val isSourceBlocked: (StreamSource) -> Boolean = { false },
     private val persistSourceBlock: suspend (StreamSource) -> Unit = {},
@@ -218,6 +221,7 @@ class SourceCoordinator(
             invalidateRankCache()
         }
     private var userPicked = false
+    private var autoAttempts = 0
     private var suggestionDismissed = false
     private var finished = false
     private var resolveStartedAt = 0L
@@ -310,6 +314,7 @@ class SourceCoordinator(
      */
     fun start(initial: PlayableStream?, fallbacks: List<PlayableStream>, startMs: Long) {
         cancelSizeProbes()
+        autoAttempts = 0
         lastStartMs = startMs
         queue.clear()
         queue.addAll(fallbacks.filter(::acceptable))
@@ -484,7 +489,10 @@ class SourceCoordinator(
                     is StartDecision.Start -> {
                         fallbackDubWaitJob?.cancel()
                         activeDubWaitMs = StartPolicy.DUB_WAIT_MS
-                        begin(d.stream, lastStartMs)
+                        if (!beginAuto(d.stream, lastStartMs)) {
+                            phase = SourcePhase.Failed
+                            switching = false
+                        }
                     }
                     StartDecision.NoSources -> {
                         fallbackDubWaitJob?.cancel()
@@ -497,6 +505,16 @@ class SourceCoordinator(
             SourcePhase.Playing -> maybeSuggestDub()
             SourcePhase.Failed, SourcePhase.Idle, SourcePhase.Starting -> Unit
         }
+    }
+
+    private fun canAttemptAutoSource(): Boolean =
+        AutoRetryPolicy.canTryAnother(autoAttempts, autoRetryLimit)
+
+    private fun beginAuto(stream: PlayableStream, startMs: Long): Boolean {
+        if (!canAttemptAutoSource()) return false
+        autoAttempts++
+        begin(stream, startMs)
+        return true
     }
 
     private fun begin(stream: PlayableStream, startMs: Long) {
@@ -620,6 +638,12 @@ class SourceCoordinator(
     /** Doğrulanmamış dublajlı kaynaktan sıradaki dublajlıya ya da hızlı alternatife kaldığı saniyeden geçer. */
     fun switchAfterUnverifiedDub(next: PlayableStream) {
         if (next.url == current?.url) return
+        val revertingToWorking = next.url == lastWorkingStream?.url
+        if (!revertingToWorking && !canAttemptAutoSource()) {
+            phase = SourcePhase.Failed
+            switching = false
+            return
+        }
         fallbackDubWaitJob?.cancel()
         discoveryStopJob?.cancel()
         dubSuggestion = null
@@ -630,6 +654,7 @@ class SourceCoordinator(
         switching = true
         attempted -= next.url
         firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+        if (!revertingToWorking) autoAttempts++
         begin(next, pos)
     }
 
@@ -664,7 +689,7 @@ class SourceCoordinator(
                 currentStream = currentStream,
                 hasRetriedCurrentStream = hasRetriedCurrentStream,
                 switchCount = midPlaybackSwitches,
-                candidates = candidates,
+                candidates = if (canAttemptAutoSource()) candidates else emptyList(),
                 isManual = userPicked,
                 isOffline = false,
                 isLeaving = false,
@@ -696,6 +721,7 @@ class SourceCoordinator(
                     lastStartMs = pos
                     switching = true
                     firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+                    autoAttempts++
                     begin(decision.candidate, pos)
                     return true
                 }
@@ -732,9 +758,14 @@ class SourceCoordinator(
         if (failed != null) {
             notice = if (mismatch) SourceNotice.Mismatch else SourceNotice.Skipped(detail)
         }
+        if (!canAttemptAutoSource()) {
+            phase = SourcePhase.Failed
+            switching = false
+            return
+        }
         val queued = nextQueuedCandidate()
         if (queued != null) {
-            begin(queued, lastStartMs)
+            beginAuto(queued, lastStartMs)
             return
         }
         val next = ranked().firstOrNull { it.url !in attempted }
@@ -752,7 +783,7 @@ class SourceCoordinator(
             return
         }
         if (next != null) {
-            begin(next, lastStartMs)
+            beginAuto(next, lastStartMs)
         } else if (!finished) {
             // Daha kaynak gelebilir: gelince denenir.
             phase = SourcePhase.Resolving

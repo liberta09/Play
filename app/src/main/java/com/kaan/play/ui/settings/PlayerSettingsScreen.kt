@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.R
+import com.kaan.play.data.player.AutoRetryPolicy
 import com.kaan.play.data.settings.SettingsRepository
 import com.kaan.play.data.settings.SkipCategory
 import com.kaan.play.data.settings.SkipPlaybackSettings
@@ -66,6 +67,8 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO)
     val revertOnSelectedFailure by container.settings.revertOnSelectedFailure
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_REVERT_ON_SELECTED_FAILURE)
+    val autoRetryLimit by container.settings.autoSourceRetryLimit
+        .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_SOURCE_RETRY_LIMIT)
     val showDubSuggestion by container.settings.showDubSuggestion
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SHOW_DUB_SUGGESTION)
     val audioProbeSeconds by container.settings.audioProbeTimeoutSeconds
@@ -82,6 +85,7 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
     var pickLanguage by remember { mutableStateOf(false) }
     var pickCountdown by remember { mutableStateOf(false) }
     var pickAudioTimeout by remember { mutableStateOf(false) }
+    var pickAutoRetryLimit by remember { mutableStateOf(false) }
     val uiLanguage = AppLanguage.effective().iso
 
     Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
@@ -121,6 +125,15 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
             SwitchRow(stringResource(R.string.settings_revert_on_selected_failure), revertOnSelectedFailure) {
                 scope.launch { container.settings.setRevertOnSelectedFailure(it) }
             }
+            ValueRow(
+                label = stringResource(R.string.settings_auto_retry_limit),
+                value = if (autoRetryLimit == AutoRetryPolicy.UNLIMITED) {
+                    stringResource(R.string.settings_auto_retry_unlimited)
+                } else {
+                    autoRetryLimit.toString()
+                },
+                onClick = { pickAutoRetryLimit = true },
+            )
             ValueRow(
                 label = stringResource(R.string.settings_audio_probe_timeout),
                 value = stringResource(R.string.settings_audio_probe_seconds, audioProbeSeconds),
@@ -192,6 +205,23 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
             label = { stringResource(R.string.settings_audio_probe_seconds, it) },
             onSelect = { scope.launch { container.settings.setAudioProbeTimeoutSeconds(it) }; pickAudioTimeout = false },
             onDismiss = { pickAudioTimeout = false },
+        )
+    }
+
+    if (pickAutoRetryLimit) {
+        ChoiceDialog(
+            title = stringResource(R.string.settings_auto_retry_limit),
+            options = SettingsRepository.AUTO_SOURCE_RETRY_OPTIONS,
+            selected = autoRetryLimit,
+            label = { option ->
+                if (option == AutoRetryPolicy.UNLIMITED) {
+                    stringResource(R.string.settings_auto_retry_unlimited)
+                } else {
+                    option.toString()
+                }
+            },
+            onSelect = { scope.launch { container.settings.setAutoSourceRetryLimit(it) }; pickAutoRetryLimit = false },
+            onDismiss = { pickAutoRetryLimit = false },
         )
     }
 

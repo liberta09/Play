@@ -33,6 +33,7 @@ import com.kaan.play.data.model.AgeRating
 import com.kaan.play.data.model.MediaDetail
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.player.AudioTrackLearning
+import com.kaan.play.data.player.AutoRetryPolicy
 import com.kaan.play.data.player.AudioTrackRules
 import com.kaan.play.data.player.TurkishAudioNotice
 import com.kaan.play.i18n.AppLanguage
@@ -111,6 +112,7 @@ class PlayerActivity : AppCompatActivity() {
     private var tryUntilTurkishAudio = SettingsRepository.DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO
     private var showDubSuggestionSetting = SettingsRepository.DEFAULT_SHOW_DUB_SUGGESTION
     private var revertOnSelectedFailureSetting = SettingsRepository.DEFAULT_REVERT_ON_SELECTED_FAILURE
+    private var autoRetryLimitSetting = SettingsRepository.DEFAULT_AUTO_SOURCE_RETRY_LIMIT
     private var audioProbeTimeoutSeconds = SettingsRepository.DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS
     private lateinit var audioVerifier: TurkishAudioVerifier
     private var audioVerificationScanning by mutableStateOf(false)
@@ -342,6 +344,7 @@ class PlayerActivity : AppCompatActivity() {
             tryUntilTurkishAudio = runBlocking { settings.trySourcesUntilTurkishAudio.first() }
             showDubSuggestionSetting = runBlocking { settings.showDubSuggestion.first() }
             revertOnSelectedFailureSetting = runBlocking { settings.revertOnSelectedFailure.first() }
+            autoRetryLimitSetting = runBlocking { settings.autoSourceRetryLimit.first() }
             audioProbeTimeoutSeconds = runBlocking { settings.audioProbeTimeoutSeconds.first() }
         }
         audioVerifier = TurkishAudioVerifier(scanTimeoutMs = audioProbeTimeoutSeconds * 1000L)
@@ -653,6 +656,7 @@ class PlayerActivity : AppCompatActivity() {
             autoSource = autoSourceSetting,
             showDubSuggestion = showDubSuggestionSetting,
             revertOnSelectedFailure = revertOnSelectedFailureSetting,
+            autoRetryLimit = AutoRetryPolicy.limitOrNull(autoRetryLimitSetting),
             loadBlocked = { container.wrongContentBlocks.ensureLoaded() },
             isSourceBlocked = { src -> container.wrongContentBlocks.isBlockedCached(request, src, session.target.title, request.year) },
             persistSourceBlock = { src -> container.wrongContentBlocks.block(request, src, session.target.title, request.year) },
