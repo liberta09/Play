@@ -103,7 +103,7 @@ internal data class AlternativeTitleDto(
 )
 
 @Serializable
-internal data class PersonDto(val name: String? = null)
+internal data class PersonDto(val id: Int = 0, val name: String? = null)
 
 @Serializable
 internal data class CreditsDto(val cast: List<CastDto> = emptyList(), val crew: List<CrewDto> = emptyList())
@@ -118,7 +118,38 @@ internal data class CastDto(
 )
 
 @Serializable
-internal data class CrewDto(val name: String? = null, val job: String? = null)
+internal data class CrewDto(val id: Int = 0, val name: String? = null, val job: String? = null)
+
+@Serializable
+internal data class PersonDetailDto(
+    val id: Int = 0,
+    val name: String? = null,
+    val biography: String? = null,
+    @SerialName("profile_path") val profilePath: String? = null,
+    @SerialName("combined_credits") val combinedCredits: CombinedCreditsDto? = null,
+)
+
+@Serializable
+internal data class CombinedCreditsDto(
+    val cast: List<PersonCreditDto> = emptyList(),
+    val crew: List<PersonCreditDto> = emptyList(),
+)
+
+@Serializable
+internal data class PersonCreditDto(
+    val id: Int = 0,
+    @SerialName("media_type") val mediaType: String? = null,
+    val title: String? = null,
+    val name: String? = null,
+    val overview: String? = null,
+    @SerialName("poster_path") val posterPath: String? = null,
+    @SerialName("backdrop_path") val backdropPath: String? = null,
+    @SerialName("release_date") val releaseDate: String? = null,
+    @SerialName("first_air_date") val firstAirDate: String? = null,
+    @SerialName("vote_average") val voteAverage: Double? = null,
+    val popularity: Double? = null,
+    val adult: Boolean = false,
+)
 
 @Serializable
 internal data class ImagesDto(val logos: List<LogoDto> = emptyList())

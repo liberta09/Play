@@ -41,6 +41,30 @@ data class CastMember(
     val profilePath: String?,
 )
 
+data class PersonRef(
+    val id: Int,
+    val name: String,
+)
+
+enum class PersonCreditTab { Movie, Tv }
+
+enum class PersonCreditSort { Popular, Date }
+
+data class PersonCredit(
+    val media: MediaSummary,
+    val releaseDate: String?,
+    val popularity: Double,
+)
+
+data class PersonDetail(
+    val id: Int,
+    val name: String,
+    val biography: String,
+    val profilePath: String?,
+    val movieCredits: List<PersonCredit>,
+    val tvCredits: List<PersonCredit>,
+)
+
 data class AgeRating(
     val rating: String,
     val region: String,
@@ -65,6 +89,9 @@ data class MediaDetail(
     val writers: List<String> = emptyList(),
     /** Yalnızca diziler: yaratıcılar. */
     val creators: List<String> = emptyList(),
+    val directorRefs: List<PersonRef> = emptyList(),
+    val writerRefs: List<PersonRef> = emptyList(),
+    val creatorRefs: List<PersonRef> = emptyList(),
     val cast: List<CastMember> = emptyList(),
     /** TMDB özgün başlığı (örn. İngilizce); eklenti eşleştirmesi için. Arayüzde gösterilmez. */
     val originalTitle: String? = null,

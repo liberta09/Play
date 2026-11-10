@@ -88,6 +88,19 @@ internal class TmdbService(
     suspend fun season(tvId: Int, season: Int, language: String): SeasonDetailDto =
         get("tv/$tvId/season/$season", SeasonDetailDto.serializer(), language)
 
+    /** Tek istekte kişi bilgisi + birleşik film/dizi filmografisi. */
+    suspend fun person(id: Int, language: String, withCredits: Boolean = true): PersonDetailDto =
+        if (withCredits) {
+            get(
+                "person/$id",
+                PersonDetailDto.serializer(),
+                language,
+                "append_to_response" to "combined_credits",
+            )
+        } else {
+            get("person/$id", PersonDetailDto.serializer(), language)
+        }
+
     private suspend fun <T> get(
         path: String,
         serializer: KSerializer<T>,

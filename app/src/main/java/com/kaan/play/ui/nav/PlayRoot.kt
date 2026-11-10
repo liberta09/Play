@@ -127,6 +127,7 @@ import com.kaan.play.ui.addons.SourceHealthScreen
 import com.kaan.play.data.plugin.AddResult
 import com.kaan.play.data.plugin.DeepLinkEvent
 import com.kaan.play.ui.detail.DetailScreen
+import com.kaan.play.ui.detail.PersonScreen
 import com.kaan.play.ui.detail.ProviderDetailScreen
 import com.kaan.play.ui.home.CategoryScreen
 import com.kaan.play.ui.home.HomeRow
@@ -172,6 +173,7 @@ private const val PLAYER_SETTINGS_ROUTE = "settings/player"
 private const val THEME_SETTINGS_ROUTE = "settings/theme"
 private const val ABOUT_ROUTE = "settings/about"
 private const val DETAIL_ROUTE = "detail/{type}/{id}"
+private const val PERSON_ROUTE = "person/{id}?name={name}"
 private const val PROVIDER_DETAIL_ROUTE = "provider_detail/{providerId}/{encodedUrl}"
 private const val CATEGORY_ROUTE = "home/category/{row}"
 
@@ -885,7 +887,24 @@ fun PlayRoot() {
                     onBack = { navController.popBackStack() },
                     onOpenSimilar = ::openDetail,
                     onOpenActor = { name -> navController.navigate("search?q=${Uri.encode(name)}") },
+                    onOpenPerson = { personId, personName -> navController.navigate("person/$personId?name=${Uri.encode(personName)}") },
                     onPlay = { target -> play(target) },
+                )
+            }
+            composable(
+                route = PERSON_ROUTE,
+                arguments = listOf(
+                    navArgument("id") { type = NavType.IntType },
+                    navArgument("name") { type = NavType.StringType; defaultValue = "" },
+                ),
+            ) { entry ->
+                val personId = entry.arguments?.getInt("id") ?: 0
+                val name = entry.arguments?.getString("name").orEmpty()
+                PersonScreen(
+                    personId = personId,
+                    initialName = name,
+                    onBack = { navController.popBackStack() },
+                    onOpenDetail = ::openDetail,
                 )
             }
             composable(

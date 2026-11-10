@@ -74,6 +74,7 @@ import com.kaan.play.data.model.CastMember
 import com.kaan.play.data.model.Episode
 import com.kaan.play.data.model.MediaDetail
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.model.PersonRef
 import com.kaan.play.data.model.SeasonInfo
 import com.kaan.play.data.stream.PlayTarget
 import com.kaan.play.data.stream.StreamRequest
@@ -116,6 +117,7 @@ fun DetailScreen(
     onBack: () -> Unit,
     onOpenSimilar: (MediaType, Int) -> Unit = { _, _ -> },
     onOpenActor: (String) -> Unit = {},
+    onOpenPerson: (Int, String) -> Unit = { _, _ -> },
     onPlay: (PlayTarget) -> Unit,
 ) {
     val vm = containerViewModel(key = "detail-${type.tmdbPath}-$id-${AppLanguage.effective().iso}") {
@@ -147,6 +149,7 @@ fun DetailScreen(
                 onRetryEpisodes = vm::retryEpisodes,
                 onOpenSimilar = onOpenSimilar,
                 onOpenActor = onOpenActor,
+                onOpenPerson = onOpenPerson,
                 onPlay = { s, e ->
                     val media = d.value.summary
                     onPlay(
@@ -241,6 +244,7 @@ internal fun DetailContent(
     onRetryEpisodes: () -> Unit,
     onOpenSimilar: (MediaType, Int) -> Unit = { _, _ -> },
     onOpenActor: (String) -> Unit = {},
+    onOpenPerson: (Int, String) -> Unit = { _, _ -> },
     onPlay: (Int?, Int?) -> Unit,
     downloads: List<DownloadEntity> = emptyList(),
     /** Verilmezse (ör. sağlayıcı detayı) indir düğmeleri görünmez. */
@@ -273,10 +277,10 @@ internal fun DetailContent(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 item { Box(Modifier.statusBarsPadding()) { header(0.dp) } }
-                item { BodyBlock(detail, horizontalPadding = 0.dp) }
+                item { BodyBlock(detail, horizontalPadding = 0.dp, onOpenPerson = onOpenPerson) }
                 trailerSection(detail.trailerKey)
                 similarSection(detail.similar, detail.summary.type, 0.dp, onOpenSimilar)
-                castSection(detail.cast, horizontalPadding = 0.dp, onOpenActor = onOpenActor)
+                castSection(detail.cast, horizontalPadding = 0.dp, onOpenPerson = onOpenPerson)
                 if (isSeries) episodeSection(episodes, selectedSeason, 8.dp, onRetryEpisodes, onPlay, episodeDownload(detail, downloads, selectedSeason, onDownload))
             }
         }
@@ -301,10 +305,10 @@ internal fun DetailContent(
                     Box(Modifier.align(Alignment.BottomStart).padding(top = 72.dp)) { header(Gutter) }
                 }
             }
-            item { BodyBlock(detail, horizontalPadding = Gutter) }
+            item { BodyBlock(detail, horizontalPadding = Gutter, onOpenPerson = onOpenPerson) }
             trailerSection(detail.trailerKey)
             similarSection(detail.similar, detail.summary.type, Gutter, onOpenSimilar)
-            castSection(detail.cast, horizontalPadding = Gutter, onOpenActor = onOpenActor)
+            castSection(detail.cast, horizontalPadding = Gutter, onOpenPerson = onOpenPerson)
             if (isSeries) episodeSection(episodes, selectedSeason, Gutter, onRetryEpisodes, onPlay, episodeDownload(detail, downloads, selectedSeason, onDownload))
         }
     }
@@ -376,7 +380,11 @@ private fun HeaderBlock(
 /** Yıl · süre, yaş sınırı çipi, TMDB puan rozeti; yönetmen/yazar; kısaltılmış özet. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun BodyBlock(detail: MediaDetail, horizontalPadding: Dp) {
+private fun BodyBlock(
+    detail: MediaDetail,
+    horizontalPadding: Dp,
+    onOpenPerson: (Int, String) -> Unit = { _, _ -> },
+) {
     val media = detail.summary
     Column(Modifier.padding(horizontal = horizontalPadding), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         val yearRuntime = yearRuntimeLine(detail)
@@ -392,26 +400,52 @@ private fun BodyBlock(detail: MediaDetail, horizontalPadding: Dp) {
             }
         }
         // Dizide yaratıcı aynı zamanda yönetmen/yazar görünüyorsa üç satırda aynı ad tekrarlanmasın.
-        val directors = detail.directors.filterNot { it in detail.creators }
-        val writers = detail.writers.filterNot { it in detail.creators }
-        if (directors.isNotEmpty()) CreditLine(stringResource(R.string.detail_director), directors)
-        if (writers.isNotEmpty()) CreditLine(stringResource(R.string.detail_writer), writers)
-        if (detail.creators.isNotEmpty()) CreditLine(stringResource(R.string.detail_creator), detail.creators)
+        val creatorNames = detail.creators.toSet()
+        val directors = detail.directorRefs.ifEmpty { detail.directors.map { PersonRef(0, it) } }
+            .filterNot { it.name in creatorNames }
+        val writers = detail.writerRefs.ifEmpty { detail.writers.map { PersonRef(0, it) } }
+            .filterNot { it.name in creatorNames }
+        val creators = detail.creatorRefs.ifEmpty { detail.creators.map { PersonRef(0, it) } }
+        if (directors.isNotEmpty()) CreditLine(stringResource(R.string.detail_director), directors, onOpenPerson)
+        if (writers.isNotEmpty()) CreditLine(stringResource(R.string.detail_writer), writers, onOpenPerson)
+        if (creators.isNotEmpty()) CreditLine(stringResource(R.string.detail_creator), creators, onOpenPerson)
         if (media.overview.isNotBlank()) Overview(media.overview)
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun CreditLine(label: String, names: List<String>) {
+private fun CreditLine(label: String, refs: List<PersonRef>, onOpenPerson: (Int, String) -> Unit) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
-    Text(
-        text = buildAnnotatedString {
-            withStyle(SpanStyle(color = muted)) { append(label) }
-            append("  ")
-            append(names.joinToString(", "))
-        },
-        style = MaterialTheme.typography.bodyMedium,
-    )
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        itemVerticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = "$label  ",
+            style = MaterialTheme.typography.bodyMedium,
+            color = muted,
+        )
+        refs.forEachIndexed { idx, person ->
+            val labelText = if (idx < refs.lastIndex) "${person.name}," else person.name
+            val shape = RoundedCornerShape(6.dp)
+            Text(
+                text = labelText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = if (person.id > 0) {
+                    Modifier
+                        .clip(shape)
+                        .focusRing(shape)
+                        .clickable { onOpenPerson(person.id, person.name) }
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                } else {
+                    Modifier
+                },
+            )
+        }
+    }
 }
 
 /** Özet 3 satıra kısaltılır; sığmıyorsa "Daha fazla göster" düğmesi çıkar. */
@@ -506,7 +540,7 @@ private fun LazyListScope.similarSection(
     }
 }
 
-private fun LazyListScope.castSection(cast: List<CastMember>, horizontalPadding: Dp, onOpenActor: (String) -> Unit = {}) {
+private fun LazyListScope.castSection(cast: List<CastMember>, horizontalPadding: Dp, onOpenPerson: (Int, String) -> Unit = { _, _ -> }) {
     if (cast.isEmpty()) return
     item(key = "cast") {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -515,21 +549,24 @@ private fun LazyListScope.castSection(cast: List<CastMember>, horizontalPadding:
                 contentPadding = PaddingValues(start = (horizontalPadding - 10.dp).coerceAtLeast(0.dp), end = horizontalPadding),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(cast, key = { it.id }) { CastItem(it, onOpenActor) }
+                items(cast, key = { it.id }) { CastItem(it, onOpenPerson) }
             }
         }
     }
 }
 
-/** Yuvarlak fotoğraf + ad + rol. Dokunulacak bir işi yok ama kumandayla odaklanır (listeyi kaydırabilmek için). */
+/** Yuvarlak fotoğraf + ad + rol. Dokunulunca ve kumanda Tamam ile kişi sayfasını açar. */
 @Composable
-private fun CastItem(member: CastMember, onOpenActor: (String) -> Unit = {}) {
+private fun CastItem(member: CastMember, onOpenPerson: (Int, String) -> Unit = { _, _ -> }) {
     val shape = RoundedCornerShape(12.dp)
     Column(
         modifier = Modifier
             .width(92.dp)
+            .clip(shape)
             .focusRing(shape)
-            .focusable()
+            .then(
+                if (member.id > 0) Modifier.clickable { onOpenPerson(member.id, member.name) } else Modifier.focusable(),
+            )
             .padding(horizontal = 6.dp, vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),

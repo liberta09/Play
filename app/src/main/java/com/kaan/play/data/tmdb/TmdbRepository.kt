@@ -8,6 +8,8 @@ import com.kaan.play.data.model.MediaDetail
 import com.kaan.play.data.model.MediaSummary
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.model.Page
+import com.kaan.play.data.model.PersonDetail
+import com.kaan.play.data.model.PersonRef
 import com.kaan.play.data.model.SeasonDetail
 import com.kaan.play.data.model.SeasonInfo
 import com.kaan.play.data.notify.AiredEpisode
@@ -150,6 +152,17 @@ class TmdbRepository(
         )
     }
 
+    /** Kişi detayı + birleşik filmografi; biyografi seçili dilde boşsa İngilizce yedeği alır. */
+    suspend fun person(id: Int): PersonDetail {
+        val primary = service.person(id, lang(), withCredits = true)
+        val fallbackBio = if (needsFallback() && primary.biography.isNullOrBlank()) {
+            bestEffort { service.person(id, UiLanguage.English.tmdbTag, withCredits = false) }?.biography
+        } else {
+            null
+        }
+        return PersonCreditsRules.toPersonDetail(primary, fallbackBiography = fallbackBio)
+    }
+
     /** Yalnızca TMDB'den son yayınlanmış bölüm üst bilgisini döner (arka plan bölüm denetimi için hafif istek). */
     suspend fun latestAiredEpisode(tvId: Int): AiredEpisode? {
         val dto = service.detail(MediaType.Tv.tmdbPath, tvId, lang(), imageLanguages())
@@ -228,6 +241,9 @@ private fun DetailDto.toDetail(
     directors = credits?.crew.orEmpty().filter { it.job == "Director" }.names(),
     writers = credits?.crew.orEmpty().filter { it.job in WRITER_JOBS }.names(),
     creators = createdBy.mapNotNull { it.name }.names(),
+    directorRefs = credits?.crew.orEmpty().filter { it.job == "Director" }.crewRefs(),
+    writerRefs = credits?.crew.orEmpty().filter { it.job in WRITER_JOBS }.crewRefs(),
+    creatorRefs = createdBy.personRefs(),
     cast = credits?.cast.orEmpty()
         .filter { !it.name.isNullOrBlank() }
         .sortedBy { it.order }
@@ -269,6 +285,16 @@ private const val HERO_COUNT = 5
 private fun List<CrewDto>.names(): List<String> = mapNotNull { it.name }.names()
 
 private fun List<String>.names(): List<String> = filter { it.isNotBlank() }.distinct().take(NAMES_COUNT)
+
+private fun List<CrewDto>.crewRefs(): List<PersonRef> =
+    mapNotNull { c -> c.name?.trim()?.takeIf { it.isNotEmpty() }?.let { PersonRef(c.id, it) } }
+        .distinctBy { if (it.id > 0) "id:${it.id}" else "name:${it.name}" }
+        .take(NAMES_COUNT)
+
+private fun List<PersonDto>.personRefs(): List<PersonRef> =
+    mapNotNull { p -> p.name?.trim()?.takeIf { it.isNotEmpty() }?.let { PersonRef(p.id, it) } }
+        .distinctBy { if (it.id > 0) "id:${it.id}" else "name:${it.name}" }
+        .take(NAMES_COUNT)
 
 /**
  * Yaş sınırı: arayüz dilinin ülkesi (TR / US), yoksa ABD; boş değerler atlanır. Filmde `release_dates`,

@@ -845,4 +845,12 @@
     <string name="network_dns_check_failed">Test failed. Check your network or DNS address.</string>
     <string name="network_dns_check_note">Only resolves example.com; this is not a video playback test.</string>
     <string name="network_slow_mode_shortcut_subtitle">Manage slow connection mode in Player settings</string>
+    <string name="person_filmography">Filmography</string>
+    <string name="person_tab_movies">Movies (%1$d)</string>
+    <string name="person_tab_series">Series (%1$d)</string>
+    <string name="person_sort_popular">Popular</string>
+    <string name="person_sort_date">Date</string>
+    <string name="person_empty_movies">No movie credits found.</string>
+    <string name="person_empty_series">No series credits found.</string>
+    <string name="person_bio_empty">No biography available.</string>
 </resources>

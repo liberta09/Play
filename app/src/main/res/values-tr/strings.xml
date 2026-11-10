@@ -826,4 +826,12 @@
     <string name="network_dns_check_failed">Test başarısız. Ağı veya DNS adresini denetleyin.</string>
     <string name="network_dns_check_note">Yalnızca example.com çözümlenir; video oynatma testi değildir.</string>
     <string name="network_slow_mode_shortcut_subtitle">Oynatıcı ayarlarında yavaş bağlantı modunu aç/kapat</string>
+    <string name="person_filmography">Filmografi</string>
+    <string name="person_tab_movies">Filmler (%1$d)</string>
+    <string name="person_tab_series">Diziler (%1$d)</string>
+    <string name="person_sort_popular">Popüler</string>
+    <string name="person_sort_date">Tarih</string>
+    <string name="person_empty_movies">Film katılımı bulunamadı.</string>
+    <string name="person_empty_series">Dizi katılımı bulunamadı.</string>
+    <string name="person_bio_empty">Biyografi bilgisi yok.</string>
 </resources>
