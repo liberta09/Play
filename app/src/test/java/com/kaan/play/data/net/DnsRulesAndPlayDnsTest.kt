@@ -268,4 +268,162 @@ class DnsRulesAndPlayDnsTest {
             PlayDns.checkHostWithTimeout(DnsMode.Custom, "http://insecure.example/dns-query", dispatcher = d) { listOf(v4a) },
         )
     }
+
+    @Test
+    fun `olu ad ikinci sorguda beklemeden olumsuz onbellekten duser ve mod degisince temizlenir`() {
+        var nowMs = 1_000_000L
+        var calls = 0
+        val playDns = PlayDns(
+            systemDns = Dns { calls++; throw UnknownHostException("dead") },
+            customOverrideResolver = { Dns { calls++; throw UnknownHostException("dead doh") } },
+            clock = { nowMs },
+        )
+
+        // İlk sorgu Auto modda sistem + CF + Google dener -> 3 çağrı; sonra olumsuz önbelleğe alır.
+        try {
+            playDns.lookup("dead.example")
+            fail("Expected UnknownHostException")
+        } catch (_: UnknownHostException) {
+        }
+        assertEquals(3, calls)
+        assertEquals(1, playDns.negativeCacheSize())
+        assertEquals(0, playDns.positiveCacheSize())
+
+        // 10 dk dolmadan ikinci sorgu: hiçbir çözücü çağrılmadan hemen UnknownHostException döner.
+        calls = 0
+        nowMs += 60_000L
+        try {
+            playDns.lookup("dead.example")
+            fail("Expected cached UnknownHostException")
+        } catch (_: UnknownHostException) {
+        }
+        assertEquals(0, calls)
+
+        // 10 dk TTL dolunca yeniden sorgular.
+        nowMs += PlayDns.NEGATIVE_CACHE_TTL_MS
+        try {
+            playDns.lookup("dead.example")
+            fail("Expected UnknownHostException after TTL")
+        } catch (_: UnknownHostException) {
+        }
+        assertEquals(3, calls)
+
+        // Mod değişince iki önbellek de sıfırlanır.
+        playDns.updateConfig(DnsMode.Cloudflare)
+        assertEquals(0, playDns.negativeCacheSize())
+        assertEquals(0, playDns.positiveCacheSize())
+    }
+
+    @Test
+    fun `DoH olumlu sonucu 5 dk onbelleklenir sistem sonucu alinmaz ve yerel IP onbellekten de engellenir`() {
+        var nowMs = 5_000_000L
+        var sysCalls = 0
+        var dohCalls = 0
+        val playDns = PlayDns(
+            systemDns = Dns { sysCalls++; listOf(v4a) },
+            customOverrideResolver = {
+                Dns { host ->
+                    dohCalls++
+                    if (host == "rebind.example") listOf(loopbackV4) else listOf(v6a, v4b)
+                }
+            },
+            clock = { nowMs },
+        )
+
+        // Auto modda sistem DNS başarılıysa olumlu önbelleğe yazılmaz.
+        assertEquals(listOf(v4a), playDns.lookup("sys.example"))
+        assertEquals(listOf(v4a), playDns.lookup("sys.example"))
+        assertEquals(2, sysCalls)
+        assertEquals(0, playDns.positiveCacheSize())
+
+        // DoH modunda çözülen adres 5 dk olumlu önbelleğe girer ve IPv4-önce korunur.
+        playDns.updateConfig(DnsMode.Cloudflare)
+        assertEquals(listOf(v4b, v6a), playDns.lookup("doh.example"))
+        assertEquals(1, dohCalls)
+        assertEquals(1, playDns.positiveCacheSize())
+
+        nowMs += 120_000L // 2 dk sonra -> önbellekten gelir
+        assertEquals(listOf(v4b, v6a), playDns.lookup("doh.example"))
+        assertEquals(1, dohCalls)
+
+        // 5 dk dolunca önbellek düşer ve yeniden sorulur.
+        nowMs += PlayDns.POSITIVE_CACHE_TTL_MS
+        assertEquals(listOf(v4b, v6a), playDns.lookup("doh.example"))
+        assertEquals(2, dohCalls)
+
+        // DoH sonucu yerel adres döndürüp olumlu önbelleğe girse bile NetworkPolicy ikinci çağrıda da engeller.
+        val policyDns = NetworkPolicy(upstreamDns = playDns).policyDns()
+        try {
+            policyDns.lookup("rebind.example")
+            fail("Expected blocked")
+        } catch (e: UnknownHostException) {
+            assertEquals("blocked", e.message)
+        }
+        try {
+            policyDns.lookup("rebind.example")
+            fail("Expected cached local IP to remain blocked")
+        } catch (e: UnknownHostException) {
+            assertEquals("blocked", e.message)
+        }
+
+        // Mod değişince olumlu önbellek temizlenir.
+        playDns.updateConfig(DnsMode.Google)
+        assertEquals(0, playDns.positiveCacheSize())
+    }
+
+    @Test
+    fun `otomatik mod adim ve toplam zaman asimi sinirlarini uygular ve 512 kayitla sinirlidir`() {
+        assertEquals(2_500L, PlayDns.AUTO_FALLBACK_STEP_TIMEOUT_MS)
+        assertEquals(5_000L, PlayDns.AUTO_TOTAL_TIMEOUT_MS)
+        assertEquals(512, PlayDns.MAX_CACHE_ENTRIES)
+
+        // Yavaş CF adımı stepTimeoutMs'te kesilir, Google hızlıca yanıt verirse döner.
+        var googleCalled = false
+        val started = System.nanoTime()
+        val ok = PlayDns.resolveAuto(
+            hostname = "slow-cf.example",
+            systemResolve = { throw UnknownHostException("sys dead") },
+            cloudflareResolve = { Thread.sleep(1_500); listOf(v4a) },
+            googleResolve = { googleCalled = true; listOf(v4b) },
+            stepTimeoutMs = 100L,
+            totalTimeoutMs = 400L,
+        )
+        val elapsedMs = (System.nanoTime() - started) / 1_000_000L
+        assertTrue(googleCalled)
+        assertEquals(listOf(v4b), ok)
+        assertTrue("Toplam süre toplam sınırı aşmamalı: $elapsedMs", elapsedMs < 400L)
+
+        // Her iki DoH adımı da takılırsa toplam sınırda düşer.
+        val bothStart = System.nanoTime()
+        try {
+            PlayDns.resolveAuto(
+                hostname = "all-hang.example",
+                systemResolve = { throw UnknownHostException("sys dead") },
+                cloudflareResolve = { Thread.sleep(1_000); listOf(v4a) },
+                googleResolve = { Thread.sleep(1_000); listOf(v4b) },
+                stepTimeoutMs = 80L,
+                totalTimeoutMs = 150L,
+            )
+            fail("Expected timeout failure")
+        } catch (_: UnknownHostException) {
+        }
+        val bothMs = (System.nanoTime() - bothStart) / 1_000_000L
+        assertTrue("Takılan fallback toplam süre sınırı içinde dönmeli: $bothMs", bothMs < 400L)
+
+        // 512 kayıt sınırı: 600 farklı ölü ve canlı giriş 512'yi aşmaz.
+        val boundedDns = PlayDns(
+            systemDns = Dns { throw UnknownHostException("dead") },
+            customOverrideResolver = { Dns { host -> if (host.startsWith("dead")) throw UnknownHostException("x") else listOf(v4a) } },
+        )
+        boundedDns.updateConfig(DnsMode.Cloudflare)
+        repeat(600) { i ->
+            boundedDns.lookup("live-$i.example")
+            try {
+                boundedDns.lookup("dead-$i.example")
+            } catch (_: UnknownHostException) {
+            }
+        }
+        assertEquals(512, boundedDns.positiveCacheSize())
+        assertEquals(512, boundedDns.negativeCacheSize())
+    }
 }
