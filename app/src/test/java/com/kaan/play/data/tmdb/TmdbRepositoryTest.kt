@@ -487,4 +487,46 @@ class TmdbRepositoryTest {
         """
         assertNull(repo().detail(MediaType.Movie, 103).ageRating)
     }
+
+    @Test
+    fun collectionFolderFetchesListCollectionDiscoverAndSingleWithFilterWhitelist() = runTest {
+        fixtures["list/10|tr-TR"] = """{"items":[{"id":1,"media_type":"movie","title":"A"}]}"""
+        fixtures["collection/20|tr-TR"] = """{"parts":[{"id":1,"title":"A"},{"id":2,"title":"B"}]}"""
+        fixtures["discover/tv|tr-TR"] = """{"page":1,"total_pages":3,"results":[{"id":3,"name":"Dizi C"}]}"""
+        fixtures["movie/40|tr-TR"] = """{"id":40,"title":"Tek Film","release_date":"2020-01-01"}"""
+
+        val parsed = com.kaan.play.data.collection.CollectionJsonParser.parse(
+            """
+            {
+              "title": "Karışık",
+              "folders": [
+                {
+                  "title": "Karışık Raf",
+                  "sources": [
+                    {"provider": "tmdb", "tmdbSourceType": "list", "tmdbId": 10},
+                    {"provider": "tmdb", "tmdbSourceType": "collection", "tmdbId": 20},
+                    {
+                      "provider": "tmdb",
+                      "mediaType": "tv",
+                      "tmdbSourceType": "discover",
+                      "sortBy": "popularity.desc",
+                      "filters": {"with_genres": "10765", "evil_param": "bad"}
+                    },
+                    {"provider": "tmdb", "mediaType": "movie", "tmdbId": 40}
+                  ]
+                }
+              ]
+            }
+            """.trimIndent(),
+        )
+
+        val page = repo().collectionFolder(parsed.folders.single(), page = 1)
+        assertEquals(4, page.items.size)
+        assertEquals(3, page.totalPages)
+        assertEquals(listOf("A", "B", "Dizi C", "Tek Film"), page.items.map { it.title })
+
+        val discoverReq = seen.first { it.encodedPath.endsWith("/discover/tv") }
+        assertEquals("10765", discoverReq.queryParameter("with_genres"))
+        assertNull(discoverReq.queryParameter("evil_param"))
+    }
 }

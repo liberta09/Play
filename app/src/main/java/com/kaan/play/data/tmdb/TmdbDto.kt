@@ -13,6 +13,16 @@ internal data class ListDto(
 )
 
 @Serializable
+internal data class TmdbListDetailDto(
+    val items: List<ItemDto> = emptyList(),
+)
+
+@Serializable
+internal data class TmdbCollectionDetailDto(
+    val parts: List<ItemDto> = emptyList(),
+)
+
+@Serializable
 internal data class FindResultDto(
     @SerialName("movie_results") val movieResults: List<ItemDto> = emptyList(),
     @SerialName("tv_results") val tvResults: List<ItemDto> = emptyList(),

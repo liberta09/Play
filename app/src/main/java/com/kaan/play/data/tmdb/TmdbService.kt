@@ -101,6 +101,35 @@ internal class TmdbService(
             get("person/$id", PersonDetailDto.serializer(), language)
         }
 
+    suspend fun list(id: Int, language: String): TmdbListDetailDto =
+        get("list/$id", TmdbListDetailDto.serializer(), language)
+
+    suspend fun collection(id: Int, language: String): TmdbCollectionDetailDto =
+        get("collection/$id", TmdbCollectionDetailDto.serializer(), language)
+
+    suspend fun discover(
+        type: String,
+        language: String,
+        page: Int,
+        sortBy: String? = null,
+        filters: Map<String, String> = emptyMap(),
+    ): ListDto {
+        val params = buildList {
+            add("include_adult" to "false")
+            add("page" to page.toString())
+            sortBy?.takeIf { it.isNotBlank() }?.let { add("sort_by" to it) }
+            filters.forEach { (key, value) ->
+                if (key in com.kaan.play.data.collection.CollectionJsonParser.ALLOWED_DISCOVER_FILTERS && value.isNotBlank()) {
+                    add(key to value)
+                }
+            }
+        }
+        return get("discover/$type", ListDto.serializer(), language, *params.toTypedArray())
+    }
+
+    suspend fun summaryItem(type: String, id: Int, language: String): ItemDto =
+        get("$type/$id", ItemDto.serializer(), language)
+
     private suspend fun <T> get(
         path: String,
         serializer: KSerializer<T>,

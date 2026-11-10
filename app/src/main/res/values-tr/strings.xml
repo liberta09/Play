@@ -242,6 +242,24 @@
     <string name="addons_add_nuvio_plugin_hint" translatable="false">https://.../scrapers.json</string>
     <string name="addons_add_external_catalog_hint" translatable="false">https://.../manifest.json</string>
     <string name="addon_badge_external_catalog">Harici katalog</string>
+    <string name="collection_import_title">Koleksiyon dosyası içe aktar (JSON)</string>
+    <string name="collection_import_subtitle">TMDB liste, koleksiyon ve keşfet filtrelerinden ana sayfa rafları oluştur</string>
+    <string name="collections_title">Koleksiyonlar</string>
+    <string name="collections_subtitle">İçe aktarılan JSON koleksiyonlarını yönet</string>
+    <string name="collections_empty">Henüz koleksiyon dosyası içe aktarılmadı.</string>
+    <string name="collections_default_title">Koleksiyon</string>
+    <plurals name="collections_folders_count">
+        <item quantity="one">%d klasör</item>
+        <item quantity="other">%d klasör</item>
+    </plurals>
+    <string name="collections_remove_title">Koleksiyon kaldırılsın mı?</string>
+    <string name="collections_remove_message">“%1$s” kaldırılacak ve ana sayfa rafları gizlenecek.</string>
+    <string name="collections_remove_confirm">Kaldır</string>
+    <string name="collection_import_success">%1$d klasör eklendi</string>
+    <string name="collection_import_partial">%1$d klasör eklendi, %2$d kaynak desteklenmedi</string>
+    <string name="collection_error_invalid_json">Hata: Geçersiz JSON verisi.</string>
+    <string name="collection_error_file_too_large">Hata: Dosya çok büyük (en fazla 512 KB).</string>
+    <string name="collection_error_storage_full">Hata: Koleksiyon depolama sınırı aşıldı (en fazla 256 KB).</string>
     <string name="nuvio_repos_title">"Nuvio Addon'ları"</string>
     <string name="nuvio_repos_subtitle">"Nuvio addon'larını yönet"</string>
     <string name="nuvio_repos_empty">"Henüz Nuvio addon'u eklenmedi."</string>

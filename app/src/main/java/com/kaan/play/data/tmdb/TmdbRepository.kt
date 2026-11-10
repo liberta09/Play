@@ -1,5 +1,7 @@
 package com.kaan.play.data.tmdb
 
+import com.kaan.play.data.collection.CollectionFolder
+import com.kaan.play.data.collection.CollectionSourceKind
 import com.kaan.play.data.model.AgeRating
 import com.kaan.play.data.model.CastMember
 import com.kaan.play.data.model.Episode
@@ -161,6 +163,62 @@ class TmdbRepository(
             null
         }
         return PersonCreditsRules.toPersonDetail(primary, fallbackBiography = fallbackBio)
+    }
+
+    /** İçe aktarılan koleksiyon klasöründeki TMDB kaynaklarından raf sayfası oluşturur. */
+    suspend fun collectionFolder(folder: CollectionFolder, page: Int = 1): Page<MediaSummary> {
+        val combined = mutableListOf<MediaSummary>()
+        var maxTotalPages = 1
+        var hadSuccess = false
+        var lastError: Throwable? = null
+
+        for (source in folder.sources) {
+            try {
+                when (source.kind) {
+                    CollectionSourceKind.List -> {
+                        val id = source.tmdbId ?: continue
+                        if (page == 1) {
+                            combined += service.list(id, lang()).items.mapNotNull { it.toSummary(source.mediaType) }
+                        }
+                        hadSuccess = true
+                    }
+                    CollectionSourceKind.Collection -> {
+                        val id = source.tmdbId ?: continue
+                        if (page == 1) {
+                            combined += service.collection(id, lang()).parts.mapNotNull { it.toSummary(source.mediaType ?: MediaType.Movie) }
+                        }
+                        hadSuccess = true
+                    }
+                    CollectionSourceKind.Discover -> {
+                        val type = source.mediaType ?: continue
+                        val dto = service.discover(type.tmdbPath, lang(), page, source.sortBy, source.filters)
+                        maxTotalPages = maxOf(maxTotalPages, dto.totalPages)
+                        combined += dto.toPage(defaultType = type).items
+                        hadSuccess = true
+                    }
+                    CollectionSourceKind.Single -> {
+                        val id = source.tmdbId ?: continue
+                        val type = source.mediaType ?: continue
+                        if (page == 1) {
+                            service.summaryItem(type.tmdbPath, id, lang()).toSummary(type)?.let { combined += it }
+                        }
+                        hadSuccess = true
+                    }
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (t: Throwable) {
+                lastError = t
+            }
+        }
+
+        if (!hadSuccess && lastError != null) throw lastError
+
+        return Page(
+            items = combined.distinctBy { it.type to it.id },
+            page = page,
+            totalPages = maxTotalPages,
+        )
     }
 
     /** Yalnızca TMDB'den son yayınlanmış bölüm üst bilgisini döner (arka plan bölüm denetimi için hafif istek). */

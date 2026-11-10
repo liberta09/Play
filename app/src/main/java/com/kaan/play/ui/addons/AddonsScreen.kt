@@ -1,6 +1,11 @@
 package com.kaan.play.ui.addons
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -67,7 +72,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.R
 import com.kaan.play.data.addon.Addon
+import com.kaan.play.data.collection.CollectionImportException
+import com.kaan.play.data.collection.CollectionJsonParser
 import com.kaan.play.data.plugin.AddResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import com.kaan.play.data.settings.SettingsRepository
 import com.kaan.play.data.web.WebSite
 import com.kaan.play.ui.web.WebActivity
@@ -102,6 +113,7 @@ fun AddonsScreen(
     onOpenNuvioRepos: () -> Unit,
     onOpenNuvioPlugins: () -> Unit,
     onOpenCatalog: () -> Unit = {},
+    onOpenCollections: () -> Unit = {},
     onOpenSourceHealth: () -> Unit = {},
     onOpenNetwork: () -> Unit = {},
 ) {
@@ -109,6 +121,7 @@ fun AddonsScreen(
     val dialog by vm.dialog.collectAsStateWithLifecycle()
     val container = rememberContainer()
     val installedCount by container.installedSourcesCount.collectAsStateWithLifecycle(initialValue = null)
+    val collections by container.collections.collections.collectAsStateWithLifecycle(initialValue = emptyList())
     val scope = rememberCoroutineScope()
     val timeout by container.settings.sourceTimeoutSeconds
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_TIMEOUT_SECONDS)
@@ -116,9 +129,33 @@ fun AddonsScreen(
     val torrentServer by container.settings.torrentServer.collectAsStateWithLifecycle(initialValue = null)
     var showTorrentServer by remember { mutableStateOf(false) }
     val focus = rememberFocusMemory()
+    val appContext = LocalContext.current
+
+    val importCollectionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val message = try {
+                val (bytes, fallbackTitle) = withContext(Dispatchers.IO) { readCollectionUri(appContext, uri) }
+                val res = container.collections.importBytes(bytes, fallbackTitle)
+                if (res.unsupportedSourcesCount > 0) {
+                    appContext.getString(R.string.collection_import_partial, res.foldersAdded, res.unsupportedSourcesCount)
+                } else {
+                    appContext.getString(R.string.collection_import_success, res.foldersAdded)
+                }
+            } catch (_: CollectionImportException.FileTooLarge) {
+                appContext.getString(R.string.collection_error_file_too_large)
+            } catch (_: CollectionImportException.StorageFull) {
+                appContext.getString(R.string.collection_error_storage_full)
+            } catch (_: Throwable) {
+                appContext.getString(R.string.collection_error_invalid_json)
+            }
+            Toast.makeText(appContext, message, Toast.LENGTH_LONG).show()
+        }
+    }
 
     // Başarılı ekleme bildirimi ve otomatik doğru ekrana yönlendirme
-    val appContext = LocalContext.current
     LaunchedEffect(vm) {
         vm.added.collect { result ->
             when (result) {
@@ -203,6 +240,27 @@ fun AddonsScreen(
                     iconTint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.focusMemory(focus, "catalog"),
                     onClick = onOpenCatalog,
+                )
+            }
+            item {
+                com.kaan.play.ui.components.PlayCardRow(
+                    title = stringResource(R.string.collection_import_title),
+                    subtitle = stringResource(R.string.collection_import_subtitle),
+                    icon = PlayIcons.Folder,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.focusMemory(focus, "collection_import"),
+                    onClick = { importCollectionLauncher.launch(arrayOf("application/json", "text/json", "*/*")) },
+                )
+            }
+            item {
+                com.kaan.play.ui.components.PlayCardRow(
+                    title = stringResource(R.string.collections_title),
+                    subtitle = stringResource(R.string.collections_subtitle),
+                    badge = collections.size.takeIf { it > 0 }?.toString(),
+                    icon = PlayIcons.Folder,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.focusMemory(focus, "collections"),
+                    onClick = onOpenCollections,
                 )
             }
             item {
@@ -798,5 +856,29 @@ private fun AddSourceInputDialog(
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
         },
     )
+}
+
+private fun readCollectionUri(context: Context, uri: Uri): Pair<ByteArray, String> {
+    val fileName = context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
+        if (c.moveToFirst()) c.getString(0) else null
+    } ?: uri.lastPathSegment
+    val fallbackTitle = fileName?.substringAfterLast('/')?.substringBeforeLast('.')?.trim().orEmpty()
+
+    val bytes = context.contentResolver.openInputStream(uri)?.use { input ->
+        val limit = CollectionJsonParser.MAX_IMPORT_BYTES
+        val out = ByteArrayOutputStream()
+        val buf = ByteArray(8192)
+        var total = 0
+        while (true) {
+            val read = input.read(buf)
+            if (read <= 0) break
+            total += read
+            if (total > limit) throw CollectionImportException.FileTooLarge()
+            out.write(buf, 0, read)
+        }
+        out.toByteArray()
+    } ?: throw CollectionImportException.InvalidJson()
+
+    return bytes to fallbackTitle
 }
 

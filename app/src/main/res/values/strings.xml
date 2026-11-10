@@ -262,6 +262,24 @@
     <string name="addons_add_nuvio_plugin_hint" translatable="false">https://.../scrapers.json</string>
     <string name="addons_add_external_catalog_hint" translatable="false">https://.../manifest.json</string>
     <string name="addon_badge_external_catalog">External catalog</string>
+    <string name="collection_import_title">Import collection file (JSON)</string>
+    <string name="collection_import_subtitle">Create Home shelves from TMDB list, collection or discover filters</string>
+    <string name="collections_title">Collections</string>
+    <string name="collections_subtitle">Manage imported JSON collections</string>
+    <string name="collections_empty">No collection files imported yet.</string>
+    <string name="collections_default_title">Collection</string>
+    <plurals name="collections_folders_count">
+        <item quantity="one">%d folder</item>
+        <item quantity="other">%d folders</item>
+    </plurals>
+    <string name="collections_remove_title">Remove collection?</string>
+    <string name="collections_remove_message">“%1$s” will be removed and its Home shelves hidden.</string>
+    <string name="collections_remove_confirm">Remove</string>
+    <string name="collection_import_success">%1$d folders added</string>
+    <string name="collection_import_partial">%1$d folders added, %2$d sources unsupported</string>
+    <string name="collection_error_invalid_json">Error: Invalid JSON data.</string>
+    <string name="collection_error_file_too_large">Error: File too large (max 512 KB).</string>
+    <string name="collection_error_storage_full">Error: Collection storage limit reached (max 256 KB).</string>
     <string name="nuvio_repos_title">Nuvio Addons</string>
     <string name="nuvio_repos_subtitle">Manage Nuvio addons</string>
     <string name="nuvio_repos_empty">No Nuvio addons added yet.</string>

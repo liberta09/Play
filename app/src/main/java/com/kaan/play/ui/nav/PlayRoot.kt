@@ -116,6 +116,7 @@ import com.kaan.play.data.tmdb.TmdbException
 import com.kaan.play.ui.player.PlaySession
 import com.kaan.play.ui.player.formatTime
 import com.kaan.play.ui.addons.AddonsScreen
+import com.kaan.play.ui.addons.CollectionsScreen
 import com.kaan.play.ui.addons.CsReposScreen
 import com.kaan.play.ui.addons.AddonDetailScreen
 import com.kaan.play.ui.addons.InstalledAddonsScreen
@@ -160,6 +161,7 @@ private const val PROFILE_ROUTE = "settings/profile"
 private const val SYNC_ROUTE = "settings/sync"
 private const val REPO_MANAGER_CATALOG_ROUTE = "settings/addons/catalog"
 private const val ADDONS_ROUTE = "settings/addons?add={add}"
+private const val ADDONS_COLLECTIONS_ROUTE = "settings/addons/collections"
 private const val ADDONS_REPOS_ROUTE = "settings/addons/repos"
 private const val ADDONS_INSTALLED_ROUTE = "settings/addons/installed"
 private const val CS_REPOS_ROUTE = "settings/addons/csrepos"
@@ -773,8 +775,17 @@ fun PlayRoot() {
                         onOpenNuvioRepos = { navController.navigate(NUVIO_REPOS_ROUTE) },
                         onOpenNuvioPlugins = { navController.navigate(NUVIO_PLUGINS_ROUTE) },
                         onOpenCatalog = { navController.navigate(REPO_MANAGER_CATALOG_ROUTE) },
+                        onOpenCollections = { navController.navigate(ADDONS_COLLECTIONS_ROUTE) },
                         onOpenSourceHealth = { navController.navigate(SOURCE_HEALTH_ROUTE) },
                         onOpenNetwork = { navController.navigate(NETWORK_SETTINGS_ROUTE) },
+                    )
+                }
+            }
+            composable(ADDONS_COLLECTIONS_ROUTE) {
+                ReadableWidth {
+                    CollectionsScreen(
+                        onBack = { navController.popBackStack() },
+                        container = rememberContainer(),
                     )
                 }
             }

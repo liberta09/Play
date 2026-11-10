@@ -69,9 +69,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
 import com.kaan.play.R
+import com.kaan.play.data.collection.CollectionFolderShelf
 import com.kaan.play.data.cloudstream.cloudflare.CloudflareSolver
 import com.kaan.play.data.library.ContinueItem
 import com.kaan.play.data.library.ContinueSortMode
+import com.kaan.play.data.model.MediaSummary
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.provider.ProviderRules
 import com.kaan.play.data.addon.CatalogVisibility
@@ -144,6 +146,18 @@ fun HomeScreen(
     val allProviders = loadedProviders.orEmpty()
     var showProviderSelector by remember { mutableStateOf(false) }
     var activeProviderRow by remember { mutableStateOf<CatalogRow?>(null) }
+    var activeCollectionShelf by remember { mutableStateOf<CollectionFolderShelf?>(null) }
+
+    val currentCollectionShelf = activeCollectionShelf
+    if (currentCollectionShelf != null) {
+        BackHandler { activeCollectionShelf = null }
+        CollectionCategoryScreen(
+            shelf = currentCollectionShelf,
+            onBack = { activeCollectionShelf = null },
+            onOpenDetail = onOpenDetail,
+        )
+        return
+    }
 
     val currentProviderRow = activeProviderRow
     if (currentProviderRow != null) {
@@ -208,6 +222,7 @@ fun HomeScreen(
                 onContinue = onContinue,
                 onOpenProviderDetail = onOpenProviderDetail,
                 onOpenProviderCategory = { activeProviderRow = it },
+                onOpenCollectionCategory = { activeCollectionShelf = it },
                 onOpenSearch = onOpenSearch,
                 contentFocusRequester = contentFocusRequester,
                 topBarFocusRequester = topBarFocusRequester,
@@ -298,6 +313,7 @@ private fun HomeContent(
     onContinue: (ContinueItem) -> Unit,
     onOpenProviderDetail: (providerId: String, url: String) -> Unit = { _, _ -> },
     onOpenProviderCategory: (CatalogRow) -> Unit = {},
+    onOpenCollectionCategory: (CollectionFolderShelf) -> Unit = {},
     onOpenSearch: (String) -> Unit = {},
     contentFocusRequester: FocusRequester? = null,
     topBarFocusRequester: FocusRequester? = null,
@@ -306,6 +322,7 @@ private fun HomeContent(
     val container = rememberContainer()
     val perfPolicy = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current
     val homeProviders by container.providers.homeProviders.collectAsStateWithLifecycle(initialValue = emptyList())
+    val collectionShelves by container.collections.folderShelves.collectAsStateWithLifecycle(initialValue = emptyList())
     val loadSemaphore = remember(perfPolicy.maxConcurrentProviderLoads) { Semaphore(perfPolicy.maxConcurrentProviderLoads) }
     val loadedProviderIds = remember(homeProviders) { mutableStateMapOf<String, Boolean>() }
 
@@ -457,6 +474,18 @@ private fun HomeContent(
                     onOpenSearch = onOpenSearch,
                     onShownTitles = { titles -> shownProviderTitles[provider.id] = titles },
                     onLoadFinished = { loadedProviderIds[provider.id] = true },
+                )
+            }
+        }
+        collectionShelves.forEach { shelf ->
+            item(key = "collection_${shelf.collectionId}_${shelf.folder.id}") {
+                LazyCollectionSection(
+                    shelf = shelf,
+                    cardWidth = cardWidth,
+                    focus = focus,
+                    loadSemaphore = loadSemaphore,
+                    onOpenDetail = onOpenDetail,
+                    onOpenCategory = { onOpenCollectionCategory(shelf) },
                 )
             }
         }
@@ -1578,5 +1607,73 @@ private fun ProviderPillButton(
             tint = if (isSelected) accent else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(16.dp),
         )
+    }
+}
+
+private sealed interface CollectionShelfUiState {
+    data object Loading : CollectionShelfUiState
+    data class Ready(val items: List<MediaSummary>) : CollectionShelfUiState
+    data object Hidden : CollectionShelfUiState
+}
+
+@Composable
+private fun LazyCollectionSection(
+    shelf: CollectionFolderShelf,
+    cardWidth: Dp,
+    focus: FocusMemory,
+    loadSemaphore: Semaphore,
+    onOpenDetail: (MediaType, Int) -> Unit,
+    onOpenCategory: () -> Unit,
+) {
+    val container = rememberContainer()
+    val lang = AppLanguage.effective().tmdbTag
+    var state by remember(shelf.collectionId, shelf.folder.id, lang) {
+        mutableStateOf<CollectionShelfUiState>(CollectionShelfUiState.Loading)
+    }
+
+    LaunchedEffect(shelf.collectionId, shelf.folder.id, lang) {
+        state = CollectionShelfUiState.Loading
+        loadSemaphore.withPermit {
+            state = try {
+                val page = container.tmdb.collectionFolder(shelf.folder, page = 1)
+                if (page.items.isNotEmpty()) CollectionShelfUiState.Ready(page.items)
+                else CollectionShelfUiState.Hidden
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (_: Throwable) {
+                CollectionShelfUiState.Hidden
+            }
+        }
+    }
+
+    when (val current = state) {
+        is CollectionShelfUiState.Loading -> Section(title = shelf.folder.title) { SkeletonRow(cardWidth) }
+        is CollectionShelfUiState.Hidden -> Unit
+        is CollectionShelfUiState.Ready -> {
+            Section(
+                title = shelf.folder.title,
+                onSeeAll = onOpenCategory,
+                headerModifier = Modifier.focusMemory(focus, "col_h_${shelf.collectionId}_${shelf.folder.id}"),
+            ) {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = ScreenPadding),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    items(current.items, key = { "${it.type}-${it.id}" }) { media ->
+                        PosterCard(
+                            title = media.title,
+                            subtitle = media.year?.toString(),
+                            imageUrl = media.posterUrl(),
+                            tmdbId = media.id,
+                            mediaType = media.type,
+                            onClick = { onOpenDetail(media.type, media.id) },
+                            modifier = Modifier
+                                .width(cardWidth)
+                                .focusMemory(focus, "col_${shelf.collectionId}_${shelf.folder.id}_${media.type}_${media.id}"),
+                        )
+                    }
+                }
+            }
+        }
     }
 }

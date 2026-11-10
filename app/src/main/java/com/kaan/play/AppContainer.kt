@@ -278,6 +278,11 @@ class AppContainer(context: Context) {
         }
     }
 
+    /** İçe aktarılan JSON koleksiyon rafları. */
+    val collections: com.kaan.play.data.collection.CollectionRepository by lazy {
+        com.kaan.play.data.collection.CollectionRepository(settings.store)
+    }
+
     /** Elle seçilen kaynak (film/dizi başına): sonraki açılışta ve dizinin sonraki bölümünde önce denenir. Ayarlarla aynı DataStore. */
     val sourceMemory: SourceMemory by lazy { SourceMemory(settings.store) }
 
