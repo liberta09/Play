@@ -5,7 +5,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.kaan.play.data.net.PlayJson
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import java.io.IOException
@@ -39,6 +42,17 @@ class AudioSyncReportStore(private val store: DataStore<Preferences>) {
         decode(store.data.first()[KEY])
     } catch (_: Throwable) {
         emptyMap()
+    }
+
+    val counts: Flow<Map<String, Int>> = store.data
+        .map { decode(it[KEY]) }
+        .catch { emit(emptyMap()) }
+
+    suspend fun clear() {
+        try {
+            store.edit { prefs -> prefs.remove(KEY) }
+        } catch (_: IOException) {
+        }
     }
 
     private fun decode(raw: String?): Map<String, Int> =
