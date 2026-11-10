@@ -1,5 +1,23 @@
 # Changelog / Değişiklik günlüğü
 
+## [Unreleased]
+
+### Türkçe
+- Canlı TV kanalları ad normalleştirme ve kanonik önek kurallarıyla (`channelGroupKey`) birleştirildi; aynı kanal için birden çok sağlayıcı rotası destekleniyor.
+- Canlı TV ekranına 5 sıralama modu (`TitleAscending`, `TitleDescending`, `Recent`, `FavoritesFirst`, `Manual`), favori yıldız düğmesi ve manuel sıralama için D-pad yukarı/aşağı taşıma düğmeleri eklendi; kanal etkinliği ve sırası Room v7 tablolarında (`live_channel_activity`, `live_channel_order`) saklanır.
+- Canlı yayın oynatıcısına `CHANNEL_UP`/`CHANNEL_DOWN` ve `PAGE_UP`/`PAGE_DOWN` tuşları, görünür Önceki/Sonraki kanal düğmeleri, kaynak kesilince otomatik alternatif rota denemesi ve elle "Başka sağlayıcıyı tara" düğmesi eklendi.
+- Ana sayfadaki "İzlemeye devam et" satırına kalıcı sıralama seçeneği ve kartlarda hızlı işlemler menüsü (Favorilere ekle, İzlendi olarak işaretle, Geçmişten kaldır) eklendi.
+- Hakkında ekranı altına Veri yönetimi bölümü eklendi; izleme geçmişini toplu silme işleminde silme kaydı (tombstone) yazılarak senkronda geri gelmesi engellendi.
+- `PosterCard` ve Ana sayfa geri dönüş odak/kaydırma davranışı TV kumandası (D-pad) için düzeltildi.
+
+### English
+- Merged duplicate Live TV channels across providers via `channelGroupKey` normalization and canonical prefixes into single entries with multiple source routes.
+- Added 5 Live TV sort modes (`TitleAscending`, `TitleDescending`, `Recent`, `FavoritesFirst`, `Manual`), focusable favorite star buttons, and D-pad up/down reordering persisted in Room v7 tables (`live_channel_activity`, `live_channel_order`).
+- Added Live TV channel zapping (`CHANNEL_UP`/`CHANNEL_DOWN`, `PAGE_UP`/`PAGE_DOWN`, visible Previous/Next buttons), automatic fallback to alternate provider routes on stream failure, and a manual "Scan other provider" button.
+- Added persistent sort modes and quick-action menu (`Favorite`, `Mark as watched`, `Remove from history`) to Home "Continue Watching" cards.
+- Added Data Management under About, with batch tombstone recording when clearing watch history so cleared items do not reappear on sync.
+- Fixed D-pad focus modifier propagation on `PosterCard` and scroll preservation when navigating back to Home.
+
 ## [1.2.8] — 2026-11-09
 
 ### Türkçe
