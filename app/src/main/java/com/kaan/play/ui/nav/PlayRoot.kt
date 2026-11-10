@@ -139,6 +139,7 @@ import com.kaan.play.ui.tv.TvScreen
 import com.kaan.play.ui.settings.AboutScreen
 import com.kaan.play.ui.settings.PlayerSettingsScreen
 import com.kaan.play.ui.settings.SettingsScreen
+import com.kaan.play.ui.settings.NetworkSettingsScreen
 import com.kaan.play.ui.settings.SpeedTestScreen
 import com.kaan.play.ui.settings.ProfileScreen
 import com.kaan.play.ui.settings.SyncScreen
@@ -164,6 +165,7 @@ private const val CS_REPOS_ROUTE = "settings/addons/csrepos"
 private const val NUVIO_REPOS_ROUTE = "settings/addons/nuviorepos"
 private const val NUVIO_PLUGINS_ROUTE = "settings/addons/nuvioplugins"
 private const val SOURCE_HEALTH_ROUTE = "settings/addons/health"
+private const val NETWORK_SETTINGS_ROUTE = "settings/addons/network"
 private const val PLUGIN_ROUTE = "settings/addons/plugin/{id}"
 private const val ADDON_DETAIL_ROUTE = "settings/addons/detail/{id}"
 private const val PLAYER_SETTINGS_ROUTE = "settings/player"
@@ -770,12 +772,22 @@ fun PlayRoot() {
                         onOpenNuvioPlugins = { navController.navigate(NUVIO_PLUGINS_ROUTE) },
                         onOpenCatalog = { navController.navigate(REPO_MANAGER_CATALOG_ROUTE) },
                         onOpenSourceHealth = { navController.navigate(SOURCE_HEALTH_ROUTE) },
+                        onOpenNetwork = { navController.navigate(NETWORK_SETTINGS_ROUTE) },
                     )
                 }
             }
             composable(SOURCE_HEALTH_ROUTE) {
                 ReadableWidth {
                     SourceHealthScreen(onBack = { navController.popBackStack() })
+                }
+            }
+            composable(NETWORK_SETTINGS_ROUTE) {
+                ReadableWidth {
+                    NetworkSettingsScreen(
+                        onBack = { navController.popBackStack() },
+                        onOpenSpeedTest = { navController.navigate(SPEED_TEST_ROUTE) },
+                        onOpenSlowConnection = { navController.navigate(PLAYER_SETTINGS_ROUTE) },
+                    )
                 }
             }
             composable(ADDONS_REPOS_ROUTE) {
