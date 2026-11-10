@@ -360,8 +360,8 @@ class AppContainer(context: Context) {
     }
 
     val internetSpeedTest: InternetSpeedTest by lazy {
-        // Sade istemci: ortak httpClient'ın ağ koruması/site interceptor'ları ölçümü etkilemesin.
-        InternetSpeedTest()
+        // Ana httpClient kullanilir: secili uygulama ici DNS saglayicisi hiz testinde de gecerlidir.
+        InternetSpeedTest(httpClient)
     }
 
     val repoManagerCatalog: com.kaan.play.data.plugin.RepoManagerCatalog by lazy {

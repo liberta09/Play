@@ -596,6 +596,15 @@
     <string name="speed_test_failed">The test couldn\'t finish: %1$s</string>
     <string name="speed_test_error_unreachable">Couldn\'t reach the server</string>
     <string name="speed_test_error_timeout">Timed out</string>
+    <string name="speed_test_disclaimer">Uses approximately 9 MB of data.</string>
+    <string name="speed_test_start">Start speed test</string>
+    <string name="speed_test_retry">Test again</string>
+    <string name="speed_test_cancel">Cancel</string>
+    <string name="speed_test_testing">Testing…</string>
+    <string name="speed_test_progress_mb">%1$s / %2$s</string>
+    <string name="speed_test_result_title">Your result</string>
+    <string name="speed_test_download_label">Download speed</string>
+    <string name="speed_test_downloaded_label">Downloaded</string>
     <string name="download_pick_title">Choose a source to download</string>
     <string name="download_pick_checking">Checking which sources can be downloaded…</string>
     <string name="download_pick_empty_episode">No downloadable source found for this episode</string>

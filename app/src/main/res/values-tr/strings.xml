@@ -578,6 +578,15 @@
     <string name="speed_test_failed">Test tamamlanamadı: %1$s</string>
     <string name="speed_test_error_unreachable">Sunucuya ulaşılamadı</string>
     <string name="speed_test_error_timeout">Zaman aşımı</string>
+    <string name="speed_test_disclaimer">Yaklaşık 9 MB veri kullanır.</string>
+    <string name="speed_test_start">Hız testini başlat</string>
+    <string name="speed_test_retry">Tekrar test et</string>
+    <string name="speed_test_cancel">İptal</string>
+    <string name="speed_test_testing">Test ediliyor…</string>
+    <string name="speed_test_progress_mb">%1$s / %2$s</string>
+    <string name="speed_test_result_title">Sonucunuz</string>
+    <string name="speed_test_download_label">İndirme hızı</string>
+    <string name="speed_test_downloaded_label">Alınan veri</string>
     <string name="download_pick_title">İndirilecek kaynağı seç</string>
     <string name="download_pick_checking">İndirilebilir kaynaklar denetleniyor…</string>
     <string name="download_pick_empty_episode">Bu bölüm için indirilebilir kaynak bulunamadı</string>
