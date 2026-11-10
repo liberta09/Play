@@ -103,16 +103,6 @@ class PluginRepoRequestHandler(
             addonDao.observeOfType(AddonType.CLOUDSTREAM_REPO).first().map { it.sourceUrl }.toSet()
         }.getOrDefault(emptySet())
 
-        val normalizedInstalled = installed.mapTo(HashSet(), PluginRepoRequestRules::normalizeUrl)
-        ownershipStore?.let { store ->
-            candidates
-                .filter { it.parentRepoUrl != null && PluginRepoRequestRules.normalizeUrl(it.url) in normalizedInstalled }
-                .groupBy { it.parentRepoUrl!! }
-                .forEach { (parent, shared) ->
-                    runCatching { store.recordSubRepos(parent, shared.map { it.url }) }
-                }
-        }
-
         val declined = runCatching {
             dataStore.data.first()[DECLINED_PLUGIN_REPOS] ?: emptySet()
         }.getOrDefault(emptySet())

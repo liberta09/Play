@@ -202,4 +202,80 @@ class SubRepoOwnershipTest {
         subRepoWithDummyEntry.remove(parentModel.id, cascadeSubRepos = true)
         assertEquals(0, addonDao.countOfType(AddonType.CLOUDSTREAM_REPO))
     }
+
+    @Test
+    fun preInstalledManualRepoStaysInstalledWhenParentRepoWithSameSubRepoIsRemoved() = runTest {
+        val addonDao = FakeAddonDao()
+        val pluginDao = FakePluginDao()
+        val dataStore = MemoryStore()
+        val ownershipStore = SubRepoOwnershipStore(dataStore)
+        val tmpDir = File.createTempFile("cs_sub_test_p7", "").also { it.delete(); it.mkdirs() }
+
+        val repo = CsRepository(
+            addonDao = addonDao,
+            pluginDao = pluginDao,
+            fetcher = ManifestFetcher { """[]""" },
+            httpClient = OkHttpClient(),
+            store = CsDexStore(tmpDir),
+            loader = object : PluginDexLoader {
+                override suspend fun loadPlugin(dexFile: File, className: String, pluginId: String) =
+                    CsApiResult.NoApiRegistered(pluginId)
+            },
+            ownershipStore = ownershipStore,
+        )
+
+        val manualSubUrl = "https://shared-sub.example/repo.json"
+        val parentUrl = "https://parent-super.example/repo.json"
+
+        // 1. Kullanıcı önceden elle bu depoyu eklemiş ve ilk açılışta manual olarak mühürlenmiş:
+        val manualSubId = addonDao.insert(
+            AddonEntity(
+                type = AddonType.CLOUDSTREAM_REPO,
+                sourceUrl = manualSubUrl,
+                addonId = manualSubUrl,
+                name = "Kullanici Deposu",
+                version = null,
+                description = null,
+                logoUrl = null,
+                enabled = true,
+                manifestJson = """{"name":"Kullanici Deposu"}""",
+                addedAt = 100L,
+            )
+        )
+        assertTrue(manualSubId > 0)
+        ownershipStore.seedInitialManualReposIfFirstTime(listOf(manualSubUrl))
+        assertTrue(ownershipStore.currentState().manualUrls.contains(SubRepoOwnershipRules.normalize(manualSubUrl)))
+
+        // 2. Sonradan bir üst depo ekleniyor ve alt depo listesinde bu depo da yer alıyor:
+        val parentId = addonDao.insert(
+            AddonEntity(
+                type = AddonType.CLOUDSTREAM_REPO,
+                sourceUrl = parentUrl,
+                addonId = parentUrl,
+                name = "Ust Depo",
+                version = null,
+                description = null,
+                logoUrl = null,
+                enabled = true,
+                manifestJson = """{"name":"Ust Depo"}""",
+                addedAt = 200L,
+            )
+        )
+        assertTrue(parentId > 0)
+
+        // Üst depo alt depoyu bildirse veya bir şekilde recordSubRepos çağrılsa bile:
+        ownershipStore.recordSubRepos(parentUrl, listOf(manualSubUrl))
+
+        val parentModel = repo.repos.first().first { it.id == parentId }
+        val removable = repo.removableSubRepos(parentModel)
+
+        // manualUrls içinde olduğu için ASLA silinebilir olarak dönmez!
+        assertTrue(removable.isEmpty())
+
+        // Üst depo basamaklı silinse bile kullanıcının önceden eklediği depo KURULU KALIR!
+        repo.remove(parentModel.id, cascadeSubRepos = true)
+
+        assertEquals(1, addonDao.countOfType(AddonType.CLOUDSTREAM_REPO))
+        assertEquals(manualSubUrl, addonDao.byId(manualSubId)?.sourceUrl)
+    }
 }

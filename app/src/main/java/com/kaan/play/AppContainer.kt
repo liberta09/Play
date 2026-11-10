@@ -503,7 +503,14 @@ class AppContainer(context: Context) {
 
     /** CloudStream alt depo sahiplik kayıtları (manual vs üst depodan onaylanan). */
     val subRepoOwnership: com.kaan.play.data.cloudstream.SubRepoOwnershipStore by lazy {
-        com.kaan.play.data.cloudstream.SubRepoOwnershipStore(settings.store)
+        com.kaan.play.data.cloudstream.SubRepoOwnershipStore(settings.store).apply {
+            appScope.launch {
+                runCatching {
+                    val existing = database.addonDao().observeOfType(com.kaan.play.data.db.AddonType.CLOUDSTREAM_REPO).first()
+                    seedInitialManualReposIfFirstTime(existing.map { it.sourceUrl })
+                }
+            }
+        }
     }
 
     /** CloudStream depo yöneticisi (Faz 3). Depo satırı `addons`, eklentiler `plugins` tablosunda. */

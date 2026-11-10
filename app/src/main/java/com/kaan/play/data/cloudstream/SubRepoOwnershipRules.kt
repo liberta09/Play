@@ -2,6 +2,7 @@ package com.kaan.play.data.cloudstream
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.kaan.play.data.net.PlayJson
@@ -34,6 +35,15 @@ object SubRepoOwnershipRules {
         val norm = normalize(repoUrl)
         if (norm.isEmpty()) return state
         return state.copy(manualUrls = state.manualUrls + norm)
+    }
+
+    fun recordManualAll(state: SubRepoOwnershipState, repoUrls: Collection<String>): SubRepoOwnershipState {
+        val normUrls = repoUrls.mapNotNull {
+            val n = normalize(it)
+            if (n.isNotEmpty()) n else null
+        }
+        if (normUrls.isEmpty()) return state
+        return state.copy(manualUrls = state.manualUrls + normUrls)
     }
 
     fun recordSubRepos(
@@ -122,6 +132,28 @@ class SubRepoOwnershipStore(private val dataStore: DataStore<Preferences>) {
         update { SubRepoOwnershipRules.recordManual(it, repoUrl) }
     }
 
+    suspend fun recordManualAll(repoUrls: Collection<String>) {
+        update { SubRepoOwnershipRules.recordManualAll(it, repoUrls) }
+    }
+
+    /**
+     * İlk açılışta (bir kereye mahsus) o an veritabanında var olan tüm CloudStream depolarını
+     * kullanıcının kendi deposu (manual) olarak işaretler; üst depo silinmelerinde silinmelerini engeller.
+     */
+    suspend fun seedInitialManualReposIfFirstTime(installedRepoUrls: Collection<String>) {
+        dataStore.edit { prefs ->
+            if (prefs[SEEDED_KEY] == true) return@edit
+            val current = decode(prefs[OWNERSHIP_KEY])
+            val next = SubRepoOwnershipRules.recordManualAll(current, installedRepoUrls)
+            if (next.parentToChildren.isEmpty() && next.manualUrls.isEmpty()) {
+                prefs.remove(OWNERSHIP_KEY)
+            } else {
+                prefs[OWNERSHIP_KEY] = PlayJson.encodeToString(SubRepoOwnershipState.serializer(), next)
+            }
+            prefs[SEEDED_KEY] = true
+        }
+    }
+
     suspend fun recordSubRepos(parentUrl: String, childUrls: Iterable<String>) {
         update { SubRepoOwnershipRules.recordSubRepos(it, parentUrl, childUrls) }
     }
@@ -153,5 +185,6 @@ class SubRepoOwnershipStore(private val dataStore: DataStore<Preferences>) {
 
     companion object {
         private val OWNERSHIP_KEY = stringPreferencesKey("cs_sub_repo_ownership")
+        val SEEDED_KEY = booleanPreferencesKey("cs_sub_repos_manual_seeded")
     }
 }
