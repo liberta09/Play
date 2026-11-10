@@ -201,6 +201,8 @@ fun SourcePanel(
     subtitles: SubtitleController,
     embeddedDub: Boolean,
     online: Boolean,
+    audioVerificationScanning: Boolean = false,
+    onStopTurkishAudioScan: () -> Unit = {},
     onAddFile: () -> Unit,
     onAppearance: () -> Unit,
     onDismiss: () -> Unit,
@@ -275,6 +277,19 @@ fun SourcePanel(
                     item { SourceRow(s, selected = true, playing = true, embeddedDub = embeddedDub, sizeText = SizeText.format(s.sizeBytes, locale), onClick = {}, modifier = Modifier.focusRequester(focus)) }
                 }
             } else {
+                if (audioVerificationScanning) {
+                    item(key = "stop-turkish-scan") {
+                        ActionRow(
+                            label = stringResource(R.string.player_stop_turkish_audio_scan),
+                            onClick = {
+                                onStopTurkishAudioScan()
+                                onDismiss()
+                            },
+                            emphasized = true,
+                        )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(vertical = 4.dp))
+                    }
+                }
                 val ctx = coordinator.ctx
                 val shown = SourceRanking.filtered(SourceRanking.sorted(coordinator.streams, sort, ctx), filter)
                 val groups = shown.groupBy { it.source.addonId }

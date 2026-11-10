@@ -670,4 +670,13 @@
     <string name="data_reset_settings_action">Sıfırla</string>
     <string name="data_reset_settings_done">Ayarlar varsayılana döndürüldü</string>
     <string name="data_confirm_delete">Sil</string>
+    <string name="settings_try_until_turkish_audio">Türkçe ses izini bulana kadar kaynakları dene; bulunamazsa en hızlı alternatifi aç</string>
+    <string name="settings_audio_probe_timeout">Ses izi tarama süresi</string>
+    <string name="settings_audio_probe_seconds">%1$d sn</string>
+    <string name="player_verifying_turkish_audio">Türkçe ses izi doğrulanıyor…</string>
+    <string name="player_stop_turkish_audio_scan">Türkçe ses aramasını bırak ve mevcut kaynakla devam et</string>
+    <string name="player_audio_verify_unverified">Ses izi dili doğrulanamadı; alternatif kaynak deneniyor</string>
+    <string name="player_audio_verify_not_found">Türkçe ses izi bulunamadı; hızlı alternatif açılıyor</string>
+    <string name="player_audio_verify_select_failed">Türkçe iz bulundu ancak seçilemedi; varsayılan ses sürüyor</string>
+    <string name="player_audio_verify_unsupported">Türkçe ses bu cihazda desteklenmiyor; başka kaynak aranıyor</string>
 </resources>

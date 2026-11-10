@@ -191,6 +191,12 @@ fun PlayerScreen(
     allLiveRoutesExhausted: Boolean = false,
     /** Canlı yayında kullanıcının sıradaki alternatif sağlayıcı rotasına geçmesi; null: yalnızca canlı TV'de. */
     onScanLiveProvider: (() -> Unit)? = null,
+    /** Türkçe ses izi taraması sürüyor (dublajlı kaynak açılırken kısa durum metni). */
+    audioVerificationScanning: Boolean = false,
+    /** Türkçe ses doğrulama bildirimi. */
+    audioVerificationNotice: com.kaan.play.data.player.TurkishAudioNotice? = null,
+    onClearAudioVerificationNotice: () -> Unit = {},
+    onStopTurkishAudioScan: () -> Unit = {},
     /** Kilit durumu değişince etkinliğe bildirilir (`Activity.onKeyDown` kilitliyken zap yapmasın). */
     onLockedChanged: (Boolean) -> Unit = {},
     onBack: () -> Unit,
@@ -347,6 +353,12 @@ fun PlayerScreen(
         if (coordinator?.notice != null) {
             delay(SOURCE_NOTICE_MS)
             coordinator.clearNotice()
+        }
+    }
+    LaunchedEffect(audioVerificationNotice) {
+        if (audioVerificationNotice != null) {
+            delay(SOURCE_NOTICE_MS)
+            onClearAudioVerificationNotice()
         }
     }
     LaunchedEffect(resizeToast) {
@@ -925,7 +937,7 @@ fun PlayerScreen(
         activeNotice?.let { notice ->
             SourceNoticePill(notice, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 84.dp))
         }
-        if (activeNotice == null) {
+        if (activeNotice == null && audioVerificationNotice == null) {
             liveNotice?.let { message ->
                 Text(
                     text = message,
@@ -941,6 +953,42 @@ fun PlayerScreen(
                         .padding(horizontal = 20.dp, vertical = 10.dp),
                 )
             }
+        }
+        if (activeNotice == null && audioVerificationNotice != null) {
+            val verifyMsgRes = when (audioVerificationNotice) {
+                com.kaan.play.data.player.TurkishAudioNotice.UnverifiedTryingNextDub -> R.string.player_audio_verify_unverified
+                com.kaan.play.data.player.TurkishAudioNotice.NotFoundOpeningFastAlternative -> R.string.player_audio_verify_not_found
+                com.kaan.play.data.player.TurkishAudioNotice.FoundButSelectionFailed -> R.string.player_audio_verify_select_failed
+                com.kaan.play.data.player.TurkishAudioNotice.UnsupportedTryingAnother -> R.string.player_audio_verify_unsupported
+            }
+            Text(
+                text = stringResource(verifyMsgRes),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .padding(top = 84.dp)
+                    .widthIn(max = 480.dp)
+                    .background(Color.Black.copy(alpha = 0.85f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
+            )
+        }
+        if (audioVerificationScanning && !resolving && !locked && ui.error == null && !sourcesFailed) {
+            Text(
+                text = stringResource(R.string.player_verifying_turkish_audio),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .padding(top = if (activeNotice != null || audioVerificationNotice != null) 136.dp else 84.dp)
+                    .widthIn(max = 480.dp)
+                    .background(Color.Black.copy(alpha = 0.78f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 18.dp, vertical = 8.dp),
+            )
         }
 
         resizeToast?.let { mode ->
@@ -982,6 +1030,8 @@ fun PlayerScreen(
             subtitles = subtitles,
             embeddedDub = embeddedDub,
             online = canSwitchSource,
+            audioVerificationScanning = audioVerificationScanning,
+            onStopTurkishAudioScan = onStopTurkishAudioScan,
             onAddFile = {
                 showPanel = false
                 resumeAfterPick = controller.player.isPlaying

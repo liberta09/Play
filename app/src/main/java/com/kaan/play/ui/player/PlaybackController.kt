@@ -641,6 +641,27 @@ class PlaybackController(
         AudioTrack(i, format.language, format.label, group.isSelected, format.channelCount.coerceAtLeast(0), format.sampleMimeType)
     }
 
+    /** Desteklenmeyenler dahil tüm ses parçalarını döndürür (Türkçe ses doğrulaması desteklenmeyen izleri ayırt eder). */
+    fun allAudioTrackInfos(): List<com.kaan.play.data.player.AudioTrackInfo> {
+        var supportedIndex = 0
+        return player.currentTracks.groups
+            .filter { it.type == C.TRACK_TYPE_AUDIO }
+            .map { group ->
+                val format = group.mediaTrackGroup.getFormat(0)
+                val supported = group.isSupported
+                val indexForSelect = if (supported) supportedIndex++ else -1
+                com.kaan.play.data.player.AudioTrackInfo(
+                    index = indexForSelect,
+                    language = format.language,
+                    label = format.label,
+                    isSelected = supported && group.isSelected,
+                    isSupported = supported,
+                    mime = format.sampleMimeType,
+                    channelCount = format.channelCount.coerceAtLeast(0),
+                )
+            }
+    }
+
     private fun videoGroups(): List<Tracks.Group> =
         player.currentTracks.groups.filter { it.type == C.TRACK_TYPE_VIDEO && it.isSupported }
 

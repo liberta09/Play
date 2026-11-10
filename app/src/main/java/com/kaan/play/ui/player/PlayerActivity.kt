@@ -30,7 +30,12 @@ import com.kaan.play.data.db.DownloadStatus
 import com.kaan.play.data.download.DownloadedSubtitleLoader
 import com.kaan.play.data.library.WatchRules
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.player.TurkishAudioNotice
+import com.kaan.play.data.player.TurkishAudioTrackRules
+import com.kaan.play.data.player.TurkishAudioVerifier
+import com.kaan.play.data.player.TurkishVerifyDecision
 import com.kaan.play.data.provider.LiveCatalogRules
+import com.kaan.play.data.settings.SettingsRepository
 import com.kaan.play.data.provider.LiveRoutePlanner
 import com.kaan.play.data.provider.LiveSourceRoute
 import com.kaan.play.data.provider.LiveZapChannel
@@ -93,6 +98,12 @@ class PlayerActivity : AppCompatActivity() {
     private var userAudioChosen = false
     private var userAudioLanguage: String? = null
     private var preferDub = true
+    private var tryUntilTurkishAudio = SettingsRepository.DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO
+    private var audioProbeTimeoutSeconds = SettingsRepository.DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS
+    private lateinit var audioVerifier: TurkishAudioVerifier
+    private var audioVerificationScanning by mutableStateOf(false)
+    private var audioVerificationNotice by mutableStateOf<TurkishAudioNotice?>(null)
+    private var pendingDubRevertStream: PlayableStream? = null
 
     /** Sonraki bölüme geçiliyor: bu bölüm "izlendi" yazılır, oynatıcı hataları (kapanan torrent vb.) gösterilmez. */
     private var leaving = false
@@ -288,16 +299,23 @@ class PlayerActivity : AppCompatActivity() {
             snapshotFlow { controller.ui.tracksVersion }.collect { syncAudio() }
         }
 
+        val settings = container.settings
         if (offline == null) {
             // Ayarlar: tek seferlik okuma (milisaniyeler); oynatma başlamadan önce bilinmeli.
-            val settings = container.settings
             autoSourceSetting = runBlocking { settings.autoSource.first() }
             preferDub = runBlocking { settings.preferDub.first() }
+            tryUntilTurkishAudio = runBlocking { settings.trySourcesUntilTurkishAudio.first() }
+            audioProbeTimeoutSeconds = runBlocking { settings.audioProbeTimeoutSeconds.first() }
+        }
+        audioVerifier = TurkishAudioVerifier(scanTimeoutMs = audioProbeTimeoutSeconds * 1000L)
+
+        if (offline == null) {
             val sources = createSourceCoordinator(session.target.request)
             coordinator = sources
             controller.onFirstFrame = {
                 allLiveRoutesExhausted = false
                 coordinator?.onFirstFrame()
+                evaluateTurkishAudio()
                 container.torrentEngine.onFirstFrame()
                 val ticket = pendingZapTicket
                 val targetZapIdx = pendingZapIndex
@@ -376,7 +394,18 @@ class PlayerActivity : AppCompatActivity() {
                             )
                         }
                     }
-            }
+            }
+            // Türkçe ses izi doğrulama zaman aşımı ve iz değişikliklerini düzenli kontrol et.
+            lifecycleScope.launch {
+                snapshotFlow { Pair(audioVerificationScanning, controller.ui.firstFrameRendered) }
+                    .collectLatest { (scanning, _) ->
+                        if (!scanning || leaving) return@collectLatest
+                        while (isActive && audioVerificationScanning && !leaving) {
+                            evaluateTurkishAudio()
+                            delay(400L)
+                        }
+                    }
+            }
             // Torrent açılınca dosya boyutu panelde ve üst çubukta görünsün.
             container.torrentServer.onOpened = { magnet, size ->
                 runOnUiThread { coordinator?.reportSize(magnet, size) }
@@ -428,6 +457,10 @@ class PlayerActivity : AppCompatActivity() {
                     liveNotice = liveNotice,
                     allLiveRoutesExhausted = allLiveRoutesExhausted,
                     onScanLiveProvider = if (offline == null && LiveCatalogRules.isLiveRequest((activeTarget ?: session.target).request)) ::scanAnotherLiveProvider else null,
+                    audioVerificationScanning = audioVerificationScanning,
+                    audioVerificationNotice = audioVerificationNotice,
+                    onClearAudioVerificationNotice = { audioVerificationNotice = null },
+                    onStopTurkishAudioScan = ::stopTurkishAudioScan,
                     onLockedChanged = { playbackLocked = it },
                     onBack = ::finish,
                 )
@@ -828,6 +861,14 @@ class PlayerActivity : AppCompatActivity() {
             appContainer.torrentEngine.closeActive()
         }
         currentStream = stream
+        val isLive = LiveCatalogRules.isLiveRequest(session.target.request)
+        val shouldVerifyTurkish = session.offline == null && !isLive && preferDub && tryUntilTurkishAudio && !userAudioChosen && (stream.dubbed || pendingDubRevertStream != null)
+        val revertStream = pendingDubRevertStream
+        pendingDubRevertStream = null
+        if (::audioVerifier.isInitialized) {
+            audioVerifier.begin(stream, shouldVerify = shouldVerifyTurkish, revertIfUnverified = revertStream)
+            audioVerificationScanning = audioVerifier.scanning
+        }
         skips.onSourceChanged(startMs)
         embeddedDub = false
         // Dublajlı kaynakta Türkçe altyazı gereksiz: otomatik seçim kapanır (kullanıcının elle seçtiğine dokunulmaz).
@@ -837,31 +878,94 @@ class PlayerActivity : AppCompatActivity() {
         controller.load(stream, startMs)
     }
 
-    /** Ses parçası listesi değişti: elle seçilen dil korunur; yoksa (Türkçe dublaj önceliği açıkken) Türkçe ses seçilir. */
+    private fun stopTurkishAudioScan() {
+        if (::audioVerifier.isInitialized) {
+            audioVerifier.stopByUser()
+        }
+        audioVerificationScanning = false
+        audioVerificationNotice = null
+    }
+
+    private fun evaluateTurkishAudio(): Boolean {
+        if (!::audioVerifier.isInitialized || !audioVerifier.scanning) {
+            audioVerificationScanning = false
+            return false
+        }
+        val coord = coordinator ?: return false
+        val stream = currentStream ?: return false
+        val decision = audioVerifier.evaluate(
+            stream = stream,
+            tracks = controller.allAudioTrackInfos(),
+            playbackStarted = controller.ui.firstFrameRendered,
+            nowMs = SystemClock.elapsedRealtime(),
+            remainingDubbedCandidates = coord.dubbedCandidatesExcluding(emptySet()).filterNot { audioVerifier.hasFailedVerification(it.url) },
+            remainingAlternativeCandidates = coord.alternativeCandidatesExcluding(emptySet()).filterNot { audioVerifier.hasFailedVerification(it.url) },
+            lastWorking = coord.lastWorkingStream,
+            sizes = coord.sizes,
+            maxHeight = DeviceCodecs.maxDecodableHeight(),
+        )
+        return when (decision) {
+            TurkishVerifyDecision.KeepWaiting -> true
+            is TurkishVerifyDecision.SelectTrack -> {
+                controller.selectAudio(decision.index)
+                true
+            }
+            TurkishVerifyDecision.Verified -> {
+                audioVerificationScanning = false
+                coord.markCurrentVerifiedWorking()
+                false
+            }
+            is TurkishVerifyDecision.TryNextDubbed -> {
+                audioVerificationScanning = false
+                audioVerificationNotice = decision.notice
+                coord.switchAfterUnverifiedDub(decision.stream)
+                true
+            }
+            is TurkishVerifyDecision.FallbackToAlternative -> {
+                audioVerificationScanning = false
+                audioVerificationNotice = decision.notice
+                coord.switchAfterUnverifiedDub(decision.stream)
+                true
+            }
+            is TurkishVerifyDecision.ContinueCurrent -> {
+                audioVerificationScanning = false
+                audioVerificationNotice = decision.notice
+                false
+            }
+        }
+    }
+
+    /** Ses parçası listesi değişti: elle seçilen dil korunur; yoksa Türkçe ses izi doğrulama veya otomatik seçim çalışır. */
     private fun syncAudio() {
+        val handledByVerifier = evaluateTurkishAudio()
         val tracks = controller.audioTracks()
         if (tracks.isEmpty()) {
             embeddedDub = false
             return
         }
         fun lang(t: AudioTrack) = SubtitleLanguages.normalize(t.language)
-        if (userAudioChosen) {
-            val wanted = userAudioLanguage
-            val match = if (wanted != null) tracks.firstOrNull { lang(it) == wanted } else null
-            if (match != null && !match.selected) controller.selectAudio(match.index)
-        } else if (preferDub) {
-            val turkish = tracks.firstOrNull { lang(it) == "tr" }
-            if (turkish != null && !turkish.selected) controller.selectAudio(turkish.index)
+        if (!handledByVerifier) {
+            if (userAudioChosen) {
+                val wanted = userAudioLanguage
+                val match = if (wanted != null) tracks.firstOrNull { lang(it) == wanted } else null
+                if (match != null && !match.selected) controller.selectAudio(match.index)
+            } else if (preferDub) {
+                val turkish = tracks.firstOrNull { TurkishAudioTrackRules.isTurkishTrack(it.language, it.label) }
+                if (turkish != null && !turkish.selected) controller.selectAudio(turkish.index)
+            }
         }
         val selected = tracks.firstOrNull { it.selected }
-        embeddedDub = selected != null && lang(selected) == "tr" && (tracks.size > 1 || currentStream?.dubbed == true)
+        embeddedDub = selected != null &&
+            TurkishAudioTrackRules.isTurkishTrack(selected.language, selected.label) &&
+            (tracks.size > 1 || currentStream?.dubbed == true)
         // Türkçe ses seçiliyken Türkçe altyazıya gerek yok; yoksa otomatik altyazı yeniden açılır.
         if (embeddedDub) subtitles.suppressAuto() else if (currentStream?.dubbed != true) subtitles.resumeAuto()
     }
 
-    /** Kullanıcı sesi Parçalar panelinden seçti: dil hatırlanır (kaynak değişince aynı dil aranır), otomatik seçim bir daha karışmaz. */
+    /** Kullanıcı sesi Parçalar panelinden seçti: dil hatırlanır (kaynak değişince aynı dil aranır), otomatik seçim ve tarama durur. */
     private fun onAudioChosen(index: Int) {
         val track = controller.audioTracks().firstOrNull { it.index == index } ?: return
+        stopTurkishAudioScan()
         userAudioChosen = true
         userAudioLanguage = SubtitleLanguages.normalize(track.language)
         controller.selectAudio(index)

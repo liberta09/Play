@@ -49,7 +49,21 @@ class SourceSettingsTest {
     fun defaultsAreAutoSourceOnPreferDubOnAndFitResize() = runBlocking {
         assertTrue(repo.autoSource.first())
         assertTrue(repo.preferDub.first())
+        assertTrue(repo.trySourcesUntilTurkishAudio.first())
+        assertEquals(7, repo.audioProbeTimeoutSeconds.first())
         assertEquals(ResizeMode.Fit, repo.resizeMode.first())
+    }
+
+    @Test
+    fun trySourcesUntilTurkishAudioCanBeTurnedOff() = runBlocking {
+        repo.setTrySourcesUntilTurkishAudio(false)
+        assertFalse(repo.trySourcesUntilTurkishAudio.first())
+    }
+
+    @Test
+    fun audioProbeTimeoutIsSaved() = runBlocking {
+        repo.setAudioProbeTimeoutSeconds(10)
+        assertEquals(10, repo.audioProbeTimeoutSeconds.first())
     }
 
     @Test

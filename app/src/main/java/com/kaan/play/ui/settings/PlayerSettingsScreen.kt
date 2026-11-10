@@ -62,6 +62,10 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_SOURCE)
     val preferDub by container.settings.preferDub
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_PREFER_DUB)
+    val tryUntilTurkishAudio by container.settings.trySourcesUntilTurkishAudio
+        .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO)
+    val audioProbeSeconds by container.settings.audioProbeTimeoutSeconds
+        .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS)
     val autoNext by container.settings.autoNext
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_NEXT)
     val autoNextSeconds by container.settings.autoNextSeconds
@@ -69,6 +73,7 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
     val skipSettings by container.settings.skipPlayback.collectAsStateWithLifecycle(initialValue = SkipPlaybackSettings.Default)
     var pickLanguage by remember { mutableStateOf(false) }
     var pickCountdown by remember { mutableStateOf(false) }
+    var pickAudioTimeout by remember { mutableStateOf(false) }
     val uiLanguage = AppLanguage.effective().iso
 
     Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
@@ -97,6 +102,16 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
             SwitchRow(stringResource(R.string.settings_prefer_dub), preferDub) {
                 scope.launch { container.settings.setPreferDub(it) }
             }
+            if (preferDub) {
+                SwitchRow(stringResource(R.string.settings_try_until_turkish_audio), tryUntilTurkishAudio) {
+                    scope.launch { container.settings.setTrySourcesUntilTurkishAudio(it) }
+                }
+            }
+            ValueRow(
+                label = stringResource(R.string.settings_audio_probe_timeout),
+                value = stringResource(R.string.settings_audio_probe_seconds, audioProbeSeconds),
+                onClick = { pickAudioTimeout = true },
+            )
             SwitchRow(stringResource(R.string.settings_always_resume), alwaysResume) {
                 scope.launch { container.settings.setAlwaysResume(it) }
             }
@@ -148,6 +163,17 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
         )
     }
 
+    if (pickAudioTimeout) {
+        ChoiceDialog(
+            title = stringResource(R.string.settings_audio_probe_timeout),
+            options = SettingsRepository.AUDIO_PROBE_TIMEOUT_OPTIONS,
+            selected = audioProbeSeconds,
+            label = { stringResource(R.string.settings_audio_probe_seconds, it) },
+            onSelect = { scope.launch { container.settings.setAudioProbeTimeoutSeconds(it) }; pickAudioTimeout = false },
+            onDismiss = { pickAudioTimeout = false },
+        )
+    }
+
     if (pickLanguage) {
         ChoiceDialog(
             title = stringResource(R.string.settings_subtitle_language),
@@ -163,10 +189,11 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
 /** Tek satırlık seçim: solda ad, sağda geçerli değer; satırın tamamı dokunulur ve kumandayla odaklanır. */
 @Composable
 private fun ValueRow(label: String, value: String, onClick: () -> Unit) {
+    val shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp)
     androidx.compose.material3.Surface(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+        modifier = Modifier.fillMaxWidth().focusRing(shape),
+        shape = shape,
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
     ) {

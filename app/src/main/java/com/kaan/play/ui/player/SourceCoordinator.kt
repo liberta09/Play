@@ -171,6 +171,8 @@ class SourceCoordinator(
 
     var midPlaybackSwitches by mutableStateOf(0)
         private set
+    var lastWorkingStream: PlayableStream? = null
+        private set
     private var hasRetriedCurrentStream = false
 
     private var preference: SourcePref? = null
@@ -544,8 +546,42 @@ class SourceCoordinator(
         phase = SourcePhase.Playing
         switching = false
         revertTo = null
+        val cur = current
+        if (cur != null && (!cur.dubbed || !preferDub)) {
+            lastWorkingStream = cur
+        }
         stopSourceDiscoveryForPlayback()
         onChange()
+    }
+
+    /** Türkçe ses izi doğrulandıktan sonra bu dublajlı akışı güvenli geri dönüş adayı olarak işaretler. */
+    fun markCurrentVerifiedWorking() {
+        val cur = current ?: return
+        if (phase == SourcePhase.Playing) {
+            lastWorkingStream = cur
+        }
+    }
+
+    fun dubbedCandidatesExcluding(excludedUrls: Set<String>): List<PlayableStream> =
+        ranked().filter { acceptable(it) && it.dubbed && it.url !in excludedUrls && it.url != current?.url && it.url !in attempted }
+
+    fun alternativeCandidatesExcluding(excludedUrls: Set<String>): List<PlayableStream> =
+        (queue + ranked()).distinctBy { it.url }.filter { acceptable(it) && it.url !in excludedUrls && it.url != current?.url && it.url !in attempted }
+
+    /** Doğrulanmamış dublajlı kaynaktan sıradaki dublajlıya ya da hızlı alternatife kaldığı saniyeden geçer. */
+    fun switchAfterUnverifiedDub(next: PlayableStream) {
+        if (next.url == current?.url) return
+        fallbackDubWaitJob?.cancel()
+        discoveryStopJob?.cancel()
+        dubSuggestion = null
+        notice = null
+        revertTo = null
+        val pos = position().takeIf { it > 0 } ?: lastStartMs
+        lastStartMs = pos
+        switching = true
+        attempted -= next.url
+        firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+        begin(next, pos)
     }
 
     /**

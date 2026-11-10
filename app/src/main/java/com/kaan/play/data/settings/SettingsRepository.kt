@@ -87,12 +87,30 @@ class SettingsRepository(val store: DataStore<Preferences>) {
     /** Açıkken Türkçe dublajlı kaynaklar önce denenir (dublaj yoksa altyazılıyla başlanır). Varsayılan açık. */
     val preferDub: Flow<Boolean> = store.data.map { it[PREFER_DUB] ?: DEFAULT_PREFER_DUB }.distinctUntilChanged()
 
+    /** Açıkken dublajlı kaynaklarda Türkçe ses izi bulunana dek kaynaklar denenir; bulunamazsa en hızlı alternatif açılır. */
+    val trySourcesUntilTurkishAudio: Flow<Boolean> =
+        store.data.map { it[TRY_SOURCES_UNTIL_TURKISH_AUDIO] ?: DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO }.distinctUntilChanged()
+
+    /** Dublajlı kaynakta Türkçe ses izi tarama süresi (5 / 7 / 10 sn). */
+    val audioProbeTimeoutSeconds: Flow<Int> = store.data.map { prefs ->
+        prefs[AUDIO_PROBE_TIMEOUT_SECONDS]?.takeIf { it in AUDIO_PROBE_TIMEOUT_OPTIONS } ?: DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS
+    }.distinctUntilChanged()
+
     suspend fun setAutoSource(enabled: Boolean) {
         store.edit { it[AUTO_SOURCE] = enabled }
     }
 
     suspend fun setPreferDub(enabled: Boolean) {
         store.edit { it[PREFER_DUB] = enabled }
+    }
+
+    suspend fun setTrySourcesUntilTurkishAudio(enabled: Boolean) {
+        store.edit { it[TRY_SOURCES_UNTIL_TURKISH_AUDIO] = enabled }
+    }
+
+    suspend fun setAudioProbeTimeoutSeconds(seconds: Int) {
+        require(seconds in AUDIO_PROBE_TIMEOUT_OPTIONS) { "Desteklenmeyen tarama süresi: $seconds" }
+        store.edit { it[AUDIO_PROBE_TIMEOUT_SECONDS] = seconds }
     }
 
     /** Oynatıcıdaki "Yeniden boyutlandır" seçimi; bilinmeyen değer "sığdır"a düşer. */
@@ -306,6 +324,9 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_AUTO_TRANSLATE_SUBS = true
         const val DEFAULT_AUTO_SOURCE = true
         const val DEFAULT_PREFER_DUB = true
+        const val DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO = true
+        const val DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS = 7
+        val AUDIO_PROBE_TIMEOUT_OPTIONS = listOf(5, 7, 10)
         const val DEFAULT_AUTO_NEXT_SECONDS = 10
         val DEFAULT_LIVE_TV_SORT_MODE = LiveTvSortMode.TitleAscending
         val DEFAULT_CONTINUE_SORT_MODE = ContinueSortMode.Recent
@@ -325,6 +346,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val AUTO_TRANSLATE_SUBS = booleanPreferencesKey("auto_translate_subs")
         private val AUTO_SOURCE = booleanPreferencesKey("auto_source")
         private val PREFER_DUB = booleanPreferencesKey("prefer_dub")
+        private val TRY_SOURCES_UNTIL_TURKISH_AUDIO = booleanPreferencesKey("try_sources_until_turkish_audio")
+        private val AUDIO_PROBE_TIMEOUT_SECONDS = intPreferencesKey("audio_probe_timeout_seconds")
         private val RESIZE_MODE = stringPreferencesKey("resize_mode")
         private val AUTO_NEXT_SECONDS = intPreferencesKey("auto_next_seconds")
         private val SKIP_BUTTONS_ENABLED = booleanPreferencesKey("skip_buttons_enabled")
@@ -353,6 +376,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
             AUTO_TRANSLATE_SUBS,
             AUTO_SOURCE,
             PREFER_DUB,
+            TRY_SOURCES_UNTIL_TURKISH_AUDIO,
+            AUDIO_PROBE_TIMEOUT_SECONDS,
             RESIZE_MODE,
             AUTO_NEXT_SECONDS,
             SKIP_BUTTONS_ENABLED,
