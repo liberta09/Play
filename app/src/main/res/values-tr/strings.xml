@@ -689,4 +689,7 @@
     <string name="player_wrong_content_blocked_switching">Bu kaynak bu dizi/film için engellendi; başka kaynak açılıyor.</string>
     <string name="player_wrong_content_blocked_waiting">Kaynak engellendi; alternatif kaynak bekleniyor.</string>
     <string name="player_wrong_content_blocked_none">Kaynak engellendi. Şu anda başka kaynak yok.</string>
+    <string name="player_audio_sync_broken">Ses senkronu bozuk · başka kaynağa geç</string>
+    <string name="player_audio_sync_switching">Ses senkronu bildirildi; sıradaki kaynağa geçiliyor.</string>
+    <string name="player_audio_sync_no_other">Ses senkronu bildirildi. Şu anda başka kaynak yok.</string>
 </resources>

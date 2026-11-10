@@ -1179,6 +1179,8 @@ private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier
         SourceNotice.WrongContentBlockedSwitching -> R.string.player_wrong_content_blocked_switching to null
         SourceNotice.WrongContentBlockedWaiting -> R.string.player_wrong_content_blocked_waiting to null
         SourceNotice.WrongContentBlockedNone -> R.string.player_wrong_content_blocked_none to null
+        SourceNotice.AudioSyncSwitching -> R.string.player_audio_sync_switching to null
+        SourceNotice.AudioSyncNoOtherSource -> R.string.player_audio_sync_no_other to null
     }
     Column(
         modifier = modifier

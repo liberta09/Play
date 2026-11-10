@@ -543,6 +543,11 @@ class AppContainer(context: Context) {
         com.kaan.play.data.stream.WrongContentBlockStore(settings.store)
     }
 
+    /** Eklenti başına yerel ses senkronu bozuk bildirim sayacı. */
+    val audioSyncReports: com.kaan.play.data.stream.AudioSyncReportStore by lazy {
+        com.kaan.play.data.stream.AudioSyncReportStore(settings.store)
+    }
+
     /** Oynatma sırasında "bu içerik değil" diye reddedilen kaynaklar (bellek içi, oturum boyunca): aynı içerikte bir daha listeye girmez. */
     val streamVerdicts: StreamVerdicts by lazy { StreamVerdicts() }
 

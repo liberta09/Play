@@ -90,6 +90,12 @@ sealed interface SourceNotice {
 
     /** Yanlış içerik veren kaynak engellendi ve şu anda başka kaynak kalmadı. */
     data object WrongContentBlockedNone : SourceNotice
+
+    /** Ses senkronu bozuk bildirildi; sıradaki kaynağa geçiliyor. */
+    data object AudioSyncSwitching : SourceNotice
+
+    /** Ses senkronu bozuk bildirildi ancak geçilecek başka kaynak bulunamadı. */
+    data object AudioSyncNoOtherSource : SourceNotice
 }
 
 /**
@@ -127,6 +133,7 @@ class SourceCoordinator(
     private val loadBlocked: suspend () -> Unit = {},
     private val isSourceBlocked: (StreamSource) -> Boolean = { false },
     private val persistSourceBlock: suspend (StreamSource) -> Unit = {},
+    private val persistAudioSyncReport: suspend (StreamSource) -> Unit = {},
     /** Kaynağı oynatıcıya verir: ([stream], başlangıç konumu ms). */
     private val load: (PlayableStream, Long) -> Unit,
     private val position: () -> Long = { 0L },
@@ -805,6 +812,41 @@ class SourceCoordinator(
                 return false
             }
         }
+    }
+
+    /**
+     * "Ses senkronu bozuk": eklenti için yerel bildirim sayacını artırır (engellemez) ve varsa sıradaki kaynağa
+     * kaldığı saniyeden geçer; başka kaynak yoksa mevcut oynatmayı kesmeden kısa bildirim gösterir.
+     */
+    fun reportAudioSyncAndSwitchNext(): Boolean {
+        val stream = current ?: return false
+        if (isLive) return false
+        scope.launch {
+            try {
+                persistAudioSyncReport(stream.source)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+            }
+        }
+        val pos = position().takeIf { it > 0 } ?: lastStartMs
+        lastStartMs = pos
+        val queued = nextQueuedCandidate()
+        val next = queued ?: ranked().firstOrNull { acceptable(it) && it.url != stream.url && it.url !in attempted }
+        if (next == null) {
+            notice = SourceNotice.AudioSyncNoOtherSource
+            return false
+        }
+        firstFrameJob?.cancel()
+        probeJob?.cancel()
+        fallbackDubWaitJob?.cancel()
+        discoveryStopJob?.cancel()
+        revertTo = null
+        switching = true
+        firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+        notice = SourceNotice.AudioSyncSwitching
+        begin(next, pos)
+        return true
     }
 
     /**

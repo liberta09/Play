@@ -591,6 +591,7 @@ class PlayerActivity : AppCompatActivity() {
             loadBlocked = { container.wrongContentBlocks.ensureLoaded() },
             isSourceBlocked = { src -> container.wrongContentBlocks.isBlockedCached(request, src, session.target.title, request.year) },
             persistSourceBlock = { src -> container.wrongContentBlocks.block(request, src, session.target.title, request.year) },
+            persistAudioSyncReport = { src -> container.audioSyncReports.increment(src) },
             load = ::loadStream,
             position = { controller.positionMs() },
             clock = SystemClock::elapsedRealtime,

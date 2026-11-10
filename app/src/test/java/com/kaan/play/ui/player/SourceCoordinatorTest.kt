@@ -1071,4 +1071,41 @@ class SourceCoordinatorTest {
         assertFalse(coordinator.blockCurrentSourceAndAdvance())
         assertEquals(liveStream.url, coordinator.current?.url)
     }
+
+    @Test
+    fun audioSyncReportSwitchesWithoutBlockingAddon() = runTest {
+        val s1a = stream(source1, "https://a/1.mp4", dub = true)
+        val s1b = stream(source1, "https://a/2.mp4", dub = false)
+        val reported = mutableListOf<StreamSource>()
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, s1a, s1b)) } },
+            preferDub = false,
+            persistAudioSyncReport = { reported += it },
+            load = { _, _ -> },
+            position = { 33_000L },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        assertEquals("https://a/1.mp4", coordinator.current?.url)
+        coordinator.onFirstFrame()
+
+        assertTrue(coordinator.reportAudioSyncAndSwitchNext())
+        runCurrent()
+        assertEquals(listOf(source1), reported)
+        assertEquals(SourceNotice.AudioSyncSwitching, coordinator.notice)
+        // Aynı eklenti engellenmez, ikinci akışı s1b açılır ve listede ikisi de kalır.
+        assertEquals("https://a/2.mp4", coordinator.current?.url)
+        assertEquals(2, coordinator.streams.size)
+
+        // Başka aday kalmayınca hata vermez, kısa bildirim gösterir.
+        advanceTimeBy(SourceCoordinator.STALE_FRAME_GUARD_MS + 10L)
+        coordinator.onFirstFrame()
+        assertFalse(coordinator.reportAudioSyncAndSwitchNext())
+        assertEquals(SourceNotice.AudioSyncNoOtherSource, coordinator.notice)
+        assertEquals(SourcePhase.Playing, coordinator.phase)
+    }
 }

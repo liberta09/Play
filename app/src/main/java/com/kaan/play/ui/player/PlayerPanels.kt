@@ -338,6 +338,15 @@ fun SourcePanel(
                             },
                         )
                     }
+                    item(key = "audio-sync-broken") {
+                        ActionRow(
+                            label = stringResource(R.string.player_audio_sync_broken),
+                            onClick = {
+                                coordinator.reportAudioSyncAndSwitchNext()
+                                onDismiss()
+                            },
+                        )
+                    }
                 }
             }
         }
