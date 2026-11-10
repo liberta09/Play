@@ -110,6 +110,7 @@ class PlayerActivity : AppCompatActivity() {
     private var preferDub = true
     private var tryUntilTurkishAudio = SettingsRepository.DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO
     private var showDubSuggestionSetting = SettingsRepository.DEFAULT_SHOW_DUB_SUGGESTION
+    private var revertOnSelectedFailureSetting = SettingsRepository.DEFAULT_REVERT_ON_SELECTED_FAILURE
     private var audioProbeTimeoutSeconds = SettingsRepository.DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS
     private lateinit var audioVerifier: TurkishAudioVerifier
     private var audioVerificationScanning by mutableStateOf(false)
@@ -340,6 +341,7 @@ class PlayerActivity : AppCompatActivity() {
             preferDub = runBlocking { settings.preferDub.first() }
             tryUntilTurkishAudio = runBlocking { settings.trySourcesUntilTurkishAudio.first() }
             showDubSuggestionSetting = runBlocking { settings.showDubSuggestion.first() }
+            revertOnSelectedFailureSetting = runBlocking { settings.revertOnSelectedFailure.first() }
             audioProbeTimeoutSeconds = runBlocking { settings.audioProbeTimeoutSeconds.first() }
         }
         audioVerifier = TurkishAudioVerifier(scanTimeoutMs = audioProbeTimeoutSeconds * 1000L)
@@ -650,6 +652,7 @@ class PlayerActivity : AppCompatActivity() {
             preferDub = preferDub,
             autoSource = autoSourceSetting,
             showDubSuggestion = showDubSuggestionSetting,
+            revertOnSelectedFailure = revertOnSelectedFailureSetting,
             loadBlocked = { container.wrongContentBlocks.ensureLoaded() },
             isSourceBlocked = { src -> container.wrongContentBlocks.isBlockedCached(request, src, session.target.title, request.year) },
             persistSourceBlock = { src -> container.wrongContentBlocks.block(request, src, session.target.title, request.year) },

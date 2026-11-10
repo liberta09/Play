@@ -91,6 +91,14 @@ class SettingsRepository(val store: DataStore<Preferences>) {
     val trySourcesUntilTurkishAudio: Flow<Boolean> =
         store.data.map { it[TRY_SOURCES_UNTIL_TURKISH_AUDIO] ?: DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO }.distinctUntilChanged()
 
+    /** Açıkken kullanıcı başka bir kaynak seçtiğinde açılmazsa önceki kaynağa dönülür; kapalıyken sıradaki uygun kaynağa geçilir. */
+    val revertOnSelectedFailure: Flow<Boolean> =
+        store.data.map { it[REVERT_ON_SELECTED_FAILURE] ?: DEFAULT_REVERT_ON_SELECTED_FAILURE }.distinctUntilChanged()
+
+    suspend fun setRevertOnSelectedFailure(enabled: Boolean) {
+        store.edit { it[REVERT_ON_SELECTED_FAILURE] = enabled }
+    }
+
     /** Açıkken altyazılı oynarken sonradan bulunan dublajlı kaynak köşe kartıyla önerilir. Varsayılan açık. */
     val showDubSuggestion: Flow<Boolean> =
         store.data.map { it[SHOW_DUB_SUGGESTION] ?: DEFAULT_SHOW_DUB_SUGGESTION }.distinctUntilChanged()
@@ -351,6 +359,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_AUTO_SOURCE = true
         const val DEFAULT_PREFER_DUB = true
         const val DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO = true
+        const val DEFAULT_REVERT_ON_SELECTED_FAILURE = true
         const val DEFAULT_SHOW_DUB_SUGGESTION = true
         const val DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS = 7
         val AUDIO_PROBE_TIMEOUT_OPTIONS = listOf(5, 7, 10)
@@ -376,6 +385,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val AUTO_SOURCE = booleanPreferencesKey("auto_source")
         private val PREFER_DUB = booleanPreferencesKey("prefer_dub")
         private val TRY_SOURCES_UNTIL_TURKISH_AUDIO = booleanPreferencesKey("try_sources_until_turkish_audio")
+        private val REVERT_ON_SELECTED_FAILURE = booleanPreferencesKey("revert_on_selected_failure")
         private val SHOW_DUB_SUGGESTION = booleanPreferencesKey("show_dub_suggestion")
         private val AUDIO_PROBE_TIMEOUT_SECONDS = intPreferencesKey("audio_probe_timeout_seconds")
         private val RESIZE_MODE = stringPreferencesKey("resize_mode")
@@ -409,6 +419,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
             AUTO_SOURCE,
             PREFER_DUB,
             TRY_SOURCES_UNTIL_TURKISH_AUDIO,
+            REVERT_ON_SELECTED_FAILURE,
             SHOW_DUB_SUGGESTION,
             AUDIO_PROBE_TIMEOUT_SECONDS,
             RESIZE_MODE,

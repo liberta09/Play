@@ -64,6 +64,8 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_PREFER_DUB)
     val tryUntilTurkishAudio by container.settings.trySourcesUntilTurkishAudio
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO)
+    val revertOnSelectedFailure by container.settings.revertOnSelectedFailure
+        .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_REVERT_ON_SELECTED_FAILURE)
     val showDubSuggestion by container.settings.showDubSuggestion
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SHOW_DUB_SUGGESTION)
     val audioProbeSeconds by container.settings.audioProbeTimeoutSeconds
@@ -115,6 +117,9 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
             }
             SwitchRow(stringResource(R.string.settings_show_dub_suggestion), showDubSuggestion) {
                 scope.launch { container.settings.setShowDubSuggestion(it) }
+            }
+            SwitchRow(stringResource(R.string.settings_revert_on_selected_failure), revertOnSelectedFailure) {
+                scope.launch { container.settings.setRevertOnSelectedFailure(it) }
             }
             ValueRow(
                 label = stringResource(R.string.settings_audio_probe_timeout),

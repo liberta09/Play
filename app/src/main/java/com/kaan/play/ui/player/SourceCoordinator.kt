@@ -133,6 +133,7 @@ class SourceCoordinator(
     private val preferDub: Boolean = true,
     private val autoSource: Boolean = true,
     private val showDubSuggestion: Boolean = true,
+    private val revertOnSelectedFailure: Boolean = true,
     private val loadBlocked: suspend () -> Unit = {},
     private val isSourceBlocked: (StreamSource) -> Boolean = { false },
     private val persistSourceBlock: suspend (StreamSource) -> Unit = {},
@@ -948,7 +949,7 @@ class SourceCoordinator(
         }
         preference = SourcePref(stream.source.addonId, stream.source.addonName, null, TorrentLinks.isMagnet(stream.url))
         val previous = current?.takeIf { phase == SourcePhase.Playing || phase == SourcePhase.Starting }
-        revertTo = previous
+        revertTo = if (revertOnSelectedFailure) previous else null
         revertPositionMs = position().takeIf { it > 0 } ?: lastStartMs
         lastStartMs = revertPositionMs
         switching = previous != null

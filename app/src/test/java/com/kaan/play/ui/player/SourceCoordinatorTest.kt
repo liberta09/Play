@@ -1184,4 +1184,40 @@ class SourceCoordinatorTest {
         assertEquals(42_000L, rig.loaded.last().second)
         assertTrue(rig.coordinator.notice is SourceNotice.StreamDropped)
     }
+
+    @Test
+    fun manualPickMovesToNextCandidateWhenRevertSettingDisabled() = runTest {
+        val source3 = StreamSource(3L, "Üçüncü")
+        val a = stream(source1, "https://a/1", size = 1_000_000_000L)
+        val b = stream(source2, "https://b/2", size = 2_000_000_000L)
+        val c = stream(source3, "https://c/3", size = 1_500_000_000L)
+        var posMs = 30_000L
+        val loaded = mutableListOf<Pair<String, Long>>()
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, a, b, c)) } },
+            preferDub = false,
+            revertOnSelectedFailure = false,
+            load = { s, pos -> loaded += s.url to pos },
+            position = { posMs },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        val initial = coordinator.current!!
+        val remaining = listOf(a, b).first { it.url != initial.url }
+        coordinator.onFirstFrame()
+
+        // initial oynarken kullanıcı C'yi elle seçer; C açılmazsa ayar kapalı olduğu için initial'a dönmek yerine diğer adaya geçilir.
+        coordinator.pick(c)
+        assertEquals("https://c/3", loaded.last().first)
+        assertEquals(30_000L, loaded.last().second)
+
+        assertTrue(coordinator.onFailure("ERROR_CODE_IO_BAD_HTTP_STATUS (2004)"))
+        assertEquals(remaining.url, loaded.last().first)
+        assertEquals(30_000L, loaded.last().second)
+        assertTrue(coordinator.notice is SourceNotice.Skipped)
+    }
 }

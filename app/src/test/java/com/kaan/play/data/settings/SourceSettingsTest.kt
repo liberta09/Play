@@ -50,6 +50,7 @@ class SourceSettingsTest {
         assertTrue(repo.autoSource.first())
         assertTrue(repo.preferDub.first())
         assertTrue(repo.trySourcesUntilTurkishAudio.first())
+        assertTrue(repo.revertOnSelectedFailure.first())
         assertTrue(repo.showDubSuggestion.first())
         assertFalse(repo.slowConnectionMode.first())
         assertTrue(repo.suggestSlowConnection.first())
@@ -79,6 +80,12 @@ class SourceSettingsTest {
     fun trySourcesUntilTurkishAudioCanBeTurnedOff() = runBlocking {
         repo.setTrySourcesUntilTurkishAudio(false)
         assertFalse(repo.trySourcesUntilTurkishAudio.first())
+    }
+
+    @Test
+    fun revertOnSelectedFailureCanBeTurnedOff() = runBlocking {
+        repo.setRevertOnSelectedFailure(false)
+        assertFalse(repo.revertOnSelectedFailure.first())
     }
 
     @Test
