@@ -916,7 +916,7 @@
     <string name="profile_pin_dialog_hint">Boş bırakıp kaydetmek mevcut PIN kodunu kaldırır.</string>
     <string name="profile_pin_dialog_field">4 Haneli PIN</string>
     <string name="profile_child_toggle_title">Çocuk Profili</string>
-    <string name="profile_child_toggle_summary">Yetişkin içerikleri filtreler.</string>
+    <string name="profile_child_toggle_summary">Profil çocuk profili olarak işaretlenir.</string>
     <string name="profile_section_backup">Yedekleme ve Aktarım</string>
     <string name="profile_export_json">Profili Dışa Aktar (JSON Kopyala)</string>
     <string name="profile_export_done">Yedek panoya kopyalandı!</string>
@@ -974,7 +974,7 @@
     <string name="profile_setup_title">Yeni Profil Oluştur</string>
     <string name="profile_setup_name_hint">Örn: Kaan</string>
     <string name="profile_setup_child_title">Çocuk profili</string>
-    <string name="profile_setup_child_summary">Yetişkin içerikleri gizler ve yalnızca çocuklara uygun içerikleri listeler.</string>
+    <string name="profile_setup_child_summary">Profil çocuk profili olarak işaretlenir.</string>
     <string name="profile_setup_pin_label">PIN Kodu (İsteğe bağlı)</string>
     <string name="profile_setup_pin_hint">4 haneli sayı</string>
     <string name="profile_setup_pin_help">Profil girişinde veya çocuk profilinden çıkarken sorulur.</string>

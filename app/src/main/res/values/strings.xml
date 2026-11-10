@@ -935,7 +935,7 @@
     <string name="profile_pin_dialog_hint">Saving while blank removes the current PIN code.</string>
     <string name="profile_pin_dialog_field">4-Digit PIN</string>
     <string name="profile_child_toggle_title">Kids Profile</string>
-    <string name="profile_child_toggle_summary">Filters adult content.</string>
+    <string name="profile_child_toggle_summary">Marks this profile as a child profile.</string>
     <string name="profile_section_backup">Backup &amp; Transfer</string>
     <string name="profile_export_json">Export Profile (Copy JSON)</string>
     <string name="profile_export_done">Backup copied to clipboard!</string>
@@ -993,7 +993,7 @@
     <string name="profile_setup_title">Create New Profile</string>
     <string name="profile_setup_name_hint">e.g. Kaan</string>
     <string name="profile_setup_child_title">Kids profile</string>
-    <string name="profile_setup_child_summary">Hides adult content and only lists family-friendly titles.</string>
+    <string name="profile_setup_child_summary">Marks this profile as a child profile.</string>
     <string name="profile_setup_pin_label">PIN Code (Optional)</string>
     <string name="profile_setup_pin_hint">4-digit number</string>
     <string name="profile_setup_pin_help">Asked when entering profile or leaving kids profile.</string>
