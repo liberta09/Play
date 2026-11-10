@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 class CompositeStreamProvider(
     private val providers: List<StreamProvider>,
     private val verdicts: StreamVerdicts? = null,
+    private val isBlocked: (StreamRequest, StreamSource) -> Boolean = { _, _ -> false },
 ) : StreamProvider {
 
     constructor(vararg providers: StreamProvider) : this(providers.toList())
@@ -37,7 +38,8 @@ class CompositeStreamProvider(
     private fun StreamResult.forContent(request: StreamRequest, key: String): StreamResult = when (this) {
         is StreamResult.Found -> StreamResult.Found(
             source,
-            streams
+            if (isBlocked(request, source)) emptyList()
+            else streams
                 .filter { StreamOwnership.belongs(it, request) && verdicts?.isRejected(key, it.url) != true && SourceMediaRules.isAcceptable(it, request.type) }
                 .map { it.copy(forKey = key) },
         )

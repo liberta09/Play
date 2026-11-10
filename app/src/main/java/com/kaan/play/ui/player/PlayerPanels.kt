@@ -325,6 +325,20 @@ fun SourcePanel(
                     SoftText(stringResource(R.string.sources_failed, it.addonName))
                 }
                 if (!coordinator.loading && shown.isEmpty()) item(key = "empty") { SoftText(stringResource(R.string.sources_empty)) }
+                if (!ctx.isLive && current != null) {
+                    item(key = "wrong-content-div") {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(vertical = 6.dp))
+                    }
+                    item(key = "wrong-content-block") {
+                        ActionRow(
+                            label = stringResource(R.string.player_wrong_content_block),
+                            onClick = {
+                                coordinator.blockCurrentSourceAndAdvance()
+                                onDismiss()
+                            },
+                        )
+                    }
+                }
             }
         }
 

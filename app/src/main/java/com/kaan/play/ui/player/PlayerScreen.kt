@@ -1176,6 +1176,9 @@ private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier
         SourceNotice.ManualSlow -> R.string.player_manual_slow to null
         is SourceNotice.StreamDropped -> R.string.player_stream_dropped to notice.detail
         SourceNotice.SourceSwitched -> R.string.player_source_switched to null
+        SourceNotice.WrongContentBlockedSwitching -> R.string.player_wrong_content_blocked_switching to null
+        SourceNotice.WrongContentBlockedWaiting -> R.string.player_wrong_content_blocked_waiting to null
+        SourceNotice.WrongContentBlockedNone -> R.string.player_wrong_content_blocked_none to null
     }
     Column(
         modifier = modifier

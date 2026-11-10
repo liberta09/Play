@@ -685,4 +685,8 @@
     <string name="player_audio_selecting_learned">Olası ses izi seçiliyor…</string>
     <string name="settings_show_dub_suggestion">Sonradan bulunan dublajlı kaynak önerisini göster</string>
     <string name="dub_suggest_subtitle">Basınca kaldığın yerden açılır; Türkçe ses izi doğrulanmazsa mevcut kaynak korunur.</string>
+    <string name="player_wrong_content_block">Yanlış içerik · bu dizi/film için kaynağı engelle</string>
+    <string name="player_wrong_content_blocked_switching">Bu kaynak bu dizi/film için engellendi; başka kaynak açılıyor.</string>
+    <string name="player_wrong_content_blocked_waiting">Kaynak engellendi; alternatif kaynak bekleniyor.</string>
+    <string name="player_wrong_content_blocked_none">Kaynak engellendi. Şu anda başka kaynak yok.</string>
 </resources>

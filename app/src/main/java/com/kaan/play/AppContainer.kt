@@ -403,6 +403,7 @@ class AppContainer(context: Context) {
     fun seedDefaultAddons(): Job = appScope.launch {
         DefaultSubtitleAddons.seedIfNeeded(database.addonDao(), settings.store)
         DefaultCatalogAddons.seedIfNeeded(database.addonDao(), settings.store)
+        wrongContentBlocks.ensureLoaded()
         cleanupTraktPlugins()
     }
 
@@ -537,6 +538,11 @@ class AppContainer(context: Context) {
     /** Torrent dosyasını oynatıcıya `127.0.0.1` üzerinden http olarak veren yerel sunucu. */
     val torrentServer: TorrentHttpServer by lazy { TorrentHttpServer(torrentEngine) }
 
+    /** Film/dizi yanlış içerik veren kaynakları kalıcı olarak engelleme deposu (DataStore, en çok 500 kayıt). */
+    val wrongContentBlocks: com.kaan.play.data.stream.WrongContentBlockStore by lazy {
+        com.kaan.play.data.stream.WrongContentBlockStore(settings.store)
+    }
+
     /** Oynatma sırasında "bu içerik değil" diye reddedilen kaynaklar (bellek içi, oturum boyunca): aynı içerikte bir daha listeye girmez. */
     val streamVerdicts: StreamVerdicts by lazy { StreamVerdicts() }
 
@@ -582,6 +588,7 @@ class AppContainer(context: Context) {
                 ),
             ),
             verdicts = streamVerdicts,
+            isBlocked = { req, src -> wrongContentBlocks.isBlockedCached(req, src) },
         )
     }
 

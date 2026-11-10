@@ -704,4 +704,8 @@
     <string name="player_audio_selecting_learned">Selecting probable audio track…</string>
     <string name="settings_show_dub_suggestion">Show dubbed source suggestion when found later</string>
     <string name="dub_suggest_subtitle">Opens from your current position; keeps current source if Turkish audio is not verified.</string>
+    <string name="player_wrong_content_block">Wrong content · block source for this title</string>
+    <string name="player_wrong_content_blocked_switching">Source blocked for this title; opening another source.</string>
+    <string name="player_wrong_content_blocked_waiting">Source blocked; waiting for alternative source.</string>
+    <string name="player_wrong_content_blocked_none">Source blocked. No other sources available right now.</string>
 </resources>

@@ -1016,4 +1016,59 @@ class SourceCoordinatorTest {
         assertEquals("Late source should still be listed", listOf(late), rig.coordinator.streams)
         assertEquals("Background HEAD probes must not compete with video traffic", 0, sizeProbeCalls)
     }
+
+    @Test
+    fun blockingWrongContentRemovesAddonAndSwitchesAtCurrentPosition() = runTest {
+        val s1a = stream(source1, "https://a/1.mp4", dub = true)
+        val s1b = stream(source1, "https://a/2.mp4", dub = false)
+        val s2 = stream(source2, "https://b/1.mp4", dub = false)
+        val persisted = mutableListOf<StreamSource>()
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, s1a, s1b)); emit(found(source2, s2)) } },
+            preferDub = false,
+            persistSourceBlock = { persisted += it },
+            load = { _, _ -> },
+            position = { 42_000L },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        assertEquals("https://a/1.mp4", coordinator.current?.url)
+        coordinator.onFirstFrame()
+
+        assertTrue(coordinator.blockCurrentSourceAndAdvance())
+        runCurrent()
+        assertEquals(listOf(source1), persisted)
+        assertEquals(SourceNotice.WrongContentBlockedSwitching, coordinator.notice)
+        assertEquals(listOf(s2), coordinator.streams)
+        assertEquals("https://b/1.mp4", coordinator.current?.url)
+
+        // Son kaynak da engellenince başka kaynak yoksa Failed + WrongContentBlockedNone.
+        coordinator.onFirstFrame()
+        assertFalse(coordinator.blockCurrentSourceAndAdvance())
+        runCurrent()
+        assertEquals(SourcePhase.Failed, coordinator.phase)
+        assertEquals(SourceNotice.WrongContentBlockedNone, coordinator.notice)
+    }
+
+    @Test
+    fun blockingWrongContentIsDisabledOnLiveStreams() = runTest {
+        val liveRequest = StreamRequest(0, null, MediaType.Tv, addonType = "tv", pluginId = "cs:1")
+        val liveStream = stream(source1, "https://tv/live.m3u8")
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = liveRequest,
+            streamsFor = { flow { emit(found(source1, liveStream)) } },
+            load = { _, _ -> },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        coordinator.start(liveStream, emptyList(), 0L)
+        runCurrent()
+        assertFalse(coordinator.blockCurrentSourceAndAdvance())
+        assertEquals(liveStream.url, coordinator.current?.url)
+    }
 }

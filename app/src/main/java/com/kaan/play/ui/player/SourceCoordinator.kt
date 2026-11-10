@@ -23,6 +23,7 @@ import com.kaan.play.data.stream.StreamResult
 import com.kaan.play.data.stream.StreamSource
 import com.kaan.play.data.stream.StreamVerdicts
 import com.kaan.play.data.stream.TorrentLinks
+import com.kaan.play.data.stream.WrongContentBlocker
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -80,6 +81,15 @@ sealed interface SourceNotice {
 
     /** Kullanıcının elle seçtiği kaynak koptu, otomatik olarak başka kaynağa geçildi. */
     data object SourceSwitched : SourceNotice
+
+    /** Yanlış içerik veren kaynak bu dizi/film için engellendi ve sıradaki kaynak açılıyor. */
+    data object WrongContentBlockedSwitching : SourceNotice
+
+    /** Yanlış içerik veren kaynak engellendi; diğer sağlayıcılardan alternatif bekleniyor. */
+    data object WrongContentBlockedWaiting : SourceNotice
+
+    /** Yanlış içerik veren kaynak engellendi ve şu anda başka kaynak kalmadı. */
+    data object WrongContentBlockedNone : SourceNotice
 }
 
 /**
@@ -114,6 +124,9 @@ class SourceCoordinator(
     private val preferDub: Boolean = true,
     private val autoSource: Boolean = true,
     private val showDubSuggestion: Boolean = true,
+    private val loadBlocked: suspend () -> Unit = {},
+    private val isSourceBlocked: (StreamSource) -> Boolean = { false },
+    private val persistSourceBlock: suspend (StreamSource) -> Unit = {},
     /** Kaynağı oynatıcıya verir: ([stream], başlangıç konumu ms). */
     private val load: (PlayableStream, Long) -> Unit,
     private val position: () -> Long = { 0L },
@@ -202,6 +215,7 @@ class SourceCoordinator(
      */
     private var firstFrameNotBefore = 0L
     private val attempted = LinkedHashSet<String>()
+    private val sessionBlockedPlugins = HashSet<String>()
     private val requestKey = StreamOwnership.keyOf(request)
     private var expectedRuntime: Int? = null
     private var runtimeJob: Job? = null
@@ -285,6 +299,15 @@ class SourceCoordinator(
             }
         }
         scope.launch {
+            try {
+                loadBlocked()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+            }
+            if (sessionBlockedPlugins.isNotEmpty() || fallbacks.any { isBlockedSource(it.source) }) {
+                queue.removeAll { isBlockedSource(it.source) }
+            }
             preference = try {
                 preferenceFor(request)
             } catch (e: CancellationException) {
@@ -709,8 +732,12 @@ class SourceCoordinator(
         }
     }
 
-    /** Bu içeriğin kaynağı mı (damga) ve oynatma sırasında reddedilmemiş mi? */
+    private fun isBlockedSource(source: StreamSource): Boolean =
+        WrongContentBlocker.pluginIdentity(source) in sessionBlockedPlugins || isSourceBlocked(source)
+
+    /** Bu içeriğin kaynağı mı (damga) ve oynatma sırasında/engellemeyle reddedilmemiş mi? */
     private fun acceptable(stream: PlayableStream): Boolean {
+        if (isBlockedSource(stream.source)) return false
         if (TorrentLinks.isMagnet(stream.url) && !com.kaan.play.data.torrent.TorrentSupport.isBuiltInSupported()) {
             return false
         }
@@ -720,6 +747,64 @@ class SourceCoordinator(
         return StreamOwnership.belongs(stream, request) &&
             !verdicts.isRejected(requestKey, stream.url) &&
             (isLive || SourceMediaRules.isAcceptableSize(size, isMovie, stream.url, stream.mimeType))
+    }
+
+    /**
+     * Mevcut kaynağın eklentisini bu dizi/film için kalıcı engeller ve sıradaki uygun kaynağa geçer.
+     * Canlı TV'de çağrılmaz; alternatif varsa hemen aynı saniyeden açılır.
+     */
+    fun blockCurrentSourceAndAdvance(): Boolean {
+        val stream = current ?: return false
+        if (isLive) return false
+        val blockedSource = stream.source
+        sessionBlockedPlugins += WrongContentBlocker.pluginIdentity(blockedSource)
+        scope.launch {
+            try {
+                persistSourceBlock(blockedSource)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+            }
+        }
+        streams = streams.filterNot { isBlockedSource(it.source) }
+        queue.removeAll { isBlockedSource(it.source) }
+        if (dubSuggestion?.let { isBlockedSource(it.source) } == true) dubSuggestion = null
+
+        firstFrameJob?.cancel()
+        probeJob?.cancel()
+        fallbackDubWaitJob?.cancel()
+        discoveryStopJob?.cancel()
+        revertTo = null
+
+        val pos = position().takeIf { it > 0 } ?: lastStartMs
+        lastStartMs = pos
+        val queued = nextQueuedCandidate()
+        val next = queued ?: ranked().firstOrNull { acceptable(it) && it.url !in attempted }
+        when {
+            next != null -> {
+                switching = true
+                firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+                notice = SourceNotice.WrongContentBlockedSwitching
+                begin(next, pos)
+                return true
+            }
+            !finished -> {
+                current = null
+                switching = false
+                phase = SourcePhase.Resolving
+                resolveStartedAt = clock()
+                notice = SourceNotice.WrongContentBlockedWaiting
+                ensureSources()
+                return false
+            }
+            else -> {
+                current = null
+                switching = false
+                phase = SourcePhase.Failed
+                notice = SourceNotice.WrongContentBlockedNone
+                return false
+            }
+        }
     }
 
     /**
