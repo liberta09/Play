@@ -69,6 +69,8 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_REVERT_ON_SELECTED_FAILURE)
     val autoRetryLimit by container.settings.autoSourceRetryLimit
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_SOURCE_RETRY_LIMIT)
+    val showPreplayPoster by container.settings.showPreplayPoster
+        .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SHOW_PREPLAY_POSTER)
     val showDubSuggestion by container.settings.showDubSuggestion
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SHOW_DUB_SUGGESTION)
     val audioProbeSeconds by container.settings.audioProbeTimeoutSeconds
@@ -182,6 +184,9 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
             }
             SwitchRow(stringResource(R.string.settings_suggest_slow_connection), suggestSlowConnection) {
                 scope.launch { container.settings.setSuggestSlowConnection(it) }
+            }
+            SwitchRow(stringResource(R.string.settings_show_preplay_poster), showPreplayPoster) {
+                scope.launch { container.settings.setShowPreplayPoster(it) }
             }
         }
     }

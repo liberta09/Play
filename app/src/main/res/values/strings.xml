@@ -731,4 +731,5 @@
     <string name="settings_revert_on_selected_failure">Revert to previous source if selected source fails</string>
     <string name="settings_auto_retry_limit">Automatic source attempts</string>
     <string name="settings_auto_retry_unlimited">Unlimited</string>
+    <string name="settings_show_preplay_poster">Show pre-playback poster</string>
 </resources>

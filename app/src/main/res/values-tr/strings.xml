@@ -712,4 +712,5 @@
     <string name="settings_revert_on_selected_failure">Seçilen kaynak açılmazsa önceki kaynağa dön</string>
     <string name="settings_auto_retry_limit">Otomatik kaynak deneme sayısı</string>
     <string name="settings_auto_retry_unlimited">Sınırsız</string>
+    <string name="settings_show_preplay_poster">Oynatma öncesi posteri göster</string>
 </resources>

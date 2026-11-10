@@ -18,8 +18,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -71,7 +75,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -102,9 +108,12 @@ import androidx.media3.ui.PlayerView
 import com.kaan.play.R
 import androidx.compose.ui.text.font.FontWeight
 import com.kaan.play.data.player.PlaybackSpeeds
+import com.kaan.play.data.player.PreplayArtworkRules
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.provider.LiveCatalogRules
 import com.kaan.play.data.settings.ResizeMode
+import com.kaan.play.data.settings.SettingsRepository
+import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.data.settings.SkipPlaybackSettings
 import com.kaan.play.data.settings.SubtitleStyle
 import com.kaan.play.data.stream.PlayTarget
@@ -777,6 +786,69 @@ fun PlayerScreen(
             isBuffering = ui.buffering,
             hasError = ui.error != null || sourcesFailed,
         )
+
+        val showPreplayPoster by container.settings.showPreplayPoster
+            .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SHOW_PREPLAY_POSTER)
+        val preplayArtworkPath = PreplayArtworkRules.selectPath(
+            enabled = showPreplayPoster,
+            isLive = isLiveBroadcast,
+            backdropPath = target.backdropPath,
+            posterPath = target.posterPath,
+        )
+        val preplayArtworkUrl = remember(preplayArtworkPath, target.backdropPath, isLiveBroadcast) {
+            preplayArtworkPath?.let { path ->
+                val size = if (isLiveBroadcast || target.backdropPath.isNullOrBlank()) {
+                    TmdbImages.Size.Poster
+                } else {
+                    TmdbImages.Size.BackdropLarge
+                }
+                TmdbImages.url(path, size)
+            }
+        }
+        val showPreplayArtwork = PreplayArtworkRules.shouldShow(
+            enabled = showPreplayPoster,
+            artworkUrl = preplayArtworkUrl,
+            firstFrameRendered = ui.firstFrameRendered,
+            showTorrentOverlay = showTorrentOverlay,
+            hasError = ui.error != null || sourcesFailed || allLiveRoutesExhausted,
+        )
+        AnimatedVisibility(
+            visible = showPreplayArtwork,
+            enter = fadeIn(),
+            exit = fadeOut(animationSpec = tween(durationMillis = 250)),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            Box(Modifier.fillMaxSize().background(Color(0xFF0A0D10))) {
+                if (isLiveBroadcast) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(preplayArtworkUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .fillMaxWidth(0.32f)
+                            .fillMaxHeight(0.28f)
+                            .alpha(0.45f),
+                    )
+                } else {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(preplayArtworkUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(0.38f),
+                    )
+                    Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)))
+                }
+            }
+        }
 
         if (resolving && ui.error == null && !ui.firstFrameRendered) {
             var resolvingElapsedSec by remember(coordinator, resolving) {

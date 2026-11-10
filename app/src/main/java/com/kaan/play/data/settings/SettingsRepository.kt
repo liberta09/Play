@@ -109,6 +109,14 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         store.edit { it[AUTO_SOURCE_RETRY_LIMIT] = limit }
     }
 
+    /** Açıkken oynatma başlayana (ilk kareye) kadar soluk kapak veya canlı TV kanal logosu görünür. */
+    val showPreplayPoster: Flow<Boolean> =
+        store.data.map { it[SHOW_PREPLAY_POSTER] ?: DEFAULT_SHOW_PREPLAY_POSTER }.distinctUntilChanged()
+
+    suspend fun setShowPreplayPoster(enabled: Boolean) {
+        store.edit { it[SHOW_PREPLAY_POSTER] = enabled }
+    }
+
     /** Açıkken altyazılı oynarken sonradan bulunan dublajlı kaynak köşe kartıyla önerilir. Varsayılan açık. */
     val showDubSuggestion: Flow<Boolean> =
         store.data.map { it[SHOW_DUB_SUGGESTION] ?: DEFAULT_SHOW_DUB_SUGGESTION }.distinctUntilChanged()
@@ -371,6 +379,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO = true
         const val DEFAULT_REVERT_ON_SELECTED_FAILURE = true
         const val DEFAULT_AUTO_SOURCE_RETRY_LIMIT = AutoRetryPolicy.UNLIMITED
+        const val DEFAULT_SHOW_PREPLAY_POSTER = true
         val AUTO_SOURCE_RETRY_OPTIONS = AutoRetryPolicy.OPTIONS
         const val DEFAULT_SHOW_DUB_SUGGESTION = true
         const val DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS = 7
@@ -399,6 +408,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val TRY_SOURCES_UNTIL_TURKISH_AUDIO = booleanPreferencesKey("try_sources_until_turkish_audio")
         private val REVERT_ON_SELECTED_FAILURE = booleanPreferencesKey("revert_on_selected_failure")
         private val AUTO_SOURCE_RETRY_LIMIT = intPreferencesKey("auto_source_retry_limit")
+        private val SHOW_PREPLAY_POSTER = booleanPreferencesKey("show_preplay_poster")
         private val SHOW_DUB_SUGGESTION = booleanPreferencesKey("show_dub_suggestion")
         private val AUDIO_PROBE_TIMEOUT_SECONDS = intPreferencesKey("audio_probe_timeout_seconds")
         private val RESIZE_MODE = stringPreferencesKey("resize_mode")
@@ -434,6 +444,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
             TRY_SOURCES_UNTIL_TURKISH_AUDIO,
             REVERT_ON_SELECTED_FAILURE,
             AUTO_SOURCE_RETRY_LIMIT,
+            SHOW_PREPLAY_POSTER,
             SHOW_DUB_SUGGESTION,
             AUDIO_PROBE_TIMEOUT_SECONDS,
             RESIZE_MODE,

@@ -53,6 +53,7 @@ class SourceSettingsTest {
         assertTrue(repo.trySourcesUntilTurkishAudio.first())
         assertTrue(repo.revertOnSelectedFailure.first())
         assertEquals(AutoRetryPolicy.UNLIMITED, repo.autoSourceRetryLimit.first())
+        assertTrue(repo.showPreplayPoster.first())
         assertTrue(repo.showDubSuggestion.first())
         assertFalse(repo.slowConnectionMode.first())
         assertTrue(repo.suggestSlowConnection.first())
@@ -94,6 +95,12 @@ class SourceSettingsTest {
     fun autoSourceRetryLimitIsSaved() = runBlocking {
         repo.setAutoSourceRetryLimit(5)
         assertEquals(5, repo.autoSourceRetryLimit.first())
+    }
+
+    @Test
+    fun showPreplayPosterCanBeTurnedOff() = runBlocking {
+        repo.setShowPreplayPoster(false)
+        assertFalse(repo.showPreplayPoster.first())
     }
 
     @Test

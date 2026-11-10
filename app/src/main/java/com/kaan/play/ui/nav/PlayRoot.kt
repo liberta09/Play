@@ -451,7 +451,7 @@ fun PlayRoot() {
                 title = item.title,
             ),
             title = item.title,
-            posterPath = null,
+            posterPath = item.posterUrl,
         )
         val channelKey = com.kaan.play.data.provider.LiveCatalogRules.channelGroupKey(item.title)
             .ifBlank { "${item.providerId.trim()}:${item.id.trim()}" }
