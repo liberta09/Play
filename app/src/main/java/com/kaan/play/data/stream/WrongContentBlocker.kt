@@ -6,7 +6,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.net.PlayJson
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import java.io.IOException
@@ -18,6 +21,10 @@ import java.util.Locale
 data class WrongContentBlockEntry(
     val key: String,
     val addedAtMs: Long,
+    val addonId: Long = 0L,
+    val addonName: String? = null,
+    val contentTitle: String? = null,
+    val year: Int? = null,
 )
 
 /**
@@ -74,8 +81,20 @@ object WrongContentBlocker {
         entries: List<WrongContentBlockEntry>,
         key: String,
         nowMs: Long,
+        addonId: Long = 0L,
+        addonName: String? = null,
+        contentTitle: String? = null,
+        year: Int? = null,
     ): List<WrongContentBlockEntry> {
-        val next = entries.filterNot { it.key == key } + WrongContentBlockEntry(key = key, addedAtMs = nowMs)
+        val entry = WrongContentBlockEntry(
+            key = key,
+            addedAtMs = nowMs,
+            addonId = addonId,
+            addonName = addonName?.trim()?.takeIf { it.isNotEmpty() }?.take(64),
+            contentTitle = contentTitle?.trim()?.takeIf { it.isNotEmpty() }?.take(120),
+            year = year?.takeIf { it > 0 },
+        )
+        val next = entries.filterNot { it.key == key } + entry
         return next.sortedByDescending { it.addedAtMs }.take(MAX_ENTRIES)
     }
 
@@ -142,6 +161,10 @@ class WrongContentBlockStore(
         return key
     }
 
+    val entriesFlow: Flow<List<WrongContentBlockEntry>> = store.data
+        .map { decode(it[KEY]) }
+        .catch { emit(emptyList()) }
+
     suspend fun block(
         request: StreamRequest,
         source: StreamSource,
@@ -150,10 +173,20 @@ class WrongContentBlockStore(
     ): String {
         val key = markBlockedInMemory(request, source, fallbackTitle, fallbackYear)
         val now = clock()
+        val displayTitle = (fallbackTitle ?: request.title)
+        val displayYear = fallbackYear ?: request.year
         try {
             store.edit { prefs ->
                 val current = decode(prefs[KEY])
-                val updated = WrongContentBlocker.upsertAndTrim(current, key, now)
+                val updated = WrongContentBlocker.upsertAndTrim(
+                    entries = current,
+                    key = key,
+                    nowMs = now,
+                    addonId = source.addonId,
+                    addonName = source.addonName,
+                    contentTitle = displayTitle,
+                    year = displayYear,
+                )
                 prefs[KEY] = PlayJson.encodeToString(serializer, updated)
                 synchronized(this) {
                     memoryKeys = updated.mapTo(HashSet()) { it.key }
@@ -163,6 +196,23 @@ class WrongContentBlockStore(
         } catch (_: IOException) {
         }
         return key
+    }
+
+    suspend fun remove(key: String) {
+        synchronized(this) {
+            memoryKeys = memoryKeys - key
+        }
+        try {
+            store.edit { prefs ->
+                val updated = decode(prefs[KEY]).filterNot { it.key == key }
+                prefs[KEY] = PlayJson.encodeToString(serializer, updated)
+                synchronized(this) {
+                    memoryKeys = updated.mapTo(HashSet()) { it.key }
+                    loaded = true
+                }
+            }
+        } catch (_: IOException) {
+        }
     }
 
     internal suspend fun entries(): List<WrongContentBlockEntry> = read()

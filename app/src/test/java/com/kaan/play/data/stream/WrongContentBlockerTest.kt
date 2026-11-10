@@ -1,16 +1,24 @@
 package com.kaan.play.data.stream
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import com.kaan.play.data.model.MediaType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -89,5 +97,46 @@ class WrongContentBlockerTest {
         assertTrue(store.isBlocked(ep1, sourceBlocked))
         assertTrue(store.isBlocked(ep2, sourceBlocked))
         assertFalse(store.isBlocked(ep1, sourceOther))
+    }
+
+    private class MemoryPreferencesStore : DataStore<Preferences> {
+        private val state = MutableStateFlow(emptyPreferences())
+        override val data: Flow<Preferences> = state
+        override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences =
+            transform(state.value).also { state.value = it }
+    }
+
+    @Test
+    fun storesDisplayMetadataSupportsLegacyEntriesAndRemoveUnblocksPlugin() = runBlocking {
+        val prefs = MemoryPreferencesStore()
+        // Eski biçim (görünen ad olmadan yalnızca özet anahtar + tarih) yazılır
+        val legacyJson = """[{"key":"legacy_hash_key_1","addedAtMs":5000}]"""
+        prefs.edit { it[WrongContentBlockStore.KEY] = legacyJson }
+
+        val store = WrongContentBlockStore(prefs) { 90_000L }
+        val req = StreamRequest(550, "tt0137523", MediaType.Movie, title = "Dövüş Kulübü", year = 1999)
+        val source = StreamSource(7L, "TestAddon")
+        val addedKey = store.block(req, source)
+
+        val entries = store.entriesFlow.first()
+        assertEquals(2, entries.size)
+        val newEntry = entries.first { it.key == addedKey }
+        assertEquals("TestAddon", newEntry.addonName)
+        assertEquals("Dövüş Kulübü", newEntry.contentTitle)
+        assertEquals(1999, newEntry.year)
+        assertEquals(7L, newEntry.addonId)
+
+        val legacyEntry = entries.first { it.key == "legacy_hash_key_1" }
+        assertNull(legacyEntry.addonName)
+        assertNull(legacyEntry.contentTitle)
+
+        assertTrue(store.isBlocked(req, source))
+        store.remove(addedKey)
+        assertFalse(store.isBlocked(req, source))
+        assertFalse(store.isBlockedCached(req, source))
+        assertEquals(listOf("legacy_hash_key_1"), store.entriesFlow.first().map { it.key })
+
+        store.remove("legacy_hash_key_1")
+        assertTrue(store.entriesFlow.first().isEmpty())
     }
 }
