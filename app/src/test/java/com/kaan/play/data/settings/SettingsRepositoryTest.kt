@@ -143,4 +143,11 @@ class SettingsRepositoryTest {
         repo.setPerformanceMode(true)
         assertEquals(true, repo.performanceMode.first())
     }
+
+    @Test
+    fun newEpisodeNotificationsDefaultOffAndPersistChoice() = runBlocking {
+        assertEquals(false, repo.newEpisodeNotifications.first())
+        repo.setNewEpisodeNotifications(true)
+        assertEquals(true, repo.newEpisodeNotifications.first())
+    }
 }

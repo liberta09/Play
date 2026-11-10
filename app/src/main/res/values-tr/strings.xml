@@ -144,6 +144,13 @@
     <string name="nav_bar_position_right">Sağ</string>
     <string name="settings_performance_title">Performans</string>
     <string name="settings_performance_summary">Kaynak kullanımı sınırlanır; kataloglar takılmadan küçük gruplar hâlinde yüklenir</string>
+    <string name="settings_notifications_title">Bildirimler</string>
+    <string name="settings_new_episode_notifications">Yeni bölüm bildirimleri</string>
+    <string name="settings_new_episode_notifications_summary">Favori dizilerde yeni bölüm yayınlanınca bildir</string>
+    <string name="settings_notifications_permission_note">Bildirim izni verilmedi. Sistem ayarlarından açılana kadar bildirim gösterilmez.</string>
+    <string name="notify_channel_new_episodes">Yeni bölümler</string>
+    <string name="notify_new_episode_title">Yeni bölüm: %1$s</string>
+    <string name="notify_new_episode_body">%1$d. sezon %2$d. bölüm yayınlandı</string>
     <string name="about_version">Sürüm %1$s</string>
     <string name="about_telegram">Telegram topluluğu</string>
     <string name="about_telegram_title">Telegram Topluluğumuz</string>

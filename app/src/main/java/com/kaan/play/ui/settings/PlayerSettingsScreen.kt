@@ -1,6 +1,13 @@
 package com.kaan.play.ui.settings
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.core.content.ContextCompat
+import com.kaan.play.data.notify.NewEpisodeScheduler
 import com.kaan.play.ui.tv.focusRing
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -84,6 +92,15 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SLOW_CONNECTION_MODE)
     val suggestSlowConnection by container.settings.suggestSlowConnection
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SUGGEST_SLOW_CONNECTION)
+    val newEpisodeNotifications by container.settings.newEpisodeNotifications
+        .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_NEW_EPISODE_NOTIFICATIONS)
+    val context = LocalContext.current
+    var notificationPermissionDeniedNote by remember { mutableStateOf(false) }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        notificationPermissionDeniedNote = !granted
+    }
     var pickLanguage by remember { mutableStateOf(false) }
     var pickCountdown by remember { mutableStateOf(false) }
     var pickAudioTimeout by remember { mutableStateOf(false) }
@@ -188,6 +205,40 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
             SwitchRow(stringResource(R.string.settings_show_preplay_poster), showPreplayPoster) {
                 scope.launch { container.settings.setShowPreplayPoster(it) }
             }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+            Text(
+                text = stringResource(R.string.settings_notifications_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            SwitchRow(
+                label = stringResource(R.string.settings_new_episode_notifications),
+                checked = newEpisodeNotifications,
+                subtitle = stringResource(R.string.settings_new_episode_notifications_summary),
+            ) { enabled ->
+                scope.launch { container.settings.setNewEpisodeNotifications(enabled) }
+                if (enabled) {
+                    NewEpisodeScheduler.schedule(context)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        notificationPermissionDeniedNote = false
+                    }
+                } else {
+                    notificationPermissionDeniedNote = false
+                    NewEpisodeScheduler.cancel(context)
+                }
+            }
+            if (newEpisodeNotifications && notificationPermissionDeniedNote) {
+                Text(
+                    text = stringResource(R.string.settings_notifications_permission_note),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                )
+            }
         }
     }
 
@@ -270,7 +321,12 @@ private fun ValueRow(label: String, value: String, onClick: () -> Unit) {
 
 /** Tek satırlık açma/kapama: satırın tamamı dokunulur ve kumandayla odaklanır (anahtar yalnızca gösterir). */
 @Composable
-private fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun SwitchRow(
+    label: String,
+    checked: Boolean,
+    subtitle: String? = null,
+    onChange: (Boolean) -> Unit,
+) {
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
@@ -285,11 +341,19 @@ private fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> Un
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                label,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(1f),
-            )
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    label,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                if (!subtitle.isNullOrBlank()) {
+                    Text(
+                        subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
             Switch(
                 checked = checked,
                 onCheckedChange = null,

@@ -135,6 +135,11 @@ class LibraryRepository(
         favorites.clear(u, p)
     }
 
+    /** Tüm profillerdeki benzersiz favori dizileri (en son eklenen üstte, üst sınır [limit]). */
+    suspend fun distinctFavoriteSeries(
+        limit: Int = com.kaan.play.data.notify.NewEpisodeRules.MAX_SERIES_PER_CHECK,
+    ): List<com.kaan.play.data.db.SeriesFavoriteRef> = favorites.distinctByType(MediaType.Tv, limit)
+
     fun isFavorite(type: MediaType, tmdbId: Int): Flow<Boolean> =
         profile?.activeProfile?.flatMapLatest { p ->
             val u = p?.id?.let { profile?.userId?.first()?.ifEmpty { "legacy-user" } } ?: "legacy-user"

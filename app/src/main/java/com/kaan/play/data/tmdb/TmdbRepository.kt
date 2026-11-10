@@ -10,6 +10,7 @@ import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.model.Page
 import com.kaan.play.data.model.SeasonDetail
 import com.kaan.play.data.model.SeasonInfo
+import com.kaan.play.data.notify.AiredEpisode
 import com.kaan.play.i18n.UiLanguage
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -146,6 +147,19 @@ class TmdbRepository(
                     airDate = it.airDate?.takeIf(String::isNotBlank),
                 )
             },
+        )
+    }
+
+    /** Yalnızca TMDB'den son yayınlanmış bölüm üst bilgisini döner (arka plan bölüm denetimi için hafif istek). */
+    suspend fun latestAiredEpisode(tvId: Int): AiredEpisode? {
+        val dto = service.detail(MediaType.Tv.tmdbPath, tvId, lang(), imageLanguages())
+        val last = dto.lastEpisodeToAir ?: return null
+        val seriesTitle = (dto.name ?: dto.title).orEmpty()
+        return AiredEpisode(
+            season = last.seasonNumber,
+            episode = last.episodeNumber,
+            airDate = last.airDate,
+            seriesTitle = seriesTitle,
         )
     }
 

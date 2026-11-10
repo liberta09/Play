@@ -8,6 +8,8 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.kaan.play.data.library.ContinueSortMode
+import com.kaan.play.data.notify.NewEpisodeRules
+import com.kaan.play.data.notify.StoredEpisodeState
 import com.kaan.play.data.player.AutoRetryPolicy
 import com.kaan.play.data.provider.LiveTvSortMode
 import com.kaan.play.data.stream.TorrentLinks
@@ -15,6 +17,7 @@ import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.ui.nav.NavBarPosition
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 /** Koyu tema varsayılandır. Eski sürümlerdeki Dark/Light/System değerleriyle geriye uyumludur. */
@@ -304,6 +307,21 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         store.edit { it[PERFORMANCE_MODE] = enabled }
     }
 
+    /** Favori diziler için yeni bölüm bildirimleri; varsayılan kapalı. */
+    val newEpisodeNotifications: Flow<Boolean> =
+        store.data.map { it[NEW_EPISODE_NOTIFICATIONS] ?: DEFAULT_NEW_EPISODE_NOTIFICATIONS }.distinctUntilChanged()
+
+    suspend fun setNewEpisodeNotifications(enabled: Boolean) {
+        store.edit { it[NEW_EPISODE_NOTIFICATIONS] = enabled }
+    }
+
+    suspend fun readNotifiedEpisodes(): Map<Int, StoredEpisodeState> =
+        NewEpisodeRules.decodeState(store.data.map { it[LAST_NOTIFIED_EPISODES] }.first())
+
+    suspend fun saveNotifiedEpisodes(map: Map<Int, StoredEpisodeState>) {
+        store.edit { it[LAST_NOTIFIED_EPISODES] = NewEpisodeRules.encodeState(map) }
+    }
+
     suspend fun setSourceTimeoutSeconds(seconds: Int) {
         require(seconds in TIMEOUT_OPTIONS) { "Desteklenmeyen zaman aşımı: $seconds" }
         store.edit { it[TIMEOUT] = seconds }
@@ -426,6 +444,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_REMEMBER_LAST_PROFILE = true
         const val DEFAULT_DOWNLOAD_WIFI_ONLY = true
         const val DEFAULT_PERFORMANCE_MODE = false
+        const val DEFAULT_NEW_EPISODE_NOTIFICATIONS = false
         const val DEFAULT_SLOW_CONNECTION_MODE = false
         const val DEFAULT_SUGGEST_SLOW_CONNECTION = true
         const val DEFAULT_AUTO_NEXT = true
@@ -487,11 +506,14 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val CONTINUE_SORT_MODE = stringPreferencesKey("continue_sort_mode")
         private val NAV_BAR_POSITION = stringPreferencesKey("nav_bar_position")
         private val PERFORMANCE_MODE = booleanPreferencesKey("performance_mode")
+        private val NEW_EPISODE_NOTIFICATIONS = booleanPreferencesKey("new_episode_notifications")
+        private val LAST_NOTIFIED_EPISODES = stringPreferencesKey("last_notified_episodes")
 
         private val APPEARANCE_AND_PLAYER_KEYS: List<Preferences.Key<*>> = listOf(
             THEME,
             NAV_BAR_POSITION,
             PERFORMANCE_MODE,
+            NEW_EPISODE_NOTIFICATIONS,
             POSTER_URL_TEMPLATE,
             ALWAYS_RESUME,
             DOWNLOAD_WIFI_ONLY,

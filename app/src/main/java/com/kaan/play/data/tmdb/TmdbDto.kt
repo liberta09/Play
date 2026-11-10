@@ -64,6 +64,7 @@ internal data class DetailDto(
     val recommendations: ListDto? = null,
     val keywords: KeywordsDto? = null,
     val videos: VideosDto? = null,
+    @SerialName("last_episode_to_air") val lastEpisodeToAir: EpisodeDto? = null,
 )
 
 @Serializable
@@ -175,6 +176,7 @@ internal data class SeasonDetailDto(
 
 @Serializable
 internal data class EpisodeDto(
+    @SerialName("season_number") val seasonNumber: Int = 0,
     @SerialName("episode_number") val episodeNumber: Int,
     val name: String? = null,
     val overview: String? = null,

@@ -128,6 +128,16 @@
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
+        <!-- Favori dizilerde yeni bölüm denetimi + açılışta zamanlama yenileme. -->
+        <receiver
+            android:name=".data.notify.NewEpisodeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.kaan.play.action.CHECK_NEW_EPISODES" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
         <!-- API 33 öncesinde uygulama başına dil seçimini AppCompat'in kalıcı tutması için. -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

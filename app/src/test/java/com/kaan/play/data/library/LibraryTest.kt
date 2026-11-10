@@ -122,6 +122,19 @@ private class FakeFavorites : FavoriteDao {
     override suspend fun clear(userId: String, profileId: String) {
         rows.value = rows.value.filterNot { it.userId == userId && it.profileId == profileId }
     }
+
+    override suspend fun distinctByType(
+        type: MediaType,
+        limit: Int,
+    ): List<com.kaan.play.data.db.SeriesFavoriteRef> =
+        rows.value
+            .filter { it.type == type }
+            .groupBy { it.tmdbId }
+            .values
+            .map { group -> group.maxBy { it.addedAt } }
+            .sortedByDescending { it.addedAt }
+            .take(limit)
+            .map { com.kaan.play.data.db.SeriesFavoriteRef(it.tmdbId, it.title) }
 }
 
 class WatchRulesTest {

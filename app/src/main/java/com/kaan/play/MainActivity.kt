@@ -18,6 +18,8 @@ import com.kaan.play.data.settings.ThemeRules
 import com.kaan.play.data.plugin.DeepLink
 import com.kaan.play.data.subtitle.DebugEndpoints
 import com.kaan.play.ui.player.PlayerNoticeLogic
+import com.kaan.play.data.notify.NewEpisodeNotifier
+import com.kaan.play.data.notify.NewEpisodeScheduler
 import com.kaan.play.data.update.UpdateNotifications
 import com.kaan.play.ui.components.SplashOverlay
 import com.kaan.play.ui.nav.PlayRoot
@@ -47,7 +49,14 @@ class MainActivity : AppCompatActivity() {
         val debugEndpoint = if (BuildConfig.DEBUG) intent.getStringExtra("play_update_endpoint") else null
         container.updateChecker.checkOnce(container.appScope, debugEndpoint)
         val debugAnnounce = if (BuildConfig.DEBUG) intent.getStringExtra("play_announcements_endpoint") else null
-        container.announcementChecker.checkOnce(container.appScope, container.updateChecker, debugAnnounce)
+        container.announcementChecker.checkOnce(container.appScope, container.updateChecker, debugAnnounce)
+        container.appScope.launch(Dispatchers.IO) {
+            if (settings.newEpisodeNotifications.first()) {
+                NewEpisodeScheduler.schedule(applicationContext)
+            } else {
+                NewEpisodeScheduler.cancel(applicationContext)
+            }
+        }
 
         // SubtitleDao / CursorWindow koruma ve onbellek budama kalkani
         container.appScope.launch(Dispatchers.IO) {
@@ -171,6 +180,7 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             handleLink(intent)
             handleUpdateIntent(intent)
+            handleNotificationIntent(intent)
             handlePlayIntent(intent)
         }
 
@@ -241,6 +251,7 @@ class MainActivity : AppCompatActivity() {
         intent.getStringExtra("sync_password")?.let { testSyncPassword = it }
         handleLink(intent)
         handleUpdateIntent(intent)
+        handleNotificationIntent(intent)
         handlePlayIntent(intent)
         if (BuildConfig.DEBUG) {
             if (intent.hasExtra("play_debug_fail_native")) {
@@ -344,6 +355,21 @@ class MainActivity : AppCompatActivity() {
         if (intent?.action != UpdateNotifications.ACTION_INSTALL) return
         val info = UpdateNotifications.decode(intent.getStringExtra(UpdateNotifications.EXTRA_INFO)) ?: return
         (application as PlayApp).container.updateFlow.restoreReady(info)
+    }
+
+    private fun handleNotificationIntent(intent: Intent?) {
+        if (BuildConfig.DEBUG && intent?.hasExtra("play_test_new_episode_id") == true) {
+            val testId = intent.getIntExtra("play_test_new_episode_id", 0)
+            val testTitle = intent.getStringExtra("play_test_new_episode_title") ?: "Test Dizi"
+            val testSeason = intent.getIntExtra("play_test_new_episode_season", 1)
+            val testEp = intent.getIntExtra("play_test_new_episode_number", 2)
+            NewEpisodeNotifier.notify(this, testId, testTitle, testSeason, testEp)
+        }
+        if (intent?.action != NewEpisodeNotifier.ACTION_OPEN_SERIES) return
+        val tmdbId = intent.getIntExtra(NewEpisodeNotifier.EXTRA_TMDB_ID, 0)
+        if (tmdbId > 0) {
+            (application as PlayApp).container.pendingSeriesDetailId.value = tmdbId
+        }
     }
 
     /**

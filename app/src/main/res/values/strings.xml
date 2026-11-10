@@ -157,6 +157,13 @@
     <string name="nav_bar_position_right">Right</string>
     <string name="settings_performance_title">Performance</string>
     <string name="settings_performance_summary">Limits resource usage; catalogs load smoothly in small batches</string>
+    <string name="settings_notifications_title">Notifications</string>
+    <string name="settings_new_episode_notifications">New episode alerts</string>
+    <string name="settings_new_episode_notifications_summary">Notify when a new episode airs for favorite series</string>
+    <string name="settings_notifications_permission_note">Notification permission is denied. Alerts will not appear until enabled in System Settings.</string>
+    <string name="notify_channel_new_episodes">New episodes</string>
+    <string name="notify_new_episode_title">New episode: %1$s</string>
+    <string name="notify_new_episode_body">Season %1$d, Episode %2$d aired</string>
     <!-- Dil adları her zaman kendi dillerinde yazılır. -->
     <string name="language_english" translatable="false">English</string>
     <string name="language_turkish" translatable="false">Türkçe</string>

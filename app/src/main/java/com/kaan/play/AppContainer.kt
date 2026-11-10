@@ -779,6 +779,9 @@ class AppContainer(context: Context) {
      */
     val pendingAddonUrl = MutableStateFlow<String?>(null)
 
+    /** Bildirimden açılacak favori dizi TMDB kimliği. */
+    val pendingSeriesDetailId = MutableStateFlow<Int?>(null)
+
     /** `play://add?repo=` / `play://add?nuvio=` bağlantıları: mevcut [sourceInstaller] ile ekler, sonucu Snackbar'a iletir. */
     val deepLinks: DeepLinkHandler by lazy { DeepLinkHandler(sourceInstaller, appScope) }
 

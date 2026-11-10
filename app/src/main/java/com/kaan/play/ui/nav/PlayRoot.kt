@@ -360,6 +360,16 @@ fun PlayRoot() {
         if (pendingAddonUrl != null) openAddons(startAdding = false)
     }
 
+    // Yeni bölüm bildirimine dokunulunca (MainActivity -> pendingSeriesDetailId) doğrudan o dizinin detayını aç.
+    val pendingSeriesDetailId by container.pendingSeriesDetailId.collectAsStateWithLifecycle()
+    LaunchedEffect(pendingSeriesDetailId, gateDecided, profileGate, showProfileSetup) {
+        val seriesId = pendingSeriesDetailId
+        if (gateDecided && !profileGate && !showProfileSetup && seriesId != null) {
+            container.pendingSeriesDetailId.value = null
+            openDetail(MediaType.Tv, seriesId)
+        }
+    }
+
     // play://add deep link onayından sonra ilgili bölüme otomatik geçiş
     LaunchedEffect(container.deepLinks) {
         container.deepLinks.events.collect { event ->
