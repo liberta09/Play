@@ -624,4 +624,14 @@
     <string name="repo_catalog_install_failure">Hata: %1$s</string>
     <string name="repo_catalog_type_nuvio_repo">Nuvio deposu</string>
     <string name="repo_catalog_type_nuvio_plugin">Nuvio eklentisi</string>
+    <string name="tv_sort">Sırala</string>
+    <string name="tv_sort_title_asc">Ada göre (A–Z)</string>
+    <string name="tv_sort_title_desc">Ada göre (Z–A)</string>
+    <string name="tv_sort_recent">Son izlenen</string>
+    <string name="tv_sort_favorites">Favoriler önce</string>
+    <string name="tv_sort_manual">Manuel sıra</string>
+    <string name="tv_favorite_add">Favorilere ekle</string>
+    <string name="tv_favorite_remove">Favorilerden çıkar</string>
+    <string name="tv_move_up">Yukarı taşı</string>
+    <string name="tv_move_down">Aşağı taşı</string>
 </resources>

@@ -370,7 +370,13 @@ fun PlayRoot() {
 
     // Oynat: aktif eklenti yoksa tek yol eklenti eklemektir. [download] verilirse (indirilen) eklenti gerekmez ve kaynak seçimi
     // atlanır. Aynı içerik yarım izlenmişse önce "devam / baştan" sorulur ([startAtMs] verilmişse sorulmaz).
-    fun play(target: PlayTarget, startAtMs: Long? = null, autoResumed: Boolean = false, download: DownloadEntity? = null) {
+    fun play(
+        target: PlayTarget,
+        startAtMs: Long? = null,
+        autoResumed: Boolean = false,
+        download: DownloadEntity? = null,
+        liveChannelKey: String? = null,
+    ) {
         scope.launch {
             if (download == null && target.request.pluginId == null && !container.hasEnabledSources()) {
                 openAddons(startAdding = true)
@@ -383,7 +389,14 @@ fun PlayRoot() {
                 when {
                     download != null -> playOffline(download, startMs, auto)
                     autoSource -> context.startActivity(
-                        PlaySession(target, stream = null, startPositionMs = startMs, autoResumed = auto, autoSource = true).toIntent(context),
+                        PlaySession(
+                            target = target,
+                            stream = null,
+                            startPositionMs = startMs,
+                            autoResumed = auto,
+                            autoSource = true,
+                            liveChannelKey = liveChannelKey,
+                        ).toIntent(context),
                     )
                     else -> sourcesFor = PlayStart(target, startMs, auto)
                 }
@@ -423,7 +436,9 @@ fun PlayRoot() {
             title = item.title,
             posterPath = null,
         )
-        play(target)
+        val channelKey = com.kaan.play.data.provider.LiveCatalogRules.channelGroupKey(item.title)
+            .ifBlank { "${item.providerId.trim()}:${item.id.trim()}" }
+        play(target, liveChannelKey = channelKey)
     }
 
     // Geçmiş/"devam et" kaydından oynatma. IMDb kimliği için TMDB'ye bir kez sorulur; olmazsa detay açılır.

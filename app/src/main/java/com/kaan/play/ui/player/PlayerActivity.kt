@@ -28,6 +28,7 @@ import com.kaan.play.data.db.DownloadStatus
 import com.kaan.play.data.download.DownloadedSubtitleLoader
 import com.kaan.play.data.library.WatchRules
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.provider.LiveCatalogRules
 import com.kaan.play.data.stream.DeviceCodecs
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.TorrentLinks
@@ -245,6 +246,13 @@ class PlayerActivity : AppCompatActivity() {
             controller.onFirstFrame = {
                 sources.onFirstFrame()
                 container.torrentEngine.onFirstFrame()
+                if (!session.noHistory && LiveCatalogRules.isLiveRequest(session.target.request)) {
+                    val channelKey = session.liveChannelKey
+                        ?: LiveCatalogRules.channelGroupKey(session.target.title)
+                    if (channelKey.isNotBlank()) {
+                        lifecycleScope.launch { container.liveChannels.markWatched(channelKey) }
+                    }
+                }
                 if (BuildConfig.DEBUG && PlayerNoticeLogic.testForceStall) {
                     PlayerNoticeLogic.testForceStall = false
                     lifecycleScope.launch {

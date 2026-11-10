@@ -643,4 +643,14 @@
     <string name="repo_catalog_type_cloudstream" translatable="false">CloudStream</string>
     <string name="repo_catalog_type_nuvio_repo">Nuvio repo</string>
     <string name="repo_catalog_type_nuvio_plugin">Nuvio plugin</string>
+    <string name="tv_sort">Sort</string>
+    <string name="tv_sort_title_asc">Name (A–Z)</string>
+    <string name="tv_sort_title_desc">Name (Z–A)</string>
+    <string name="tv_sort_recent">Recently watched</string>
+    <string name="tv_sort_favorites">Favorites first</string>
+    <string name="tv_sort_manual">Manual order</string>
+    <string name="tv_favorite_add">Add to favorites</string>
+    <string name="tv_favorite_remove">Remove from favorites</string>
+    <string name="tv_move_up">Move up</string>
+    <string name="tv_move_down">Move down</string>
 </resources>

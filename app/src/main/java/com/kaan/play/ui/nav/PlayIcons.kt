@@ -102,6 +102,38 @@ object PlayIcons {
         icon("ChevronDown") { line { moveTo(6f, 9f); lineTo(12f, 15f); lineTo(18f, 9f) } }
     }
 
+    val ChevronUp: ImageVector by lazy {
+        icon("ChevronUp") { line { moveTo(6f, 15f); lineTo(12f, 9f); lineTo(18f, 15f) } }
+    }
+
+    private fun androidx.compose.ui.graphics.vector.PathBuilder.star() {
+        moveTo(12f, 3.5f)
+        lineTo(14.7f, 8.9f)
+        lineTo(20.6f, 9.8f)
+        lineTo(16.3f, 14f)
+        lineTo(17.3f, 19.9f)
+        lineTo(12f, 17.1f)
+        lineTo(6.7f, 19.9f)
+        lineTo(7.7f, 14f)
+        lineTo(3.4f, 9.8f)
+        lineTo(9.3f, 8.9f)
+        close()
+    }
+
+    val Star: ImageVector by lazy { icon("Star") { line { star() } } }
+
+    val StarFilled: ImageVector by lazy { icon("StarFilled") { solid { star() } } }
+
+    val Sort: ImageVector by lazy {
+        icon("Sort") {
+            line {
+                moveTo(4f, 7f); horizontalLineTo(20f)
+                moveTo(7f, 12f); horizontalLineTo(17f)
+                moveTo(10f, 17f); horizontalLineTo(14f)
+            }
+        }
+    }
+
     val Close: ImageVector by lazy {
         icon("Close") {
             line {

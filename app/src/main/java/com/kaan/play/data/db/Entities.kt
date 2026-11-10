@@ -179,3 +179,18 @@ data class FavoriteEntity(
     val posterPath: String?,
     val addedAt: Long,
 )
+
+/** Canlı TV kanalı izleme/favori durumu; [channelKey] birleştirilmiş kanal anahtarıdır (`channelGroupKey`). */
+@Entity(tableName = "live_channel_activity")
+data class LiveChannelActivityEntity(
+    @PrimaryKey val channelKey: String,
+    val lastWatchedAt: Long = 0L,
+    val isFavorite: Boolean = false,
+)
+
+/** Canlı TV kanalı manuel sıralama konumu; [channelKey] birleştirilmiş kanal anahtarıdır (`channelGroupKey`). */
+@Entity(tableName = "live_channel_order")
+data class LiveChannelOrderEntity(
+    @PrimaryKey val channelKey: String,
+    val sortIndex: Int,
+)

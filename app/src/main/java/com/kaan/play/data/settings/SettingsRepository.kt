@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import com.kaan.play.data.provider.LiveTvSortMode
 import com.kaan.play.data.stream.TorrentLinks
 import com.kaan.play.data.tmdb.PosterUrlTemplate
 import kotlinx.coroutines.flow.Flow
@@ -234,6 +235,15 @@ class SettingsRepository(val store: DataStore<Preferences>) {
     /** Katalog görünürlüğü değiştiğinde tetiklenir (önbellek temizliği için). */
     var onCatalogVisibilityChanged: ((addonId: Long) -> Unit)? = null
 
+    /** Canlı TV ekranı kanal sıralaması; bilinmeyen değer varsayılan A–Z'ye düşer. */
+    val liveTvSortMode: Flow<LiveTvSortMode> = store.data.map { prefs ->
+        LiveTvSortMode.entries.firstOrNull { it.name == prefs[LIVE_TV_SORT_MODE] } ?: DEFAULT_LIVE_TV_SORT_MODE
+    }.distinctUntilChanged()
+
+    suspend fun setLiveTvSortMode(mode: LiveTvSortMode) {
+        store.edit { it[LIVE_TV_SORT_MODE] = mode.name }
+    }
+
     /** Kullanıcının kapattığı Nuvio addon katalog anahtarları (`addonId:type:catalogId`). */
     val disabledCatalogs: Flow<Set<String>> = store.data.map { prefs ->
         prefs[DISABLED_CATALOGS] ?: emptySet()
@@ -277,6 +287,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_AUTO_SOURCE = true
         const val DEFAULT_PREFER_DUB = true
         const val DEFAULT_AUTO_NEXT_SECONDS = 10
+        val DEFAULT_LIVE_TV_SORT_MODE = LiveTvSortMode.TitleAscending
         val AUTO_NEXT_OPTIONS = listOf(5, 10, 15)
         val TIMEOUT_OPTIONS = listOf(10, 15, 30, 60)
         const val DEFAULT_SUBTITLE_LANGUAGE = "tr"
@@ -309,5 +320,6 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         val DEFAULT_CATALOG_ADDON_SEEDED = booleanPreferencesKey("default_catalog_addon_seeded")
         val SEEN_ANNOUNCEMENT_IDS = stringSetPreferencesKey("seen_announcement_ids")
         private val DISABLED_CATALOGS = stringSetPreferencesKey("disabled_catalogs")
+        private val LIVE_TV_SORT_MODE = stringPreferencesKey("live_tv_sort_mode")
     }
 }

@@ -43,6 +43,8 @@ data class PlaySession(
     val autoSource: Boolean = false,
     /** Yalnızca debug/duman testi oynatması ([testVideo]): izleme geçmişine ("İzlemeye devam et") yazılmaz. */
     val noHistory: Boolean = false,
+    /** Canlı TV kanalı anahtarı (`channelGroupKey`); ilk karede `live_channel_activity.lastWatchedAt` yazılır. */
+    val liveChannelKey: String? = null,
 ) {
     fun toIntent(context: Context): Intent =
         Intent(context, PlayerActivity::class.java).putExtra(EXTRA, PlayJson.encodeToString(serializer(), this))

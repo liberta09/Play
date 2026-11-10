@@ -9,8 +9,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
     entities = [
         AddonEntity::class, PluginEntity::class, WatchHistoryEntity::class, FavoriteEntity::class,
         SubtitleLanguageEntity::class, SubtitleOffsetEntity::class, DownloadEntity::class,
+        LiveChannelActivityEntity::class, LiveChannelOrderEntity::class,
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 abstract class PlayDatabase : RoomDatabase() {
@@ -20,8 +21,25 @@ abstract class PlayDatabase : RoomDatabase() {
     abstract fun favoriteDao(): FavoriteDao
     abstract fun subtitleDao(): SubtitleDao
     abstract fun downloadDao(): DownloadDao
+    abstract fun liveChannelDao(): LiveChannelDao
 
     companion object {
+        /**
+         * 6 -> 7: Canlı TV kanal etkinliği (son izlenme, favori) ve manuel sıralama tabloları eklendi.
+         * Mevcut tüm tablolar ve kullanıcı verileri korunur.
+         */
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `live_channel_activity` (`channelKey` TEXT NOT NULL, " +
+                        "`lastWatchedAt` INTEGER NOT NULL, `isFavorite` INTEGER NOT NULL, PRIMARY KEY(`channelKey`))",
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `live_channel_order` (`channelKey` TEXT NOT NULL, " +
+                        "`sortIndex` INTEGER NOT NULL, PRIMARY KEY(`channelKey`))",
+                )
+            }
+        }
         /**
          * 5 -> 6: Profil ve senkronizasyon desteği: watch_history ve favorites tablolarına `userId` ve `profileId`
          * alanları eklendi. Mevcut kayıtlar 'legacy-user' / 'legacy-profile' olarak taşınır.

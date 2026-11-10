@@ -218,6 +218,7 @@ class AppContainer(context: Context) {
                 PlayDatabase.MIGRATION_3_4,
                 PlayDatabase.MIGRATION_4_5,
                 PlayDatabase.MIGRATION_5_6,
+                PlayDatabase.MIGRATION_6_7,
             )
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onOpen(db: SupportSQLiteDatabase) {
@@ -337,6 +338,11 @@ class AppContainer(context: Context) {
 
     val library: LibraryRepository by lazy {
         LibraryRepository(database.watchHistoryDao(), database.favoriteDao(), localProfile)
+    }
+
+    /** Canlı TV kanalları son izlenme, favori ve manuel sıra deposu. */
+    val liveChannels: com.kaan.play.data.provider.LiveChannelRepository by lazy {
+        com.kaan.play.data.provider.LiveChannelRepository(database.liveChannelDao())
     }
 
     /** Etkinliklerden bağımsız işler için (ör. oynatıcı kapanırken konum kaydı tamamlansın). */
