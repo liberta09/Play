@@ -772,4 +772,23 @@ class AppContainer(context: Context) {
         )
         flow
     }
+
+    /** Coil görsel önbelleğini, katalog önbelleğini ve altyazı önbelleğini temizler; geçmiş/favori/hesap/eklentiler silinmez. */
+    suspend fun clearCaches() {
+        val loader = coil3.SingletonImageLoader.get(appContext)
+        loader.memoryCache?.clear()
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching { loader.diskCache?.clear() }
+            catalogRepository.cache.clear()
+            clearDirectoryContents(File(appContext.cacheDir, "subtitle-search"))
+            clearDirectoryContents(File(appContext.cacheDir, "subtitles"))
+        }
+    }
+
+    companion object {
+        internal fun clearDirectoryContents(dir: File) {
+            if (!dir.isDirectory) return
+            dir.listFiles()?.forEach { child -> child.deleteRecursively() }
+        }
+    }
 }

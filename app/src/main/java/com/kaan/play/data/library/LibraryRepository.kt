@@ -124,6 +124,11 @@ class LibraryRepository(
         history.clear(u, p)
     }
 
+    suspend fun clearFavorites() {
+        val (u, p) = scope()
+        favorites.clear(u, p)
+    }
+
     fun isFavorite(type: MediaType, tmdbId: Int): Flow<Boolean> =
         profile?.activeProfile?.flatMapLatest { p ->
             val u = p?.id?.let { profile?.userId?.first()?.ifEmpty { "legacy-user" } } ?: "legacy-user"

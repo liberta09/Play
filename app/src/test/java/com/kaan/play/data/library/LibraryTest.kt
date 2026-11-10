@@ -497,4 +497,17 @@ class LibraryManagementTest {
         val ep2 = repo.progress(episode(10, 1, 2))!!
         assertEquals(ep2.durationMs, ep2.positionMs)
     }
+
+    @Test
+    fun clearFavoritesRemovesAllFavoritesWithoutTouchingHistory() = runTest {
+        repo.saveProgress(movie(3), 45_000L, 120_000L)
+        repo.setFavorite(summary(3), true)
+        assertTrue(repo.isFavorite(MediaType.Movie, 3).first())
+
+        repo.clearFavorites()
+
+        assertFalse(repo.isFavorite(MediaType.Movie, 3).first())
+        assertTrue(repo.allFavorites.first().isEmpty())
+        assertEquals(1, repo.watchHistory.first().size)
+    }
 }

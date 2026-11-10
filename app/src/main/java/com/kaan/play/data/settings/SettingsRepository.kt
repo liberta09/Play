@@ -254,6 +254,16 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         store.edit { it[CONTINUE_SORT_MODE] = mode.name }
     }
 
+    /**
+     * Yalnızca oynatıcı, tema, altyazı görünümü/dili, poster şablonu ve liste sıralama ayarlarını varsayılana döndürür.
+     * Eklenti görünürlüğü, seed bayrakları, torrent/profil ayarları, geçmiş, favoriler ve indirmeler SİLİNMEZ.
+     */
+    suspend fun resetAppearanceAndPlayerDefaults() {
+        store.edit { prefs ->
+            APPEARANCE_AND_PLAYER_KEYS.forEach { prefs.remove(it) }
+        }
+    }
+
     /** Kullanıcının kapattığı Nuvio addon katalog anahtarları (`addonId:type:catalogId`). */
     val disabledCatalogs: Flow<Set<String>> = store.data.map { prefs ->
         prefs[DISABLED_CATALOGS] ?: emptySet()
@@ -333,5 +343,29 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val DISABLED_CATALOGS = stringSetPreferencesKey("disabled_catalogs")
         private val LIVE_TV_SORT_MODE = stringPreferencesKey("live_tv_sort_mode")
         private val CONTINUE_SORT_MODE = stringPreferencesKey("continue_sort_mode")
+
+        private val APPEARANCE_AND_PLAYER_KEYS: List<Preferences.Key<*>> = listOf(
+            THEME,
+            POSTER_URL_TEMPLATE,
+            ALWAYS_RESUME,
+            DOWNLOAD_WIFI_ONLY,
+            AUTO_NEXT,
+            AUTO_TRANSLATE_SUBS,
+            AUTO_SOURCE,
+            PREFER_DUB,
+            RESIZE_MODE,
+            AUTO_NEXT_SECONDS,
+            SKIP_BUTTONS_ENABLED,
+            SKIP_AUTO_ENABLED,
+            SKIP_ENABLED_CATEGORIES,
+            SUB_SIZE,
+            SUB_BOLD,
+            SUB_ITALIC,
+            SUB_COLOR,
+            SUB_BACKGROUND,
+            SUB_LANGUAGE,
+            LIVE_TV_SORT_MODE,
+            CONTINUE_SORT_MODE,
+        )
     }
 }

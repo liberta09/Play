@@ -671,4 +671,22 @@
     <string name="continue_action_remove">Remove from history</string>
     <string name="continue_added_favorite">Added to favorites</string>
     <string name="continue_marked_watched">Marked as watched</string>
+    <string name="data_management_title">Data management</string>
+    <string name="data_clear_cache">Clear cache</string>
+    <string name="data_clear_cache_summary">Clears image, catalog, and subtitle caches</string>
+    <string name="data_clear_cache_done">Cache cleared</string>
+    <string name="data_clear_history">Delete watch history</string>
+    <string name="data_clear_history_summary">Removes all watched items and resume positions</string>
+    <string name="data_clear_history_confirm">Delete all watch history? This action cannot be undone.</string>
+    <string name="data_clear_history_done">Watch history deleted</string>
+    <string name="data_clear_favorites">Delete favorites</string>
+    <string name="data_clear_favorites_summary">Removes all favorite titles and live channels</string>
+    <string name="data_clear_favorites_confirm">Remove all items from favorites? This action cannot be undone.</string>
+    <string name="data_clear_favorites_done">Favorites deleted</string>
+    <string name="data_reset_settings">Reset all settings to defaults</string>
+    <string name="data_reset_settings_summary">Resets player, theme, language, and display preferences only</string>
+    <string name="data_reset_settings_confirm">Reset player, theme, language, and display settings to defaults? Addons, account, history, favorites, and downloads are kept.</string>
+    <string name="data_reset_settings_action">Reset</string>
+    <string name="data_reset_settings_done">Settings restored to defaults</string>
+    <string name="data_confirm_delete">Delete</string>
 </resources>

@@ -652,4 +652,22 @@
     <string name="continue_action_remove">Geçmişten kaldır</string>
     <string name="continue_added_favorite">Favorilere eklendi</string>
     <string name="continue_marked_watched">İzlendi olarak işaretlendi</string>
+    <string name="data_management_title">Veri yönetimi</string>
+    <string name="data_clear_cache">Önbelleği temizle</string>
+    <string name="data_clear_cache_summary">Görsel, katalog ve altyazı önbelleklerini temizler</string>
+    <string name="data_clear_cache_done">Önbellek temizlendi</string>
+    <string name="data_clear_history">İzleme geçmişini sil</string>
+    <string name="data_clear_history_summary">Tüm izlenen içerikleri ve kaldığınız yerleri siler</string>
+    <string name="data_clear_history_confirm">Tüm izleme geçmişi silinsin mi? Bu işlem geri alınamaz.</string>
+    <string name="data_clear_history_done">İzleme geçmişi silindi</string>
+    <string name="data_clear_favorites">Favorileri sil</string>
+    <string name="data_clear_favorites_summary">Tüm favori içerikleri ve canlı kanalları kaldırır</string>
+    <string name="data_clear_favorites_confirm">Tüm favoriler silinsin mi? Bu işlem geri alınamaz.</string>
+    <string name="data_clear_favorites_done">Favoriler silindi</string>
+    <string name="data_reset_settings">Tüm ayarları varsayılana döndür</string>
+    <string name="data_reset_settings_summary">Yalnızca oynatıcı, tema, dil ve görünüm tercihlerini sıfırlar</string>
+    <string name="data_reset_settings_confirm">Oynatıcı, tema, dil ve görünüm ayarları varsayılana döndürülsün mü? Eklentiler, hesap, geçmiş, favoriler ve indirmeler silinmez.</string>
+    <string name="data_reset_settings_action">Sıfırla</string>
+    <string name="data_reset_settings_done">Ayarlar varsayılana döndürüldü</string>
+    <string name="data_confirm_delete">Sil</string>
 </resources>
