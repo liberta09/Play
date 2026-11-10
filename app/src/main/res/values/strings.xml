@@ -898,4 +898,110 @@
     <string name="person_empty_movies">No movie credits found.</string>
     <string name="person_empty_series">No series credits found.</string>
     <string name="person_bio_empty">No biography available.</string>
+
+    <!-- Paket 7: Gruplu Ayarlar Ekranı -->
+    <string name="settings_group_appearance">Appearance &amp; personalization</string>
+    <string name="settings_group_playback">Playback</string>
+    <string name="settings_group_addons">Addons &amp; sources</string>
+    <string name="settings_group_profile_sync">Profile &amp; sync</string>
+    <string name="settings_group_connection_data">Connection &amp; data</string>
+    <string name="settings_group_about">About</string>
+    <string name="settings_profile_selection">Profile selection</string>
+    <string name="settings_profile_selection_subtitle">Create profiles and switch</string>
+    <string name="settings_remember_last_profile">Remember last profile</string>
+    <string name="settings_remember_last_profile_summary_on">Last profile is selected automatically on startup</string>
+    <string name="settings_remember_last_profile_summary_off">Select profile manually on each startup</string>
+    <string name="settings_cloud_sync">Cloud account &amp; sync</string>
+    <string name="settings_cloud_sync_summary">Sign in with email; auto sync across devices</string>
+    <string name="settings_wifi_sync">Wi-Fi synchronization</string>
+    <string name="settings_wifi_sync_summary">Direct transfer with other devices on the same network</string>
+    <string name="web_sites_summary">Favorite sites to open in built-in browser</string>
+    <string name="data_clear_cache_confirm">Image, catalog, and subtitle caches will be cleared. Your history, favorites, or addons will not be deleted.</string>
+    <string name="data_confirm_clear">Clear</string>
+
+    <!-- Paket 7: Profil Ekranları İki Dil Desteği -->
+    <string name="profile_management_title">Profile Management</string>
+    <string name="profile_type_child">Kids Profile</string>
+    <string name="profile_type_standard">Standard Profile</string>
+    <string name="profile_pin_protected_badge">PIN Protected</string>
+    <string name="profile_section_settings">Profile Settings</string>
+    <string name="profile_rename">Change Profile Name</string>
+    <string name="profile_rename_label">New Name</string>
+    <string name="profile_change_avatar">Change Avatar</string>
+    <string name="profile_pin">PIN Code</string>
+    <string name="profile_pin_status_protected">Protected (Change/Remove)</string>
+    <string name="profile_pin_status_none">Not set</string>
+    <string name="profile_pin_dialog_title">Set PIN Code</string>
+    <string name="profile_pin_dialog_hint">Saving while blank removes the current PIN code.</string>
+    <string name="profile_pin_dialog_field">4-Digit PIN</string>
+    <string name="profile_child_toggle_title">Kids Profile</string>
+    <string name="profile_child_toggle_summary">Filters adult content.</string>
+    <string name="profile_section_backup">Backup &amp; Transfer</string>
+    <string name="profile_export_json">Export Profile (Copy JSON)</string>
+    <string name="profile_export_done">Backup copied to clipboard!</string>
+    <string name="profile_import_json">Import from Backup (Paste JSON)</string>
+    <string name="profile_import_dialog_title">Restore from Backup</string>
+    <string name="profile_import_dialog_field">JSON Text</string>
+    <string name="profile_import_done">Records imported successfully!</string>
+    <string name="profile_import_error">Error: Invalid JSON data.</string>
+    <string name="profile_import_action">Import</string>
+    <string name="profile_clear_data">Clear History &amp; Favorites</string>
+    <string name="profile_clear_data_confirm">All watch history and favorites for this profile will be deleted. Do you want to continue?</string>
+    <string name="profile_clear_data_action">Yes, Clear</string>
+    <string name="profile_clear_data_done">Cleared.</string>
+    <string name="profile_avatar_dialog_title">Select Avatar</string>
+    <string name="profile_dialog_close">Close</string>
+
+    <string name="profile_tab_profiles">Profiles</string>
+    <string name="profile_tab_account">Cloud Account</string>
+    <string name="profile_chooser_title">Who\'s Watching?</string>
+    <string name="profile_chooser_subtitle">Watch history, favorites, and preferences are saved for each profile.</string>
+    <string name="profile_manage_done">Done</string>
+    <string name="profile_manage_action">Manage Profiles</string>
+    <string name="profile_new_action">New Profile</string>
+    <string name="profile_pin_prompt_title">Enter PIN</string>
+    <string name="profile_pin_prompt_message">Enter the 4-digit PIN to unlock %1$s\'s profile:</string>
+    <string name="profile_pin_prompt_error">Incorrect PIN!</string>
+    <string name="profile_pin_prompt_submit">Unlock</string>
+    <string name="profile_edit_dialog_title">Edit Profile</string>
+    <string name="profile_edit_name_label">Profile Name</string>
+    <string name="profile_edit_pin_label">New PIN (Blank = Keep/Remove)</string>
+    <string name="profile_edit_delete_action">Delete Profile</string>
+    <string name="profile_badge_child">Kids</string>
+    <string name="cloud_account_linked_title">Connected Cloud Account</string>
+    <string name="cloud_sync_syncing">Syncing…</string>
+    <string name="cloud_sync_success">Sync successful!</string>
+    <string name="cloud_sync_error_generic">An error occurred.</string>
+    <string name="cloud_sync_action_now">Sync Now</string>
+    <string name="cloud_sync_signed_out">Signed out.</string>
+    <string name="cloud_sync_sign_out">Sign Out</string>
+    <string name="cloud_auth_title_register">Create Account</string>
+    <string name="cloud_auth_title_login">Sign In with Email</string>
+    <string name="cloud_auth_subtitle">Sync watch history and profiles across your devices.</string>
+    <string name="cloud_auth_email_label">Email Address</string>
+    <string name="cloud_auth_password_label">Password</string>
+    <string name="cloud_auth_registered_signed_in">Account created and signed in!</string>
+    <string name="cloud_auth_registered_email_confirm">Registration successful! Please check your email inbox to confirm.</string>
+    <string name="cloud_auth_register_failed">Registration failed.</string>
+    <string name="cloud_auth_login_success">Signed in successfully!</string>
+    <string name="cloud_auth_login_failed">Sign-in failed.</string>
+    <string name="cloud_auth_submit_register">Sign Up</string>
+    <string name="cloud_auth_submit_login">Sign In</string>
+    <string name="cloud_auth_switch_to_login">Already have an account? Sign In</string>
+    <string name="cloud_auth_switch_to_register">Don\'t have an account? Create one</string>
+
+    <string name="profile_setup_title">Create New Profile</string>
+    <string name="profile_setup_name_hint">e.g. Kaan</string>
+    <string name="profile_setup_child_title">Kids profile</string>
+    <string name="profile_setup_child_summary">Hides adult content and only lists family-friendly titles.</string>
+    <string name="profile_setup_pin_label">PIN Code (Optional)</string>
+    <string name="profile_setup_pin_hint">4-digit number</string>
+    <string name="profile_setup_pin_help">Asked when entering profile or leaving kids profile.</string>
+    <string name="profile_setup_create_action">Create</string>
+
+    <string name="sync_screen_title">Synchronization</string>
+    <string name="sync_cloud_section_title">Cloud Synchronization</string>
+    <string name="sync_cloud_section_desc">Sign in to store your watch history, profiles, and favorites in the cloud, and continue where you left off on all devices.</string>
+
+    <string name="player_seek_seconds">%1$s%2$d s</string>
 </resources>

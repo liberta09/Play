@@ -60,18 +60,12 @@ import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.rememberInitialFocus
 import kotlinx.coroutines.launch
 
-private enum class DataConfirmAction { ClearHistory, ClearFavorites, ResetSettings }
-
 /**
- * Hakkında ekranı: Telegram Topluluğu kartı, sürüm/lisans metinleri ve Veri yönetimi bölümü.
+ * Hakkında ekranı: Telegram Topluluğu kartı ve sürüm/lisans metinleri.
  */
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    val container = rememberContainer()
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    var pendingConfirm by remember { mutableStateOf<DataConfirmAction?>(null) }
     val telegramUrl = stringResource(R.string.about_telegram_url)
     val cardShape = RoundedCornerShape(16.dp)
 
@@ -225,169 +219,7 @@ fun AboutScreen(onBack: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(20.dp))
-
-            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.45f))
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = stringResource(R.string.data_management_title),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-
-            val cacheDoneMessage = stringResource(R.string.data_clear_cache_done)
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                DataManagementRow(
-                    title = stringResource(R.string.data_clear_cache),
-                    subtitle = stringResource(R.string.data_clear_cache_summary),
-                    icon = PlayIcons.Refresh,
-                    tint = MaterialTheme.colorScheme.primary,
-                    onClick = {
-                        scope.launch {
-                            container.clearCaches()
-                            snackbarHostState.showSnackbar(cacheDoneMessage)
-                        }
-                    },
-                )
-                DataManagementRow(
-                    title = stringResource(R.string.data_clear_history),
-                    subtitle = stringResource(R.string.data_clear_history_summary),
-                    icon = PlayIcons.Trash,
-                    tint = MaterialTheme.colorScheme.error,
-                    onClick = { pendingConfirm = DataConfirmAction.ClearHistory },
-                )
-                DataManagementRow(
-                    title = stringResource(R.string.data_clear_favorites),
-                    subtitle = stringResource(R.string.data_clear_favorites_summary),
-                    icon = PlayIcons.Heart,
-                    tint = MaterialTheme.colorScheme.error,
-                    onClick = { pendingConfirm = DataConfirmAction.ClearFavorites },
-                )
-                DataManagementRow(
-                    title = stringResource(R.string.data_reset_settings),
-                    subtitle = stringResource(R.string.data_reset_settings_summary),
-                    icon = PlayIcons.Settings,
-                    tint = MaterialTheme.colorScheme.primary,
-                    onClick = { pendingConfirm = DataConfirmAction.ResetSettings },
-                )
-            }
-            Spacer(modifier = Modifier.height(32.dp))
         }
-        }
-
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(16.dp),
-        )
-    }
-
-    pendingConfirm?.let { action ->
-        val cancelFocus = rememberInitialFocus()
-        val (titleText, bodyText, confirmLabel, doneMessage) = when (action) {
-            DataConfirmAction.ClearHistory -> QuadText(
-                stringResource(R.string.data_clear_history),
-                stringResource(R.string.data_clear_history_confirm),
-                stringResource(R.string.data_confirm_delete),
-                stringResource(R.string.data_clear_history_done),
-            )
-            DataConfirmAction.ClearFavorites -> QuadText(
-                stringResource(R.string.data_clear_favorites),
-                stringResource(R.string.data_clear_favorites_confirm),
-                stringResource(R.string.data_confirm_delete),
-                stringResource(R.string.data_clear_favorites_done),
-            )
-            DataConfirmAction.ResetSettings -> QuadText(
-                stringResource(R.string.data_reset_settings),
-                stringResource(R.string.data_reset_settings_confirm),
-                stringResource(R.string.data_reset_settings_action),
-                stringResource(R.string.data_reset_settings_done),
-            )
-        }
-        AlertDialog(
-            onDismissRequest = { pendingConfirm = null },
-            shape = RoundedCornerShape(20.dp),
-            containerColor = MaterialTheme.colorScheme.surface,
-            title = { Text(titleText, style = MaterialTheme.typography.titleLarge) },
-            text = { Text(bodyText, style = MaterialTheme.typography.bodyMedium) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        pendingConfirm = null
-                        scope.launch {
-                            when (action) {
-                                DataConfirmAction.ClearHistory -> {
-                                    container.library.clearHistory()
-                                    container.liveChannels.clearWatchHistory()
-                                }
-                                DataConfirmAction.ClearFavorites -> {
-                                    container.library.clearFavorites()
-                                    container.liveChannels.clearFavorites()
-                                }
-                                DataConfirmAction.ResetSettings -> {
-                                    container.settings.resetAppearanceAndPlayerDefaults()
-                                    if (AppLanguage.choice() != LanguageChoice.System) {
-                                        AppLanguage.apply(LanguageChoice.System)
-                                    }
-                                }
-                            }
-                            snackbarHostState.showSnackbar(doneMessage)
-                        }
-                    },
-                ) {
-                    Text(
-                        text = confirmLabel,
-                        color = if (action == DataConfirmAction.ResetSettings) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingConfirm = null }, modifier = Modifier.focusRequester(cancelFocus)) {
-                    Text(stringResource(R.string.common_cancel))
-                }
-            },
-        )
-    }
-}
-
-private data class QuadText(val a: String, val b: String, val c: String, val d: String)
-
-@Composable
-private fun DataManagementRow(
-    title: String,
-    subtitle: String,
-    icon: ImageVector,
-    tint: Color,
-    onClick: () -> Unit,
-) {
-    PlayCard(onClick = onClick) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = tint,
-                modifier = Modifier.size(22.dp),
-            )
-            Spacer(modifier = Modifier.width(14.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
         }
     }
 }

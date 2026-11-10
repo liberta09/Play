@@ -450,6 +450,19 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         }
     }
 
+    /**
+     * Tüm kullanıcı ayarlarını varsayılana döndürür (DNS, profil hatırlama, görünüm ve oynatma ayarları).
+     * Veritabanı kayıtları (eklentiler, geçmiş, favoriler, indirmeler) silinmez.
+     */
+    suspend fun resetAll() {
+        store.edit { prefs ->
+            APPEARANCE_AND_PLAYER_KEYS.forEach { prefs.remove(it) }
+            prefs.remove(DNS_MODE)
+            prefs.remove(CUSTOM_DOH_URL)
+            prefs.remove(REMEMBER_LAST_PROFILE)
+        }
+    }
+
     /** Kullanıcının kapattığı Nuvio addon katalog anahtarları (`addonId:type:catalogId`). */
     val disabledCatalogs: Flow<Set<String>> = store.data.map { prefs ->
         prefs[DISABLED_CATALOGS] ?: emptySet()

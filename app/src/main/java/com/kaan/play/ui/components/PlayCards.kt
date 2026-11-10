@@ -117,15 +117,16 @@ fun PlayCardRow(
                 )
                 Spacer(modifier = Modifier.width(16.dp))
             }
-            // Değer varken ağırlıklar 0,8 : 1,2: uzun değer büyük yazıda başlığı ezmesin, kısa değer sağa yaslı kalır.
-            val hasValue = badge.isNullOrEmpty() && !value.isNullOrEmpty()
-            Column(modifier = Modifier.weight(if (hasValue) 0.8f else 1f)) {
+            // 1.5x yazı boyutunda değer yazısı başlığı ezmesin; alt satıra iner.
+            val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+            val wrapValueBelow = fontScale >= 1.25f && !value.isNullOrEmpty()
+            val hasValueSide = !wrapValueBelow && badge.isNullOrEmpty() && !value.isNullOrEmpty()
+            Column(modifier = Modifier.weight(if (hasValueSide) 0.9f else 1f)) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
                 )
                 if (!subtitle.isNullOrEmpty()) {
                     Spacer(modifier = Modifier.height(2.dp))
@@ -134,22 +135,29 @@ fun PlayCardRow(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                if (wrapValueBelow) {
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Text(
+                        text = value.orEmpty(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 2,
                     )
                 }
             }
             if (!badge.isNullOrEmpty()) {
                 PlayBadge(text = badge, color = badgeColor)
                 Spacer(modifier = Modifier.width(10.dp))
-            } else if (!value.isNullOrEmpty()) {
+            } else if (hasValueSide) {
                 Text(
-                    text = value,
+                    text = value.orEmpty(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.End,
-                    modifier = Modifier.weight(1.2f).padding(start = 8.dp, end = 10.dp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1.1f).padding(start = 8.dp, end = 10.dp),
+                    maxLines = 2,
                 )
             }
             if (trailing != null) {

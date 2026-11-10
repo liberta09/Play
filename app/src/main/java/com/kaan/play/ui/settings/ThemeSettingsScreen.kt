@@ -50,12 +50,7 @@ fun ThemeSettingsScreen(onBack: () -> Unit) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
     val theme by container.settings.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.Dark)
-    val navPosition by container.settings.navBarPosition.collectAsStateWithLifecycle(initialValue = NavBarPosition.DEFAULT)
-    val performanceMode by container.settings.performanceMode.collectAsStateWithLifecycle(
-        initialValue = com.kaan.play.data.settings.SettingsRepository.DEFAULT_PERFORMANCE_MODE,
-    )
     val resolvedTheme = ThemeRules.resolve(theme, isSystemInDarkTheme())
-    var pickNavPosition by remember { mutableStateOf(false) }
     val focus = rememberFocusMemory()
 
     Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
@@ -104,58 +99,11 @@ fun ThemeSettingsScreen(onBack: () -> Unit) {
                     onClick = { scope.launch { container.settings.setThemeMode(option) } },
                 )
             }
-
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.padding(vertical = 8.dp),
-            )
-
-            PlayCardRow(
-                title = stringResource(R.string.nav_bar_position_title),
-                value = stringResource(navPosition.labelRes()),
-                icon = PlayIcons.Sort,
-                iconTint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.focusMemory(focus, key = "nav_bar_position"),
-                onClick = { pickNavPosition = true },
-            )
-
-            PlayCardRow(
-                title = stringResource(R.string.settings_performance_title),
-                subtitle = stringResource(R.string.settings_performance_summary),
-                icon = PlayIcons.Clock,
-                iconTint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.focusMemory(focus, key = "performance_mode"),
-                onClick = { scope.launch { container.settings.setPerformanceMode(!performanceMode) } },
-                trailing = {
-                    Switch(
-                        checked = performanceMode,
-                        onCheckedChange = null,
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                            checkedTrackColor = MaterialTheme.colorScheme.primary,
-                        ),
-                    )
-                },
-            )
         }
-    }
-
-    if (pickNavPosition) {
-        ChoiceDialog(
-            title = stringResource(R.string.nav_bar_position_title),
-            options = NavBarPosition.entries,
-            selected = navPosition,
-            label = { stringResource(it.labelRes()) },
-            onSelect = {
-                scope.launch { container.settings.setNavBarPosition(it) }
-                pickNavPosition = false
-            },
-            onDismiss = { pickNavPosition = false },
-        )
     }
 }
 
-private fun NavBarPosition.labelRes(): Int = when (this) {
+internal fun NavBarPosition.labelRes(): Int = when (this) {
     NavBarPosition.Top -> R.string.nav_bar_position_top
     NavBarPosition.Bottom -> R.string.nav_bar_position_bottom
     NavBarPosition.Left -> R.string.nav_bar_position_left

@@ -203,10 +203,6 @@ fun AddonsScreen(
     // Ana sayfadaki "eklenti ekle" düğmesinden geldiyse pencere hemen açılır.
     LaunchedEffect(startAdding) { if (startAdding) vm.startAddingOnce() }
 
-    val webVm = containerViewModel { WebSitesViewModel(it.webSites) }
-    val sites by webVm.sites.collectAsStateWithLifecycle()
-    val webDialog by webVm.dialog.collectAsStateWithLifecycle()
-    var siteToRemove by remember { mutableStateOf<WebSite?>(null) }
     val context = LocalContext.current
 
     Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
@@ -259,27 +255,6 @@ fun AddonsScreen(
             }
             item {
                 com.kaan.play.ui.components.PlayCardRow(
-                    title = stringResource(R.string.collection_import_title),
-                    subtitle = stringResource(R.string.collection_import_subtitle),
-                    icon = PlayIcons.Folder,
-                    iconTint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.focusMemory(focus, "collection_import"),
-                    onClick = { importCollectionLauncher.launch(arrayOf("application/json", "text/json", "*/*")) },
-                )
-            }
-            item {
-                com.kaan.play.ui.components.PlayCardRow(
-                    title = stringResource(R.string.collections_title),
-                    subtitle = stringResource(R.string.collections_subtitle),
-                    badge = collections.size.takeIf { it > 0 }?.toString(),
-                    icon = PlayIcons.Folder,
-                    iconTint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.focusMemory(focus, "collections"),
-                    onClick = onOpenCollections,
-                )
-            }
-            item {
-                com.kaan.play.ui.components.PlayCardRow(
                     title = stringResource(R.string.cs_repos_title),
                     subtitle = stringResource(R.string.cs_repos_subtitle),
                     icon = PlayIcons.Cloud,
@@ -306,36 +281,6 @@ fun AddonsScreen(
                     iconTint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.focusMemory(focus, "nuvioplugins"),
                     onClick = onOpenNuvioPlugins,
-                )
-            }
-            item {
-                com.kaan.play.ui.components.PlayCardRow(
-                    title = stringResource(R.string.web_add),
-                    subtitle = stringResource(R.string.web_add_subtitle),
-                    icon = PlayIcons.Globe,
-                    iconTint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.focusMemory(focus, "web"),
-                    onClick = { webVm.openAdd() },
-                )
-            }
-            item {
-                com.kaan.play.ui.components.PlayCardRow(
-                    title = stringResource(R.string.source_health_title),
-                    subtitle = stringResource(R.string.source_health_subtitle),
-                    icon = PlayIcons.Server,
-                    iconTint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.focusMemory(focus, "sourcehealth"),
-                    onClick = onOpenSourceHealth,
-                )
-            }
-            item {
-                com.kaan.play.ui.components.PlayCardRow(
-                    title = stringResource(R.string.network_settings_title),
-                    subtitle = stringResource(R.string.network_settings_subtitle),
-                    icon = PlayIcons.Globe,
-                    iconTint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.focusMemory(focus, "network"),
-                    onClick = onOpenNetwork,
                 )
             }
             item {
@@ -368,53 +313,7 @@ fun AddonsScreen(
                     )
                 }
             }
-            sites?.takeIf { it.isNotEmpty() }?.let { list ->
-                item {
-                    Text(
-                        text = stringResource(R.string.web_sites),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 4.dp, top = 16.dp, bottom = 4.dp),
-                    )
-                }
-                items(list, key = { "site-${it.id}" }) { site ->
-                    WebSiteRow(
-                        site = site,
-                        modifier = Modifier.focusMemory(focus, "site-${site.id}"),
-                        onOpen = { context.startActivity(WebActivity.intent(context, site.name, site.url)) },
-                        onRemove = { siteToRemove = site },
-                    )
-                }
-            }
         }
-    }
-
-    webDialog?.let { state ->
-        AddWebSiteDialog(
-            state = state,
-            onNameChange = webVm::onNameChange,
-            onAddressChange = webVm::onAddressChange,
-            onConfirm = webVm::submit,
-            onDismiss = webVm::dismissAdd,
-        )
-    }
-
-    siteToRemove?.let { site ->
-        AlertDialog(
-            onDismissRequest = { siteToRemove = null },
-            shape = RoundedCornerShape(20.dp),
-            containerColor = MaterialTheme.colorScheme.surface,
-            title = { Text(stringResource(R.string.web_remove_title), style = MaterialTheme.typography.titleLarge) },
-            text = { Text(stringResource(R.string.web_remove_message, site.name)) },
-            confirmButton = {
-                TextButton(onClick = { webVm.remove(site); siteToRemove = null }) {
-                    Text(stringResource(R.string.addons_remove), color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { siteToRemove = null }) { Text(stringResource(R.string.common_cancel)) }
-            },
-        )
     }
 
     if (showTorrentServer) {

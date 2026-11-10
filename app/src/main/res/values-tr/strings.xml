@@ -879,4 +879,110 @@
     <string name="person_empty_movies">Film katılımı bulunamadı.</string>
     <string name="person_empty_series">Dizi katılımı bulunamadı.</string>
     <string name="person_bio_empty">Biyografi bilgisi yok.</string>
+
+    <!-- Paket 7: Gruplu Ayarlar Ekranı -->
+    <string name="settings_group_appearance">Görünüm ve kişiselleştirme</string>
+    <string name="settings_group_playback">Oynatma</string>
+    <string name="settings_group_addons">Eklentiler ve kaynaklar</string>
+    <string name="settings_group_profile_sync">Profil ve senkronizasyon</string>
+    <string name="settings_group_connection_data">Bağlantı ve veri</string>
+    <string name="settings_group_about">Hakkında</string>
+    <string name="settings_profile_selection">Profil seçimi</string>
+    <string name="settings_profile_selection_subtitle">Profil oluştur ve geçiş yap</string>
+    <string name="settings_remember_last_profile">Son profili hatırla</string>
+    <string name="settings_remember_last_profile_summary_on">Uygulama açılışında son profil otomatik seçilir</string>
+    <string name="settings_remember_last_profile_summary_off">Her açılışta profili sen seç</string>
+    <string name="settings_cloud_sync">Bulut hesabı ve senkronizasyon</string>
+    <string name="settings_cloud_sync_summary">E-posta ile giriş; cihazlar arası otomatik eşitleme</string>
+    <string name="settings_wifi_sync">Wi-Fi senkronizasyonu</string>
+    <string name="settings_wifi_sync_summary">Aynı ağdaki diğer cihazlarla doğrudan aktarım</string>
+    <string name="web_sites_summary">Dahili tarayıcıda açılacak favori siteler</string>
+    <string name="data_clear_cache_confirm">Görseller, katalog listeleri ve altyazı önbellekleri temizlenecek. Geçmiş, favori veya eklentileriniz silinmez.</string>
+    <string name="data_confirm_clear">Temizle</string>
+
+    <!-- Paket 7: Profil Ekranları İki Dil Desteği -->
+    <string name="profile_management_title">Profil Yönetimi</string>
+    <string name="profile_type_child">Çocuk Profili</string>
+    <string name="profile_type_standard">Standart Profil</string>
+    <string name="profile_pin_protected_badge">PIN Korumalı</string>
+    <string name="profile_section_settings">Profil Ayarları</string>
+    <string name="profile_rename">Profil Adını Değiştir</string>
+    <string name="profile_rename_label">Yeni İsim</string>
+    <string name="profile_change_avatar">Avatarı Değiştir</string>
+    <string name="profile_pin">PIN Kodu</string>
+    <string name="profile_pin_status_protected">Korumalı (Değiştir/Kaldır)</string>
+    <string name="profile_pin_status_none">Belirlenmedi</string>
+    <string name="profile_pin_dialog_title">PIN Kodu Belirle</string>
+    <string name="profile_pin_dialog_hint">Boş bırakıp kaydetmek mevcut PIN kodunu kaldırır.</string>
+    <string name="profile_pin_dialog_field">4 Haneli PIN</string>
+    <string name="profile_child_toggle_title">Çocuk Profili</string>
+    <string name="profile_child_toggle_summary">Yetişkin içerikleri filtreler.</string>
+    <string name="profile_section_backup">Yedekleme ve Aktarım</string>
+    <string name="profile_export_json">Profili Dışa Aktar (JSON Kopyala)</string>
+    <string name="profile_export_done">Yedek panoya kopyalandı!</string>
+    <string name="profile_import_json">Yedekten İçe Aktar (JSON Yapıştır)</string>
+    <string name="profile_import_dialog_title">Yedekten Geri Yükle</string>
+    <string name="profile_import_dialog_field">JSON Metni</string>
+    <string name="profile_import_done">Kayıtlar başarıyla içe aktarıldı!</string>
+    <string name="profile_import_error">Hata: Geçersiz JSON verisi.</string>
+    <string name="profile_import_action">İçe Aktar</string>
+    <string name="profile_clear_data">Geçmiş ve Favorileri Temizle</string>
+    <string name="profile_clear_data_confirm">Bu profilin tüm izleme geçmişi ve favori listesi silinecektir. Devam etmek istiyor musunuz?</string>
+    <string name="profile_clear_data_action">Evet, Temizle</string>
+    <string name="profile_clear_data_done">Temizlendi.</string>
+    <string name="profile_avatar_dialog_title">Avatar Seçin</string>
+    <string name="profile_dialog_close">Kapat</string>
+
+    <string name="profile_tab_profiles">Profiller</string>
+    <string name="profile_tab_account">Bulut Hesabı</string>
+    <string name="profile_chooser_title">Kimin İzlediğini Seçin</string>
+    <string name="profile_chooser_subtitle">İzleme geçmişi, favoriler ve tercihler seçilen profile göre tutulur.</string>
+    <string name="profile_manage_done">Bitti</string>
+    <string name="profile_manage_action">Profilleri Yönet</string>
+    <string name="profile_new_action">Yeni Profil</string>
+    <string name="profile_pin_prompt_title">PIN Kodu Girin</string>
+    <string name="profile_pin_prompt_message">%1$s profilinin kilidini açmak için 4 haneli PIN kodunu girin:</string>
+    <string name="profile_pin_prompt_error">Hatalı PIN kodu!</string>
+    <string name="profile_pin_prompt_submit">Giriş</string>
+    <string name="profile_edit_dialog_title">Profili Düzenle</string>
+    <string name="profile_edit_name_label">Profil Adı</string>
+    <string name="profile_edit_pin_label">Yeni PIN (Boş = Değişmez/Kalkar)</string>
+    <string name="profile_edit_delete_action">Profili Sil</string>
+    <string name="profile_badge_child">Çocuk</string>
+    <string name="cloud_account_linked_title">Bağlı Bulut Hesabı</string>
+    <string name="cloud_sync_syncing">Eşitleniyor...</string>
+    <string name="cloud_sync_success">Senkronizasyon başarılı!</string>
+    <string name="cloud_sync_error_generic">Hata oluştu.</string>
+    <string name="cloud_sync_action_now">Şimdi Senkronize Et</string>
+    <string name="cloud_sync_signed_out">Çıkış yapıldı.</string>
+    <string name="cloud_sync_sign_out">Çıkış Yap</string>
+    <string name="cloud_auth_title_register">Hesap Oluştur</string>
+    <string name="cloud_auth_title_login">E-posta ile Giriş Yap</string>
+    <string name="cloud_auth_subtitle">Farklı cihazlarınız arasında izleme geçmişinizi ve profillerinizi eşitleyin.</string>
+    <string name="cloud_auth_email_label">E-posta Adresi</string>
+    <string name="cloud_auth_password_label">Şifre</string>
+    <string name="cloud_auth_registered_signed_in">Hesap açıldı ve giriş yapıldı!</string>
+    <string name="cloud_auth_registered_email_confirm">Kayıt başarılı! Lütfen e-posta kutunuzdan onaylayın.</string>
+    <string name="cloud_auth_register_failed">Kayıt başarısız.</string>
+    <string name="cloud_auth_login_success">Giriş başarılı!</string>
+    <string name="cloud_auth_login_failed">Giriş başarısız.</string>
+    <string name="cloud_auth_submit_register">Kayıt Ol</string>
+    <string name="cloud_auth_submit_login">Giriş Yap</string>
+    <string name="cloud_auth_switch_to_login">Zaten hesabınız var mı? Giriş Yapın</string>
+    <string name="cloud_auth_switch_to_register">Hesabınız yok mu? Yeni Hesap Oluşturun</string>
+
+    <string name="profile_setup_title">Yeni Profil Oluştur</string>
+    <string name="profile_setup_name_hint">Örn: Kaan</string>
+    <string name="profile_setup_child_title">Çocuk profili</string>
+    <string name="profile_setup_child_summary">Yetişkin içerikleri gizler ve yalnızca çocuklara uygun içerikleri listeler.</string>
+    <string name="profile_setup_pin_label">PIN Kodu (İsteğe bağlı)</string>
+    <string name="profile_setup_pin_hint">4 haneli sayı</string>
+    <string name="profile_setup_pin_help">Profil girişinde veya çocuk profilinden çıkarken sorulur.</string>
+    <string name="profile_setup_create_action">Oluştur</string>
+
+    <string name="sync_screen_title">Senkronizasyon</string>
+    <string name="sync_cloud_section_title">Bulut Eşitlemesi</string>
+    <string name="sync_cloud_section_desc">Hesabınıza giriş yaparak izleme geçmişinizi, profillerinizi ve favorilerinizi bulutta saklayabilir, tüm cihazlarınızda kaldığınız yerden devam edebilirsiniz.</string>
+
+    <string name="player_seek_seconds">%1$s%2$d sn</string>
 </resources>

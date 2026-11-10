@@ -3,10 +3,16 @@ package com.kaan.play.ui.addons
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
@@ -17,28 +23,39 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import com.kaan.play.ui.components.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.kaan.play.R
 import com.kaan.play.data.web.WebSite
 import com.kaan.play.data.web.WebSiteException
 import com.kaan.play.data.web.WebSiteRepository
 import com.kaan.play.data.web.WebSiteUrl
+import com.kaan.play.ui.components.PlayCardRow
+import com.kaan.play.ui.components.ScreenHeader
+import com.kaan.play.ui.containerViewModel
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.tv.dpadLeavesTextField
+import com.kaan.play.ui.tv.focusMemory
 import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.rememberCursorField
+import com.kaan.play.ui.tv.rememberFocusMemory
 import com.kaan.play.ui.tv.rememberRowControls
 import com.kaan.play.ui.tv.rowControl
 import com.kaan.play.ui.tv.rowControlsHost
+import com.kaan.play.ui.web.WebActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -193,4 +210,73 @@ fun AddWebSiteDialog(
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
         },
     )
+}
+
+@Composable
+fun WebSitesScreen(onBack: () -> Unit) {
+    val webVm = containerViewModel { WebSitesViewModel(it.webSites) }
+    val sites by webVm.sites.collectAsStateWithLifecycle()
+    val webDialog by webVm.dialog.collectAsStateWithLifecycle()
+    var siteToRemove by remember { mutableStateOf<WebSite?>(null) }
+    val context = LocalContext.current
+    val focus = rememberFocusMemory()
+
+    Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
+        ScreenHeader(title = stringResource(R.string.web_sites), onBack = onBack)
+
+        LazyColumn(
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            item {
+                PlayCardRow(
+                    title = stringResource(R.string.web_add),
+                    subtitle = stringResource(R.string.web_add_subtitle),
+                    icon = PlayIcons.AddCircle,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.focusMemory(focus, "web_add", isDefault = true),
+                    onClick = { webVm.openAdd() },
+                )
+            }
+            sites?.takeIf { it.isNotEmpty() }?.let { list ->
+                items(list, key = { "site-${it.id}" }) { site ->
+                    WebSiteRow(
+                        site = site,
+                        modifier = Modifier.focusMemory(focus, "site-${site.id}"),
+                        onOpen = { context.startActivity(WebActivity.intent(context, site.name, site.url)) },
+                        onRemove = { siteToRemove = site },
+                    )
+                }
+            }
+        }
+    }
+
+    webDialog?.let { state ->
+        AddWebSiteDialog(
+            state = state,
+            onNameChange = webVm::onNameChange,
+            onAddressChange = webVm::onAddressChange,
+            onConfirm = webVm::submit,
+            onDismiss = webVm::dismissAdd,
+        )
+    }
+
+    siteToRemove?.let { site ->
+        AlertDialog(
+            onDismissRequest = { siteToRemove = null },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text(stringResource(R.string.web_remove_title), style = MaterialTheme.typography.titleLarge) },
+            text = { Text(stringResource(R.string.web_remove_message, site.name)) },
+            confirmButton = {
+                TextButton(onClick = { webVm.remove(site); siteToRemove = null }) {
+                    Text(stringResource(R.string.addons_remove), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { siteToRemove = null }) { Text(stringResource(R.string.common_cancel)) }
+            },
+        )
+    }
 }

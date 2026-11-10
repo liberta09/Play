@@ -149,6 +149,8 @@ import com.kaan.play.ui.settings.ThemeSettingsScreen
 import com.kaan.play.ui.settings.ProfileChooserScreen
 import com.kaan.play.ui.settings.ProfileSetupScreen
 import com.kaan.play.ui.addons.RepoManagerCatalogScreen
+import com.kaan.play.ui.addons.WebSitesScreen
+import com.kaan.play.ui.settings.WifiSyncScreen
 import com.kaan.play.data.sync.LocalProfileSummary
 import kotlinx.coroutines.flow.first
 import com.kaan.play.ui.sources.SourcesSheet
@@ -174,6 +176,8 @@ private const val ADDON_DETAIL_ROUTE = "settings/addons/detail/{id}"
 private const val PLAYER_SETTINGS_ROUTE = "settings/player"
 private const val THEME_SETTINGS_ROUTE = "settings/theme"
 private const val ABOUT_ROUTE = "settings/about"
+private const val WEBSITES_ROUTE = "settings/websites"
+private const val WIFI_SYNC_ROUTE = "settings/wifi-sync"
 private const val DETAIL_ROUTE = "detail/{type}/{id}"
 private const val PERSON_ROUTE = "person/{id}?name={name}"
 private const val PROVIDER_DETAIL_ROUTE = "provider_detail/{providerId}/{encodedUrl}"
@@ -751,11 +755,16 @@ fun PlayRoot() {
                 ReadableWidth {
                     SettingsScreen(
                         onOpenAddons = { navController.navigate(addonsRoute(false)) },
+                        onOpenCollections = { navController.navigate(ADDONS_COLLECTIONS_ROUTE) },
+                        onOpenWebSites = { navController.navigate(WEBSITES_ROUTE) },
+                        onOpenSourceHealth = { navController.navigate(SOURCE_HEALTH_ROUTE) },
                         onOpenPlayer = { navController.navigate(PLAYER_SETTINGS_ROUTE) },
                         onOpenTheme = { navController.navigate(THEME_SETTINGS_ROUTE) },
+                        onOpenNetwork = { navController.navigate(NETWORK_SETTINGS_ROUTE) },
                         onOpenSpeedTest = { navController.navigate(SPEED_TEST_ROUTE) },
                         onOpenProfile = { profileGate = true },
                         onOpenSync = { navController.navigate(SYNC_ROUTE) },
+                        onOpenWifiSync = { navController.navigate(WIFI_SYNC_ROUTE) },
                         onOpenAbout = { navController.navigate(ABOUT_ROUTE) },
                         contentFocusRequester = settingsFocusRequester,
                         topBarFocusRequester = topBarFocusRequester,
@@ -804,6 +813,16 @@ fun PlayRoot() {
                         onOpenSpeedTest = { navController.navigate(SPEED_TEST_ROUTE) },
                         onOpenSlowConnection = { navController.navigate(PLAYER_SETTINGS_ROUTE) },
                     )
+                }
+            }
+            composable(WEBSITES_ROUTE) {
+                ReadableWidth {
+                    WebSitesScreen(onBack = { navController.popBackStack() })
+                }
+            }
+            composable(WIFI_SYNC_ROUTE) {
+                ReadableWidth {
+                    WifiSyncScreen(onBack = { navController.popBackStack() })
                 }
             }
             composable(ADDONS_REPOS_ROUTE) {
