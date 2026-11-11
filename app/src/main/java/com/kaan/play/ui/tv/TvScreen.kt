@@ -83,6 +83,11 @@ import com.kaan.play.data.provider.LiveTvCatalog
 import com.kaan.play.data.provider.LiveTvCatalogRules
 import com.kaan.play.data.provider.LiveTvSortMode
 import com.kaan.play.data.provider.LiveZapChannel
+import com.kaan.play.data.live.LiveCategory
+import com.kaan.play.data.live.LiveCategoryRules
+import com.kaan.play.ui.components.FilterPill
+import com.kaan.play.ui.tv.focusMemory
+import com.kaan.play.ui.tv.rememberFocusMemory
 import com.kaan.play.data.settings.SettingsRepository
 import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.ui.components.resolvePosterImageUrl
@@ -134,6 +139,8 @@ fun TvScreen(
     var loading by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
     var sourceFilter by remember { mutableStateOf(ChannelSourceFilter.All) }
+    var selectedCategory by remember { mutableStateOf<LiveCategory?>(null) }
+    val chipFocusMemory = rememberFocusMemory()
     var selectedChannel by remember { mutableStateOf<LiveChannelGroup?>(null) }
     var addToListTarget by remember { mutableStateOf<LiveChannelGroup?>(null) }
     var showRenameDialog by remember { mutableStateOf(false) }
@@ -218,29 +225,62 @@ fun TvScreen(
             )
         }
     }
-    val visibleChannels = remember(allChannels, catalogGroups, activeCatalog, query, sourceFilter, sortMode, activityByKey, orderByKey) {
-        val needle = query.tvSearchKey()
+    val currentCatalogChannels = remember(activeCatalog, allChannels, catalogGroups, sourceFilter) {
         if (activeCatalog != null) {
-            if (needle.isBlank()) catalogGroups
-            else catalogGroups.filter { channel ->
-                channel.title.tvSearchKey().contains(needle) || channel.sources.any { source ->
-                    listOf(source.item.title, source.rowTitle, source.providerName).any { it.tvSearchKey().contains(needle) }
-                }
-            }
+            catalogGroups
         } else {
-            val filtered = allChannels.filter { channel ->
-                val sourceMatches = when (sourceFilter) {
+            allChannels.filter { channel ->
+                when (sourceFilter) {
                     ChannelSourceFilter.All -> true
                     ChannelSourceFilter.Nuvio -> channel.sources.any { it.item.providerId.startsWith("nuvio_addon:") }
                     ChannelSourceFilter.CloudStream -> channel.sources.any { it.item.providerId.startsWith("cs:") }
                 }
-                val textMatches = needle.isBlank() || channel.sources.any { source ->
+            }
+        }
+    }
+    val categoryCounts = remember(currentCatalogChannels) {
+        val map = mutableMapOf<LiveCategory, Int>()
+        currentCatalogChannels.forEach { ch ->
+            val cat = LiveCategoryRules.classify(ch.title)
+            map[cat] = (map[cat] ?: 0) + 1
+        }
+        map
+    }
+    val visibleCategories = remember(categoryCounts) {
+        LiveCategory.entries.filter { (categoryCounts[it] ?: 0) > 0 }
+    }
+    val visibleChannels = remember(allChannels, catalogGroups, activeCatalog, query, sourceFilter, selectedCategory, sortMode, activityByKey, orderByKey) {
+        val needle = query.tvSearchKey()
+        val baseChannels = if (activeCatalog != null) {
+            catalogGroups
+        } else {
+            allChannels.filter { channel ->
+                when (sourceFilter) {
+                    ChannelSourceFilter.All -> true
+                    ChannelSourceFilter.Nuvio -> channel.sources.any { it.item.providerId.startsWith("nuvio_addon:") }
+                    ChannelSourceFilter.CloudStream -> channel.sources.any { it.item.providerId.startsWith("cs:") }
+                }
+            }
+        }
+        val categoryFiltered = if (selectedCategory == null) {
+            baseChannels
+        } else {
+            baseChannels.filter { LiveCategoryRules.classify(it.title) == selectedCategory }
+        }
+        val textFiltered = if (needle.isBlank()) {
+            categoryFiltered
+        } else {
+            categoryFiltered.filter { channel ->
+                channel.title.tvSearchKey().contains(needle) || channel.sources.any { source ->
                     listOf(source.item.title, source.rowTitle, source.providerName).any { it.tvSearchKey().contains(needle) }
                 }
-                sourceMatches && textMatches
             }
+        }
+        if (activeCatalog != null) {
+            textFiltered
+        } else {
             LiveChannelSort.sort(
-                channels = filtered,
+                channels = textFiltered,
                 mode = sortMode,
                 keyOf = { it.key },
                 titleOf = { it.title },
@@ -369,6 +409,38 @@ fun TvScreen(
                 }
                 OutlinedButton(onClick = { showDeleteListConfirm = true }) {
                     Text(stringResource(R.string.tv_list_delete), color = MaterialTheme.colorScheme.error, maxLines = 1, softWrap = false)
+                }
+            }
+        }
+
+        if (currentCatalogChannels.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    text = stringResource(R.string.live_categories_title),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    itemVerticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    FilterPill(
+                        text = "${stringResource(R.string.live_category_all)} (${currentCatalogChannels.size})",
+                        selected = selectedCategory == null,
+                        onClick = { selectedCategory = null },
+                        modifier = Modifier.focusMemory(chipFocusMemory, "cat-all", isDefault = selectedCategory == null),
+                    )
+                    visibleCategories.forEach { cat ->
+                        val count = categoryCounts[cat] ?: 0
+                        FilterPill(
+                            text = "${stringResource(cat.titleRes)} ($count)",
+                            selected = selectedCategory == cat,
+                            onClick = { selectedCategory = cat },
+                            modifier = Modifier.focusMemory(chipFocusMemory, "cat-${cat.id}", isDefault = selectedCategory == cat),
+                        )
+                    }
                 }
             }
         }

@@ -1033,4 +1033,22 @@
     <string name="watch_party_default_user_name">Kullanıcı</string>
     <string name="watch_party_error_empty_response">Boş yanıt</string>
 
+    <!-- Canlı TV Kategorileri -->
+    <string name="live_categories_title">Kanal kategorileri</string>
+    <string name="live_category_all">Tümü</string>
+    <string name="live_category_bein">beIN</string>
+    <string name="live_category_tabii">tabii</string>
+    <string name="live_category_tivibu">Tivibu</string>
+    <string name="live_category_exxen">Exxen</string>
+    <string name="live_category_s_sport">S Sport</string>
+    <string name="live_category_other_sports">Diğer spor</string>
+    <string name="live_category_news">Haber</string>
+    <string name="live_category_kids">Çocuk</string>
+    <string name="live_category_documentary">Belgesel</string>
+    <string name="live_category_yesilcam">Yeşilçam</string>
+    <string name="live_category_cinema">Sinema</string>
+    <string name="live_category_music">Müzik</string>
+    <string name="live_category_local">Yerel</string>
+    <string name="live_category_national">Ulusal</string>
+    <string name="live_category_other">Diğer</string>
 </resources>

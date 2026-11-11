@@ -1052,4 +1052,22 @@
     <string name="watch_party_default_user_name">User</string>
     <string name="watch_party_error_empty_response">Empty response</string>
 
+    <!-- Live TV Categories -->
+    <string name="live_categories_title">Channel categories</string>
+    <string name="live_category_all">All</string>
+    <string name="live_category_bein">beIN</string>
+    <string name="live_category_tabii">tabii</string>
+    <string name="live_category_tivibu">Tivibu</string>
+    <string name="live_category_exxen">Exxen</string>
+    <string name="live_category_s_sport">S Sport</string>
+    <string name="live_category_other_sports">Other sports</string>
+    <string name="live_category_news">News</string>
+    <string name="live_category_kids">Kids</string>
+    <string name="live_category_documentary">Documentary</string>
+    <string name="live_category_yesilcam">Yeşilçam</string>
+    <string name="live_category_cinema">Cinema</string>
+    <string name="live_category_music">Music</string>
+    <string name="live_category_local">Local</string>
+    <string name="live_category_national">National</string>
+    <string name="live_category_other">Other</string>
 </resources>
