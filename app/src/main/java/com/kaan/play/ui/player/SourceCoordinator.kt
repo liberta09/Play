@@ -214,6 +214,10 @@ class SourceCoordinator(
     var dubSuggestion by mutableStateOf<PlayableStream?>(null)
         private set
 
+    /** Şu an oynatılan kaynakta Türkçe ses çalıyor mu (etiketsiz ama gömülü/doğrulanmış ses). */
+    private val _currentAudioTurkish = mutableStateOf(false)
+    val currentAudioTurkish: Boolean get() = _currentAudioTurkish.value
+
     var midPlaybackSwitches by mutableStateOf(0)
         private set
     var lastWorkingStream: PlayableStream? = null
@@ -528,6 +532,7 @@ class SourceCoordinator(
         firstFrameJob?.cancel()
         probeJob?.cancel()
         current = stream
+        _currentAudioTurkish.value = false
         attempted += stream.url
         phase = SourcePhase.Starting
         Log.d(TAG, "kaynak başlatılıyor: ${stream.source.addonName} (${StreamLog.hostOf(stream.url)})")
@@ -1052,6 +1057,14 @@ class SourceCoordinator(
         notice = null
     }
 
+    /** Şu anki kaynakta Türkçe ses çaldığı doğrulanınca/seçilince coordinator bilgilendirilir. */
+    fun setCurrentAudioTurkish(isTurkish: Boolean) {
+        _currentAudioTurkish.value = isTurkish
+        if (isTurkish) {
+            dubSuggestion = null
+        }
+    }
+
     /** Torrent üst bilgisinden ya da başka yerden bulunan dosya boyutu (adres → bayt). */
     fun reportSize(url: String, bytes: Long) {
         if (isLive) return
@@ -1075,7 +1088,7 @@ class SourceCoordinator(
     // ---- iç işler ----
 
     private fun maybeSuggestDub() {
-        if (!showDubSuggestion || !autoSource || !preferDub || userPicked || suggestionDismissed || dubSuggestion != null) return
+        if (!showDubSuggestion || !autoSource || !preferDub || userPicked || suggestionDismissed || dubSuggestion != null || currentAudioTurkish) return
         val playing = current ?: return
         if (playing.dubbed) return
         dubSuggestion = ranked().firstOrNull { it.dubbed && !SourceRanking.isTooHeavy(it, ctx) && !isBlacklistedHost(it.url) && it.url != playing.url && it.url !in attempted }

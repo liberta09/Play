@@ -1100,6 +1100,7 @@ class PlayerActivity : AppCompatActivity() {
         }
         skips.onSourceChanged(startMs)
         embeddedDub = false
+        coordinator?.setCurrentAudioTurkish(false)
         // Dublajlı kaynakta Türkçe altyazı gereksiz: otomatik seçim kapanır (kullanıcının elle seçtiğine dokunulmaz).
         if (stream.dubbed) subtitles.suppressAuto() else subtitles.resumeAuto()
         subtitles.setStream(stream)
@@ -1151,6 +1152,7 @@ class PlayerActivity : AppCompatActivity() {
             TurkishVerifyDecision.Verified -> {
                 audioVerificationScanning = false
                 coord.markCurrentVerifiedWorking()
+                coord.setCurrentAudioTurkish(true)
                 false
             }
             is TurkishVerifyDecision.TryNextDubbed -> {
@@ -1193,9 +1195,12 @@ class PlayerActivity : AppCompatActivity() {
             }
         }
         val selected = tracks.firstOrNull { it.selected }
-        embeddedDub = selected != null &&
-            TurkishAudioTrackRules.isTurkishTrack(selected.language, selected.label) &&
+        val isTurkishTrack = selected != null && TurkishAudioTrackRules.isTurkishTrack(selected.language, selected.label)
+        embeddedDub = isTurkishTrack &&
             (tracks.size > 1 || currentStream?.dubbed == true)
+        if (embeddedDub || isTurkishTrack) {
+            coordinator?.setCurrentAudioTurkish(true)
+        }
         val infos = controller.allAudioTrackInfos()
         val supported = infos.filter { it.isSupported }
         val stream = currentStream
