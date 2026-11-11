@@ -526,6 +526,27 @@ class SourceCoordinatorTest {
     }
 
     @Test
+    fun autoDubSwitchLog_doesNotContainRawUrlPathOrQuery() {
+        val old = stream(source1, "https://old-server.net/path/video.m3u8?token=secret123&signature=abc")
+        val candidate = stream(source2, "https://cdn.example.com:8080/hls/master.m3u8?auth_token=supersecret&key=999", dub = true)
+        val log = SourceCoordinator.formatAutoDubSwitchLog(old, candidate, switchCount = 1)
+
+        assertTrue(log.contains("otomatik dublaj gecisi"))
+        assertTrue(log.contains(source1.addonName))
+        assertTrue(log.contains(source2.addonName))
+        assertTrue(log.contains("old-server.net"))
+        assertTrue(log.contains("cdn.example.com"))
+
+        assertFalse(log.contains("/path/video.m3u8"))
+        assertFalse(log.contains("/hls/master.m3u8"))
+        assertFalse(log.contains("token="))
+        assertFalse(log.contains("secret123"))
+        assertFalse(log.contains("auth_token"))
+        assertFalse(log.contains("supersecret"))
+        assertFalse(log.contains("https://"))
+    }
+
+    @Test
     fun givenInitialStreamPlaysFirstWithFallbacksAfter() = runTest {
         val initial = stream(source1, "https://a/initial")
         val fallback = stream(source1, "https://a/fallback")

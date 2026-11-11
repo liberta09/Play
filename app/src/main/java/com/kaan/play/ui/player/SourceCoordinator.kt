@@ -1139,7 +1139,7 @@ class SourceCoordinator(
         autoDubSwitchCount++
         lastAutoDubSwitchMs = clock()
         notice = SourceNotice.DubSwitched
-        Log.d(TAG, "otomatik dublaj gecisi: eski=${old.source.addonName} yeni=${candidate.source.addonName} url=${candidate.url} (gecis=$autoDubSwitchCount)")
+        Log.d(TAG, formatAutoDubSwitchLog(old, candidate, autoDubSwitchCount))
         onAutoDubSwitch?.invoke(old, candidate)
         val pos = position().takeIf { it > 0 } ?: lastStartMs
         revertTo = old
@@ -1253,6 +1253,16 @@ class SourceCoordinator(
 
     companion object {
         private const val TAG = "PlayMatch"
+
+        fun formatAutoDubSwitchLog(
+            old: PlayableStream,
+            candidate: PlayableStream,
+            switchCount: Int,
+        ): String {
+            val oldHost = StreamLog.hostOf(old.url)
+            val newHost = StreamLog.hostOf(candidate.url)
+            return "otomatik dublaj gecisi: eski=${old.source.addonName} ($oldHost) yeni=${candidate.source.addonName} ($newHost) (gecis=$switchCount)"
+        }
         /** Kaynak değişiminden sonra bu süre içinde gelen ilk kare olayı eski kaynağa aittir. */
         const val STALE_FRAME_GUARD_MS = 300L
         const val PLAY_PROBE_TIMEOUT_MS = 1_500L
