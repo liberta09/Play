@@ -230,8 +230,10 @@ class SourceCoordinator(
         _userAudioChosen.value = chosen
     }
 
-    private var autoDubSwitchCount = 0
+    var autoDubSwitchCount by mutableStateOf(0)
+        private set
     private var lastAutoDubSwitchMs = 0L
+    private var scheduledDubSwitchJob: Job? = null
 
     var midPlaybackSwitches by mutableStateOf(0)
         private set
@@ -325,6 +327,7 @@ class SourceCoordinator(
         firstFrameJob?.cancel()
         probeJob?.cancel()
         runtimeJob?.cancel()
+        scheduledDubSwitchJob?.cancel()
         fallbackDubWaitJob?.cancel()
         discoveryStopJob?.cancel()
         cancelSizeProbes()
@@ -1108,12 +1111,27 @@ class SourceCoordinator(
         if (playing.dubbed) return
         if (isLive || isOffline || isWatchPartyGuest()) return
         if (autoDubSwitchCount >= MAX_AUTO_DUB_SWITCHES) return
-        if (lastAutoDubSwitchMs > 0L && clock() - lastAutoDubSwitchMs < AUTO_DUB_SWITCH_INTERVAL_MS) return
 
         val candidate = ranked().firstOrNull {
             it.dubbed && !SourceRanking.isTooHeavy(it, ctx) && !isBlacklistedHost(it.url) && it.url != playing.url && it.url !in attempted
         } ?: return
 
+        val elapsed = if (lastAutoDubSwitchMs > 0L) clock() - lastAutoDubSwitchMs else AUTO_DUB_SWITCH_INTERVAL_MS
+        if (elapsed < AUTO_DUB_SWITCH_INTERVAL_MS) {
+            val remaining = AUTO_DUB_SWITCH_INTERVAL_MS - elapsed
+            if (scheduledDubSwitchJob?.isActive != true) {
+                scheduledDubSwitchJob = scope.launch {
+                    delay(remaining)
+                    if (phase == SourcePhase.Playing) {
+                        maybeSuggestDub()
+                    }
+                }
+            }
+            return
+        }
+
+        scheduledDubSwitchJob?.cancel()
+        scheduledDubSwitchJob = null
         applyAutoDubSwitch(playing, candidate)
     }
 

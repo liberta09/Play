@@ -60,7 +60,8 @@ class SourceCoordinatorTest {
         results: Flow<StreamResult>,
         preferDub: Boolean = true,
         autoSource: Boolean = true,
-        showDubSuggestion: Boolean = true,
+        autoDubSwitch: Boolean = true,
+        showDubSuggestion: Boolean = autoDubSwitch,
         preference: SourcePref? = null,
         probe: suspend (PlayableStream) -> Long? = { null },
         request: StreamRequest,
@@ -78,6 +79,7 @@ class SourceCoordinatorTest {
             sizeProbe = probe,
             preferDub = preferDub,
             autoSource = autoSource,
+            autoDubSwitch = autoDubSwitch,
             showDubSuggestion = showDubSuggestion,
             load = { s, p -> loaded += s to p },
             position = { positionMs },
@@ -335,7 +337,7 @@ class SourceCoordinatorTest {
     }
 
     @Test
-    fun aLateDubbedSourceIsOfferedWithoutStoppingPlayback() = runTest {
+    fun lateDubbedSourceAutoSwitchesWhenPreferDubEnabled() = runTest {
         val sub = stream(source1, "https://a/sub")
         val dub = stream(source2, "https://b/dub", dub = true)
         val rig = Rig(this, flow {
@@ -347,48 +349,65 @@ class SourceCoordinatorTest {
         advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         assertEquals("https://a/sub", rig.lastUrl)
         rig.coordinator.onFirstFrame()
-        assertNull(rig.coordinator.dubSuggestion)
-        advanceTimeBy(3_500)
-        assertEquals(dub, rig.coordinator.dubSuggestion)
-        assertEquals("oynatma kesilmedi", 1, rig.loaded.size)
-
-        // Geç: kaldığı saniyeden devam.
         rig.positionMs = 61_000
-        rig.coordinator.acceptDubSuggestion()
+
+        // 3.5 sn sonra dublajlı kaynak gelir -> sormadan aynı saniyeden otomatik geçiş yapılır
+        advanceTimeBy(3_500)
         assertEquals(dub.url, rig.lastUrl)
         assertEquals(61_000L, rig.loaded.last().second)
+        assertEquals(SourceNotice.DubSwitched, rig.coordinator.notice)
         assertNull(rig.coordinator.dubSuggestion)
-        runCurrent()
-        assertEquals(listOf(dub), rig.remembered)
-        rig.coordinator.onFirstFrame()
-        advanceUntilIdle()
     }
 
     @Test
-    fun dismissingTheDubOfferKeepsItClosed() = runTest {
+    fun noSwitchWhenTurkishAudioAlreadyPlaying() = runTest {
         val sub = stream(source1, "https://a/sub")
-        val dub1 = stream(source2, "https://b/dub", dub = true)
-        val dub2 = stream(StreamSource(3, "C"), "https://c/dub", dub = true)
+        val dub = stream(source2, "https://b/dub", dub = true)
         val rig = Rig(this, flow {
             emit(found(source1, sub))
-            delay(StartPolicy.DUB_WAIT_MS + 2_000)
-            emit(found(source2, dub1))
-            delay(5_000)
-            emit(found(StreamSource(3, "C"), dub2))
+            delay(StartPolicy.DUB_WAIT_MS + 3_000)
+            emit(found(source2, dub))
         }, request = request)
         rig.coordinator.start(null, emptyList(), 0)
         advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         rig.coordinator.onFirstFrame()
-        advanceTimeBy(2_000)
-        assertEquals(dub1, rig.coordinator.dubSuggestion)
-        rig.coordinator.dismissDubSuggestion()
-        advanceUntilIdle()
+        // Gömülü Türkçe ses çalıyor
+        rig.coordinator.setCurrentAudioTurkish(true)
+        val initialLoads = rig.loaded.size
+
+        advanceTimeBy(4_000)
+        assertEquals(initialLoads, rig.loaded.size)
+        assertEquals("https://a/sub", rig.lastUrl)
         assertNull(rig.coordinator.dubSuggestion)
-        assertEquals(1, rig.loaded.size)
     }
 
     @Test
-    fun dubSuggestionNotShownWhenDisabledInSettings() = runTest {
+    fun noSwitchWhenSourceOrAudioManuallyPicked() = runTest {
+        val sub1 = stream(source1, "https://a/sub1")
+        val sub2 = stream(source1, "https://a/sub2")
+        val dub = stream(source2, "https://b/dub", dub = true)
+        val rig = Rig(this, flow {
+            emit(found(source1, sub1))
+            delay(StartPolicy.DUB_WAIT_MS + 2_000)
+            emit(found(source2, dub))
+        }, request = request)
+        rig.coordinator.start(null, emptyList(), 0)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
+        rig.coordinator.onFirstFrame()
+
+        // Kullanıcı elle kaynak seçti
+        rig.coordinator.pick(sub2)
+        rig.coordinator.onFirstFrame()
+        assertEquals(sub2.url, rig.lastUrl)
+
+        // Sonradan dublajlı aday gelse bile otomatik geçiş yapılmaz
+        advanceTimeBy(5_000)
+        assertEquals(sub2.url, rig.lastUrl)
+        assertNull(rig.coordinator.dubSuggestion)
+    }
+
+    @Test
+    fun noSwitchWhenPreferDubOrAutoDubSwitchDisabled() = runTest {
         val sub = stream(source1, "https://a/sub")
         val dub = stream(source2, "https://b/dub", dub = true)
         val rig = Rig(
@@ -398,38 +417,112 @@ class SourceCoordinatorTest {
                 delay(StartPolicy.DUB_WAIT_MS + 1_000)
                 emit(found(source2, dub))
             },
-            showDubSuggestion = false,
+            preferDub = false,
             request = request,
         )
         rig.coordinator.start(null, emptyList(), 0)
         advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         rig.coordinator.onFirstFrame()
         advanceTimeBy(2_000)
+        assertEquals("https://a/sub", rig.lastUrl)
         assertNull(rig.coordinator.dubSuggestion)
     }
 
     @Test
-    fun noOfferWhenAlreadyDubbedOrUserPickedASource() = runTest {
-        val dub = stream(source1, "https://a/dub", dub = true)
-        val sub = stream(source2, "https://b/sub")
-        val dub2 = stream(StreamSource(3, "C"), "https://c/dub", dub = true)
+    fun failedVerificationRevertsToOriginalAndCandidateNotTriedAgain() = runTest {
+        val sub = stream(source1, "https://a/sub")
+        val dub = stream(source2, "https://b/dub", dub = true)
         val rig = Rig(this, flow {
-            emit(found(source1, dub))
-            emit(found(source2, sub))
-            delay(5_000)
-            emit(found(StreamSource(3, "C"), dub2))
+            emit(found(source1, sub))
+            delay(StartPolicy.DUB_WAIT_MS + 2_000)
+            emit(found(source2, dub))
         }, request = request)
         rig.coordinator.start(null, emptyList(), 0)
-        runCurrent()
-        assertEquals("https://a/dub", rig.lastUrl)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         rig.coordinator.onFirstFrame()
-        advanceUntilIdle()
-        assertNull("dublajlı oynarken öneri yok", rig.coordinator.dubSuggestion)
+        val original = rig.coordinator.current!!
+        assertEquals("https://a/sub", original.url)
 
-        // Elle (altyazılı) seçildiyse yine öneri yok.
-        rig.coordinator.pick(sub)
+        // Dublaj geldi, otomatik geçiş yapıldı
+        advanceTimeBy(3_000)
+        assertEquals(dub.url, rig.lastUrl)
+
+        // Doğrulama başarısız oldu: eski çalışan kaynağa dönülür
+        rig.coordinator.switchAfterUnverifiedDub(original)
+        assertEquals("https://a/sub", rig.lastUrl)
+
+        // Aday bu oturumda bir daha denenmez
         rig.coordinator.onFirstFrame()
+        advanceTimeBy(15_000)
+        assertEquals("https://a/sub", rig.lastUrl)
         assertNull(rig.coordinator.dubSuggestion)
+    }
+
+    @Test
+    fun autoDubSwitchLimitsToThreeAndTenSecondsInterval() = runTest {
+        val sub = stream(source1, "https://a/sub")
+        val dub1 = stream(source2, "https://b/dub1", dub = true)
+        val dub2 = stream(StreamSource(3, "C"), "https://c/dub2", dub = true)
+        val dub3 = stream(StreamSource(4, "D"), "https://d/dub3", dub = true)
+        val dub4 = stream(StreamSource(5, "E"), "https://e/dub4", dub = true)
+
+        val rig = Rig(this, flow {
+            emit(found(source1, sub))
+            delay(StartPolicy.DUB_WAIT_MS + 1_000)
+            emit(found(source2, dub1))
+            emit(found(StreamSource(3, "C"), dub2))
+            emit(found(StreamSource(4, "D"), dub3))
+            emit(found(StreamSource(5, "E"), dub4))
+        }, request = request)
+
+        rig.coordinator.start(null, emptyList(), 0)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
+        rig.coordinator.onFirstFrame()
+        assertEquals("https://a/sub", rig.lastUrl)
+
+        // 1. geçiş: dub1 hemen seçilir
+        advanceTimeBy(1_500)
+        assertEquals(dub1.url, rig.lastUrl)
+        advanceTimeBy(400)
+        rig.coordinator.onFirstFrame()
+
+        // Doğrulama başarısız: sub'a dönüldü
+        rig.coordinator.switchAfterUnverifiedDub(sub)
+        advanceTimeBy(400)
+        rig.coordinator.onFirstFrame()
+        assertEquals(sub.url, rig.lastUrl)
+
+        // 5 sn sonra henüz 10 sn dolmadığı için dub2'ye geçilmemiştir
+        advanceTimeBy(5_000)
+        assertEquals(sub.url, rig.lastUrl)
+
+        // 10 sn aralık dolduğunda (6 sn daha) scheduled job devreye girer -> 2. geçiş: dub2
+        advanceTimeBy(6_000)
+        assertEquals(dub2.url, rig.lastUrl)
+        advanceTimeBy(400)
+        rig.coordinator.onFirstFrame()
+
+        // Doğrulama başarısız: sub'a dönüldü
+        rig.coordinator.switchAfterUnverifiedDub(sub)
+        advanceTimeBy(400)
+        rig.coordinator.onFirstFrame()
+        assertEquals(sub.url, rig.lastUrl)
+
+        // 11 sn sonra 3. geçiş: dub3
+        advanceTimeBy(11_000)
+        assertEquals(dub3.url, rig.lastUrl)
+        advanceTimeBy(400)
+        rig.coordinator.onFirstFrame()
+
+        // Doğrulama başarısız: sub'a dönüldü
+        rig.coordinator.switchAfterUnverifiedDub(sub)
+        advanceTimeBy(400)
+        rig.coordinator.onFirstFrame()
+        assertEquals(sub.url, rig.lastUrl)
+
+        // 15 sn sonra: oturumda 3 geçiş hakkı dolduğu için 4. geçiş YAPILMAZ! sub'da kalır.
+        advanceTimeBy(15_000)
+        assertEquals(sub.url, rig.lastUrl)
     }
 
     @Test

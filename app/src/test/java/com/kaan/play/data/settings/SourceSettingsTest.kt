@@ -1,6 +1,12 @@
 package com.kaan.play.data.settings
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.mutablePreferencesOf
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.Flow
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.player.AutoRetryPolicy
 import com.kaan.play.data.stream.PlayableStream
@@ -77,6 +83,36 @@ class SourceSettingsTest {
     fun showDubSuggestionCanBeTurnedOff() = runBlocking {
         repo.setShowDubSuggestion(false)
         assertFalse(repo.showDubSuggestion.first())
+        assertFalse(repo.autoDubSwitch.first())
+    }
+
+    @Test
+    fun autoDubSwitchCanBeTurnedOff() = runBlocking {
+        repo.setAutoDubSwitch(false)
+        assertFalse(repo.autoDubSwitch.first())
+    }
+
+    @Test
+    fun legacyShowDubSuggestionSettingMigratesToAutoDubSwitch() = runBlocking {
+        val initialPrefs = mutablePreferencesOf(SettingsRepository.SHOW_DUB_SUGGESTION to false)
+        val dataFlow = MutableStateFlow<Preferences>(initialPrefs)
+        val fakeStore = object : DataStore<Preferences> {
+            override val data: Flow<Preferences> = dataFlow
+            override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
+                val updated = transform(dataFlow.value)
+                dataFlow.value = updated
+                return updated
+            }
+        }
+        val customRepo = SettingsRepository(fakeStore)
+
+        assertFalse(customRepo.autoDubSwitch.first())
+
+        customRepo.migrateLegacyDubSettings()
+        assertFalse(customRepo.autoDubSwitch.first())
+        val finalPrefs = fakeStore.data.first()
+        assertEquals(false, finalPrefs[SettingsRepository.AUTO_DUB_SWITCH])
+        assertFalse(finalPrefs.contains(SettingsRepository.SHOW_DUB_SUGGESTION))
     }
 
     @Test
