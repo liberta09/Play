@@ -168,9 +168,12 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         store.edit { it[SHOW_PREPLAY_POSTER] = enabled }
     }
 
-    /** Açıkken altyazılı oynarken sonradan bulunan dublajlı kaynak köşe kartıyla önerilir. Varsayılan açık. */
-    val showDubSuggestion: Flow<Boolean> =
-        store.data.map { it[SHOW_DUB_SUGGESTION] ?: DEFAULT_SHOW_DUB_SUGGESTION }.distinctUntilChanged()
+    /** Açıkken altyazılı oynarken sonradan dublajlı kaynak bulununca otomatik geçilir. Varsayılan açık. */
+    val autoDubSwitch: Flow<Boolean> = store.data.map { prefs ->
+        prefs[AUTO_DUB_SWITCH] ?: prefs[SHOW_DUB_SUGGESTION] ?: DEFAULT_AUTO_DUB_SWITCH
+    }.distinctUntilChanged()
+
+    val showDubSuggestion: Flow<Boolean> get() = autoDubSwitch
 
     /** Dublajlı kaynakta Türkçe ses izi tarama süresi (5 / 7 / 10 sn). */
     val audioProbeTimeoutSeconds: Flow<Int> = store.data.map { prefs ->
@@ -189,8 +192,22 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         store.edit { it[TRY_SOURCES_UNTIL_TURKISH_AUDIO] = enabled }
     }
 
-    suspend fun setShowDubSuggestion(enabled: Boolean) {
-        store.edit { it[SHOW_DUB_SUGGESTION] = enabled }
+    suspend fun setAutoDubSwitch(enabled: Boolean) {
+        store.edit { prefs ->
+            prefs[AUTO_DUB_SWITCH] = enabled
+            prefs.remove(SHOW_DUB_SUGGESTION)
+        }
+    }
+
+    suspend fun setShowDubSuggestion(enabled: Boolean) = setAutoDubSwitch(enabled)
+
+    suspend fun migrateLegacyDubSettings() {
+        store.edit { prefs ->
+            if (prefs[AUTO_DUB_SWITCH] == null && prefs.contains(SHOW_DUB_SUGGESTION)) {
+                prefs[AUTO_DUB_SWITCH] = prefs[SHOW_DUB_SUGGESTION] ?: DEFAULT_AUTO_DUB_SWITCH
+                prefs.remove(SHOW_DUB_SUGGESTION)
+            }
+        }
     }
 
     suspend fun setAudioProbeTimeoutSeconds(seconds: Int) {
@@ -514,7 +531,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_AUTO_SOURCE_RETRY_LIMIT = AutoRetryPolicy.UNLIMITED
         const val DEFAULT_SHOW_PREPLAY_POSTER = true
         val AUTO_SOURCE_RETRY_OPTIONS = AutoRetryPolicy.OPTIONS
-        const val DEFAULT_SHOW_DUB_SUGGESTION = true
+        const val DEFAULT_AUTO_DUB_SWITCH = true
+        const val DEFAULT_SHOW_DUB_SUGGESTION = DEFAULT_AUTO_DUB_SWITCH
         const val DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS = 7
         val AUDIO_PROBE_TIMEOUT_OPTIONS = listOf(5, 7, 10)
         const val DEFAULT_AUTO_NEXT_SECONDS = 10
@@ -543,7 +561,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val REVERT_ON_SELECTED_FAILURE = booleanPreferencesKey("revert_on_selected_failure")
         private val AUTO_SOURCE_RETRY_LIMIT = intPreferencesKey("auto_source_retry_limit")
         private val SHOW_PREPLAY_POSTER = booleanPreferencesKey("show_preplay_poster")
-        private val SHOW_DUB_SUGGESTION = booleanPreferencesKey("show_dub_suggestion")
+        val AUTO_DUB_SWITCH = booleanPreferencesKey("auto_dub_switch")
+        val SHOW_DUB_SUGGESTION = booleanPreferencesKey("show_dub_suggestion")
         private val AUDIO_PROBE_TIMEOUT_SECONDS = intPreferencesKey("audio_probe_timeout_seconds")
         private val RESIZE_MODE = stringPreferencesKey("resize_mode")
         private val AUTO_NEXT_SECONDS = intPreferencesKey("auto_next_seconds")
@@ -589,6 +608,7 @@ class SettingsRepository(val store: DataStore<Preferences>) {
             REVERT_ON_SELECTED_FAILURE,
             AUTO_SOURCE_RETRY_LIMIT,
             SHOW_PREPLAY_POSTER,
+            AUTO_DUB_SWITCH,
             SHOW_DUB_SUGGESTION,
             AUDIO_PROBE_TIMEOUT_SECONDS,
             RESIZE_MODE,

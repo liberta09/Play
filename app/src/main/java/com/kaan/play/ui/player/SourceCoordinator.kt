@@ -134,7 +134,8 @@ class SourceCoordinator(
     private val maxHeight: Int = 1080,
     private val preferDub: Boolean = true,
     private val autoSource: Boolean = true,
-    private val showDubSuggestion: Boolean = true,
+    private val autoDubSwitch: Boolean = true,
+    private val showDubSuggestion: Boolean = autoDubSwitch,
     private val revertOnSelectedFailure: Boolean = true,
     /** Otomatik deneme sayısı sınırı (`null` = Sınırsız). Yalnızca otomatik seçilen kaynak denemelerini sınırlar. */
     private val autoRetryLimit: Int? = null,
@@ -1102,7 +1103,7 @@ class SourceCoordinator(
     // ---- iç işler ----
 
     private fun maybeSuggestDub() {
-        if (!showDubSuggestion || !autoSource || !preferDub || userPicked || userAudioChosen || currentAudioTurkish) return
+        if (!autoDubSwitch || !showDubSuggestion || !autoSource || !preferDub || userPicked || userAudioChosen || currentAudioTurkish) return
         val playing = current ?: return
         if (playing.dubbed) return
         if (isLive || isOffline || isWatchPartyGuest()) return

@@ -114,7 +114,7 @@ class PlayerActivity : AppCompatActivity() {
     private var userAudioLanguage: String? = null
     private var preferDub = true
     private var tryUntilTurkishAudio = SettingsRepository.DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO
-    private var showDubSuggestionSetting = SettingsRepository.DEFAULT_SHOW_DUB_SUGGESTION
+    private var autoDubSwitchSetting = SettingsRepository.DEFAULT_AUTO_DUB_SWITCH
     private var revertOnSelectedFailureSetting = SettingsRepository.DEFAULT_REVERT_ON_SELECTED_FAILURE
     private var autoRetryLimitSetting = SettingsRepository.DEFAULT_AUTO_SOURCE_RETRY_LIMIT
     private var audioProbeTimeoutSeconds = SettingsRepository.DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS
@@ -357,7 +357,7 @@ class PlayerActivity : AppCompatActivity() {
             autoSourceSetting = runBlocking { settings.autoSource.first() }
             preferDub = runBlocking { settings.preferDub.first() }
             tryUntilTurkishAudio = runBlocking { settings.trySourcesUntilTurkishAudio.first() }
-            showDubSuggestionSetting = runBlocking { settings.showDubSuggestion.first() }
+            autoDubSwitchSetting = runBlocking { settings.autoDubSwitch.first() }
             revertOnSelectedFailureSetting = runBlocking { settings.revertOnSelectedFailure.first() }
             autoRetryLimitSetting = runBlocking { settings.autoSourceRetryLimit.first() }
             audioProbeTimeoutSeconds = runBlocking { settings.audioProbeTimeoutSeconds.first() }
@@ -790,7 +790,7 @@ class PlayerActivity : AppCompatActivity() {
             maxHeight = DeviceCodecs.maxDecodableHeight(),
             preferDub = preferDub,
             autoSource = autoSourceSetting,
-            showDubSuggestion = showDubSuggestionSetting,
+            autoDubSwitch = autoDubSwitchSetting,
             revertOnSelectedFailure = revertOnSelectedFailureSetting,
             autoRetryLimit = AutoRetryPolicy.limitOrNull(autoRetryLimitSetting),
             loadBlocked = { container.wrongContentBlocks.ensureLoaded(); container.sourceHealth.ensureLoaded() },

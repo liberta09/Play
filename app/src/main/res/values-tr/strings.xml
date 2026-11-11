@@ -524,9 +524,6 @@
     <string name="player_source_switched">Kaynak değiştirildi.</string>
     <string name="player_switched_to_dub">Türkçe dublaja geçildi</string>
     <string name="player_error_detail">Ayrıntı: %1$s</string>
-    <string name="dub_suggest_title">Dublajlı kaynak bulundu, geçilsin mi?</string>
-    <string name="dub_suggest_switch">Geç</string>
-    <string name="dub_suggest_close">Kapat</string>
     <string name="tag_dubbed">Dublajlı</string>
     <string name="tag_subbed">Altyazılı</string>
     <string name="tag_dubbed_embedded">Dublajlı (gömülü ses)</string>
@@ -748,6 +745,7 @@
     <string name="data_reset_settings_done">Ayarlar varsayılana döndürüldü</string>
     <string name="data_confirm_delete">Sil</string>
     <string name="settings_try_until_turkish_audio">Türkçe ses izini bulana kadar kaynakları dene; bulunamazsa en hızlı alternatifi aç</string>
+    <string name="settings_auto_dub_switch">Dublaj bulununca otomatik geç</string>
     <string name="settings_audio_probe_timeout">Ses izi tarama süresi</string>
     <string name="settings_audio_probe_seconds">%1$d sn</string>
     <string name="player_verifying_turkish_audio">Türkçe ses izi doğrulanıyor…</string>
@@ -760,8 +758,6 @@
     <string name="player_audio_unknown_hint">Ses izi tanınamadı; parçalar arasında geçiş yapabilirsin.</string>
     <string name="player_audio_unknown_named">%1$s · Ses izi tanınamadı; parçalar arasında geçiş yapabilirsin.</string>
     <string name="player_audio_selecting_learned">Olası ses izi seçiliyor…</string>
-    <string name="settings_show_dub_suggestion">Sonradan bulunan dublajlı kaynak önerisini göster</string>
-    <string name="dub_suggest_subtitle">Basınca kaldığın yerden açılır; Türkçe ses izi doğrulanmazsa mevcut kaynak korunur.</string>
     <string name="player_wrong_content_block">Yanlış içerik · bu dizi/film için kaynağı engelle</string>
     <string name="player_wrong_content_blocked_switching">Bu kaynak bu dizi/film için engellendi; başka kaynak açılıyor.</string>
     <string name="player_wrong_content_blocked_waiting">Kaynak engellendi; alternatif kaynak bekleniyor.</string>

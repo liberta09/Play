@@ -542,9 +542,6 @@
     <string name="player_source_switched">Source changed.</string>
     <string name="player_switched_to_dub">Switched to Turkish dub</string>
     <string name="player_error_detail">Details: %1$s</string>
-    <string name="dub_suggest_title">Dubbed source found. Switch?</string>
-    <string name="dub_suggest_switch">Switch</string>
-    <string name="dub_suggest_close">Close</string>
     <string name="tag_dubbed">Dubbed</string>
     <string name="tag_subbed">Subtitled</string>
     <string name="tag_dubbed_embedded">Dubbed (embedded audio)</string>
@@ -767,6 +764,7 @@
     <string name="data_reset_settings_done">Settings restored to defaults</string>
     <string name="data_confirm_delete">Delete</string>
     <string name="settings_try_until_turkish_audio">Try sources until Turkish audio is found; otherwise open fastest alternative</string>
+    <string name="settings_auto_dub_switch">Auto switch when dubbed source found</string>
     <string name="settings_audio_probe_timeout">Audio track scan duration</string>
     <string name="settings_audio_probe_seconds">%1$d s</string>
     <string name="player_verifying_turkish_audio">Verifying Turkish audio track…</string>
@@ -779,8 +777,6 @@
     <string name="player_audio_unknown_hint">Audio tracks unrecognized; you can switch between tracks.</string>
     <string name="player_audio_unknown_named">%1$s · Audio track unrecognized; you can switch between tracks.</string>
     <string name="player_audio_selecting_learned">Selecting probable audio track…</string>
-    <string name="settings_show_dub_suggestion">Show dubbed source suggestion when found later</string>
-    <string name="dub_suggest_subtitle">Opens from your current position; keeps current source if Turkish audio is not verified.</string>
     <string name="player_wrong_content_block">Wrong content · block source for this title</string>
     <string name="player_wrong_content_blocked_switching">Source blocked for this title; opening another source.</string>
     <string name="player_wrong_content_blocked_waiting">Source blocked; waiting for alternative source.</string>

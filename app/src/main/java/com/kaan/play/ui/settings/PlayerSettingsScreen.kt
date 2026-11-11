@@ -72,8 +72,8 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_SOURCE_RETRY_LIMIT)
     val showPreplayPoster by container.settings.showPreplayPoster
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SHOW_PREPLAY_POSTER)
-    val showDubSuggestion by container.settings.showDubSuggestion
-        .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SHOW_DUB_SUGGESTION)
+    val autoDubSwitch by container.settings.autoDubSwitch
+        .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_DUB_SWITCH)
     val audioProbeSeconds by container.settings.audioProbeTimeoutSeconds
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS)
     val autoNext by container.settings.autoNext
@@ -122,9 +122,9 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
                 SwitchRow(stringResource(R.string.settings_try_until_turkish_audio), tryUntilTurkishAudio) {
                     scope.launch { container.settings.setTrySourcesUntilTurkishAudio(it) }
                 }
-            }
-            SwitchRow(stringResource(R.string.settings_show_dub_suggestion), showDubSuggestion) {
-                scope.launch { container.settings.setShowDubSuggestion(it) }
+                SwitchRow(stringResource(R.string.settings_auto_dub_switch), autoDubSwitch) {
+                    scope.launch { container.settings.setAutoDubSwitch(it) }
+                }
             }
             SwitchRow(stringResource(R.string.settings_revert_on_selected_failure), revertOnSelectedFailure) {
                 scope.launch { container.settings.setRevertOnSelectedFailure(it) }
