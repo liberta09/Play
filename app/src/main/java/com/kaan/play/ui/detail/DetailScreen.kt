@@ -98,6 +98,7 @@ import com.kaan.play.ui.components.TextButton
 import com.kaan.play.ui.components.TitleOrLogo
 import com.kaan.play.ui.theme.isDarkScheme
 import com.kaan.play.ui.containerViewModel
+import com.kaan.play.ui.party.watchPartyErrorMessage
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.sources.DownloadStateIcon
@@ -145,6 +146,7 @@ fun DetailScreen(
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
     val cloudAccount by container.cloudSync.account.collectAsStateWithLifecycle()
+    val activeProfile by container.localProfile.activeProfile.collectAsStateWithLifecycle(initialValue = null)
     var partyRoomDialog by remember { mutableStateOf<com.kaan.play.data.party.WatchPartyRoom?>(null) }
     var partyLoginRequiredDialog by remember { mutableStateOf(false) }
     var partyCreating by remember { mutableStateOf(false) }
@@ -166,9 +168,19 @@ fun DetailScreen(
                         tmdbId = media.id,
                         season = s,
                         episode = if (isSeries) 1 else null,
+                        displayName = activeProfile?.name,
                     )
                     partyCreating = false
-                    partyRoomDialog = result.getOrNull()
+                    result.onSuccess { room ->
+                        partyRoomDialog = room
+                    }.onFailure { err ->
+                        val msg = if (err is com.kaan.play.data.party.WatchPartyException) {
+                            context.watchPartyErrorMessage(err.error)
+                        } else {
+                            context.getString(R.string.watch_party_error_connection_failed)
+                        }
+                        android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

@@ -265,6 +265,17 @@ class PlayerActivity : AppCompatActivity() {
         controller.player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (!isPlaying) saveProgress() // duraklatma
+                broadcastPartyControlIfHost()
+            }
+
+            override fun onPositionDiscontinuity(
+                oldPosition: Player.PositionInfo,
+                newPosition: Player.PositionInfo,
+                reason: Int,
+            ) {
+                if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+                    broadcastPartyControlIfHost()
+                }
             }
 
             override fun onPlaybackStateChanged(state: Int) {
@@ -563,12 +574,12 @@ class PlayerActivity : AppCompatActivity() {
                     isWatchPartyHost = isHost,
                     isWatchPartyGuest = isGuest,
                     onWatchPartyResync = {
-                        val packet = container.watchPartyManager.realtimeClient.latestPacket.value
+                        val packet = container.watchPartyManager.realtimeClient.latestControl.value
                         if (packet != null) {
                             controller.seekTo(packet.positionMs)
-                            if (packet.isPlaying && !controller.player.isPlaying) {
+                            if (packet.playing && !controller.player.isPlaying) {
                                 controller.player.play()
-                            } else if (!packet.isPlaying && controller.player.isPlaying) {
+                            } else if (!packet.playing && controller.player.isPlaying) {
                                 controller.pause()
                             }
                             controller.speed = packet.speed
@@ -617,20 +628,22 @@ class PlayerActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 while (true) {
-                    delay(1000L)
+                    delay(5000L)
                     val activeSession = partyManager.session.value
                     if (activeSession != null && activeSession.isHost && activeSession.room.tmdbId == session.target.request.tmdbId) {
-                        partyManager.broadcastHostPosition(
-                            positionMs = controller.positionMs(),
-                            isPlaying = controller.ui.isPlaying,
-                            speed = controller.ui.speed,
-                        )
+                        if (controller.ui.isPlaying) {
+                            partyManager.broadcastControl(
+                                positionMs = controller.positionMs(),
+                                isPlaying = controller.ui.isPlaying,
+                                speed = controller.ui.speed,
+                            )
+                        }
                     }
                 }
             }
         }
         lifecycleScope.launch {
-            partyManager.realtimeClient.syncEvents.collect { packet ->
+            partyManager.realtimeClient.controlEvents.collect { packet ->
                 val activeSession = partyManager.session.value
                 if (activeSession != null && !activeSession.isHost && activeSession.room.tmdbId == session.target.request.tmdbId) {
                     val action = partyManager.syncRules.evaluateSync(
@@ -652,6 +665,54 @@ class PlayerActivity : AppCompatActivity() {
                         }
                     }
                 }
+            }
+        }
+        lifecycleScope.launch {
+            partyManager.contentTransitionEvents.collect { packet ->
+                val activeSession = partyManager.session.value
+                if (activeSession != null && !activeSession.isHost) {
+                    val isDifferent = packet.tmdbId != session.target.request.tmdbId ||
+                        packet.season != session.target.request.season ||
+                        packet.episode != session.target.request.episode
+                    if (isDifferent) {
+                        Toast.makeText(
+                            this@PlayerActivity,
+                            R.string.watch_party_host_next_episode_notice,
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                        val mediaType = com.kaan.play.data.model.MediaType.fromTmdb(packet.mediaType)
+                            ?: com.kaan.play.data.model.MediaType.Tv
+                        val baseTarget = session.target
+                        val target = baseTarget.copy(
+                            title = packet.title.ifBlank { baseTarget.title },
+                            request = baseTarget.request.copy(
+                                tmdbId = packet.tmdbId,
+                                type = mediaType,
+                                season = packet.season,
+                                episode = packet.episode,
+                                title = packet.title.ifBlank { baseTarget.request.title },
+                            ),
+                        )
+                        val nextSession = PlaySession(
+                            target = target,
+                            stream = null,
+                            startPositionMs = 0L,
+                            autoSource = true,
+                        )
+                        startActivity(nextSession.toIntent(this@PlayerActivity))
+                        noTransition(open = false)
+                        finish()
+                    }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            partyManager.roomClosedNotification.collect {
+                Toast.makeText(
+                    this@PlayerActivity,
+                    R.string.watch_party_room_closed_notice,
+                    Toast.LENGTH_SHORT,
+                ).show()
             }
         }
     }
@@ -1344,6 +1405,16 @@ class PlayerActivity : AppCompatActivity() {
                 )
                 is NextPlayback.Offline -> PlaySession.offline(next.download, resumeAt, autoResumed = resumeAt > 0, fromAutoNext = true)
             }
+            val activeParty = container.watchPartyManager.session.value
+            if (activeParty != null && activeParty.isHost) {
+                container.watchPartyManager.updatePartyContent(
+                    tmdbId = next.target.request.tmdbId,
+                    mediaType = next.target.request.type.tmdbPath,
+                    season = next.target.request.season,
+                    episode = next.target.request.episode,
+                    title = next.target.title,
+                )
+            }
             finishedForAdvance = true
             saveProgress() // bu bölüm izlendi
             if (currentStream?.url?.let(TorrentLinks::isMagnet) == true) container.torrentEngine.closeActive()
@@ -1374,6 +1445,17 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /** Duraklatma/bitiş anlarında da çağrılır: bitişte (ya da sonraki bölüme geçerken) konum süreye eşitlenir ("izlendi"). */
+    private fun broadcastPartyControlIfHost() {
+        val activeSession = (application as? PlayApp)?.container?.watchPartyManager?.session?.value
+        if (activeSession != null && activeSession.isHost && activeSession.room.tmdbId == session.target.request.tmdbId) {
+            appContainer.watchPartyManager.broadcastControl(
+                positionMs = controller.positionMs(),
+                isPlaying = controller.player.isPlaying,
+                speed = controller.ui.speed,
+            )
+        }
+    }
+
     private fun saveProgress() {
         if (!::session.isInitialized || !::controller.isInitialized) return
         if (session.noHistory) return

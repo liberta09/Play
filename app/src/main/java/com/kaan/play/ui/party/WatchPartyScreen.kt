@@ -74,6 +74,7 @@ fun WatchPartyScreen(
     val scope = rememberCoroutineScope()
     val focus = rememberFocusMemory()
     val partyManager = container.watchPartyManager
+    val activeProfile by container.localProfile.activeProfile.collectAsStateWithLifecycle(initialValue = null)
 
     val session by partyManager.session.collectAsStateWithLifecycle()
     val connectionState by partyManager.realtimeClient.connectionState.collectAsStateWithLifecycle()
@@ -180,12 +181,12 @@ fun WatchPartyScreen(
                                     joinLoading = true
                                     joinError = null
                                     scope.launch {
-                                        val result = partyManager.joinParty(inputCode)
+                                        val result = partyManager.joinParty(inputCode, displayName = activeProfile?.name)
                                         joinLoading = false
                                         result.onSuccess { room ->
                                             onOpenMedia?.invoke(room.tmdbId, room.mediaType, room.season, room.episode)
                                         }.onFailure { err ->
-                                            joinError = err.message ?: syncErrorMsg
+                                            joinError = err.toWatchPartyErrorMessage(context)
                                         }
                                     }
                                 }
@@ -233,12 +234,19 @@ private fun ActiveRoomCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = room.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            Column(modifier = Modifier.weight(1f, fill = false)) {
+                Text(
+                    text = room.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = stringResource(R.string.watch_party_badge, session.memberCount),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             // Rol rozeti
             Box(
                 modifier = Modifier
@@ -286,6 +294,15 @@ private fun ActiveRoomCard(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
+
+        if (session.members.isNotEmpty()) {
+            Text(
+                text = session.members.joinToString(", ") { it.displayName },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+            )
+        }
 
         // Eylemler
         Row(
