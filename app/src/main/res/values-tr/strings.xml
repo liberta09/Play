@@ -387,6 +387,7 @@
     <string name="about_web_blocking">Web görünümü bilinen reklamları ve açılır pencereleri engeller; her reklamı yakalamayabilir.</string>
     <string name="about_introdb_privacy">Atlama düğmeleri intro ve jenerik zamanlarını TheIntroDB\'den sorar; yalnızca TMDB kimliği, sezon/bölüm ve video süresi gider, TheIntroDB IP adresini ve izlenen içeriğin kimliğini görür.</string>
     <string name="about_crash_privacy">Çökme raporları yalnızca yığın izi, sürüm ve cihaz modelini iletir; adres veya hesap bilgisi gönderilmez.</string>
+    <string name="about_trailer_privacy">Ana sayfa kapak fragmanları oynatıldığında YouTube sunucuları IP adresinizi görür.</string>
 
     <!-- Faz 4/B: indirme -->
     <string name="download_channel_name">İndirmeler</string>

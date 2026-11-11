@@ -86,6 +86,7 @@ android {
     }
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -158,6 +159,11 @@ dependencies {
     // CloudStream resmi kütüphanesi (GPL-3.0) ve NiceHttp
     implementation(libs.cloudstream.library)
     implementation(libs.nicehttp)
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs.nio)
+
+    // YouTube fragman akış çözümü için NewPipeExtractor (GPL-3.0)
+    implementation(libs.newpipe.extractor)
 
 
     // Yerleşik torrent motoru: Java API + işlemci başına yerel kütüphane (.so).
