@@ -18,19 +18,27 @@ import kotlinx.serialization.json.jsonPrimitive
  * ve loglama çok daha güvenlidir. Dizi tabanlı (vsn=2.0.0) formattaki sıra kayması riskini ortadan kaldırır.
  */
 data class PhoenixFrame(
+    val joinRef: String? = null,
+    val ref: String?,
     val topic: String,
     val event: String,
     val payload: JsonElement,
-    val ref: String?,
-    val joinRef: String? = null,
 ) {
     fun serialize(): String {
+        val currentRef = this.ref
+        val currentJoinRef = this.joinRef
         val obj = buildJsonObject {
             put("topic", JsonPrimitive(topic))
             put("event", JsonPrimitive(event))
             put("payload", payload)
-            ref?.let { put("ref", JsonPrimitive(it)) } ?: put("ref", JsonNull)
-            joinRef?.let { put("join_ref", JsonPrimitive(it)) }
+            if (currentRef != null) {
+                put("ref", JsonPrimitive(currentRef))
+            } else {
+                put("ref", JsonNull)
+            }
+            if (currentJoinRef != null) {
+                put("join_ref", JsonPrimitive(currentJoinRef))
+            }
         }
         return obj.toString()
     }
@@ -47,20 +55,20 @@ data class PhoenixFrame(
             val joinRef = root["join_ref"]?.takeIf { it !is JsonNull }?.jsonPrimitive?.content
 
             PhoenixFrame(
+                joinRef = joinRef,
+                ref = ref,
                 topic = topic,
                 event = event,
                 payload = payload,
-                ref = ref,
-                joinRef = joinRef,
             )
         }.getOrNull()
 
         fun heartbeat(ref: String): PhoenixFrame = PhoenixFrame(
+            joinRef = null,
+            ref = ref,
             topic = "phoenix",
             event = "heartbeat",
             payload = buildJsonObject {},
-            ref = ref,
-            joinRef = null,
         )
 
         fun join(
@@ -70,6 +78,8 @@ data class PhoenixFrame(
             userId: String,
             joinRef: String = ref,
         ): PhoenixFrame = PhoenixFrame(
+            joinRef = joinRef,
+            ref = ref,
             topic = topic,
             event = "phx_join",
             payload = buildJsonObject {
@@ -85,25 +95,24 @@ data class PhoenixFrame(
                 })
                 put("access_token", JsonPrimitive(jwt))
             },
-            ref = ref,
-            joinRef = joinRef,
         )
 
         fun leave(topic: String, ref: String, joinRef: String? = null): PhoenixFrame = PhoenixFrame(
+            joinRef = joinRef,
+            ref = ref,
             topic = topic,
             event = "phx_leave",
             payload = buildJsonObject {},
-            ref = ref,
-            joinRef = joinRef,
         )
 
         fun accessToken(topic: String, ref: String, jwt: String): PhoenixFrame = PhoenixFrame(
+            joinRef = null,
+            ref = ref,
             topic = topic,
             event = "access_token",
             payload = buildJsonObject {
                 put("access_token", JsonPrimitive(jwt))
             },
-            ref = ref,
         )
 
         fun presenceTrack(
@@ -113,6 +122,8 @@ data class PhoenixFrame(
             displayName: String,
             role: String,
         ): PhoenixFrame = PhoenixFrame(
+            joinRef = null,
+            ref = ref,
             topic = topic,
             event = "presence",
             payload = buildJsonObject {
@@ -124,7 +135,6 @@ data class PhoenixFrame(
                     put("role", JsonPrimitive(role))
                 })
             },
-            ref = ref,
         )
 
         fun broadcast(
@@ -140,11 +150,11 @@ data class PhoenixFrame(
                 put("payload", data)
             }
             return PhoenixFrame(
+                joinRef = joinRef,
+                ref = ref,
                 topic = topic,
                 event = "broadcast",
                 payload = broadcastPayload,
-                ref = ref,
-                joinRef = joinRef,
             )
         }
 
