@@ -43,7 +43,7 @@ class WatchPartyApi(
             WatchPartyRoom(
                 id = first.roomId,
                 code = first.code,
-                hostUserId = cloudSync.account.value?.id.orEmpty(),
+                hostUserId = cloudSync.account.value?.userId.orEmpty(),
                 title = title,
                 mediaType = mediaType,
                 tmdbId = tmdbId,
