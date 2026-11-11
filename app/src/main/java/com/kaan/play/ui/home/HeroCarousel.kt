@@ -375,6 +375,27 @@ private fun HeroPage(
     }
 }
 
+private class HeroTrailerBridge(
+    private val onPlayingAction: () -> Unit,
+    private val onEndedAction: () -> Unit,
+    private val onErrorAction: () -> Unit,
+) {
+    @android.webkit.JavascriptInterface
+    fun onPlaying() {
+        onPlayingAction()
+    }
+
+    @android.webkit.JavascriptInterface
+    fun onEnded() {
+        onEndedAction()
+    }
+
+    @android.webkit.JavascriptInterface
+    fun onError() {
+        onErrorAction()
+    }
+}
+
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 private fun HeroTrailerView(
@@ -406,22 +427,11 @@ private fun HeroTrailerView(
     }
 
     val bridge = remember(onPlaying, onEnded, onError) {
-        object {
-            @android.webkit.JavascriptInterface
-            fun onPlaying() {
-                (context as? android.app.Activity)?.runOnUiThread { onPlaying() }
-            }
-
-            @android.webkit.JavascriptInterface
-            fun onEnded() {
-                (context as? android.app.Activity)?.runOnUiThread { onEnded() }
-            }
-
-            @android.webkit.JavascriptInterface
-            fun onError() {
-                (context as? android.app.Activity)?.runOnUiThread { onError() }
-            }
-        }
+        HeroTrailerBridge(
+            onPlayingAction = { (context as? android.app.Activity)?.runOnUiThread { onPlaying() } ?: onPlaying() },
+            onEndedAction = { (context as? android.app.Activity)?.runOnUiThread { onEnded() } ?: onEnded() },
+            onErrorAction = { (context as? android.app.Activity)?.runOnUiThread { onError() } ?: onError() },
+        )
     }
 
     AndroidView(
