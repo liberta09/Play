@@ -4,6 +4,7 @@ import com.kaan.play.data.sync.SupabaseCloudSync
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import okhttp3.MediaType.Companion.toMediaType
@@ -30,8 +31,8 @@ class WatchPartyApi(
         val body = buildJsonObject {
             put("p_tmdb_id", tmdbId)
             put("p_media_type", mediaType)
-            season?.let { put("p_season", it) }
-            episode?.let { put("p_episode", it) }
+            if (season != null) put("p_season", season) else put("p_season", JsonNull)
+            if (episode != null) put("p_episode", episode) else put("p_episode", JsonNull)
             put("p_title", title.trim())
             put("p_display_name", displayName.trim())
         }.toString()
@@ -103,8 +104,8 @@ class WatchPartyApi(
             put("p_room_id", roomId)
             put("p_tmdb_id", tmdbId)
             put("p_media_type", mediaType)
-            season?.let { put("p_season", it) }
-            episode?.let { put("p_episode", it) }
+            if (season != null) put("p_season", season) else put("p_season", JsonNull)
+            if (episode != null) put("p_episode", episode) else put("p_episode", JsonNull)
             put("p_title", title.trim())
         }.toString()
 
