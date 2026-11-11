@@ -89,7 +89,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private val GradientBase = Color(0xFF07111A)
 
 /**
  * Ana sayfanın kapak karuseli:
@@ -211,6 +210,7 @@ private fun HeroTrailerCarousel(
     val focusManager = LocalFocusManager.current
     val perfPolicy = LocalPlayPerformancePolicy.current
     val isLowPerf = !perfPolicy.heroAutoAdvanceEnabled
+    val backgroundColor = MaterialTheme.colorScheme.background
 
     var hasFocus by remember { mutableStateOf(false) }
     var currentTrailerIndex by remember { mutableIntStateOf(0) }
@@ -364,7 +364,7 @@ private fun HeroTrailerCarousel(
             .fillMaxWidth()
             .height(height)
             .clipToBounds()
-            .background(GradientBase)
+            .background(backgroundColor)
             .onFocusChanged { hasFocus = it.hasFocus }
             .onPreviewKeyEvent { event ->
                 if (!hasFocus || event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
@@ -428,9 +428,9 @@ private fun HeroTrailerCarousel(
                         0f to Color.Black.copy(alpha = 0.45f),
                         0.25f to Color.Transparent,
                         0.60f to Color.Transparent,
-                        0.75f to GradientBase.copy(alpha = 0.70f),
-                        0.90f to GradientBase,
-                        1f to GradientBase,
+                        0.75f to backgroundColor.copy(alpha = 0.70f),
+                        0.90f to backgroundColor,
+                        1f to backgroundColor,
                     )
                 )
         )
@@ -439,9 +439,9 @@ private fun HeroTrailerCarousel(
                 .fillMaxSize()
                 .background(
                     Brush.horizontalGradient(
-                        0f to GradientBase.copy(alpha = 0.90f),
-                        0.35f to GradientBase.copy(alpha = 0.65f),
-                        0.65f to GradientBase.copy(alpha = 0.15f),
+                        0f to backgroundColor.copy(alpha = 0.90f),
+                        0.35f to backgroundColor.copy(alpha = 0.65f),
+                        0.65f to backgroundColor.copy(alpha = 0.15f),
                         1f to Color.Transparent,
                     )
                 )
@@ -526,6 +526,7 @@ private fun HeroImageCarousel(
     var hasFocus by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val perfPolicy = LocalPlayPerformancePolicy.current
+    val backgroundColor = MaterialTheme.colorScheme.background
 
     fun go(target: Int) {
         scope.launch {
@@ -604,7 +605,7 @@ private fun HeroImageCarousel(
             .fillMaxWidth()
             .height(height)
             .clipToBounds()
-            .background(GradientBase)
+            .background(backgroundColor)
             .onFocusChanged { hasFocus = it.hasFocus }
             .onPreviewKeyEvent { event ->
                 if (!hasFocus || event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
@@ -677,6 +678,7 @@ private fun HeroImagePage(
     val media = item.media
     val perfPolicy = LocalPlayPerformancePolicy.current
     val context = LocalContext.current
+    val backgroundColor = MaterialTheme.colorScheme.background
     Box(Modifier.fillMaxSize()) {
         TmdbImages.url(media.backdropPath, TmdbImages.backdropSize(perfPolicy.useSmallerPosters))?.let { url ->
             AsyncImage(
@@ -698,9 +700,9 @@ private fun HeroImagePage(
                         0f to Color.Black.copy(alpha = 0.45f),
                         0.25f to Color.Transparent,
                         0.60f to Color.Transparent,
-                        0.75f to GradientBase.copy(alpha = 0.70f),
-                        0.90f to GradientBase,
-                        1f to GradientBase,
+                        0.75f to backgroundColor.copy(alpha = 0.70f),
+                        0.90f to backgroundColor,
+                        1f to backgroundColor,
                     )
                 )
         )
@@ -709,9 +711,9 @@ private fun HeroImagePage(
                 .fillMaxSize()
                 .background(
                     Brush.horizontalGradient(
-                        0f to GradientBase.copy(alpha = 0.90f),
-                        0.35f to GradientBase.copy(alpha = 0.65f),
-                        0.65f to GradientBase.copy(alpha = 0.15f),
+                        0f to backgroundColor.copy(alpha = 0.90f),
+                        0.35f to backgroundColor.copy(alpha = 0.65f),
+                        0.65f to backgroundColor.copy(alpha = 0.15f),
                         1f to Color.Transparent,
                     )
                 )
