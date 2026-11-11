@@ -12,6 +12,7 @@ class WatchPartySyncRules(
         private set
 
     private var nextSeq: Long = 0L
+    private var lastSeekAtMs: Long = 0L
 
     data class SyncAction(
         val shouldSeek: Boolean,
@@ -22,22 +23,24 @@ class WatchPartySyncRules(
 
     data class ContentTransition(
         val tmdbId: Int,
+        val mediaType: String,
         val season: Int?,
         val episode: Int?,
+        val title: String,
     )
 
-    fun shouldApplyPacket(packet: PartySyncPacket): Boolean {
+    fun shouldApplyPacket(packet: PartyControlPacket): Boolean {
         return packet.seq > lastAppliedSeq
     }
 
-    fun computeLatency(sentAt: Long, nowMs: Long = timeProvider()): Long {
-        val raw = nowMs - sentAt
+    fun computeLatency(sentAtMs: Long, nowMs: Long = timeProvider()): Long {
+        val raw = nowMs - sentAtMs
         return raw.coerceIn(0L, MAX_LATENCY_COMPENSATION_MS)
     }
 
-    fun computeTargetPosition(packet: PartySyncPacket, nowMs: Long = timeProvider()): Long {
-        val latency = computeLatency(packet.sentAt, nowMs)
-        val compensated = if (packet.isPlaying) {
+    fun computeTargetPosition(packet: PartyControlPacket, nowMs: Long = timeProvider()): Long {
+        val latency = computeLatency(packet.sentAtMs, nowMs)
+        val compensated = if (packet.playing) {
             packet.positionMs + (latency * packet.speed).toLong()
         } else {
             packet.positionMs
@@ -47,7 +50,7 @@ class WatchPartySyncRules(
 
     fun evaluateSync(
         localCurrentPositionMs: Long,
-        packet: PartySyncPacket,
+        packet: PartyControlPacket,
         nowMs: Long = timeProvider(),
     ): SyncAction? {
         if (!shouldApplyPacket(packet)) return null
@@ -55,12 +58,15 @@ class WatchPartySyncRules(
         lastAppliedSeq = packet.seq
         val targetPosition = computeTargetPosition(packet, nowMs)
         val drift = abs(localCurrentPositionMs - targetPosition)
-        val shouldSeek = drift > SEEK_DRIFT_THRESHOLD_MS
+        val shouldSeek = drift > SEEK_DRIFT_THRESHOLD_MS && (nowMs - lastSeekAtMs >= MIN_SEEK_INTERVAL_MS)
+        if (shouldSeek) {
+            lastSeekAtMs = nowMs
+        }
 
         return SyncAction(
             shouldSeek = shouldSeek,
             targetPositionMs = targetPosition,
-            isPlaying = packet.isPlaying,
+            isPlaying = packet.playing,
             speed = packet.speed,
         )
     }
@@ -69,53 +75,50 @@ class WatchPartySyncRules(
         currentTmdbId: Int,
         currentSeason: Int?,
         currentEpisode: Int?,
-        packet: PartySyncPacket,
+        packet: PartyContentPacket,
     ): ContentTransition? {
-        val targetTmdb = packet.tmdbId ?: return null
-        val matchesCurrent = targetTmdb == currentTmdbId &&
+        val matchesCurrent = packet.tmdbId == currentTmdbId &&
             packet.season == currentSeason &&
             packet.episode == currentEpisode
 
         return if (!matchesCurrent) {
             ContentTransition(
-                tmdbId = targetTmdb,
+                tmdbId = packet.tmdbId,
+                mediaType = packet.mediaType,
                 season = packet.season,
                 episode = packet.episode,
+                title = packet.title,
             )
         } else {
             null
         }
     }
 
-    fun createHostPacket(
+    fun createControlPacket(
         positionMs: Long,
         isPlaying: Boolean,
         speed: Float = 1.0f,
-        tmdbId: Int? = null,
-        season: Int? = null,
-        episode: Int? = null,
         nowMs: Long = timeProvider(),
-    ): PartySyncPacket {
+    ): PartyControlPacket {
         val seq = ++nextSeq
-        return PartySyncPacket(
+        return PartyControlPacket(
             seq = seq,
-            sentAt = nowMs,
-            isPlaying = isPlaying,
             positionMs = positionMs.coerceAtLeast(0L),
+            playing = isPlaying,
             speed = speed.coerceIn(0.25f, 4.0f),
-            tmdbId = tmdbId,
-            season = season,
-            episode = episode,
+            sentAtMs = nowMs,
         )
     }
 
     fun reset() {
         lastAppliedSeq = -1L
         nextSeq = 0L
+        lastSeekAtMs = 0L
     }
 
     companion object {
         const val MAX_LATENCY_COMPENSATION_MS = 3000L
         const val SEEK_DRIFT_THRESHOLD_MS = 2000L
+        const val MIN_SEEK_INTERVAL_MS = 1000L
     }
 }
