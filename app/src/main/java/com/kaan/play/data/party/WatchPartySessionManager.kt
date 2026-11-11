@@ -16,6 +16,8 @@ class WatchPartySessionManager(
     val realtimeClient: WatchPartyRealtimeClient,
     val syncRules: WatchPartySyncRules,
     private val cloudSync: SupabaseCloudSync,
+    private val localProfile: com.kaan.play.data.sync.LocalProfileRepository? = null,
+    private val defaultGuestName: () -> String = { "Guest" },
     private val scope: CoroutineScope,
 ) {
     private val _session = MutableStateFlow<PartySession?>(null)
@@ -62,13 +64,13 @@ class WatchPartySessionManager(
         }
     }
 
-    private fun resolveDisplayName(customName: String?): String {
-        val clean = customName?.trim()
-        if (!clean.isNullOrEmpty()) return clean
-        val account = cloudSync.account.value
-        val emailPrefix = account?.email?.substringBefore('@')?.trim()
-        if (!emailPrefix.isNullOrEmpty()) return emailPrefix
-        return "Kullanıcı"
+    suspend fun resolveDisplayName(customName: String? = null): String {
+        val candidate = customName?.takeIf { it.isNotBlank() }
+            ?: localProfile?.activeProfile()?.name
+        return WatchPartyDisplayNameRules.resolve(
+            candidateName = candidate,
+            fallbackGuestName = defaultGuestName(),
+        )
     }
 
     suspend fun createParty(

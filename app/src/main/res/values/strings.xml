@@ -1040,5 +1040,6 @@
     <string name="watch_party_error_connection_failed">Could not connect to the room.</string>
     <string name="watch_party_error_network">Network connection error.</string>
     <string name="watch_party_host_next_episode_notice">Host switched to next episode</string>
+    <string name="watch_party_default_guest_name">Guest</string>
 
 </resources>

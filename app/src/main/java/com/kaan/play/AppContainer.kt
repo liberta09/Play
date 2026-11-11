@@ -386,6 +386,8 @@ class AppContainer(context: Context) {
             realtimeClient = rtClient,
             syncRules = rules,
             cloudSync = cloudSync,
+            localProfile = localProfile,
+            defaultGuestName = { appContext.getString(R.string.watch_party_default_guest_name) },
             scope = appScope,
         )
     }
