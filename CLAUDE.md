@@ -182,7 +182,7 @@ Aniyomi, ayrı Stremio ekosistemi, manga, IPTV, Telegram, tracker, profil/kilit,
 ## Mimari kararlar
 - Uygulamaya bot anahtarı/gizli anahtar gömülmez; çökme raporu Supabase Edge Function üzerinden iletilir, Telegram anahtarı yalnızca sunucuda durur (Kullanıcı kararı 2026-11-05).
 - **Watch Party (Kullanıcı kararı 2026-11-11):** 6 haneli kodla birlikte izleme; Supabase Realtime özel kanal ve RLS politikaları; görünen ad kuralı (aktif profil adı, yoksa Misafir/Guest; e-posta asla kullanılmaz).
-- **PlayDatabase v8:** 7→8 göçüyle notification_records tablosu eklenmiştir (yeni bölüm bildirim kayıtları).
+- **PlayDatabase v8:** 7→8 göçüyle Canlı TV kullanıcı kanal listeleri için `live_catalog` ve `live_catalog_channel` tabloları eklendi.
 - **DNS ve Ağ (okhttp-dnsoverhttps istisnası):** Özel ve güvenli DNS çözümü için okhttp-dnsoverhttps kütüphanesi kullanılır; eklenti ağı kuralları saklıdır.
 - **Yığın:** Compose + M3, Navigation Compose, Coroutines/Flow, OkHttp, kotlinx.serialization (tek JSON kütüphanesi; **tek istisna:** Faz 3 eklenti uyumluluğu için Jackson, aşağıda), Media3 (exoplayer, hls, dash, ui, datasource-okhttp), Coil, Room, DataStore, libtorrent4j (yerleşik torrent motoru). DI framework yok; elle kurulan `AppContainer`.
 - **Metadata:** TMDB (trend, popüler, arama, detay, sezon/bölüm, poster). Anahtar `local.properties` → `TMDB_API_KEY` → `BuildConfig`. Anahtar git'e girmez. Hakkında ekranı TMDB'nin zorunlu atıf metnini gösterir.
