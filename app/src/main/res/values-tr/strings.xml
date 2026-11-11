@@ -1013,5 +1013,16 @@
     <string name="watch_party_deeplink_confirm_cancel">Vazgeç</string>
     <string name="watch_party_how_it_works">Nasıl Çalışır?</string>
     <string name="watch_party_how_it_works_desc">Oda sahibi içeriği başlattığında, duraklattığında veya ileri sardığında tüm konuklar anında aynı konuma senkronize olur.</string>
+    <!-- Watch Party Errors & Notices -->
+    <string name="watch_party_error_not_authenticated">Oturum açılmadı. Lütfen Bulut Hesabı ile giriş yapın.</string>
+    <string name="watch_party_error_invalid_input">Geçersiz oda bilgisi veya adı.</string>
+    <string name="watch_party_error_room_not_found">Oda bulunamadı veya süresi doldu. Lütfen kodu kontrol edin.</string>
+    <string name="watch_party_error_room_full">Oda dolu (en çok 8 kişi).</string>
+    <string name="watch_party_error_not_host_or_closed">Oda kapatılmış veya bu işlem için oda sahibi yetkiniz yok.</string>
+    <string name="watch_party_error_code_generation_failed">Oda kodu üretilemedi. Lütfen tekrar deneyin.</string>
+    <string name="watch_party_error_server_unavailable">Watch Party sunucusu henüz aktif değil.</string>
+    <string name="watch_party_error_connection_failed">Odaya bağlanılamadı.</string>
+    <string name="watch_party_error_network">Ağ bağlantı hatası.</string>
+    <string name="watch_party_host_next_episode_notice">Oda sahibi sonraki bölüme geçti</string>
 
 </resources>

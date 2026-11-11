@@ -1032,5 +1032,16 @@
     <string name="watch_party_deeplink_confirm_cancel">Cancel</string>
     <string name="watch_party_how_it_works">How It Works</string>
     <string name="watch_party_how_it_works_desc">When the host plays, pauses, or seeks, all guests are instantly synchronized to the same playback position.</string>
+    <!-- Watch Party Errors & Notices -->
+    <string name="watch_party_error_not_authenticated">Not signed in. Please sign in with your Cloud Account.</string>
+    <string name="watch_party_error_invalid_input">Invalid room information or name.</string>
+    <string name="watch_party_error_room_not_found">Room not found or expired. Please check the code.</string>
+    <string name="watch_party_error_room_full">Room is full (max 8 members).</string>
+    <string name="watch_party_error_not_host_or_closed">Room is closed or you do not have host permissions.</string>
+    <string name="watch_party_error_code_generation_failed">Could not generate room code. Please try again.</string>
+    <string name="watch_party_error_server_unavailable">Watch Party server is not active yet.</string>
+    <string name="watch_party_error_connection_failed">Could not connect to the room.</string>
+    <string name="watch_party_error_network">Network connection error.</string>
+    <string name="watch_party_host_next_episode_notice">Host switched to next episode</string>
 
 </resources>
