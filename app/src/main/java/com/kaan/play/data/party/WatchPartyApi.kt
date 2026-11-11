@@ -14,9 +14,9 @@ import java.io.IOException
 
 class WatchPartyApi(
     private val cloudSync: SupabaseCloudSync,
-    private val httpClient: OkHttpClient = OkHttpClient(),
+    private val httpClient: OkHttpClient,
+    private val json: Json = Json { ignoreUnknownKeys = true },
 ) {
-    private val json = Json { ignoreUnknownKeys = true }
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
 
     suspend fun createRoom(
@@ -25,27 +25,61 @@ class WatchPartyApi(
         tmdbId: Int,
         season: Int? = null,
         episode: Int? = null,
+        displayName: String,
     ): Result<WatchPartyRoom> = withContext(Dispatchers.IO) {
         val body = buildJsonObject {
-            put("p_title", title)
-            put("p_media_type", mediaType)
             put("p_tmdb_id", tmdbId)
+            put("p_media_type", mediaType)
             season?.let { put("p_season", it) }
             episode?.let { put("p_episode", it) }
+            put("p_title", title.trim())
+            put("p_display_name", displayName.trim())
         }.toString()
 
         callRpc("wp_create_room", body).mapCatching { responseText ->
-            json.decodeFromString<WatchPartyRoom>(responseText)
+            val list = json.decodeFromString<List<WpCreateResponse>>(responseText)
+            val first = list.firstOrNull()
+                ?: throw WatchPartyException(WatchPartyError.Unknown("Boş yanıt"))
+            WatchPartyRoom(
+                id = first.roomId,
+                code = first.code,
+                hostUserId = cloudSync.account.value?.id.orEmpty(),
+                title = title,
+                mediaType = mediaType,
+                tmdbId = tmdbId,
+                season = season,
+                episode = episode,
+            )
         }
     }
 
-    suspend fun joinRoom(code: String): Result<WatchPartyRoom> = withContext(Dispatchers.IO) {
+    suspend fun joinRoom(
+        code: String,
+        displayName: String,
+    ): Result<Pair<WatchPartyRoom, PartyRole>> = withContext(Dispatchers.IO) {
+        val cleanCode = code.trim().uppercase()
         val body = buildJsonObject {
-            put("p_code", code.trim().uppercase())
+            put("p_code", cleanCode)
+            put("p_display_name", displayName.trim())
         }.toString()
 
         callRpc("wp_join_room", body).mapCatching { responseText ->
-            json.decodeFromString<WatchPartyRoom>(responseText)
+            val list = json.decodeFromString<List<WpJoinResponse>>(responseText)
+            val first = list.firstOrNull()
+                ?: throw WatchPartyException(WatchPartyError.RoomNotFound)
+            val room = WatchPartyRoom(
+                id = first.roomId,
+                code = first.code,
+                hostUserId = "",
+                title = first.title,
+                mediaType = first.mediaType,
+                tmdbId = first.tmdbId,
+                season = first.season,
+                episode = first.episode,
+                expiresAt = first.expiresAt,
+            )
+            val role = PartyRole.fromString(first.role)
+            room to role
         }
     }
 
@@ -59,19 +93,19 @@ class WatchPartyApi(
 
     suspend fun updateContent(
         roomId: String,
-        title: String,
-        mediaType: String,
         tmdbId: Int,
+        mediaType: String,
         season: Int? = null,
         episode: Int? = null,
+        title: String,
     ): Result<Unit> = withContext(Dispatchers.IO) {
         val body = buildJsonObject {
             put("p_room_id", roomId)
-            put("p_title", title)
-            put("p_media_type", mediaType)
             put("p_tmdb_id", tmdbId)
+            put("p_media_type", mediaType)
             season?.let { put("p_season", it) }
             episode?.let { put("p_episode", it) }
+            put("p_title", title.trim())
         }.toString()
 
         callRpc("wp_update_content", body).map { }
@@ -81,11 +115,11 @@ class WatchPartyApi(
         val projectUrl = cloudSync.getProjectUrl().trimEnd('/')
         val publishableKey = cloudSync.getPublishableKey()
         if (projectUrl.isBlank() || publishableKey.isBlank()) {
-            return Result.failure(IllegalStateException("Watch Party sunucusu henüz aktif değil."))
+            return Result.failure(WatchPartyException(WatchPartyError.ServerUnavailable))
         }
 
         val token = cloudSync.getValidAccessToken()
-            ?: return Result.failure(IllegalStateException("Watch Party için Bulut Hesabı girişi gerekir."))
+            ?: return Result.failure(WatchPartyException(WatchPartyError.NotAuthenticated))
 
         return runCatching {
             val url = "$projectUrl/rest/v1/rpc/$functionName"
@@ -102,26 +136,16 @@ class WatchPartyApi(
                 if (response.isSuccessful) {
                     body
                 } else {
-                    val errorMsg = mapServerError(response.code, body)
-                    throw IOException(errorMsg)
+                    val error = WatchPartyError.fromServerMessage(body)
+                    throw WatchPartyException(error)
                 }
             }
-        }
-    }
-
-    private fun mapServerError(code: Int, body: String): String {
-        return when {
-            code == 404 || body.contains("PGRST202") || body.contains("Could not find the function") ->
-                "Watch Party sunucusu henüz aktif değil."
-            body.contains("ROOM_NOT_FOUND") ->
-                "Oda bulunamadı. Lütfen kodu kontrol edin."
-            body.contains("ROOM_INACTIVE") ->
-                "Oda artık aktif değil veya kapatılmış."
-            body.contains("NOT_AUTHENTICATED") ->
-                "Watch Party için Bulut Hesabı girişi gerekir."
-            body.contains("NOT_AUTHORIZED") ->
-                "Bu işlem için oda sahibi yetkisi gerekir."
-            else -> "Sunucu hatası ($code)"
+        }.recoverCatching { throwable ->
+            when (throwable) {
+                is WatchPartyException -> throw throwable
+                is IOException -> throw WatchPartyException(WatchPartyError.Network, throwable)
+                else -> throw WatchPartyException(WatchPartyError.Unknown(throwable.message.orEmpty()), throwable)
+            }
         }
     }
 }
