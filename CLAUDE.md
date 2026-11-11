@@ -22,7 +22,7 @@ Uzun vadeli plan, çalışma sistemi (şartname → onay → yapım → doğrula
 1. **Tek ana iş:** her ekranın tek bir ana işi vardır. İkincil seçenekler gizli menüde ya da altta küçük durur.
 2. **Sade görünüm:** ekranda aynı anda en fazla bir vurgu rengi ve iki yazı boyutu/ağırlığı kullanılır.
 3. **Teknik ayrıntı yok:** codec, HDR, ses kanalı vb. arayüzde gösterilmez; kaynak satırında yalnızca eklenti adı, kalite, boyut, ses dili ve "altyazılı" bilgisi (10. adımda dil/altyazı eklendi).
-4. **Ayarlar ≤ 5 kalem:** her kalem tek satırda anlaşılır olmalı.
+4. **Ayarlar (Kullanıcı kararı 2026-11-10):** ≤5 kalem kuralının yerine gruplandırılmış tek sayfa (Hesap, Görünüm ve kişiselleştirme, Oynatıcı ve altyazı, Ağ ve performans, Eklentiler, Bilgi ve destek).
 5. **Yeni özellik testi:** eklemeden önce "bu olmadan uygulama çalışır mı?" diye sorulur; çalışıyorsa eklenmez. (Bilinçli istisna, Kullanıcı kararı 2026-10-28: Ara ekranındaki tür çipleri Tümü / Filmler / Diziler; eskiden "Ara'da filtre/çip yok" kuralı vardı, bu kararla değişti. Bilinçli istisna, Kullanıcı kararı 2026-10-28: intro/özet/jenerik/önizleme atlama; kullanıcı bu özelliği açıkça istedi, aşağıdaki "İntro/özet/jenerik atlama" bölümüne bak.)
 6. **İki dilde taşmasın:** her ekran Türkçe ve İngilizce metinle taşmadan görünür; uzun Türkçe metinlerle (ve büyük yazı boyutuyla) test edilir.
 
@@ -181,6 +181,9 @@ Aniyomi, ayrı Stremio ekosistemi, manga, IPTV, Telegram, tracker, profil/kilit,
 
 ## Mimari kararlar
 - Uygulamaya bot anahtarı/gizli anahtar gömülmez; çökme raporu Supabase Edge Function üzerinden iletilir, Telegram anahtarı yalnızca sunucuda durur (Kullanıcı kararı 2026-11-05).
+- **Watch Party (Kullanıcı kararı 2026-11-11):** 6 haneli kodla birlikte izleme; Supabase Realtime özel kanal ve RLS politikaları; görünen ad kuralı (aktif profil adı, yoksa Misafir/Guest; e-posta asla kullanılmaz).
+- **PlayDatabase v8:** 7→8 göçüyle notification_records tablosu eklenmiştir (yeni bölüm bildirim kayıtları).
+- **DNS ve Ağ (okhttp-dnsoverhttps istisnası):** Özel ve güvenli DNS çözümü için okhttp-dnsoverhttps kütüphanesi kullanılır; eklenti ağı kuralları saklıdır.
 - **Yığın:** Compose + M3, Navigation Compose, Coroutines/Flow, OkHttp, kotlinx.serialization (tek JSON kütüphanesi; **tek istisna:** Faz 3 eklenti uyumluluğu için Jackson, aşağıda), Media3 (exoplayer, hls, dash, ui, datasource-okhttp), Coil, Room, DataStore, libtorrent4j (yerleşik torrent motoru). DI framework yok; elle kurulan `AppContainer`.
 - **Metadata:** TMDB (trend, popüler, arama, detay, sezon/bölüm, poster). Anahtar `local.properties` → `TMDB_API_KEY` → `BuildConfig`. Anahtar git'e girmez. Hakkında ekranı TMDB'nin zorunlu atıf metnini gösterir.
   Katman: `data/tmdb` (`TmdbService` ince HTTP/DTO, `TmdbRepository` alan modeli + dil yedeği, `TmdbException` tek hata türü, `TmdbImages` görsel adresleri). Anahtar `api_key` sorgu parametresiyle gider (v3); URL asla loglanmaz ve hatalara girmez.
@@ -197,7 +200,7 @@ Aniyomi, ayrı Stremio ekosistemi, manga, IPTV, Telegram, tracker, profil/kilit,
 ## Görünüm kimliği (10. adım, Güncelleme: 2026-10-19)
 - Koyu, sinematik, büyük afişli, sade. Vurgu rengi elektrik camgöbeği (`#00E5FF`), kart zeminleri (`#0F1E2E`), seçili zeminler (`#062A3B`) ve çerçeveler (`#1E3A5F`). Afiş ve kart köşe yuvarlaklığı 14dp (`MaterialTheme.shapes.medium`); birincil düğmeler camgöbeği dolgulu (beyaz hap değil).
 - Kendi puan rozetimiz: camgöbeği çerçeveli "TMDB 8.0" (`ui/components/Badges.kt`); yaş sınırı çipi nötr çerçeveli. IMDb rozeti yok.
-- Başlık logosu TMDB `images`ten (arayüz dili, yoksa İngilizce/dilsiz); yoksa metin başlık. Fragman bölümü yoktur.
+- Başlık logosu TMDB `images`ten (arayüz dili, yoksa İngilizce/dilsiz); yoksa metin başlık. Ana sayfa kapağında sessiz fragman (Kullanıcı kararı 2026-11-11): NewPipeExtractor ile yalnızca video akışı, tek ExoPlayer, ses kapalı, kapak başına en çok 12 sn, fragmanı olmayan kapak atlanır, yalnızca Wi-Fi/Ethernet + ayar açık + performans modu + düşük bellek değil; Detay fragmanı ayrıdır.
 - Ana sayfa ve Detay durum çubuğunun arkasına uzanır (`StatusBarScrim`); alt/yan menü etiketleri en çok 1.0 yazı ölçeğiyle çizilir (büyük yazıda "Kütüphane" kısalmasın).
 
 ## Ekranlar

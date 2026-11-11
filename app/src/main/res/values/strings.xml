@@ -169,7 +169,7 @@
     <string name="notify_new_episode_body">Season %1$d, Episode %2$d aired</string>
     <string name="whats_new_title">What is new in Play?</string>
     <string name="whats_new_dismiss">Got it</string>
-    <string name="whats_new_message">• Improved Live TV channel grouping, EPG program guide, and channel zapping\n• Added quick actions and sorting options for Continue Watching cards\n• Added Turkish audio track verification and smart source switching in the player\n• Added audio/subtitle sync adjustment and skip controls\n• Added on-device Source Health inspection and recovery controls\n• Added 6 themes and a 4-position adaptive navigation bar\n• Added Performance mode for smoother loading on lighter devices\n• Added new episode alerts for favorite TV series</string>
+    <string name="whats_new_message">• Watch Party: Watch together in sync with a 6-digit room code\n• Silent hero trailer on the home cover (Wi-Fi only, can be disabled in settings)\n• Live TV improvements and enriched channel lists\n• Player Turkish audio and dubbed track enhancements\n• Source Health inspection and recovery tools\n• New episode notifications for favorite TV series\n• 6 color theme options\n• Reorganized single-page grouped Settings\n• Custom DNS options and built-in internet speed test</string>
     <!-- Dil adları her zaman kendi dillerinde yazılır. -->
     <string name="language_english" translatable="false">English</string>
     <string name="language_turkish" translatable="false">Türkçe</string>

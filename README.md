@@ -304,6 +304,7 @@ Film ve dizi bölümlerinde intro, özet, jenerik ve önizleme aralıkları bili
 - **Gizlilik:** TheIntroDB'ye yalnızca TMDB kimliği (yoksa IMDb), dizide sezon/bölüm ve video süresi gider; akış adresi, başlıklar, çerez, profil, hesap gönderilmez. **TheIntroDB isteği IP adresini ve izlenen içeriğin TMDB kimliğini görür.** Canlı TV'de istek atılmaz.
 - Veri yoksa ya da TheIntroDB'ye ulaşılamazsa (7 sn zaman aşımı) hiçbir şey görünmez; oynatma sorguyu beklemez.
 - **Kapak Fragmanı Gizliliği (Hero Trailer Privacy):** Ana sayfa kapak karuselinde sessiz fragmanlar oynatılırken YouTube sunucuları IP adresinizi görebilir. / When playing silent trailers on the home hero carousel, YouTube servers can see your IP address.
+- **Watch Party Gizliliği (Watch Party Privacy):** Watch Party kullanılırken Supabase sunucuları IP adresinizi ve oda bilgisini görür. / When using Watch Party, Supabase servers see your IP address and room information.
 
 ## Oynatıcı: hızlı başlangıç, kaynak/altyazı/parça panelleri (kullanıcının isteğiyle; 2026-10-14)
 Amaç: filme basınca olabildiğince hızlı açılmak; kaynağı, altyazıyı, sesi ve kaliteyi oynatıcının içinden değiştirebilmek. Sürüm 1.0.4'te kaldı (yayınlanmadı; CHANGELOG "Yayınlanmamış"). Ayarlar'a yeni ana kalem eklenmedi; iki anahtar **Ayarlar > Oynatıcı** içindedir.
