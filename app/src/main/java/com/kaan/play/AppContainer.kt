@@ -380,6 +380,7 @@ class AppContainer(context: Context) {
         val rtClient = com.kaan.play.data.party.WatchPartyRealtimeClient(
             client = httpClient,
             scope = appScope,
+            defaultMemberName = { appContext.getString(R.string.watch_party_default_member_name) },
         )
         com.kaan.play.data.party.WatchPartySessionManager(
             api = api,

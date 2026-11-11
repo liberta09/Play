@@ -39,7 +39,7 @@ class WatchPartyApi(
         callRpc("wp_create_room", body).mapCatching { responseText ->
             val list = json.decodeFromString<List<WpCreateResponse>>(responseText)
             val first = list.firstOrNull()
-                ?: throw WatchPartyException(WatchPartyError.Unknown("Boş yanıt"))
+                ?: throw WatchPartyException(WatchPartyError.EmptyResponse)
             WatchPartyRoom(
                 id = first.roomId,
                 code = first.code,

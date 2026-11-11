@@ -96,6 +96,7 @@ sealed interface WatchPartyError {
     data object ServerUnavailable : WatchPartyError
     data object ConnectionFailed : WatchPartyError
     data object Network : WatchPartyError
+    data object EmptyResponse : WatchPartyError
     data class Unknown(val message: String) : WatchPartyError
 
     companion object {

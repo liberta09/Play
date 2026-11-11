@@ -27,5 +27,8 @@ class WatchPartyErrorTest {
     fun `WatchPartyException carries typed error`() {
         val ex = WatchPartyException(WatchPartyError.RoomNotFound)
         assertEquals(WatchPartyError.RoomNotFound, ex.error)
+
+        val emptyEx = WatchPartyException(WatchPartyError.EmptyResponse)
+        assertEquals(WatchPartyError.EmptyResponse, emptyEx.error)
     }
 }

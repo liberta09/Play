@@ -15,6 +15,7 @@ fun Context.watchPartyErrorMessage(error: WatchPartyError): String = when (error
     WatchPartyError.ServerUnavailable -> getString(R.string.watch_party_error_server_unavailable)
     WatchPartyError.ConnectionFailed -> getString(R.string.watch_party_error_connection_failed)
     WatchPartyError.Network -> getString(R.string.watch_party_error_network)
+    WatchPartyError.EmptyResponse -> getString(R.string.watch_party_error_empty_response)
     is WatchPartyError.Unknown -> getString(R.string.watch_party_error_connection_failed)
 }
 

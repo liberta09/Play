@@ -145,4 +145,36 @@ class WatchPartyRealtimeClientTest {
         val closedField = WatchPartyRealtimeClient::class.java.getDeclaredField("isManuallyClosed").apply { isAccessible = true }
         assertTrue(closedField.get(client) == true)
     }
+
+    @Test
+    fun `parsePresenceState uses custom default member name when name is missing or blank`() = runTest {
+        val testScope = TestScope()
+        val mockHttpClient = OkHttpClient()
+        val client = WatchPartyRealtimeClient(
+            client = mockHttpClient,
+            scope = testScope,
+            defaultMemberName = { "TestÜye" },
+        )
+
+        val presenceMethod = WatchPartyRealtimeClient::class.java.getDeclaredMethod(
+            "parsePresenceState",
+            kotlinx.serialization.json.JsonElement::class.java,
+        ).apply { isAccessible = true }
+
+        val payload = buildJsonObject {
+            put("user-1", buildJsonObject {
+                put("metas", kotlinx.serialization.json.buildJsonArray {
+                    add(buildJsonObject {
+                        put("display_name", JsonPrimitive(""))
+                        put("role", JsonPrimitive("guest"))
+                    })
+                })
+            })
+        }
+
+        presenceMethod.invoke(client, payload)
+        val members = client.members.value
+        assertEquals(1, members.size)
+        assertEquals("TestÜye", members[0].displayName)
+    }
 }

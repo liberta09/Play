@@ -39,6 +39,7 @@ class WatchPartyRealtimeClient(
     private val client: OkHttpClient,
     private val scope: CoroutineScope,
     private val json: Json = Json { ignoreUnknownKeys = true },
+    private val defaultMemberName: () -> String = { "Member" },
 ) {
     private var webSocket: WebSocket? = null
     private var heartbeatJob: Job? = null
@@ -245,7 +246,7 @@ class WatchPartyRealtimeClient(
             for ((key, value) in root) {
                 val metas = value.jsonObject["metas"]?.jsonArray ?: continue
                 val firstMeta = metas.firstOrNull()?.jsonObject ?: continue
-                val name = firstMeta["display_name"]?.jsonPrimitive?.content ?: "Üye"
+                val name = firstMeta["display_name"]?.jsonPrimitive?.content?.trim()?.takeIf { it.isNotEmpty() } ?: defaultMemberName()
                 val roleStr = firstMeta["role"]?.jsonPrimitive?.content ?: "guest"
                 presenceMap[key] = PresenceMember(key, name, PartyRole.fromString(roleStr))
             }
@@ -262,7 +263,7 @@ class WatchPartyRealtimeClient(
             for ((key, value) in joins) {
                 val metas = value.jsonObject["metas"]?.jsonArray ?: continue
                 val firstMeta = metas.firstOrNull()?.jsonObject ?: continue
-                val name = firstMeta["display_name"]?.jsonPrimitive?.content ?: "Üye"
+                val name = firstMeta["display_name"]?.jsonPrimitive?.content?.trim()?.takeIf { it.isNotEmpty() } ?: defaultMemberName()
                 val roleStr = firstMeta["role"]?.jsonPrimitive?.content ?: "guest"
                 presenceMap[key] = PresenceMember(key, name, PartyRole.fromString(roleStr))
             }
