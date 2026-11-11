@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -362,6 +363,8 @@ private fun HeroTrailerCarousel(
         modifier = modifier
             .fillMaxWidth()
             .height(height)
+            .clipToBounds()
+            .background(GradientBase)
             .onFocusChanged { hasFocus = it.hasFocus }
             .onPreviewKeyEvent { event ->
                 if (!hasFocus || event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
@@ -406,9 +409,14 @@ private fun HeroTrailerCarousel(
                     setKeepContentOnPlayerReset(true)
                     isFocusable = false
                     isClickable = false
+                    clipChildren = true
+                    clipToOutline = true
+                    outlineProvider = android.view.ViewOutlineProvider.BOUNDS
                 }
             },
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .clipToBounds(),
         )
 
         // 3. Koyu gradyanlar (#07111A)
@@ -419,8 +427,9 @@ private fun HeroTrailerCarousel(
                     Brush.verticalGradient(
                         0f to Color.Black.copy(alpha = 0.45f),
                         0.25f to Color.Transparent,
-                        0.55f to Color.Transparent,
-                        0.85f to GradientBase.copy(alpha = 0.95f),
+                        0.60f to Color.Transparent,
+                        0.75f to GradientBase.copy(alpha = 0.70f),
+                        0.90f to GradientBase,
                         1f to GradientBase,
                     )
                 )
@@ -445,11 +454,11 @@ private fun HeroTrailerCarousel(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .widthIn(max = 560.dp)
-                .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+                .padding(start = 20.dp, end = 20.dp, bottom = 14.dp),
         ) { item ->
             val media = item.media
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 TitleOrLogo(title = media.title, logoPath = item.logoPath)
                 heroLine(item)?.let {
@@ -457,7 +466,7 @@ private fun HeroTrailerCarousel(
                         text = it,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
+                        maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
@@ -478,7 +487,7 @@ private fun HeroTrailerCarousel(
                                 }
                             } else it
                         }
-                        .height(44.dp),
+                        .height(40.dp),
                 ) {
                     Text(stringResource(R.string.home_hero_details))
                 }
@@ -594,6 +603,8 @@ private fun HeroImageCarousel(
         modifier = modifier
             .fillMaxWidth()
             .height(height)
+            .clipToBounds()
+            .background(GradientBase)
             .onFocusChanged { hasFocus = it.hasFocus }
             .onPreviewKeyEvent { event ->
                 if (!hasFocus || event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
@@ -686,8 +697,9 @@ private fun HeroImagePage(
                     Brush.verticalGradient(
                         0f to Color.Black.copy(alpha = 0.45f),
                         0.25f to Color.Transparent,
-                        0.55f to Color.Transparent,
-                        0.85f to GradientBase.copy(alpha = 0.95f),
+                        0.60f to Color.Transparent,
+                        0.75f to GradientBase.copy(alpha = 0.70f),
+                        0.90f to GradientBase,
                         1f to GradientBase,
                     )
                 )
@@ -709,14 +721,14 @@ private fun HeroImagePage(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .widthIn(max = 560.dp)
-                .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+                .padding(start = 20.dp, end = 20.dp, bottom = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             TitleOrLogo(title = media.title, logoPath = item.logoPath)
             heroLine(item)?.let {
-                Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            Button(onClick = onOpen, modifier = buttonModifier.height(44.dp)) {
+            Button(onClick = onOpen, modifier = buttonModifier.height(40.dp)) {
                 Text(stringResource(R.string.home_hero_details))
             }
             dotsContent()
