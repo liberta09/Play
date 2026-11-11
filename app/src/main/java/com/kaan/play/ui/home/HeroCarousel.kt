@@ -1,9 +1,10 @@
 package com.kaan.play.ui.home
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import android.webkit.CookieManager
+import android.webkit.ConsoleMessage
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -68,6 +69,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.kaan.play.BuildConfig
 import com.kaan.play.R
 import com.kaan.play.data.model.HeroItem
 import com.kaan.play.data.model.MediaType
@@ -172,15 +174,27 @@ fun HeroCarousel(
                 delay(HeroAutoAdvanceRules.TRAILER_START_DELAY_MS)
                 val currentItem = items.getOrNull(pager.currentPage) ?: return@launch
                 val key = container.tmdb.trailerKey(currentItem.media.type, currentItem.media.id)
-                if (HeroTrailerEmbed.isValidKey(key)) {
+                val hasKey = HeroTrailerEmbed.isValidKey(key)
+                if (BuildConfig.DEBUG) {
+                    Log.d("PlayHero", "trailer key found: $hasKey")
+                }
+                if (hasKey) {
                     activeTrailerKey = key
-                    // 8 sn içinde PLAYING gelmezse fragman zaman aşımına uğrar
+                    // 8 sn içinde gerçek kare/PLAYING gelmezse fragman zaman aşımına uğrar
                     delay(HeroAutoAdvanceRules.TRAILER_PLAY_TIMEOUT_MS)
                     if (!isTrailerPlaying) {
+                        if (BuildConfig.DEBUG) {
+                            Log.d("PlayHero", "8s timeout")
+                        }
                         activeTrailerKey = null
                     }
                 }
             }
+        }
+
+        // Varsa sayfa geçiş animasyonunun tamamlanmasını bekle
+        while (pager.isScrollInProgress) {
+            delay(50)
         }
 
         val startTime = System.currentTimeMillis()
@@ -226,7 +240,7 @@ fun HeroCarousel(
             }
 
             val elapsed = System.currentTimeMillis() - startTime
-            val hasActiveTrailer = activeTrailerKey != null && isTrailerPlaying
+            val hasActiveTrailer = activeTrailerKey != null
             val maxDuration = HeroAutoAdvanceRules.pageDurationMs(hasActiveTrailer)
 
             val shouldAdvanceEarly = isTrailerPlaying && trailerErrorOrEnded
@@ -373,19 +387,64 @@ private class HeroTrailerBridge(
     private val onPlayingAction: () -> Unit,
     private val onEndedAction: () -> Unit,
     private val onErrorAction: () -> Unit,
+    private val getWebView: () -> WebView?,
 ) {
     @android.webkit.JavascriptInterface
+    fun onApiReady() {
+        if (BuildConfig.DEBUG) {
+            Log.d("PlayHero", "onYouTubeIframeAPIReady")
+        }
+    }
+
+    @android.webkit.JavascriptInterface
+    fun onPlayerReady() {
+        if (BuildConfig.DEBUG) {
+            Log.d("PlayHero", "onPlayerReady")
+        }
+    }
+
+    @android.webkit.JavascriptInterface
+    fun onStateChange(state: Int) {
+        if (BuildConfig.DEBUG) {
+            Log.d("PlayHero", "stateChange=$state")
+        }
+    }
+
+    @android.webkit.JavascriptInterface
     fun onPlaying() {
+        if (BuildConfig.DEBUG) {
+            Log.d("PlayHero", "getCurrentTime>0")
+        }
+        getWebView()?.post {
+            getWebView()?.alpha = 1f
+            if (BuildConfig.DEBUG) {
+                Log.d("PlayHero", "set webView.alpha = 1f directly")
+            }
+        }
         onPlayingAction()
     }
 
     @android.webkit.JavascriptInterface
     fun onEnded() {
+        if (BuildConfig.DEBUG) {
+            Log.d("PlayHero", "onEnded")
+        }
         onEndedAction()
     }
 
     @android.webkit.JavascriptInterface
     fun onError() {
+        if (BuildConfig.DEBUG) {
+            Log.d("PlayHero", "onError")
+        }
+        onErrorAction()
+    }
+
+    @android.webkit.JavascriptInterface
+    fun onError(code: Int) {
+        if (BuildConfig.DEBUG) {
+            Log.d("PlayHero", "onError=$code")
+        }
         onErrorAction()
     }
 }
@@ -426,6 +485,7 @@ private fun HeroTrailerView(
             onPlayingAction = { (context as? android.app.Activity)?.runOnUiThread { onPlaying() } ?: onPlaying() },
             onEndedAction = { (context as? android.app.Activity)?.runOnUiThread { onEnded() } ?: onEnded() },
             onErrorAction = { (context as? android.app.Activity)?.runOnUiThread { onError() } ?: onError() },
+            getWebView = { webViewRef },
         )
     }
 
@@ -455,24 +515,34 @@ private fun HeroTrailerView(
                     .replace("; wv", "")
                     .replace(Regex("Version/\\d+\\.\\d+ "), "")
 
-                val webViewInstance = this
-                CookieManager.getInstance().apply {
-                    setAcceptCookie(true)
-                    setAcceptThirdPartyCookies(webViewInstance, true)
-                }
-
                 addJavascriptInterface(bridge, "HeroTrailerBridge")
 
                 webViewClient = object : WebViewClient() {
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        if (BuildConfig.DEBUG) {
+                            Log.d("PlayHero", "webViewLoaded")
+                            view?.evaluateJavascript("console.log('RECT: ' + JSON.stringify(document.getElementById('player').getBoundingClientRect()))") {}
+                        }
+                    }
+
                     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                         val uri = request?.url ?: return true
                         return HeroTrailerEmbed.shouldBlockTrailerNavigation(request.isForMainFrame, uri.scheme, uri.host)
                     }
                 }
-                webChromeClient = WebChromeClient()
+                webChromeClient = object : WebChromeClient() {
+                    override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+                        if (BuildConfig.DEBUG && consoleMessage != null) {
+                            val sanitized = consoleMessage.message().replace(Regex("https?://\\S+"), "<url>")
+                            Log.d("PlayHero", "console [${consoleMessage.messageLevel()}]: $sanitized")
+                        }
+                        return true
+                    }
+                }
 
                 loadDataWithBaseURL(
-                    "https://www.youtube-nocookie.com",
+                    "https://www.youtube-nocookie.com/",
                     html,
                     "text/html",
                     "utf-8",
@@ -483,6 +553,9 @@ private fun HeroTrailerView(
         },
         update = { view ->
             view.alpha = if (isPlaying) 1f else 0f
+            if (BuildConfig.DEBUG) {
+                Log.d("PlayHero", "update block: isPlaying=$isPlaying view.alpha=${view.alpha}")
+            }
         },
         modifier = modifier,
     )

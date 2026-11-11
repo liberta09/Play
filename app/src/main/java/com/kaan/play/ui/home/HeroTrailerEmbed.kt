@@ -31,9 +31,8 @@ object HeroTrailerEmbed {
               <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
               <meta name="referrer" content="strict-origin-when-cross-origin" />
               <style>
-                html,body{margin:0;padding:0;width:100%;height:100%;background:transparent !important;overflow:hidden;pointer-events:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
-                #player{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;min-width:100%;min-height:100%;background:transparent !important;}
-                iframe{border:0;width:100%;height:100%;pointer-events:none;background:transparent !important;}
+                html,body{margin:0;padding:0;position:fixed;inset:0;width:100%;height:100%;background:transparent !important;overflow:hidden;pointer-events:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
+                #player,iframe{position:absolute;inset:0;width:100%;height:100%;min-width:100%;min-height:100%;border:0;pointer-events:none;background:transparent !important;}
               </style>
             </head><body>
               <div id="player"></div>
@@ -46,7 +45,12 @@ object HeroTrailerEmbed {
                 var player;
                 var frameCheckTimer = null;
                 function onYouTubeIframeAPIReady() {
+                  if (window.HeroTrailerBridge && typeof window.HeroTrailerBridge.onApiReady === 'function') {
+                    window.HeroTrailerBridge.onApiReady();
+                  }
                   player = new YT.Player('player', {
+                    width: '100%',
+                    height: '100%',
                     videoId: '$key',
                     host: 'https://www.youtube-nocookie.com',
                     playerVars: {
@@ -70,6 +74,9 @@ object HeroTrailerEmbed {
                   });
                 }
                 function onPlayerReady(event) {
+                  if (window.HeroTrailerBridge && typeof window.HeroTrailerBridge.onPlayerReady === 'function') {
+                    window.HeroTrailerBridge.onPlayerReady();
+                  }
                   try { event.target.mute(); event.target.playVideo(); } catch(e){}
                 }
                 function checkRealFrame() {
@@ -86,6 +93,9 @@ object HeroTrailerEmbed {
                 }
                 function onPlayerStateChange(event) {
                   try {
+                    if (window.HeroTrailerBridge && typeof window.HeroTrailerBridge.onStateChange === 'function') {
+                      window.HeroTrailerBridge.onStateChange(event.data);
+                    }
                     if (event.data === 1) {
                       if (frameCheckTimer) { clearTimeout(frameCheckTimer); }
                       frameCheckTimer = setTimeout(checkRealFrame, 500);
@@ -98,7 +108,10 @@ object HeroTrailerEmbed {
                 function onPlayerError(event) {
                   try {
                     if (frameCheckTimer) { clearTimeout(frameCheckTimer); }
-                    if (window.HeroTrailerBridge) { window.HeroTrailerBridge.onError(); }
+                    if (window.HeroTrailerBridge) {
+                      window.HeroTrailerBridge.onError(event.data || 0);
+                      window.HeroTrailerBridge.onError();
+                    }
                   } catch(e){}
                 }
               </script>
