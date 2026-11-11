@@ -106,6 +106,12 @@ fun SettingsScreen(
     val performanceMode by container.settings.performanceMode.collectAsStateWithLifecycle(
         initialValue = SettingsRepository.DEFAULT_PERFORMANCE_MODE,
     )
+    val heroAutoAdvance by container.settings.heroAutoAdvance.collectAsStateWithLifecycle(
+        initialValue = SettingsRepository.DEFAULT_HERO_AUTO_ADVANCE,
+    )
+    val heroTrailerEnabled by container.settings.heroTrailerEnabled.collectAsStateWithLifecycle(
+        initialValue = SettingsRepository.DEFAULT_HERO_TRAILER_ENABLED,
+    )
     val posterTemplate by container.settings.posterUrlTemplate.collectAsStateWithLifecycle(initialValue = PosterUrlTemplate.DEFAULT)
     val newEpisodeNotifications by container.settings.newEpisodeNotifications.collectAsStateWithLifecycle(
         initialValue = SettingsRepository.DEFAULT_NEW_EPISODE_NOTIFICATIONS,
@@ -219,6 +225,43 @@ fun SettingsScreen(
                     dialog = OpenDialog.Poster
                 },
             )
+
+            // Kapakları otomatik değiştir
+            PlayCardRow(
+                title = stringResource(R.string.settings_hero_auto_advance),
+                icon = PlayIcons.PlayCircle,
+                iconTint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                    .focusMemory(focus, "hero_auto_advance"),
+                onClick = { scope.launch { container.settings.setHeroAutoAdvance(!heroAutoAdvance) } },
+                trailing = {
+                    Switch(
+                        checked = heroAutoAdvance,
+                        onCheckedChange = { scope.launch { container.settings.setHeroAutoAdvance(it) } },
+                    )
+                },
+            )
+
+            // Ana sayfada fragman oynat
+            if (heroAutoAdvance) {
+                PlayCardRow(
+                    title = stringResource(R.string.settings_hero_trailer),
+                    subtitle = stringResource(R.string.settings_hero_trailer_desc),
+                    icon = PlayIcons.PlayTriangle,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                        .focusMemory(focus, "hero_trailer"),
+                    onClick = { scope.launch { container.settings.setHeroTrailerEnabled(!heroTrailerEnabled) } },
+                    trailing = {
+                        Switch(
+                            checked = heroTrailerEnabled,
+                            onCheckedChange = { scope.launch { container.settings.setHeroTrailerEnabled(it) } },
+                        )
+                    },
+                )
+            }
 
             // ==========================================
             // 2. Oynatma

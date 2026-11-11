@@ -157,6 +157,9 @@
     <string name="nav_bar_position_right">Right</string>
     <string name="settings_performance_title">Performance</string>
     <string name="settings_performance_summary">Limits resource usage; catalogs load smoothly in small batches</string>
+    <string name="settings_hero_auto_advance">Auto-advance hero carousel</string>
+    <string name="settings_hero_trailer">Play trailers on home</string>
+    <string name="settings_hero_trailer_desc">Wi-Fi only, muted</string>
     <string name="settings_notifications_title">Notifications</string>
     <string name="settings_new_episode_notifications">New episode alerts</string>
     <string name="settings_new_episode_notifications_summary">Notify when a new episode airs for favorite series</string>

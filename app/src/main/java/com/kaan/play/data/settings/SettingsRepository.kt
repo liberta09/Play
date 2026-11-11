@@ -325,6 +325,22 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         store.edit { it[PERFORMANCE_MODE] = enabled }
     }
 
+    /** Kapak karuselinin otomatik ilerlemesi; varsayılan açık. */
+    val heroAutoAdvance: Flow<Boolean> =
+        store.data.map { it[HERO_AUTO_ADVANCE] ?: DEFAULT_HERO_AUTO_ADVANCE }.distinctUntilChanged()
+
+    suspend fun setHeroAutoAdvance(enabled: Boolean) {
+        store.edit { it[HERO_AUTO_ADVANCE] = enabled }
+    }
+
+    /** Ana sayfada sessiz fragman oynatma; varsayılan açık (yalnızca Wi-Fi ve performans modu kapalıyken). */
+    val heroTrailerEnabled: Flow<Boolean> =
+        store.data.map { it[HERO_TRAILER_ENABLED] ?: DEFAULT_HERO_TRAILER_ENABLED }.distinctUntilChanged()
+
+    suspend fun setHeroTrailerEnabled(enabled: Boolean) {
+        store.edit { it[HERO_TRAILER_ENABLED] = enabled }
+    }
+
     /** Favori diziler için yeni bölüm bildirimleri; varsayılan kapalı. */
     val newEpisodeNotifications: Flow<Boolean> =
         store.data.map { it[NEW_EPISODE_NOTIFICATIONS] ?: DEFAULT_NEW_EPISODE_NOTIFICATIONS }.distinctUntilChanged()
@@ -519,6 +535,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_REMEMBER_LAST_PROFILE = true
         const val DEFAULT_DOWNLOAD_WIFI_ONLY = true
         const val DEFAULT_PERFORMANCE_MODE = false
+        const val DEFAULT_HERO_AUTO_ADVANCE = true
+        const val DEFAULT_HERO_TRAILER_ENABLED = true
         const val DEFAULT_NEW_EPISODE_NOTIFICATIONS = false
         const val DEFAULT_SLOW_CONNECTION_MODE = false
         const val DEFAULT_SUGGEST_SLOW_CONNECTION = true
@@ -584,6 +602,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val CONTINUE_SORT_MODE = stringPreferencesKey("continue_sort_mode")
         private val NAV_BAR_POSITION = stringPreferencesKey("nav_bar_position")
         private val PERFORMANCE_MODE = booleanPreferencesKey("performance_mode")
+        private val HERO_AUTO_ADVANCE = booleanPreferencesKey("hero_auto_advance")
+        private val HERO_TRAILER_ENABLED = booleanPreferencesKey("hero_trailer_enabled")
         private val NEW_EPISODE_NOTIFICATIONS = booleanPreferencesKey("new_episode_notifications")
         private val LAST_NOTIFIED_EPISODES = stringPreferencesKey("last_notified_episodes")
         private val LAST_WHATS_NEW_VERSION = stringPreferencesKey("last_whats_new_version")
@@ -594,6 +614,8 @@ class SettingsRepository(val store: DataStore<Preferences>) {
             THEME,
             NAV_BAR_POSITION,
             PERFORMANCE_MODE,
+            HERO_AUTO_ADVANCE,
+            HERO_TRAILER_ENABLED,
             NEW_EPISODE_NOTIFICATIONS,
             POSTER_URL_TEMPLATE,
             ALWAYS_RESUME,

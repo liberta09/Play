@@ -22,8 +22,8 @@ class SettingsCatalogRulesTest {
 
     @Test
     fun verifiesExactTwentyThreeItemsAndNoDuplicates() {
-        assertEquals(23, SettingsCatalogRules.ALL_ITEMS.size)
-        assertEquals(23, SettingsCatalogRules.ALL_ITEMS.toSet().size)
+        assertEquals(25, SettingsCatalogRules.ALL_ITEMS.size)
+        assertEquals(25, SettingsCatalogRules.ALL_ITEMS.toSet().size)
         assertEquals(SettingsItemId.entries.size, SettingsCatalogRules.ALL_ITEMS.size)
     }
 
@@ -37,6 +37,8 @@ class SettingsCatalogRulesTest {
                 SettingsItemId.NavBarPosition,
                 SettingsItemId.PerformanceMode,
                 SettingsItemId.PosterTemplate,
+                SettingsItemId.HeroAutoAdvance,
+                SettingsItemId.HeroTrailer,
             ),
             appearance.items,
         )
@@ -96,6 +98,8 @@ class SettingsCatalogRulesTest {
     @Test
     fun verifiesGroupLookup() {
         assertEquals(SettingsGroupId.Appearance, SettingsCatalogRules.groupOf(SettingsItemId.Theme))
+        assertEquals(SettingsGroupId.Appearance, SettingsCatalogRules.groupOf(SettingsItemId.HeroAutoAdvance))
+        assertEquals(SettingsGroupId.Appearance, SettingsCatalogRules.groupOf(SettingsItemId.HeroTrailer))
         assertEquals(SettingsGroupId.Playback, SettingsCatalogRules.groupOf(SettingsItemId.PlayerSettings))
         assertEquals(SettingsGroupId.AddonsAndSources, SettingsCatalogRules.groupOf(SettingsItemId.WebSites))
         assertEquals(SettingsGroupId.ProfileAndSync, SettingsCatalogRules.groupOf(SettingsItemId.WifiSync))

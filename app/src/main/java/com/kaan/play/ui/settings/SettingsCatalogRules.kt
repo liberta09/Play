@@ -19,6 +19,8 @@ enum class SettingsItemId {
     NavBarPosition,
     PerformanceMode,
     PosterTemplate,
+    HeroAutoAdvance,
+    HeroTrailer,
 
     // 2. Oynatma
     PlayerSettings,
@@ -64,6 +66,8 @@ object SettingsCatalogRules {
                 SettingsItemId.NavBarPosition,
                 SettingsItemId.PerformanceMode,
                 SettingsItemId.PosterTemplate,
+                SettingsItemId.HeroAutoAdvance,
+                SettingsItemId.HeroTrailer,
             ),
         ),
         SettingsGroup(

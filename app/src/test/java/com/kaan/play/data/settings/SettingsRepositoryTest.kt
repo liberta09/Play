@@ -152,6 +152,22 @@ class SettingsRepositoryTest {
     }
 
     @Test
+    fun heroAutoAdvanceDefaultsToOnAndPersistsChoice() = runBlocking {
+        assertEquals(true, repo.heroAutoAdvance.first())
+        assertEquals(true, SettingsRepository.DEFAULT_HERO_AUTO_ADVANCE)
+        repo.setHeroAutoAdvance(false)
+        assertEquals(false, repo.heroAutoAdvance.first())
+    }
+
+    @Test
+    fun heroTrailerEnabledDefaultsToOnAndPersistsChoice() = runBlocking {
+        assertEquals(true, repo.heroTrailerEnabled.first())
+        assertEquals(true, SettingsRepository.DEFAULT_HERO_TRAILER_ENABLED)
+        repo.setHeroTrailerEnabled(false)
+        assertEquals(false, repo.heroTrailerEnabled.first())
+    }
+
+    @Test
     fun lastWhatsNewVersionDefaultsToNullAndPersistsVersion() = runBlocking {
         assertEquals(null, repo.lastWhatsNewVersion.first())
         repo.setLastWhatsNewVersion("1.3.0")
