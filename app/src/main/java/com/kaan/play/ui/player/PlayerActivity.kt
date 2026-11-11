@@ -129,7 +129,12 @@ class PlayerActivity : AppCompatActivity() {
     private var slowConnectionPromptVisible by mutableStateOf(false)
     private var slowConnectionPromptedSession = false
     private var slowConnectionModeState = SettingsRepository.DEFAULT_SLOW_CONNECTION_MODE
-    private var suggestSlowConnectionState = SettingsRepository.DEFAULT_SUGGEST_SLOW_CONNECTION
+    private var suggestSlowConnectionState = SettingsRepository.DEFAULT_SUGGEST_SLOW_CONNECTION
+    private var testSimulatedOffline = false
+    private var networkCallback: android.net.ConnectivityManager.NetworkCallback? = null
+    private var waitingForInternetJob: Job? = null
+    private var alreadyRetriedOnNetworkReturn = false
+    private var waitingStartTimeMs = 0L
 
     /** Sonraki bölüme geçiliyor: bu bölüm "izlendi" yazılır, oynatıcı hataları (kapanan torrent vb.) gösterilmez. */
     private var leaving = false
@@ -429,9 +434,32 @@ class PlayerActivity : AppCompatActivity() {
                         }
                     }
                 }
+                if (BuildConfig.DEBUG) {
+                    val testOfflineSec = intent.getIntExtra("play_test_offline_seconds", 0)
+                    if (testOfflineSec > 0) {
+                        intent.removeExtra("play_test_offline_seconds")
+                        lifecycleScope.launch {
+                            delay(3500L)
+                            if (!leaving && session.offline == null) {
+                                android.util.Log.i("PlayerActivity", "play_test_offline_seconds tetiklendi ($testOfflineSec sn)")
+                                testSimulatedOffline = true
+                                val savedPos = controller.positionMs().takeIf { it > 0 } ?: (controller.player.currentPosition.takeIf { it > 0 } ?: 0L)
+                                controller.player.pause()
+                                onControllerFailure("java.io.IOException: TEST_SIMULATED_OFFLINE", coordinator)
+
+                                delay(testOfflineSec * 1000L)
+                                if (!leaving) {
+                                    android.util.Log.i("PlayerActivity", "play_test_offline_seconds bitti -> onNetworkReturned")
+                                    testSimulatedOffline = false
+                                    onNetworkReturned(savedPos)
+                                }
+                            }
+                        }
+                    }
+                }
             }
             controller.onDurationKnown = { coordinator?.onDuration(it) }
-            controller.onFailure = { detail -> leaving || (coordinator?.onFailure(detail) == true) }
+            controller.onFailure = { detail -> onControllerFailure(detail, coordinator) }
             controller.onTransientRecovery = { detail -> if (!leaving) coordinator?.onTransientRefresh(detail) }
             lifecycleScope.launch {
                 snapshotFlow { Pair(coordinator, coordinator?.phase) }.collect { (coord, phase) ->
@@ -1025,7 +1053,7 @@ class PlayerActivity : AppCompatActivity() {
         val nextCoord = createSourceCoordinator(newRequest)
         coordinator = nextCoord
         controller.onDurationKnown = { nextCoord.onDuration(it) }
-        controller.onFailure = { detail -> leaving || nextCoord.onFailure(detail) }
+        controller.onFailure = { detail -> onControllerFailure(detail, nextCoord) }
         nextCoord.start(initial = streams.first(), fallbacks = streams.drop(1), startMs = 0L)
     }
 
@@ -1076,7 +1104,7 @@ class PlayerActivity : AppCompatActivity() {
         val restored = createSourceCoordinator(rollback.previousSession.target.request)
         coordinator = restored
         controller.onDurationKnown = { restored.onDuration(it) }
-        controller.onFailure = { detail -> leaving || restored.onFailure(detail) }
+        controller.onFailure = { detail -> onControllerFailure(detail, restored) }
         restored.start(
             initial = rollback.previousStream,
             fallbacks = rollback.previousSession.fallbacks,
@@ -1563,6 +1591,117 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+
+    private fun isDeviceOffline(): Boolean {
+        if (BuildConfig.DEBUG && testSimulatedOffline) return true
+        val cm = getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager ?: return false
+        val activeNet = cm.activeNetwork ?: return true
+        val caps = cm.getNetworkCapabilities(activeNet) ?: return true
+        val hasInternet = caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        val isValidated = caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        return !hasInternet || !isValidated
+    }
+
+    private fun onControllerFailure(detail: String, targetCoord: SourceCoordinator?): Boolean {
+        if (leaving) return true
+        val isNetwork = NetworkResumeRules.isNetworkError(detail)
+        val isOffline = isDeviceOffline()
+        val isDownloaded = session.offline != null
+        if (NetworkResumeRules.shouldWaitForNetwork(isNetwork, isOffline, isDownloaded, alreadyRetriedOnNetworkReturn)) {
+            startWaitingForInternet()
+            return true
+        }
+        return targetCoord?.onFailure(detail) == true
+    }
+
+    private fun startWaitingForInternet() {
+        if (waitingForInternetJob != null) return
+        waitingStartTimeMs = android.os.SystemClock.elapsedRealtime()
+        val currentPos = controller.positionMs().takeIf { it > 0 } ?: (controller.positionMs() ?: 0L)
+        coordinator?.notice = SourceNotice.WaitingForInternet
+        controller.player.pause()
+
+        registerNetworkCallback(currentPos)
+
+        waitingForInternetJob = lifecycleScope.launch {
+            kotlinx.coroutines.delay(NetworkResumeRules.WAIT_TIMEOUT_MS)
+            if (!leaving && coordinator?.notice is SourceNotice.WaitingForInternet) {
+                stopWaitingForInternet()
+                coordinator?.onFailure("TIMEOUT_WAITING_FOR_INTERNET")
+            }
+        }
+    }
+
+    private fun registerNetworkCallback(resumePositionMs: Long) {
+        unregisterNetworkCallback()
+        val cm = getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager ?: return
+        val request = android.net.NetworkRequest.Builder()
+            .addCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            .build()
+
+        networkCallback = object : android.net.ConnectivityManager.NetworkCallback() {
+            override fun onCapabilitiesChanged(network: android.net.Network, caps: android.net.NetworkCapabilities) {
+                if (BuildConfig.DEBUG && testSimulatedOffline) return
+                if (caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                    runOnUiThread { onNetworkReturned(resumePositionMs) }
+                }
+            }
+
+            override fun onAvailable(network: android.net.Network) {
+                if (BuildConfig.DEBUG && testSimulatedOffline) return
+                val caps = cm.getNetworkCapabilities(network)
+                if (caps?.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true) {
+                    runOnUiThread { onNetworkReturned(resumePositionMs) }
+                }
+            }
+        }
+        try {
+            cm.registerNetworkCallback(request, networkCallback!!)
+        } catch (t: Throwable) {
+            android.util.Log.w("PlayerActivity", "NetworkCallback register error: ${t.message}")
+        }
+    }
+
+    private fun onNetworkReturned(resumePositionMs: Long) {
+        if (leaving) return
+        val elapsed = android.os.SystemClock.elapsedRealtime() - waitingStartTimeMs
+        if (!NetworkResumeRules.shouldRetryOnNetworkReturn(alreadyRetriedOnNetworkReturn, elapsed)) {
+            stopWaitingForInternet()
+            coordinator?.onFailure("NETWORK_RESUME_RETRY_EXHAUSTED")
+            return
+        }
+
+        alreadyRetriedOnNetworkReturn = true
+        stopWaitingForInternet()
+
+        val currentStream = coordinator?.current
+        if (currentStream != null) {
+            coordinator?.retryCurrentStream(resumePositionMs)
+        } else {
+            coordinator?.onFailure("NO_CURRENT_STREAM")
+        }
+    }
+
+    private fun stopWaitingForInternet() {
+        waitingForInternetJob?.cancel()
+        waitingForInternetJob = null
+        unregisterNetworkCallback()
+        if (coordinator?.notice is SourceNotice.WaitingForInternet) {
+            coordinator?.notice = null
+        }
+    }
+
+    private fun unregisterNetworkCallback() {
+        networkCallback?.let {
+            try {
+                val cm = getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
+                cm?.unregisterNetworkCallback(it)
+            } catch (_: Throwable) {}
+        }
+        networkCallback = null
+    }
+
     private companion object {
         const val AUTO_NEXT_TICK_MS = 500L
     }

@@ -318,6 +318,9 @@ class MainActivity : AppCompatActivity() {
                     if (intent?.getBooleanExtra("play_test_slow_prompt", false) == true) {
                         playIntent.putExtra("play_test_slow_prompt", true)
                     }
+                    if (intent?.hasExtra("play_test_offline_seconds") == true) {
+                        playIntent.putExtra("play_test_offline_seconds", intent.getIntExtra("play_test_offline_seconds", 0))
+                    }
                     startActivity(playIntent)
                     return
                 } else {
@@ -365,6 +368,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 if (intent?.hasExtra("play_test_delay_dubbed_ms") == true) {
                     playIntent.putExtra("play_test_delay_dubbed_ms", intent.getLongExtra("play_test_delay_dubbed_ms", 0L))
+                }
+                if (intent?.hasExtra("play_test_offline_seconds") == true) {
+                    playIntent.putExtra("play_test_offline_seconds", intent.getIntExtra("play_test_offline_seconds", 0))
                 }
             }
             startActivity(playIntent)

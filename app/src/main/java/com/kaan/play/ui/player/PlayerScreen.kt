@@ -894,6 +894,25 @@ fun PlayerScreen(
             CircularProgressIndicator(Modifier.align(Alignment.Center).size(40.dp), color = Color.White)
         }
 
+        if (coordinator?.notice is SourceNotice.WaitingForInternet) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .background(Color.Black.copy(alpha = 0.85f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 24.dp, vertical = 18.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(36.dp), color = Color.White, strokeWidth = 3.dp)
+                Text(
+                    text = stringResource(R.string.player_waiting_for_internet),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+
         if (showControls && !showTorrentOverlay) {
             val isLive = target.request.addonType in listOf("tv", "channel")
             val playing = coordinator?.current ?: offlineStream
@@ -1375,6 +1394,7 @@ private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier
         SourceNotice.WrongContentBlockedNone -> R.string.player_wrong_content_blocked_none to null
         SourceNotice.AudioSyncSwitching -> R.string.player_audio_sync_switching to null
         SourceNotice.AudioSyncNoOtherSource -> R.string.player_audio_sync_no_other to null
+        SourceNotice.WaitingForInternet -> R.string.player_waiting_for_internet to null
     }
     Column(
         modifier = modifier

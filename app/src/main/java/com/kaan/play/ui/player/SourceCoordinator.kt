@@ -101,6 +101,9 @@ sealed interface SourceNotice {
 
     /** Ses senkronu bozuk bildirildi ancak geçilecek başka kaynak bulunamadı. */
     data object AudioSyncNoOtherSource : SourceNotice
+
+    /** Ağ koptu, cihaz çevrimdışı: internet bekleniyor. */
+    data object WaitingForInternet : SourceNotice
 }
 
 /**
@@ -209,7 +212,17 @@ class SourceCoordinator(
     }
 
     var notice by mutableStateOf<SourceNotice?>(null)
-        private set
+
+    fun retryCurrentStream(startMs: Long) {
+        val currentStream = current ?: return
+        hasRetriedCurrentStream = true
+        revertTo = null
+        switching = false
+        notice = SourceNotice.RetryingCurrent("Ağ geri geldi")
+        lastStartMs = startMs
+        firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+        begin(currentStream, startMs)
+    }
 
     /** Elle kaynak değişimi sürüyor (dönen yükleme göstergesi). */
     var switching by mutableStateOf(false)
