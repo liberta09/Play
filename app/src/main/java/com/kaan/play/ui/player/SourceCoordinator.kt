@@ -85,6 +85,7 @@ sealed interface SourceNotice {
 
     /** Kullanıcının elle seçtiği kaynak koptu, otomatik olarak başka kaynağa geçildi. */
     data object SourceSwitched : SourceNotice
+    data object DubSwitched : SourceNotice
 
     /** Yanlış içerik veren kaynak bu dizi/film için engellendi ve sıradaki kaynak açılıyor. */
     data object WrongContentBlockedSwitching : SourceNotice
@@ -153,6 +154,9 @@ class SourceCoordinator(
     private val clock: () -> Long,
     /** Medya içeriği yoklaması (HTML/sahte kaynak engeli; oynatmayı en çok 2 sn geciktirebilir). */
     private val sourceProbe: (suspend (PlayableStream) -> Probe)? = null,
+    private val isOffline: Boolean = false,
+    private val isWatchPartyGuest: () -> Boolean = { false },
+    private val onAutoDubSwitch: ((previous: PlayableStream, next: PlayableStream) -> Unit)? = null,
     private val rankingDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) {
     var phase by mutableStateOf(SourcePhase.Idle)
@@ -217,6 +221,16 @@ class SourceCoordinator(
     /** Şu an oynatılan kaynakta Türkçe ses çalıyor mu (etiketsiz ama gömülü/doğrulanmış ses). */
     private val _currentAudioTurkish = mutableStateOf(false)
     val currentAudioTurkish: Boolean get() = _currentAudioTurkish.value
+
+    private val _userAudioChosen = mutableStateOf(false)
+    val userAudioChosen: Boolean get() = _userAudioChosen.value
+
+    fun setUserAudioChosen(chosen: Boolean) {
+        _userAudioChosen.value = chosen
+    }
+
+    private var autoDubSwitchCount = 0
+    private var lastAutoDubSwitchMs = 0L
 
     var midPlaybackSwitches by mutableStateOf(0)
         private set
@@ -1088,10 +1102,33 @@ class SourceCoordinator(
     // ---- iç işler ----
 
     private fun maybeSuggestDub() {
-        if (!showDubSuggestion || !autoSource || !preferDub || userPicked || suggestionDismissed || dubSuggestion != null || currentAudioTurkish) return
+        if (!showDubSuggestion || !autoSource || !preferDub || userPicked || userAudioChosen || currentAudioTurkish) return
         val playing = current ?: return
         if (playing.dubbed) return
-        dubSuggestion = ranked().firstOrNull { it.dubbed && !SourceRanking.isTooHeavy(it, ctx) && !isBlacklistedHost(it.url) && it.url != playing.url && it.url !in attempted }
+        if (isLive || isOffline || isWatchPartyGuest()) return
+        if (autoDubSwitchCount >= MAX_AUTO_DUB_SWITCHES) return
+        if (lastAutoDubSwitchMs > 0L && clock() - lastAutoDubSwitchMs < AUTO_DUB_SWITCH_INTERVAL_MS) return
+
+        val candidate = ranked().firstOrNull {
+            it.dubbed && !SourceRanking.isTooHeavy(it, ctx) && !isBlacklistedHost(it.url) && it.url != playing.url && it.url !in attempted
+        } ?: return
+
+        applyAutoDubSwitch(playing, candidate)
+    }
+
+    private fun applyAutoDubSwitch(old: PlayableStream, candidate: PlayableStream) {
+        autoDubSwitchCount++
+        lastAutoDubSwitchMs = clock()
+        notice = SourceNotice.DubSwitched
+        Log.d(TAG, "otomatik dublaj gecisi: eski=${old.source.addonName} yeni=${candidate.source.addonName} url=${candidate.url} (gecis=$autoDubSwitchCount)")
+        onAutoDubSwitch?.invoke(old, candidate)
+        val pos = position().takeIf { it > 0 } ?: lastStartMs
+        revertTo = old
+        revertPositionMs = pos
+        lastStartMs = pos
+        switching = true
+        firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+        begin(candidate, pos)
     }
 
     private fun probeSizes() {
@@ -1209,6 +1246,8 @@ class SourceCoordinator(
         const val PROBE_LIMIT = 24
         const val PROBE_PARALLEL = 6
         const val PROBE_TIMEOUT_MS = 8_000L
+        const val MAX_AUTO_DUB_SWITCHES = 3
+        const val AUTO_DUB_SWITCH_INTERVAL_MS = 10_000L
     }
 }
 

@@ -522,6 +522,7 @@
     <string name="player_manual_slow">Kaynak yavaş, başka kaynak seçebilirsin.</string>
     <string name="player_stream_dropped">Kaynak koptu, sıradaki deneniyor.</string>
     <string name="player_source_switched">Kaynak değiştirildi.</string>
+    <string name="player_switched_to_dub">Türkçe dublaja geçildi</string>
     <string name="player_error_detail">Ayrıntı: %1$s</string>
     <string name="dub_suggest_title">Dublajlı kaynak bulundu, geçilsin mi?</string>
     <string name="dub_suggest_switch">Geç</string>

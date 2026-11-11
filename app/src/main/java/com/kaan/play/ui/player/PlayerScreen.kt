@@ -300,12 +300,7 @@ fun PlayerScreen(
     val cardActive = cardPhase != AutoNextPhase.Hidden
     val cardFocus = remember { FocusRequester() }
     var cardFocused by remember { mutableStateOf(false) }
-    // "Dublajlı kaynak bulundu, geçilsin mi?" (köşede; sonraki bölüm kartı varken gösterilmez).
-    val dubOffer = coordinator?.dubSuggestion
-    val dubVisible = dubOffer != null && !cardActive && !locked && ui.error == null
-    val dubFocus = remember { FocusRequester() }
-    var dubFocused by remember { mutableStateOf(false) }
-    val showSlowPromptCard = slowPromptVisible && !cardActive && !dubVisible && !locked && ui.error == null
+    val showSlowPromptCard = slowPromptVisible && !cardActive && !locked && ui.error == null
     val slowFocus = remember { FocusRequester() }
     var slowFocused by remember { mutableStateOf(false) }
 
@@ -435,19 +430,17 @@ fun PlayerScreen(
         }
     }
     LaunchedEffect(cardActive) { if (!cardActive) cardFocused = false }
-    LaunchedEffect(dubVisible) { if (!dubVisible) dubFocused = false }
     LaunchedEffect(showSlowPromptCard) { if (!showSlowPromptCard) slowFocused = false }
     LaunchedEffect(skipVisible) { if (!skipVisible) skipFocused = false }
     // Odak: kilitliyken ve simge görünürken açma simgesinde; kilitli ve simge gizliyken kök yüzeyde;
     // hata/kaynak yokken hata düğmesinde; sonraki bölüm kartında; kontroller açıkken ilerleme
     // çubuğunda; gizliyken kök yüzeyde (yön tuşları orada yakalanır).
-    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, dubVisible, showSlowPromptCard, skipVisible, keyboard) {
+    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, showSlowPromptCard, skipVisible, keyboard) {
         when {
             locked && lockHintVisible -> unlockFocus.requestWhenAttached()
             locked -> runCatching { rootFocus.requestFocus() }
             ui.error != null || sourcesFailed -> runCatching { playFocus.requestFocus() }
             cardActive -> cardFocus.requestWhenAttached()
-            dubVisible && keyboard -> dubFocus.requestWhenAttached()
             showSlowPromptCard && keyboard -> slowFocus.requestWhenAttached()
             // Atlama düğmesi görünürken kumandada odak ondadır: Tamam = atla.
             skipVisible && keyboard -> skipFocus.requestWhenAttached()
@@ -486,7 +479,6 @@ fun PlayerScreen(
                     if (event.type == KeyEventType.KeyUp) {
                         when {
                             locked -> locked = false
-                            dubVisible -> coordinator?.dismissDubSuggestion()
                             showSlowPromptCard -> onDismissSlowPrompt()
                             cardActive -> onAutoNextCancel()
                             // Atlama düğmesi odaktayken Geri düğmeyi kapatır, oynatıcıdan çıkarmaz.
@@ -538,7 +530,6 @@ fun PlayerScreen(
                         }
                     }
                 }
-                if (dubVisible && dubFocused && event.key in CARD_KEYS) return@onPreviewKeyEvent false
                 if (showSlowPromptCard && slowFocused && event.key in CARD_KEYS) return@onPreviewKeyEvent false
                 if (skipVisible && skipFocused && event.key in CARD_KEYS) return@onPreviewKeyEvent false
                 val repeat = event.nativeKeyEvent.repeatCount
@@ -1042,19 +1033,6 @@ fun PlayerScreen(
             }
         }
 
-        if (coordinator != null && dubVisible) {
-            DubSuggestionCard(
-                onSwitch = {
-                    if (onAcceptDubSuggestion != null) onAcceptDubSuggestion() else coordinator.acceptDubSuggestion()
-                },
-                onClose = coordinator::dismissDubSuggestion,
-                primaryFocus = dubFocus,
-                modifier = Modifier.align(Alignment.BottomStart).navigationBarsPadding().padding(start = 24.dp, bottom = 156.dp)
-                    .gestureZone(zones, "dub")
-                    .onFocusChanged { dubFocused = it.hasFocus },
-            )
-        }
-
         if (showSlowPromptCard && !showTorrentOverlay) {
             SlowConnectionPromptCard(
                 onEnable = onEnableSlowConnection,
@@ -1391,6 +1369,7 @@ private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier
         is SourceNotice.RetryingCurrent -> R.string.player_retrying_current to notice.detail
         is SourceNotice.StreamDropped -> R.string.player_stream_dropped to notice.detail
         SourceNotice.SourceSwitched -> R.string.player_source_switched to null
+        SourceNotice.DubSwitched -> R.string.player_switched_to_dub to null
         SourceNotice.WrongContentBlockedSwitching -> R.string.player_wrong_content_blocked_switching to null
         SourceNotice.WrongContentBlockedWaiting -> R.string.player_wrong_content_blocked_waiting to null
         SourceNotice.WrongContentBlockedNone -> R.string.player_wrong_content_blocked_none to null
@@ -1526,35 +1505,6 @@ private fun SkipSegmentButton(
 }
 
 /** Sol alt köşede "Dublajlı kaynak bulundu, geçilsin mi?" (Geç / Kapat). Oynatma kesilmez; Geç kaldığı saniyeden devam ettirir. */
-@Composable
-private fun DubSuggestionCard(
-    onSwitch: () -> Unit,
-    onClose: () -> Unit,
-    primaryFocus: FocusRequester,
-    modifier: Modifier = Modifier,
-) {
-    val shape = MaterialTheme.shapes.medium
-    Column(
-        modifier = modifier
-            .widthIn(max = 340.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.92f), shape)
-            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)), shape)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        Text(stringResource(R.string.dub_suggest_title), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
-        Text(
-            stringResource(R.string.dub_suggest_subtitle),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Button(onClick = onSwitch, modifier = Modifier.focusRequester(primaryFocus)) { Text(stringResource(R.string.dub_suggest_switch)) }
-            TextButton(onClick = onClose) { Text(stringResource(R.string.dub_suggest_close)) }
-        }
-    }
-}
-
 @Composable
 private fun SlowConnectionPromptCard(
     onEnable: () -> Unit,

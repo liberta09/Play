@@ -807,6 +807,9 @@ class PlayerActivity : AppCompatActivity() {
             sourceProbe = { stream ->
                 container.sourceProbe.probe(stream.url, stream.headers, timeoutMs = 1_500L)
             },
+            isOffline = session.offline != null,
+            isWatchPartyGuest = { val party = container.watchPartyManager.session.value; party != null && !party.isHost },
+            onAutoDubSwitch = ::prepareAutoDubSwitch,
         )
     }
 
@@ -1108,6 +1111,13 @@ class PlayerActivity : AppCompatActivity() {
         controller.load(stream, startMs)
     }
 
+    private fun prepareAutoDubSwitch(previous: PlayableStream, next: PlayableStream) {
+        pendingDubRevertStream = previous
+        if (::audioVerifier.isInitialized) {
+            audioVerifier.resetForExplicitDubSwitch()
+        }
+    }
+
     private fun acceptDubSuggestionWithVerification() {
         val coord = coordinator ?: return
         pendingDubRevertStream = coord.current ?: currentStream
@@ -1252,6 +1262,7 @@ class PlayerActivity : AppCompatActivity() {
         val track = controller.audioTracks().firstOrNull { it.index == index } ?: return
         stopTurkishAudioScan()
         userAudioChosen = true
+        coordinator?.setUserAudioChosen(true)
         userAudioLanguage = SubtitleLanguages.normalize(track.language)
         controller.selectAudio(index)
         scheduleAudioTrackLearning(index, infos)
