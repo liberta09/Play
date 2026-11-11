@@ -777,10 +777,26 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun createSourceCoordinator(request: StreamRequest): SourceCoordinator {
         val container = appContainer
+        val testDelayDubbedMs = if (BuildConfig.DEBUG) intent.getLongExtra("play_test_delay_dubbed_ms", 0L) else 0L
+        val streamsSource: (StreamRequest) -> kotlinx.coroutines.flow.Flow<com.kaan.play.data.stream.StreamResult> =
+            if (testDelayDubbedMs > 0L) {
+                { req ->
+                    kotlinx.coroutines.flow.flow {
+                        container.streams.streams(req).collect { res ->
+                            if (res is com.kaan.play.data.stream.StreamResult.Found && res.streams.any { it.dubbed }) {
+                                kotlinx.coroutines.delay(testDelayDubbedMs)
+                            }
+                            emit(res)
+                        }
+                    }
+                }
+            } else {
+                container.streams::streams
+            }
         return SourceCoordinator(
             scope = lifecycleScope,
             request = request,
-            streamsFor = container.streams::streams,
+            streamsFor = streamsSource,
             askedFor = container.streams::sources,
             preferenceFor = container.sourceMemory::get,
             remember = container.sourceMemory::remember,
@@ -1104,6 +1120,7 @@ class PlayerActivity : AppCompatActivity() {
         skips.onSourceChanged(startMs)
         embeddedDub = false
         coordinator?.setCurrentAudioTurkish(false)
+        coordinator?.setAudioTracksEvaluated(false)
         // Dublajlı kaynakta Türkçe altyazı gereksiz: otomatik seçim kapanır (kullanıcının elle seçtiğine dokunulmaz).
         if (stream.dubbed) subtitles.suppressAuto() else subtitles.resumeAuto()
         subtitles.setStream(stream)
@@ -1163,6 +1180,7 @@ class PlayerActivity : AppCompatActivity() {
                 audioVerificationScanning = false
                 coord.markCurrentVerifiedWorking()
                 coord.setCurrentAudioTurkish(true)
+                coord.setAudioTracksEvaluated()
                 false
             }
             is TurkishVerifyDecision.TryNextDubbed -> {
@@ -1211,6 +1229,7 @@ class PlayerActivity : AppCompatActivity() {
         if (embeddedDub || isTurkishTrack) {
             coordinator?.setCurrentAudioTurkish(true)
         }
+        coordinator?.setAudioTracksEvaluated()
         val infos = controller.allAudioTrackInfos()
         val supported = infos.filter { it.isSupported }
         val stream = currentStream

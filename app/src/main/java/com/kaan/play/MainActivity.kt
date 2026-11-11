@@ -363,6 +363,9 @@ class MainActivity : AppCompatActivity() {
                 if (intent?.getBooleanExtra("play_test_slow_prompt", false) == true) {
                     playIntent.putExtra("play_test_slow_prompt", true)
                 }
+                if (intent?.hasExtra("play_test_delay_dubbed_ms") == true) {
+                    playIntent.putExtra("play_test_delay_dubbed_ms", intent.getLongExtra("play_test_delay_dubbed_ms", 0L))
+                }
             }
             startActivity(playIntent)
         }

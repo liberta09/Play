@@ -223,6 +223,19 @@ class SourceCoordinator(
     private val _currentAudioTurkish = mutableStateOf(false)
     val currentAudioTurkish: Boolean get() = _currentAudioTurkish.value
 
+    private val _audioTracksEvaluated = mutableStateOf(false)
+    val audioTracksEvaluated: Boolean get() = _audioTracksEvaluated.value
+
+    var firstFrameMs = 0L
+        private set
+
+    fun setAudioTracksEvaluated(evaluated: Boolean = true) {
+        _audioTracksEvaluated.value = evaluated
+        if (phase == SourcePhase.Playing) {
+            maybeSuggestDub()
+        }
+    }
+
     private val _userAudioChosen = mutableStateOf(false)
     val userAudioChosen: Boolean get() = _userAudioChosen.value
 
@@ -549,8 +562,12 @@ class SourceCoordinator(
         fallbackDubWaitJob?.cancel()
         firstFrameJob?.cancel()
         probeJob?.cancel()
+        scheduledDubSwitchJob?.cancel()
+        scheduledDubSwitchJob = null
         current = stream
         _currentAudioTurkish.value = false
+        _audioTracksEvaluated.value = false
+        firstFrameMs = 0L
         attempted += stream.url
         phase = SourcePhase.Starting
         Log.d(TAG, "kaynak başlatılıyor: ${stream.source.addonName} (${StreamLog.hostOf(stream.url)})")
@@ -640,6 +657,7 @@ class SourceCoordinator(
         probeJob?.cancel()
         cancelSizeProbes()
         phase = SourcePhase.Playing
+        firstFrameMs = clock()
         switching = false
         revertTo = null
         val cur = current
@@ -1080,6 +1098,8 @@ class SourceCoordinator(
         _currentAudioTurkish.value = isTurkish
         if (isTurkish) {
             dubSuggestion = null
+            scheduledDubSwitchJob?.cancel()
+            scheduledDubSwitchJob = null
         }
     }
 
@@ -1106,7 +1126,11 @@ class SourceCoordinator(
     // ---- iç işler ----
 
     private fun maybeSuggestDub() {
-        if (!autoDubSwitch || !showDubSuggestion || !autoSource || !preferDub || userPicked || userAudioChosen || currentAudioTurkish) return
+        if (!autoDubSwitch || !showDubSuggestion || !autoSource || !preferDub || userPicked || userAudioChosen || currentAudioTurkish) {
+            scheduledDubSwitchJob?.cancel()
+            scheduledDubSwitchJob = null
+            return
+        }
         val playing = current ?: return
         if (playing.dubbed) return
         if (isLive || isOffline || isWatchPartyGuest()) return
@@ -1116,13 +1140,31 @@ class SourceCoordinator(
             it.dubbed && !SourceRanking.isTooHeavy(it, ctx) && !isBlacklistedHost(it.url) && it.url != playing.url && it.url !in attempted
         } ?: return
 
-        val elapsed = if (lastAutoDubSwitchMs > 0L) clock() - lastAutoDubSwitchMs else AUTO_DUB_SWITCH_INTERVAL_MS
-        if (elapsed < AUTO_DUB_SWITCH_INTERVAL_MS) {
-            val remaining = AUTO_DUB_SWITCH_INTERVAL_MS - elapsed
+        // (a) Mevcut kaynağın ses parçaları en az bir kez değerlendirilmiş olmalı
+        if (!audioTracksEvaluated) return
+
+        // (b) İlk kareden sonra en az 1500 ms geçmiş olmalı
+        if (firstFrameMs <= 0L) return
+        val elapsedSinceFirstFrame = clock() - firstFrameMs
+        val remainingFirstFrameDelay = if (elapsedSinceFirstFrame < AUTO_DUB_FIRST_FRAME_DELAY_MS) {
+            AUTO_DUB_FIRST_FRAME_DELAY_MS - elapsedSinceFirstFrame
+        } else {
+            0L
+        }
+
+        val elapsedSinceLastSwitch = if (lastAutoDubSwitchMs > 0L) clock() - lastAutoDubSwitchMs else AUTO_DUB_SWITCH_INTERVAL_MS
+        val remainingInterval = if (elapsedSinceLastSwitch < AUTO_DUB_SWITCH_INTERVAL_MS) {
+            AUTO_DUB_SWITCH_INTERVAL_MS - elapsedSinceLastSwitch
+        } else {
+            0L
+        }
+
+        val delayNeeded = maxOf(remainingFirstFrameDelay, remainingInterval)
+        if (delayNeeded > 0L) {
             if (scheduledDubSwitchJob?.isActive != true) {
                 scheduledDubSwitchJob = scope.launch {
-                    delay(remaining)
-                    if (phase == SourcePhase.Playing) {
+                    delay(delayNeeded)
+                    if (phase == SourcePhase.Playing && audioTracksEvaluated && !currentAudioTurkish) {
                         maybeSuggestDub()
                     }
                 }
@@ -1277,6 +1319,7 @@ class SourceCoordinator(
         const val PROBE_TIMEOUT_MS = 8_000L
         const val MAX_AUTO_DUB_SWITCHES = 3
         const val AUTO_DUB_SWITCH_INTERVAL_MS = 10_000L
+        const val AUTO_DUB_FIRST_FRAME_DELAY_MS = 1_500L
     }
 }
 

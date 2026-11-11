@@ -349,6 +349,7 @@ class SourceCoordinatorTest {
         advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         assertEquals("https://a/sub", rig.lastUrl)
         rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
         rig.positionMs = 61_000
 
         // 3.5 sn sonra dublajlı kaynak gelir -> sormadan aynı saniyeden otomatik geçiş yapılır
@@ -440,6 +441,7 @@ class SourceCoordinatorTest {
         rig.coordinator.start(null, emptyList(), 0)
         advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
         val original = rig.coordinator.current!!
         assertEquals("https://a/sub", original.url)
 
@@ -453,6 +455,7 @@ class SourceCoordinatorTest {
 
         // Aday bu oturumda bir daha denenmez
         rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
         advanceTimeBy(15_000)
         assertEquals("https://a/sub", rig.lastUrl)
         assertNull(rig.coordinator.dubSuggestion)
@@ -478,10 +481,11 @@ class SourceCoordinatorTest {
         rig.coordinator.start(null, emptyList(), 0)
         advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
         assertEquals("https://a/sub", rig.lastUrl)
 
-        // 1. geçiş: dub1 hemen seçilir
-        advanceTimeBy(1_500)
+        // 1. geçiş: dub1 hemen seçilir (1.5 sn sonra)
+        advanceTimeBy(1_600)
         assertEquals(dub1.url, rig.lastUrl)
         advanceTimeBy(400)
         rig.coordinator.onFirstFrame()
@@ -490,6 +494,7 @@ class SourceCoordinatorTest {
         rig.coordinator.switchAfterUnverifiedDub(sub)
         advanceTimeBy(400)
         rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
         assertEquals(sub.url, rig.lastUrl)
 
         // 5 sn sonra henüz 10 sn dolmadığı için dub2'ye geçilmemiştir
@@ -506,6 +511,7 @@ class SourceCoordinatorTest {
         rig.coordinator.switchAfterUnverifiedDub(sub)
         advanceTimeBy(400)
         rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
         assertEquals(sub.url, rig.lastUrl)
 
         // 11 sn sonra 3. geçiş: dub3
@@ -518,6 +524,7 @@ class SourceCoordinatorTest {
         rig.coordinator.switchAfterUnverifiedDub(sub)
         advanceTimeBy(400)
         rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
         assertEquals(sub.url, rig.lastUrl)
 
         // 15 sn sonra: oturumda 3 geçiş hakkı dolduğu için 4. geçiş YAPILMAZ! sub'da kalır.
@@ -544,6 +551,69 @@ class SourceCoordinatorTest {
         assertFalse(log.contains("auth_token"))
         assertFalse(log.contains("supersecret"))
         assertFalse(log.contains("https://"))
+    }
+
+    @Test
+    fun dubbedCandidateArrivesBeforeAudioTracksEvaluated_waitsAndCancelsIfTurkishOrSwitchesAfter1500ms() = runTest {
+        // Durum 1: Parça listesi Türkçe çıkar -> geçiş HİÇ olmaz
+        val sub1 = stream(source1, "https://a/sub1")
+        val dub1 = stream(source2, "https://b/dub1", dub = true)
+        val rig1 = Rig(this, flow {
+            emit(found(source1, sub1))
+            delay(StartPolicy.DUB_WAIT_MS + 500)
+            emit(found(source2, dub1))
+        }, request = request)
+
+        rig1.coordinator.start(null, emptyList(), 0)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
+        rig1.coordinator.onFirstFrame()
+        assertEquals(sub1.url, rig1.lastUrl)
+
+        // t=500 ms: Dublajlı aday geldi ama ses parçaları henüz değerlendirilmedi -> geçiş BEKLER
+        advanceTimeBy(500)
+        assertEquals(sub1.url, rig1.lastUrl)
+
+        // Ses parçaları değerlendirildi ve Türkçe çıktı
+        rig1.coordinator.setCurrentAudioTurkish(true)
+        rig1.coordinator.setAudioTracksEvaluated(true)
+
+        // 3000 ms daha geçse bile geçiş HİÇ olmaz
+        advanceTimeBy(3_000)
+        assertEquals(sub1.url, rig1.lastUrl)
+        assertEquals(0, rig1.coordinator.autoDubSwitchCount)
+
+        // Durum 2: Parça listesi Türkçe değil -> ilk kareden 1500 ms sonra geçiş olur
+        val sub2 = stream(source1, "https://a/sub2")
+        val dub2 = stream(source2, "https://b/dub2", dub = true)
+        val rig2 = Rig(this, flow {
+            emit(found(source1, sub2))
+            delay(StartPolicy.DUB_WAIT_MS + 500)
+            emit(found(source2, dub2))
+        }, request = request)
+
+        rig2.coordinator.start(null, emptyList(), 0)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
+        rig2.coordinator.onFirstFrame() // t=0 ilk kare
+        assertEquals(sub2.url, rig2.lastUrl)
+
+        // t=450 ms: Dublajlı aday geldi ama ses parçaları henüz değerlendirilmedi -> geçiş YOK
+        advanceTimeBy(450)
+        assertEquals(sub2.url, rig2.lastUrl)
+
+        // t=800 ms (ilk kareden 800 ms sonra): Parça listesi değerlendirildi ve Türkçe DEĞİL
+        advanceTimeBy(350)
+        assertEquals(sub2.url, rig2.lastUrl)
+        rig2.coordinator.setCurrentAudioTurkish(false)
+        rig2.coordinator.setAudioTracksEvaluated(true)
+
+        // Henüz ilk kareden sonra 1500 ms dolmadı (t=1200 ms < 1500 ms) -> geçiş YOK
+        advanceTimeBy(400)
+        assertEquals(sub2.url, rig2.lastUrl)
+
+        // t=1600 ms (ilk kareden sonra 1500 ms aşıldı) -> OTOMATİK GEÇİŞ GERÇEKLEŞİR
+        advanceTimeBy(400)
+        assertEquals(dub2.url, rig2.lastUrl)
+        assertEquals(1, rig2.coordinator.autoDubSwitchCount)
     }
 
     @Test
