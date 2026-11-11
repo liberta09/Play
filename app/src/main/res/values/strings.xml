@@ -1070,4 +1070,19 @@
     <string name="live_category_local">Local</string>
     <string name="live_category_national">National</string>
     <string name="live_category_other">Other</string>
+
+    <!-- External Catalog (From File) -->
+    <string name="external_catalog_select_file">Select from file</string>
+    <string name="external_catalog_added">External catalog added (%s)</string>
+    <string name="external_catalog_error_too_large">File size exceeds 1 MB limit</string>
+    <string name="external_catalog_error_invalid_json">Malformed or invalid JSON file</string>
+    <string name="external_catalog_error_missing_name">Catalog name cannot be empty</string>
+    <string name="external_catalog_error_empty_metas">Catalog must contain at least one item</string>
+    <string name="external_catalog_error_too_many_items">Catalog cannot contain more than 500 items</string>
+    <string name="external_catalog_error_missing_id">Item ID is missing</string>
+    <string name="external_catalog_error_unknown_type">Unknown content type: Only movie or series is supported</string>
+    <string name="external_catalog_error_invalid_poster">Poster URL must start with http:// or https://</string>
+
+    <!-- Network Resume -->
+    <string name="player_waiting_for_internet">Waiting for internet…</string>
 </resources>

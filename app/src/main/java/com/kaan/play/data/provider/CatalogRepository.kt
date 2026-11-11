@@ -8,6 +8,7 @@ import com.kaan.play.data.cloudstream.CsRuntime
 import com.kaan.play.data.db.AddonDao
 import com.kaan.play.data.db.AddonType
 import com.kaan.play.data.db.PluginDao
+import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.net.PlayJson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
@@ -51,6 +52,7 @@ class CatalogRepository(
     private val httpClient: OkHttpClient,
     val cache: CatalogCache = CatalogCache(),
     private val getDisabledCatalogs: (suspend () -> Set<String>)? = null,
+    private val externalCatalogStore: com.kaan.play.data.catalog.ExternalCatalogStore? = null,
 ) {
     /** Etkin Nuvio addon'larının tv/channel kataloglarını TV sekmesi için birleştirir. */
     suspend fun loadLiveCatalog(forceRefresh: Boolean = false): CatalogResult =
@@ -253,18 +255,47 @@ class CatalogRepository(
                     val addonEntity = addonDao.byId(addonRowId) ?: continue
                     hasAtLeastOneProvider = true
                     try {
-                        val manifest = PlayJson.decodeFromString(AddonManifest.serializer(), addonEntity.manifestJson)
-                        val addon = Addon(
-                            id = addonEntity.id,
-                            type = addonEntity.type,
-                            sourceUrl = addonEntity.sourceUrl,
-                            manifest = manifest,
-                            enabled = addonEntity.enabled,
-                            addedAt = addonEntity.addedAt,
-                        )
-                        val catalog = NuvioAddonCatalog(addon, httpClient)
-                        val rows = catalog.rows().first()
-                        allRows.addAll(rows)
+                        if (addonEntity.sourceUrl.startsWith("local-catalog:")) {
+                            val uuid = addonEntity.sourceUrl.removePrefix("local-catalog:")
+                            val ext = externalCatalogStore?.readCatalog(uuid)
+                            if (ext != null) {
+                                val items = ext.metas.map { meta ->
+                                    CatalogItem(
+                                        id = meta.id,
+                                        title = meta.name,
+                                        subtitle = null,
+                                        posterUrl = meta.poster,
+                                        mediaType = if (meta.type.equals("series", ignoreCase = true)) MediaType.Tv else MediaType.Movie,
+                                        providerId = "nuvio_addon:${addonEntity.id}",
+                                        rawUrl = meta.id,
+                                        addonType = meta.type.lowercase(),
+                                    )
+                                }
+                                val row = CatalogRow(
+                                    id = "local-catalog-$uuid",
+                                    title = ext.name,
+                                    items = items,
+                                    hasNext = false,
+                                    page = 1,
+                                    providerId = "nuvio_addon:${addonEntity.id}",
+                                    providerName = ext.name,
+                                )
+                                allRows.add(row)
+                            }
+                        } else {
+                            val manifest = PlayJson.decodeFromString(AddonManifest.serializer(), addonEntity.manifestJson)
+                            val addon = Addon(
+                                id = addonEntity.id,
+                                type = addonEntity.type,
+                                sourceUrl = addonEntity.sourceUrl,
+                                manifest = manifest,
+                                enabled = addonEntity.enabled,
+                                addedAt = addonEntity.addedAt,
+                            )
+                            val catalog = NuvioAddonCatalog(addon, httpClient)
+                            val rows = catalog.rows().first()
+                            allRows.addAll(rows)
+                        }
                     } catch (t: Throwable) {
                         Log.e(TAG, "Nuvio addon katalog hatası ($id): ${t.message}", t)
                         hasError = true
@@ -325,6 +356,9 @@ class CatalogRepository(
                 providerId.startsWith("nuvio_addon:") -> {
                     val addonRowId = providerId.removePrefix("nuvio_addon:").toLongOrNull() ?: return@withContext emptyList()
                     val addonEntity = addonDao.byId(addonRowId) ?: return@withContext emptyList()
+                    if (addonEntity.sourceUrl.startsWith("local-catalog:")) {
+                        return@withContext emptyList()
+                    }
                     val manifest = PlayJson.decodeFromString(AddonManifest.serializer(), addonEntity.manifestJson)
                     val addon = Addon(
                         id = addonEntity.id,

@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import com.kaan.play.ui.components.IconButton
 import com.kaan.play.ui.components.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -166,6 +167,40 @@ fun AddonsScreen(
                 CollectionImportFeedback.StorageFull
             } catch (_: Throwable) {
                 CollectionImportFeedback.InvalidJson
+            }
+        }
+    }
+
+    val selectCatalogFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val (bytes, total) = withContext(Dispatchers.IO) {
+                try {
+                    appContext.contentResolver.openInputStream(uri)?.use { stream ->
+                        val out = ByteArrayOutputStream()
+                        val buf = ByteArray(8192)
+                        var readTotal = 0L
+                        while (true) {
+                            val r = stream.read(buf)
+                            if (r == -1) break
+                            readTotal += r
+                            if (readTotal > com.kaan.play.data.catalog.ExternalCatalogParser.MAX_BYTE_SIZE) {
+                                return@withContext null to readTotal
+                            }
+                            out.write(buf, 0, r)
+                        }
+                        out.toByteArray() to readTotal
+                    } ?: (null to 0L)
+                } catch (_: Exception) {
+                    null to 0L
+                }
+            }
+            if (bytes == null) {
+                vm.setCustomError(appContext.getString(R.string.external_catalog_error_too_large))
+            } else {
+                vm.importFromFile(String(bytes, Charsets.UTF_8), total, container.externalCatalogStore, appContext)
             }
         }
     }
@@ -353,6 +388,7 @@ fun AddonsScreen(
                 onInputChange = vm::onInputChange,
                 onConfirm = vm::submit,
                 onAcceptSuggestion = vm::acceptSuggestion,
+                onSelectFile = { selectCatalogFileLauncher.launch(arrayOf("application/json", "text/*", "*/*")) },
                 onDismiss = vm::dismissAdd,
             )
         }
@@ -653,6 +689,7 @@ private fun AddSourceInputDialog(
     onInputChange: (String) -> Unit,
     onConfirm: () -> Unit,
     onAcceptSuggestion: () -> Unit,
+    onSelectFile: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val field = rememberCursorField(state.input, onInputChange)
@@ -711,6 +748,15 @@ private fun AddSourceInputDialog(
                     keyboardActions = KeyboardActions(onDone = { if (!state.busy && state.input.isNotBlank()) onConfirm() }),
                     modifier = Modifier.fillMaxWidth().dpadLeavesTextField(field),
                 )
+                OutlinedButton(
+                    onClick = onSelectFile,
+                    enabled = !state.busy,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(PlayIcons.Folder, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.external_catalog_select_file))
+                }
                 when {
                     state.busy -> Row(verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
@@ -718,6 +764,13 @@ private fun AddSourceInputDialog(
                             text = stringResource(R.string.addons_add_checking),
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(start = 12.dp),
+                        )
+                    }
+                    state.customErrorMessage != null -> {
+                        Text(
+                            text = state.customErrorMessage,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
                         )
                     }
                     state.error != null -> {

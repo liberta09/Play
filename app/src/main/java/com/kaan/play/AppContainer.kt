@@ -448,11 +448,19 @@ class AppContainer(context: Context) {
         }
     }
 
+    val externalCatalogStore: com.kaan.play.data.catalog.ExternalCatalogStore by lazy {
+        com.kaan.play.data.catalog.ExternalCatalogStore(
+            filesDir = context.filesDir,
+            addonDao = database.addonDao(),
+        )
+    }
+
     val addons: AddonRepository by lazy {
         AddonRepository(
             dao = database.addonDao(),
             fetcher = OkHttpManifestFetcher(httpClient),
             onAddonRemoved = { settings.clearCatalogVisibilityForAddon(it) },
+            onSourceUrlRemoved = { url -> externalCatalogStore.deleteBySourceUrl(url) },
         )
     }
 
@@ -568,6 +576,7 @@ class AppContainer(context: Context) {
             csRuntime = csRuntime,
             httpClient = httpClient,
             getDisabledCatalogs = { settings.disabledCatalogs.first() },
+            externalCatalogStore = externalCatalogStore,
         )
     }
 

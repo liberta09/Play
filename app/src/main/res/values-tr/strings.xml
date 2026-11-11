@@ -1051,4 +1051,19 @@
     <string name="live_category_local">Yerel</string>
     <string name="live_category_national">Ulusal</string>
     <string name="live_category_other">Diğer</string>
+
+    <!-- Harici Katalog (Dosyadan) -->
+    <string name="external_catalog_select_file">Dosyadan seç</string>
+    <string name="external_catalog_added">Harici katalog eklendi (%s)</string>
+    <string name="external_catalog_error_too_large">Dosya boyutu 1 MB sınırını aşıyor</string>
+    <string name="external_catalog_error_invalid_json">Bozuk veya geçersiz JSON dosyası</string>
+    <string name="external_catalog_error_missing_name">Katalog adı boş olamaz</string>
+    <string name="external_catalog_error_empty_metas">Katalogda en az bir içerik bulunmalıdır</string>
+    <string name="external_catalog_error_too_many_items">Katalog en fazla 500 içerik barındırabilir</string>
+    <string name="external_catalog_error_missing_id">İçerik kimliği (id) eksik</string>
+    <string name="external_catalog_error_unknown_type">Bilinmeyen içerik türü: Yalnızca film veya dizi desteklenir</string>
+    <string name="external_catalog_error_invalid_poster">Afiş adresi http:// veya https:// ile başlamalıdır</string>
+
+    <!-- Ağ Kurtarma -->
+    <string name="player_waiting_for_internet">İnternet bekleniyor…</string>
 </resources>

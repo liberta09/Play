@@ -91,7 +91,9 @@ class LocalSyncData(
     /** Tüm kaynaklar: Nuvio addon'ları (altyazı addon'ları dahil), Nuvio eklenti depoları, CloudStream depoları, web siteleri. */
     private suspend fun sources(): List<SourceTransferItem> {
         val disabled = settings.disabledCatalogs.first()
-        return SYNCED_TYPES.flatMap { type -> addonDao.observeOfType(type).first() }.map { row ->
+        return SYNCED_TYPES.flatMap { type -> addonDao.observeOfType(type).first() }
+            .filter { LocalSyncFilterRules.isSyncableSource(it.sourceUrl, it.addonId) }
+            .map { row ->
             val prefix = "${row.id}:"
             SourceTransferItem(
                 type = row.type.name,
