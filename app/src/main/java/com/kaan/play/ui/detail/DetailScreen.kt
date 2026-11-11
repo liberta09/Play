@@ -98,7 +98,7 @@ import com.kaan.play.ui.components.TextButton
 import com.kaan.play.ui.components.TitleOrLogo
 import com.kaan.play.ui.theme.isDarkScheme
 import com.kaan.play.ui.containerViewModel
-import com.kaan.play.ui.party.watchPartyErrorMessage
+import com.kaan.play.ui.party.toWatchPartyErrorMessage
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.sources.DownloadStateIcon
@@ -110,7 +110,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 
@@ -174,11 +173,7 @@ fun DetailScreen(
                     result.onSuccess { room ->
                         partyRoomDialog = room
                     }.onFailure { err ->
-                        val msg = if (err is com.kaan.play.data.party.WatchPartyException) {
-                            context.watchPartyErrorMessage(err.error)
-                        } else {
-                            context.getString(R.string.watch_party_error_connection_failed)
-                        }
+                        val msg = err.toWatchPartyErrorMessage(context)
                         android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
                     }
                 }

@@ -120,8 +120,8 @@ class WatchPartyRealtimeClient(
             val request = Request.Builder().url(wsUrl).build()
 
             val listener = object : WebSocketListener() {
-                override fun onOpen(ws: WebSocket, response: Response) {
-                    webSocket = ws
+                override fun onOpen(webSocket: WebSocket, response: Response) {
+                    this@WatchPartyRealtimeClient.webSocket = webSocket
                     val roomId = activeRoomId ?: return
                     val topic = "realtime:wp:$roomId"
                     val joinRef = refCounter.getAndIncrement().toString()
@@ -135,18 +135,18 @@ class WatchPartyRealtimeClient(
                         userId = currentUserId,
                         joinRef = joinRef,
                     )
-                    ws.send(joinFrame.serialize())
+                    webSocket.send(joinFrame.serialize())
                 }
 
-                override fun onMessage(ws: WebSocket, text: String) {
-                    handleIncomingMessage(ws, text)
+                override fun onMessage(webSocket: WebSocket, text: String) {
+                    handleIncomingMessage(webSocket, text)
                 }
 
-                override fun onClosing(ws: WebSocket, code: Int, reason: String) {
-                    ws.close(1000, null)
+                override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                    webSocket.close(1000, null)
                 }
 
-                override fun onClosed(ws: WebSocket, code: Int, reason: String) {
+                override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                     stopHeartbeat()
                     if (!isManuallyClosed) {
                         _connectionState.value = PartyConnectionState.Disconnected
@@ -154,7 +154,7 @@ class WatchPartyRealtimeClient(
                     }
                 }
 
-                override fun onFailure(ws: WebSocket, t: Throwable, response: Response?) {
+                override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                     stopHeartbeat()
                     if (!isManuallyClosed) {
                         Log.d(TAG, "olay=hata")
