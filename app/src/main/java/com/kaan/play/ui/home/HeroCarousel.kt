@@ -396,7 +396,7 @@ private class HeroTrailerBridge(
     }
 }
 
-@SuppressLint("SetJavaScriptEnabled")
+@SuppressLint("SetJavaScriptEnabled", "JavascriptInterface")
 @Composable
 private fun HeroTrailerView(
     videoKey: String,
@@ -426,7 +426,7 @@ private fun HeroTrailerView(
         }
     }
 
-    val bridge = remember(onPlaying, onEnded, onError) {
+    val bridge: HeroTrailerBridge = remember(onPlaying, onEnded, onError) {
         HeroTrailerBridge(
             onPlayingAction = { (context as? android.app.Activity)?.runOnUiThread { onPlaying() } ?: onPlaying() },
             onEndedAction = { (context as? android.app.Activity)?.runOnUiThread { onEnded() } ?: onEnded() },
