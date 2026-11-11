@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import com.kaan.play.data.db.WatchHistoryEntity
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -136,6 +138,7 @@ fun DetailScreen(
     val season by vm.season.collectAsStateWithLifecycle()
     val episodes by vm.episodes.collectAsStateWithLifecycle()
     val isFavorite by vm.isFavorite.collectAsStateWithLifecycle()
+    val history by vm.latestHistory.collectAsStateWithLifecycle()
     val layout = rememberPlayLayout()
     val downloads by rememberContainer().downloads.rows.collectAsStateWithLifecycle(initialValue = emptyList())
     // Detay'daki indir düğmesi: kaynak listesi indirme modunda açılır (yalnızca indirilebilir doğrudan kaynaklar).
@@ -192,6 +195,7 @@ fun DetailScreen(
                 isFavorite = isFavorite,
                 selectedSeason = season,
                 episodes = episodes,
+                history = history,
                 onToggleFavorite = vm::toggleFavorite,
                 onSelectSeason = vm::selectSeason,
                 onRetryEpisodes = vm::retryEpisodes,
@@ -364,6 +368,7 @@ internal fun DetailContent(
     onOpenActor: (String) -> Unit = {},
     onOpenPerson: (Int, String) -> Unit = { _, _ -> },
     onStartWatchParty: (() -> Unit)? = null,
+    history: WatchHistoryEntity? = null,
     onPlay: (Int?, Int?) -> Unit,
     downloads: List<DownloadEntity> = emptyList(),
     /** Verilmezse (ör. sağlayıcı detayı) indir düğmeleri görünmez. */
@@ -382,7 +387,22 @@ internal fun DetailContent(
         DownloadAction(DownloadRules.contentBadge(entry), entry) { download(null, null) }
     }
     val header: @Composable (Dp) -> Unit = { padding ->
-        HeaderBlock(detail, isFavorite, selectedSeason, primaryFocus, padding, isSeries, onToggleFavorite, onSelectSeason, onPlay, movieDownload, onStartWatchParty)
+        HeaderBlock(
+            detail = detail,
+            isFavorite = isFavorite,
+            selectedSeason = selectedSeason,
+            primaryFocus = primaryFocus,
+            horizontalPadding = padding,
+            isSeries = isSeries,
+            onToggleFavorite = onToggleFavorite,
+            onSelectSeason = onSelectSeason,
+            onPlay = onPlay,
+            movieDownload = movieDownload,
+            onStartWatchParty = onStartWatchParty,
+            history = history,
+            episodes = (episodes as? Loadable.Ready)?.value,
+            twoPane = twoPane,
+        )
     }
 
     if (twoPane) {
@@ -452,7 +472,7 @@ private fun episodeDownload(
     }
 }
 
-/** Başlık (logo ya da metin), tür satırı ve ana işler (film: Oynat + indir + ⋯; dizi: sezon seçici + ⋯). */
+/** Başlık (logo ya da metin), tür satırı ve ana işler (film: Oynat + indir + ⋯; dizi: Oynat + sezon seçici + ⋯). */
 @Composable
 private fun HeaderBlock(
     detail: MediaDetail,
@@ -466,6 +486,9 @@ private fun HeaderBlock(
     onPlay: (Int?, Int?) -> Unit,
     movieDownload: DownloadAction? = null,
     onStartWatchParty: (() -> Unit)? = null,
+    history: WatchHistoryEntity? = null,
+    episodes: List<Episode>? = null,
+    twoPane: Boolean = true,
 ) {
     val media = detail.summary
     Column(Modifier.padding(horizontal = horizontalPadding), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -473,16 +496,58 @@ private fun HeaderBlock(
         genreLine(detail)?.let {
             Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (isSeries) {
-                SeasonPicker(
-                    seasons = detail.seasons,
-                    selected = selectedSeason,
-                    onSelect = onSelectSeason,
-                    modifier = Modifier.weight(1f),
-                    focus = primaryFocus,
+        if (isSeries) {
+            val onPlaySeries = {
+                val (targetSeason, targetEpisode) = SeriesPlayTarget.resolve(
+                    history = history,
+                    selectedSeason = selectedSeason,
+                    episodes = episodes,
+                    today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date()),
                 )
+                onPlay(targetSeason, targetEpisode)
+            }
+            if (!twoPane) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = onPlaySeries,
+                        modifier = Modifier.fillMaxWidth().height(52.dp).focusRequester(primaryFocus),
+                    ) {
+                        Icon(PlayIcons.PlayTriangle, contentDescription = null, modifier = Modifier.size(22.dp))
+                        Text(stringResource(R.string.detail_play), modifier = Modifier.padding(start = 8.dp))
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        SeasonPicker(
+                            seasons = detail.seasons,
+                            selected = selectedSeason,
+                            onSelect = onSelectSeason,
+                            modifier = Modifier.weight(1f),
+                        )
+                        MoreButton(isFavorite, onToggleFavorite, onStartWatchParty)
+                    }
+                }
             } else {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Button(
+                        onClick = onPlaySeries,
+                        modifier = Modifier.weight(1f).height(52.dp).focusRequester(primaryFocus),
+                    ) {
+                        Icon(PlayIcons.PlayTriangle, contentDescription = null, modifier = Modifier.size(22.dp))
+                        Text(stringResource(R.string.detail_play), modifier = Modifier.padding(start = 8.dp))
+                    }
+                    SeasonPicker(
+                        seasons = detail.seasons,
+                        selected = selectedSeason,
+                        onSelect = onSelectSeason,
+                        modifier = Modifier.widthIn(min = 120.dp, max = 180.dp),
+                    )
+                    MoreButton(isFavorite, onToggleFavorite, onStartWatchParty)
+                }
+            }
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Button(
                     onClick = { onPlay(null, null) },
                     modifier = Modifier.weight(1f).height(52.dp).focusRequester(primaryFocus),
@@ -491,8 +556,8 @@ private fun HeaderBlock(
                     Text(stringResource(R.string.detail_play), modifier = Modifier.padding(start = 8.dp))
                 }
                 movieDownload?.let { DetailDownloadButton(it, Modifier.size(52.dp)) }
+                MoreButton(isFavorite, onToggleFavorite, onStartWatchParty)
             }
-            MoreButton(isFavorite, onToggleFavorite, onStartWatchParty)
         }
     }
 }

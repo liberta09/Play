@@ -2,6 +2,7 @@ package com.kaan.play.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kaan.play.data.db.WatchHistoryEntity
 import com.kaan.play.data.library.LibraryRepository
 import com.kaan.play.data.model.Episode
 import com.kaan.play.data.model.MediaDetail
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -36,6 +38,10 @@ class DetailViewModel(
 
     val isFavorite: StateFlow<Boolean> =
         library.isFavorite(type, id).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    val latestHistory: StateFlow<WatchHistoryEntity?> = library.latestPerContent
+        .map { list -> list.firstOrNull { it.tmdbId == id && it.type == type } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private var episodesJob: Job? = null
 

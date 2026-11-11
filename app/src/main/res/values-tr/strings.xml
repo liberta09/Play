@@ -995,6 +995,9 @@
     <string name="watch_party_room_code_label">Oda Kodu: %1$s</string>
     <string name="watch_party_room_code_desc">Arkadaşların bu kodla veya linkle katılabilir. Oynatıcıyı açtığında yayın başlar.</string>
     <string name="watch_party_copy_link">Bağlantıyı Kopyala</string>
+    <string name="watch_party_share_invite">Davet kodunu paylaş</string>
+    <string name="watch_party_share_message">Play\'de birlikte izleyelim! Watch Party kodu: %1$s</string>
+    <string name="watch_party_share_title">İçerik: %1$s</string>
     <string name="watch_party_link_copied">Watch Party bağlantısı kopyalandı.</string>
     <string name="watch_party_join_title">Odaya Katıl</string>
     <string name="watch_party_join_code_hint">6 Haneli Oda Kodu</string>

@@ -3,6 +3,7 @@ package com.kaan.play.ui.party
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -162,6 +163,21 @@ fun WatchPartyScreen(
                                     currentSession.room.episode,
                                 )
                             },
+                            onShareInvite = {
+                                val inviteText = buildString {
+                                    append(context.getString(R.string.watch_party_share_message, currentSession.room.code))
+                                    val title = currentSession.room.title
+                                    if (!title.isNullOrBlank()) {
+                                        append("\n")
+                                        append(context.getString(R.string.watch_party_share_title, title))
+                                    }
+                                }
+                                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, inviteText)
+                                }
+                                context.startActivity(Intent.createChooser(sendIntent, null))
+                            },
                         )
                     }
                 } else {
@@ -211,6 +227,7 @@ private fun ActiveRoomCard(
     onCopyLink: () -> Unit,
     onLeave: () -> Unit,
     onOpenPlayer: () -> Unit,
+    onShareInvite: () -> Unit = {},
 ) {
     val room = session.room
     val roleStr = if (session.role == PartyRole.HOST) {
@@ -302,6 +319,18 @@ private fun ActiveRoomCard(
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
             )
+        }
+
+        if (session.role == PartyRole.HOST) {
+            Button(
+                onClick = onShareInvite,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .focusRing(),
+            ) {
+                Text(stringResource(R.string.watch_party_share_invite))
+            }
         }
 
         // Eylemler
