@@ -16,41 +16,46 @@ object SeriesPlayTarget {
      * @param nextEpisode Bitmiş bölümden sonraki bölümü çözen işlev (ör. NextEpisodeResolver / CsNextEpisode)
      * @param today Bugünün tarihi (yyyy-MM-dd), yayımlanma kontrolü için
      */
-    fun resolve(
+    suspend fun resolve(
         history: WatchHistoryEntity?,
         selectedSeason: Int?,
         episodes: List<Episode>?,
-        nextEpisode: ((season: Int, episode: Int) -> Pair<Int, Int>?)? = null,
+        nextEpisode: (suspend (season: Int, episode: Int) -> Pair<Int, Int>?)? = null,
         today: String? = null,
     ): Pair<Int, Int> {
         val fallbackSeason = (selectedSeason ?: 1).let { if (it <= 0) 1 else it }
 
         if (history != null) {
             val isFinished = WatchRules.isWatched(history.positionMs, history.durationMs)
+            val currentSeason = if (history.season <= 0) fallbackSeason else history.season
+            val currentEpisode = if (history.episode <= 0) 1 else history.episode
+
             if (!isFinished) {
                 // Kaldığı bölüm
-                val s = if (history.season <= 0) fallbackSeason else history.season
-                val ep = if (history.episode <= 0) 1 else history.episode
-                return s to ep
+                return currentSeason to currentEpisode
             } else {
                 // Bitmişse sonraki bölüm
-                val next = nextEpisode?.invoke(history.season, history.episode)
-                if (next != null) {
-                    return next
+                if (nextEpisode != null) {
+                    val next = nextEpisode.invoke(currentSeason, currentEpisode)
+                    if (next != null) {
+                        return next
+                    }
+                    // Sonraki yoksa kaldığı bölüm
+                    return currentSeason to currentEpisode
                 }
-                // Seçili sezonun yüklü bölümleri içinden sonrakini ara
+
+                // Seçili sezonun yüklü bölümleri içinden sonrakini ara (nextEpisode verilmediyse eski davranış)
                 if (history.season == selectedSeason && !episodes.isNullOrEmpty()) {
                     val later = episodes.filter {
-                        it.number > history.episode && (today == null || (it.airDate != null && it.airDate <= today))
+                        it.number > currentEpisode && (today == null || (it.airDate != null && it.airDate <= today))
                     }.minByOrNull { it.number }
                     if (later != null) {
-                        return history.season to later.number
+                        return currentSeason to later.number
                     }
                 }
                 // Varsayılan: bir sonraki bölüm numarası
-                val nextEp = (history.episode + 1).coerceAtLeast(1)
-                val s = if (history.season <= 0) fallbackSeason else history.season
-                return s to nextEp
+                val nextEp = (currentEpisode + 1).coerceAtLeast(1)
+                return currentSeason to nextEp
             }
         }
 

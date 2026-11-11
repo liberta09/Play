@@ -497,14 +497,26 @@ private fun HeaderBlock(
             Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         if (isSeries) {
-            val onPlaySeries = {
-                val (targetSeason, targetEpisode) = SeriesPlayTarget.resolve(
-                    history = history,
-                    selectedSeason = selectedSeason,
-                    episodes = episodes,
-                    today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date()),
-                )
-                onPlay(targetSeason, targetEpisode)
+            val scope = rememberCoroutineScope()
+            val container = rememberContainer()
+            val onPlaySeries: () -> Unit = {
+                scope.launch {
+                    val (targetSeason, targetEpisode) = SeriesPlayTarget.resolve(
+                        history = history,
+                        selectedSeason = selectedSeason,
+                        episodes = episodes,
+                        nextEpisode = { s, ep ->
+                            try {
+                                container.nextEpisodes.next(detail.summary.id, s, ep)
+                            } catch (e: Exception) {
+                                if (e is kotlinx.coroutines.CancellationException) throw e
+                                null
+                            }
+                        },
+                        today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date()),
+                    )
+                    onPlay(targetSeason, targetEpisode)
+                }
             }
             if (!twoPane) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

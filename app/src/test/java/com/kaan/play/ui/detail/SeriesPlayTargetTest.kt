@@ -3,6 +3,7 @@ package com.kaan.play.ui.detail
 import com.kaan.play.data.db.WatchHistoryEntity
 import com.kaan.play.data.model.Episode
 import com.kaan.play.data.model.MediaType
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -40,7 +41,7 @@ class SeriesPlayTargetTest {
         )
 
     @Test
-    fun noHistory_episodesNotLoaded_defaultsToSeasonAndEpisode1() {
+    fun noHistory_episodesNotLoaded_defaultsToSeasonAndEpisode1() = runTest {
         val target = SeriesPlayTarget.resolve(
             history = null,
             selectedSeason = 2,
@@ -50,7 +51,7 @@ class SeriesPlayTargetTest {
     }
 
     @Test
-    fun noHistory_noSelectedSeason_defaultsToS1E1() {
+    fun noHistory_noSelectedSeason_defaultsToS1E1() = runTest {
         val target = SeriesPlayTarget.resolve(
             history = null,
             selectedSeason = null,
@@ -60,7 +61,7 @@ class SeriesPlayTargetTest {
     }
 
     @Test
-    fun noHistory_seasonZero_avoidsSeasonZero() {
+    fun noHistory_seasonZero_avoidsSeasonZero() = runTest {
         // Sezon 0 otomatik seçilmez
         val target = SeriesPlayTarget.resolve(
             history = null,
@@ -71,7 +72,7 @@ class SeriesPlayTargetTest {
     }
 
     @Test
-    fun noHistory_episodesLoaded_picksFirstPublishedEpisode() {
+    fun noHistory_episodesLoaded_picksFirstPublishedEpisode() = runTest {
         val episodes = listOf(
             createEpisode(1, airDate = "2026-01-01"),
             createEpisode(2, airDate = "2026-01-08"),
@@ -87,7 +88,7 @@ class SeriesPlayTargetTest {
     }
 
     @Test
-    fun historyInProgress_returnsResumePosition() {
+    fun historyInProgress_returnsResumePosition() = runTest {
         // %50 izlenmiş (devam et)
         val history = createHistory(season = 2, episode = 4, positionMs = 50_000L, durationMs = 100_000L)
         val target = SeriesPlayTarget.resolve(
@@ -99,7 +100,7 @@ class SeriesPlayTargetTest {
     }
 
     @Test
-    fun historyFinished_resolverProvidesNextEpisode() {
+    fun historyFinished_resolverProvidesNextEpisode() = runTest {
         // %95 izlenmiş (bitmiş)
         val history = createHistory(season = 1, episode = 3, positionMs = 95_000L, durationMs = 100_000L)
         val target = SeriesPlayTarget.resolve(
@@ -112,7 +113,33 @@ class SeriesPlayTargetTest {
     }
 
     @Test
-    fun historyFinished_episodesListProvidesNextInSeason() {
+    fun historyFinished_seasonEnd_resolvesToNextSeasonFirstEpisode() = runTest {
+        // Sezonun son bölümü bitmiş -> sonraki sezonun ilk bölümü
+        val history = createHistory(season = 1, episode = 10, positionMs = 95_000L, durationMs = 100_000L)
+        val target = SeriesPlayTarget.resolve(
+            history = history,
+            selectedSeason = 1,
+            episodes = null,
+            nextEpisode = { s, e -> if (s == 1 && e == 10) 2 to 1 else null },
+        )
+        assertEquals(2 to 1, target)
+    }
+
+    @Test
+    fun historyFinished_seriesEnd_noNextEpisode_resolvesToResumeCurrentEpisode() = runTest {
+        // Sonraki yoksa kaldığı bölüm
+        val history = createHistory(season = 2, episode = 10, positionMs = 95_000L, durationMs = 100_000L)
+        val target = SeriesPlayTarget.resolve(
+            history = history,
+            selectedSeason = 2,
+            episodes = null,
+            nextEpisode = { _, _ -> null },
+        )
+        assertEquals(2 to 10, target)
+    }
+
+    @Test
+    fun historyFinished_episodesListProvidesNextInSeason() = runTest {
         val history = createHistory(season = 2, episode = 1, positionMs = 95_000L, durationMs = 100_000L)
         val episodes = listOf(
             createEpisode(1, airDate = "2026-01-01"),
@@ -128,7 +155,7 @@ class SeriesPlayTargetTest {
     }
 
     @Test
-    fun historyFinished_fallbackIncrementsEpisode() {
+    fun historyFinished_fallbackIncrementsEpisode() = runTest {
         val history = createHistory(season = 3, episode = 5, positionMs = 95_000L, durationMs = 100_000L)
         val target = SeriesPlayTarget.resolve(
             history = history,
