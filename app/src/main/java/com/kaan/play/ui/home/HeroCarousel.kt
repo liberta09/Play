@@ -3,6 +3,7 @@ package com.kaan.play.ui.home
 import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.View
+import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -133,12 +134,6 @@ fun HeroCarousel(
     var activeTrailerKey by remember { mutableStateOf<String?>(null) }
     var isTrailerPlaying by remember { mutableStateOf(false) }
     var trailerErrorOrEnded by remember { mutableStateOf(false) }
-
-    val trailerAlpha by animateFloatAsState(
-        targetValue = if (isTrailerPlaying) 1f else 0f,
-        animationSpec = tween(durationMillis = 500),
-        label = "hero_trailer_alpha",
-    )
 
     // Odak düğmedeyken sayfa değişince odak yeni sayfanın düğmesine taşınır.
     fun go(target: Int) {
@@ -303,15 +298,14 @@ fun HeroCarousel(
                     {
                         HeroTrailerView(
                             videoKey = activeTrailerKey!!,
+                            isPlaying = isTrailerPlaying,
                             onPlaying = { isTrailerPlaying = true },
                             onEnded = { trailerErrorOrEnded = true },
                             onError = {
                                 isTrailerPlaying = false
                                 trailerErrorOrEnded = true
                             },
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .alpha(trailerAlpha),
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
                 } else null,
@@ -400,6 +394,7 @@ private class HeroTrailerBridge(
 @Composable
 private fun HeroTrailerView(
     videoKey: String,
+    isPlaying: Boolean,
     onPlaying: () -> Unit,
     onEnded: () -> Unit,
     onError: () -> Unit,
@@ -441,8 +436,8 @@ private fun HeroTrailerView(
                 override fun onGenericMotionEvent(event: MotionEvent?): Boolean = false
                 override fun dispatchTouchEvent(ev: MotionEvent?): Boolean = false
             }.apply {
-                setBackgroundColor(android.graphics.Color.BLACK)
-                setLayerType(View.LAYER_TYPE_HARDWARE, null)
+                setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                alpha = 0f
                 overScrollMode = View.OVER_SCROLL_NEVER
                 isFocusable = false
                 isFocusableInTouchMode = false
@@ -459,6 +454,12 @@ private fun HeroTrailerView(
                 settings.userAgentString = settings.userAgentString
                     .replace("; wv", "")
                     .replace(Regex("Version/\\d+\\.\\d+ "), "")
+
+                val webViewInstance = this
+                CookieManager.getInstance().apply {
+                    setAcceptCookie(true)
+                    setAcceptThirdPartyCookies(webViewInstance, true)
+                }
 
                 addJavascriptInterface(bridge, "HeroTrailerBridge")
 
@@ -479,6 +480,9 @@ private fun HeroTrailerView(
                 )
                 webViewRef = this
             }
+        },
+        update = { view ->
+            view.alpha = if (isPlaying) 1f else 0f
         },
         modifier = modifier,
     )

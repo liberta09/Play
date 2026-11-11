@@ -43,6 +43,8 @@ class HeroTrailerEmbedTest {
         assertTrue(html.contains("'disablekb': 1"))
         assertTrue(html.contains("'enablejsapi': 1"))
         assertTrue(html.contains("youtube-nocookie.com"))
+        assertTrue(html.contains("background:transparent !important"))
+        assertTrue(html.contains("getCurrentTime"))
         assertTrue(html.contains("HeroTrailerBridge.onPlaying()"))
         assertTrue(html.contains("HeroTrailerBridge.onEnded()"))
         assertTrue(html.contains("HeroTrailerBridge.onError()"))

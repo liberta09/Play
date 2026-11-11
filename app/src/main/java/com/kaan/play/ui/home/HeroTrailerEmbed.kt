@@ -31,9 +31,9 @@ object HeroTrailerEmbed {
               <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
               <meta name="referrer" content="strict-origin-when-cross-origin" />
               <style>
-                html,body{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden;pointer-events:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
-                #player{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;min-width:100%;min-height:100%;}
-                iframe{border:0;width:100%;height:100%;pointer-events:none;}
+                html,body{margin:0;padding:0;width:100%;height:100%;background:transparent !important;overflow:hidden;pointer-events:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
+                #player{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;min-width:100%;min-height:100%;background:transparent !important;}
+                iframe{border:0;width:100%;height:100%;pointer-events:none;background:transparent !important;}
               </style>
             </head><body>
               <div id="player"></div>
@@ -44,6 +44,7 @@ object HeroTrailerEmbed {
                 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
                 var player;
+                var frameCheckTimer = null;
                 function onYouTubeIframeAPIReady() {
                   player = new YT.Player('player', {
                     videoId: '$key',
@@ -71,17 +72,32 @@ object HeroTrailerEmbed {
                 function onPlayerReady(event) {
                   try { event.target.mute(); event.target.playVideo(); } catch(e){}
                 }
+                function checkRealFrame() {
+                  try {
+                    if (player && typeof player.getCurrentTime === 'function') {
+                      var t = player.getCurrentTime();
+                      if (t > 0) {
+                        if (window.HeroTrailerBridge) { window.HeroTrailerBridge.onPlaying(); }
+                        return;
+                      }
+                    }
+                  } catch(e){}
+                  frameCheckTimer = setTimeout(checkRealFrame, 250);
+                }
                 function onPlayerStateChange(event) {
                   try {
                     if (event.data === 1) {
-                      if (window.HeroTrailerBridge) { window.HeroTrailerBridge.onPlaying(); }
+                      if (frameCheckTimer) { clearTimeout(frameCheckTimer); }
+                      frameCheckTimer = setTimeout(checkRealFrame, 500);
                     } else if (event.data === 0) {
+                      if (frameCheckTimer) { clearTimeout(frameCheckTimer); }
                       if (window.HeroTrailerBridge) { window.HeroTrailerBridge.onEnded(); }
                     }
                   } catch(e){}
                 }
                 function onPlayerError(event) {
                   try {
+                    if (frameCheckTimer) { clearTimeout(frameCheckTimer); }
                     if (window.HeroTrailerBridge) { window.HeroTrailerBridge.onError(); }
                   } catch(e){}
                 }
