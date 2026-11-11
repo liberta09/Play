@@ -40,6 +40,31 @@ class TmdbRepository(
     baseUrl: HttpUrl = TmdbService.DEFAULT_BASE_URL.toHttpUrl(),
 ) {
     private val service = TmdbService(client, json, apiKey, baseUrl)
+    private val trailerCache = java.util.concurrent.ConcurrentHashMap<Pair<MediaType, Int>, String>()
+
+    /**
+     * Hero karuseli için sessiz fragman anahtarı.
+     * Yalnızca o an görünen kapak için istenir, bellekte önbelleğe alınır (aynı kapak için tekrar istek yok).
+     */
+    suspend fun trailerKey(type: MediaType, id: Int): String? {
+        val cacheKey = type to id
+        val cached = trailerCache[cacheKey]
+        if (cached != null) {
+            return cached.takeIf { it.isNotEmpty() }
+        }
+
+        val key = bestEffort {
+            val primary = service.videos(type.tmdbPath, id, lang())
+            pickTrailerKey(primary.results) ?: run {
+                if (lang() != UiLanguage.English.tmdbTag) {
+                    val english = service.videos(type.tmdbPath, id, UiLanguage.English.tmdbTag)
+                    pickTrailerKey(english.results)
+                } else null
+            }
+        }
+        trailerCache[cacheKey] = key ?: ""
+        return key
+    }
 
     suspend fun trending(page: Int = 1): Page<MediaSummary> =
         service.trending(lang(), page).toPage()
@@ -319,12 +344,16 @@ private fun DetailDto.toDetail(
         recommendations = recommendations?.results.orEmpty().mapNotNull { it.toSummary(type) },
         similar = similar?.results.orEmpty().mapNotNull { it.toSummary(type) },
     ),
-    trailerKey = videos?.results.orEmpty()
-        .filter { it.site.equals("YouTube", ignoreCase = true) && !it.key.isNullOrBlank() }
-        .sortedWith(compareByDescending<VideoDto> { it.type.equals("Trailer", ignoreCase = true) }
-            .thenByDescending { it.official == true })
-        .firstOrNull()?.key,
+    trailerKey = pickTrailerKey(videos?.results),
 )
+
+internal fun pickTrailerKey(videos: List<VideoDto>?): String? = videos.orEmpty()
+    .filter { it.site.equals("YouTube", ignoreCase = true) && !it.key.isNullOrBlank() }
+    .sortedWith(
+        compareByDescending<VideoDto> { it.type.equals("Trailer", ignoreCase = true) }
+            .thenByDescending { it.official == true },
+    )
+    .firstOrNull()?.key
 
 /** Alternatif başlıklar: önce Türkiye/ABD/Birleşik Krallık kayıtları, sonra diğerleri; boşlar atılır, yinelenenler [com.kaan.play.data.match.ContentIdentity] eler. */
 private fun DetailDto.alternativeTitleList(): List<String> {

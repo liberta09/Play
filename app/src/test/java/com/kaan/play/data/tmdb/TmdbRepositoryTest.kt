@@ -529,4 +529,58 @@ class TmdbRepositoryTest {
         assertEquals("10765", discoverReq.queryParameter("with_genres"))
         assertNull(discoverReq.queryParameter("evil_param"))
     }
+
+    @Test
+    fun pickTrailerKey_prioritizesTrailerAndOfficialYouTubeVideos() {
+        assertEquals(null, pickTrailerKey(null))
+        assertEquals(null, pickTrailerKey(emptyList()))
+
+        val vimeo = VideoDto(key = "vim123", site = "Vimeo", type = "Trailer", official = true)
+        assertEquals(null, pickTrailerKey(listOf(vimeo)))
+
+        val teaser = VideoDto(key = "tea1", site = "YouTube", type = "Teaser", official = false)
+        val clip = VideoDto(key = "clip1", site = "YouTube", type = "Clip", official = true)
+        val unofficialTrailer = VideoDto(key = "tra1", site = "YouTube", type = "Trailer", official = false)
+        val officialTrailer = VideoDto(key = "tra2", site = "YouTube", type = "Trailer", official = true)
+
+        assertEquals("clip1", pickTrailerKey(listOf(teaser, clip)))
+        assertEquals("tra1", pickTrailerKey(listOf(teaser, unofficialTrailer)))
+        assertEquals("tra2", pickTrailerKey(listOf(unofficialTrailer, officialTrailer, teaser)))
+    }
+
+    @Test
+    fun trailerKey_fetchesAndCachesResultInMemory() = runTest {
+        fixtures["movie/550/videos|tr-TR"] = """
+            {
+              "results": [
+                {"key": "fight_club_tr", "site": "YouTube", "type": "Trailer", "official": true}
+              ]
+            }
+        """.trimIndent()
+
+        val repository = repo()
+        val key1 = repository.trailerKey(MediaType.Movie, 550)
+        assertEquals("fight_club_tr", key1)
+        assertEquals(1, seen.count { it.encodedPath.endsWith("/movie/550/videos") })
+
+        // İkinci çağrıda önbellekten döner, yeni HTTP isteği gitmez
+        val key2 = repository.trailerKey(MediaType.Movie, 550)
+        assertEquals("fight_club_tr", key2)
+        assertEquals(1, seen.count { it.encodedPath.endsWith("/movie/550/videos") })
+    }
+
+    @Test
+    fun trailerKey_cachesAbsenceOfTrailerToAvoidRepeatRequests() = runTest {
+        fixtures["tv/999/videos|tr-TR"] = """{"results": []}"""
+        fixtures["tv/999/videos|en-US"] = """{"results": []}"""
+
+        val repository = repo()
+        val key1 = repository.trailerKey(MediaType.Tv, 999)
+        assertNull(key1)
+
+        val countAfterFirst = seen.count { it.encodedPath.endsWith("/tv/999/videos") }
+        val key2 = repository.trailerKey(MediaType.Tv, 999)
+        assertNull(key2)
+        assertEquals(countAfterFirst, seen.count { it.encodedPath.endsWith("/tv/999/videos") })
+    }
 }
