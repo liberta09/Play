@@ -1,307 +1,389 @@
 -- ============================================================================
--- Play 1.3.0 - Watch Party Supabase Schema & RPCs
--- ============================================================================
+-- Play Watch Party — Supabase şeması (1.3.0)
+-- Gözden geçiren: Claude, 2026-11-11. Tekrar çalıştırılabilir (idempotent).
 --
--- GERİ ALMA / ROLLBACK (Gerektiğinde tüm nesneleri temizlemek için çalıştırılabilir):
--- /*
--- DROP POLICY IF EXISTS "Members can access party messages" ON realtime.messages;
--- DROP FUNCTION IF EXISTS public.wp_update_content(uuid, text, text, integer, integer, integer);
--- DROP FUNCTION IF EXISTS public.wp_leave_room(uuid);
--- DROP FUNCTION IF EXISTS public.wp_join_room(text);
--- DROP FUNCTION IF EXISTS public.wp_create_room(text, text, integer, integer, integer);
--- DROP FUNCTION IF EXISTS public.wp_is_member(uuid);
--- DROP TRIGGER IF EXISTS set_watch_party_updated_at ON public.watch_party_rooms;
--- DROP FUNCTION IF EXISTS public.handle_watch_party_updated_at();
--- DROP TABLE IF EXISTS public.watch_party_members CASCADE;
--- DROP TABLE IF EXISTS public.watch_party_rooms CASCADE;
--- */
+-- ÇALIŞTIRMADAN ÖNCE (Supabase paneli):
+--   Project Settings > Realtime > "Allow public access" KAPALI olsun
+--   (yalnızca private kanallar). Play başka yerde Realtime kullanmıyor.
+--
+-- Ne yapar:
+--   * 2 tablo: watch_party_rooms, watch_party_members (RLS açık).
+--   * İstemci tablolara doğrudan YAZAMAZ; yalnızca aşağıdaki RPC'ler yazar.
+--   * Bir kullanıcı yalnızca ÜYESİ olduğu açık odayı ve üyelerini görür.
+--   * Realtime kanalı 'wp:<oda-id>': yalnızca üyeler dinler/gönderir;
+--     'control', 'content', 'closed' olaylarını YALNIZCA oda sahibi gönderir.
+--   * Oda 12 saat açık kalır, en çok 8 kişi.
+-- Mevcut tablolara (play_cloud_state vb.) DOKUNMAZ.
 -- ============================================================================
 
--- 1) TABLOLAR
+create extension if not exists pgcrypto with schema extensions;
 
--- Odalar tablosu
+-- ---------------------------------------------------------------------------
+-- Tablolar
+-- ---------------------------------------------------------------------------
 create table if not exists public.watch_party_rooms (
-    id uuid primary key default gen_random_uuid(),
-    code text not null unique constraint check_watch_party_code check (code ~ '^[2-9A-HJ-NP-Z]{6}$'),
-    host_user_id uuid not null references auth.users(id) on delete cascade,
-    title text not null,
-    media_type text not null constraint check_watch_party_media_type check (media_type in ('movie', 'tv')),
-    tmdb_id integer not null,
-    season integer,
-    episode integer,
-    is_active boolean not null default true,
-    created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
+  id            uuid primary key default gen_random_uuid(),
+  code          text not null unique check (code ~ '^[A-HJ-NP-Z2-9]{6}$'),
+  host_user_id  uuid not null references auth.users(id) on delete cascade,
+  tmdb_id       integer not null check (tmdb_id > 0),
+  media_type    text not null check (media_type in ('movie', 'tv')),
+  season        integer check (season is null or season >= 0),
+  episode       integer check (episode is null or episode > 0),
+  title         text not null check (char_length(title) between 1 and 80),
+  created_at    timestamptz not null default now(),
+  expires_at    timestamptz not null default now() + interval '12 hours',
+  closed_at     timestamptz
 );
+create index if not exists watch_party_rooms_host_idx on public.watch_party_rooms (host_user_id);
 
--- Üyeler tablosu
 create table if not exists public.watch_party_members (
-    room_id uuid not null references public.watch_party_rooms(id) on delete cascade,
-    user_id uuid not null references auth.users(id) on delete cascade,
-    role text not null constraint check_watch_party_role check (role in ('host', 'guest')),
-    joined_at timestamptz not null default now(),
-    primary key (room_id, user_id)
+  room_id       uuid not null references public.watch_party_rooms(id) on delete cascade,
+  user_id       uuid not null references auth.users(id) on delete cascade,
+  display_name  text not null check (char_length(display_name) between 1 and 40),
+  role          text not null check (role in ('host', 'guest')),
+  joined_at     timestamptz not null default now(),
+  primary key (room_id, user_id)
 );
+create index if not exists watch_party_members_user_idx on public.watch_party_members (user_id);
 
--- İndeksler
-create index if not exists idx_wp_rooms_code on public.watch_party_rooms(code);
-create index if not exists idx_wp_rooms_host on public.watch_party_rooms(host_user_id);
-create index if not exists idx_wp_members_user on public.watch_party_members(user_id);
-
--- updated_at otomatik tetikleyicisi
-create or replace function public.handle_watch_party_updated_at()
-returns trigger as $$
-begin
-    new.updated_at = now();
-    return new;
-end;
-$$ language plpgsql;
-
-drop trigger if exists set_watch_party_updated_at on public.watch_party_rooms;
-create trigger set_watch_party_updated_at
-    before update on public.watch_party_rooms
-    for each row
-    execute function public.handle_watch_party_updated_at();
-
--- 2) YARDIMCI GÜVENLİK İŞLEVİ (RLS İçin)
-
-create or replace function public.wp_is_member(p_room_id uuid)
-returns boolean
-language sql
-security definer
-set search_path = public
-stable
-as $$
-    select exists (
-        select 1
-        from public.watch_party_members
-        where room_id = p_room_id
-          and user_id = auth.uid()
-    );
-$$;
-
--- 3) RLS İLKELERİ
-
-alter table public.watch_party_rooms enable row level security;
+alter table public.watch_party_rooms   enable row level security;
 alter table public.watch_party_members enable row level security;
 
--- Odalar: Yalnızca oda üyesi olan kullanıcılar odayı görebilir (oda pasif olsa dahi salt okunur kalır)
-drop policy if exists "Members can view room" on public.watch_party_rooms;
-create policy "Members can view room"
-    on public.watch_party_rooms
-    for select
-    using (public.wp_is_member(id));
+revoke all on public.watch_party_rooms   from anon, authenticated;
+revoke all on public.watch_party_members from anon, authenticated;
+grant select on public.watch_party_rooms   to authenticated;
+grant select on public.watch_party_members to authenticated;
 
--- Üyeler: Odanın üyeleri diğer üyeleri listeleyebilir
-drop policy if exists "Members can view members" on public.watch_party_members;
-create policy "Members can view members"
-    on public.watch_party_members
-    for select
-    using (public.wp_is_member(room_id));
+-- ---------------------------------------------------------------------------
+-- Yardımcılar (SECURITY DEFINER: politika içinden çağrılınca özyineleme olmaz)
+-- ---------------------------------------------------------------------------
+create or replace function public.wp_topic_room(p_topic text)
+returns uuid
+language sql
+immutable
+set search_path = public
+as $$
+  select case
+    when p_topic ~ '^wp:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+      then substr(p_topic, 4)::uuid
+    else null
+  end;
+$$;
 
--- Doğrudan INSERT / UPDATE / DELETE authenticated veya anon için kısıtlıdır;
--- Tüm veri manipülasyonu security definer saklı yordamlar (RPC) üzerinden yürütülür.
+create or replace function public.wp_is_open_member(p_room uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select p_room is not null and exists (
+    select 1
+    from public.watch_party_members m
+    join public.watch_party_rooms r on r.id = m.room_id
+    where m.room_id = p_room
+      and m.user_id = auth.uid()
+      and r.closed_at is null
+      and r.expires_at > now()
+  );
+$$;
 
--- 4) SAKLI YORDAMLAR (RPC)
+create or replace function public.wp_is_open_host(p_room uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select p_room is not null and exists (
+    select 1
+    from public.watch_party_rooms r
+    where r.id = p_room
+      and r.host_user_id = auth.uid()
+      and r.closed_at is null
+      and r.expires_at > now()
+  );
+$$;
 
--- wp_create_room: Yeni oda açar, benzersiz 6 haneli kod üretir ve çağıranı 'host' yapar.
+-- ---------------------------------------------------------------------------
+-- Okuma politikaları (yalnızca üyesi olduğun açık oda)
+-- ---------------------------------------------------------------------------
+drop policy if exists wp_rooms_select   on public.watch_party_rooms;
+create policy wp_rooms_select on public.watch_party_rooms
+  for select to authenticated
+  using (public.wp_is_open_member(id));
+
+drop policy if exists wp_members_select on public.watch_party_members;
+create policy wp_members_select on public.watch_party_members
+  for select to authenticated
+  using (public.wp_is_open_member(room_id));
+
+-- ---------------------------------------------------------------------------
+-- RPC: oda kur
+-- ---------------------------------------------------------------------------
 create or replace function public.wp_create_room(
-    p_title text,
-    p_media_type text,
-    p_tmdb_id integer,
-    p_season integer default null,
-    p_episode integer default null
-) returns jsonb
+  p_tmdb_id      integer,
+  p_media_type   text,
+  p_season       integer,
+  p_episode      integer,
+  p_title        text,
+  p_display_name text
+)
+returns table (room_id uuid, code text)
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
+#variable_conflict use_column
 declare
-    v_user_id uuid := auth.uid();
-    v_alphabet text := '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-    v_code text;
-    v_room public.watch_party_rooms%rowtype;
-    v_attempts integer := 0;
-    i integer;
+  v_uid    uuid := auth.uid();
+  v_alpha  constant text := '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';  -- 32 harf, 0/O/1/I yok
+  v_title  text := left(btrim(coalesce(p_title, '')), 80);
+  v_name   text := left(btrim(coalesce(p_display_name, '')), 40);
+  v_code   text;
+  v_bytes  bytea;
+  v_id     uuid;
+  v_try    integer := 0;
+  i        integer;
 begin
-    if v_user_id is null then
-        raise exception 'NOT_AUTHENTICATED';
+  if v_uid is null then
+    raise exception 'not_authenticated' using errcode = '28000';
+  end if;
+  if p_tmdb_id is null or p_tmdb_id <= 0
+     or p_media_type not in ('movie', 'tv')
+     or (p_media_type = 'tv' and (p_season is null or p_season < 0 or p_episode is null or p_episode <= 0))
+     or v_title = '' or v_name = '' then
+    raise exception 'invalid_input' using errcode = '22023';
+  end if;
+
+  -- Eski kayıtları temizle (1 günden eski kapalı/süresi dolmuş odalar).
+  delete from public.watch_party_rooms
+  where (closed_at is not null and closed_at < now() - interval '1 day')
+     or expires_at < now() - interval '1 day';
+
+  -- Kullanıcının açık odası varsa kapat (aynı anda tek oda).
+  update public.watch_party_rooms
+  set closed_at = now()
+  where host_user_id = v_uid and closed_at is null;
+
+  loop
+    v_try := v_try + 1;
+    if v_try > 10 then
+      raise exception 'code_generation_failed' using errcode = 'P0001';
     end if;
-
-    if p_media_type not in ('movie', 'tv') then
-        raise exception 'INVALID_MEDIA_TYPE';
-    end if;
-
-    loop
-        v_attempts := v_attempts + 1;
-        v_code := '';
-        for i in 1..6 loop
-            v_code := v_code || substr(v_alphabet, floor(random() * length(v_alphabet) + 1)::integer, 1);
-        end loop;
-
-        exit when not exists (select 1 from public.watch_party_rooms where code = v_code);
-
-        if v_attempts >= 5 then
-            raise exception 'ROOM_CODE_COLLISION';
-        end if;
+    v_bytes := extensions.gen_random_bytes(6);
+    v_code := '';
+    for i in 0..5 loop
+      v_code := v_code || substr(v_alpha, (get_byte(v_bytes, i) % 32) + 1, 1);
     end loop;
+    begin
+      insert into public.watch_party_rooms (code, host_user_id, tmdb_id, media_type, season, episode, title)
+      values (
+        v_code, v_uid, p_tmdb_id, p_media_type,
+        case when p_media_type = 'tv' then p_season end,
+        case when p_media_type = 'tv' then p_episode end,
+        v_title
+      )
+      returning id into v_id;
+      exit;
+    exception when unique_violation then
+      -- kod çakıştı, yeniden üret
+    end;
+  end loop;
 
-    insert into public.watch_party_rooms (
-        code, host_user_id, title, media_type, tmdb_id, season, episode, is_active
-    ) values (
-        v_code, v_user_id, p_title, p_media_type, p_tmdb_id, p_season, p_episode, true
-    ) returning * into v_room;
+  insert into public.watch_party_members (room_id, user_id, display_name, role)
+  values (v_id, v_uid, v_name, 'host');
 
-    insert into public.watch_party_members (
-        room_id, user_id, role
-    ) values (
-        v_room.id, v_user_id, 'host'
-    );
-
-    return to_jsonb(v_room);
+  return query select v_id, v_code;
 end;
 $$;
 
--- wp_join_room: Odaya kod ile katılır (büyük/küçük harf duyarsız).
-create or replace function public.wp_join_room(
-    p_code text
-) returns jsonb
+-- ---------------------------------------------------------------------------
+-- RPC: koda katıl
+-- ---------------------------------------------------------------------------
+create or replace function public.wp_join_room(p_code text, p_display_name text)
+returns table (
+  room_id      uuid,
+  code         text,
+  tmdb_id      integer,
+  media_type   text,
+  season       integer,
+  episode      integer,
+  title        text,
+  expires_at   timestamptz,
+  role         text
+)
+language plpgsql
+security definer
+set search_path = public
+as $$
+#variable_conflict use_column
+declare
+  v_uid   uuid := auth.uid();
+  v_code  text := upper(btrim(coalesce(p_code, '')));
+  v_name  text := left(btrim(coalesce(p_display_name, '')), 40);
+  v_room  public.watch_party_rooms%rowtype;
+  v_role  text;
+  v_count integer;
+begin
+  if v_uid is null then
+    raise exception 'not_authenticated' using errcode = '28000';
+  end if;
+  if v_code !~ '^[A-HJ-NP-Z2-9]{6}$' or v_name = '' then
+    raise exception 'invalid_input' using errcode = '22023';
+  end if;
+
+  select * into v_room
+  from public.watch_party_rooms r
+  where r.code = v_code and r.closed_at is null and r.expires_at > now()
+  for update;
+  if not found then
+    raise exception 'room_not_found' using errcode = 'P0002';
+  end if;
+
+  v_role := case when v_room.host_user_id = v_uid then 'host' else 'guest' end;
+
+  if not exists (
+    select 1 from public.watch_party_members m
+    where m.room_id = v_room.id and m.user_id = v_uid
+  ) then
+    select count(*) into v_count from public.watch_party_members m where m.room_id = v_room.id;
+    if v_count >= 8 then
+      raise exception 'room_full' using errcode = 'P0001';
+    end if;
+  end if;
+
+  insert into public.watch_party_members (room_id, user_id, display_name, role)
+  values (v_room.id, v_uid, v_name, v_role)
+  on conflict (room_id, user_id) do update set display_name = excluded.display_name;
+
+  return query select v_room.id, v_room.code, v_room.tmdb_id, v_room.media_type,
+                      v_room.season, v_room.episode, v_room.title, v_room.expires_at, v_role;
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- RPC: odadan ayrıl (oda sahibi ayrılırsa oda kapanır)
+-- ---------------------------------------------------------------------------
+create or replace function public.wp_leave_room(p_room_id uuid)
+returns void
 language plpgsql
 security definer
 set search_path = public
 as $$
 declare
-    v_user_id uuid := auth.uid();
-    v_clean_code text := upper(trim(p_code));
-    v_room public.watch_party_rooms%rowtype;
+  v_uid uuid := auth.uid();
 begin
-    if v_user_id is null then
-        raise exception 'NOT_AUTHENTICATED';
-    end if;
+  if v_uid is null then
+    raise exception 'not_authenticated' using errcode = '28000';
+  end if;
+  update public.watch_party_rooms
+  set closed_at = now()
+  where id = p_room_id and host_user_id = v_uid and closed_at is null;
 
-    select * into v_room
-    from public.watch_party_rooms
-    where code = v_clean_code;
-
-    if not found then
-        raise exception 'ROOM_NOT_FOUND';
-    end if;
-
-    if not v_room.is_active then
-        raise exception 'ROOM_INACTIVE';
-    end if;
-
-    insert into public.watch_party_members (room_id, user_id, role)
-    values (v_room.id, v_user_id, 'guest')
-    on conflict (room_id, user_id) do nothing;
-
-    return to_jsonb(v_room);
+  delete from public.watch_party_members
+  where room_id = p_room_id and user_id = v_uid;
 end;
 $$;
 
--- wp_leave_room: Host ise odayı kapatır; guest ise üyelikten çıkar.
-create or replace function public.wp_leave_room(
-    p_room_id uuid
-) returns void
-language plpgsql
-security definer
-set search_path = public
-as $$
-declare
-    v_user_id uuid := auth.uid();
-    v_role text;
-begin
-    if v_user_id is null then
-        raise exception 'NOT_AUTHENTICATED';
-    end if;
-
-    select role into v_role
-    from public.watch_party_members
-    where room_id = p_room_id and user_id = v_user_id;
-
-    if v_role = 'host' then
-        update public.watch_party_rooms
-        set is_active = false, updated_at = now()
-        where id = p_room_id;
-    elsif v_role = 'guest' then
-        delete from public.watch_party_members
-        where room_id = p_room_id and user_id = v_user_id;
-    end if;
-end;
-$$;
-
--- wp_update_content: Sadece host çağırabilir; dizi bölümü veya içerik değiştiğinde odayı günceller.
+-- ---------------------------------------------------------------------------
+-- RPC: oda içeriğini güncelle (yalnızca oda sahibi; ör. sonraki bölüm)
+-- ---------------------------------------------------------------------------
 create or replace function public.wp_update_content(
-    p_room_id uuid,
-    p_title text,
-    p_media_type text,
-    p_tmdb_id integer,
-    p_season integer default null,
-    p_episode integer default null
-) returns void
+  p_room_id    uuid,
+  p_tmdb_id    integer,
+  p_media_type text,
+  p_season     integer,
+  p_episode    integer,
+  p_title      text
+)
+returns void
 language plpgsql
 security definer
 set search_path = public
 as $$
 declare
-    v_user_id uuid := auth.uid();
-    v_is_host boolean;
+  v_uid   uuid := auth.uid();
+  v_title text := left(btrim(coalesce(p_title, '')), 80);
 begin
-    if v_user_id is null then
-        raise exception 'NOT_AUTHENTICATED';
-    end if;
-
-    select exists (
-        select 1
-        from public.watch_party_rooms
-        where id = p_room_id and host_user_id = v_user_id and is_active = true
-    ) into v_is_host;
-
-    if not v_is_host then
-        raise exception 'NOT_AUTHORIZED';
-    end if;
-
-    if p_media_type not in ('movie', 'tv') then
-        raise exception 'INVALID_MEDIA_TYPE';
-    end if;
-
-    update public.watch_party_rooms
-    set title = p_title,
-        media_type = p_media_type,
-        tmdb_id = p_tmdb_id,
-        season = p_season,
-        episode = p_episode,
-        updated_at = now()
-    where id = p_room_id;
+  if v_uid is null then
+    raise exception 'not_authenticated' using errcode = '28000';
+  end if;
+  if p_tmdb_id is null or p_tmdb_id <= 0
+     or p_media_type not in ('movie', 'tv')
+     or (p_media_type = 'tv' and (p_season is null or p_season < 0 or p_episode is null or p_episode <= 0))
+     or v_title = '' then
+    raise exception 'invalid_input' using errcode = '22023';
+  end if;
+  update public.watch_party_rooms
+  set tmdb_id = p_tmdb_id,
+      media_type = p_media_type,
+      season = case when p_media_type = 'tv' then p_season end,
+      episode = case when p_media_type = 'tv' then p_episode end,
+      title = v_title
+  where id = p_room_id and host_user_id = v_uid and closed_at is null and expires_at > now();
+  if not found then
+    raise exception 'not_host_or_closed' using errcode = '42501';
+  end if;
 end;
 $$;
 
--- 5) REALTIME AUTHORIZATION (Supabase Broadcast)
+-- ---------------------------------------------------------------------------
+-- Yetkiler: yalnızca giriş yapmış kullanıcı çağırabilir
+-- ---------------------------------------------------------------------------
+revoke all on function public.wp_topic_room(text)          from public, anon;
+revoke all on function public.wp_is_open_member(uuid)      from public, anon;
+revoke all on function public.wp_is_open_host(uuid)        from public, anon;
+revoke all on function public.wp_create_room(integer, text, integer, integer, text, text) from public, anon;
+revoke all on function public.wp_join_room(text, text)     from public, anon;
+revoke all on function public.wp_leave_room(uuid)          from public, anon;
+revoke all on function public.wp_update_content(uuid, integer, text, integer, integer, text) from public, anon;
 
--- Kullanıcı yalnızca üyesi olduğu aktif odanın konusuna ('wp:' || room_id::text)
--- mesaj gönderebilir ve dinleyebilir.
-drop policy if exists "Members can access party messages" on realtime.messages;
-create policy "Members can access party messages"
-    on realtime.messages
-    for all
-    to authenticated
-    using (
-        exists (
-            select 1
-            from public.watch_party_members m
-            join public.watch_party_rooms r on r.id = m.room_id
-            where ('wp:' || m.room_id::text) = realtime.messages.topic
-              and m.user_id = auth.uid()
-              and r.is_active = true
-        )
+grant execute on function public.wp_topic_room(text)       to authenticated;
+grant execute on function public.wp_is_open_member(uuid)   to authenticated;
+grant execute on function public.wp_is_open_host(uuid)     to authenticated;
+grant execute on function public.wp_create_room(integer, text, integer, integer, text, text) to authenticated;
+grant execute on function public.wp_join_room(text, text)  to authenticated;
+grant execute on function public.wp_leave_room(uuid)       to authenticated;
+grant execute on function public.wp_update_content(uuid, integer, text, integer, integer, text) to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Realtime yetkilendirme (private kanal 'wp:<oda-id>')
+-- ---------------------------------------------------------------------------
+drop policy if exists wp_realtime_read  on realtime.messages;
+create policy wp_realtime_read on realtime.messages
+  for select to authenticated
+  using (
+    realtime.messages.extension in ('broadcast', 'presence')
+    and public.wp_is_open_member(public.wp_topic_room((select realtime.topic())))
+  );
+
+drop policy if exists wp_realtime_write on realtime.messages;
+create policy wp_realtime_write on realtime.messages
+  for insert to authenticated
+  with check (
+    realtime.messages.extension in ('broadcast', 'presence')
+    and public.wp_is_open_member(public.wp_topic_room((select realtime.topic())))
+    and (
+      realtime.messages.extension = 'presence'
+      or coalesce(realtime.messages.event, '') not in ('control', 'content', 'closed')
+      or public.wp_is_open_host(public.wp_topic_room((select realtime.topic())))
     )
-    with check (
-        exists (
-            select 1
-            from public.watch_party_members m
-            join public.watch_party_rooms r on r.id = m.room_id
-            where ('wp:' || m.room_id::text) = realtime.messages.topic
-              and m.user_id = auth.uid()
-              and r.is_active = true
-        )
-    );
+  );
+
+-- ============================================================================
+-- GERİ ALMA (gerekirse bu bloğu ayrı çalıştır)
+-- ============================================================================
+/*
+drop policy if exists wp_realtime_write on realtime.messages;
+drop policy if exists wp_realtime_read  on realtime.messages;
+drop function if exists public.wp_update_content(uuid, integer, text, integer, integer, text);
+drop function if exists public.wp_leave_room(uuid);
+drop function if exists public.wp_join_room(text, text);
+drop function if exists public.wp_create_room(integer, text, integer, integer, text, text);
+drop table if exists public.watch_party_members;
+drop table if exists public.watch_party_rooms;
+drop function if exists public.wp_is_open_host(uuid);
+drop function if exists public.wp_is_open_member(uuid);
+drop function if exists public.wp_topic_room(text);
+*/
