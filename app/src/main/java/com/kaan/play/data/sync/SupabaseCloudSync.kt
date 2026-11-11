@@ -77,7 +77,19 @@ class SupabaseCloudSync(
     private val baseUrl: String
         get() = projectUrl.trimEnd('/')
 
-    private fun isConfigured(): Boolean = projectUrl.isNotBlank() && publishableKey.isNotBlank()
+    fun isConfigured(): Boolean = projectUrl.isNotBlank() && publishableKey.isNotBlank()
+
+    fun getProjectUrl(): String = projectUrl
+    fun getPublishableKey(): String = publishableKey
+
+    suspend fun getValidAccessToken(): String? = withContext(Dispatchers.IO) {
+        if (!isConfigured()) return@withContext null
+        var session = sessionStore.load() ?: return@withContext null
+        if (System.currentTimeMillis() >= session.expiresAtMillis - 60_000L) {
+            session = refresh(session) ?: return@withContext null
+        }
+        session.accessToken
+    }
 
     private fun toAccount(session: CloudSession): CloudAccountState =
         CloudAccountState(email = session.email, userId = session.userId)

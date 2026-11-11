@@ -374,6 +374,22 @@ class AppContainer(context: Context) {
         com.kaan.play.data.plugin.RepoManagerCatalog(com.kaan.play.data.addon.OkHttpManifestFetcher(httpClient))
     }
 
+    val watchPartyManager: com.kaan.play.data.party.WatchPartySessionManager by lazy {
+        val rules = com.kaan.play.data.party.WatchPartySyncRules()
+        val api = com.kaan.play.data.party.WatchPartyApi(cloudSync, httpClient)
+        val rtClient = com.kaan.play.data.party.WatchPartyRealtimeClient(
+            client = httpClient,
+            scope = appScope,
+        )
+        com.kaan.play.data.party.WatchPartySessionManager(
+            api = api,
+            realtimeClient = rtClient,
+            syncRules = rules,
+            cloudSync = cloudSync,
+            scope = appScope,
+        )
+    }
+
     val catalogInstallCoordinator: com.kaan.play.data.plugin.CatalogInstallCoordinator by lazy {
         com.kaan.play.data.plugin.CatalogInstallCoordinator(appScope, sourceInstaller)
     }
