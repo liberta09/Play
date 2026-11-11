@@ -175,9 +175,13 @@ class CatalogInstallCoordinatorTest {
         val started = coordinator.install(repoUrl, SourceType.NUVIO_REPO)
         assertTrue("Kurulum başlatılmalı", started)
 
-        testScheduler.advanceUntilIdle()
-
-        val outcome = withTimeout(5_000) { coordinator.outcome.first { it != null } }
+        var outcome: CatalogInstallOutcome? = null
+        for (i in 0 until 100) {
+            testScheduler.advanceUntilIdle()
+            outcome = coordinator.outcome.value
+            if (outcome != null) break
+            Thread.sleep(50)
+        }
         assertTrue("Kurulum Success olmalı, gerçekte: $outcome", outcome is CatalogInstallOutcome.Success)
         val success = outcome as CatalogInstallOutcome.Success
         assertEquals(repoUrl, success.url)
@@ -209,9 +213,13 @@ class CatalogInstallCoordinatorTest {
         val started = coordinator.install(addonUrl, SourceType.NUVIO_REPO)
         assertTrue(started)
 
-        testScheduler.advanceUntilIdle()
-
-        val outcome = withTimeout(5_000) { coordinator.outcome.first { it != null } }
+        var outcome: CatalogInstallOutcome? = null
+        for (i in 0 until 100) {
+            testScheduler.advanceUntilIdle()
+            outcome = coordinator.outcome.value
+            if (outcome != null) break
+            Thread.sleep(50)
+        }
         assertTrue("Sonuç Success olmalı", outcome is CatalogInstallOutcome.Success)
         val success = outcome as CatalogInstallOutcome.Success
         assertTrue("Sonuç Addon olmalı", success.result is AddResult.Addon)

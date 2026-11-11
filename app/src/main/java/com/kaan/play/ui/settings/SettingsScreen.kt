@@ -90,6 +90,7 @@ fun SettingsScreen(
     onOpenProfile: () -> Unit,
     onOpenSync: () -> Unit,
     onOpenWifiSync: () -> Unit,
+    onOpenWatchParty: () -> Unit = {},
     onOpenAbout: () -> Unit,
     contentFocusRequester: FocusRequester? = null,
     topBarFocusRequester: FocusRequester? = null,
@@ -393,6 +394,18 @@ fun SettingsScreen(
                     .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
                     .focusMemory(focus, "wifi_sync"),
                 onClick = onOpenWifiSync,
+            )
+
+            // Watch Party
+            PlayCardRow(
+                title = stringResource(R.string.watch_party_title),
+                subtitle = stringResource(R.string.watch_party_subtitle),
+                icon = PlayIcons.SubtitleSync,
+                iconTint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                    .focusMemory(focus, "watch_party"),
+                onClick = onOpenWatchParty,
             )
 
             // ==========================================

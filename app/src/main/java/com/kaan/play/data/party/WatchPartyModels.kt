@@ -62,4 +62,6 @@ data class PartySession(
     val room: WatchPartyRoom,
     val role: PartyRole,
     val memberCount: Int = 1,
-)
+) {
+    val isHost: Boolean get() = role == PartyRole.HOST
+}

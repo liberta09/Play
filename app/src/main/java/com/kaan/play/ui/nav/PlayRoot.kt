@@ -175,6 +175,7 @@ private const val PLUGIN_ROUTE = "settings/addons/plugin/{id}"
 private const val ADDON_DETAIL_ROUTE = "settings/addons/detail/{id}"
 private const val PLAYER_SETTINGS_ROUTE = "settings/player"
 private const val THEME_SETTINGS_ROUTE = "settings/theme"
+private const val WATCH_PARTY_ROUTE = "watch_party"
 private const val ABOUT_ROUTE = "settings/about"
 private const val WEBSITES_ROUTE = "settings/websites"
 private const val WIFI_SYNC_ROUTE = "settings/wifi-sync"
@@ -773,6 +774,7 @@ fun PlayRoot() {
                         onOpenProfile = { profileGate = true },
                         onOpenSync = { navController.navigate(SYNC_ROUTE) },
                         onOpenWifiSync = { navController.navigate(WIFI_SYNC_ROUTE) },
+                        onOpenWatchParty = { navController.navigate(WATCH_PARTY_ROUTE) },
                         onOpenAbout = { navController.navigate(ABOUT_ROUTE) },
                         contentFocusRequester = settingsFocusRequester,
                         topBarFocusRequester = topBarFocusRequester,
@@ -781,6 +783,18 @@ fun PlayRoot() {
             }
             composable(PLAYER_SETTINGS_ROUTE) { ReadableWidth { PlayerSettingsScreen(onBack = { navController.popBackStack() }) } }
             composable(THEME_SETTINGS_ROUTE) { ReadableWidth { ThemeSettingsScreen(onBack = { navController.popBackStack() }) } }
+            composable(WATCH_PARTY_ROUTE) {
+                ReadableWidth {
+                    com.kaan.play.ui.party.WatchPartyScreen(
+                        container = container,
+                        onBack = { navController.popBackStack() },
+                        onOpenMedia = { tmdbId, mediaType, season, episode ->
+                            val isTv = mediaType == "tv"
+                            openDetail(if (isTv) MediaType.Tv else MediaType.Movie, tmdbId)
+                        },
+                    )
+                }
+            }
             composable(
                 route = ADDONS_ROUTE,
                 arguments = listOf(navArgument("add") { type = NavType.BoolType; defaultValue = false }),
@@ -1006,6 +1020,39 @@ fun PlayRoot() {
 
     sourcesFor?.let { start ->
         SourcesSheet(target = start.target, onDismiss = { sourcesFor = null }, onPicked = ::onSourcePicked)
+    }
+
+    val partyCodePending by container.pendingPartyCode.collectAsStateWithLifecycle()
+    partyCodePending?.let { code ->
+        AlertDialog(
+            onDismissRequest = { container.pendingPartyCode.value = null },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface,
+            title = { Text(stringResource(R.string.watch_party_deeplink_confirm_title)) },
+            text = { Text(stringResource(R.string.watch_party_deeplink_confirm_message, code)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    container.pendingPartyCode.value = null
+                    scope.launch {
+                        val res = container.watchPartyManager.joinParty(code)
+                        res.onSuccess { room ->
+                            openDetail(if (room.mediaType == "tv") MediaType.Tv else MediaType.Movie, room.tmdbId)
+                        }.onFailure { err ->
+                            android.widget.Toast.makeText(context, err.message, android.widget.Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }) {
+                    Text(stringResource(R.string.watch_party_deeplink_confirm_join))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { container.pendingPartyCode.value = null }) {
+                    Text(stringResource(R.string.watch_party_deeplink_confirm_cancel))
+                }
+            },
+        )
     }
 
     resumePrompt?.let { (target, positionMs, download) ->

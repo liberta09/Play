@@ -511,6 +511,11 @@ class PlayerActivity : AppCompatActivity() {
             }
             PlayTheme(themeMode = resolvedTheme, performanceMode = performanceMode) {
                 val isSeries = AutoNextRules.canShowNextEpisodeButton(session.target.request.type, session.target.request.season, session.target.request.episode, session.target.request.addonType, 1L)
+                val currentPartySession by container.watchPartyManager.session.collectAsStateWithLifecycle()
+                val isPartyActive = currentPartySession != null &&
+                    currentPartySession!!.room.tmdbId == (activeTarget ?: session.target).request.tmdbId
+                val isHost = isPartyActive && currentPartySession!!.isHost
+                val isGuest = isPartyActive && !currentPartySession!!.isHost
                 PlayerScreen(
                     controller = controller,
                     subtitles = subtitles,
@@ -554,6 +559,21 @@ class PlayerActivity : AppCompatActivity() {
                     ageRating = resolvedAgeRating?.rating,
                     ageRatingRegion = resolvedAgeRating?.region,
                     onLockedChanged = { playbackLocked = it },
+                    watchPartySession = if (isPartyActive) currentPartySession else null,
+                    isWatchPartyHost = isHost,
+                    isWatchPartyGuest = isGuest,
+                    onWatchPartyResync = {
+                        val packet = container.watchPartyManager.realtimeClient.latestPacket.value
+                        if (packet != null) {
+                            controller.seekTo(packet.positionMs)
+                            if (packet.isPlaying && !controller.player.isPlaying) {
+                                controller.player.play()
+                            } else if (!packet.isPlaying && controller.player.isPlaying) {
+                                controller.pause()
+                            }
+                            controller.speed = packet.speed
+                        }
+                    },
                     onBack = ::finish,
                 )
             }
@@ -588,6 +608,49 @@ class PlayerActivity : AppCompatActivity() {
                         ended = controller.ui.ended,
                     )
                     skips.tick(controller.positionMs(), controller.ui.isPlaying)
+                }
+            }
+        }
+
+        // Watch Party senkronizasyonu
+        val partyManager = container.watchPartyManager
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    delay(1000L)
+                    val activeSession = partyManager.session.value
+                    if (activeSession != null && activeSession.isHost && activeSession.room.tmdbId == session.target.request.tmdbId) {
+                        partyManager.broadcastHostPosition(
+                            positionMs = controller.positionMs(),
+                            isPlaying = controller.ui.isPlaying,
+                            speed = controller.ui.speed,
+                        )
+                    }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            partyManager.realtimeClient.syncEvents.collect { packet ->
+                val activeSession = partyManager.session.value
+                if (activeSession != null && !activeSession.isHost && activeSession.room.tmdbId == session.target.request.tmdbId) {
+                    val action = partyManager.syncRules.evaluateSync(
+                        localCurrentPositionMs = controller.positionMs(),
+                        packet = packet,
+                        nowMs = SystemClock.elapsedRealtime(),
+                    )
+                    if (action != null) {
+                        if (action.shouldSeek) {
+                            controller.seekTo(action.targetPositionMs)
+                        }
+                        if (action.isPlaying && !controller.player.isPlaying) {
+                            controller.player.play()
+                        } else if (!action.isPlaying && controller.player.isPlaying) {
+                            controller.pause()
+                        }
+                        if (controller.speed != action.speed) {
+                            controller.speed = action.speed
+                        }
+                    }
                 }
             }
         }

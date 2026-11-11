@@ -53,6 +53,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -103,6 +105,13 @@ import com.kaan.play.ui.sources.SourcesSheet
 import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.rememberInitialFocus
 import com.kaan.play.ui.tv.rememberPlayLayout
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 
 private val Gutter = 20.dp
 
@@ -132,6 +141,38 @@ fun DetailScreen(
     // Detay'daki indir düğmesi: kaynak listesi indirme modunda açılır (yalnızca indirilebilir doğrudan kaynaklar).
     var downloadFor by remember { mutableStateOf<PlayTarget?>(null) }
     val listState = rememberLazyListState()
+    val context = LocalContext.current
+    val container = rememberContainer()
+    val scope = rememberCoroutineScope()
+    val cloudAccount by container.cloudSync.account.collectAsStateWithLifecycle()
+    var partyRoomDialog by remember { mutableStateOf<com.kaan.play.data.party.WatchPartyRoom?>(null) }
+    var partyLoginRequiredDialog by remember { mutableStateOf(false) }
+    var partyCreating by remember { mutableStateOf(false) }
+
+    val onStartParty: () -> Unit = {
+        if (cloudAccount == null) {
+            partyLoginRequiredDialog = true
+        } else {
+            val d = detail
+            if (d is Loadable.Ready) {
+                val media = d.value.summary
+                val isSeries = type == MediaType.Tv
+                val s = if (isSeries) season ?: 1 else null
+                partyCreating = true
+                scope.launch {
+                    val result = container.watchPartyManager.createParty(
+                        title = media.title,
+                        mediaType = if (isSeries) "tv" else "movie",
+                        tmdbId = media.id,
+                        season = s,
+                        episode = if (isSeries) 1 else null,
+                    )
+                    partyCreating = false
+                    partyRoomDialog = result.getOrNull()
+                }
+            }
+        }
+    }
 
     Box(Modifier.fillMaxSize()) {
         when (val d = detail) {
@@ -150,6 +191,7 @@ fun DetailScreen(
                 onOpenSimilar = onOpenSimilar,
                 onOpenActor = onOpenActor,
                 onOpenPerson = onOpenPerson,
+                onStartWatchParty = onStartParty,
                 onPlay = { s, e ->
                     val media = d.value.summary
                     onPlay(
@@ -235,6 +277,59 @@ fun DetailScreen(
     downloadFor?.let { target ->
         SourcesSheet(target = target, onDismiss = { downloadFor = null }, onPicked = {}, downloadMode = true)
     }
+
+    if (partyLoginRequiredDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { partyLoginRequiredDialog = false },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text(stringResource(R.string.watch_party_title)) },
+            text = { Text(stringResource(R.string.watch_party_login_required)) },
+            confirmButton = {
+                TextButton(onClick = { partyLoginRequiredDialog = false }) {
+                    Text(stringResource(R.string.announcement_ok))
+                }
+            },
+        )
+    }
+
+    partyRoomDialog?.let { room ->
+        val linkCopiedMsg = stringResource(R.string.watch_party_link_copied)
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { partyRoomDialog = null },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text(stringResource(R.string.watch_party_room_created_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        stringResource(R.string.watch_party_room_code_label, room.code),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        stringResource(R.string.watch_party_room_code_desc),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    clipboard.setPrimaryClip(ClipData.newPlainText("Watch Party Link", "play://party?code=${room.code}"))
+                    Toast.makeText(context, linkCopiedMsg, Toast.LENGTH_SHORT).show()
+                }) {
+                    Text(stringResource(R.string.watch_party_copy_link))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { partyRoomDialog = null }) {
+                    Text(stringResource(R.string.profile_dialog_close))
+                }
+            },
+        )
+    }
 }
 
 /** Bu kadar kaydırılınca geri düğmesinin arkasına şerit gelir. */
@@ -261,6 +356,7 @@ internal fun DetailContent(
     onOpenSimilar: (MediaType, Int) -> Unit = { _, _ -> },
     onOpenActor: (String) -> Unit = {},
     onOpenPerson: (Int, String) -> Unit = { _, _ -> },
+    onStartWatchParty: (() -> Unit)? = null,
     onPlay: (Int?, Int?) -> Unit,
     downloads: List<DownloadEntity> = emptyList(),
     /** Verilmezse (ör. sağlayıcı detayı) indir düğmeleri görünmez. */
@@ -279,7 +375,7 @@ internal fun DetailContent(
         DownloadAction(DownloadRules.contentBadge(entry), entry) { download(null, null) }
     }
     val header: @Composable (Dp) -> Unit = { padding ->
-        HeaderBlock(detail, isFavorite, selectedSeason, primaryFocus, padding, isSeries, onToggleFavorite, onSelectSeason, onPlay, movieDownload)
+        HeaderBlock(detail, isFavorite, selectedSeason, primaryFocus, padding, isSeries, onToggleFavorite, onSelectSeason, onPlay, movieDownload, onStartWatchParty)
     }
 
     if (twoPane) {
@@ -362,6 +458,7 @@ private fun HeaderBlock(
     onSelectSeason: (Int) -> Unit,
     onPlay: (Int?, Int?) -> Unit,
     movieDownload: DownloadAction? = null,
+    onStartWatchParty: (() -> Unit)? = null,
 ) {
     val media = detail.summary
     Column(Modifier.padding(horizontal = horizontalPadding), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -388,7 +485,7 @@ private fun HeaderBlock(
                 }
                 movieDownload?.let { DetailDownloadButton(it, Modifier.size(52.dp)) }
             }
-            MoreButton(isFavorite, onToggleFavorite)
+            MoreButton(isFavorite, onToggleFavorite, onStartWatchParty)
         }
     }
 }
@@ -681,7 +778,11 @@ private fun formatRuntime(minutes: Int): String =
 
 /** Yuvarlak "daha fazla" düğmesi; menüde favori ekle/çıkar (durum kalp simgesinde görünür). */
 @Composable
-private fun MoreButton(isFavorite: Boolean, onToggleFavorite: () -> Unit) {
+private fun MoreButton(
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
+    onStartWatchParty: (() -> Unit)? = null,
+) {
     var open by remember { mutableStateOf(false) }
     Box {
         OutlinedIconButton(onClick = { open = true }, modifier = Modifier.size(52.dp)) {
@@ -699,6 +800,19 @@ private fun MoreButton(isFavorite: Boolean, onToggleFavorite: () -> Unit) {
                 },
                 onClick = { open = false; onToggleFavorite() },
             )
+            if (onStartWatchParty != null) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.watch_party_start_button)) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = PlayIcons.SubtitleSync,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    },
+                    onClick = { open = false; onStartWatchParty() },
+                )
+            }
         }
     }
 }

@@ -222,6 +222,10 @@ fun PlayerScreen(
     ageRatingRegion: String? = null,
     /** Kilit durumu değişince etkinliğe bildirilir (`Activity.onKeyDown` kilitliyken zap yapmasın). */
     onLockedChanged: (Boolean) -> Unit = {},
+    watchPartySession: com.kaan.play.data.party.PartySession? = null,
+    isWatchPartyHost: Boolean = false,
+    isWatchPartyGuest: Boolean = false,
+    onWatchPartyResync: (() -> Unit)? = null,
     onBack: () -> Unit,
 ) {
     val container = rememberContainer()
@@ -966,9 +970,15 @@ fun PlayerScreen(
                     })
                 }
             }
+            val wpBadge = watchPartySession?.let {
+                val role = if (isWatchPartyHost) stringResource(R.string.watch_party_role_host) else stringResource(R.string.watch_party_role_guest)
+                stringResource(R.string.watch_party_badge, it.memberCount) + " • " + role
+            }
             Controls(
                 infoLine = infoLine,
                 speedBadge = speedBadge,
+                watchPartyBadge = wpBadge,
+                guestNotice = if (isWatchPartyGuest) stringResource(R.string.watch_party_host_controlling) else null,
                 estimatedEndText = estimatedEndText,
                 title = titleOf(target),
                 isPlaying = ui.isPlaying,
@@ -1577,6 +1587,8 @@ private fun SlowConnectionPromptCard(
 private fun Controls(
     infoLine: String?,
     speedBadge: String? = null,
+    watchPartyBadge: String? = null,
+    guestNotice: String? = null,
     estimatedEndText: String? = null,
     title: String,
     isPlaying: Boolean,
@@ -1615,7 +1627,7 @@ private fun Controls(
                 Icon(PlayIcons.Back, contentDescription = stringResource(R.string.common_back), tint = tint)
             }
             Column(Modifier.weight(1f).padding(horizontal = 8.dp)) {
-                if (infoLine != null || speedBadge != null) {
+                if (infoLine != null || speedBadge != null || watchPartyBadge != null) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (infoLine != null) {
                             Text(
@@ -1643,6 +1655,22 @@ private fun Controls(
                                 )
                             }
                         }
+                        if (watchPartyBadge != null) {
+                            if (infoLine != null || speedBadge != null) Spacer(Modifier.width(8.dp))
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)),
+                            ) {
+                                Text(
+                                    text = watchPartyBadge,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                )
+                            }
+                        }
                     }
                 }
                 Text(
@@ -1652,6 +1680,14 @@ private fun Controls(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
+                if (guestNotice != null) {
+                    Text(
+                        text = guestNotice,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 2.dp),
+                    )
+                }
             }
             if (estimatedEndText != null) {
                 Text(

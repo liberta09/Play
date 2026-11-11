@@ -985,4 +985,33 @@
     <string name="sync_cloud_section_desc">Hesabınıza giriş yaparak izleme geçmişinizi, profillerinizi ve favorilerinizi bulutta saklayabilir, tüm cihazlarınızda kaldığınız yerden devam edebilirsiniz.</string>
 
     <string name="player_seek_seconds">%1$s%2$d sn</string>
+    <!-- Watch Party -->
+    <string name="watch_party_title">Watch Party</string>
+    <string name="watch_party_subtitle">Arkadaşlarınla senkronize olarak birlikte izle</string>
+    <string name="watch_party_start_button">Watch Party başlat</string>
+    <string name="watch_party_login_required">Watch Party için Ayarlar &gt; Profil &gt; Bulut Hesabı\'na giriş yapmalısın.</string>
+    <string name="watch_party_room_created_title">Watch Party Odası Açıldı</string>
+    <string name="watch_party_room_code_label">Oda Kodu: %1$s</string>
+    <string name="watch_party_room_code_desc">Arkadaşların bu kodla veya linkle katılabilir. Oynatıcıyı açtığında yayın başlar.</string>
+    <string name="watch_party_copy_link">Bağlantıyı Kopyala</string>
+    <string name="watch_party_link_copied">Watch Party bağlantısı kopyalandı.</string>
+    <string name="watch_party_join_title">Odaya Katıl</string>
+    <string name="watch_party_join_code_hint">6 Haneli Oda Kodu</string>
+    <string name="watch_party_join_button">Katıl</string>
+    <string name="watch_party_leave_button">Odadan Ayrıl</string>
+    <string name="watch_party_role_host">Oda Sahibi</string>
+    <string name="watch_party_role_guest">Konuk</string>
+    <string name="watch_party_badge">Watch Party (%1$d kişi)</string>
+    <string name="watch_party_host_controlling">Oda sahibi kontrol ediyor</string>
+    <string name="watch_party_out_of_sync">Oda sahibiyle senkronun bozuldu.</string>
+    <string name="watch_party_resync">Yeniden senkronla</string>
+    <string name="watch_party_room_closed_notice">Oda sahibi ayrıldı; parti sona erdi.</string>
+    <string name="watch_party_active_room_status">Aktif Oda: %1$s (%2$s)</string>
+    <string name="watch_party_deeplink_confirm_title">Watch Party Katılma İsteği</string>
+    <string name="watch_party_deeplink_confirm_message">%1$s kodlu Watch Party odasına katılmak istiyor musunuz?</string>
+    <string name="watch_party_deeplink_confirm_join">Katıl</string>
+    <string name="watch_party_deeplink_confirm_cancel">Vazgeç</string>
+    <string name="watch_party_how_it_works">Nasıl Çalışır?</string>
+    <string name="watch_party_how_it_works_desc">Oda sahibi içeriği başlattığında, duraklattığında veya ileri sardığında tüm konuklar anında aynı konuma senkronize olur.</string>
+
 </resources>

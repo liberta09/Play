@@ -53,6 +53,9 @@ class WatchPartyRealtimeClient(
     private val _syncEvents = MutableSharedFlow<PartySyncPacket>(extraBufferCapacity = 64)
     val syncEvents: SharedFlow<PartySyncPacket> = _syncEvents.asSharedFlow()
 
+    private val _latestPacket = MutableStateFlow<PartySyncPacket?>(null)
+    val latestPacket: StateFlow<PartySyncPacket?> = _latestPacket.asStateFlow()
+
     private val _roomClosedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val roomClosedEvents: SharedFlow<Unit> = _roomClosedEvents.asSharedFlow()
 
@@ -136,6 +139,7 @@ class WatchPartyRealtimeClient(
                         runCatching {
                             val packet = json.decodeFromJsonElement<PartySyncPacket>(data)
                             Log.d(TAG, "olay=sync")
+                            _latestPacket.value = packet
                             scope.launch { _syncEvents.emit(packet) }
                         }
                     }
@@ -222,6 +226,7 @@ class WatchPartyRealtimeClient(
         webSocket?.close(1000, "User left")
         webSocket = null
         activeRoomId = null
+        _latestPacket.value = null
         _connectionState.value = PartyConnectionState.Disconnected
         Log.d(TAG, "durum=ayrıldı")
     }

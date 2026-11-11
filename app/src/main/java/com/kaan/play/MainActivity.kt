@@ -400,11 +400,18 @@ class MainActivity : AppCompatActivity() {
         when (uri.scheme) {
             "https" -> container.pendingAddonUrl.value = uri.toString()
             DeepLink.SCHEME -> {
-                // Opak ya da hiyerarşik olmayan bağlantıda (play:add?...) getQueryParameter fırlatır.
-                val repo = if (uri.isHierarchical) uri.getQueryParameter("repo") else null
-                val nuvio = if (uri.isHierarchical) uri.getQueryParameter("nuvio") else null
-                val nuvioPlugin = if (uri.isHierarchical) uri.getQueryParameter("nuvio_plugin") else null
-                container.deepLinks.handle(uri.scheme, uri.host, repo, nuvio, nuvioPlugin)
+                if (uri.host == "party") {
+                    val code = if (uri.isHierarchical) uri.getQueryParameter("code") else null
+                    if (!code.isNullOrBlank()) {
+                        container.pendingPartyCode.value = code.trim().uppercase()
+                    }
+                } else {
+                    // Opak ya da hiyerarşik olmayan bağlantıda (play:add?...) getQueryParameter fırlatır.
+                    val repo = if (uri.isHierarchical) uri.getQueryParameter("repo") else null
+                    val nuvio = if (uri.isHierarchical) uri.getQueryParameter("nuvio") else null
+                    val nuvioPlugin = if (uri.isHierarchical) uri.getQueryParameter("nuvio_plugin") else null
+                    container.deepLinks.handle(uri.scheme, uri.host, repo, nuvio, nuvioPlugin)
+                }
             }
         }
     }

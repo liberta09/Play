@@ -852,6 +852,9 @@ class AppContainer(context: Context) {
     /** Bildirimden açılacak favori dizi TMDB kimliği. */
     val pendingSeriesDetailId = MutableStateFlow<Int?>(null)
 
+    /** Deep link ile gelen Watch Party oda kodu (`play://party?code=XXXXXX`). Onay penceresi bekler. */
+    val pendingPartyCode = MutableStateFlow<String?>(null)
+
     /** `play://add?repo=` / `play://add?nuvio=` bağlantıları: mevcut [sourceInstaller] ile ekler, sonucu Snackbar'a iletir. */
     val deepLinks: DeepLinkHandler by lazy { DeepLinkHandler(sourceInstaller, appScope) }
 

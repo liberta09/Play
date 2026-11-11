@@ -35,6 +35,7 @@ enum class SettingsItemId {
     RememberLastProfile,
     CloudSync,
     WifiSync,
+    WatchParty,
 
     // 5. Bağlantı ve veri
     NetworkAndInternet,
@@ -88,6 +89,7 @@ object SettingsCatalogRules {
                 SettingsItemId.RememberLastProfile,
                 SettingsItemId.CloudSync,
                 SettingsItemId.WifiSync,
+                SettingsItemId.WatchParty,
             ),
         ),
         SettingsGroup(

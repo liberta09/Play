@@ -70,6 +70,14 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="play" android:host="add" />
             </intent-filter>
+
+            <!-- play://party?code=<oda_kodu>: Watch Party katılma bağlantısı. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="play" android:host="party" />
+            </intent-filter>
         </activity>
 
         <!-- Tam ekran yatay oynatıcı; kaynak seçiminden PlaySession ile açılır. -->

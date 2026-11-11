@@ -21,9 +21,9 @@ class SettingsCatalogRulesTest {
     }
 
     @Test
-    fun verifiesExactTwentyTwoItemsAndNoDuplicates() {
-        assertEquals(22, SettingsCatalogRules.ALL_ITEMS.size)
-        assertEquals(22, SettingsCatalogRules.ALL_ITEMS.toSet().size)
+    fun verifiesExactTwentyThreeItemsAndNoDuplicates() {
+        assertEquals(23, SettingsCatalogRules.ALL_ITEMS.size)
+        assertEquals(23, SettingsCatalogRules.ALL_ITEMS.toSet().size)
         assertEquals(SettingsItemId.entries.size, SettingsCatalogRules.ALL_ITEMS.size)
     }
 
@@ -68,6 +68,7 @@ class SettingsCatalogRulesTest {
                 SettingsItemId.RememberLastProfile,
                 SettingsItemId.CloudSync,
                 SettingsItemId.WifiSync,
+                SettingsItemId.WatchParty,
             ),
             profile.items,
         )

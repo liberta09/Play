@@ -1004,4 +1004,33 @@
     <string name="sync_cloud_section_desc">Sign in to store your watch history, profiles, and favorites in the cloud, and continue where you left off on all devices.</string>
 
     <string name="player_seek_seconds">%1$s%2$d s</string>
+    <!-- Watch Party -->
+    <string name="watch_party_title">Watch Party</string>
+    <string name="watch_party_subtitle">Watch synchronously together with friends</string>
+    <string name="watch_party_start_button">Start Watch Party</string>
+    <string name="watch_party_login_required">You must sign in to Settings &gt; Profile &gt; Cloud Account for Watch Party.</string>
+    <string name="watch_party_room_created_title">Watch Party Room Created</string>
+    <string name="watch_party_room_code_label">Room Code: %1$s</string>
+    <string name="watch_party_room_code_desc">Your friends can join with this code or link. Playback sync starts when you open the player.</string>
+    <string name="watch_party_copy_link">Copy Link</string>
+    <string name="watch_party_link_copied">Watch Party link copied.</string>
+    <string name="watch_party_join_title">Join Room</string>
+    <string name="watch_party_join_code_hint">6-Character Room Code</string>
+    <string name="watch_party_join_button">Join</string>
+    <string name="watch_party_leave_button">Leave Room</string>
+    <string name="watch_party_role_host">Host</string>
+    <string name="watch_party_role_guest">Guest</string>
+    <string name="watch_party_badge">Watch Party (%1$d members)</string>
+    <string name="watch_party_host_controlling">Host is controlling playback</string>
+    <string name="watch_party_out_of_sync">Out of sync with host.</string>
+    <string name="watch_party_resync">Resync</string>
+    <string name="watch_party_room_closed_notice">Host left; watch party has ended.</string>
+    <string name="watch_party_active_room_status">Active Room: %1$s (%2$s)</string>
+    <string name="watch_party_deeplink_confirm_title">Watch Party Join Request</string>
+    <string name="watch_party_deeplink_confirm_message">Do you want to join the Watch Party room with code %1$s?</string>
+    <string name="watch_party_deeplink_confirm_join">Join</string>
+    <string name="watch_party_deeplink_confirm_cancel">Cancel</string>
+    <string name="watch_party_how_it_works">How It Works</string>
+    <string name="watch_party_how_it_works_desc">When the host plays, pauses, or seeks, all guests are instantly synchronized to the same playback position.</string>
+
 </resources>
