@@ -149,7 +149,62 @@ fun SettingsScreen(
             )
 
             // ==========================================
-            // 1. Görünüm ve kişiselleştirme
+            // 1. Eklentiler ve kaynaklar
+            // ==========================================
+            SettingsGroupHeader(title = stringResource(R.string.settings_group_addons))
+
+            // Eklentiler
+            PlayCardRow(
+                title = stringResource(R.string.addons_title),
+                badge = addonCount?.let { pluralStringResource(R.plurals.addons_count, it, it) },
+                icon = PlayIcons.Extension,
+                iconTint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                    .navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = false)
+                    .focusMemory(focus, "addons", isDefault = true),
+                onClick = onOpenAddons,
+            )
+
+            // Koleksiyonlar
+            PlayCardRow(
+                title = stringResource(R.string.collections_title),
+                subtitle = stringResource(R.string.collections_subtitle),
+                badge = collections.size.takeIf { it > 0 }?.toString(),
+                icon = PlayIcons.Folder,
+                iconTint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                    .focusMemory(focus, "collections"),
+                onClick = onOpenCollections,
+            )
+
+            // Web siteleri
+            PlayCardRow(
+                title = stringResource(R.string.web_sites),
+                subtitle = stringResource(R.string.web_sites_summary),
+                icon = PlayIcons.Code,
+                iconTint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                    .focusMemory(focus, "web_sites"),
+                onClick = onOpenWebSites,
+            )
+
+            // Kaynak hata geçmişi ve kara liste
+            PlayCardRow(
+                title = stringResource(R.string.source_health_title),
+                subtitle = stringResource(R.string.source_health_subtitle),
+                icon = PlayIcons.Server,
+                iconTint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                    .focusMemory(focus, "source_health"),
+                onClick = onOpenSourceHealth,
+            )
+
+            // ==========================================
+            // 2. Görünüm ve kişiselleştirme
             // ==========================================
             SettingsGroupHeader(title = stringResource(R.string.settings_group_appearance))
 
@@ -160,9 +215,8 @@ fun SettingsScreen(
                 icon = PlayIcons.Palette,
                 iconTint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                    .navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = false)
-                    .focusMemory(focus, "theme", isDefault = true),
+                    .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
+                    .focusMemory(focus, "theme"),
                 onClick = onOpenTheme,
             )
 
@@ -322,59 +376,7 @@ fun SettingsScreen(
                 },
             )
 
-            // ==========================================
-            // 3. Eklentiler ve kaynaklar
-            // ==========================================
-            SettingsGroupHeader(title = stringResource(R.string.settings_group_addons))
 
-            // Eklentiler
-            PlayCardRow(
-                title = stringResource(R.string.addons_title),
-                badge = addonCount?.let { pluralStringResource(R.plurals.addons_count, it, it) },
-                icon = PlayIcons.Extension,
-                iconTint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
-                    .focusMemory(focus, "addons"),
-                onClick = onOpenAddons,
-            )
-
-            // Koleksiyonlar
-            PlayCardRow(
-                title = stringResource(R.string.collections_title),
-                subtitle = stringResource(R.string.collections_subtitle),
-                badge = collections.size.takeIf { it > 0 }?.toString(),
-                icon = PlayIcons.Folder,
-                iconTint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
-                    .focusMemory(focus, "collections"),
-                onClick = onOpenCollections,
-            )
-
-            // Web siteleri
-            PlayCardRow(
-                title = stringResource(R.string.web_sites),
-                subtitle = stringResource(R.string.web_sites_summary),
-                icon = PlayIcons.Code,
-                iconTint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
-                    .focusMemory(focus, "web_sites"),
-                onClick = onOpenWebSites,
-            )
-
-            // Kaynak hata geçmişi ve kara liste
-            PlayCardRow(
-                title = stringResource(R.string.source_health_title),
-                subtitle = stringResource(R.string.source_health_subtitle),
-                icon = PlayIcons.Server,
-                iconTint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = false)
-                    .focusMemory(focus, "source_health"),
-                onClick = onOpenSourceHealth,
-            )
 
             // ==========================================
             // 4. Profil ve senkronizasyon

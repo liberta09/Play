@@ -809,7 +809,7 @@
     <string name="settings_auto_retry_limit">Automatic source attempts</string>
     <string name="settings_auto_retry_unlimited">Unlimited</string>
     <string name="settings_show_preplay_poster">Show pre-playback poster</string>
-    <string name="source_health_title">Source health</string>
+    <string name="source_health_title">Source error history and blocklist</string>
     <string name="source_health_subtitle">Review problematic servers or re-enable them</string>
     <string name="source_health_empty">No records</string>
     <string name="source_health_section_blacklist">Temporarily skipped servers</string>

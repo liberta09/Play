@@ -790,7 +790,7 @@
     <string name="settings_auto_retry_limit">Otomatik kaynak deneme sayısı</string>
     <string name="settings_auto_retry_unlimited">Sınırsız</string>
     <string name="settings_show_preplay_poster">Oynatma öncesi posteri göster</string>
-    <string name="source_health_title">Kaynak sağlığı</string>
+    <string name="source_health_title">Kaynak hata geçmişi ve kara liste</string>
     <string name="source_health_subtitle">Sorunlu sunucuları incele veya yeniden etkinleştir</string>
     <string name="source_health_empty">Kayıt yok</string>
     <string name="source_health_section_blacklist">Geçici olarak atlanan sunucular</string>
