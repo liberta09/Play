@@ -156,7 +156,7 @@
     <string name="notify_new_episode_body">%1$d. sezon %2$d. bölüm yayınlandı</string>
     <string name="whats_new_title">Bu sürümde neler yeni?</string>
     <string name="whats_new_dismiss">Anladım</string>
-    <string name="whats_new_message">• Watch Party: 6 haneli kodla arkadaşlarınızla birlikte eşzamanlı izleme\n• Ana sayfa kapağında sessiz fragman önizlemesi (yalnızca Wi-Fi, ayardan kapatılabilir)\n• Canlı TV iyileştirmeleri ve zenginleştirilmiş kanal listeleri\n• Oynatıcıda Türkçe dublaj ve ses izi iyileştirmeleri\n• Kaynak sağlığı inceleme ve sorunlu kaynakları kurtarma\n• Favori diziler için yeni bölüm bildirimleri\n• 6 farklı renk teması desteği\n• Gruplandırılmış tek sayfa pratik Ayarlar menüsü\n• Özel DNS seçenekleri ve yerleşik internet hız testi</string>
+    <string name="whats_new_message">• Dizide doğrudan Oynat düğmesi ile kaldığın bölümü başlatma\n• Watch Party davet kodunu sistem menüsüyle paylaşma\n• Canlı TV kanal kategorileri ve grup adına göre filtreleme\n• Dosyadan hazır film/dizi kataloğu içe aktarma\n• İnternet kesilip geldiğinde oynatmanın kendiliğinden sürmesi\n• Ana sayfa kapağında sessiz fragman önizlemesi\n• Favori diziler için yeni bölüm bildirimleri\n• 6 farklı renk teması ve yenilenen ayarlar menüsü</string>
     <string name="about_version">Sürüm %1$s</string>
     <string name="about_telegram">Telegram topluluğu</string>
     <string name="about_telegram_title">Telegram Topluluğumuz</string>

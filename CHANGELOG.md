@@ -3,6 +3,11 @@
 ## [1.3.0] — 2026-11-11
 
 ### Türkçe
+- Dizide Oynat düğmesi: Dizi detayında tek tıkla kaldığın bölümü veya sıradaki bölümü başlatma.
+- Watch Party davet kodu paylaşma: 6 haneli oda davet kodunu sistem paylaşım menüsüyle paylaşma.
+- Canlı TV kanal kategorileri: Çiplerle kategori filtreleme, grup adına göre gelişmiş sınıflandırma.
+- Dosyadan harici katalog: JSON dosyasından hazır film/dizi listesi içe aktarma ve ana sayfa rafı.
+- İnternet gelince oynatmanın kendiliğinden sürmesi: Ağ kesintisinde bekleme ve bağlantı dönünce aynı kaynaktan otomatik devam.
 - Watch Party: 6 haneli oda koduyla arkadaşlarınızla birlikte eşzamanlı izleme desteği.
 - Ana sayfa kapağında sessiz fragman: Yalnızca Wi-Fi bağlantısında sessiz video önizlemesi (Ayarlar'dan kapatılabilir).
 - Canlı TV iyileştirmeleri ve zenginleştirilmiş kanal listeleri: Kanal birleştirme, EPG program rehberi ve hızlı kanal değiştirme.
@@ -14,6 +19,11 @@
 - Özel DNS seçenekleri ve yerleşik internet hız testi.
 
 ### English
+- Play button for TV series: One-tap instant resume or next episode playback from series detail.
+- Share Watch Party invite code: Quick sharing of room invite code via system share sheet.
+- Live TV channel categories: Filter chips by category, fallback classification using channel group names.
+- Import external catalog from file: Add curated movie/series lists from JSON files to Home shelves.
+- Automatic resume on network recovery: Playback pauses during network drop and automatically resumes from the same second when connection returns.
 - Watch Party: Synchronized watch-together rooms with a 6-digit room code.
 - Silent hero trailer: Video previews on the home cover over Wi-Fi (can be disabled in Settings).
 - Live TV enhancements: Channel grouping, EPG program guide, and fast channel zapping.

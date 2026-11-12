@@ -169,7 +169,7 @@
     <string name="notify_new_episode_body">Season %1$d, Episode %2$d aired</string>
     <string name="whats_new_title">What is new in Play?</string>
     <string name="whats_new_dismiss">Got it</string>
-    <string name="whats_new_message">• Watch Party: Watch together in sync with a 6-digit room code\n• Silent hero trailer on the home cover (Wi-Fi only, can be disabled in settings)\n• Live TV improvements and enriched channel lists\n• Player Turkish audio and dubbed track enhancements\n• Source Health inspection and recovery tools\n• New episode notifications for favorite TV series\n• 6 color theme options\n• Reorganized single-page grouped Settings\n• Custom DNS options and built-in internet speed test</string>
+    <string name="whats_new_message">• Direct Play button on TV series to resume next episode\n• Share Watch Party invite code via system share sheet\n• Live TV channel categories with group name fallback\n• Import external catalog from JSON file to Home shelves\n• Automatic playback resume when internet connection returns\n• Silent hero trailer on the home cover\n• New episode notifications for favorite TV series\n• 6 color theme options and reorganized Settings</string>
     <!-- Dil adları her zaman kendi dillerinde yazılır. -->
     <string name="language_english" translatable="false">English</string>
     <string name="language_turkish" translatable="false">Türkçe</string>

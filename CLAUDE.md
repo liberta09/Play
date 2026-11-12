@@ -27,6 +27,8 @@ Uzun vadeli plan, çalışma sistemi (şartname → onay → yapım → doğrula
 6. **İki dilde taşmasın:** her ekran Türkçe ve İngilizce metinle taşmadan görünür; uzun Türkçe metinlerle (ve büyük yazı boyutuyla) test edilir.
 
 ## Kapsam
+- Harici katalog: Eklenti ekle ekranından JSON dosyasıyla yüklenir (local-catalog:, yerel ve bulut senkronizasyonuna girmez).
+- Ağ gelince devam: Ağ kesintisinde oynatıcı bekleme moduna geçer, internet dönünce aynı kaynaktan sürdürür (NetworkResumeRules, test için debug extra play_test_offline_seconds).
 - Ekosistemler: (1) Nuvio addon'ları (manifest.json URL'li HTTP addon), (2) Faz 2 Nuvio plugin'leri (JS scraper), (3) Faz 3 CloudStream .cs3 — **tamamlandı** (aşağıdaki "Faz 3" bölümüne bak).
 - **Faz 1 tamamlandı (1–10). Faz 2 tamamlandı. Faz 3 tamamlandı.** (8. adım "web sitesi ekle" Faz 1'e kullanıcının isteğiyle eklenen reklamsız web görünümüdür; kaynak toplama/oynatıcıyla ilgisi yoktur ve Faz 2 scraper'ı değildir.)
 - Faz 1 hedefi: kullanıcı addon manifest URL'si ekler → ana sayfa TMDB'den beslenir → içeriğe girince addon'lardan kaynaklar toplanır → Media3 ile oynatılır → geçmiş, kaldığı yerden devam ve favoriler yerelde tutulur.
