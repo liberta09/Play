@@ -1,8 +1,10 @@
 package com.kaan.play.ui.player
 
+import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,6 +52,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.kaan.play.R
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.tv.focusRing
@@ -108,12 +113,29 @@ fun EpisodePanel(
     ) {
         val window = (LocalView.current.parent as? DialogWindowProvider)?.window
         LaunchedEffect(window) {
-            window?.setDimAmount(0f)
-            window?.setGravity(android.view.Gravity.END)
+            window ?: return@LaunchedEffect
+            window.setDimAmount(0f)
+            // Pencere tam ekran; liste sağa yaslanır. Sistem çubukları oynatıcıdaki gibi gizli kalır.
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            WindowCompat.getInsetsController(window, window.decorView).apply {
+                hide(WindowInsetsCompat.Type.systemBars())
+                systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
         }
 
+        // Listenin dışına (videoya) dokunmak paneli kapatır; bu alan kumanda odağı almaz.
         Box(
             modifier = Modifier
+                .fillMaxSize()
+                .focusProperties { canFocus = false }
+                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onDismiss() },
+            contentAlignment = Alignment.CenterEnd,
+        ) {
+        Box(
+            modifier = Modifier
+                // Panelin boş yerine dokunmak kapatmasın (dış alanın dokunuşunu yutar); odak almaz.
+                .focusProperties { canFocus = false }
+                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
                 .fillMaxHeight()
                 .width(360.dp)
                 .padding(16.dp)
@@ -225,6 +247,7 @@ fun EpisodePanel(
                     }
                 }
             }
+        }
         }
     }
 }

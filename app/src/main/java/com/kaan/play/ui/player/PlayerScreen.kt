@@ -308,7 +308,8 @@ fun PlayerScreen(
     val dialogOpen = showPanel || showEpisodes || showTracks || showAppearance || showSync || autoNext?.picking == true
     // Senkron paneli açıkken kontroller gizlenir: altyazı (altta) ilerleme çubuğunun altında kalmasın.
     // Kaynaklar aranırken ve hiçbiri açılmadığında geri düğmesi ve kontroller görünür kalır.
-    val showControls = !locked && ((controlsVisible && !showSync) || ui.error != null || resolving || sourcesFailed)
+    // Bölümler paneli açıkken kontroller gizlenir: liste videonun üstünde arka plansız durur, düğmelerle üst üste binmez.
+    val showControls = !locked && !showEpisodes && ((controlsVisible && !showSync) || ui.error != null || resolving || sourcesFailed)
     // Atlama düğmeleri (sağ altta): segmentin ilk 20 sn'sinde kontroller gizliyken de, sonra kontroller açılınca görünür.
     val skipSettings = skips?.settings ?: SkipPlaybackSettings.Default
     val skipPosition = skips?.positionMs ?: 0L
