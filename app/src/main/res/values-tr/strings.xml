@@ -95,7 +95,14 @@
     <string name="tv_channel_subtitle">Canlı kanal · %1$s</string>
     <string name="tv_live_badge">CANLI</string>
     <string name="tv_search_hint">Kanal ara</string>
-    <string name="tv_results_count">%1$d canlı kanal</string>
+    <string name="tv_category">Kategori</string>
+    <string name="tv_category_select">Kategori seç</string>
+    <string name="tv_category_remove">Kategori süzgecini kaldır</string>
+    <string name="tv_no_results_with_search">Bu aramayla eşleşen kanal yok.</string>
+    <plurals name="tv_live_channels_count">
+        <item quantity="one">%d canlı kanal</item>
+        <item quantity="other">%d canlı kanal</item>
+    </plurals>
     <string name="tv_filter_all">Tümü (%1$d)</string>
     <string name="tv_filter_nuvio">Nuvio (%1$d)</string>
     <string name="tv_filter_cloudstream">CloudStream (%1$d)</string>

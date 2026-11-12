@@ -106,7 +106,14 @@
     <string name="tv_channel_subtitle">Live channel · %1$s</string>
     <string name="tv_live_badge">LIVE</string>
     <string name="tv_search_hint">Search channels</string>
-    <string name="tv_results_count">%1$d live channels</string>
+    <string name="tv_category">Category</string>
+    <string name="tv_category_select">Select category</string>
+    <string name="tv_category_remove">Remove category filter</string>
+    <string name="tv_no_results_with_search">No channels match this search.</string>
+    <plurals name="tv_live_channels_count">
+        <item quantity="one">%d live channel</item>
+        <item quantity="other">%d live channels</item>
+    </plurals>
     <string name="tv_filter_all">All (%1$d)</string>
     <string name="tv_filter_nuvio">Nuvio (%1$d)</string>
     <string name="tv_filter_cloudstream">CloudStream (%1$d)</string>
