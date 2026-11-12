@@ -160,8 +160,18 @@ fun SourcesSheet(target: PlayTarget, onDismiss: () -> Unit, onPicked: (PlayableS
         val asked = request.copy(refresh = refresh > 0)
         value = value.copy(asked = container.streams.sources(asked))
         container.streams.streams(asked)
-            .onCompletion { cause -> if (cause == null) value = value.finished() }
-            .collect { value += it }
+            .onCompletion { cause ->
+                if (cause == null) value = value.finished()
+                if (com.kaan.play.BuildConfig.DEBUG) {
+                    android.util.Log.d("PlayMatch", "Kaynak listesi tamamlandı: toplam=${value.streams.size} kaynak (başlık='${request.title}')")
+                }
+            }
+            .collect {
+                value += it
+                if (com.kaan.play.BuildConfig.DEBUG) {
+                    android.util.Log.d("PlayMatch", "Kaynak listesi güncel: boyut=${value.streams.size} (${it.source.addonName})")
+                }
+            }
     }
     // İndirme modu: adaylar geldikçe arka planda yoklanır (aynı adres bir kez); sonuç adres → indirilebilir mi.
     val probed = remember(request, refresh) { mutableStateMapOf<String, Boolean>() }

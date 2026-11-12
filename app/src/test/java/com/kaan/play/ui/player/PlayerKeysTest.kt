@@ -7,6 +7,8 @@ import com.kaan.play.ui.player.PlayerKeyAction.Reveal
 import com.kaan.play.ui.player.PlayerKeyAction.SeekBack
 import com.kaan.play.ui.player.PlayerKeyAction.SeekForward
 import com.kaan.play.ui.player.PlayerKeyAction.TogglePlay
+import com.kaan.play.ui.player.PlayerKeyAction.ZapNext
+import com.kaan.play.ui.player.PlayerKeyAction.ZapPrev
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -130,5 +132,27 @@ class PlayerKeysTest {
         assertEquals(900_000L, ProgressSeek.finishTargetMs(dragging = true, dragFraction = 0.25f, durationMs = 3_600_000L))
         // Süre bilinmiyorsa sarılmaz.
         assertNull(ProgressSeek.finishTargetMs(dragging = true, dragFraction = 0.5f, durationMs = 0L))
+    }
+
+    @Test
+    fun liveZapKeysSwitchChannelsOnlyOnLiveBroadcasts() {
+        for (visible in listOf(false, true)) {
+            assertEquals(ZapNext, PlayerKeys.actionFor(Key.ChannelUp, controlsVisible = visible, isLive = true))
+            assertEquals(ZapNext, PlayerKeys.actionFor(Key.PageUp, controlsVisible = visible, isLive = true))
+            assertEquals(ZapPrev, PlayerKeys.actionFor(Key.ChannelDown, controlsVisible = visible, isLive = true))
+            assertEquals(ZapPrev, PlayerKeys.actionFor(Key.PageDown, controlsVisible = visible, isLive = true))
+
+            assertFalse(PlayerKeys.actionFor(Key.ChannelUp, controlsVisible = visible, isLive = false) in listOf(ZapNext, ZapPrev))
+            assertFalse(PlayerKeys.actionFor(Key.ChannelDown, controlsVisible = visible, isLive = false) in listOf(ZapNext, ZapPrev))
+            assertFalse(PlayerKeys.actionFor(Key.PageUp, controlsVisible = visible, isLive = false) in listOf(ZapNext, ZapPrev))
+            assertFalse(PlayerKeys.actionFor(Key.PageDown, controlsVisible = visible, isLive = false) in listOf(ZapNext, ZapPrev))
+        }
+
+        assertEquals(+1, PlayerKeys.zapDirectionForKeyCode(166, isLive = true))
+        assertEquals(+1, PlayerKeys.zapDirectionForKeyCode(92, isLive = true))
+        assertEquals(-1, PlayerKeys.zapDirectionForKeyCode(167, isLive = true))
+        assertEquals(-1, PlayerKeys.zapDirectionForKeyCode(93, isLive = true))
+        assertEquals(0, PlayerKeys.zapDirectionForKeyCode(166, isLive = false))
+        assertEquals(0, PlayerKeys.zapDirectionForKeyCode(167, isLive = false))
     }
 }

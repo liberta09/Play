@@ -26,6 +26,7 @@ class AddonRepository(
     private val fetcher: ManifestFetcher,
     private val clock: () -> Long = System::currentTimeMillis,
     private val onAddonRemoved: (suspend (Long) -> Unit)? = null,
+    private val onSourceUrlRemoved: (suspend (String) -> Unit)? = null,
 ) {
 
     /** Yalnızca Nuvio addon satırları: diğer türlerin (Faz 2/3) depo kayıtları farklı biçimdedir. */
@@ -55,9 +56,14 @@ class AddonRepository(
      * Zaten indirilmiş [raw] manifest'i addon olarak doğrular ve kaydeder (içerik türü ayrımı yukarıda yapılmıştır).
      * @throws AddonException
      */
-    suspend fun addFetched(url: String, raw: String, type: AddonType = AddonType.NUVIO_ADDON): Addon {
+    suspend fun addFetched(
+        url: String,
+        raw: String,
+        type: AddonType = AddonType.NUVIO_ADDON,
+        catalogOnly: Boolean = false,
+    ): Addon {
         if (dao.countBySourceUrl(url) > 0) throw AddonException(Kind.AlreadyAdded)
-        val manifest = AddonManifestParser.parse(raw)
+        val manifest = if (catalogOnly) AddonManifestParser.parseCatalogOnly(raw) else AddonManifestParser.parse(raw)
 
         val entity = AddonEntity(
             type = type,
@@ -81,8 +87,10 @@ class AddonRepository(
     suspend fun setAllEnabled(enabled: Boolean) = dao.setAllEnabledOfType(AddonType.NUVIO_ADDON, enabled)
 
     suspend fun remove(id: Long) {
+        val entity = dao.byId(id)
         dao.delete(id)
         onAddonRemoved?.invoke(id)
+        entity?.sourceUrl?.let { onSourceUrlRemoved?.invoke(it) }
     }
 
     suspend fun byId(id: Long): Addon? = dao.byId(id)?.toAddon()

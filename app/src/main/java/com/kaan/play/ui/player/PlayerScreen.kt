@@ -18,8 +18,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -71,7 +75,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -89,6 +95,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -101,8 +108,12 @@ import androidx.media3.ui.PlayerView
 import com.kaan.play.R
 import androidx.compose.ui.text.font.FontWeight
 import com.kaan.play.data.player.PlaybackSpeeds
+import com.kaan.play.data.player.PreplayArtworkRules
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.provider.LiveCatalogRules
 import com.kaan.play.data.settings.ResizeMode
+import com.kaan.play.data.settings.SettingsRepository
+import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.data.settings.SkipPlaybackSettings
 import com.kaan.play.data.settings.SubtitleStyle
 import com.kaan.play.data.stream.PlayTarget
@@ -174,6 +185,47 @@ fun PlayerScreen(
     skips: SkipController? = null,
     /** Torrent yükleme ekranı için motor durumunu okuyan fonksiyon. */
     getTorrentLoadSnapshot: () -> TorrentLoadProgressRules.TorrentLoadSnapshot = { TorrentLoadProgressRules.TorrentLoadSnapshot() },
+    /** Canlı TV kanal listesi hazırsa (`Unavailable` değilse) true; önceki/sonraki kanal düğmeleri gösterilir. */
+    canZapChannels: Boolean = false,
+    /** Canlı TV kanal geçişi (`-1` önceki, `+1` sonraki kanal). */
+    onZapChannel: ((Int) -> Unit)? = null,
+    /** Kök yakalayıcının tükettiği `KeyEvent.downTime` değeri (`Activity.onKeyDown` çift basışı önlesin). */
+    onZapKeyConsumed: ((Long) -> Unit)? = null,
+    /** Kanal değişiminde/başlangıcında kısa süre görünen kanal adı bandı. */
+    liveChannelBanner: String? = null,
+    /** Yeni kanal akışı arka planda yüklenirken eski kanal sürerken gösterilen küçük dönen gösterge. */
+    liveZapSwitching: Boolean = false,
+    /** Canlı TV geçiş/hata kısa bildirimi (ör. önceki kanala dönüldü / alternatif kaynak). */
+    liveNotice: String? = null,
+    /** Tüm canlı alternatif rotalar tükendiyse hata ekranında "Kaynak bulunamadı" gösterilir. */
+    allLiveRoutesExhausted: Boolean = false,
+    /** Canlı yayında kullanıcının sıradaki alternatif sağlayıcı rotasına geçmesi; null: yalnızca canlı TV'de. */
+    onScanLiveProvider: (() -> Unit)? = null,
+    /** Türkçe ses izi taraması sürüyor (dublajlı kaynak açılırken kısa durum metni). */
+    audioVerificationScanning: Boolean = false,
+    /** Türkçe ses doğrulama bildirimi. */
+    audioVerificationNotice: com.kaan.play.data.player.TurkishAudioNotice? = null,
+    onClearAudioVerificationNotice: () -> Unit = {},
+    onStopTurkishAudioScan: () -> Unit = {},
+    /** Birden çok ses parçası varsa sıradakine geçme eylemi ve kısa parça adı bildirimi. */
+    onNextAudioTrack: (() -> Unit)? = null,
+    audioTrackBanner: String? = null,
+    onClearAudioTrackBanner: () -> Unit = {},
+    /** Dublaj önerisi köşe kartında "Geç"e basınca doğrulama ve geri dönüş korumalı geçiş. */
+    onAcceptDubSuggestion: (() -> Unit)? = null,
+    /** ~15 sn aralıksız arabelleğe alma sonrası gösterilen "Bağlantı yavaş mı?" kartı. */
+    slowPromptVisible: Boolean = false,
+    onEnableSlowConnection: () -> Unit = {},
+    onDismissSlowPrompt: () -> Unit = {},
+    /** Oynatma başlangıcında ilk ~4-5 sn gösterilen TMDB yaş sınıfı (TR varsa TR, yoksa US). */
+    ageRating: String? = null,
+    ageRatingRegion: String? = null,
+    /** Kilit durumu değişince etkinliğe bildirilir (`Activity.onKeyDown` kilitliyken zap yapmasın). */
+    onLockedChanged: (Boolean) -> Unit = {},
+    watchPartySession: com.kaan.play.data.party.PartySession? = null,
+    isWatchPartyHost: Boolean = false,
+    isWatchPartyGuest: Boolean = false,
+    onWatchPartyResync: (() -> Unit)? = null,
     onBack: () -> Unit,
 ) {
     val container = rememberContainer()
@@ -183,6 +235,7 @@ fun PlayerScreen(
     val locale = remember { Locale.forLanguageTag(AppLanguage.effective().iso) }
 
     val ui = controller.ui
+    val isLiveBroadcast = LiveCatalogRules.isLiveRequest(target.request) && canSwitchSource
 
 
     var controlsVisible by remember { mutableStateOf(true) }
@@ -206,6 +259,9 @@ fun PlayerScreen(
     var lastSeekKeyAt by remember { mutableLongStateOf(0L) }
     var position by remember { mutableLongStateOf(0L) }
     var duration by remember { mutableLongStateOf(0L) }
+    var etaRefreshKey by remember { mutableIntStateOf(0) }
+    var etaNowEpochMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var etaPositionMs by remember { mutableLongStateOf(0L) }
     // "Kaldığın yerden devam ediliyor · Baştan başla": ~5 sn; düğmede odak varken (kumanda) süre işlemez.
     var resumeNotice by remember { mutableStateOf(showResumeNotice) }
     var noticeFocused by remember { mutableStateOf(false) }
@@ -244,11 +300,9 @@ fun PlayerScreen(
     val cardActive = cardPhase != AutoNextPhase.Hidden
     val cardFocus = remember { FocusRequester() }
     var cardFocused by remember { mutableStateOf(false) }
-    // "Dublajlı kaynak bulundu, geçilsin mi?" (köşede; sonraki bölüm kartı varken gösterilmez).
-    val dubOffer = coordinator?.dubSuggestion
-    val dubVisible = dubOffer != null && !cardActive && !locked && ui.error == null
-    val dubFocus = remember { FocusRequester() }
-    var dubFocused by remember { mutableStateOf(false) }
+    val showSlowPromptCard = slowPromptVisible && !cardActive && !locked && ui.error == null
+    val slowFocus = remember { FocusRequester() }
+    var slowFocused by remember { mutableStateOf(false) }
 
     val dialogOpen = showPanel || showTracks || showAppearance || showSync || autoNext?.picking == true
     // Senkron paneli açıkken kontroller gizlenir: altyazı (altta) ilerleme çubuğunun altında kalmasın.
@@ -269,11 +323,13 @@ fun PlayerScreen(
     fun seek(deltaMs: Long) {
         controller.seekBy(deltaMs)
         position = controller.positionMs()
+        etaRefreshKey++
         reveal()
     }
     fun seekFromGesture(deltaMs: Long) {
         controller.seekBy(deltaMs)
         position = controller.positionMs()
+        etaRefreshKey++
         controlsVisible = false
         resumeNotice = false
     }
@@ -329,6 +385,18 @@ fun PlayerScreen(
             coordinator.clearNotice()
         }
     }
+    LaunchedEffect(audioVerificationNotice) {
+        if (audioVerificationNotice != null) {
+            delay(SOURCE_NOTICE_MS)
+            onClearAudioVerificationNotice()
+        }
+    }
+    LaunchedEffect(audioTrackBanner) {
+        if (audioTrackBanner != null) {
+            delay(NOTICE_MS)
+            onClearAudioTrackBanner()
+        }
+    }
     LaunchedEffect(resizeToast) {
         if (resizeToast != null) {
             delay(RESIZE_LABEL_MS)
@@ -336,6 +404,7 @@ fun PlayerScreen(
         }
     }
     LaunchedEffect(locked) {
+        onLockedChanged(locked)
         if (locked) {
             controlsVisible = false
             showUnlockHint()
@@ -361,18 +430,18 @@ fun PlayerScreen(
         }
     }
     LaunchedEffect(cardActive) { if (!cardActive) cardFocused = false }
-    LaunchedEffect(dubVisible) { if (!dubVisible) dubFocused = false }
+    LaunchedEffect(showSlowPromptCard) { if (!showSlowPromptCard) slowFocused = false }
     LaunchedEffect(skipVisible) { if (!skipVisible) skipFocused = false }
     // Odak: kilitliyken ve simge görünürken açma simgesinde; kilitli ve simge gizliyken kök yüzeyde;
     // hata/kaynak yokken hata düğmesinde; sonraki bölüm kartında; kontroller açıkken ilerleme
     // çubuğunda; gizliyken kök yüzeyde (yön tuşları orada yakalanır).
-    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, dubVisible, skipVisible, keyboard) {
+    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, showSlowPromptCard, skipVisible, keyboard) {
         when {
             locked && lockHintVisible -> unlockFocus.requestWhenAttached()
             locked -> runCatching { rootFocus.requestFocus() }
             ui.error != null || sourcesFailed -> runCatching { playFocus.requestFocus() }
             cardActive -> cardFocus.requestWhenAttached()
-            dubVisible && keyboard -> dubFocus.requestWhenAttached()
+            showSlowPromptCard && keyboard -> slowFocus.requestWhenAttached()
             // Atlama düğmesi görünürken kumandada odak ondadır: Tamam = atla.
             skipVisible && keyboard -> skipFocus.requestWhenAttached()
             controlsVisible && keyboard -> barFocus.requestWhenAttached()
@@ -384,6 +453,14 @@ fun PlayerScreen(
             position = controller.positionMs()
             duration = controller.durationMs()
             delay(500)
+        }
+    }
+    LaunchedEffect(showControls, isLiveBroadcast, duration, ui.speed, etaRefreshKey) {
+        if (!showControls || isLiveBroadcast || duration <= 0L) return@LaunchedEffect
+        while (true) {
+            etaNowEpochMs = System.currentTimeMillis()
+            etaPositionMs = controller.positionMs()
+            delay(60_000L)
         }
     }
 
@@ -402,7 +479,7 @@ fun PlayerScreen(
                     if (event.type == KeyEventType.KeyUp) {
                         when {
                             locked -> locked = false
-                            dubVisible -> coordinator?.dismissDubSuggestion()
+                            showSlowPromptCard -> onDismissSlowPrompt()
                             cardActive -> onAutoNextCancel()
                             // Atlama düğmesi odaktayken Geri düğmeyi kapatır, oynatıcıdan çıkarmaz.
                             skipVisible && skipFocused -> skips?.dismiss(shownSkipSegments)
@@ -453,12 +530,19 @@ fun PlayerScreen(
                         }
                     }
                 }
-                if (dubVisible && dubFocused && event.key in CARD_KEYS) return@onPreviewKeyEvent false
+                if (showSlowPromptCard && slowFocused && event.key in CARD_KEYS) return@onPreviewKeyEvent false
                 if (skipVisible && skipFocused && event.key in CARD_KEYS) return@onPreviewKeyEvent false
                 val repeat = event.nativeKeyEvent.repeatCount
                 // Sarma sürerken (basılı tutma) kontroller açılsa da Sol/Sağ sarmaya devam eder, odağı gezdirmez.
                 val seeking = SystemClock.uptimeMillis() - lastSeekKeyAt < SEEK_HOLD_MS
-                when (PlayerKeys.actionFor(event.key, controlsVisible = showControls && (!seeking || barFocused), progressFocused = barFocused)) {
+                when (
+                    PlayerKeys.actionFor(
+                        event.key,
+                        controlsVisible = showControls && (!seeking || barFocused),
+                        progressFocused = barFocused,
+                        isLive = isLiveBroadcast && canZapChannels && onZapChannel != null,
+                    )
+                ) {
                     PlayerKeyAction.PassThrough -> false
                     PlayerKeyAction.TogglePlay -> { if (repeat == 0) controller.togglePlay(); reveal(); true }
                     PlayerKeyAction.SeekBack -> { seekByKey(-1, repeat); true }
@@ -467,6 +551,20 @@ fun PlayerScreen(
                     PlayerKeyAction.OpenMenu -> { reveal(); openPanel(); true }
                     PlayerKeyAction.GoToButtons -> { runCatching { bottomFocus.requestFocus() }; true }
                     PlayerKeyAction.LeaveBarUp -> focusManager.moveFocus(FocusDirection.Up)
+                    PlayerKeyAction.ZapPrev -> {
+                        if (repeat == 0) {
+                            onZapKeyConsumed?.invoke(event.nativeKeyEvent.downTime)
+                            onZapChannel?.invoke(-1)
+                        }
+                        true
+                    }
+                    PlayerKeyAction.ZapNext -> {
+                        if (repeat == 0) {
+                            onZapKeyConsumed?.invoke(event.nativeKeyEvent.downTime)
+                            onZapChannel?.invoke(+1)
+                        }
+                        true
+                    }
                 }
             }
             // Açık focusable(): clickable dokunmatik modda odak almaz; gizli kontrollerde tuşlar buraya gelmeli.
@@ -582,6 +680,7 @@ fun PlayerScreen(
                 // Ayar değişince anında uygulanır; oynatma kesilmez.
                 update = { view ->
                     try {
+                        view.setKeepContentOnPlayerReset(isLiveBroadcast)
                         view.resizeMode = when (resize) {
                             ResizeMode.Fit -> AspectRatioFrameLayout.RESIZE_MODE_FIT
                             ResizeMode.Fill -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
@@ -683,10 +782,104 @@ fun PlayerScreen(
             hasError = ui.error != null || sourcesFailed,
         )
 
-        if (resolving && ui.error == null) {
-            Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        val showPreplayPoster by container.settings.showPreplayPoster
+            .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SHOW_PREPLAY_POSTER)
+        val preplayArtworkPath = PreplayArtworkRules.selectPath(
+            enabled = showPreplayPoster,
+            isLive = isLiveBroadcast,
+            backdropPath = target.backdropPath,
+            posterPath = target.posterPath,
+        )
+        val preplayArtworkUrl = remember(preplayArtworkPath, target.backdropPath, isLiveBroadcast) {
+            preplayArtworkPath?.let { path ->
+                val size = if (isLiveBroadcast || target.backdropPath.isNullOrBlank()) {
+                    TmdbImages.Size.Poster
+                } else {
+                    TmdbImages.Size.BackdropLarge
+                }
+                TmdbImages.url(path, size)
+            }
+        }
+        val showPreplayArtwork = PreplayArtworkRules.shouldShow(
+            enabled = showPreplayPoster,
+            artworkUrl = preplayArtworkUrl,
+            firstFrameRendered = ui.firstFrameRendered,
+            showTorrentOverlay = showTorrentOverlay,
+            hasError = ui.error != null || sourcesFailed || allLiveRoutesExhausted,
+        )
+        AnimatedVisibility(
+            visible = showPreplayArtwork,
+            enter = fadeIn(),
+            exit = fadeOut(animationSpec = tween(durationMillis = 250)),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            Box(Modifier.fillMaxSize().background(Color(0xFF0A0D10))) {
+                if (isLiveBroadcast) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(preplayArtworkUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .fillMaxWidth(0.32f)
+                            .fillMaxHeight(0.28f)
+                            .alpha(0.45f),
+                    )
+                } else {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(preplayArtworkUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .alpha(0.38f),
+                    )
+                    Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)))
+                }
+            }
+        }
+
+        if (resolving && ui.error == null && !ui.firstFrameRendered) {
+            var resolvingElapsedSec by remember(coordinator, resolving) {
+                mutableIntStateOf(coordinator?.resolveElapsedSeconds() ?: 0)
+            }
+            LaunchedEffect(coordinator, resolving, ui.firstFrameRendered) {
+                val coord = coordinator ?: return@LaunchedEffect
+                while (resolving && !ui.firstFrameRendered) {
+                    resolvingElapsedSec = coord.resolveElapsedSeconds()
+                    delay(1_000L)
+                }
+            }
+            val askedTotal = coordinator?.askedCount ?: 0
+            val answeredDone = coordinator?.answeredCount ?: 0
+            Column(
+                Modifier
+                    .align(Alignment.Center)
+                    .background(Color.Black.copy(alpha = 0.65f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 24.dp, vertical = 18.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 CircularProgressIndicator(Modifier.size(40.dp), color = Color.White)
-                Text(stringResource(R.string.player_sources_loading), style = MaterialTheme.typography.bodyLarge, color = Color.White)
+                Text(stringResource(R.string.player_sources_searching), style = MaterialTheme.typography.titleMedium, color = Color.White)
+                if (askedTotal > 0) {
+                    Text(
+                        text = pluralStringResource(R.plurals.player_sources_progress, askedTotal, answeredDone, askedTotal),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White.copy(alpha = 0.9f),
+                    )
+                }
+                Text(
+                    text = pluralStringResource(R.plurals.player_elapsed_seconds, resolvingElapsedSec, resolvingElapsedSec),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.78f),
+                )
             }
         } else if (showTorrentOverlay) {
             TorrentLoadingOverlay(
@@ -701,6 +894,7 @@ fun PlayerScreen(
             CircularProgressIndicator(Modifier.align(Alignment.Center).size(40.dp), color = Color.White)
         }
 
+
         if (showControls && !showTorrentOverlay) {
             val isLive = target.request.addonType in listOf("tv", "channel")
             val playing = coordinator?.current ?: offlineStream
@@ -712,6 +906,22 @@ fun PlayerScreen(
                 else -> null
             }
             val speedBadge = PlaybackSpeeds.badgeLabel(ui.speed)
+            val minimalControls = ui.error != null || sourcesFailed || resolving
+            val estimatedEndEpoch = if (!minimalControls && !isLiveBroadcast) {
+                com.kaan.play.data.player.EstimatedEndTime.calculateEndEpochMs(
+                    nowEpochMs = etaNowEpochMs,
+                    positionMs = etaPositionMs,
+                    durationMs = duration,
+                    speed = ui.speed,
+                    isLive = false,
+                )
+            } else null
+            val estimatedEndText = estimatedEndEpoch?.let { epoch ->
+                val timeStr = remember(epoch, locale) {
+                    android.text.format.DateFormat.getTimeFormat(context).format(java.util.Date(epoch))
+                }
+                stringResource(R.string.player_estimated_end, timeStr)
+            }
             val infoLine = listOfNotNull(playing?.source?.addonName, dims, sizeText, dubTag)
                 .reduceOrNull { acc, part -> stringResource(R.string.dot_join, acc, part) }
             val canSync = subtitles.selected is SubtitleItem.External && subtitles.status == SubtitleStatus.Idle
@@ -719,8 +929,31 @@ fun PlayerScreen(
                 add(BarAction(PlayIcons.Lock, stringResource(R.string.player_btn_lock)) { locked = true })
                 add(BarAction(PlayIcons.Resize, stringResource(R.string.player_btn_resize), ::nextResize))
                 if (canSync) add(BarAction(PlayIcons.SubtitleSync, stringResource(R.string.player_btn_sync)) { showSync = true })
+                if (isLiveBroadcast && canZapChannels && onZapChannel != null) {
+                    add(BarAction(PlayIcons.ChannelPrev, stringResource(R.string.player_btn_prev_channel)) {
+                        onZapChannel(-1)
+                        bump()
+                    })
+                    add(BarAction(PlayIcons.ChannelNext, stringResource(R.string.player_btn_next_channel)) {
+                        onZapChannel(+1)
+                        bump()
+                    })
+                }
                 add(BarAction(PlayIcons.SwitchSource, stringResource(R.string.player_btn_source), ::openPanel))
+                if (isLiveBroadcast && onScanLiveProvider != null) {
+                    add(BarAction(PlayIcons.Refresh, stringResource(R.string.player_btn_scan_provider)) {
+                        onScanLiveProvider()
+                        bump()
+                    })
+                }
                 add(BarAction(PlayIcons.Tracks, stringResource(R.string.player_btn_tracks)) { showTracks = true; bump() })
+                val audioCount = remember(ui.tracksVersion) { controller.audioTracks().size }
+                if (audioCount > 1 && onNextAudioTrack != null) {
+                    add(BarAction(PlayIcons.AudioNext, stringResource(R.string.player_btn_next_audio)) {
+                        onNextAudioTrack()
+                        bump()
+                    })
+                }
                 val canShowNext = onNextEpisode != null && AutoNextRules.canShowNextEpisodeButton(target.request.type, target.request.season, target.request.episode, target.request.addonType, duration)
                 if (canShowNext) {
                     add(BarAction(PlayIcons.NextEpisode, stringResource(R.string.player_btn_next_episode)) {
@@ -729,13 +962,20 @@ fun PlayerScreen(
                     })
                 }
             }
+            val wpBadge = watchPartySession?.let {
+                val role = if (isWatchPartyHost) stringResource(R.string.watch_party_role_host) else stringResource(R.string.watch_party_role_guest)
+                stringResource(R.string.watch_party_badge, it.memberCount) + " • " + role
+            }
             Controls(
                 infoLine = infoLine,
                 speedBadge = speedBadge,
+                watchPartyBadge = wpBadge,
+                guestNotice = if (isWatchPartyGuest) stringResource(R.string.watch_party_host_controlling) else null,
+                estimatedEndText = estimatedEndText,
                 title = titleOf(target),
                 isPlaying = ui.isPlaying,
                 // Hata, kaynak yok ya da kaynaklar aranırken yalnızca üst çubuk (geri) görünür; oynat/sar/alt düğmeler anlamsızdır.
-                minimal = ui.error != null || sourcesFailed || resolving,
+                minimal = minimalControls,
                 position = position,
                 duration = duration,
                 zones = zones,
@@ -748,7 +988,7 @@ fun PlayerScreen(
                 onBack = onBack,
                 onTogglePlay = { controller.togglePlay(); bump() },
                 onSeek = ::seek,
-                onSeekTo = { controller.seekTo(it); position = it; bump() },
+                onSeekTo = { controller.seekTo(it); position = it; etaRefreshKey++; bump() },
                 onInteract = ::bump,
             )
         }
@@ -794,27 +1034,26 @@ fun PlayerScreen(
             }
         }
 
-        if (coordinator != null && dubVisible) {
-            DubSuggestionCard(
-                onSwitch = coordinator::acceptDubSuggestion,
-                onClose = coordinator::dismissDubSuggestion,
-                primaryFocus = dubFocus,
+        if (showSlowPromptCard && !showTorrentOverlay) {
+            SlowConnectionPromptCard(
+                onEnable = onEnableSlowConnection,
+                onDismiss = onDismissSlowPrompt,
+                primaryFocus = slowFocus,
                 modifier = Modifier.align(Alignment.BottomStart).navigationBarsPadding().padding(start = 24.dp, bottom = 156.dp)
-                    .gestureZone(zones, "dub")
-                    .onFocusChanged { dubFocused = it.hasFocus },
+                    .gestureZone(zones, "slow_prompt")
+                    .onFocusChanged { slowFocused = it.hasFocus },
             )
         }
 
         // Kaynak açılmadı / hata: ana ileti sade, hata kodu ayrıntı satırında.
-        if (ui.error != null || sourcesFailed) {
+        if (ui.error != null || sourcesFailed || allLiveRoutesExhausted) {
             Column(
                 modifier = Modifier.align(Alignment.Center).gestureZone(zones, "error").padding(32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
-                val isLive = target.request.addonType in listOf("tv", "channel")
                 val message = when {
-                    isLive && sourcesFailed -> R.string.live_channel_unavailable
+                    isLiveBroadcast && (sourcesFailed || allLiveRoutesExhausted) -> R.string.live_route_not_found
                     sourcesFailed && coordinator?.streams.isNullOrEmpty() -> R.string.player_no_sources
                     sourcesFailed -> R.string.player_all_failed
                     canSwitchSource -> ui.error!!.messageRes()
@@ -834,11 +1073,151 @@ fun PlayerScreen(
             }
         }
 
+        AnimatedVisibility(
+            visible = isLiveBroadcast && liveChannelBanner != null && !locked && ui.error == null,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 24.dp),
+        ) {
+            Row(
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(24.dp))
+                    .padding(horizontal = 18.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Box(Modifier.size(8.dp).clip(CircleShape).background(MaterialTheme.colorScheme.error))
+                Text(
+                    text = liveChannelBanner.orEmpty(),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (liveZapSwitching) {
+                    CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        }
+
+        val effectiveAgeRating = (ageRating ?: target.ageRating)?.takeIf { it.isNotBlank() }
+        val effectiveAgeRegion = (ageRatingRegion ?: target.ageRatingRegion)?.takeIf { it.isNotBlank() }
+        val ageRatingLabel = if (!isLiveBroadcast && effectiveAgeRating != null && effectiveAgeRegion != null) {
+            stringResource(R.string.player_age_rating, effectiveAgeRating, effectiveAgeRegion)
+        } else null
+        var ageRatingVisible by remember(target.request.tmdbId, target.request.season, target.request.episode) {
+            mutableStateOf(false)
+        }
+        var ageRatingShown by remember(target.request.tmdbId, target.request.season, target.request.episode) {
+            mutableStateOf(false)
+        }
+        LaunchedEffect(ui.firstFrameRendered, ageRatingLabel, isLiveBroadcast) {
+            if (!isLiveBroadcast && ui.firstFrameRendered && ageRatingLabel != null && !ageRatingShown) {
+                ageRatingShown = true
+                ageRatingVisible = true
+                delay(4_500L)
+                ageRatingVisible = false
+            }
+        }
+        AnimatedVisibility(
+            visible = ageRatingVisible && ageRatingLabel != null && !locked && !showTorrentOverlay && ui.error == null,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .statusBarsPadding()
+                .padding(start = 24.dp, top = if (controlsVisible) 84.dp else 20.dp),
+        ) {
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = Color.Black.copy(alpha = 0.78f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
+            ) {
+                Text(
+                    text = ageRatingLabel.orEmpty(),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                )
+            }
+        }
+
         val activeNotice = coordinator?.notice ?: if (BuildConfig.DEBUG && PlayerNoticeLogic.forceNoticeForTest) {
             SourceNotice.Skipped("TEST_SIMULATED_ERROR (500)")
         } else null
         activeNotice?.let { notice ->
             SourceNoticePill(notice, Modifier.align(Alignment.TopCenter).statusBarsPadding().padding(top = 84.dp))
+        }
+        if (activeNotice == null && audioVerificationNotice == null) {
+            liveNotice?.let { message ->
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .statusBarsPadding()
+                        .padding(top = 84.dp)
+                        .widthIn(max = 480.dp)
+                        .background(Color.Black.copy(alpha = 0.85f), RoundedCornerShape(16.dp))
+                        .padding(horizontal = 20.dp, vertical = 10.dp),
+                )
+            }
+        }
+        if (activeNotice == null && audioVerificationNotice != null) {
+            val verifyMsgRes = when (audioVerificationNotice) {
+                com.kaan.play.data.player.TurkishAudioNotice.UnverifiedTryingNextDub -> R.string.player_audio_verify_unverified
+                com.kaan.play.data.player.TurkishAudioNotice.NotFoundOpeningFastAlternative -> R.string.player_audio_verify_not_found
+                com.kaan.play.data.player.TurkishAudioNotice.FoundButSelectionFailed -> R.string.player_audio_verify_select_failed
+                com.kaan.play.data.player.TurkishAudioNotice.UnsupportedTryingAnother -> R.string.player_audio_verify_unsupported
+            }
+            Text(
+                text = stringResource(verifyMsgRes),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .padding(top = 84.dp)
+                    .widthIn(max = 480.dp)
+                    .background(Color.Black.copy(alpha = 0.85f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
+            )
+        }
+        if (audioVerificationScanning && !resolving && !locked && ui.error == null && !sourcesFailed) {
+            Text(
+                text = stringResource(R.string.player_verifying_turkish_audio),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .padding(top = if (activeNotice != null || audioVerificationNotice != null) 136.dp else 84.dp)
+                    .widthIn(max = 480.dp)
+                    .background(Color.Black.copy(alpha = 0.78f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 18.dp, vertical = 8.dp),
+            )
+        }
+        if (!audioTrackBanner.isNullOrBlank() && !locked && ui.error == null) {
+            Text(
+                text = audioTrackBanner,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .statusBarsPadding()
+                    .padding(top = if (activeNotice != null || audioVerificationNotice != null || audioVerificationScanning) 144.dp else 84.dp)
+                    .widthIn(max = 480.dp)
+                    .background(Color.Black.copy(alpha = 0.85f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
+            )
         }
 
         resizeToast?.let { mode ->
@@ -880,6 +1259,8 @@ fun PlayerScreen(
             subtitles = subtitles,
             embeddedDub = embeddedDub,
             online = canSwitchSource,
+            audioVerificationScanning = audioVerificationScanning,
+            onStopTurkishAudioScan = onStopTurkishAudioScan,
             onAddFile = {
                 showPanel = false
                 resumeAfterPick = controller.player.isPlaying
@@ -986,8 +1367,16 @@ private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier
         SourceNotice.Mismatch -> R.string.player_source_mismatch to "content"
         SourceNotice.StallSwitched -> R.string.player_stall_switched to null
         SourceNotice.ManualSlow -> R.string.player_manual_slow to null
+        is SourceNotice.RetryingCurrent -> R.string.player_retrying_current to notice.detail
         is SourceNotice.StreamDropped -> R.string.player_stream_dropped to notice.detail
         SourceNotice.SourceSwitched -> R.string.player_source_switched to null
+        SourceNotice.DubSwitched -> R.string.player_switched_to_dub to null
+        SourceNotice.WrongContentBlockedSwitching -> R.string.player_wrong_content_blocked_switching to null
+        SourceNotice.WrongContentBlockedWaiting -> R.string.player_wrong_content_blocked_waiting to null
+        SourceNotice.WrongContentBlockedNone -> R.string.player_wrong_content_blocked_none to null
+        SourceNotice.AudioSyncSwitching -> R.string.player_audio_sync_switching to null
+        SourceNotice.AudioSyncNoOtherSource -> R.string.player_audio_sync_no_other to null
+        SourceNotice.WaitingForInternet -> R.string.player_waiting_for_internet to null
     }
     Column(
         modifier = modifier
@@ -1119,9 +1508,9 @@ private fun SkipSegmentButton(
 
 /** Sol alt köşede "Dublajlı kaynak bulundu, geçilsin mi?" (Geç / Kapat). Oynatma kesilmez; Geç kaldığı saniyeden devam ettirir. */
 @Composable
-private fun DubSuggestionCard(
-    onSwitch: () -> Unit,
-    onClose: () -> Unit,
+private fun SlowConnectionPromptCard(
+    onEnable: () -> Unit,
+    onDismiss: () -> Unit,
     primaryFocus: FocusRequester,
     modifier: Modifier = Modifier,
 ) {
@@ -1132,12 +1521,16 @@ private fun DubSuggestionCard(
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.92f), shape)
             .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)), shape)
             .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Text(stringResource(R.string.dub_suggest_title), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+        Text(stringResource(R.string.slow_prompt_title), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Button(onClick = onSwitch, modifier = Modifier.focusRequester(primaryFocus)) { Text(stringResource(R.string.dub_suggest_switch)) }
-            TextButton(onClick = onClose) { Text(stringResource(R.string.dub_suggest_close)) }
+            Button(onClick = onEnable, modifier = Modifier.focusRequester(primaryFocus)) {
+                Text(stringResource(R.string.slow_prompt_enable))
+            }
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.slow_prompt_later))
+            }
         }
     }
 }
@@ -1146,6 +1539,9 @@ private fun DubSuggestionCard(
 private fun Controls(
     infoLine: String?,
     speedBadge: String? = null,
+    watchPartyBadge: String? = null,
+    guestNotice: String? = null,
+    estimatedEndText: String? = null,
     title: String,
     isPlaying: Boolean,
     minimal: Boolean,
@@ -1183,7 +1579,7 @@ private fun Controls(
                 Icon(PlayIcons.Back, contentDescription = stringResource(R.string.common_back), tint = tint)
             }
             Column(Modifier.weight(1f).padding(horizontal = 8.dp)) {
-                if (infoLine != null || speedBadge != null) {
+                if (infoLine != null || speedBadge != null || watchPartyBadge != null) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (infoLine != null) {
                             Text(
@@ -1211,6 +1607,22 @@ private fun Controls(
                                 )
                             }
                         }
+                        if (watchPartyBadge != null) {
+                            if (infoLine != null || speedBadge != null) Spacer(Modifier.width(8.dp))
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)),
+                            ) {
+                                Text(
+                                    text = watchPartyBadge,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                )
+                            }
+                        }
                     }
                 }
                 Text(
@@ -1219,6 +1631,24 @@ private fun Controls(
                     color = if (infoLine != null) tint.copy(alpha = 0.75f) else tint,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                )
+                if (guestNotice != null) {
+                    Text(
+                        text = guestNotice,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 2.dp),
+                    )
+                }
+            }
+            if (estimatedEndText != null) {
+                Text(
+                    text = estimatedEndText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = tint.copy(alpha = 0.85f),
+                    textAlign = TextAlign.End,
+                    maxLines = 2,
+                    modifier = Modifier.padding(end = 12.dp),
                 )
             }
         }
@@ -1295,7 +1725,8 @@ private fun BarButton(icon: ImageVector, label: String, onClick: () -> Unit, mod
             text = label,
             style = MaterialTheme.typography.labelMedium,
             color = Color.White,
-            maxLines = 1,
+            maxLines = 2,
+            textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis,
         )
     }

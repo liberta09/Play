@@ -60,6 +60,8 @@ class SourceCoordinatorTest {
         results: Flow<StreamResult>,
         preferDub: Boolean = true,
         autoSource: Boolean = true,
+        autoDubSwitch: Boolean = true,
+        showDubSuggestion: Boolean = autoDubSwitch,
         preference: SourcePref? = null,
         probe: suspend (PlayableStream) -> Long? = { null },
         request: StreamRequest,
@@ -77,6 +79,8 @@ class SourceCoordinatorTest {
             sizeProbe = probe,
             preferDub = preferDub,
             autoSource = autoSource,
+            autoDubSwitch = autoDubSwitch,
+            showDubSuggestion = showDubSuggestion,
             load = { s, p -> loaded += s to p },
             position = { positionMs },
             clock = { scope.testScheduler.currentTime },
@@ -238,10 +242,14 @@ class SourceCoordinatorTest {
         assertEquals("https://a/1", rig.lastUrl)
         rig.coordinator.onFirstFrame()
 
-        // 1. hata: aynı kaynak kaldığı konumdan denenir
+        // 1. hata: aynı kaynak kaldığı konumdan denenir ve bildirim gösterilir
         assertTrue(rig.coordinator.onFailure("ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)"))
         assertEquals("https://a/1", rig.lastUrl)
         assertEquals(20_000L, rig.loaded.last().second)
+        assertEquals(
+            SourceNotice.RetryingCurrent("ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)"),
+            rig.coordinator.notice,
+        )
         advanceTimeBy(SourceCoordinator.STALE_FRAME_GUARD_MS + 100)
         rig.coordinator.onFirstFrame()
 
@@ -329,7 +337,7 @@ class SourceCoordinatorTest {
     }
 
     @Test
-    fun aLateDubbedSourceIsOfferedWithoutStoppingPlayback() = runTest {
+    fun lateDubbedSourceAutoSwitchesWhenPreferDubEnabled() = runTest {
         val sub = stream(source1, "https://a/sub")
         val dub = stream(source2, "https://b/dub", dub = true)
         val rig = Rig(this, flow {
@@ -341,68 +349,271 @@ class SourceCoordinatorTest {
         advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         assertEquals("https://a/sub", rig.lastUrl)
         rig.coordinator.onFirstFrame()
-        assertNull(rig.coordinator.dubSuggestion)
-        advanceTimeBy(3_500)
-        assertEquals(dub, rig.coordinator.dubSuggestion)
-        assertEquals("oynatma kesilmedi", 1, rig.loaded.size)
-
-        // Geç: kaldığı saniyeden devam.
+        rig.coordinator.setAudioTracksEvaluated()
         rig.positionMs = 61_000
-        rig.coordinator.acceptDubSuggestion()
+
+        // 3.5 sn sonra dublajlı kaynak gelir -> sormadan aynı saniyeden otomatik geçiş yapılır
+        advanceTimeBy(3_500)
         assertEquals(dub.url, rig.lastUrl)
         assertEquals(61_000L, rig.loaded.last().second)
+        assertEquals(SourceNotice.DubSwitched, rig.coordinator.notice)
         assertNull(rig.coordinator.dubSuggestion)
-        runCurrent()
-        assertEquals(listOf(dub), rig.remembered)
-        rig.coordinator.onFirstFrame()
-        advanceUntilIdle()
     }
 
     @Test
-    fun dismissingTheDubOfferKeepsItClosed() = runTest {
+    fun noSwitchWhenTurkishAudioAlreadyPlaying() = runTest {
         val sub = stream(source1, "https://a/sub")
-        val dub1 = stream(source2, "https://b/dub", dub = true)
-        val dub2 = stream(StreamSource(3, "C"), "https://c/dub", dub = true)
+        val dub = stream(source2, "https://b/dub", dub = true)
         val rig = Rig(this, flow {
             emit(found(source1, sub))
-            delay(StartPolicy.DUB_WAIT_MS + 2_000)
-            emit(found(source2, dub1))
-            delay(5_000)
-            emit(found(StreamSource(3, "C"), dub2))
+            delay(StartPolicy.DUB_WAIT_MS + 3_000)
+            emit(found(source2, dub))
         }, request = request)
         rig.coordinator.start(null, emptyList(), 0)
         advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         rig.coordinator.onFirstFrame()
-        advanceTimeBy(2_000)
-        assertEquals(dub1, rig.coordinator.dubSuggestion)
-        rig.coordinator.dismissDubSuggestion()
-        advanceUntilIdle()
+        // Gömülü Türkçe ses çalıyor
+        rig.coordinator.setCurrentAudioTurkish(true)
+        val initialLoads = rig.loaded.size
+
+        advanceTimeBy(4_000)
+        assertEquals(initialLoads, rig.loaded.size)
+        assertEquals("https://a/sub", rig.lastUrl)
         assertNull(rig.coordinator.dubSuggestion)
-        assertEquals(1, rig.loaded.size)
     }
 
     @Test
-    fun noOfferWhenAlreadyDubbedOrUserPickedASource() = runTest {
-        val dub = stream(source1, "https://a/dub", dub = true)
-        val sub = stream(source2, "https://b/sub")
-        val dub2 = stream(StreamSource(3, "C"), "https://c/dub", dub = true)
+    fun noSwitchWhenSourceOrAudioManuallyPicked() = runTest {
+        val sub1 = stream(source1, "https://a/sub1")
+        val sub2 = stream(source1, "https://a/sub2")
+        val dub = stream(source2, "https://b/dub", dub = true)
         val rig = Rig(this, flow {
-            emit(found(source1, dub))
-            emit(found(source2, sub))
-            delay(5_000)
-            emit(found(StreamSource(3, "C"), dub2))
+            emit(found(source1, sub1))
+            delay(StartPolicy.DUB_WAIT_MS + 2_000)
+            emit(found(source2, dub))
         }, request = request)
         rig.coordinator.start(null, emptyList(), 0)
-        runCurrent()
-        assertEquals("https://a/dub", rig.lastUrl)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
         rig.coordinator.onFirstFrame()
-        advanceUntilIdle()
-        assertNull("dublajlı oynarken öneri yok", rig.coordinator.dubSuggestion)
 
-        // Elle (altyazılı) seçildiyse yine öneri yok.
-        rig.coordinator.pick(sub)
+        // Kullanıcı elle kaynak seçti
+        rig.coordinator.pick(sub2)
         rig.coordinator.onFirstFrame()
+        assertEquals(sub2.url, rig.lastUrl)
+
+        // Sonradan dublajlı aday gelse bile otomatik geçiş yapılmaz
+        advanceTimeBy(5_000)
+        assertEquals(sub2.url, rig.lastUrl)
         assertNull(rig.coordinator.dubSuggestion)
+    }
+
+    @Test
+    fun noSwitchWhenPreferDubOrAutoDubSwitchDisabled() = runTest {
+        val sub = stream(source1, "https://a/sub")
+        val dub = stream(source2, "https://b/dub", dub = true)
+        val rig = Rig(
+            this,
+            flow {
+                emit(found(source1, sub))
+                delay(StartPolicy.DUB_WAIT_MS + 1_000)
+                emit(found(source2, dub))
+            },
+            preferDub = false,
+            request = request,
+        )
+        rig.coordinator.start(null, emptyList(), 0)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
+        rig.coordinator.onFirstFrame()
+        advanceTimeBy(2_000)
+        assertEquals("https://a/sub", rig.lastUrl)
+        assertNull(rig.coordinator.dubSuggestion)
+    }
+
+    @Test
+    fun failedVerificationRevertsToOriginalAndCandidateNotTriedAgain() = runTest {
+        val sub = stream(source1, "https://a/sub")
+        val dub = stream(source2, "https://b/dub", dub = true)
+        val rig = Rig(this, flow {
+            emit(found(source1, sub))
+            delay(StartPolicy.DUB_WAIT_MS + 2_000)
+            emit(found(source2, dub))
+        }, request = request)
+        rig.coordinator.start(null, emptyList(), 0)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
+        rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
+        val original = rig.coordinator.current!!
+        assertEquals("https://a/sub", original.url)
+
+        // Dublaj geldi, otomatik geçiş yapıldı
+        advanceTimeBy(3_000)
+        assertEquals(dub.url, rig.lastUrl)
+
+        // Doğrulama başarısız oldu: eski çalışan kaynağa dönülür
+        rig.coordinator.switchAfterUnverifiedDub(original)
+        assertEquals("https://a/sub", rig.lastUrl)
+
+        // Aday bu oturumda bir daha denenmez
+        rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
+        advanceTimeBy(15_000)
+        assertEquals("https://a/sub", rig.lastUrl)
+        assertNull(rig.coordinator.dubSuggestion)
+    }
+
+    @Test
+    fun autoDubSwitchLimitsToThreeAndTenSecondsInterval() = runTest {
+        val sub = stream(source1, "https://a/sub")
+        val dub1 = stream(source2, "https://b/dub1", dub = true)
+        val dub2 = stream(StreamSource(3, "C"), "https://c/dub2", dub = true)
+        val dub3 = stream(StreamSource(4, "D"), "https://d/dub3", dub = true)
+        val dub4 = stream(StreamSource(5, "E"), "https://e/dub4", dub = true)
+
+        val rig = Rig(this, flow {
+            emit(found(source1, sub))
+            delay(StartPolicy.DUB_WAIT_MS + 1_000)
+            emit(found(source2, dub1))
+            emit(found(StreamSource(3, "C"), dub2))
+            emit(found(StreamSource(4, "D"), dub3))
+            emit(found(StreamSource(5, "E"), dub4))
+        }, request = request)
+
+        rig.coordinator.start(null, emptyList(), 0)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
+        rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
+        assertEquals("https://a/sub", rig.lastUrl)
+
+        // 1. geçiş: dub1 hemen seçilir (1.5 sn sonra)
+        advanceTimeBy(1_600)
+        assertEquals(dub1.url, rig.lastUrl)
+        advanceTimeBy(400)
+        rig.coordinator.onFirstFrame()
+
+        // Doğrulama başarısız: sub'a dönüldü
+        rig.coordinator.switchAfterUnverifiedDub(sub)
+        advanceTimeBy(400)
+        rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
+        assertEquals(sub.url, rig.lastUrl)
+
+        // 5 sn sonra henüz 10 sn dolmadığı için dub2'ye geçilmemiştir
+        advanceTimeBy(5_000)
+        assertEquals(sub.url, rig.lastUrl)
+
+        // 10 sn aralık dolduğunda (6 sn daha) scheduled job devreye girer -> 2. geçiş: dub2
+        advanceTimeBy(6_000)
+        assertEquals(dub2.url, rig.lastUrl)
+        advanceTimeBy(400)
+        rig.coordinator.onFirstFrame()
+
+        // Doğrulama başarısız: sub'a dönüldü
+        rig.coordinator.switchAfterUnverifiedDub(sub)
+        advanceTimeBy(400)
+        rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
+        assertEquals(sub.url, rig.lastUrl)
+
+        // 11 sn sonra 3. geçiş: dub3
+        advanceTimeBy(11_000)
+        assertEquals(dub3.url, rig.lastUrl)
+        advanceTimeBy(400)
+        rig.coordinator.onFirstFrame()
+
+        // Doğrulama başarısız: sub'a dönüldü
+        rig.coordinator.switchAfterUnverifiedDub(sub)
+        advanceTimeBy(400)
+        rig.coordinator.onFirstFrame()
+        rig.coordinator.setAudioTracksEvaluated()
+        assertEquals(sub.url, rig.lastUrl)
+
+        // 15 sn sonra: oturumda 3 geçiş hakkı dolduğu için 4. geçiş YAPILMAZ! sub'da kalır.
+        advanceTimeBy(15_000)
+        assertEquals(sub.url, rig.lastUrl)
+    }
+
+    @Test
+    fun autoDubSwitchLog_doesNotContainRawUrlPathOrQuery() {
+        val old = stream(source1, "https://old-server.net/path/video.m3u8?token=secret123&signature=abc")
+        val candidate = stream(source2, "https://cdn.example.com:8080/hls/master.m3u8?auth_token=supersecret&key=999", dub = true)
+        val log = SourceCoordinator.formatAutoDubSwitchLog(old, candidate, switchCount = 1)
+
+        assertTrue(log.contains("otomatik dublaj gecisi"))
+        assertTrue(log.contains(source1.addonName))
+        assertTrue(log.contains(source2.addonName))
+        assertTrue(log.contains("old-server.net"))
+        assertTrue(log.contains("cdn.example.com"))
+
+        assertFalse(log.contains("/path/video.m3u8"))
+        assertFalse(log.contains("/hls/master.m3u8"))
+        assertFalse(log.contains("token="))
+        assertFalse(log.contains("secret123"))
+        assertFalse(log.contains("auth_token"))
+        assertFalse(log.contains("supersecret"))
+        assertFalse(log.contains("https://"))
+    }
+
+    @Test
+    fun dubbedCandidateArrivesBeforeAudioTracksEvaluated_waitsAndCancelsIfTurkishOrSwitchesAfter1500ms() = runTest {
+        // Durum 1: Parça listesi Türkçe çıkar -> geçiş HİÇ olmaz
+        val sub1 = stream(source1, "https://a/sub1")
+        val dub1 = stream(source2, "https://b/dub1", dub = true)
+        val rig1 = Rig(this, flow {
+            emit(found(source1, sub1))
+            delay(StartPolicy.DUB_WAIT_MS + 500)
+            emit(found(source2, dub1))
+        }, request = request)
+
+        rig1.coordinator.start(null, emptyList(), 0)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
+        rig1.coordinator.onFirstFrame()
+        assertEquals(sub1.url, rig1.lastUrl)
+
+        // t=500 ms: Dublajlı aday geldi ama ses parçaları henüz değerlendirilmedi -> geçiş BEKLER
+        advanceTimeBy(500)
+        assertEquals(sub1.url, rig1.lastUrl)
+
+        // Ses parçaları değerlendirildi ve Türkçe çıktı
+        rig1.coordinator.setCurrentAudioTurkish(true)
+        rig1.coordinator.setAudioTracksEvaluated(true)
+
+        // 3000 ms daha geçse bile geçiş HİÇ olmaz
+        advanceTimeBy(3_000)
+        assertEquals(sub1.url, rig1.lastUrl)
+        assertEquals(0, rig1.coordinator.autoDubSwitchCount)
+
+        // Durum 2: Parça listesi Türkçe değil -> ilk kareden 1500 ms sonra geçiş olur
+        val sub2 = stream(source1, "https://a/sub2")
+        val dub2 = stream(source2, "https://b/dub2", dub = true)
+        val rig2 = Rig(this, flow {
+            emit(found(source1, sub2))
+            delay(StartPolicy.DUB_WAIT_MS + 500)
+            emit(found(source2, dub2))
+        }, request = request)
+
+        rig2.coordinator.start(null, emptyList(), 0)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
+        rig2.coordinator.onFirstFrame() // t=0 ilk kare
+        assertEquals(sub2.url, rig2.lastUrl)
+
+        // t=450 ms: Dublajlı aday geldi ama ses parçaları henüz değerlendirilmedi -> geçiş YOK
+        advanceTimeBy(450)
+        assertEquals(sub2.url, rig2.lastUrl)
+
+        // t=800 ms (ilk kareden 800 ms sonra): Parça listesi değerlendirildi ve Türkçe DEĞİL
+        advanceTimeBy(350)
+        assertEquals(sub2.url, rig2.lastUrl)
+        rig2.coordinator.setCurrentAudioTurkish(false)
+        rig2.coordinator.setAudioTracksEvaluated(true)
+
+        // Henüz ilk kareden sonra 1500 ms dolmadı (t=1200 ms < 1500 ms) -> geçiş YOK
+        advanceTimeBy(400)
+        assertEquals(sub2.url, rig2.lastUrl)
+
+        // t=1600 ms (ilk kareden sonra 1500 ms aşıldı) -> OTOMATİK GEÇİŞ GERÇEKLEŞİR
+        advanceTimeBy(400)
+        assertEquals(dub2.url, rig2.lastUrl)
+        assertEquals(1, rig2.coordinator.autoDubSwitchCount)
     }
 
     @Test
@@ -992,5 +1203,455 @@ class SourceCoordinatorTest {
         assertEquals(SourcePhase.Playing, rig.coordinator.phase)
         assertEquals("Late source should still be listed", listOf(late), rig.coordinator.streams)
         assertEquals("Background HEAD probes must not compete with video traffic", 0, sizeProbeCalls)
+    }
+
+    @Test
+    fun blockingWrongContentRemovesAddonAndSwitchesAtCurrentPosition() = runTest {
+        val s1a = stream(source1, "https://a/1.mp4", dub = true)
+        val s1b = stream(source1, "https://a/2.mp4", dub = false)
+        val s2 = stream(source2, "https://b/1.mp4", dub = false)
+        val persisted = mutableListOf<StreamSource>()
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, s1a, s1b)); emit(found(source2, s2)) } },
+            preferDub = false,
+            persistSourceBlock = { persisted += it },
+            load = { _, _ -> },
+            position = { 42_000L },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        assertEquals("https://a/1.mp4", coordinator.current?.url)
+        coordinator.onFirstFrame()
+
+        assertTrue(coordinator.blockCurrentSourceAndAdvance())
+        runCurrent()
+        assertEquals(listOf(source1), persisted)
+        assertEquals(SourceNotice.WrongContentBlockedSwitching, coordinator.notice)
+        assertEquals(listOf(s2), coordinator.streams)
+        assertEquals("https://b/1.mp4", coordinator.current?.url)
+
+        // Son kaynak da engellenince başka kaynak yoksa Failed + WrongContentBlockedNone.
+        coordinator.onFirstFrame()
+        assertFalse(coordinator.blockCurrentSourceAndAdvance())
+        runCurrent()
+        assertEquals(SourcePhase.Failed, coordinator.phase)
+        assertEquals(SourceNotice.WrongContentBlockedNone, coordinator.notice)
+    }
+
+    @Test
+    fun blockingWrongContentPausesOnNoneAndWhileWaitingForLateSource() = runTest {
+        val s1 = stream(source1, "https://a/1.mp4")
+        val s2 = stream(source2, "https://b/1.mp4")
+        var pauses = 0
+        val loaded = mutableListOf<Pair<String, Long>>()
+
+        // 1) Yeni kaynak beklenirken duraklatılır; geç kaynak gelince otomatik açılır
+        val waitingCoordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = {
+                flow {
+                    emit(found(source1, s1))
+                    delay(5_000L)
+                    emit(found(source2, s2))
+                }
+            },
+            preferDub = false,
+            load = { stream, pos -> loaded += stream.url to pos },
+            pausePlayback = { pauses++ },
+            position = { 42_000L },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        waitingCoordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        waitingCoordinator.onFirstFrame()
+
+        assertFalse(waitingCoordinator.blockCurrentSourceAndAdvance())
+        runCurrent()
+        assertEquals(1, pauses)
+        assertEquals(SourcePhase.Resolving, waitingCoordinator.phase)
+        assertEquals(SourceNotice.WrongContentBlockedWaiting, waitingCoordinator.notice)
+        assertNull(waitingCoordinator.current)
+
+        advanceTimeBy(5_100L)
+        assertEquals("https://b/1.mp4", loaded.last().first)
+        assertEquals(42_000L, loaded.last().second)
+
+        // 2) Kalan kaynak da bitmişken engellenirse duraklatılır + Failed + WrongContentBlockedNone
+        waitingCoordinator.onFirstFrame()
+        assertFalse(waitingCoordinator.blockCurrentSourceAndAdvance())
+        runCurrent()
+        assertEquals(2, pauses)
+        assertEquals(SourcePhase.Failed, waitingCoordinator.phase)
+        assertEquals(SourceNotice.WrongContentBlockedNone, waitingCoordinator.notice)
+    }
+
+    @Test
+    fun blockingWrongContentDoesNotPauseWhenNextCandidateIsReadyImmediately() = runTest {
+        val s1 = stream(source1, "https://a/1.mp4")
+        val s2 = stream(source2, "https://b/1.mp4")
+        var pauses = 0
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, s1)); emit(found(source2, s2)) } },
+            preferDub = false,
+            load = { _, _ -> },
+            pausePlayback = { pauses++ },
+            position = { 15_000L },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        coordinator.onFirstFrame()
+
+        assertTrue(coordinator.blockCurrentSourceAndAdvance())
+        runCurrent()
+        assertEquals(0, pauses)
+        assertEquals("https://b/1.mp4", coordinator.current?.url)
+    }
+
+    @Test
+    fun blockingWrongContentIsDisabledOnLiveStreams() = runTest {
+        val liveRequest = StreamRequest(0, null, MediaType.Tv, addonType = "tv", pluginId = "cs:1")
+        val liveStream = stream(source1, "https://tv/live.m3u8")
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = liveRequest,
+            streamsFor = { flow { emit(found(source1, liveStream)) } },
+            load = { _, _ -> },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        coordinator.start(liveStream, emptyList(), 0L)
+        runCurrent()
+        assertFalse(coordinator.blockCurrentSourceAndAdvance())
+        assertEquals(liveStream.url, coordinator.current?.url)
+    }
+
+    @Test
+    fun audioSyncReportSwitchesWithoutBlockingAddon() = runTest {
+        val s1a = stream(source1, "https://a/1.mp4", dub = true)
+        val s1b = stream(source1, "https://a/2.mp4", dub = false)
+        val reported = mutableListOf<StreamSource>()
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, s1a, s1b)) } },
+            preferDub = false,
+            persistAudioSyncReport = { reported += it },
+            load = { _, _ -> },
+            position = { 33_000L },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        assertEquals("https://a/1.mp4", coordinator.current?.url)
+        coordinator.onFirstFrame()
+
+        assertTrue(coordinator.reportAudioSyncAndSwitchNext())
+        runCurrent()
+        assertEquals(listOf(source1), reported)
+        assertEquals(SourceNotice.AudioSyncSwitching, coordinator.notice)
+        // Aynı eklenti engellenmez, ikinci akışı s1b açılır ve listede ikisi de kalır.
+        assertEquals("https://a/2.mp4", coordinator.current?.url)
+        assertEquals(2, coordinator.streams.size)
+
+        // Başka aday kalmayınca hata vermez, kısa bildirim gösterir.
+        advanceTimeBy(SourceCoordinator.STALE_FRAME_GUARD_MS + 10L)
+        coordinator.onFirstFrame()
+        assertFalse(coordinator.reportAudioSyncAndSwitchNext())
+        assertEquals(SourceNotice.AudioSyncNoOtherSource, coordinator.notice)
+        assertEquals(SourcePhase.Playing, coordinator.phase)
+    }
+
+    @Test
+    fun reportsAskedAnsweredCountsAndElapsedSecondsWhileResolving() = runTest {
+        val sources = listOf(StreamSource(1L, "A"), StreamSource(2L, "B"), StreamSource(3L, "C"))
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            askedFor = { sources },
+            streamsFor = {
+                flow {
+                    delay(2_000)
+                    emit(StreamResult.Failed(sources[0], FailureReason.Timeout))
+                    delay(1_000)
+                    emit(found(sources[1], stream(sources[1], "https://b/dub.mp4", dub = true)))
+                    delay(10_000)
+                }
+            },
+            preferDub = true,
+            load = { _, _ -> },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+
+        coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        assertEquals(SourcePhase.Resolving, coordinator.phase)
+        assertEquals(3, coordinator.askedCount)
+        assertEquals(0, coordinator.answeredCount)
+        assertEquals(0, coordinator.resolveElapsedSeconds())
+
+        advanceTimeBy(2_000)
+        runCurrent()
+        assertEquals(1, coordinator.answeredCount)
+        assertEquals(2, coordinator.resolveElapsedSeconds())
+
+        advanceTimeBy(1_000)
+        runCurrent()
+        assertEquals(SourcePhase.Starting, coordinator.phase)
+        assertEquals(2, coordinator.answeredCount)
+    }
+
+    @Test
+    fun liveMidPlaybackNetworkFailureSkipsSameSourceRetry() = runTest {
+        val liveReq = StreamRequest(0, null, MediaType.Tv, addonType = "tv", pluginId = "cs:1")
+        val a = stream(source1, "https://tv/1.m3u8")
+        val b = stream(source2, "https://tv/2.m3u8")
+        val rig = Rig(this, flow { emit(found(source1, a, b)) }, request = liveReq)
+        rig.coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        assertEquals("https://tv/1.m3u8", rig.lastUrl)
+        rig.coordinator.onFirstFrame()
+
+        assertTrue(rig.coordinator.onFailure("ERROR_CODE_IO_NETWORK_CONNECTION_CLOSED (-1004)"))
+        assertEquals("https://tv/2.m3u8", rig.lastUrl)
+        assertTrue(rig.coordinator.notice is SourceNotice.StreamDropped)
+    }
+
+    @Test
+    fun midPlaybackDecoderFailureSkipsSameSourceRetry() = runTest {
+        val a = stream(source1, "https://a/1", size = 1_000_000_000L)
+        val b = stream(source2, "https://b/2", size = 2_000_000_000L)
+        val rig = Rig(this, flow { emit(found(source1, a, b)) }, request = request)
+        rig.positionMs = 42_000L
+        rig.coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        rig.coordinator.onFirstFrame()
+
+        assertTrue(rig.coordinator.onFailure("ERROR_CODE_DECODING_FAILED (4003)"))
+        assertEquals("https://b/2", rig.lastUrl)
+        assertEquals(42_000L, rig.loaded.last().second)
+        assertTrue(rig.coordinator.notice is SourceNotice.StreamDropped)
+    }
+
+    @Test
+    fun manualPickMovesToNextCandidateWhenRevertSettingDisabled() = runTest {
+        val source3 = StreamSource(3L, "Üçüncü")
+        val a = stream(source1, "https://a/1", size = 1_000_000_000L)
+        val b = stream(source2, "https://b/2", size = 2_000_000_000L)
+        val c = stream(source3, "https://c/3", size = 1_500_000_000L)
+        var posMs = 30_000L
+        val loaded = mutableListOf<Pair<String, Long>>()
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, a, b, c)) } },
+            preferDub = false,
+            revertOnSelectedFailure = false,
+            load = { s, pos -> loaded += s.url to pos },
+            position = { posMs },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        val initial = coordinator.current!!
+        val remaining = listOf(a, b).first { it.url != initial.url }
+        coordinator.onFirstFrame()
+
+        // initial oynarken kullanıcı C'yi elle seçer; C açılmazsa ayar kapalı olduğu için initial'a dönmek yerine diğer adaya geçilir.
+        coordinator.pick(c)
+        assertEquals("https://c/3", loaded.last().first)
+        assertEquals(30_000L, loaded.last().second)
+
+        assertTrue(coordinator.onFailure("ERROR_CODE_IO_BAD_HTTP_STATUS (2004)"))
+        assertEquals(remaining.url, loaded.last().first)
+        assertEquals(30_000L, loaded.last().second)
+        assertTrue(coordinator.notice is SourceNotice.Skipped)
+    }
+
+    @Test
+    fun autoRetryLimitStopsAfterThreeAttemptsWhileUnlimitedTriesAllFive() = runTest {
+        val candidates = (1..5).map { i -> stream(source1, "https://s/$i") }
+
+        val limitedLoaded = mutableListOf<String>()
+        val limited = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, *candidates.toTypedArray())) } },
+            preferDub = false,
+            autoRetryLimit = 3,
+            load = { s, _ -> limitedLoaded += s.url },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        limited.start(null, emptyList(), 0L)
+        runCurrent()
+        assertEquals(1, limitedLoaded.size)
+        assertTrue(limited.onFailure("fail-1"))
+        assertEquals(2, limitedLoaded.size)
+        assertTrue(limited.onFailure("fail-2"))
+        assertEquals(3, limitedLoaded.size)
+        assertTrue(limited.onFailure("fail-3"))
+        assertEquals(3, limitedLoaded.size)
+        assertEquals(SourcePhase.Failed, limited.phase)
+
+        val unlimitedLoaded = mutableListOf<String>()
+        val unlimited = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, *candidates.toTypedArray())) } },
+            preferDub = false,
+            autoRetryLimit = null,
+            load = { s, _ -> unlimitedLoaded += s.url },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        unlimited.start(null, emptyList(), 0L)
+        runCurrent()
+        repeat(4) { idx ->
+            assertTrue(unlimited.onFailure("fail-${idx + 1}"))
+        }
+        assertEquals(5, unlimitedLoaded.size)
+        assertEquals(SourcePhase.Starting, unlimited.phase)
+    }
+
+    private fun TestScope.verifyHttpThreeRefreshesThenRetrySameThenFallback(primaryUrl: String, fallbackUrl: String) {
+        val primary = stream(source1, primaryUrl, size = 2_000_000_000L)
+        val fallback = stream(source2, fallbackUrl, size = 1_500_000_000L)
+        val rig = Rig(
+            this,
+            flow {
+                emit(found(source1, primary))
+                emit(found(source2, fallback))
+            },
+            preferDub = false,
+            request = request,
+        )
+        rig.coordinator.start(null, emptyList(), 0L)
+        runCurrent()
+        assertEquals(primaryUrl, rig.lastUrl)
+        rig.coordinator.onFirstFrame()
+
+        rig.positionMs = 42_000L
+        val detail = "ERROR_CODE_IO_BAD_HTTP_STATUS (2004) http=503"
+        var recoveryAttempts = 0
+        var lastLoadedUrl: String? = primaryUrl
+
+        fun simulatePlayerHttpError() {
+            val decision = MidPlaybackRecoveryRules.evaluateTransientRecovery(
+                isBehindLive = false,
+                isHttpError = true,
+                recoveryAttempts = recoveryAttempts,
+                released = false,
+            )
+            if (decision == MidPlaybackRecoveryRules.TransientRefreshDecision.RefreshSameStream) {
+                recoveryAttempts++
+                rig.coordinator.onTransientRefresh(detail)
+            } else {
+                val handled = rig.coordinator.onFailure(detail)
+                assertTrue(handled)
+                val nextLoaded = rig.loaded.last().first.url
+                if (nextLoaded != lastLoadedUrl) {
+                    recoveryAttempts = 0
+                    lastLoadedUrl = nextLoaded
+                }
+            }
+        }
+
+        // 1..3: sessiz tazeleme + kısa RetryingCurrent bildirimi; henüz yeniden yükleme/geçiş yapılmaz
+        repeat(3) { idx ->
+            simulatePlayerHttpError()
+            assertEquals(idx + 1, recoveryAttempts)
+            assertEquals(1, rig.loaded.size)
+            assertEquals(SourceNotice.RetryingCurrent(detail), rig.coordinator.notice)
+        }
+
+        // 4. HTTP hatası: 3 tazeleme tükendiği için MidPlaybackRecoveryRules RetrySame aynı kaynağı kaldığı konumdan bir kez daha dener
+        rig.coordinator.clearNotice()
+        simulatePlayerHttpError()
+        assertEquals(2, rig.loaded.size)
+        assertEquals(primaryUrl, rig.loaded.last().first.url)
+        assertEquals(42_000L, rig.loaded.last().second)
+        assertEquals(SourceNotice.RetryingCurrent(detail), rig.coordinator.notice)
+        // Aynı URL ile RetrySame recoveryAttempts sayacını sıfırlamaz: RetrySame hemen HTTP hatası verirse doğrudan yedeğe geçer
+        assertEquals(3, recoveryAttempts)
+
+        // 5. HTTP hatası: yedek kaynağa düşer
+        simulatePlayerHttpError()
+        assertEquals(3, rig.loaded.size)
+        assertEquals(fallbackUrl, rig.loaded.last().first.url)
+        assertEquals(42_000L, rig.loaded.last().second)
+        assertEquals(0, recoveryAttempts)
+        advanceUntilIdle()
+    }
+
+    @Test
+    fun vodHttpFailureDoesThreeTransientRefreshesThenRetrySameThenFallback() = runTest {
+        verifyHttpThreeRefreshesThenRetrySameThenFallback(
+            primaryUrl = "https://cdn.example.com/movie-1080p.mp4",
+            fallbackUrl = "https://mirror.example.com/movie-720p.mp4",
+        )
+    }
+
+    @Test
+    fun localTorrentHttpFailureDoesThreeTransientRefreshesThenRetrySameThenFallback() = runTest {
+        verifyHttpThreeRefreshesThenRetrySameThenFallback(
+            primaryUrl = "http://127.0.0.1:41234/stream.mkv",
+            fallbackUrl = "https://mirror.example.com/movie-720p.mp4",
+        )
+    }
+
+    @Test
+    fun blacklistedHostIsSkippedAutomaticallyButPlaysOnManualPickAndLiftsOnFirstFrame() = runTest {
+        val badUrl = "https://bad.example.com/dub-1080.mp4"
+        val goodUrl = "https://good.example.com/sub-720.mp4"
+        val badStream = stream(source1, badUrl, dub = true, res = 1080)
+        val goodStream = stream(source2, goodUrl, dub = false, res = 720)
+        var state = com.kaan.play.data.stream.SourceHealthState()
+        val now = 5_000_000L
+        repeat(3) {
+            state = com.kaan.play.data.stream.SourceHealthRules.recordFailure(state, source1, badUrl, "HTTP 503", now)
+        }
+        val coordinator = SourceCoordinator(
+            scope = this,
+            request = request,
+            streamsFor = { flow { emit(found(source1, badStream)); emit(found(source2, goodStream)) } },
+            preferDub = true,
+            isBlacklistedHost = { url -> com.kaan.play.data.stream.SourceHealthRules.isUrlBlacklisted(state, url, now) },
+            onSourceFirstFrame = { s -> state = com.kaan.play.data.stream.SourceHealthRules.recordSuccess(state, s.source, s.url, now + 1_000L) },
+            onSourceFailure = { s, detail -> state = com.kaan.play.data.stream.SourceHealthRules.recordFailure(state, s.source, s.url, detail, now + 1_000L) },
+            load = { _, _ -> },
+            clock = { testScheduler.currentTime },
+            rankingDispatcher = Dispatchers.Unconfined,
+        )
+        coordinator.start(null, emptyList(), 0L)
+        advanceTimeBy(StartPolicy.DUB_WAIT_MS + 100)
+
+        // Otomatik seçim engelli badStream (dublajlı) yerine goodStream'i seçer; ancak panel için streams listesinde badStream sona atılmış hâlde durur
+        assertEquals(goodUrl, coordinator.current?.url)
+        assertEquals(listOf(goodStream, badStream), coordinator.ranked())
+
+        // Kullanıcı panelden kara listedeki kaynağı elle seçerse yine açılır
+        coordinator.onFirstFrame()
+        coordinator.pick(badStream)
+        assertEquals(badUrl, coordinator.current?.url)
+
+        // İlk kare gelince kara liste ve ardışık hata sayacı kalkar
+        advanceTimeBy(SourceCoordinator.STALE_FRAME_GUARD_MS + 100)
+        coordinator.onFirstFrame()
+        runCurrent()
+        assertFalse(com.kaan.play.data.stream.SourceHealthRules.isUrlBlacklisted(state, badUrl, now + 1_000L))
+        assertEquals(listOf(badStream, goodStream), coordinator.ranked())
     }
 }

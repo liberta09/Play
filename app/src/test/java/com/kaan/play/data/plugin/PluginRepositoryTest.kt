@@ -415,6 +415,23 @@ class PluginRepositoryTest {
             assertEquals(Kind.KindMismatch, e.kind)
             assertEquals("nuvio_plugin", e.detail)
         }
+
+        // 6. Harici katalog: katalog+stream veren manifestten stream'i atar, stream-only manifesti reddeder:
+        manifestText = """{"id":"org.extcat","name":"Dış Katalog","types":["movie"],"resources":["catalog","stream"],"catalogs":[{"type":"movie","id":"top"}]}"""
+        val extResult = installer.add("https://cat.example/manifest.json", expectedType = SourceType.EXTERNAL_CATALOG)
+        assertEquals(AddResult.Addon("Dış Katalog"), extResult)
+        val storedExt = addonRepo.addons.first().first { it.manifest.id == "org.extcat" }
+        assertTrue(storedExt.manifest.providesCatalogs)
+        assertFalse(storedExt.manifest.providesStreams)
+
+        manifestText = """{"id":"org.streamonly2","name":"Stream","types":["movie"],"resources":["stream"]}"""
+        try {
+            installer.add("https://streamonly.example/manifest.json", expectedType = SourceType.EXTERNAL_CATALOG)
+            fail("yalnızca akış veren eklenti harici katalog olarak eklenemez")
+        } catch (e: AddonException) {
+            assertEquals(Kind.KindMismatch, e.kind)
+            assertEquals("external_catalog", e.detail)
+        }
     }
 
     @Test

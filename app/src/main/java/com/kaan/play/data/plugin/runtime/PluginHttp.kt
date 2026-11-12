@@ -58,7 +58,7 @@ internal class PluginHttp(
     private val tmdbHttpsOnly: Boolean = true,
     private val notes: PluginHttpNotes = PluginHttpNotes(),
 ) {
-    private val client: OkHttpClient = policy.apply(base.newBuilder())
+    private val client: OkHttpClient = policy.withDns(base.dns).apply(base.newBuilder())
         .cookieJar(MemoryCookieJar())
         .callTimeout(limits.requestTimeoutMs, TimeUnit.MILLISECONDS)
         .build()

@@ -1,5 +1,8 @@
 package com.kaan.play.data.tmdb
 
+import com.kaan.play.data.collection.CollectionFolder
+import com.kaan.play.data.collection.CollectionSourceKind
+import com.kaan.play.data.model.AgeRating
 import com.kaan.play.data.model.CastMember
 import com.kaan.play.data.model.Episode
 import com.kaan.play.data.model.HeroItem
@@ -7,8 +10,11 @@ import com.kaan.play.data.model.MediaDetail
 import com.kaan.play.data.model.MediaSummary
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.model.Page
+import com.kaan.play.data.model.PersonDetail
+import com.kaan.play.data.model.PersonRef
 import com.kaan.play.data.model.SeasonDetail
 import com.kaan.play.data.model.SeasonInfo
+import com.kaan.play.data.notify.AiredEpisode
 import com.kaan.play.i18n.UiLanguage
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -34,6 +40,31 @@ class TmdbRepository(
     baseUrl: HttpUrl = TmdbService.DEFAULT_BASE_URL.toHttpUrl(),
 ) {
     private val service = TmdbService(client, json, apiKey, baseUrl)
+    private val trailerCache = java.util.concurrent.ConcurrentHashMap<Pair<MediaType, Int>, String>()
+
+    /**
+     * Hero karuseli için sessiz fragman anahtarı.
+     * Yalnızca o an görünen kapak için istenir, bellekte önbelleğe alınır (aynı kapak için tekrar istek yok).
+     */
+    suspend fun trailerKey(type: MediaType, id: Int): String? {
+        val cacheKey = type to id
+        val cached = trailerCache[cacheKey]
+        if (cached != null) {
+            return cached.takeIf { it.isNotEmpty() }
+        }
+
+        val key = bestEffort {
+            val primary = service.videos(type.tmdbPath, id, lang())
+            pickTrailerKey(primary.results) ?: run {
+                if (lang() != UiLanguage.English.tmdbTag) {
+                    val english = service.videos(type.tmdbPath, id, UiLanguage.English.tmdbTag)
+                    pickTrailerKey(english.results)
+                } else null
+            }
+        }
+        trailerCache[cacheKey] = key ?: ""
+        return key
+    }
 
     suspend fun trending(page: Int = 1): Page<MediaSummary> =
         service.trending(lang(), page).toPage()
@@ -148,6 +179,86 @@ class TmdbRepository(
         )
     }
 
+    /** Kişi detayı + birleşik filmografi; biyografi seçili dilde boşsa İngilizce yedeği alır. */
+    suspend fun person(id: Int): PersonDetail {
+        val primary = service.person(id, lang(), withCredits = true)
+        val fallbackBio = if (needsFallback() && primary.biography.isNullOrBlank()) {
+            bestEffort { service.person(id, UiLanguage.English.tmdbTag, withCredits = false) }?.biography
+        } else {
+            null
+        }
+        return PersonCreditsRules.toPersonDetail(primary, fallbackBiography = fallbackBio)
+    }
+
+    /** İçe aktarılan koleksiyon klasöründeki TMDB kaynaklarından raf sayfası oluşturur. */
+    suspend fun collectionFolder(folder: CollectionFolder, page: Int = 1): Page<MediaSummary> {
+        val combined = mutableListOf<MediaSummary>()
+        var maxTotalPages = 1
+        var hadSuccess = false
+        var lastError: Throwable? = null
+
+        for (source in folder.sources) {
+            try {
+                when (source.kind) {
+                    CollectionSourceKind.List -> {
+                        val id = source.tmdbId ?: continue
+                        if (page == 1) {
+                            combined += service.list(id, lang()).items.mapNotNull { it.toSummary(source.mediaType) }
+                        }
+                        hadSuccess = true
+                    }
+                    CollectionSourceKind.Collection -> {
+                        val id = source.tmdbId ?: continue
+                        if (page == 1) {
+                            combined += service.collection(id, lang()).parts.mapNotNull { it.toSummary(source.mediaType ?: MediaType.Movie) }
+                        }
+                        hadSuccess = true
+                    }
+                    CollectionSourceKind.Discover -> {
+                        val type = source.mediaType ?: continue
+                        val dto = service.discover(type.tmdbPath, lang(), page, source.sortBy, source.filters)
+                        maxTotalPages = maxOf(maxTotalPages, dto.totalPages)
+                        combined += dto.toPage(defaultType = type).items
+                        hadSuccess = true
+                    }
+                    CollectionSourceKind.Single -> {
+                        val id = source.tmdbId ?: continue
+                        val type = source.mediaType ?: continue
+                        if (page == 1) {
+                            service.summaryItem(type.tmdbPath, id, lang()).toSummary(type)?.let { combined += it }
+                        }
+                        hadSuccess = true
+                    }
+                }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (t: Throwable) {
+                lastError = t
+            }
+        }
+
+        if (!hadSuccess && lastError != null) throw lastError
+
+        return Page(
+            items = combined.distinctBy { it.type to it.id },
+            page = page,
+            totalPages = maxTotalPages,
+        )
+    }
+
+    /** Yalnızca TMDB'den son yayınlanmış bölüm üst bilgisini döner (arka plan bölüm denetimi için hafif istek). */
+    suspend fun latestAiredEpisode(tvId: Int): AiredEpisode? {
+        val dto = service.detail(MediaType.Tv.tmdbPath, tvId, lang(), imageLanguages())
+        val last = dto.lastEpisodeToAir ?: return null
+        val seriesTitle = (dto.name ?: dto.title).orEmpty()
+        return AiredEpisode(
+            season = last.seasonNumber,
+            episode = last.episodeNumber,
+            airDate = last.airDate,
+            seriesTitle = seriesTitle,
+        )
+    }
+
     private fun lang(): String = language().tmdbTag
 
     private fun needsFallback(): Boolean = language() != UiLanguage.English
@@ -209,9 +320,13 @@ private fun DetailDto.toDetail(
     },
     logoPath = images?.logos?.let { pickLogo(it, language.iso) },
     certification = certificationFor(type, language),
+    ageRating = ageRatingFor(type),
     directors = credits?.crew.orEmpty().filter { it.job == "Director" }.names(),
     writers = credits?.crew.orEmpty().filter { it.job in WRITER_JOBS }.names(),
     creators = createdBy.mapNotNull { it.name }.names(),
+    directorRefs = credits?.crew.orEmpty().filter { it.job == "Director" }.crewRefs(),
+    writerRefs = credits?.crew.orEmpty().filter { it.job in WRITER_JOBS }.crewRefs(),
+    creatorRefs = createdBy.personRefs(),
     cast = credits?.cast.orEmpty()
         .filter { !it.name.isNullOrBlank() }
         .sortedBy { it.order }
@@ -229,12 +344,16 @@ private fun DetailDto.toDetail(
         recommendations = recommendations?.results.orEmpty().mapNotNull { it.toSummary(type) },
         similar = similar?.results.orEmpty().mapNotNull { it.toSummary(type) },
     ),
-    trailerKey = videos?.results.orEmpty()
-        .filter { it.site.equals("YouTube", ignoreCase = true) && !it.key.isNullOrBlank() }
-        .sortedWith(compareByDescending<VideoDto> { it.type.equals("Trailer", ignoreCase = true) }
-            .thenByDescending { it.official == true })
-        .firstOrNull()?.key,
+    trailerKey = pickTrailerKey(videos?.results),
 )
+
+internal fun pickTrailerKey(videos: List<VideoDto>?): String? = videos.orEmpty()
+    .filter { it.site.equals("YouTube", ignoreCase = true) && !it.key.isNullOrBlank() }
+    .sortedWith(
+        compareByDescending<VideoDto> { it.type.equals("Trailer", ignoreCase = true) }
+            .thenByDescending { it.official == true },
+    )
+    .firstOrNull()?.key
 
 /** Alternatif başlıklar: önce Türkiye/ABD/Birleşik Krallık kayıtları, sonra diğerleri; boşlar atılır, yinelenenler [com.kaan.play.data.match.ContentIdentity] eler. */
 private fun DetailDto.alternativeTitleList(): List<String> {
@@ -254,24 +373,44 @@ private fun List<CrewDto>.names(): List<String> = mapNotNull { it.name }.names()
 
 private fun List<String>.names(): List<String> = filter { it.isNotBlank() }.distinct().take(NAMES_COUNT)
 
+private fun List<CrewDto>.crewRefs(): List<PersonRef> =
+    mapNotNull { c -> c.name?.trim()?.takeIf { it.isNotEmpty() }?.let { PersonRef(c.id, it) } }
+        .distinctBy { if (it.id > 0) "id:${it.id}" else "name:${it.name}" }
+        .take(NAMES_COUNT)
+
+private fun List<PersonDto>.personRefs(): List<PersonRef> =
+    mapNotNull { p -> p.name?.trim()?.takeIf { it.isNotEmpty() }?.let { PersonRef(p.id, it) } }
+        .distinctBy { if (it.id > 0) "id:${it.id}" else "name:${it.name}" }
+        .take(NAMES_COUNT)
+
 /**
  * Yaş sınırı: arayüz dilinin ülkesi (TR / US), yoksa ABD; boş değerler atlanır. Filmde `release_dates`,
  * dizide `content_ratings` okunur.
  */
 private fun DetailDto.certificationFor(type: MediaType, language: UiLanguage): String? {
     val regions = listOf(language.region, UiLanguage.English.region).distinct()
-    val byRegion: Map<String, String> = when (type) {
-        MediaType.Movie -> releaseDates?.results.orEmpty().mapNotNull { c ->
-            val cert = c.releases.firstNotNullOfOrNull { it.certification?.trim()?.takeIf(String::isNotEmpty) }
-            if (c.country != null && cert != null) c.country to cert else null
-        }
-        MediaType.Tv -> contentRatings?.results.orEmpty().mapNotNull { c ->
-            val cert = c.rating?.trim()?.takeIf(String::isNotEmpty)
-            if (c.country != null && cert != null) c.country to cert else null
-        }
-    }.toMap()
+    val byRegion = certificationMap(type)
     return regions.firstNotNullOfOrNull { byRegion[it] }
 }
+
+/** Oynatma başlangıcındaki yaş sınırı etiketi: önce TR, yoksa US. */
+private fun DetailDto.ageRatingFor(type: MediaType): AgeRating? {
+    val byRegion = certificationMap(type)
+    return listOf("TR", "US").firstNotNullOfOrNull { region ->
+        byRegion[region]?.let { cert -> AgeRating(cert, region) }
+    }
+}
+
+private fun DetailDto.certificationMap(type: MediaType): Map<String, String> = when (type) {
+    MediaType.Movie -> releaseDates?.results.orEmpty().mapNotNull { c ->
+        val cert = c.releases.firstNotNullOfOrNull { it.certification?.trim()?.takeIf(String::isNotEmpty) }
+        if (c.country != null && cert != null) c.country to cert else null
+    }
+    MediaType.Tv -> contentRatings?.results.orEmpty().mapNotNull { c ->
+        val cert = c.rating?.trim()?.takeIf(String::isNotEmpty)
+        if (c.country != null && cert != null) c.country to cert else null
+    }
+}.toMap()
 
 /** TMDB `include_image_language` değeri: arayüz dili, İngilizce, dilsiz. */
 internal fun imageLanguagesFor(language: UiLanguage): String =

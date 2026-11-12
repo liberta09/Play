@@ -1,8 +1,11 @@
 package com.kaan.play.data.provider
 
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.stream.StreamRequest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -73,6 +76,129 @@ class LiveCatalogRulesTest {
             ),
         )
         assertEquals(listOf("live"), LiveCatalogRules.onlyLiveRows(listOf(row)).single().items.map { it.id })
+    }
+
+    @Test
+    fun channelGroupKeyNormalizesAndMatchesCanonicalPrefixes() {
+        assertEquals(LiveCatalogRules.channelGroupKey("TRT 1"), LiveCatalogRules.channelGroupKey("TRT 1 HD"))
+        assertEquals(LiveCatalogRules.channelGroupKey("kanal d"), LiveCatalogRules.channelGroupKey("Kanal D FHD"))
+        assertEquals(LiveCatalogRules.channelGroupKey("bein sports 1"), LiveCatalogRules.channelGroupKey("beIN Sports 1 HD"))
+        assertNotEquals(LiveCatalogRules.channelGroupKey("bein sports 1"), LiveCatalogRules.channelGroupKey("bein sports 2"))
+        assertNotEquals(LiveCatalogRules.channelGroupKey("TRT 1"), LiveCatalogRules.channelGroupKey("TRT 2"))
+
+        // Uzun önek önceliği ("trt spor yildiz" > "trt spor") ve Türkçe karakterler
+        assertEquals("trtsporyildiz", LiveCatalogRules.channelGroupKey("TRT Spor Yıldız 1080p"))
+        assertEquals("trtspor", LiveCatalogRules.channelGroupKey("TRT Spor 4K"))
+        assertEquals("beinsports1", LiveCatalogRules.channelGroupKey("beIN Sports 1 UHD"))
+        assertEquals("powerturk", LiveCatalogRules.channelGroupKey("Power Türk 720p"))
+        assertEquals("trtmuzik", LiveCatalogRules.channelGroupKey("TRT Müzik HD"))
+        assertEquals("customsporttv", LiveCatalogRules.channelGroupKey("Custom Sport TV 576p"))
+    }
+
+    @Test
+    fun routeForEnforcesProviderAndFieldRules() {
+        val nuvio = CatalogItem(
+            id = " ch_1 ",
+            title = " TRT 1 ",
+            mediaType = MediaType.Tv,
+            providerId = " nuvio_addon:5 ",
+            rawUrl = "https://ignored.example/raw",
+            addonType = "CHANNEL",
+        )
+        assertEquals(
+            LiveSourceRoute(pluginId = "nuvio_addon:5", addonType = "channel", contentId = "ch_1", dataUrl = null),
+            LiveCatalogRules.routeFor(nuvio),
+        )
+
+        val nuvioInvalidTypeFallsBackToTv = nuvio.copy(addonType = "movie")
+        assertEquals("tv", LiveCatalogRules.routeFor(nuvioInvalidTypeFallsBackToTv)?.addonType)
+
+        val cs = CatalogItem(
+            id = "ignored_id",
+            title = "Kanal D",
+            mediaType = MediaType.Tv,
+            providerId = "cs:12",
+            rawUrl = " https://cs.example/kanald ",
+            addonType = null,
+        )
+        assertEquals(
+            LiveSourceRoute(
+                pluginId = "cs:12",
+                addonType = "tv",
+                contentId = "https://cs.example/kanald",
+                dataUrl = "https://cs.example/kanald",
+            ),
+            LiveCatalogRules.routeFor(cs),
+        )
+
+        assertNull(LiveCatalogRules.routeFor(nuvio.copy(providerId = "nuvio_addon:0")))
+        assertNull(LiveCatalogRules.routeFor(nuvio.copy(providerId = "nuvio_addon:-3")))
+        assertNull(LiveCatalogRules.routeFor(nuvio.copy(id = "  ")))
+        assertNull(LiveCatalogRules.routeFor(cs.copy(rawUrl = "  ")))
+        assertNull(LiveCatalogRules.routeFor(cs.copy(rawUrl = null)))
+        assertNull(LiveCatalogRules.routeFor(cs.copy(title = "  ")))
+        assertNull(LiveCatalogRules.routeFor(cs.copy(providerId = "unknown:1")))
+    }
+
+    @Test
+    fun isLiveRequestValidatesAllFields() {
+        val valid = StreamRequest(
+            tmdbId = 0,
+            imdbId = null,
+            type = MediaType.Tv,
+            pluginId = "nuvio_addon:1",
+            addonType = "TV",
+            addonContentId = "ch1",
+        )
+        assertTrue(LiveCatalogRules.isLiveRequest(valid))
+        assertTrue(LiveCatalogRules.isLiveRequest(valid.copy(tmdbId = -5, addonType = "Channel")))
+        assertFalse(LiveCatalogRules.isLiveRequest(valid.copy(tmdbId = 1)))
+        assertFalse(LiveCatalogRules.isLiveRequest(valid.copy(type = MediaType.Movie)))
+        assertFalse(LiveCatalogRules.isLiveRequest(valid.copy(addonType = "series")))
+        assertFalse(LiveCatalogRules.isLiveRequest(valid.copy(addonType = null)))
+        assertFalse(LiveCatalogRules.isLiveRequest(valid.copy(pluginId = "  ")))
+        assertFalse(LiveCatalogRules.isLiveRequest(valid.copy(pluginId = null)))
+    }
+
+    @Test
+    fun mergeChannelsCombinesSameGroupKeyAndPicksFirstTitleAndNonBlankLogo() {
+        val fromNuvio = CatalogItem(
+            id = "n_trt1",
+            title = "TRT 1 HD",
+            posterUrl = "  ",
+            mediaType = MediaType.Tv,
+            providerId = "nuvio_addon:1",
+            addonType = "tv",
+        )
+        val fromCs = CatalogItem(
+            id = "cs_trt1",
+            title = "TRT 1 FHD",
+            posterUrl = "https://img.example/trt1.png",
+            mediaType = MediaType.Tv,
+            providerId = "cs:2",
+            rawUrl = "https://cs.example/trt1",
+            addonType = "channel",
+        )
+        val trt2 = CatalogItem(
+            id = "n_trt2",
+            title = "TRT 2",
+            posterUrl = null,
+            mediaType = MediaType.Tv,
+            providerId = "nuvio_addon:1",
+            addonType = "tv",
+        )
+
+        val merged = LiveCatalogRules.mergeChannels(listOf(fromNuvio, fromCs, trt2))
+
+        assertEquals(2, merged.size)
+        val ch1 = merged[0]
+        assertEquals("trt1", ch1.channelKey)
+        assertEquals("TRT 1 HD", ch1.title)
+        assertEquals("https://img.example/trt1.png", ch1.logoUrl)
+        assertEquals(2, ch1.routes.size)
+        assertEquals("nuvio_addon:1", ch1.routes[0].pluginId)
+        assertEquals("cs:2", ch1.routes[1].pluginId)
+        assertEquals("trt2", merged[1].channelKey)
     }
 
     private fun item(id: String, title: String, type: String, mediaType: MediaType = MediaType.Movie) =

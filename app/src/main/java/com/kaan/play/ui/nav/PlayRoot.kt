@@ -47,11 +47,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import com.kaan.play.ui.theme.homeBackdropBrush
 import com.kaan.play.ui.theme.topBarBorderColor
 import com.kaan.play.ui.theme.topBarSurfaceColor
+import com.kaan.play.ui.tv.LocalNavBarPosition
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.NavigationRail
@@ -111,6 +116,7 @@ import com.kaan.play.data.tmdb.TmdbException
 import com.kaan.play.ui.player.PlaySession
 import com.kaan.play.ui.player.formatTime
 import com.kaan.play.ui.addons.AddonsScreen
+import com.kaan.play.ui.addons.CollectionsScreen
 import com.kaan.play.ui.addons.CsReposScreen
 import com.kaan.play.ui.addons.AddonDetailScreen
 import com.kaan.play.ui.addons.InstalledAddonsScreen
@@ -118,9 +124,11 @@ import com.kaan.play.ui.addons.NuvioPluginsScreen
 import com.kaan.play.ui.addons.NuvioReposScreen
 import com.kaan.play.ui.addons.PluginSettingsScreen
 import com.kaan.play.ui.addons.RepositoriesScreen
+import com.kaan.play.ui.addons.SourceHealthScreen
 import com.kaan.play.data.plugin.AddResult
 import com.kaan.play.data.plugin.DeepLinkEvent
 import com.kaan.play.ui.detail.DetailScreen
+import com.kaan.play.ui.detail.PersonScreen
 import com.kaan.play.ui.detail.ProviderDetailScreen
 import com.kaan.play.ui.home.CategoryScreen
 import com.kaan.play.ui.home.HomeRow
@@ -133,12 +141,16 @@ import com.kaan.play.ui.tv.TvScreen
 import com.kaan.play.ui.settings.AboutScreen
 import com.kaan.play.ui.settings.PlayerSettingsScreen
 import com.kaan.play.ui.settings.SettingsScreen
+import com.kaan.play.ui.settings.NetworkSettingsScreen
 import com.kaan.play.ui.settings.SpeedTestScreen
 import com.kaan.play.ui.settings.ProfileScreen
 import com.kaan.play.ui.settings.SyncScreen
+import com.kaan.play.ui.settings.ThemeSettingsScreen
 import com.kaan.play.ui.settings.ProfileChooserScreen
 import com.kaan.play.ui.settings.ProfileSetupScreen
 import com.kaan.play.ui.addons.RepoManagerCatalogScreen
+import com.kaan.play.ui.addons.WebSitesScreen
+import com.kaan.play.ui.settings.WifiSyncScreen
 import com.kaan.play.data.sync.LocalProfileSummary
 import kotlinx.coroutines.flow.first
 import com.kaan.play.ui.sources.SourcesSheet
@@ -151,21 +163,37 @@ private const val PROFILE_ROUTE = "settings/profile"
 private const val SYNC_ROUTE = "settings/sync"
 private const val REPO_MANAGER_CATALOG_ROUTE = "settings/addons/catalog"
 private const val ADDONS_ROUTE = "settings/addons?add={add}"
+private const val ADDONS_COLLECTIONS_ROUTE = "settings/addons/collections"
 private const val ADDONS_REPOS_ROUTE = "settings/addons/repos"
 private const val ADDONS_INSTALLED_ROUTE = "settings/addons/installed"
 private const val CS_REPOS_ROUTE = "settings/addons/csrepos"
 private const val NUVIO_REPOS_ROUTE = "settings/addons/nuviorepos"
 private const val NUVIO_PLUGINS_ROUTE = "settings/addons/nuvioplugins"
+private const val SOURCE_HEALTH_ROUTE = "settings/addons/health"
+private const val NETWORK_SETTINGS_ROUTE = "settings/addons/network"
 private const val PLUGIN_ROUTE = "settings/addons/plugin/{id}"
 private const val ADDON_DETAIL_ROUTE = "settings/addons/detail/{id}"
 private const val PLAYER_SETTINGS_ROUTE = "settings/player"
+private const val THEME_SETTINGS_ROUTE = "settings/theme"
+private const val WATCH_PARTY_ROUTE = "watch_party"
 private const val ABOUT_ROUTE = "settings/about"
+private const val WEBSITES_ROUTE = "settings/websites"
+private const val WIFI_SYNC_ROUTE = "settings/wifi-sync"
 private const val DETAIL_ROUTE = "detail/{type}/{id}"
+private const val PERSON_ROUTE = "person/{id}?name={name}"
 private const val PROVIDER_DETAIL_ROUTE = "provider_detail/{providerId}/{encodedUrl}"
 private const val CATEGORY_ROUTE = "home/category/{row}"
 
 /** Kaynak seçimine giden iş: hedef, başlangıç konumu ve konumun sormadan (otomatik) seçilip seçilmediği. */
-private data class PlayStart(val target: PlayTarget, val startMs: Long, val autoResumed: Boolean)
+private data class PlayStart(
+    val target: PlayTarget,
+    val startMs: Long,
+    val autoResumed: Boolean,
+    val liveChannelKey: String? = null,
+    val liveZapKey: String? = null,
+    val liveZapIndex: Int = -1,
+    val liveCatalogId: String? = null,
+)
 
 /** "Devam / baştan" sorusu; [download] doluysa seçim indirilmiş kopya için. */
 private data class ResumeAsk(val target: PlayTarget, val positionMs: Long, val download: DownloadEntity?)
@@ -236,6 +264,7 @@ fun PlayRoot() {
     val profiles by container.localProfile.profiles.collectAsStateWithLifecycle(initialValue = emptyList())
     val activeProfile by container.localProfile.activeProfile.collectAsStateWithLifecycle(initialValue = null)
     val rememberLastProfile by container.settings.rememberLastProfile.collectAsStateWithLifecycle(initialValue = true)
+    val navPosition by container.settings.navBarPosition.collectAsStateWithLifecycle(initialValue = NavBarPosition.DEFAULT)
     var profileGate by remember { mutableStateOf(false) }
     var gateDecided by remember { mutableStateOf(false) }
     var showProfileSetup by remember { mutableStateOf(false) }
@@ -343,6 +372,16 @@ fun PlayRoot() {
         if (pendingAddonUrl != null) openAddons(startAdding = false)
     }
 
+    // Yeni bölüm bildirimine dokunulunca (MainActivity -> pendingSeriesDetailId) doğrudan o dizinin detayını aç.
+    val pendingSeriesDetailId by container.pendingSeriesDetailId.collectAsStateWithLifecycle()
+    LaunchedEffect(pendingSeriesDetailId, gateDecided, profileGate, showProfileSetup) {
+        val seriesId = pendingSeriesDetailId
+        if (gateDecided && !profileGate && !showProfileSetup && seriesId != null) {
+            container.pendingSeriesDetailId.value = null
+            openDetail(MediaType.Tv, seriesId)
+        }
+    }
+
     // play://add deep link onayından sonra ilgili bölüme otomatik geçiş
     LaunchedEffect(container.deepLinks) {
         container.deepLinks.events.collect { event ->
@@ -370,9 +409,19 @@ fun PlayRoot() {
 
     // Oynat: aktif eklenti yoksa tek yol eklenti eklemektir. [download] verilirse (indirilen) eklenti gerekmez ve kaynak seçimi
     // atlanır. Aynı içerik yarım izlenmişse önce "devam / baştan" sorulur ([startAtMs] verilmişse sorulmaz).
-    fun play(target: PlayTarget, startAtMs: Long? = null, autoResumed: Boolean = false, download: DownloadEntity? = null) {
+    fun play(
+        target: PlayTarget,
+        startAtMs: Long? = null,
+        autoResumed: Boolean = false,
+        download: DownloadEntity? = null,
+        liveChannelKey: String? = null,
+        liveZapKey: String? = null,
+        liveZapIndex: Int = -1,
+        liveCatalogId: String? = null,
+    ) {
         scope.launch {
             if (download == null && target.request.pluginId == null && !container.hasEnabledSources()) {
+                com.kaan.play.data.provider.LiveZapListHolder.remove(liveZapKey)
                 openAddons(startAdding = true)
                 return@launch
             }
@@ -381,11 +430,21 @@ fun PlayRoot() {
             val autoSource = container.settings.autoSource.first()
             fun begin(startMs: Long, auto: Boolean) {
                 when {
-                    download != null -> playOffline(download, startMs, auto)
+                    download != null -> {
+                        com.kaan.play.data.provider.LiveZapListHolder.remove(liveZapKey)
+                        playOffline(download, startMs, auto)
+                    }
                     autoSource -> context.startActivity(
-                        PlaySession(target, stream = null, startPositionMs = startMs, autoResumed = auto, autoSource = true).toIntent(context),
+                        PlaySession(
+                            target = target,
+                            stream = null,
+                            startPositionMs = startMs,
+                            autoResumed = auto,
+                            autoSource = true,
+                            liveChannelKey = liveChannelKey,
+                        ).toIntent(context, zapKey = liveZapKey, zapIndex = liveZapIndex, liveCatalogId = liveCatalogId),
                     )
-                    else -> sourcesFor = PlayStart(target, startMs, auto)
+                    else -> sourcesFor = PlayStart(target, startMs, auto, liveChannelKey, liveZapKey, liveZapIndex, liveCatalogId)
                 }
             }
             if (startAtMs == null) {
@@ -408,7 +467,12 @@ fun PlayRoot() {
     fun playDownload(download: DownloadEntity) = play(download.toTarget(), download = download)
 
     /** TV katalog öğesi TMDB içeriği değildir; addonContentId ile doğrudan canlı akış aranır. */
-    fun playLiveChannel(item: CatalogItem) {
+    fun playLiveChannel(
+        item: CatalogItem,
+        zapChannels: List<com.kaan.play.data.provider.LiveZapChannel>,
+        zapIndex: Int,
+        liveCatalogId: String? = null,
+    ) {
         val target = PlayTarget(
             request = StreamRequest(
                 tmdbId = 0,
@@ -421,9 +485,14 @@ fun PlayRoot() {
                 title = item.title,
             ),
             title = item.title,
-            posterPath = null,
+            posterPath = item.posterUrl,
         )
-        play(target)
+        val channelKey = com.kaan.play.data.provider.LiveCatalogRules.channelGroupKey(item.title)
+            .ifBlank { "${item.providerId.trim()}:${item.id.trim()}" }
+        val zapKey = if (zapChannels.isNotEmpty()) {
+            com.kaan.play.data.provider.LiveZapListHolder.put(zapChannels)
+        } else null
+        play(target, liveChannelKey = channelKey, liveZapKey = zapKey, liveZapIndex = zapIndex, liveCatalogId = liveCatalogId)
     }
 
     // Geçmiş/"devam et" kaydından oynatma. IMDb kimliği için TMDB'ye bir kez sorulur; olmazsa detay açılır.
@@ -457,11 +526,21 @@ fun PlayRoot() {
             }
             // Kart/satır kayıtlı konumdan sormadan başlatır: oynatıcıda "Baştan başla" bildirimi çıkar.
             val target = PlayTarget(
-                request = StreamRequest(entry.tmdbId, detail.imdbId, entry.type, season, episode),
+                request = StreamRequest(
+                    tmdbId = entry.tmdbId,
+                    imdbId = detail.imdbId,
+                    type = entry.type,
+                    season = season,
+                    episode = episode,
+                    title = entry.title,
+                    year = detail.summary.year,
+                ),
                 title = entry.title,
                 posterPath = entry.posterPath,
                 logoPath = detail.logoPath,
                 backdropPath = detail.summary.backdropPath,
+                ageRating = detail.ageRating?.rating,
+                ageRatingRegion = detail.ageRating?.region,
             )
             play(target, startAt, autoResumed = true)
         }
@@ -506,7 +585,15 @@ fun PlayRoot() {
     fun onSourcePicked(stream: PlayableStream) {
         val start = sourcesFor ?: return
         sourcesFor = null
-        context.startActivity(PlaySession(start.target, stream, start.startMs, start.autoResumed).toIntent(context))
+        context.startActivity(
+            PlaySession(
+                start.target,
+                stream,
+                start.startMs,
+                start.autoResumed,
+                liveChannelKey = start.liveChannelKey,
+            ).toIntent(context, zapKey = start.liveZapKey, zapIndex = start.liveZapIndex, liveCatalogId = start.liveCatalogId),
+        )
     }
 
     val layout = rememberPlayLayout()
@@ -523,6 +610,12 @@ fun PlayRoot() {
     var onHomeScrollToTop: (suspend () -> Unit)? by remember { mutableStateOf(null) }
 
     fun returnFocusToContent(): Boolean {
+        val exitDirection = when (NavBarRules.menuExitDirection(navPosition)) {
+            EdgeDirection.Down -> FocusDirection.Down
+            EdgeDirection.Up -> FocusDirection.Up
+            EdgeDirection.Right -> FocusDirection.Right
+            EdgeDirection.Left -> FocusDirection.Left
+        }
         val initialSuccess = runCatching { currentContentFocusRequester.requestFocus() }.getOrDefault(false)
         val isHome = currentRoute == Tab.Home.route || currentRoute == null
         val scrollAction = onHomeScrollToTop
@@ -533,7 +626,7 @@ fun PlayRoot() {
             isScrolled = scrollAction != null,
         )
         if (com.kaan.play.BuildConfig.DEBUG) {
-            android.util.Log.d("PlayFocus", "returnFocusToContent: step=$step route=$currentRoute initialSuccess=$initialSuccess")
+            android.util.Log.d("PlayFocus", "returnFocusToContent: step=$step route=$currentRoute initialSuccess=$initialSuccess pos=$navPosition")
         }
         return when (step) {
             TopBarFocusRules.Step.INITIAL_TARGET -> true
@@ -546,26 +639,31 @@ fun PlayRoot() {
                         android.util.Log.d("PlayFocus", "returnFocusToContent: retryAfterScroll=$retry")
                     }
                     if (!retry) {
-                        focusManager.moveFocus(FocusDirection.Down)
+                        focusManager.moveFocus(exitDirection)
                     }
                 }
                 true
             }
             TopBarFocusRules.Step.MOVE_FOCUS_DOWN -> {
-                focusManager.moveFocus(FocusDirection.Down)
+                focusManager.moveFocus(exitDirection)
             }
         }
     }
 
-    // Kumanda: odak üst menüdeyken Geri uygulamadan çıkarmaz, odağı içeriğe döndürür.
+    // Kumanda: odak gezinti çubuğundayken Geri uygulamadan çıkarmaz, odağı içeriğe döndürür.
     BackHandler(enabled = topBarHasFocus && !isSubScreen) {
         returnFocusToContent()
     }
     val avatarKey = activeProfile?.avatar ?: "space_astro"
     fun selected(tab: Tab) = currentRoute == tab.route || currentRoute?.startsWith(tab.route + "/") == true || currentRoute?.startsWith(tab.route + "?") == true
 
+    val isHome = currentRoute == Tab.Home.route || currentRoute == null
+    val contentPad = NavBarRules.contentPaddingDp(navPosition, showNav, isHome)
+    val navStripHomeBackdrop = isHome && showNav && NavBarRules.isVerticalStrip(navPosition)
+
     // Ana sayfa, Detay ve yüzen üst menü durum çubuğunun arkasına uzanır.
     val bleedsUnderStatusBar = showNav || currentRoute == Tab.Home.route || currentRoute == DETAIL_ROUTE
+    CompositionLocalProvider(LocalNavBarPosition provides navPosition) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = if (bleedsUnderStatusBar) {
@@ -578,13 +676,20 @@ fun PlayRoot() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .then(if (navStripHomeBackdrop) Modifier.background(homeBackdropBrush()) else Modifier)
                 .padding(padding),
         ) {
-            // İçerik alanı: tüm genişliği kullanır; Ana sayfa dışında yüzen üst menünün altından başlar
+            // İçerik alanı: konum kurallarına göre kenar/alt/üst boşluk bırakır; Alt konumda Ana sayfa zemin fırçası taşsın diye
+            // alt dolgu HomeContent/ProviderPillButton içinde uygulanır.
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = if (showNav && currentRoute != Tab.Home.route) 58.dp else 0.dp),
+                    .padding(
+                        top = contentPad.top.dp,
+                        start = contentPad.start.dp,
+                        end = contentPad.end.dp,
+                        bottom = if (isHome) 0.dp else contentPad.bottom.dp,
+                    ),
             ) {
                 NavHost(
                     navController = navController,
@@ -659,10 +764,17 @@ fun PlayRoot() {
                 ReadableWidth {
                     SettingsScreen(
                         onOpenAddons = { navController.navigate(addonsRoute(false)) },
+                        onOpenCollections = { navController.navigate(ADDONS_COLLECTIONS_ROUTE) },
+                        onOpenWebSites = { navController.navigate(WEBSITES_ROUTE) },
+                        onOpenSourceHealth = { navController.navigate(SOURCE_HEALTH_ROUTE) },
                         onOpenPlayer = { navController.navigate(PLAYER_SETTINGS_ROUTE) },
+                        onOpenTheme = { navController.navigate(THEME_SETTINGS_ROUTE) },
+                        onOpenNetwork = { navController.navigate(NETWORK_SETTINGS_ROUTE) },
                         onOpenSpeedTest = { navController.navigate(SPEED_TEST_ROUTE) },
                         onOpenProfile = { profileGate = true },
                         onOpenSync = { navController.navigate(SYNC_ROUTE) },
+                        onOpenWifiSync = { navController.navigate(WIFI_SYNC_ROUTE) },
+                        onOpenWatchParty = { navController.navigate(WATCH_PARTY_ROUTE) },
                         onOpenAbout = { navController.navigate(ABOUT_ROUTE) },
                         contentFocusRequester = settingsFocusRequester,
                         topBarFocusRequester = topBarFocusRequester,
@@ -670,6 +782,19 @@ fun PlayRoot() {
                 }
             }
             composable(PLAYER_SETTINGS_ROUTE) { ReadableWidth { PlayerSettingsScreen(onBack = { navController.popBackStack() }) } }
+            composable(THEME_SETTINGS_ROUTE) { ReadableWidth { ThemeSettingsScreen(onBack = { navController.popBackStack() }) } }
+            composable(WATCH_PARTY_ROUTE) {
+                ReadableWidth {
+                    com.kaan.play.ui.party.WatchPartyScreen(
+                        container = container,
+                        onBack = { navController.popBackStack() },
+                        onOpenMedia = { tmdbId, mediaType, season, episode ->
+                            val isTv = mediaType == "tv"
+                            openDetail(if (isTv) MediaType.Tv else MediaType.Movie, tmdbId)
+                        },
+                    )
+                }
+            }
             composable(
                 route = ADDONS_ROUTE,
                 arguments = listOf(navArgument("add") { type = NavType.BoolType; defaultValue = false }),
@@ -684,7 +809,42 @@ fun PlayRoot() {
                         onOpenNuvioRepos = { navController.navigate(NUVIO_REPOS_ROUTE) },
                         onOpenNuvioPlugins = { navController.navigate(NUVIO_PLUGINS_ROUTE) },
                         onOpenCatalog = { navController.navigate(REPO_MANAGER_CATALOG_ROUTE) },
+                        onOpenCollections = { navController.navigate(ADDONS_COLLECTIONS_ROUTE) },
+                        onOpenSourceHealth = { navController.navigate(SOURCE_HEALTH_ROUTE) },
+                        onOpenNetwork = { navController.navigate(NETWORK_SETTINGS_ROUTE) },
                     )
+                }
+            }
+            composable(ADDONS_COLLECTIONS_ROUTE) {
+                ReadableWidth {
+                    CollectionsScreen(
+                        onBack = { navController.popBackStack() },
+                        container = rememberContainer(),
+                    )
+                }
+            }
+            composable(SOURCE_HEALTH_ROUTE) {
+                ReadableWidth {
+                    SourceHealthScreen(onBack = { navController.popBackStack() })
+                }
+            }
+            composable(NETWORK_SETTINGS_ROUTE) {
+                ReadableWidth {
+                    NetworkSettingsScreen(
+                        onBack = { navController.popBackStack() },
+                        onOpenSpeedTest = { navController.navigate(SPEED_TEST_ROUTE) },
+                        onOpenSlowConnection = { navController.navigate(PLAYER_SETTINGS_ROUTE) },
+                    )
+                }
+            }
+            composable(WEBSITES_ROUTE) {
+                ReadableWidth {
+                    WebSitesScreen(onBack = { navController.popBackStack() })
+                }
+            }
+            composable(WIFI_SYNC_ROUTE) {
+                ReadableWidth {
+                    WifiSyncScreen(onBack = { navController.popBackStack() })
                 }
             }
             composable(ADDONS_REPOS_ROUTE) {
@@ -782,7 +942,24 @@ fun PlayRoot() {
                     onBack = { navController.popBackStack() },
                     onOpenSimilar = ::openDetail,
                     onOpenActor = { name -> navController.navigate("search?q=${Uri.encode(name)}") },
+                    onOpenPerson = { personId, personName -> navController.navigate("person/$personId?name=${Uri.encode(personName)}") },
                     onPlay = { target -> play(target) },
+                )
+            }
+            composable(
+                route = PERSON_ROUTE,
+                arguments = listOf(
+                    navArgument("id") { type = NavType.IntType },
+                    navArgument("name") { type = NavType.StringType; defaultValue = "" },
+                ),
+            ) { entry ->
+                val personId = entry.arguments?.getInt("id") ?: 0
+                val name = entry.arguments?.getString("name").orEmpty()
+                PersonScreen(
+                    personId = personId,
+                    initialName = name,
+                    onBack = { navController.popBackStack() },
+                    onOpenDetail = ::openDetail,
                 )
             }
             composable(
@@ -810,9 +987,21 @@ fun PlayRoot() {
         }
             }
 
-            // Yüzen üst menü (hap): ana sekmeler + profil. Kumandayla sağ-sol gezilir, aşağı içeriğe iner.
+            // Yüzen gezinti çubuğu: Üst / Alt / Sol / Sağ konumlarında ana sekmeler + profil.
             if (showNav) {
-                PlayTopBar(
+                val barModifier = Modifier
+                    .onFocusChanged { topBarHasFocus = it.hasFocus }
+                    .let { m ->
+                        when (navPosition) {
+                            NavBarPosition.Top -> m.align(Alignment.TopCenter).statusBarsPadding().padding(top = 10.dp)
+                            NavBarPosition.Bottom -> m.align(Alignment.BottomCenter).padding(bottom = 10.dp)
+                            NavBarPosition.Left -> m.align(Alignment.CenterStart).statusBarsPadding().padding(start = 8.dp)
+                            NavBarPosition.Right -> m.align(Alignment.CenterEnd).statusBarsPadding().padding(end = 8.dp)
+                        }
+                    }
+                    .zIndex(100f)
+                PlayNavBar(
+                    position = navPosition,
                     currentRoute = currentRoute,
                     avatarKey = avatarKey,
                     onOpenTab = ::openTab,
@@ -821,20 +1010,49 @@ fun PlayRoot() {
                     topBarFocusRequester = topBarFocusRequester,
                     profileFocusRequester = profileFocusRequester,
                     pillFocusRequester = pillFocusRequester.takeIf { currentRoute == Tab.Home.route || currentRoute == null },
-                    onDown = ::returnFocusToContent,
-                    modifier = Modifier
-                        .onFocusChanged { topBarHasFocus = it.hasFocus }
-                        .align(Alignment.TopCenter)
-                        .statusBarsPadding()
-                        .padding(top = 10.dp)
-                        .zIndex(100f),
+                    onExitToContent = ::returnFocusToContent,
+                    modifier = barModifier,
                 )
             }
         }
     }
+    }
 
     sourcesFor?.let { start ->
         SourcesSheet(target = start.target, onDismiss = { sourcesFor = null }, onPicked = ::onSourcePicked)
+    }
+
+    val partyCodePending by container.pendingPartyCode.collectAsStateWithLifecycle()
+    partyCodePending?.let { code ->
+        AlertDialog(
+            onDismissRequest = { container.pendingPartyCode.value = null },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            textContentColor = MaterialTheme.colorScheme.onSurface,
+            title = { Text(stringResource(R.string.watch_party_deeplink_confirm_title)) },
+            text = { Text(stringResource(R.string.watch_party_deeplink_confirm_message, code)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    container.pendingPartyCode.value = null
+                    scope.launch {
+                        val res = container.watchPartyManager.joinParty(code)
+                        res.onSuccess { room ->
+                            openDetail(if (room.mediaType == "tv") MediaType.Tv else MediaType.Movie, room.tmdbId)
+                        }.onFailure { err ->
+                            android.widget.Toast.makeText(context, err.message, android.widget.Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }) {
+                    Text(stringResource(R.string.watch_party_deeplink_confirm_join))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { container.pendingPartyCode.value = null }) {
+                    Text(stringResource(R.string.watch_party_deeplink_confirm_cancel))
+                }
+            },
+        )
     }
 
     resumePrompt?.let { (target, positionMs, download) ->
@@ -859,13 +1077,45 @@ fun PlayRoot() {
     }
 }
 
+private data class NavEntrySpec(
+    val icon: ImageVector?,
+    val label: String,
+    val selected: Boolean,
+    val focusRequester: FocusRequester?,
+    val isProfile: Boolean = false,
+    val onClick: () -> Unit,
+)
+
+@Composable
+private fun rememberNavEntries(
+    currentRoute: String?,
+    topBarFocusRequester: FocusRequester,
+    profileFocusRequester: FocusRequester,
+    onOpenTab: (Tab) -> Unit,
+    onOpenProfile: () -> Unit,
+): List<NavEntrySpec> {
+    val homeSelected = currentRoute == Tab.Home.route || currentRoute == null
+    val searchSelected = currentRoute == Tab.Search.route || currentRoute?.startsWith("search") == true
+    val tvSelected = currentRoute == Tab.Tv.route || currentRoute?.startsWith("tv") == true
+    val librarySelected = currentRoute == Tab.Library.route || currentRoute?.startsWith("library") == true
+    val settingsSelected = currentRoute == Tab.Settings.route || currentRoute?.startsWith("settings") == true
+    return listOf(
+        NavEntrySpec(PlayIcons.Home, stringResource(R.string.tab_home), homeSelected, topBarFocusRequester.takeIf { homeSelected }) { onOpenTab(Tab.Home) },
+        NavEntrySpec(PlayIcons.Search, stringResource(R.string.tab_search), searchSelected, topBarFocusRequester.takeIf { searchSelected }) { onOpenTab(Tab.Search) },
+        NavEntrySpec(PlayIcons.Tv, stringResource(R.string.tab_tv), tvSelected, topBarFocusRequester.takeIf { tvSelected }) { onOpenTab(Tab.Tv) },
+        NavEntrySpec(PlayIcons.Folder, stringResource(R.string.tab_library), librarySelected, topBarFocusRequester.takeIf { librarySelected }) { onOpenTab(Tab.Library) },
+        NavEntrySpec(PlayIcons.Gear, stringResource(R.string.tab_settings), settingsSelected, topBarFocusRequester.takeIf { settingsSelected }) { onOpenTab(Tab.Settings) },
+        NavEntrySpec(null, stringResource(R.string.tab_profile), false, profileFocusRequester, isProfile = true, onClick = onOpenProfile),
+    )
+}
+
 /**
- * Ekranın üstünde yüzen hap menü: Ana sayfa, Ara, Canlı TV, Kütüphane, Ayarlar ve profil avatarı.
- * Kumanda: sağ-sol öğeler arasında gezer, aşağı (ve içerik tarafında yukarı) [contentFocusRequester] / [topBarFocusRequester]
- * köprüsüyle içerik ile menü arasında geçer.
+ * Konumlanabilir yüzen gezinti çubuğu: Üst / Alt konumda hap menü, Sol / Sağ konumda dikey şerit.
+ * Kumanda ile öğeler arasında gezinir ve içerik–menü köprüleriyle [contentFocusRequester] hedeflerine geçer.
  */
 @Composable
-fun PlayTopBar(
+fun PlayNavBar(
+    position: NavBarPosition,
     currentRoute: String?,
     avatarKey: String,
     onOpenTab: (Tab) -> Unit,
@@ -874,34 +1124,89 @@ fun PlayTopBar(
     topBarFocusRequester: FocusRequester,
     profileFocusRequester: FocusRequester,
     pillFocusRequester: FocusRequester?,
-    onDown: () -> Boolean = { false },
+    onExitToContent: () -> Boolean = { false },
     modifier: Modifier = Modifier,
 ) {
+    val entries = rememberNavEntries(currentRoute, topBarFocusRequester, profileFocusRequester, onOpenTab, onOpenProfile)
+    val verticalStrip = NavBarRules.isVerticalStrip(position)
+    val exitKey = when (NavBarRules.menuExitDirection(position)) {
+        EdgeDirection.Down -> Key.DirectionDown
+        EdgeDirection.Up -> Key.DirectionUp
+        EdgeDirection.Right -> Key.DirectionRight
+        EdgeDirection.Left -> Key.DirectionLeft
+    }
+    val shape = if (verticalStrip) RoundedCornerShape(24.dp) else CircleShape
+    val shadowsEnabled = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.shadowsAndEffectsEnabled
     Surface(
-        modifier = modifier.shadow(12.dp, CircleShape),
-        shape = CircleShape,
+        modifier = modifier.let { if (shadowsEnabled) it.shadow(12.dp, shape) else it },
+        shape = shape,
         color = topBarSurfaceColor(),
         border = BorderStroke(1.dp, topBarBorderColor()),
     ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 10.dp, vertical = 6.dp)
-                .focusProperties { down = contentFocusRequester },
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            val homeSelected = currentRoute == Tab.Home.route || currentRoute == null
-            val searchSelected = currentRoute == Tab.Search.route || currentRoute?.startsWith("search") == true
-            val tvSelected = currentRoute == Tab.Tv.route || currentRoute?.startsWith("tv") == true
-            val librarySelected = currentRoute == Tab.Library.route || currentRoute?.startsWith("library") == true
-            val settingsSelected = currentRoute == Tab.Settings.route || currentRoute?.startsWith("settings") == true
-            PlayTopBarItem(PlayIcons.Home, stringResource(R.string.tab_home), homeSelected, contentFocusRequester, topBarFocusRequester.takeIf { homeSelected }, onDown = onDown) { onOpenTab(Tab.Home) }
-            PlayTopBarItem(PlayIcons.Search, stringResource(R.string.tab_search), searchSelected, contentFocusRequester, topBarFocusRequester.takeIf { searchSelected }, onDown = onDown) { onOpenTab(Tab.Search) }
-            PlayTopBarItem(PlayIcons.Tv, stringResource(R.string.tab_tv), tvSelected, contentFocusRequester, topBarFocusRequester.takeIf { tvSelected }, onDown = onDown) { onOpenTab(Tab.Tv) }
-            PlayTopBarItem(PlayIcons.Folder, stringResource(R.string.tab_library), librarySelected, contentFocusRequester, topBarFocusRequester.takeIf { librarySelected }, onDown = onDown) { onOpenTab(Tab.Library) }
-            PlayTopBarItem(PlayIcons.Gear, stringResource(R.string.tab_settings), settingsSelected, contentFocusRequester, topBarFocusRequester.takeIf { settingsSelected }, onDown = onDown) { onOpenTab(Tab.Settings) }
-            PlayTopBarItem(null, stringResource(R.string.tab_profile), false, contentFocusRequester, profileFocusRequester, avatarKey = avatarKey, rightFocusRequester = pillFocusRequester, onDown = onDown, onClick = onOpenProfile)
+        if (verticalStrip) {
+            CappedFontScale {
+                Column(
+                    modifier = Modifier
+                        .width(74.dp)
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 6.dp, vertical = 10.dp)
+                        .navItemExitFocus(position, contentFocusRequester),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    entries.forEach { entry ->
+                        PlayVerticalNavItem(
+                            entry = entry,
+                            avatarKey = avatarKey,
+                            position = position,
+                            exitKey = exitKey,
+                            contentFocusRequester = contentFocusRequester,
+                            onExitToContent = onExitToContent,
+                        )
+                    }
+                }
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+                    .navItemExitFocus(position, contentFocusRequester),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                entries.forEach { entry ->
+                    PlayTopBarItem(
+                        icon = entry.icon,
+                        contentDescription = entry.label,
+                        selected = entry.selected,
+                        position = position,
+                        exitKey = exitKey,
+                        contentFocusRequester = contentFocusRequester,
+                        itemFocusRequester = entry.focusRequester,
+                        avatarKey = avatarKey.takeIf { entry.isProfile },
+                        rightFocusRequester = pillFocusRequester.takeIf { entry.isProfile },
+                        onExitToContent = onExitToContent,
+                        onClick = entry.onClick,
+                    )
+                }
+            }
         }
+    }
+}
+
+private fun Modifier.navItemExitFocus(
+    position: NavBarPosition,
+    contentFocusRequester: FocusRequester,
+    rightFocusRequester: FocusRequester? = null,
+): Modifier = focusProperties {
+    when (NavBarRules.menuExitDirection(position)) {
+        EdgeDirection.Down -> down = contentFocusRequester
+        EdgeDirection.Up -> up = contentFocusRequester
+        EdgeDirection.Right -> right = contentFocusRequester
+        EdgeDirection.Left -> left = contentFocusRequester
+    }
+    if (rightFocusRequester != null && !NavBarRules.isVerticalStrip(position)) {
+        right = rightFocusRequester
     }
 }
 
@@ -910,11 +1215,13 @@ private fun PlayTopBarItem(
     icon: ImageVector?,
     contentDescription: String,
     selected: Boolean,
+    position: NavBarPosition,
+    exitKey: Key,
     contentFocusRequester: FocusRequester,
     itemFocusRequester: FocusRequester?,
     avatarKey: String? = null,
     rightFocusRequester: FocusRequester? = null,
-    onDown: () -> Boolean = { false },
+    onExitToContent: () -> Boolean = { false },
     onClick: () -> Unit,
 ) {
     var boxFocused by remember { mutableStateOf(false) }
@@ -928,13 +1235,10 @@ private fun PlayTopBarItem(
         modifier = Modifier
             .size(42.dp)
             .then(if (itemFocusRequester != null) Modifier.focusRequester(itemFocusRequester) else Modifier)
-            .focusProperties {
-                down = contentFocusRequester
-                if (rightFocusRequester != null) right = rightFocusRequester
-            }
+            .navItemExitFocus(position, contentFocusRequester, rightFocusRequester)
             .onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
-                    onDown()
+                if (event.type == KeyEventType.KeyDown && event.key == exitKey) {
+                    onExitToContent()
                 } else {
                     false
                 }
@@ -942,7 +1246,7 @@ private fun PlayTopBarItem(
             .onFocusChanged {
                 boxFocused = it.isFocused
                 if (it.isFocused && com.kaan.play.BuildConfig.DEBUG) {
-                    android.util.Log.d("PlayFocus", "PlayTopBarItem focused: $contentDescription")
+                    android.util.Log.d("PlayFocus", "PlayNavBarItem focused: $contentDescription")
                 }
             }
             .tvFocusableScaleGlow(
@@ -958,7 +1262,7 @@ private fun PlayTopBarItem(
                 indication = null,
                 onClick = {
                     if (com.kaan.play.BuildConfig.DEBUG) {
-                        android.util.Log.d("PlayFocus", "PlayTopBarItem click: $contentDescription")
+                        android.util.Log.d("PlayFocus", "PlayNavBarItem click: $contentDescription")
                     }
                     onClick()
                 },
@@ -968,6 +1272,78 @@ private fun PlayTopBarItem(
             ProfileAvatar(avatar = avatarKey, size = 34)
         } else if (icon != null) {
             Icon(imageVector = icon, contentDescription = contentDescription, tint = tint, modifier = Modifier.size(22.dp))
+        }
+    }
+}
+
+@Composable
+private fun PlayVerticalNavItem(
+    entry: NavEntrySpec,
+    avatarKey: String,
+    position: NavBarPosition,
+    exitKey: Key,
+    contentFocusRequester: FocusRequester,
+    onExitToContent: () -> Boolean,
+) {
+    var boxFocused by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val interactionFocused by interactionSource.collectIsFocusedAsState()
+    val focused = boxFocused || interactionFocused
+    val tint = if (focused || entry.selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+    val showLabel = NavBarRules.showStripItemLabel(focused = focused, selected = entry.selected)
+    val itemShape = RoundedCornerShape(14.dp)
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .width(62.dp)
+            .then(if (entry.focusRequester != null) Modifier.focusRequester(entry.focusRequester) else Modifier)
+            .navItemExitFocus(position, contentFocusRequester)
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown && event.key == exitKey) {
+                    onExitToContent()
+                } else {
+                    false
+                }
+            }
+            .onFocusChanged { boxFocused = it.isFocused }
+            .tvFocusableScaleGlow(
+                scale = 1.06f,
+                glowColor = MaterialTheme.colorScheme.primary,
+                shape = itemShape,
+                isFocused = focused,
+                zIndex = 10f,
+                fillGlowAlpha = 0.16f,
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = entry.onClick,
+            )
+            .padding(vertical = 7.dp, horizontal = 4.dp),
+    ) {
+        if (entry.isProfile) {
+            ProfileAvatar(avatar = avatarKey, size = 28)
+        } else if (entry.icon != null) {
+            Icon(
+                imageVector = entry.icon,
+                contentDescription = entry.label,
+                tint = tint,
+                modifier = Modifier.size(22.dp),
+            )
+        }
+        if (showLabel) {
+            Text(
+                text = entry.label,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                color = tint,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 2.dp),
+            )
         }
     }
 }

@@ -40,8 +40,8 @@ android {
         applicationId = "com.kaan.play"
         minSdk = 24
         targetSdk = 37
-        versionCode = 35
-        versionName = "1.2.8"
+        versionCode = 36
+        versionName = "1.3.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -86,6 +86,7 @@ android {
     }
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -145,6 +146,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)
+    implementation(libs.okhttp.dnsoverhttps)
     // Android Harmony DOM uyumlu yamalanmış Jsoup (W3CDom NPE düzeltmesi)
     implementation(files("libs/jsoup-1.23.2-patched.jar"))
     implementation(libs.quickjs.kt)
@@ -157,6 +159,11 @@ dependencies {
     // CloudStream resmi kütüphanesi (GPL-3.0) ve NiceHttp
     implementation(libs.cloudstream.library)
     implementation(libs.nicehttp)
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs.nio)
+
+    // YouTube fragman akış çözümü için NewPipeExtractor (GPL-3.0)
+    implementation(libs.newpipe.extractor)
 
 
     // Yerleşik torrent motoru: Java API + işlemci başına yerel kütüphane (.so).

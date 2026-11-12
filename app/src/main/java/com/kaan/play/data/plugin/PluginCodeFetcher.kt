@@ -29,7 +29,7 @@ class OkHttpPluginCodeFetcher(
 
     override suspend fun fetch(url: String, allowPrivateHost: String?): String = withContext(Dispatchers.IO) {
         val policy = NetworkPolicy(allowPrivateHosts = setOfNotNull(allowPrivateHost))
-        val client = policy.apply(base.newBuilder()).build()
+        val client = policy.withDns(base.dns).apply(base.newBuilder()).build()
         val request = Request.Builder().url(url).header("Accept", "text/javascript, application/javascript, */*").get().build()
         try {
             policy.execute(client, request).use { response ->

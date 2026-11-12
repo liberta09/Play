@@ -26,6 +26,7 @@ fun AddonException.userMessage(): String = when (kind) {
         "cloudstream" -> stringResource(R.string.addon_error_mismatch_cloudstream)
         "nuvio_repo" -> stringResource(R.string.addon_error_mismatch_nuvio_repo)
         "nuvio_plugin" -> stringResource(R.string.addon_error_mismatch_nuvio_plugin)
+        "external_catalog" -> stringResource(R.string.addon_error_mismatch_external_catalog)
         else -> stringResource(R.string.addon_error_unsupported_kind)
     }
 }

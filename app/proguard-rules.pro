@@ -95,6 +95,7 @@
 -dontwarn javax.script.**
 -dontwarn org.mozilla.javascript.**
 -dontwarn org.schabi.newpipe.**
+-keep class org.schabi.newpipe.extractor.** { *; }
 -dontwarn com.fleeksoft.ksoup.**
 -dontwarn dev.whyoleg.cryptography.**
 

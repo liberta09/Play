@@ -38,6 +38,7 @@ sealed interface AddDialogState {
         val busy: Boolean = false,
         val error: AddonException? = null,
         val suggestedType: SourceType? = null,
+        val customErrorMessage: String? = null,
     ) : AddDialogState
 }
 
@@ -105,7 +106,34 @@ class AddonsViewModel(
 
     fun onInputChange(text: String) {
         _dialog.update {
-            if (it is AddDialogState.Input) it.copy(input = text, error = null, suggestedType = null) else it
+            if (it is AddDialogState.Input) it.copy(input = text, error = null, suggestedType = null, customErrorMessage = null) else it
+        }
+    }
+
+    fun setCustomError(message: String) {
+        _dialog.update {
+            if (it is AddDialogState.Input) it.copy(busy = false, error = null, customErrorMessage = message) else it
+        }
+    }
+
+    fun importFromFile(rawJson: String, byteSize: Long, store: com.kaan.play.data.catalog.ExternalCatalogStore, context: android.content.Context) {
+        val current = _dialog.value as? AddDialogState.Input ?: return
+        _dialog.value = current.copy(busy = true, error = null, customErrorMessage = null)
+        submitJob = viewModelScope.launch {
+            try {
+                val entity = store.importCatalog(rawJson, byteSize)
+                _dialog.value = null
+                _added.emit(AddResult.Addon(entity.name))
+            } catch (e: com.kaan.play.data.catalog.ExternalCatalogException) {
+                val msg = context.getString(e.messageRes())
+                _dialog.update {
+                    if (it is AddDialogState.Input) it.copy(busy = false, error = null, customErrorMessage = msg) else it
+                }
+            } catch (t: Throwable) {
+                _dialog.update {
+                    if (it is AddDialogState.Input) it.copy(busy = false, error = null, customErrorMessage = t.message ?: "Hata") else it
+                }
+            }
         }
     }
 
@@ -203,14 +231,16 @@ class InstalledAddonsViewModel(
     }
 }
 
-/** CloudStream depo yönetimi: listele ve kaldır. */
+/** CloudStream depo yönetimi: listele ve kaldır (varsa alt depoları basamaklı silme onayıyla). */
 class CsReposViewModel(private val csRepos: CsRepository) : ViewModel() {
 
     val repos: StateFlow<List<CsRepo>?> =
         csRepos.repos.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    fun remove(repo: CsRepo) {
-        viewModelScope.launch { csRepos.remove(repo.id) }
+    suspend fun removableSubRepoCount(repo: CsRepo): Int = csRepos.removableSubRepos(repo).size
+
+    fun remove(repo: CsRepo, cascadeSubRepos: Boolean = false) {
+        viewModelScope.launch { csRepos.remove(repo.id, cascadeSubRepos = cascadeSubRepos) }
     }
 }
 

@@ -41,6 +41,10 @@ internal class TmdbService(
     suspend fun images(type: String, id: Int, language: String, imageLanguages: String): ImagesDto =
         get("$type/$id/images", ImagesDto.serializer(), language, "include_image_language" to imageLanguages)
 
+    /** Fragman ve tanıtım videoları (`movie/$id/videos` veya `tv/$id/videos`). */
+    suspend fun videos(type: String, id: Int, language: String): VideosDto =
+        get("$type/$id/videos", VideosDto.serializer(), language)
+
     /** [kind]: `multi` (film + dizi + kişi), `movie` ya da `tv`. */
     suspend fun search(query: String, language: String, page: Int, kind: String = "multi"): ListDto =
         get(
@@ -87,6 +91,48 @@ internal class TmdbService(
 
     suspend fun season(tvId: Int, season: Int, language: String): SeasonDetailDto =
         get("tv/$tvId/season/$season", SeasonDetailDto.serializer(), language)
+
+    /** Tek istekte kişi bilgisi + birleşik film/dizi filmografisi. */
+    suspend fun person(id: Int, language: String, withCredits: Boolean = true): PersonDetailDto =
+        if (withCredits) {
+            get(
+                "person/$id",
+                PersonDetailDto.serializer(),
+                language,
+                "append_to_response" to "combined_credits",
+            )
+        } else {
+            get("person/$id", PersonDetailDto.serializer(), language)
+        }
+
+    suspend fun list(id: Int, language: String): TmdbListDetailDto =
+        get("list/$id", TmdbListDetailDto.serializer(), language)
+
+    suspend fun collection(id: Int, language: String): TmdbCollectionDetailDto =
+        get("collection/$id", TmdbCollectionDetailDto.serializer(), language)
+
+    suspend fun discover(
+        type: String,
+        language: String,
+        page: Int,
+        sortBy: String? = null,
+        filters: Map<String, String> = emptyMap(),
+    ): ListDto {
+        val params = buildList {
+            add("include_adult" to "false")
+            add("page" to page.toString())
+            sortBy?.takeIf { it.isNotBlank() }?.let { add("sort_by" to it) }
+            filters.forEach { (key, value) ->
+                if (key in com.kaan.play.data.collection.CollectionJsonParser.ALLOWED_DISCOVER_FILTERS && value.isNotBlank()) {
+                    add(key to value)
+                }
+            }
+        }
+        return get("discover/$type", ListDto.serializer(), language, *params.toTypedArray())
+    }
+
+    suspend fun summaryItem(type: String, id: Int, language: String): ItemDto =
+        get("$type/$id", ItemDto.serializer(), language)
 
     private suspend fun <T> get(
         path: String,

@@ -1,5 +1,8 @@
 package com.kaan.play.data.library
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
 import com.kaan.play.data.db.FavoriteDao
 import com.kaan.play.data.db.FavoriteEntity
 import com.kaan.play.data.db.WatchHistoryDao
@@ -10,6 +13,11 @@ import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.model.SeasonDetail
 import com.kaan.play.data.stream.PlayTarget
 import com.kaan.play.data.stream.StreamRequest
+import com.kaan.play.data.sync.HistoryBackup
+import com.kaan.play.data.sync.LocalProfileBackup
+import com.kaan.play.data.sync.LocalProfileRepository
+import com.kaan.play.data.sync.LocalProfileSummary
+import com.kaan.play.data.sync.local.LocalSyncMerge
 import com.kaan.play.data.tmdb.TmdbException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -114,6 +122,19 @@ private class FakeFavorites : FavoriteDao {
     override suspend fun clear(userId: String, profileId: String) {
         rows.value = rows.value.filterNot { it.userId == userId && it.profileId == profileId }
     }
+
+    override suspend fun distinctByType(
+        type: MediaType,
+        limit: Int,
+    ): List<com.kaan.play.data.db.SeriesFavoriteRef> =
+        rows.value
+            .filter { it.type == type }
+            .groupBy { it.tmdbId }
+            .values
+            .map { group -> group.maxBy { it.addedAt } }
+            .sortedByDescending { it.addedAt }
+            .take(limit)
+            .map { com.kaan.play.data.db.SeriesFavoriteRef(it.tmdbId, it.title) }
 }
 
 class WatchRulesTest {
@@ -476,5 +497,137 @@ class LibraryManagementTest {
         assertEquals(120_000L, retrieved?.positionMs)
         assertEquals(1, retrieved?.season)
         assertEquals(3, retrieved?.episode)
+    }
+
+    @Test
+    fun markAsWatchedSetsPositionEqualToDurationAndKeepsFavoritesIndependent() = runTest {
+        repo.saveProgress(movie(7), 45_000L, 120_000L)
+        val resumeItem = ContinueItem.Resume(repo.latestPerContent.first().single())
+
+        repo.addHistoryToFavorites(resumeItem.entry)
+        assertTrue(repo.isFavorite(MediaType.Movie, 7).first())
+
+        repo.markAsWatched(resumeItem)
+        val updated = repo.progress(movie(7))!!
+        assertEquals(120_000L, updated.durationMs)
+        assertEquals(updated.durationMs, updated.positionMs)
+
+        repo.saveProgress(episode(10, 1, 1), 99_000L, 100_000L)
+        val ep1 = repo.latestPerContent.first().first { it.tmdbId == 10 }
+        repo.markAsWatched(ContinueItem.Next(ep1, season = 1, episode = 2))
+        val ep2 = repo.progress(episode(10, 1, 2))!!
+        assertEquals(ep2.durationMs, ep2.positionMs)
+    }
+
+    @Test
+    fun clearFavoritesRemovesAllFavoritesWithoutTouchingHistory() = runTest {
+        repo.saveProgress(movie(3), 45_000L, 120_000L)
+        repo.setFavorite(summary(3), true)
+        assertTrue(repo.isFavorite(MediaType.Movie, 3).first())
+
+        repo.clearFavorites()
+
+        assertFalse(repo.isFavorite(MediaType.Movie, 3).first())
+        assertTrue(repo.allFavorites.first().isEmpty())
+        assertEquals(1, repo.watchHistory.first().size)
+    }
+
+    @Test
+    fun clearHistoryWritesTombstonesInBatchSoRemoteSyncDoesNotRestoreThem() = runTest {
+        val store = object : DataStore<Preferences> {
+            private val state = MutableStateFlow(emptyPreferences())
+            var writeCount = 0
+            override val data: Flow<Preferences> = state
+            override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
+                writeCount++
+                return transform(state.value).also { state.value = it }
+            }
+        }
+        val profileRepo = LocalProfileRepository(store)
+        val userId = profileRepo.ensureUserId()
+        val profileId = profileRepo.ensureId()
+
+        var now = 1_000_000_000_000L
+        val syncedRepo = LibraryRepository(history, favorites, profile = profileRepo, clock = { ++now })
+        syncedRepo.saveProgress(movie(101), 60_000, 600_000)
+        syncedRepo.saveProgress(movie(102), 60_000, 600_000)
+        syncedRepo.saveProgress(episode(103, 1, 2), 60_000, 600_000)
+        assertEquals(3, syncedRepo.watchHistory.first().size)
+
+        store.writeCount = 0
+        syncedRepo.clearHistory()
+
+        assertTrue(syncedRepo.watchHistory.first().isEmpty())
+        assertEquals(1, store.writeCount)
+        val tombstones = profileRepo.allDeletedHistory()
+        assertEquals(3, tombstones.size)
+        assertEquals(setOf(101 to "movie", 102 to "movie", 103 to "tv"), tombstones.map { it.tmdbId to it.type }.toSet())
+        assertTrue(tombstones.all { it.profileId == profileId && it.userId == userId })
+
+        val profiles = listOf(LocalProfileSummary(profileId, LocalProfileRepository.DEFAULT_NAME))
+        val local = LocalSyncMerge.snapshot(
+            profiles = profiles,
+            libraries = mapOf(profileId to LocalProfileBackup()),
+            sources = emptyList(),
+            deviceName = "A",
+            deletedHistory = tombstones,
+        )
+        val remote = LocalSyncMerge.snapshot(
+            profiles = profiles,
+            libraries = mapOf(
+                profileId to LocalProfileBackup(
+                    history = listOf(
+                        HistoryBackup(101, "movie", 0, 0, 60_000, 600_000, 1_000_000_000_001L, "Film 101", null),
+                        HistoryBackup(102, "movie", 0, 0, 60_000, 600_000, 1_000_000_000_002L, "Film 102", null),
+                        HistoryBackup(103, "tv", 1, 2, 60_000, 600_000, 1_000_000_000_003L, "Dizi 103", null),
+                    ),
+                ),
+            ),
+            sources = emptyList(),
+            deviceName = "B",
+        )
+        val plan = LocalSyncMerge.plan(local, remote, remoteIsAuthority = false, nowMs = now + 1_000L)
+        assertTrue(plan.libraries[profileId]!!.history.isEmpty())
+        assertEquals(3, plan.deletedHistory.size)
+    }
+
+    @Test
+    fun clearFavoritesAndRemoveFavoriteWriteTombstonesAndReaddRemovesThem() = runTest {
+        val store = object : DataStore<Preferences> {
+            private val state = MutableStateFlow(emptyPreferences())
+            var writeCount = 0
+            override val data: Flow<Preferences> = state
+            override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
+                writeCount++
+                return transform(state.value).also { state.value = it }
+            }
+        }
+        val profileRepo = LocalProfileRepository(store)
+        val userId = profileRepo.ensureUserId()
+        val profileId = profileRepo.ensureId()
+
+        var now = 1_000_000_000_000L
+        val syncedRepo = LibraryRepository(history, favorites, profile = profileRepo, clock = { ++now })
+        syncedRepo.setFavorite(summary(201), true)
+        syncedRepo.setFavorite(summary(202), true)
+        syncedRepo.setFavorite(summary(203), true)
+        assertEquals(3, syncedRepo.allFavorites.first().size)
+
+        // Tekli removeFavorite tombstone yazar; yeniden eklemek o tombstone'u kaldırır.
+        syncedRepo.removeFavorite(MediaType.Movie, 201)
+        assertEquals(listOf(201), profileRepo.allDeletedFavorites().map { it.tmdbId })
+
+        syncedRepo.setFavorite(summary(201), true)
+        assertTrue(profileRepo.allDeletedFavorites().isEmpty())
+
+        // clearFavorites tüm kayıtlar için tek DataStore işleminde toplu tombstone yazar.
+        store.writeCount = 0
+        syncedRepo.clearFavorites()
+        assertTrue(syncedRepo.allFavorites.first().isEmpty())
+        assertEquals(1, store.writeCount)
+        val tombstones = profileRepo.allDeletedFavorites()
+        assertEquals(3, tombstones.size)
+        assertEquals(setOf(201, 202, 203), tombstones.map { it.tmdbId }.toSet())
+        assertTrue(tombstones.all { it.profileId == profileId && it.userId == userId })
     }
 }

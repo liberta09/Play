@@ -42,13 +42,19 @@ import com.kaan.play.data.plugin.DeepLinkHandler
 import com.kaan.play.data.plugin.SourceInstaller
 import com.kaan.play.data.plugin.runtime.PluginRuntime
 import com.kaan.play.data.settings.SettingsRepository
+import com.kaan.play.data.settings.WhatsNewCoordinator
+import com.kaan.play.data.settings.WhatsNewRules
 import com.kaan.play.data.stream.AddonStreamProvider
 import com.kaan.play.data.stream.CompositeStreamProvider
 import com.kaan.play.data.download.SourceProbe
 import com.kaan.play.data.stream.SizeProbe
+import com.kaan.play.data.stream.SourceHealthStore
 import com.kaan.play.data.stream.SourceMemory
 import com.kaan.play.data.stream.TorrentStreamProvider
 import com.kaan.play.data.stream.StreamProvider
+import com.kaan.play.data.stream.StreamRequest
+import com.kaan.play.data.stream.StreamResult
+import com.kaan.play.data.stream.StreamSource
 import com.kaan.play.data.stream.StreamVerdicts
 import com.kaan.play.data.subtitle.AddonSubtitleProvider
 import com.kaan.play.data.subtitle.CompositeSubtitleProvider
@@ -83,6 +89,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -104,13 +111,27 @@ class AppContainer(context: Context) {
 
     val json: Json = PlayJson
 
+    @Volatile
+    private var slowConnectionModeEnabled: Boolean = SettingsRepository.DEFAULT_SLOW_CONNECTION_MODE
+
+    val playDns: com.kaan.play.data.net.PlayDns = com.kaan.play.data.net.PlayDns(
+        initialLoader = {
+            kotlinx.coroutines.runBlocking {
+                settings.dnsMode.first() to settings.customDohUrl.first()
+            }
+        },
+    )
+
     val httpClient: OkHttpClient = OkHttpClient.Builder()
+        .dns(playDns)
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(20, TimeUnit.SECONDS)
         .followRedirects(true)
-        // Güvenlik denetimi (ilk sırada): engellenen istek IOException ile reddedilir, uygulamayı çökertmez.
+        // Güvenlik denetimi (ilk sırada ve ağ katmanında): engellenen istek IOException ile reddedilir, DNS/DoH rebind dahil engellenir.
         .addInterceptor(com.lagradost.cloudstream3.SafePluginInterceptor())
         .addInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
+        .addNetworkInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
+        .addInterceptor(com.kaan.play.data.net.SlowConnectionInterceptor { slowConnectionModeEnabled })
         .addInterceptor { chain ->
             val req = chain.request()
             // 1. sn.hotlinger.com -> four.pichive.online rewrite
@@ -218,6 +239,8 @@ class AppContainer(context: Context) {
                 PlayDatabase.MIGRATION_3_4,
                 PlayDatabase.MIGRATION_4_5,
                 PlayDatabase.MIGRATION_5_6,
+                PlayDatabase.MIGRATION_6_7,
+                PlayDatabase.MIGRATION_7_8,
             )
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onOpen(db: SupportSQLiteDatabase) {
@@ -241,6 +264,14 @@ class AppContainer(context: Context) {
 
     val settings: SettingsRepository by lazy {
         SettingsRepository(PreferenceDataStoreFactory.create { appContext.preferencesDataStoreFile("settings") }).apply {
+            appScope.launch {
+                slowConnectionMode.collect { slowConnectionModeEnabled = it }
+            }
+            appScope.launch {
+                combine(dnsMode, customDohUrl, ::Pair).collect { (mode, customUrl) ->
+                    playDns.updateConfig(mode, customUrl)
+                }
+            }
             onCatalogVisibilityChanged = { addonId ->
                 catalogRepository.cache.removeForAddon(addonId)
                 catalogRepository.cache.clear()
@@ -248,8 +279,18 @@ class AppContainer(context: Context) {
         }
     }
 
+    /** İçe aktarılan JSON koleksiyon rafları. */
+    val collections: com.kaan.play.data.collection.CollectionRepository by lazy {
+        com.kaan.play.data.collection.CollectionRepository(settings.store)
+    }
+
     /** Elle seçilen kaynak (film/dizi başına): sonraki açılışta ve dizinin sonraki bölümünde önce denenir. Ayarlarla aynı DataStore. */
     val sourceMemory: SourceMemory by lazy { SourceMemory(settings.store) }
+
+    /** Dil bilgisi olmayan ses parçalarında kullanıcının elle seçtiği parçayı öğrenme deposu. */
+    val audioTrackLearning: com.kaan.play.data.player.AudioTrackLearningStore by lazy {
+        com.kaan.play.data.player.AudioTrackLearningStore(settings.store)
+    }
 
     /** Doğrudan HTTP kaynakların dosya boyutu (HEAD ile; hata sessizce geçilir). */
     val sizeProbe: SizeProbe by lazy { SizeProbe(httpClient) }
@@ -261,6 +302,7 @@ class AppContainer(context: Context) {
      */
     val skipSegmentProvider: com.kaan.play.data.skip.SkipSegmentProvider by lazy {
         val client = OkHttpClient.Builder()
+            .dns(playDns)
             .connectTimeout(7, TimeUnit.SECONDS)
             .readTimeout(7, TimeUnit.SECONDS)
             .addInterceptor(com.kaan.play.data.cloudstream.PlayNetworkGuard.interceptor)
@@ -299,6 +341,7 @@ class AppContainer(context: Context) {
             data = localSyncData,
             projectUrl = BuildConfig.SUPABASE_URL,
             publishableKey = BuildConfig.SUPABASE_PUBLISHABLE_KEY,
+            dns = playDns,
         )
     }
 
@@ -323,12 +366,31 @@ class AppContainer(context: Context) {
     }
 
     val internetSpeedTest: InternetSpeedTest by lazy {
-        // Sade istemci: ortak httpClient'ın ağ koruması/site interceptor'ları ölçümü etkilemesin.
-        InternetSpeedTest()
+        // Ana httpClient kullanilir: secili uygulama ici DNS saglayicisi hiz testinde de gecerlidir.
+        InternetSpeedTest(httpClient)
     }
 
     val repoManagerCatalog: com.kaan.play.data.plugin.RepoManagerCatalog by lazy {
         com.kaan.play.data.plugin.RepoManagerCatalog(com.kaan.play.data.addon.OkHttpManifestFetcher(httpClient))
+    }
+
+    val watchPartyManager: com.kaan.play.data.party.WatchPartySessionManager by lazy {
+        val rules = com.kaan.play.data.party.WatchPartySyncRules()
+        val api = com.kaan.play.data.party.WatchPartyApi(cloudSync, httpClient)
+        val rtClient = com.kaan.play.data.party.WatchPartyRealtimeClient(
+            client = httpClient,
+            scope = appScope,
+            defaultMemberName = { appContext.getString(R.string.watch_party_default_member_name) },
+        )
+        com.kaan.play.data.party.WatchPartySessionManager(
+            api = api,
+            realtimeClient = rtClient,
+            syncRules = rules,
+            cloudSync = cloudSync,
+            localProfile = localProfile,
+            defaultGuestName = { appContext.getString(R.string.watch_party_default_guest_name) },
+            scope = appScope,
+        )
     }
 
     val catalogInstallCoordinator: com.kaan.play.data.plugin.CatalogInstallCoordinator by lazy {
@@ -337,6 +399,15 @@ class AppContainer(context: Context) {
 
     val library: LibraryRepository by lazy {
         LibraryRepository(database.watchHistoryDao(), database.favoriteDao(), localProfile)
+    }
+
+    /** Canlı TV kanalları son izlenme, favori ve manuel sıra deposu. */
+    val liveChannels: com.kaan.play.data.provider.LiveChannelRepository by lazy {
+        com.kaan.play.data.provider.LiveChannelRepository(database.liveChannelDao())
+    }
+
+    val liveCatalogs: com.kaan.play.data.provider.LiveTvCatalogRepository by lazy {
+        com.kaan.play.data.provider.LiveTvCatalogRepository(database.liveCatalogDao())
     }
 
     /** Etkinliklerden bağımsız işler için (ör. oynatıcı kapanırken konum kaydı tamamlansın). */
@@ -377,22 +448,40 @@ class AppContainer(context: Context) {
         }
     }
 
+    val externalCatalogStore: com.kaan.play.data.catalog.ExternalCatalogStore by lazy {
+        com.kaan.play.data.catalog.ExternalCatalogStore(
+            filesDir = context.filesDir,
+            addonDao = database.addonDao(),
+        )
+    }
+
     val addons: AddonRepository by lazy {
         AddonRepository(
             dao = database.addonDao(),
             fetcher = OkHttpManifestFetcher(httpClient),
             onAddonRemoved = { settings.clearCatalogVisibilityForAddon(it) },
+            onSourceUrlRemoved = { url -> externalCatalogStore.deleteBySourceUrl(url) },
         )
     }
+
+    private val preSeedHasPriorState = kotlinx.coroutines.CompletableDeferred<Boolean>()
+    @Volatile
+    private var preSeedCaptureStarted: Boolean = false
 
     /**
      * İlk açılışta varsayılan addon'ları ekler: altyazı (AltyazıDB, AltyazıTR; kullanıcı kararı 2026-10-20) ve
      * Play Özel Kataloglar (kullanıcı kararı 2026-10-21). Her grubun kendi bayrağı var; ağa çıkılmaz.
      */
-    fun seedDefaultAddons(): Job = appScope.launch {
-        DefaultSubtitleAddons.seedIfNeeded(database.addonDao(), settings.store)
-        DefaultCatalogAddons.seedIfNeeded(database.addonDao(), settings.store)
-        cleanupTraktPlugins()
+    fun seedDefaultAddons(): Job {
+        preSeedCaptureStarted = true
+        return appScope.launch {
+            val hadPrior = runCatching { settings.hasPriorAppState() }.getOrDefault(false)
+            preSeedHasPriorState.complete(hadPrior)
+            DefaultSubtitleAddons.seedIfNeeded(database.addonDao(), settings.store)
+            DefaultCatalogAddons.seedIfNeeded(database.addonDao(), settings.store)
+            wrongContentBlocks.ensureLoaded()
+            cleanupTraktPlugins()
+        }
     }
 
     private suspend fun cleanupTraktPlugins() {
@@ -439,6 +528,18 @@ class AppContainer(context: Context) {
     /** CloudStream eklenti çalıştırıcısı (search → load → loadLinks akışı). */
     val csRuntime: CsRuntime by lazy { CsRuntime() }
 
+    /** CloudStream alt depo sahiplik kayıtları (manual vs üst depodan onaylanan). */
+    val subRepoOwnership: com.kaan.play.data.cloudstream.SubRepoOwnershipStore by lazy {
+        com.kaan.play.data.cloudstream.SubRepoOwnershipStore(settings.store).apply {
+            appScope.launch {
+                runCatching {
+                    val existing = database.addonDao().observeOfType(com.kaan.play.data.db.AddonType.CLOUDSTREAM_REPO).first()
+                    seedInitialManualReposIfFirstTime(existing.map { it.sourceUrl })
+                }
+            }
+        }
+    }
+
     /** CloudStream depo yöneticisi (Faz 3). Depo satırı `addons`, eklentiler `plugins` tablosunda. */
     val csRepos: CsRepository by lazy {
         CsRepository(
@@ -448,6 +549,10 @@ class AppContainer(context: Context) {
             httpClient = httpClient,
             store = csDexStore,
             loader = csDexLoader,
+            ownershipStore = subRepoOwnership,
+            onSubReposDiscovered = { parentUrl, subs ->
+                pluginRepoRequests.enqueueFromParent(parentUrl, subs)
+            },
         )
     }
 
@@ -471,6 +576,7 @@ class AppContainer(context: Context) {
             csRuntime = csRuntime,
             httpClient = httpClient,
             getDisabledCatalogs = { settings.disabledCatalogs.first() },
+            externalCatalogStore = externalCatalogStore,
         )
     }
 
@@ -509,7 +615,24 @@ class AppContainer(context: Context) {
      * Zaman aşımı Ayarlar'daki ortak kaynak zaman aşımıdır; her istekte yeniden okunur.
      */
     val streams: StreamProvider by lazy {
-        TorrentStreamProvider(rawStreams, server = { settings.torrentServer.first() }, onBuiltIn = torrentEngine::warmUp)
+        TorrentStreamProvider(recordedRawStreams, server = { settings.torrentServer.first() }, onBuiltIn = torrentEngine::warmUp)
+    }
+
+    /** Yerel kaynak sağlığı deposu (hata geçmişi, sunucu güvenilirliği, kara liste, eklenti sağlığı). */
+    val sourceHealth: SourceHealthStore by lazy {
+        SourceHealthStore(settings.store)
+    }
+
+    private val recordedRawStreams: StreamProvider by lazy {
+        object : StreamProvider {
+            override fun streams(request: StreamRequest): Flow<StreamResult> =
+                rawStreams.streams(request).onEach { result ->
+                    sourceHealth.recordPluginResult(result)
+                }
+
+            override suspend fun sources(request: StreamRequest): List<StreamSource> =
+                rawStreams.sources(request)
+        }
     }
 
     /**
@@ -525,6 +648,16 @@ class AppContainer(context: Context) {
 
     /** Torrent dosyasını oynatıcıya `127.0.0.1` üzerinden http olarak veren yerel sunucu. */
     val torrentServer: TorrentHttpServer by lazy { TorrentHttpServer(torrentEngine) }
+
+    /** Film/dizi yanlış içerik veren kaynakları kalıcı olarak engelleme deposu (DataStore, en çok 500 kayıt). */
+    val wrongContentBlocks: com.kaan.play.data.stream.WrongContentBlockStore by lazy {
+        com.kaan.play.data.stream.WrongContentBlockStore(settings.store)
+    }
+
+    /** Eklenti başına yerel ses senkronu bozuk bildirim sayacı. */
+    val audioSyncReports: com.kaan.play.data.stream.AudioSyncReportStore by lazy {
+        com.kaan.play.data.stream.AudioSyncReportStore(settings.store)
+    }
 
     /** Oynatma sırasında "bu içerik değil" diye reddedilen kaynaklar (bellek içi, oturum boyunca): aynı içerikte bir daha listeye girmez. */
     val streamVerdicts: StreamVerdicts by lazy { StreamVerdicts() }
@@ -571,6 +704,7 @@ class AppContainer(context: Context) {
                 ),
             ),
             verdicts = streamVerdicts,
+            isBlocked = { req, src -> wrongContentBlocks.isBlockedCached(req, src) },
         )
     }
 
@@ -727,6 +861,12 @@ class AppContainer(context: Context) {
      */
     val pendingAddonUrl = MutableStateFlow<String?>(null)
 
+    /** Bildirimden açılacak favori dizi TMDB kimliği. */
+    val pendingSeriesDetailId = MutableStateFlow<Int?>(null)
+
+    /** Deep link ile gelen Watch Party oda kodu (`play://party?code=XXXXXX`). Onay penceresi bekler. */
+    val pendingPartyCode = MutableStateFlow<String?>(null)
+
     /** `play://add?repo=` / `play://add?nuvio=` bağlantıları: mevcut [sourceInstaller] ile ekler, sonucu Snackbar'a iletir. */
     val deepLinks: DeepLinkHandler by lazy { DeepLinkHandler(sourceInstaller, appScope) }
 
@@ -737,12 +877,42 @@ class AppContainer(context: Context) {
             addonDao = database.addonDao(),
             dataStore = settings.store,
             scope = appScope,
+            ownershipStore = subRepoOwnership,
         )
     }
 
     /** Uygulama içi duyuru kontrolü (GitHub raw announcements.json); oturumda bir kez, arka planda. */
     val announcementChecker: AnnouncementChecker by lazy {
         AnnouncementChecker(httpClient, json, BuildConfig.VERSION_NAME, settings)
+    }
+
+    /** Sürüm yükseltmesinden sonraki tek seferlik "Bu sürümde neler yeni?" koordinatörü. */
+    val whatsNewCoordinator: WhatsNewCoordinator by lazy {
+        WhatsNewCoordinator(
+            currentVersionName = BuildConfig.VERSION_NAME,
+            settings = settings,
+            detectUpgrade = {
+                val info = runCatching {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        appContext.packageManager.getPackageInfo(
+                            appContext.packageName,
+                            android.content.pm.PackageManager.PackageInfoFlags.of(0),
+                        )
+                    } else {
+                        @Suppress("DEPRECATION")
+                        appContext.packageManager.getPackageInfo(appContext.packageName, 0)
+                    }
+                }.getOrNull()
+                val hasPriorStore = runCatching {
+                    if (preSeedCaptureStarted) preSeedHasPriorState.await() else settings.hasPriorAppState()
+                }.getOrDefault(false)
+                WhatsNewRules.isAppUpgrade(
+                    firstInstallTime = info?.firstInstallTime ?: 0L,
+                    lastUpdateTime = info?.lastUpdateTime ?: 0L,
+                    hasPriorStoredState = hasPriorStore,
+                )
+            },
+        )
     }
 
     /** Uygulama içi güncelleme kontrolü (GitHub releases/latest); oturumda bir kez, etkinlik yeniden oluşsa da tekrarlanmaz. */
@@ -765,5 +935,24 @@ class AppContainer(context: Context) {
             },
         )
         flow
+    }
+
+    /** Coil görsel önbelleğini, katalog önbelleğini ve altyazı önbelleğini temizler; geçmiş/favori/hesap/eklentiler silinmez. */
+    suspend fun clearCaches() {
+        val loader = coil3.SingletonImageLoader.get(appContext)
+        loader.memoryCache?.clear()
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching { loader.diskCache?.clear() }
+            catalogRepository.cache.clear()
+            clearDirectoryContents(File(appContext.cacheDir, "subtitle-search"))
+            clearDirectoryContents(File(appContext.cacheDir, "subtitles"))
+        }
+    }
+
+    companion object {
+        internal fun clearDirectoryContents(dir: File) {
+            if (!dir.isDirectory) return
+            dir.listFiles()?.forEach { child -> child.deleteRecursively() }
+        }
     }
 }

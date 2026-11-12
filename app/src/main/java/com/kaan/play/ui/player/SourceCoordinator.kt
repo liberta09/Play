@@ -9,6 +9,7 @@ import com.kaan.play.data.stream.SourceMediaRules
 import com.kaan.play.data.match.ContentDurationCheck
 import com.kaan.play.data.match.ContentKind
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.player.AutoRetryPolicy
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.SlowHostMemory
 import com.kaan.play.data.stream.RankContext
@@ -23,6 +24,7 @@ import com.kaan.play.data.stream.StreamResult
 import com.kaan.play.data.stream.StreamSource
 import com.kaan.play.data.stream.StreamVerdicts
 import com.kaan.play.data.stream.TorrentLinks
+import com.kaan.play.data.stream.WrongContentBlocker
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -75,11 +77,33 @@ sealed interface SourceNotice {
     /** Kullanıcının elle seçtiği kaynak yavaşladı (otomatik değiştirilmez). */
     data object ManualSlow : SourceNotice
 
+    /** Oynatma sırasında akış ağ hatasıyla koptu, aynı kaynak kaldığı konumdan bir kez yeniden deneniyor. */
+    data class RetryingCurrent(val detail: String) : SourceNotice
+
     /** Oynatma sırasında kaynak koptu, sıradaki kaynak deneniyor. */
     data class StreamDropped(val detail: String) : SourceNotice
 
     /** Kullanıcının elle seçtiği kaynak koptu, otomatik olarak başka kaynağa geçildi. */
     data object SourceSwitched : SourceNotice
+    data object DubSwitched : SourceNotice
+
+    /** Yanlış içerik veren kaynak bu dizi/film için engellendi ve sıradaki kaynak açılıyor. */
+    data object WrongContentBlockedSwitching : SourceNotice
+
+    /** Yanlış içerik veren kaynak engellendi; diğer sağlayıcılardan alternatif bekleniyor. */
+    data object WrongContentBlockedWaiting : SourceNotice
+
+    /** Yanlış içerik veren kaynak engellendi ve şu anda başka kaynak kalmadı. */
+    data object WrongContentBlockedNone : SourceNotice
+
+    /** Ses senkronu bozuk bildirildi; sıradaki kaynağa geçiliyor. */
+    data object AudioSyncSwitching : SourceNotice
+
+    /** Ses senkronu bozuk bildirildi ancak geçilecek başka kaynak bulunamadı. */
+    data object AudioSyncNoOtherSource : SourceNotice
+
+    /** Ağ koptu, cihaz çevrimdışı: internet bekleniyor. */
+    data object WaitingForInternet : SourceNotice
 }
 
 /**
@@ -113,13 +137,30 @@ class SourceCoordinator(
     private val maxHeight: Int = 1080,
     private val preferDub: Boolean = true,
     private val autoSource: Boolean = true,
+    private val autoDubSwitch: Boolean = true,
+    private val showDubSuggestion: Boolean = autoDubSwitch,
+    private val revertOnSelectedFailure: Boolean = true,
+    /** Otomatik deneme sayısı sınırı (`null` = Sınırsız). Yalnızca otomatik seçilen kaynak denemelerini sınırlar. */
+    private val autoRetryLimit: Int? = null,
+    private val loadBlocked: suspend () -> Unit = {},
+    private val isSourceBlocked: (StreamSource) -> Boolean = { false },
+    private val persistSourceBlock: suspend (StreamSource) -> Unit = {},
+    private val persistAudioSyncReport: suspend (StreamSource) -> Unit = {},
+    private val isBlacklistedHost: (String) -> Boolean = { false },
+    private val onSourceFirstFrame: suspend (PlayableStream) -> Unit = {},
+    private val onSourceFailure: suspend (PlayableStream, String) -> Unit = { _, _ -> },
     /** Kaynağı oynatıcıya verir: ([stream], başlangıç konumu ms). */
     private val load: (PlayableStream, Long) -> Unit,
+    /** Yanlış içerik engellendiğinde alternatif beklenirken/kalmadığında oynatıcıyı duraklatır. */
+    private val pausePlayback: () -> Unit = {},
     private val position: () -> Long = { 0L },
     /** Tekdüze saat (ms); testte sanal zaman verilir. */
     private val clock: () -> Long,
     /** Medya içeriği yoklaması (HTML/sahte kaynak engeli; oynatmayı en çok 2 sn geciktirebilir). */
     private val sourceProbe: (suspend (PlayableStream) -> Probe)? = null,
+    private val isOffline: Boolean = false,
+    private val isWatchPartyGuest: () -> Boolean = { false },
+    private val onAutoDubSwitch: ((previous: PlayableStream, next: PlayableStream) -> Unit)? = null,
     private val rankingDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) {
     var phase by mutableStateOf(SourcePhase.Idle)
@@ -158,8 +199,30 @@ class SourceCoordinator(
     var failedSources by mutableStateOf<List<StreamSource>>(emptyList())
         private set
 
+    val askedCount: Int
+        get() = asked.size
+
+    val answeredCount: Int
+        get() = if (asked.isEmpty()) answered.size else asked.count { it.addonId in answered }
+
+    fun resolveElapsedSeconds(): Int {
+        val started = resolveElapsedBaseAt ?: return 0
+        if (phase != SourcePhase.Resolving) return 0
+        return ((clock() - started) / 1_000L).toInt().coerceAtLeast(0)
+    }
+
     var notice by mutableStateOf<SourceNotice?>(null)
-        private set
+
+    fun retryCurrentStream(startMs: Long) {
+        val currentStream = current ?: return
+        hasRetriedCurrentStream = true
+        revertTo = null
+        switching = false
+        notice = SourceNotice.RetryingCurrent("Ağ geri geldi")
+        lastStartMs = startMs
+        firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+        begin(currentStream, startMs)
+    }
 
     /** Elle kaynak değişimi sürüyor (dönen yükleme göstergesi). */
     var switching by mutableStateOf(false)
@@ -169,7 +232,38 @@ class SourceCoordinator(
     var dubSuggestion by mutableStateOf<PlayableStream?>(null)
         private set
 
+    /** Şu an oynatılan kaynakta Türkçe ses çalıyor mu (etiketsiz ama gömülü/doğrulanmış ses). */
+    private val _currentAudioTurkish = mutableStateOf(false)
+    val currentAudioTurkish: Boolean get() = _currentAudioTurkish.value
+
+    private val _audioTracksEvaluated = mutableStateOf(false)
+    val audioTracksEvaluated: Boolean get() = _audioTracksEvaluated.value
+
+    var firstFrameMs = 0L
+        private set
+
+    fun setAudioTracksEvaluated(evaluated: Boolean = true) {
+        _audioTracksEvaluated.value = evaluated
+        if (phase == SourcePhase.Playing) {
+            maybeSuggestDub()
+        }
+    }
+
+    private val _userAudioChosen = mutableStateOf(false)
+    val userAudioChosen: Boolean get() = _userAudioChosen.value
+
+    fun setUserAudioChosen(chosen: Boolean) {
+        _userAudioChosen.value = chosen
+    }
+
+    var autoDubSwitchCount by mutableStateOf(0)
+        private set
+    private var lastAutoDubSwitchMs = 0L
+    private var scheduledDubSwitchJob: Job? = null
+
     var midPlaybackSwitches by mutableStateOf(0)
+        private set
+    var lastWorkingStream: PlayableStream? = null
         private set
     private var hasRetriedCurrentStream = false
 
@@ -179,9 +273,11 @@ class SourceCoordinator(
             invalidateRankCache()
         }
     private var userPicked = false
+    private var autoAttempts = 0
     private var suggestionDismissed = false
     private var finished = false
     private var resolveStartedAt = 0L
+    private var resolveElapsedBaseAt: Long? = null
     private var collectJob: Job? = null
     private var firstFrameJob: Job? = null
     private var probeJob: Job? = null
@@ -199,6 +295,7 @@ class SourceCoordinator(
      */
     private var firstFrameNotBefore = 0L
     private val attempted = LinkedHashSet<String>()
+    private val sessionBlockedPlugins = HashSet<String>()
     private val requestKey = StreamOwnership.keyOf(request)
     private var expectedRuntime: Int? = null
     private var runtimeJob: Job? = null
@@ -219,6 +316,7 @@ class SourceCoordinator(
             preference = preference,
             sizes = sizes,
             isSlowHost = { url -> SlowHostMemory.isSlow(url, clock()) },
+            isBlacklistedHost = isBlacklistedHost,
             isLive = isLive,
         )
 
@@ -248,6 +346,19 @@ class SourceCoordinator(
         pendingSizeProbes.clear()
     }
 
+    /** Kanal geçişi/kapanış gibi durumlarda tüm aktif kaynak arama ve bekleyen işleri durdurur. */
+    fun cancel() {
+        finished = true
+        collectJob?.cancel()
+        firstFrameJob?.cancel()
+        probeJob?.cancel()
+        runtimeJob?.cancel()
+        scheduledDubSwitchJob?.cancel()
+        fallbackDubWaitJob?.cancel()
+        discoveryStopJob?.cancel()
+        cancelSizeProbes()
+    }
+
 
     // ---- başlatma ----
 
@@ -257,6 +368,7 @@ class SourceCoordinator(
      */
     fun start(initial: PlayableStream?, fallbacks: List<PlayableStream>, startMs: Long) {
         cancelSizeProbes()
+        autoAttempts = 0
         lastStartMs = startMs
         queue.clear()
         queue.addAll(fallbacks.filter(::acceptable))
@@ -270,6 +382,15 @@ class SourceCoordinator(
             }
         }
         scope.launch {
+            try {
+                loadBlocked()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+            }
+            if (sessionBlockedPlugins.isNotEmpty() || fallbacks.any { isBlockedSource(it.source) }) {
+                queue.removeAll { isBlockedSource(it.source) }
+            }
             preference = try {
                 preferenceFor(request)
             } catch (e: CancellationException) {
@@ -287,6 +408,7 @@ class SourceCoordinator(
             } else {
                 phase = SourcePhase.Resolving
                 resolveStartedAt = clock()
+                resolveElapsedBaseAt = resolveStartedAt
                 ensureSources()
                 if (preferDub) {
                     scope.launch {
@@ -415,13 +537,16 @@ class SourceCoordinator(
         probeSizes()
         when (phase) {
             SourcePhase.Resolving -> {
-                // Daha önce denenip başarısız olan kaynaklar tekrar seçilmez.
-                val candidates = ranked().filter { it.url !in attempted }
+                // Daha önce denenip başarısız olan ya da kara listeye alınan sunucular otomatik başlangıçta atlanır (elle seçim yine çalışır).
+                val candidates = ranked().filter { it.url !in attempted && !isBlacklistedHost(it.url) }
                 when (val d = StartPolicy(preferDub, activeDubWaitMs).decide(clock() - resolveStartedAt, candidates, ctx, finished)) {
                     is StartDecision.Start -> {
                         fallbackDubWaitJob?.cancel()
                         activeDubWaitMs = StartPolicy.DUB_WAIT_MS
-                        begin(d.stream, lastStartMs)
+                        if (!beginAuto(d.stream, lastStartMs)) {
+                            phase = SourcePhase.Failed
+                            switching = false
+                        }
                     }
                     StartDecision.NoSources -> {
                         fallbackDubWaitJob?.cancel()
@@ -436,11 +561,26 @@ class SourceCoordinator(
         }
     }
 
+    private fun canAttemptAutoSource(): Boolean =
+        AutoRetryPolicy.canTryAnother(autoAttempts, autoRetryLimit)
+
+    private fun beginAuto(stream: PlayableStream, startMs: Long): Boolean {
+        if (!canAttemptAutoSource()) return false
+        autoAttempts++
+        begin(stream, startMs)
+        return true
+    }
+
     private fun begin(stream: PlayableStream, startMs: Long) {
         fallbackDubWaitJob?.cancel()
         firstFrameJob?.cancel()
         probeJob?.cancel()
+        scheduledDubSwitchJob?.cancel()
+        scheduledDubSwitchJob = null
         current = stream
+        _currentAudioTurkish.value = false
+        _audioTracksEvaluated.value = false
+        firstFrameMs = 0L
         attempted += stream.url
         phase = SourcePhase.Starting
         Log.d(TAG, "kaynak başlatılıyor: ${stream.source.addonName} (${StreamLog.hostOf(stream.url)})")
@@ -530,10 +670,76 @@ class SourceCoordinator(
         probeJob?.cancel()
         cancelSizeProbes()
         phase = SourcePhase.Playing
+        firstFrameMs = clock()
         switching = false
         revertTo = null
+        val cur = current
+        if (cur != null && (!cur.dubbed || !preferDub)) {
+            lastWorkingStream = cur
+        }
+        cur?.let { stream ->
+            scope.launch {
+                try {
+                    onSourceFirstFrame(stream)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                }
+                invalidateRankCache()
+            }
+        }
         stopSourceDiscoveryForPlayback()
         onChange()
+    }
+
+    private fun recordFailureAsync(stream: PlayableStream?, detail: String) {
+        if (stream == null) return
+        scope.launch {
+            try {
+                onSourceFailure(stream, detail)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+            }
+            invalidateRankCache()
+        }
+    }
+
+    /** Türkçe ses izi doğrulandıktan sonra bu dublajlı akışı güvenli geri dönüş adayı olarak işaretler. */
+    fun markCurrentVerifiedWorking() {
+        val cur = current ?: return
+        if (phase == SourcePhase.Playing) {
+            lastWorkingStream = cur
+        }
+    }
+
+    fun dubbedCandidatesExcluding(excludedUrls: Set<String>): List<PlayableStream> =
+        ranked().filter { isAutoCandidate(it) && it.dubbed && it.url !in excludedUrls && it.url != current?.url }
+
+    fun alternativeCandidatesExcluding(excludedUrls: Set<String>): List<PlayableStream> =
+        (queue + ranked()).distinctBy { it.url }.filter { isAutoCandidate(it) && it.url !in excludedUrls && it.url != current?.url }
+
+    /** Doğrulanmamış dublajlı kaynaktan sıradaki dublajlıya ya da hızlı alternatife kaldığı saniyeden geçer. */
+    fun switchAfterUnverifiedDub(next: PlayableStream) {
+        if (next.url == current?.url) return
+        val revertingToWorking = next.url == lastWorkingStream?.url
+        if (!revertingToWorking && !canAttemptAutoSource()) {
+            phase = SourcePhase.Failed
+            switching = false
+            return
+        }
+        fallbackDubWaitJob?.cancel()
+        discoveryStopJob?.cancel()
+        dubSuggestion = null
+        notice = null
+        revertTo = null
+        val pos = position().takeIf { it > 0 } ?: lastStartMs
+        lastStartMs = pos
+        switching = true
+        attempted -= next.url
+        firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+        if (!revertingToWorking) autoAttempts++
+        begin(next, pos)
     }
 
     /**
@@ -553,29 +759,41 @@ class SourceCoordinator(
         }
     }
 
+    /** PlaybackController anlık HTTP hatasında akışı tazelerken kısa bilgi bildirimi gösterir. */
+    fun onTransientRefresh(detail: String) {
+        if (!isLive && phase == SourcePhase.Playing) {
+            notice = SourceNotice.RetryingCurrent(detail)
+        }
+    }
+
     fun onFailure(detail: String): Boolean {
         Log.d(TAG, "oynatıcı hatası: ${current?.source?.addonName} (faz=$phase) $detail")
         Log.d("PlayMatch", "oynatıcı hatası: ${current?.source?.addonName} ($detail) faz=$phase")
 
         if (phase == SourcePhase.Playing) {
             val currentStream = current ?: return false
-            val queuedList = queue.filter { it.url !in attempted && acceptable(it) }
-            val rankedList = ranked().filter { acceptable(it) && it.url != currentStream.url && it.url !in attempted }
+            val queuedList = queue.filter { isAutoCandidate(it) }
+            val rankedList = ranked().filter { isAutoCandidate(it) && it.url != currentStream.url }
             val candidates = (queuedList + rankedList).distinctBy { it.url }
             val decision = MidPlaybackRecoveryRules.evaluate(
                 phase = phase,
                 currentStream = currentStream,
                 hasRetriedCurrentStream = hasRetriedCurrentStream,
                 switchCount = midPlaybackSwitches,
-                candidates = candidates,
+                candidates = if (canAttemptAutoSource()) candidates else emptyList(),
                 isManual = userPicked,
                 isOffline = false,
                 isLeaving = false,
+                isLive = isLive,
+                isNetworkError = MidPlaybackRecoveryRules.isNetworkError(detail),
             )
             Log.d("PlayMatch", "oynatirken kurtarma karari: $decision (gecis=$midPlaybackSwitches)")
             when (decision) {
                 is MidPlaybackRecoveryRules.Decision.RetrySame -> {
                     hasRetriedCurrentStream = true
+                    revertTo = null
+                    switching = false
+                    notice = SourceNotice.RetryingCurrent(detail)
                     val pos = position().takeIf { it > 0 } ?: lastStartMs
                     lastStartMs = pos
                     firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
@@ -583,6 +801,7 @@ class SourceCoordinator(
                     return true
                 }
                 is MidPlaybackRecoveryRules.Decision.Switch -> {
+                    recordFailureAsync(currentStream, detail)
                     hasRetriedCurrentStream = false
                     midPlaybackSwitches++
                     queue.removeAll { it.url == decision.candidate.url }
@@ -594,10 +813,12 @@ class SourceCoordinator(
                     lastStartMs = pos
                     switching = true
                     firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+                    autoAttempts++
                     begin(decision.candidate, pos)
                     return true
                 }
                 MidPlaybackRecoveryRules.Decision.Fail -> {
+                    recordFailureAsync(currentStream, detail)
                     phase = SourcePhase.Failed
                     return false
                 }
@@ -618,6 +839,9 @@ class SourceCoordinator(
             return
         }
         val failed = current
+        if (failed != null && !mismatch) {
+            recordFailureAsync(failed, detail)
+        }
         val previous = revertTo
         if (previous != null) {
             // Elle seçilen kaynak açılmadı: önceki kaynağa kaldığı saniyeden dön.
@@ -630,16 +854,22 @@ class SourceCoordinator(
         if (failed != null) {
             notice = if (mismatch) SourceNotice.Mismatch else SourceNotice.Skipped(detail)
         }
-        val queued = nextQueuedCandidate()
-        if (queued != null) {
-            begin(queued, lastStartMs)
+        if (!canAttemptAutoSource()) {
+            phase = SourcePhase.Failed
+            switching = false
             return
         }
-        val next = ranked().firstOrNull { it.url !in attempted }
+        val queued = nextQueuedCandidate()
+        if (queued != null) {
+            beginAuto(queued, lastStartMs)
+            return
+        }
+        val next = ranked().firstOrNull { it.url !in attempted && !isBlacklistedHost(it.url) }
         val shouldWaitForDub = preferDub && !mismatch && !finished && (next == null || !next.dubbed)
         if (shouldWaitForDub) {
             phase = SourcePhase.Resolving
             resolveStartedAt = clock()
+            if (resolveElapsedBaseAt == null) resolveElapsedBaseAt = resolveStartedAt
             activeDubWaitMs = FALLBACK_DUB_WAIT_MS
             fallbackDubWaitJob?.cancel()
             fallbackDubWaitJob = scope.launch {
@@ -649,19 +879,25 @@ class SourceCoordinator(
             return
         }
         if (next != null) {
-            begin(next, lastStartMs)
+            beginAuto(next, lastStartMs)
         } else if (!finished) {
             // Daha kaynak gelebilir: gelince denenir.
             phase = SourcePhase.Resolving
-            resolveStartedAt = clock() - StartPolicy.DUB_WAIT_MS
+            val now = clock()
+            if (resolveElapsedBaseAt == null) resolveElapsedBaseAt = now
+            resolveStartedAt = now - StartPolicy.DUB_WAIT_MS
         } else {
             phase = SourcePhase.Failed
             switching = false
         }
     }
 
-    /** Bu içeriğin kaynağı mı (damga) ve oynatma sırasında reddedilmemiş mi? */
+    private fun isBlockedSource(source: StreamSource): Boolean =
+        WrongContentBlocker.pluginIdentity(source) in sessionBlockedPlugins || isSourceBlocked(source)
+
+    /** Bu içeriğin kaynağı mı (damga) ve oynatma sırasında/engellemeyle reddedilmemiş mi? */
     private fun acceptable(stream: PlayableStream): Boolean {
+        if (isBlockedSource(stream.source)) return false
         if (TorrentLinks.isMagnet(stream.url) && !com.kaan.play.data.torrent.TorrentSupport.isBuiltInSupported()) {
             return false
         }
@@ -671,6 +907,105 @@ class SourceCoordinator(
         return StreamOwnership.belongs(stream, request) &&
             !verdicts.isRejected(requestKey, stream.url) &&
             (isLive || SourceMediaRules.isAcceptableSize(size, isMovie, stream.url, stream.mimeType))
+    }
+
+    private fun isAutoCandidate(stream: PlayableStream): Boolean =
+        acceptable(stream) && stream.url !in attempted && !isBlacklistedHost(stream.url)
+
+    /**
+     * Mevcut kaynağın eklentisini bu dizi/film için kalıcı engeller ve sıradaki uygun kaynağa geçer.
+     * Canlı TV'de çağrılmaz; alternatif varsa hemen aynı saniyeden açılır.
+     */
+    fun blockCurrentSourceAndAdvance(): Boolean {
+        val stream = current ?: return false
+        if (isLive) return false
+        val blockedSource = stream.source
+        sessionBlockedPlugins += WrongContentBlocker.pluginIdentity(blockedSource)
+        scope.launch {
+            try {
+                persistSourceBlock(blockedSource)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+            }
+        }
+        streams = streams.filterNot { isBlockedSource(it.source) }
+        queue.removeAll { isBlockedSource(it.source) }
+        if (dubSuggestion?.let { isBlockedSource(it.source) } == true) dubSuggestion = null
+
+        firstFrameJob?.cancel()
+        probeJob?.cancel()
+        fallbackDubWaitJob?.cancel()
+        discoveryStopJob?.cancel()
+        revertTo = null
+
+        val pos = position().takeIf { it > 0 } ?: lastStartMs
+        lastStartMs = pos
+        val queued = nextQueuedCandidate()
+        val next = queued ?: ranked().firstOrNull { isAutoCandidate(it) }
+        when {
+            next != null -> {
+                switching = true
+                firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+                notice = SourceNotice.WrongContentBlockedSwitching
+                begin(next, pos)
+                return true
+            }
+            !finished -> {
+                current = null
+                switching = false
+                phase = SourcePhase.Resolving
+                resolveStartedAt = clock()
+                resolveElapsedBaseAt = resolveStartedAt
+                notice = SourceNotice.WrongContentBlockedWaiting
+                pausePlayback()
+                ensureSources()
+                return false
+            }
+            else -> {
+                current = null
+                switching = false
+                phase = SourcePhase.Failed
+                notice = SourceNotice.WrongContentBlockedNone
+                pausePlayback()
+                return false
+            }
+        }
+    }
+
+    /**
+     * "Ses senkronu bozuk": eklenti için yerel bildirim sayacını artırır (engellemez) ve varsa sıradaki kaynağa
+     * kaldığı saniyeden geçer; başka kaynak yoksa mevcut oynatmayı kesmeden kısa bildirim gösterir.
+     */
+    fun reportAudioSyncAndSwitchNext(): Boolean {
+        val stream = current ?: return false
+        if (isLive) return false
+        scope.launch {
+            try {
+                persistAudioSyncReport(stream.source)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+            }
+        }
+        val pos = position().takeIf { it > 0 } ?: lastStartMs
+        lastStartMs = pos
+        val queued = nextQueuedCandidate()
+        val next = queued ?: ranked().firstOrNull { isAutoCandidate(it) && it.url != stream.url }
+        if (next == null) {
+            notice = SourceNotice.AudioSyncNoOtherSource
+            return false
+        }
+        firstFrameJob?.cancel()
+        probeJob?.cancel()
+        fallbackDubWaitJob?.cancel()
+        discoveryStopJob?.cancel()
+        revertTo = null
+        switching = true
+        firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+        notice = SourceNotice.AudioSyncSwitching
+        begin(next, pos)
+        return true
     }
 
     /**
@@ -721,7 +1056,7 @@ class SourceCoordinator(
     private fun nextQueuedCandidate(): PlayableStream? {
         while (true) {
             val queued = queue.removeFirstOrNull() ?: break
-            if (queued.url !in attempted) return queued
+            if (queued.url !in attempted && !isBlacklistedHost(queued.url)) return queued
         }
         return null
     }
@@ -747,7 +1082,7 @@ class SourceCoordinator(
         }
         preference = SourcePref(stream.source.addonId, stream.source.addonName, null, TorrentLinks.isMagnet(stream.url))
         val previous = current?.takeIf { phase == SourcePhase.Playing || phase == SourcePhase.Starting }
-        revertTo = previous
+        revertTo = if (revertOnSelectedFailure) previous else null
         revertPositionMs = position().takeIf { it > 0 } ?: lastStartMs
         lastStartMs = revertPositionMs
         switching = previous != null
@@ -769,6 +1104,16 @@ class SourceCoordinator(
 
     fun clearNotice() {
         notice = null
+    }
+
+    /** Şu anki kaynakta Türkçe ses çaldığı doğrulanınca/seçilince coordinator bilgilendirilir. */
+    fun setCurrentAudioTurkish(isTurkish: Boolean) {
+        _currentAudioTurkish.value = isTurkish
+        if (isTurkish) {
+            dubSuggestion = null
+            scheduledDubSwitchJob?.cancel()
+            scheduledDubSwitchJob = null
+        }
     }
 
     /** Torrent üst bilgisinden ya da başka yerden bulunan dosya boyutu (adres → bayt). */
@@ -794,10 +1139,76 @@ class SourceCoordinator(
     // ---- iç işler ----
 
     private fun maybeSuggestDub() {
-        if (!autoSource || !preferDub || userPicked || suggestionDismissed || dubSuggestion != null) return
+        if (!autoDubSwitch || !showDubSuggestion || !autoSource || !preferDub || userPicked || userAudioChosen || currentAudioTurkish || notice is SourceNotice.WaitingForInternet) {
+            scheduledDubSwitchJob?.cancel()
+            scheduledDubSwitchJob = null
+            return
+        }
         val playing = current ?: return
         if (playing.dubbed) return
-        dubSuggestion = ranked().firstOrNull { it.dubbed && !SourceRanking.isTooHeavy(it, ctx) && it.url != playing.url && it.url !in attempted }
+        if (isLive || isOffline || isWatchPartyGuest()) return
+        if (autoDubSwitchCount >= MAX_AUTO_DUB_SWITCHES) return
+
+        val candidate = ranked().firstOrNull {
+            it.dubbed && !SourceRanking.isTooHeavy(it, ctx) && !isBlacklistedHost(it.url) && it.url != playing.url && it.url !in attempted
+        } ?: return
+
+        // (a) Mevcut kaynağın ses parçaları en az bir kez değerlendirilmiş olmalı
+        if (!audioTracksEvaluated) return
+
+        // (b) İlk kareden sonra en az 1500 ms geçmiş olmalı
+        if (firstFrameMs <= 0L) return
+        val elapsedSinceFirstFrame = clock() - firstFrameMs
+        val remainingFirstFrameDelay = if (elapsedSinceFirstFrame < AUTO_DUB_FIRST_FRAME_DELAY_MS) {
+            AUTO_DUB_FIRST_FRAME_DELAY_MS - elapsedSinceFirstFrame
+        } else {
+            0L
+        }
+
+        val elapsedSinceLastSwitch = if (lastAutoDubSwitchMs > 0L) clock() - lastAutoDubSwitchMs else AUTO_DUB_SWITCH_INTERVAL_MS
+        val remainingInterval = if (elapsedSinceLastSwitch < AUTO_DUB_SWITCH_INTERVAL_MS) {
+            AUTO_DUB_SWITCH_INTERVAL_MS - elapsedSinceLastSwitch
+        } else {
+            0L
+        }
+
+        val delayNeeded = maxOf(remainingFirstFrameDelay, remainingInterval)
+        if (delayNeeded > 0L) {
+            if (scheduledDubSwitchJob?.isActive != true) {
+                scheduledDubSwitchJob = scope.launch {
+                    delay(delayNeeded)
+                    if (phase == SourcePhase.Playing && audioTracksEvaluated && !currentAudioTurkish) {
+                        maybeSuggestDub()
+                    }
+                }
+            }
+            return
+        }
+
+        scheduledDubSwitchJob?.cancel()
+        scheduledDubSwitchJob = null
+        applyAutoDubSwitch(playing, candidate)
+    }
+
+    fun cancelDubSwitch() {
+        scheduledDubSwitchJob?.cancel()
+        scheduledDubSwitchJob = null
+    }
+
+    private fun applyAutoDubSwitch(old: PlayableStream, candidate: PlayableStream) {
+        if (notice is SourceNotice.WaitingForInternet) return
+        autoDubSwitchCount++
+        lastAutoDubSwitchMs = clock()
+        notice = SourceNotice.DubSwitched
+        Log.d(TAG, formatAutoDubSwitchLog(old, candidate, autoDubSwitchCount))
+        onAutoDubSwitch?.invoke(old, candidate)
+        val pos = position().takeIf { it > 0 } ?: lastStartMs
+        revertTo = old
+        revertPositionMs = pos
+        lastStartMs = pos
+        switching = true
+        firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+        begin(candidate, pos)
     }
 
     private fun probeSizes() {
@@ -840,7 +1251,7 @@ class SourceCoordinator(
     ) {
         if (phase != SourcePhase.Playing) return
         val currentStream = current ?: return
-        val candidates = ranked().filter { acceptable(it) && it.url != currentStream.url && it.url !in attempted }
+        val candidates = ranked().filter { isAutoCandidate(it) && it.url != currentStream.url }
         val decision = StallPolicy.evaluate(
             nowMs = clock(),
             firstFrameRendered = firstFrameRendered,
@@ -868,7 +1279,7 @@ class SourceCoordinator(
     fun forceStallForTest(durationMs: Long = 11_000L) {
         val currentStream = current ?: return
         val now = clock()
-        val candidates = ranked().filter { acceptable(it) && it.url != currentStream.url && it.url !in attempted }
+        val candidates = ranked().filter { isAutoCandidate(it) && it.url != currentStream.url }
         val decision = StallPolicy.evaluate(
             nowMs = now,
             firstFrameRendered = true,
@@ -903,6 +1314,16 @@ class SourceCoordinator(
 
     companion object {
         private const val TAG = "PlayMatch"
+
+        fun formatAutoDubSwitchLog(
+            old: PlayableStream,
+            candidate: PlayableStream,
+            switchCount: Int,
+        ): String {
+            val oldHost = StreamLog.hostOf(old.url)
+            val newHost = StreamLog.hostOf(candidate.url)
+            return "otomatik dublaj gecisi: eski=${old.source.addonName} ($oldHost) yeni=${candidate.source.addonName} ($newHost) (gecis=$switchCount)"
+        }
         /** Kaynak değişiminden sonra bu süre içinde gelen ilk kare olayı eski kaynağa aittir. */
         const val STALE_FRAME_GUARD_MS = 300L
         const val PLAY_PROBE_TIMEOUT_MS = 1_500L
@@ -915,6 +1336,9 @@ class SourceCoordinator(
         const val PROBE_LIMIT = 24
         const val PROBE_PARALLEL = 6
         const val PROBE_TIMEOUT_MS = 8_000L
+        const val MAX_AUTO_DUB_SWITCHES = 3
+        const val AUTO_DUB_SWITCH_INTERVAL_MS = 10_000L
+        const val AUTO_DUB_FIRST_FRAME_DELAY_MS = 1_500L
     }
 }
 

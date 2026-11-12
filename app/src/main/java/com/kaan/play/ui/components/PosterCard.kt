@@ -26,8 +26,10 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -45,10 +47,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.kaan.play.R
 import com.kaan.play.data.model.MediaSummary
 import com.kaan.play.data.model.MediaType
@@ -85,6 +92,8 @@ fun PosterCard(
     /** TMDB kartlarında IMDb eşleştirmesi için isteğe bağlı kimlik. */
     tmdbId: Int? = null,
     mediaType: MediaType? = null,
+    /** Başlık satırının yanında (odak yakalayıcısının dışında) gösterilen ikincil eylem düğmesi (ör. '⋯'). */
+    trailingAction: (@Composable () -> Unit)? = null,
     overlay: @Composable BoxScope.() -> Unit = {},
 ) {
     val resolvedImageUrl = resolvePosterImageUrl(imageUrl, posterId, tmdbId, mediaType)
@@ -194,14 +203,15 @@ fun PosterCard(
         Modifier
     }
 
-    Column(modifier = modifier.then(keyModifier).then(clickModifier).zIndex(if (focused) 10f else 0f)) {
+    @Composable
+    fun PosterImage() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(2f / 3f)
                 .tvFocusableScaleGlow(
                     scale = 1.06f,
-                    glowColor = Color(0xFF00E5FF),
+                    glowColor = MaterialTheme.colorScheme.primary,
                     shape = shape,
                     isFocused = focused,
                     zIndex = 10f,
@@ -210,8 +220,13 @@ fun PosterCard(
                 .background(MaterialTheme.colorScheme.surfaceVariant),
         ) {
             if (resolvedImageUrl != null) {
+                val context = LocalContext.current
+                val crossfadeEnabled = !com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.enabled
                 AsyncImage(
-                    model = resolvedImageUrl,
+                    model = coil3.request.ImageRequest.Builder(context)
+                        .data(resolvedImageUrl)
+                        .crossfade(crossfadeEnabled)
+                        .build(),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
@@ -230,21 +245,83 @@ fun PosterCard(
                 }
             }
         }
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 8.dp),
-        )
-        if (subtitle != null) {
+    }
+
+    val clickableModifier = modifier.then(keyModifier).then(clickModifier)
+
+    if (trailingAction == null) {
+        Column(modifier = clickableModifier.zIndex(if (focused) 10f else 0f)) {
+            PosterImage()
             Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 8.dp),
             )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    } else {
+        // Çağıranın modifier'ı (focusRequester/focusMemory/width) doğrudan odaklanabilir afiş sütununa gider;
+        // alttaki başlık+eylem satırı afişin ölçülen genişliğine sabitlenir.
+        Layout(
+            modifier = Modifier.zIndex(if (focused) 10f else 0f),
+            content = {
+                Column(modifier = clickableModifier) {
+                    PosterImage()
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleMedium,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        if (subtitle != null) {
+                            Text(
+                                text = subtitle,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
+                    trailingAction()
+                }
+            },
+        ) { measurables, constraints ->
+            val posterPlaceable = measurables[0].measure(constraints)
+            val rowMaxHeight = if (constraints.hasBoundedHeight) {
+                (constraints.maxHeight - posterPlaceable.height).coerceAtLeast(0)
+            } else {
+                Constraints.Infinity
+            }
+            val rowPlaceable = measurables[1].measure(
+                Constraints(
+                    minWidth = posterPlaceable.width,
+                    maxWidth = posterPlaceable.width,
+                    minHeight = 0,
+                    maxHeight = rowMaxHeight,
+                ),
+            )
+            layout(posterPlaceable.width, posterPlaceable.height + rowPlaceable.height) {
+                posterPlaceable.placeRelative(0, 0)
+                rowPlaceable.placeRelative(0, posterPlaceable.height)
+            }
         }
     }
 }
@@ -296,4 +373,7 @@ fun MediaSummary.cardSubtitle(): String {
 }
 
 @Composable
-fun MediaSummary.posterUrl(): String? = TmdbImages.url(posterPath, TmdbImages.Size.Poster)
+fun MediaSummary.posterUrl(): String? = TmdbImages.url(
+    posterPath,
+    TmdbImages.posterSize(com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters),
+)

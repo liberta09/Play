@@ -41,6 +41,35 @@ data class CastMember(
     val profilePath: String?,
 )
 
+data class PersonRef(
+    val id: Int,
+    val name: String,
+)
+
+enum class PersonCreditTab { Movie, Tv }
+
+enum class PersonCreditSort { Popular, Date }
+
+data class PersonCredit(
+    val media: MediaSummary,
+    val releaseDate: String?,
+    val popularity: Double,
+)
+
+data class PersonDetail(
+    val id: Int,
+    val name: String,
+    val biography: String,
+    val profilePath: String?,
+    val movieCredits: List<PersonCredit>,
+    val tvCredits: List<PersonCredit>,
+)
+
+data class AgeRating(
+    val rating: String,
+    val region: String,
+)
+
 data class MediaDetail(
     val summary: MediaSummary,
     /** Addon'lar IMDb "tt..." kimliği ister; TMDB external_ids'ten türetilir. Yoksa addon sorgulanamaz. */
@@ -54,10 +83,15 @@ data class MediaDetail(
     val logoPath: String? = null,
     /** Yaş sınırı (ör. "13+", "PG-13"); bulunamazsa null. */
     val certification: String? = null,
+    /** Oyuncu başlangıcı için TR önce, yoksa US yaş sınırı ve ülke kodu. */
+    val ageRating: AgeRating? = null,
     val directors: List<String> = emptyList(),
     val writers: List<String> = emptyList(),
     /** Yalnızca diziler: yaratıcılar. */
     val creators: List<String> = emptyList(),
+    val directorRefs: List<PersonRef> = emptyList(),
+    val writerRefs: List<PersonRef> = emptyList(),
+    val creatorRefs: List<PersonRef> = emptyList(),
     val cast: List<CastMember> = emptyList(),
     /** TMDB özgün başlığı (örn. İngilizce); eklenti eşleştirmesi için. Arayüzde gösterilmez. */
     val originalTitle: String? = null,

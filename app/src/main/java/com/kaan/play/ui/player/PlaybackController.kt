@@ -145,7 +145,7 @@ class PlaybackController(
     private fun createOnlineSource(session: PlaybackHttpSession): ResolvingDataSource.Factory = ResolvingDataSource.Factory(
         DataSource.Factory {
             val okHttpClient = client.newBuilder()
-                .dns(com.kaan.play.data.net.Ipv4FirstDns)
+                .dns(com.kaan.play.data.net.Ipv4FirstDns.wrapping(client.dns))
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(15, TimeUnit.SECONDS)
                 .followRedirects(true)
@@ -320,6 +320,9 @@ class PlaybackController(
      */
     var onFailure: ((String) -> Boolean)? = null
 
+    /** Geçici HTTP / canlı pencere hatasında aynı akış tazelenirken kısa bildirim göstermek için çağrılır. */
+    var onTransientRecovery: ((String) -> Unit)? = null
+
     /** İlk video karesi çizildi (kaynak gerçekten açıldı); kaynak seçimi 10 sn'lik süreyi buna göre izler. */
     var onFirstFrame: (() -> Unit)? = null
 
@@ -366,24 +369,31 @@ class PlaybackController(
 
             override fun onPlayerError(error: PlaybackException) {
                 try {
-                    // [ADIM 5] Hata anında otomatik kurtarma (BehindLiveWindow veya HttpDataSource)
+                    // [ADIM 5] Hata anında otomatik kurtarma (BehindLiveWindow veya HttpDataSource; VOD ve yerel torrent HTTP dahil)
                     val isBehindLive = generateSequence<Throwable>(error) { it.cause }
                         .any { it is androidx.media3.exoplayer.source.BehindLiveWindowException }
                     val isHttpError = generateSequence<Throwable>(error) { it.cause }
                         .any { it is HttpDataSource.HttpDataSourceException }
+                    val http = generateSequence<Throwable>(error) { it.cause }
+                        .filterIsInstance<HttpDataSource.InvalidResponseCodeException>().firstOrNull()
 
-                    if ((isBehindLive || isHttpError) && recoveryAttempts < 3 && !released) {
+                    if (MidPlaybackRecoveryRules.evaluateTransientRecovery(
+                            isBehindLive = isBehindLive,
+                            isHttpError = isHttpError,
+                            recoveryAttempts = recoveryAttempts,
+                            released = released,
+                        ) == MidPlaybackRecoveryRules.TransientRefreshDecision.RefreshSameStream
+                    ) {
                         recoveryAttempts++
                         val currentPos = player.currentPosition
                         Log.w("PlayMatch", "Ağ veya HLS canlı pencere hatası yakalandı (${error.errorCodeName}): akış tazeleniyor pos=$currentPos deneme=$recoveryAttempts")
+                        onTransientRecovery?.invoke(failureDetail(error, http?.responseCode))
                         player.seekTo(currentPos)
                         player.prepare()
                         player.play()
                         return
                     }
 
-                    val http = generateSequence<Throwable>(error) { it.cause }
-                        .filterIsInstance<HttpDataSource.InvalidResponseCodeException>().firstOrNull()
                     TorrentDiag.e(
                         "ExoPlayer hata: ${error.errorCodeName} (${error.errorCode}) → ${errorOf(error)}" +
                             (http?.let { " http=${it.responseCode} ctype=${it.headerFields["Content-Type"]}" } ?: ""),
@@ -481,6 +491,10 @@ class PlaybackController(
         if (forcedMime == null) {
             decoderRetried = false
             mimeProbed = false
+            // RetrySame (aynı adresle yeniden açma) geçici 3 tazeleme sayacını sıfırlamaz; yeni kaynakta veya hata ekranı sonrası sıfırlanır.
+            if (lastStream?.url != stream.url || ui.error != null) {
+                recoveryAttempts = 0
+            }
         }
         cancelSeekWatchdog()
         watchdogReprepareCount = 0
@@ -586,8 +600,29 @@ class PlaybackController(
         ui = ui.copy(error = PlaybackError.Unavailable, buffering = false)
     }
 
+    fun clearError() {
+        ui = ui.copy(error = null)
+    }
+
     fun togglePlay() {
         if (player.isPlaying) player.pause() else player.play()
+    }
+
+    /** Yanlış içerik engellendiğinde veya beklemeye geçerken sesi/oynatmayı duraklatır. */
+    fun pause() {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            Handler(Looper.getMainLooper()).post {
+                if (!released) {
+                    player.playWhenReady = false
+                    player.pause()
+                }
+            }
+            return
+        }
+        if (!released) {
+            player.playWhenReady = false
+            player.pause()
+        }
     }
 
     fun seekBy(deltaMs: Long) {
@@ -635,6 +670,27 @@ class PlaybackController(
     fun audioTracks(): List<AudioTrack> = audioGroups().mapIndexed { i, group ->
         val format = group.mediaTrackGroup.getFormat(0)
         AudioTrack(i, format.language, format.label, group.isSelected, format.channelCount.coerceAtLeast(0), format.sampleMimeType)
+    }
+
+    /** Desteklenmeyenler dahil tüm ses parçalarını döndürür (Türkçe ses doğrulaması desteklenmeyen izleri ayırt eder). */
+    fun allAudioTrackInfos(): List<com.kaan.play.data.player.AudioTrackInfo> {
+        var supportedIndex = 0
+        return player.currentTracks.groups
+            .filter { it.type == C.TRACK_TYPE_AUDIO }
+            .map { group ->
+                val format = group.mediaTrackGroup.getFormat(0)
+                val supported = group.isSupported
+                val indexForSelect = if (supported) supportedIndex++ else -1
+                com.kaan.play.data.player.AudioTrackInfo(
+                    index = indexForSelect,
+                    language = format.language,
+                    label = format.label,
+                    isSelected = supported && group.isSelected,
+                    isSupported = supported,
+                    mime = format.sampleMimeType,
+                    channelCount = format.channelCount.coerceAtLeast(0),
+                )
+            }
     }
 
     private fun videoGroups(): List<Tracks.Group> =
@@ -737,7 +793,7 @@ class PlaybackController(
                 if (session.headers.keys.none { it.equals("User-Agent", ignoreCase = true) }) builder.header("User-Agent", DEFAULT_USER_AGENT)
                 session.headers.forEach { (k, v) -> builder.header(k, v) }
                 client.newBuilder()
-                    .dns(com.kaan.play.data.net.Ipv4FirstDns)
+                    .dns(com.kaan.play.data.net.Ipv4FirstDns.wrapping(client.dns))
                     .cookieJar(session.cookieJar)
                     .callTimeout(8, TimeUnit.SECONDS)
                     .build()

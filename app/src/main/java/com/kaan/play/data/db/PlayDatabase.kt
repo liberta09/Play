@@ -9,8 +9,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
     entities = [
         AddonEntity::class, PluginEntity::class, WatchHistoryEntity::class, FavoriteEntity::class,
         SubtitleLanguageEntity::class, SubtitleOffsetEntity::class, DownloadEntity::class,
+        LiveChannelActivityEntity::class, LiveChannelOrderEntity::class,
+        LiveCatalogEntity::class, LiveCatalogChannelEntity::class,
     ],
-    version = 6,
+    version = 8,
     exportSchema = true,
 )
 abstract class PlayDatabase : RoomDatabase() {
@@ -20,8 +22,47 @@ abstract class PlayDatabase : RoomDatabase() {
     abstract fun favoriteDao(): FavoriteDao
     abstract fun subtitleDao(): SubtitleDao
     abstract fun downloadDao(): DownloadDao
+    abstract fun liveChannelDao(): LiveChannelDao
+    abstract fun liveCatalogDao(): LiveCatalogDao
 
     companion object {
+        /**
+         * 7 -> 8: Canlı TV kullanıcı kanal listeleri (`live_catalog` ve `live_catalog_channel`) eklendi.
+         * Mevcut tüm tablolar ve kullanıcı verileri korunur.
+         */
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `live_catalog` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`name` TEXT NOT NULL, `createdAt` INTEGER NOT NULL)",
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `live_catalog_channel` (`catalogId` INTEGER NOT NULL, " +
+                        "`channelKey` TEXT NOT NULL, `sortIndex` INTEGER NOT NULL, `title` TEXT NOT NULL, " +
+                        "`logoUrl` TEXT, `routesJson` TEXT NOT NULL, PRIMARY KEY(`catalogId`, `channelKey`), " +
+                        "FOREIGN KEY(`catalogId`) REFERENCES `live_catalog`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_live_catalog_channel_catalogId` ON `live_catalog_channel` (`catalogId`)",
+                )
+            }
+        }
+        /**
+         * 6 -> 7: Canlı TV kanal etkinliği (son izlenme, favori) ve manuel sıralama tabloları eklendi.
+         * Mevcut tüm tablolar ve kullanıcı verileri korunur.
+         */
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `live_channel_activity` (`channelKey` TEXT NOT NULL, " +
+                        "`lastWatchedAt` INTEGER NOT NULL, `isFavorite` INTEGER NOT NULL, PRIMARY KEY(`channelKey`))",
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `live_channel_order` (`channelKey` TEXT NOT NULL, " +
+                        "`sortIndex` INTEGER NOT NULL, PRIMARY KEY(`channelKey`))",
+                )
+            }
+        }
         /**
          * 5 -> 6: Profil ve senkronizasyon desteği: watch_history ve favorites tablolarına `userId` ve `profileId`
          * alanları eklendi. Mevcut kayıtlar 'legacy-user' / 'legacy-profile' olarak taşınır.

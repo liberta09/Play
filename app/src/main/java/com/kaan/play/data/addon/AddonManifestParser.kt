@@ -54,6 +54,24 @@ object AddonManifestParser {
         return manifest
     }
 
+    /**
+     * Harici katalog manifestini ayrıştırır: yalnızca `catalog` kaynağı kabul edilir, `stream`/`subtitles`
+     * kaynakları ayıklanır; katalog sunmuyorsa [AddonException] ([Kind.KindMismatch]) fırlatılır.
+     */
+    fun parseCatalogOnly(raw: String): AddonManifest {
+        val manifest = parse(raw)
+        if (!manifest.providesCatalogs) {
+            throw AddonException(
+                kind = Kind.KindMismatch,
+                detail = "external_catalog",
+                detectedType = if (manifest.providesStreams) com.kaan.play.data.plugin.SourceType.NUVIO_REPO else null,
+            )
+        }
+        return manifest.copy(
+            resources = manifest.resources.filter { it.name == AddonManifest.CATALOG },
+        )
+    }
+
     private fun JsonObject.requiredString(field: String): String {
         val value = this[field]
         if (value == null || value is JsonNull) throw AddonException(Kind.MissingField, field)

@@ -5,11 +5,14 @@ import com.kaan.play.BuildConfig
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.view.KeyEvent
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -17,6 +20,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.Player
@@ -27,7 +31,35 @@ import com.kaan.play.R
 import com.kaan.play.data.db.DownloadStatus
 import com.kaan.play.data.download.DownloadedSubtitleLoader
 import com.kaan.play.data.library.WatchRules
+import com.kaan.play.data.model.AgeRating
+import com.kaan.play.data.model.MediaDetail
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.player.AudioTrackLearning
+import com.kaan.play.data.player.AutoRetryPolicy
+import com.kaan.play.data.player.AudioTrackRules
+import com.kaan.play.data.player.TurkishAudioNotice
+import com.kaan.play.i18n.AppLanguage
+import com.kaan.play.data.player.TurkishAudioTrackRules
+import com.kaan.play.data.player.TurkishAudioVerifier
+import com.kaan.play.data.player.TurkishVerifyDecision
+import com.kaan.play.data.provider.LiveCatalogRules
+import com.kaan.play.data.settings.SettingsRepository
+import com.kaan.play.data.settings.ThemeMode
+import com.kaan.play.data.settings.ThemeRules
+import com.kaan.play.data.provider.LiveRoutePlanner
+import com.kaan.play.data.provider.LiveSourceRoute
+import com.kaan.play.data.provider.LiveZapChannel
+import com.kaan.play.data.provider.LiveZapListHolder
+import com.kaan.play.data.provider.LiveZapListSource
+import com.kaan.play.data.provider.LiveZapRequestSequencer
+import com.kaan.play.data.provider.LiveZapRules
+import com.kaan.play.data.provider.LiveZapTicket
+import com.kaan.play.data.stream.PlayTarget
+import com.kaan.play.data.stream.StreamRequest
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withTimeoutOrNull
 import com.kaan.play.data.stream.DeviceCodecs
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.TorrentLinks
@@ -65,7 +97,11 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var autoNext: AutoNextController
 
     /** Çevrimiçi oynatmada kaynak seçimi; indirilmiş kopyada (çevrimdışı) null. */
-    private var coordinator: SourceCoordinator? = null
+    private var coordinator by mutableStateOf<SourceCoordinator?>(null)
+    private var activeTarget by mutableStateOf<PlayTarget?>(null)
+    private var resolvedAgeRating by mutableStateOf<AgeRating?>(null)
+    private var sessionDetailKey: Pair<MediaType, Int>? = null
+    private var sessionDetailDeferred: Deferred<MediaDetail?>? = null
 
     /** Şu an oynayan akış (kaynak değişince güncellenir); sonraki bölümde "aynı eklenti" bundan bulunur. */
     private var currentStream: PlayableStream? = null
@@ -77,6 +113,28 @@ class PlayerActivity : AppCompatActivity() {
     private var userAudioChosen = false
     private var userAudioLanguage: String? = null
     private var preferDub = true
+    private var tryUntilTurkishAudio = SettingsRepository.DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO
+    private var autoDubSwitchSetting = SettingsRepository.DEFAULT_AUTO_DUB_SWITCH
+    private var revertOnSelectedFailureSetting = SettingsRepository.DEFAULT_REVERT_ON_SELECTED_FAILURE
+    private var autoRetryLimitSetting = SettingsRepository.DEFAULT_AUTO_SOURCE_RETRY_LIMIT
+    private var audioProbeTimeoutSeconds = SettingsRepository.DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS
+    private lateinit var audioVerifier: TurkishAudioVerifier
+    private var audioVerificationScanning by mutableStateOf(false)
+    private var audioVerificationNotice by mutableStateOf<TurkishAudioNotice?>(null)
+    private var pendingDubRevertStream: PlayableStream? = null
+    private var audioTrackBanner by mutableStateOf<String?>(null)
+    private var unknownAudioHintStreamUrl: String? = null
+    private var learnedAppliedForUrl: String? = null
+    private var pendingAudioLearnJob: Job? = null
+    private var slowConnectionPromptVisible by mutableStateOf(false)
+    private var slowConnectionPromptedSession = false
+    private var slowConnectionModeState = SettingsRepository.DEFAULT_SLOW_CONNECTION_MODE
+    private var suggestSlowConnectionState = SettingsRepository.DEFAULT_SUGGEST_SLOW_CONNECTION
+    private var testSimulatedOffline = false
+    private var networkCallback: android.net.ConnectivityManager.NetworkCallback? = null
+    private var waitingForInternetJob: Job? = null
+    private var alreadyRetriedOnNetworkReturn = false
+    private var waitingStartTimeMs = 0L
 
     /** Sonraki bölüme geçiliyor: bu bölüm "izlendi" yazılır, oynatıcı hataları (kapanan torrent vb.) gösterilmez. */
     private var leaving = false
@@ -90,6 +148,37 @@ class PlayerActivity : AppCompatActivity() {
 
     /** İntro/özet/jenerik/önizleme atlama düğmeleri ve isteğe bağlı otomatik atlama (TheIntroDB + chapter işaretleri). */
     private lateinit var skips: SkipController
+
+    private var liveZapKey: String? = null
+    private var liveZapChannels: List<LiveZapChannel> = emptyList()
+    private var currentZapIndex by mutableIntStateOf(-1)
+    private var canZapChannels by mutableStateOf(false)
+    private var pendingZapIndex: Int? = null
+    private val zapSequencer = LiveZapRequestSequencer()
+    private var pendingZapTicket: LiveZapTicket? = null
+    private var zapJob: Job? = null
+    private var bannerJob: Job? = null
+    private var noticeJob: Job? = null
+    private var liveChannelBanner by mutableStateOf<String?>(null)
+    private var liveZapSwitching by mutableStateOf(false)
+    private var liveNotice by mutableStateOf<String?>(null)
+    private var playbackLocked = false
+    private var lastZapConsumedDownTime = -1L
+    private var activeZapRollback: ZapRollback? = null
+    private var autoSourceSetting = true
+    private val sessionFailedRouteKeys = LinkedHashSet<String>()
+    private var currentChannelRoutes: List<LiveSourceRoute> = emptyList()
+    private var currentRouteIndex = 0
+    private var allLiveRoutesExhausted by mutableStateOf(false)
+    private var routeSwitchJob: Job? = null
+
+    private data class ZapRollback(
+        val previousSession: PlaySession,
+        val previousStream: PlayableStream?,
+        val previousIndex: Int,
+        val previousRoutes: List<LiveSourceRoute>,
+        val previousRouteIndex: Int,
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val intentSafe = intent?.getBooleanExtra(StartupGuardRules.EXTRA_SAFE_WINDOW, false) ?: false
@@ -107,8 +196,44 @@ class PlayerActivity : AppCompatActivity() {
             return
         }
         session = parsed
+        activeTarget = parsed.target
         if (parsed.fromAutoNext) noTransition(open = true)
+        val incomingZapKey = PlaySession.liveZapKey(incomingIntent)
+        liveZapKey = incomingZapKey
+        val holderChannels = LiveZapListHolder.get(incomingZapKey) ?: emptyList()
+        val zapCatalogId = PlaySession.liveCatalogId(incomingIntent)
+        val zapSource = LiveZapRules.sourceFor(zapCatalogId, holderChannels.isNotEmpty())
+        val isLiveSession = parsed.offline == null && LiveCatalogRules.isLiveRequest(parsed.target.request)
+        liveZapChannels = if (isLiveSession) holderChannels else emptyList()
+        val rawZapIdx = PlaySession.liveZapIndex(incomingIntent)
+        currentZapIndex = when {
+            !isLiveSession || liveZapChannels.isEmpty() -> -1
+            rawZapIdx in liveZapChannels.indices -> rawZapIdx
+            !parsed.liveChannelKey.isNullOrBlank() -> liveZapChannels.indexOfFirst { it.channelKey == parsed.liveChannelKey }
+            else -> 0
+        }
+        canZapChannels = isLiveSession && zapSource != LiveZapListSource.Unavailable && liveZapChannels.isNotEmpty()
+        currentChannelRoutes = if (isLiveSession) {
+            liveZapChannels.getOrNull(currentZapIndex)?.routes?.takeIf { it.isNotEmpty() }
+                ?: listOfNotNull(LiveRoutePlanner.routeFromRequest(parsed.target.request))
+        } else emptyList()
+        currentRouteIndex = 0
+        allLiveRoutesExhausted = false
+        if (isLiveSession) {
+            showLiveChannelBanner(parsed.target.title, switching = false)
+        }
         val container = (application as PlayApp).container
+        if (!isLiveSession && parsed.offline == null) {
+            val targetRating = parsed.target.ageRating?.takeIf { it.isNotBlank() }
+            val targetRegion = parsed.target.ageRatingRegion?.takeIf { it.isNotBlank() }
+            if (targetRating != null && targetRegion != null) {
+                resolvedAgeRating = AgeRating(targetRating, targetRegion)
+            } else if (parsed.target.request.tmdbId > 0) {
+                lifecycleScope.launch {
+                    resolvedAgeRating = sessionDetailAsync(parsed.target.request.type, parsed.target.request.tmdbId).await()?.ageRating
+                }
+            }
+        }
 
         runCatching {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -145,6 +270,17 @@ class PlayerActivity : AppCompatActivity() {
         controller.player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (!isPlaying) saveProgress() // duraklatma
+                broadcastPartyControlIfHost()
+            }
+
+            override fun onPositionDiscontinuity(
+                oldPosition: Player.PositionInfo,
+                newPosition: Player.PositionInfo,
+                reason: Int,
+            ) {
+                if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+                    broadcastPartyControlIfHost()
+                }
             }
 
             override fun onPlaybackStateChanged(state: Int) {
@@ -216,35 +352,61 @@ class PlayerActivity : AppCompatActivity() {
             snapshotFlow { controller.ui.tracksVersion }.collect { syncAudio() }
         }
 
+        val settings = container.settings
+        slowConnectionModeState = runBlocking { settings.slowConnectionMode.first() }
+        suggestSlowConnectionState = runBlocking { settings.suggestSlowConnection.first() }
+        lifecycleScope.launch { settings.slowConnectionMode.collect { slowConnectionModeState = it } }
+        lifecycleScope.launch { settings.suggestSlowConnection.collect { suggestSlowConnectionState = it } }
         if (offline == null) {
             // Ayarlar: tek seferlik okuma (milisaniyeler); oynatma başlamadan önce bilinmeli.
-            val settings = container.settings
-            val autoSource = runBlocking { settings.autoSource.first() }
+            autoSourceSetting = runBlocking { settings.autoSource.first() }
             preferDub = runBlocking { settings.preferDub.first() }
-            val sources = SourceCoordinator(
-                scope = lifecycleScope,
-                request = session.target.request,
-                streamsFor = container.streams::streams,
-                askedFor = container.streams::sources,
-                preferenceFor = container.sourceMemory::get,
-                remember = container.sourceMemory::remember,
-                sizeProbe = container.sizeProbe::size,
-                runtimeFor = ::expectedRuntimeMinutes,
-                verdicts = container.streamVerdicts,
-                maxHeight = DeviceCodecs.maxDecodableHeight(),
-                preferDub = preferDub,
-                autoSource = autoSource,
-                load = ::loadStream,
-                position = { controller.positionMs() },
-                clock = SystemClock::elapsedRealtime,
-                sourceProbe = { stream ->
-                    container.sourceProbe.probe(stream.url, stream.headers, timeoutMs = 1_500L)
-                },
-            )
+            tryUntilTurkishAudio = runBlocking { settings.trySourcesUntilTurkishAudio.first() }
+            autoDubSwitchSetting = runBlocking { settings.autoDubSwitch.first() }
+            revertOnSelectedFailureSetting = runBlocking { settings.revertOnSelectedFailure.first() }
+            autoRetryLimitSetting = runBlocking { settings.autoSourceRetryLimit.first() }
+            audioProbeTimeoutSeconds = runBlocking { settings.audioProbeTimeoutSeconds.first() }
+        }
+        audioVerifier = TurkishAudioVerifier(scanTimeoutMs = audioProbeTimeoutSeconds * 1000L)
+
+        if (offline == null) {
+            val sources = createSourceCoordinator(session.target.request)
             coordinator = sources
             controller.onFirstFrame = {
-                sources.onFirstFrame()
+                allLiveRoutesExhausted = false
+                coordinator?.onFirstFrame()
+                evaluateTurkishAudio()
                 container.torrentEngine.onFirstFrame()
+                val ticket = pendingZapTicket
+                val targetZapIdx = pendingZapIndex
+                if (targetZapIdx != null && (ticket == null || zapSequencer.isLatest(ticket))) {
+                    currentZapIndex = targetZapIdx
+                    pendingZapIndex = null
+                    pendingZapTicket = null
+                }
+                activeZapRollback = null
+                if (liveZapSwitching) {
+                    liveZapSwitching = false
+                    showLiveChannelBanner(session.target.title, switching = false)
+                }
+                if (!session.noHistory && LiveCatalogRules.isLiveRequest(session.target.request)) {
+                    val channelKey = session.liveChannelKey
+                        ?: LiveCatalogRules.channelGroupKey(session.target.title)
+                    if (channelKey.isNotBlank()) {
+                        lifecycleScope.launch { container.liveChannels.markWatched(channelKey) }
+                    }
+                }
+                if (BuildConfig.DEBUG && intent.getBooleanExtra("play_test_slow_prompt", false) && !slowConnectionPromptedSession) {
+                    intent.removeExtra("play_test_slow_prompt")
+                    val isTorrent = currentStream?.url?.let(TorrentLinks::isMagnet) == true
+                    if (offline == null && !isTorrent) {
+                        slowConnectionPromptedSession = true
+                        lifecycleScope.launch {
+                            delay(1_200L)
+                            if (!leaving) slowConnectionPromptVisible = true
+                        }
+                    }
+                }
                 if (BuildConfig.DEBUG && PlayerNoticeLogic.testForceStall) {
                     PlayerNoticeLogic.testForceStall = false
                     lifecycleScope.launch {
@@ -272,9 +434,44 @@ class PlayerActivity : AppCompatActivity() {
                         }
                     }
                 }
+                if (BuildConfig.DEBUG) {
+                    val testOfflineSec = intent.getIntExtra("play_test_offline_seconds", 0)
+                    if (testOfflineSec > 0) {
+                        intent.removeExtra("play_test_offline_seconds")
+                        lifecycleScope.launch {
+                            delay(3500L)
+                            if (!leaving && session.offline == null) {
+                                android.util.Log.i("PlayerActivity", "play_test_offline_seconds tetiklendi ($testOfflineSec sn)")
+                                testSimulatedOffline = true
+                                val savedPos = controller.positionMs().takeIf { it > 0 } ?: (controller.player.currentPosition.takeIf { it > 0 } ?: 0L)
+                                controller.player.pause()
+                                onControllerFailure("java.io.IOException: TEST_SIMULATED_OFFLINE", coordinator)
+
+                                delay(testOfflineSec * 1000L)
+                                if (!leaving) {
+                                    android.util.Log.i("PlayerActivity", "play_test_offline_seconds bitti -> onNetworkReturned")
+                                    testSimulatedOffline = false
+                                    onNetworkReturned(savedPos)
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            controller.onDurationKnown = { sources.onDuration(it) }
-            controller.onFailure = { detail -> leaving || sources.onFailure(detail) }
+            controller.onDurationKnown = { coordinator?.onDuration(it) }
+            controller.onFailure = { detail -> onControllerFailure(detail, coordinator) }
+            controller.onTransientRecovery = { detail -> if (!leaving) coordinator?.onTransientRefresh(detail) }
+            lifecycleScope.launch {
+                snapshotFlow { Pair(coordinator, coordinator?.phase) }.collect { (coord, phase) ->
+                    if (coord != null && phase == SourcePhase.Failed && !leaving) {
+                        if (LiveCatalogRules.isLiveRequest(session.target.request)) {
+                            handleLiveSourceCoordinatorFailed(coord)
+                        } else if (activeZapRollback != null) {
+                            revertFailedLiveZap()
+                        }
+                    }
+                }
+            }
             // Arabelleğe alma sırasında takılma analizi (500 ms aralıkla)
             lifecycleScope.launch {
                 snapshotFlow { controller.ui.buffering }
@@ -290,12 +487,39 @@ class PlayerActivity : AppCompatActivity() {
                                 currentStallStartMs = tracker.currentStallStartMs,
                                 pastStalls = tracker.pastStalls,
                             )
+                            val isTorrent = currentStream?.url?.let(TorrentLinks::isMagnet) == true
+                            if (com.kaan.play.data.net.SlowConnectionPromptRules.shouldShowPrompt(
+                                    suggestEnabled = suggestSlowConnectionState,
+                                    slowModeEnabled = slowConnectionModeState,
+                                    promptedThisSession = slowConnectionPromptedSession,
+                                    isOffline = false,
+                                    isTorrent = isTorrent,
+                                    firstFrameRendered = tracker.firstFrameRendered,
+                                    isSeeking = tracker.isSeeking,
+                                    currentBufferingStartMs = tracker.currentStallStartMs,
+                                    nowMs = tracker.now(),
+                                )
+                            ) {
+                                slowConnectionPromptedSession = true
+                                slowConnectionPromptVisible = true
+                            }
                         }
                     }
-            }
+            }
+            // Türkçe ses izi doğrulama zaman aşımı ve iz değişikliklerini düzenli kontrol et.
+            lifecycleScope.launch {
+                snapshotFlow { Pair(audioVerificationScanning, controller.ui.firstFrameRendered) }
+                    .collectLatest { (scanning, _) ->
+                        if (!scanning || leaving) return@collectLatest
+                        while (isActive && audioVerificationScanning && !leaving) {
+                            evaluateTurkishAudio()
+                            delay(400L)
+                        }
+                    }
+            }
             // Torrent açılınca dosya boyutu panelde ve üst çubukta görünsün.
             container.torrentServer.onOpened = { magnet, size ->
-                runOnUiThread { sources.reportSize(magnet, size) }
+                runOnUiThread { coordinator?.reportSize(magnet, size) }
             }
             sources.start(
                 initial = if (session.autoSource) null else session.stream,
@@ -314,15 +538,27 @@ class PlayerActivity : AppCompatActivity() {
             }
         }
 
+        val initialTheme = runBlocking { container.settings.themeMode.first() }
+        val initialPerf = runBlocking { container.settings.performanceMode.first() }
         try {
             StartupWindowGuard.checkDebugFailSetContent(intent)
             setContent {
-            PlayTheme(darkTheme = true) {
+            val mode by container.settings.themeMode.collectAsStateWithLifecycle(initialValue = initialTheme)
+            val performanceMode by container.settings.performanceMode.collectAsStateWithLifecycle(initialValue = initialPerf)
+            val resolvedTheme = ThemeRules.resolve(mode, isSystemInDarkTheme()).let {
+                if (it == ThemeMode.Light) ThemeMode.Dark else it
+            }
+            PlayTheme(themeMode = resolvedTheme, performanceMode = performanceMode) {
                 val isSeries = AutoNextRules.canShowNextEpisodeButton(session.target.request.type, session.target.request.season, session.target.request.episode, session.target.request.addonType, 1L)
+                val currentPartySession by container.watchPartyManager.session.collectAsStateWithLifecycle()
+                val isPartyActive = currentPartySession != null &&
+                    currentPartySession!!.room.tmdbId == (activeTarget ?: session.target).request.tmdbId
+                val isHost = isPartyActive && currentPartySession!!.isHost
+                val isGuest = isPartyActive && !currentPartySession!!.isHost
                 PlayerScreen(
                     controller = controller,
                     subtitles = subtitles,
-                    target = session.target,
+                    target = activeTarget ?: session.target,
                     showResumeNotice = session.autoResumed && session.startPositionMs > 0,
                     canSwitchSource = offline == null,
                     levels = levels,
@@ -336,6 +572,47 @@ class PlayerActivity : AppCompatActivity() {
                     onAudioChosen = ::onAudioChosen,
                     skips = skips,
                     getTorrentLoadSnapshot = container.torrentEngine::getLoadSnapshot,
+                    canZapChannels = canZapChannels,
+                    onZapChannel = if (canZapChannels) ::zapChannel else null,
+                    onZapKeyConsumed = { downTime -> lastZapConsumedDownTime = downTime },
+                    liveChannelBanner = liveChannelBanner,
+                    liveZapSwitching = liveZapSwitching,
+                    liveNotice = liveNotice,
+                    allLiveRoutesExhausted = allLiveRoutesExhausted,
+                    onScanLiveProvider = if (offline == null && LiveCatalogRules.isLiveRequest((activeTarget ?: session.target).request)) ::scanAnotherLiveProvider else null,
+                    audioVerificationScanning = audioVerificationScanning,
+                    audioVerificationNotice = audioVerificationNotice,
+                    onClearAudioVerificationNotice = { audioVerificationNotice = null },
+                    onStopTurkishAudioScan = ::stopTurkishAudioScan,
+                    onNextAudioTrack = ::selectNextAudioTrack,
+                    audioTrackBanner = audioTrackBanner,
+                    onClearAudioTrackBanner = { audioTrackBanner = null },
+                    onAcceptDubSuggestion = ::acceptDubSuggestionWithVerification,
+                    slowPromptVisible = slowConnectionPromptVisible,
+                    onEnableSlowConnection = {
+                        slowConnectionPromptVisible = false
+                        slowConnectionModeState = true
+                        container.appScope.launch { container.settings.setSlowConnectionMode(true) }
+                    },
+                    onDismissSlowPrompt = { slowConnectionPromptVisible = false },
+                    ageRating = resolvedAgeRating?.rating,
+                    ageRatingRegion = resolvedAgeRating?.region,
+                    onLockedChanged = { playbackLocked = it },
+                    watchPartySession = if (isPartyActive) currentPartySession else null,
+                    isWatchPartyHost = isHost,
+                    isWatchPartyGuest = isGuest,
+                    onWatchPartyResync = {
+                        val packet = container.watchPartyManager.realtimeClient.latestControl.value
+                        if (packet != null) {
+                            controller.seekTo(packet.positionMs)
+                            if (packet.playing && !controller.player.isPlaying) {
+                                controller.player.play()
+                            } else if (!packet.playing && controller.player.isPlaying) {
+                                controller.pause()
+                            }
+                            controller.speed = packet.speed
+                        }
+                    },
                     onBack = ::finish,
                 )
             }
@@ -373,6 +650,99 @@ class PlayerActivity : AppCompatActivity() {
                 }
             }
         }
+
+        // Watch Party senkronizasyonu
+        val partyManager = container.watchPartyManager
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    delay(5000L)
+                    val activeSession = partyManager.session.value
+                    if (activeSession != null && activeSession.isHost && activeSession.room.tmdbId == session.target.request.tmdbId) {
+                        if (controller.ui.isPlaying) {
+                            partyManager.broadcastControl(
+                                positionMs = controller.positionMs(),
+                                isPlaying = controller.ui.isPlaying,
+                                speed = controller.ui.speed,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            partyManager.realtimeClient.controlEvents.collect { packet ->
+                val activeSession = partyManager.session.value
+                if (activeSession != null && !activeSession.isHost && activeSession.room.tmdbId == session.target.request.tmdbId) {
+                    val action = partyManager.syncRules.evaluateSync(
+                        localCurrentPositionMs = controller.positionMs(),
+                        packet = packet,
+                        nowMs = SystemClock.elapsedRealtime(),
+                    )
+                    if (action != null) {
+                        if (action.shouldSeek) {
+                            controller.seekTo(action.targetPositionMs)
+                        }
+                        if (action.isPlaying && !controller.player.isPlaying) {
+                            controller.player.play()
+                        } else if (!action.isPlaying && controller.player.isPlaying) {
+                            controller.pause()
+                        }
+                        if (controller.speed != action.speed) {
+                            controller.speed = action.speed
+                        }
+                    }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            partyManager.contentTransitionEvents.collect { packet ->
+                val activeSession = partyManager.session.value
+                if (activeSession != null && !activeSession.isHost) {
+                    val isDifferent = packet.tmdbId != session.target.request.tmdbId ||
+                        packet.season != session.target.request.season ||
+                        packet.episode != session.target.request.episode
+                    if (isDifferent) {
+                        Toast.makeText(
+                            this@PlayerActivity,
+                            R.string.watch_party_host_next_episode_notice,
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                        val mediaType = com.kaan.play.data.model.MediaType.fromTmdb(packet.mediaType)
+                            ?: com.kaan.play.data.model.MediaType.Tv
+                        val baseTarget = session.target
+                        val target = baseTarget.copy(
+                            title = packet.title.ifBlank { baseTarget.title },
+                            request = baseTarget.request.copy(
+                                tmdbId = packet.tmdbId,
+                                type = mediaType,
+                                season = packet.season,
+                                episode = packet.episode,
+                                title = packet.title.ifBlank { baseTarget.request.title },
+                            ),
+                        )
+                        val nextSession = PlaySession(
+                            target = target,
+                            stream = null,
+                            startPositionMs = 0L,
+                            autoSource = true,
+                        )
+                        startActivity(nextSession.toIntent(this@PlayerActivity))
+                        noTransition(open = false)
+                        finish()
+                    }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            partyManager.roomClosedNotification.collect {
+                Toast.makeText(
+                    this@PlayerActivity,
+                    R.string.watch_party_room_closed_notice,
+                    Toast.LENGTH_SHORT,
+                ).show()
+            }
+        }
     }
 
     override fun onStart() {
@@ -404,8 +774,26 @@ class PlayerActivity : AppCompatActivity() {
         super.finish()
     }
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (::session.isInitialized && ::controller.isInitialized) {
+            val isLive = session.offline == null && LiveCatalogRules.isLiveRequest(session.target.request)
+            val direction = PlayerKeys.zapDirectionForKeyCode(keyCode, isLive = isLive && canZapChannels)
+            if (direction != 0 && !leaving && !playbackLocked) {
+                if (event.repeatCount == 0 && event.downTime != lastZapConsumedDownTime) {
+                    lastZapConsumedDownTime = event.downTime
+                    zapChannel(direction)
+                }
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        if (isFinishing) {
+            LiveZapListHolder.remove(liveZapKey)
+        }
         levels?.restoreBrightness()
         if (::controller.isInitialized) {
             controller.release()
@@ -413,6 +801,317 @@ class PlayerActivity : AppCompatActivity() {
             container.torrentServer.onOpened = null
             container.torrentEngine.release()
         }
+    }
+
+    private fun createSourceCoordinator(request: StreamRequest): SourceCoordinator {
+        val container = appContainer
+        val testDelayDubbedMs = if (BuildConfig.DEBUG) intent.getLongExtra("play_test_delay_dubbed_ms", 0L) else 0L
+        val streamsSource: (StreamRequest) -> kotlinx.coroutines.flow.Flow<com.kaan.play.data.stream.StreamResult> =
+            if (testDelayDubbedMs > 0L) {
+                { req ->
+                    kotlinx.coroutines.flow.flow {
+                        container.streams.streams(req).collect { res ->
+                            if (res is com.kaan.play.data.stream.StreamResult.Found && res.streams.any { it.dubbed }) {
+                                kotlinx.coroutines.delay(testDelayDubbedMs)
+                            }
+                            emit(res)
+                        }
+                    }
+                }
+            } else {
+                container.streams::streams
+            }
+        return SourceCoordinator(
+            scope = lifecycleScope,
+            request = request,
+            streamsFor = streamsSource,
+            askedFor = container.streams::sources,
+            preferenceFor = container.sourceMemory::get,
+            remember = container.sourceMemory::remember,
+            sizeProbe = container.sizeProbe::size,
+            runtimeFor = ::expectedRuntimeMinutes,
+            verdicts = container.streamVerdicts,
+            maxHeight = DeviceCodecs.maxDecodableHeight(),
+            preferDub = preferDub,
+            autoSource = autoSourceSetting,
+            autoDubSwitch = autoDubSwitchSetting,
+            revertOnSelectedFailure = revertOnSelectedFailureSetting,
+            autoRetryLimit = AutoRetryPolicy.limitOrNull(autoRetryLimitSetting),
+            loadBlocked = { container.wrongContentBlocks.ensureLoaded(); container.sourceHealth.ensureLoaded() },
+            isSourceBlocked = { src -> container.wrongContentBlocks.isBlockedCached(request, src, session.target.title, request.year) },
+            persistSourceBlock = { src -> container.wrongContentBlocks.block(request, src, session.target.title, request.year) },
+            persistAudioSyncReport = { src -> container.audioSyncReports.increment(src) },
+            isBlacklistedHost = { url -> container.sourceHealth.isUrlBlacklistedCached(url) },
+            onSourceFirstFrame = { stream -> container.sourceHealth.recordSuccess(stream.source, stream.url) },
+            onSourceFailure = { stream, detail -> container.sourceHealth.recordFailure(stream.source, stream.url, detail) },
+            load = ::loadStream,
+            pausePlayback = controller::pause,
+            position = { controller.positionMs() },
+            clock = SystemClock::elapsedRealtime,
+            sourceProbe = { stream ->
+                container.sourceProbe.probe(stream.url, stream.headers, timeoutMs = 1_500L)
+            },
+            isOffline = session.offline != null,
+            isWatchPartyGuest = { val party = container.watchPartyManager.session.value; party != null && !party.isHost },
+            onAutoDubSwitch = ::prepareAutoDubSwitch,
+        )
+    }
+
+    private fun showLiveChannelBanner(title: String, switching: Boolean) {
+        liveChannelBanner = title
+        liveZapSwitching = switching
+        bannerJob?.cancel()
+        if (!switching) {
+            bannerJob = lifecycleScope.launch {
+                delay(3_000L)
+                liveChannelBanner = null
+            }
+        }
+    }
+
+    private fun showLiveNotice(message: String) {
+        liveNotice = message
+        noticeJob?.cancel()
+        noticeJob = lifecycleScope.launch {
+            delay(4_500L)
+            liveNotice = null
+        }
+    }
+
+    private fun zapChannel(direction: Int) {
+        if (!canZapChannels || leaving || liveZapChannels.size <= 1) return
+        val base = (pendingZapIndex ?: currentZapIndex).takeIf { it in liveZapChannels.indices } ?: 0
+        val nextIdx = LiveZapRules.nextAvailableIndex(liveZapChannels, base, direction) ?: return
+        val targetChannel = liveZapChannels[nextIdx]
+        pendingZapIndex = nextIdx
+        val ticket = zapSequencer.issue(nextIdx)
+        pendingZapTicket = ticket
+        liveNotice = null
+        showLiveChannelBanner(targetChannel.title, switching = true)
+        routeSwitchJob?.cancel()
+        zapJob?.cancel()
+        zapJob = lifecycleScope.launch {
+            val found = discoverFirstLiveRouteStreams(targetChannel.routes, startIndex = 0, title = targetChannel.title, markEmptyFailed = true)
+            if (!zapSequencer.isLatest(ticket)) return@launch
+            if (found == null) {
+                pendingZapIndex = null
+                pendingZapTicket = null
+                liveZapSwitching = false
+                showLiveChannelBanner(session.target.title, switching = false)
+                showLiveNotice(getString(R.string.live_zap_reverted))
+                return@launch
+            }
+            val (routeIdx, route, streams) = found
+            val rollback = activeZapRollback ?: ZapRollback(
+                previousSession = session,
+                previousStream = currentStream,
+                previousIndex = currentZapIndex.takeIf { it in liveZapChannels.indices } ?: base,
+                previousRoutes = currentChannelRoutes,
+                previousRouteIndex = currentRouteIndex,
+            )
+            activeZapRollback = rollback
+            currentChannelRoutes = targetChannel.routes
+            currentRouteIndex = routeIdx
+            allLiveRoutesExhausted = false
+            controller.clearError()
+            startLiveRouteCoordinator(
+                route = route,
+                title = targetChannel.title,
+                posterUrl = targetChannel.logoUrl,
+                channelKey = targetChannel.channelKey,
+                streams = streams,
+            )
+        }
+    }
+
+    private fun scanAnotherLiveProvider() {
+        if (leaving || !LiveCatalogRules.isLiveRequest(session.target.request)) return
+        val nextIdx = LiveRoutePlanner.nextUntriedRouteIndex(
+            routes = currentChannelRoutes,
+            currentIndex = currentRouteIndex,
+            failedKeys = sessionFailedRouteKeys,
+        )
+        if (nextIdx == null) {
+            showLiveNotice(getString(R.string.live_route_not_found))
+            return
+        }
+        switchToLiveRoute(
+            startRouteIndex = nextIdx,
+            statusNotice = getString(R.string.live_route_retrying),
+            markFailedOnEmpty = true,
+            revertZapIfExhausted = false,
+        )
+    }
+
+    private fun handleLiveSourceCoordinatorFailed(failedCoordinator: SourceCoordinator) {
+        if (leaving || coordinator !== failedCoordinator) return
+        val currentRoute = currentChannelRoutes.getOrNull(currentRouteIndex)
+            ?: LiveRoutePlanner.routeFromRequest(session.target.request)
+        if (currentRoute != null) {
+            sessionFailedRouteKeys += LiveRoutePlanner.routeKey(currentRoute)
+        }
+        val nextIdx = LiveRoutePlanner.nextUntriedRouteIndex(
+            routes = currentChannelRoutes,
+            currentIndex = currentRouteIndex,
+            failedKeys = sessionFailedRouteKeys,
+        )
+        if (nextIdx != null) {
+            switchToLiveRoute(
+                startRouteIndex = nextIdx,
+                statusNotice = getString(R.string.live_route_retrying),
+                markFailedOnEmpty = true,
+                revertZapIfExhausted = activeZapRollback != null,
+            )
+            return
+        }
+        if (activeZapRollback != null) {
+            revertFailedLiveZap()
+        } else {
+            allLiveRoutesExhausted = true
+            showLiveNotice(getString(R.string.live_route_not_found))
+        }
+    }
+
+    private fun switchToLiveRoute(
+        startRouteIndex: Int,
+        statusNotice: String,
+        markFailedOnEmpty: Boolean,
+        revertZapIfExhausted: Boolean,
+    ) {
+        val routes = currentChannelRoutes
+        if (routes.isEmpty()) {
+            if (revertZapIfExhausted && activeZapRollback != null) {
+                revertFailedLiveZap()
+            } else {
+                showLiveNotice(getString(R.string.live_route_not_found))
+            }
+            return
+        }
+        val channelTitle = session.target.title
+        val channelLogo = session.target.posterPath
+        val channelKey = session.liveChannelKey
+        showLiveNotice(statusNotice)
+        showLiveChannelBanner(channelTitle, switching = true)
+        routeSwitchJob?.cancel()
+        val avoidIdx = currentRouteIndex
+        routeSwitchJob = lifecycleScope.launch {
+            val found = discoverFirstLiveRouteStreams(
+                routes = routes,
+                startIndex = startRouteIndex,
+                title = channelTitle,
+                markEmptyFailed = markFailedOnEmpty,
+                excludeIndex = avoidIdx,
+            )
+            if (found == null) {
+                liveZapSwitching = false
+                if (revertZapIfExhausted && activeZapRollback != null) {
+                    revertFailedLiveZap()
+                } else {
+                    allLiveRoutesExhausted = allLiveRoutesExhausted || (coordinator?.phase == SourcePhase.Failed)
+                    showLiveChannelBanner(channelTitle, switching = false)
+                    showLiveNotice(getString(R.string.live_route_not_found))
+                }
+                return@launch
+            }
+            val (foundIdx, route, streams) = found
+            currentRouteIndex = foundIdx
+            allLiveRoutesExhausted = false
+            controller.clearError()
+            startLiveRouteCoordinator(
+                route = route,
+                title = channelTitle,
+                posterUrl = channelLogo,
+                channelKey = channelKey,
+                streams = streams,
+            )
+        }
+    }
+
+    private fun startLiveRouteCoordinator(
+        route: LiveSourceRoute,
+        title: String,
+        posterUrl: String?,
+        channelKey: String?,
+        streams: List<PlayableStream>,
+    ) {
+        coordinator?.cancel()
+        val newRequest = LiveZapRules.toStreamRequest(route, title)
+        val newTarget = PlayTarget(
+            request = newRequest,
+            title = title,
+            posterPath = posterUrl,
+        )
+        session = session.copy(
+            target = newTarget,
+            stream = streams.first(),
+            fallbacks = streams.drop(1),
+            startPositionMs = 0L,
+            autoSource = false,
+            liveChannelKey = channelKey,
+        )
+        activeTarget = newTarget
+        val nextCoord = createSourceCoordinator(newRequest)
+        coordinator = nextCoord
+        controller.onDurationKnown = { nextCoord.onDuration(it) }
+        controller.onFailure = { detail -> onControllerFailure(detail, nextCoord) }
+        nextCoord.start(initial = streams.first(), fallbacks = streams.drop(1), startMs = 0L)
+    }
+
+    private suspend fun discoverFirstLiveRouteStreams(
+        routes: List<LiveSourceRoute>,
+        startIndex: Int,
+        title: String,
+        markEmptyFailed: Boolean,
+        excludeIndex: Int = -1,
+    ): Triple<Int, LiveSourceRoute, List<PlayableStream>>? {
+        if (routes.isEmpty()) return null
+        val start = startIndex.coerceIn(0, routes.lastIndex)
+        for (offset in routes.indices) {
+            val idx = (start + offset) % routes.size
+            if (idx == excludeIndex) continue
+            val route = routes[idx]
+            val key = LiveRoutePlanner.routeKey(route)
+            if (key in sessionFailedRouteKeys) continue
+            val request = LiveZapRules.toStreamRequest(route, title)
+            val collected = withTimeoutOrNull(8_000L) {
+                AutoNextRules.collect(appContainer.streams.streams(request), preferredAddonId = null)
+            }.orEmpty().filter { !it.url.isNullOrBlank() }
+            if (collected.isNotEmpty()) {
+                return Triple(idx, route, collected)
+            }
+            if (markEmptyFailed) {
+                sessionFailedRouteKeys += key
+            }
+        }
+        return null
+    }
+
+    private fun revertFailedLiveZap() {
+        val rollback = activeZapRollback ?: return
+        activeZapRollback = null
+        pendingZapIndex = null
+        pendingZapTicket = null
+        liveZapSwitching = false
+        allLiveRoutesExhausted = false
+        routeSwitchJob?.cancel()
+        coordinator?.cancel()
+        controller.clearError()
+        session = rollback.previousSession
+        activeTarget = rollback.previousSession.target
+        currentZapIndex = rollback.previousIndex
+        currentChannelRoutes = rollback.previousRoutes
+        currentRouteIndex = rollback.previousRouteIndex
+        val restored = createSourceCoordinator(rollback.previousSession.target.request)
+        coordinator = restored
+        controller.onDurationKnown = { restored.onDuration(it) }
+        controller.onFailure = { detail -> onControllerFailure(detail, restored) }
+        restored.start(
+            initial = rollback.previousStream,
+            fallbacks = rollback.previousSession.fallbacks,
+            startMs = 0L,
+        )
+        showLiveChannelBanner(rollback.previousSession.target.title, switching = false)
+        showLiveNotice(getString(R.string.live_zap_reverted))
     }
 
     // ---- kaynak ----
@@ -435,9 +1134,21 @@ class PlayerActivity : AppCompatActivity() {
         if (previous != null && previous.url != stream.url && TorrentLinks.isMagnet(previous.url)) {
             appContainer.torrentEngine.closeActive()
         }
+        pendingAudioLearnJob?.cancel()
         currentStream = stream
+        val isLive = LiveCatalogRules.isLiveRequest(session.target.request)
+        val fromDubSuggestion = pendingDubRevertStream != null
+        val shouldVerifyTurkish = session.offline == null && !isLive && !userAudioChosen && ((preferDub && tryUntilTurkishAudio && stream.dubbed) || fromDubSuggestion)
+        val revertStream = pendingDubRevertStream
+        pendingDubRevertStream = null
+        if (::audioVerifier.isInitialized) {
+            audioVerifier.begin(stream, shouldVerify = shouldVerifyTurkish, revertIfUnverified = revertStream)
+            audioVerificationScanning = audioVerifier.scanning
+        }
         skips.onSourceChanged(startMs)
         embeddedDub = false
+        coordinator?.setCurrentAudioTurkish(false)
+        coordinator?.setAudioTracksEvaluated(false)
         // Dublajlı kaynakta Türkçe altyazı gereksiz: otomatik seçim kapanır (kullanıcının elle seçtiğine dokunulmaz).
         if (stream.dubbed) subtitles.suppressAuto() else subtitles.resumeAuto()
         subtitles.setStream(stream)
@@ -445,34 +1156,190 @@ class PlayerActivity : AppCompatActivity() {
         controller.load(stream, startMs)
     }
 
-    /** Ses parçası listesi değişti: elle seçilen dil korunur; yoksa (Türkçe dublaj önceliği açıkken) Türkçe ses seçilir. */
+    private fun prepareAutoDubSwitch(previous: PlayableStream, next: PlayableStream) {
+        pendingDubRevertStream = previous
+        if (::audioVerifier.isInitialized) {
+            audioVerifier.resetForExplicitDubSwitch()
+        }
+    }
+
+    private fun acceptDubSuggestionWithVerification() {
+        val coord = coordinator ?: return
+        pendingDubRevertStream = coord.current ?: currentStream
+        if (::audioVerifier.isInitialized) {
+            audioVerifier.resetForExplicitDubSwitch()
+        }
+        coord.acceptDubSuggestion()
+    }
+
+    private fun stopTurkishAudioScan() {
+        if (::audioVerifier.isInitialized) {
+            audioVerifier.stopByUser()
+        }
+        audioVerificationScanning = false
+        audioVerificationNotice = null
+    }
+
+    private fun evaluateTurkishAudio(): Boolean {
+        if (!::audioVerifier.isInitialized || !audioVerifier.scanning) {
+            audioVerificationScanning = false
+            return false
+        }
+        val coord = coordinator ?: return false
+        val stream = currentStream ?: return false
+        val decision = audioVerifier.evaluate(
+            stream = stream,
+            tracks = controller.allAudioTrackInfos(),
+            playbackStarted = controller.ui.firstFrameRendered,
+            nowMs = SystemClock.elapsedRealtime(),
+            remainingDubbedCandidates = coord.dubbedCandidatesExcluding(emptySet()).filterNot { audioVerifier.hasFailedVerification(it.url) },
+            remainingAlternativeCandidates = coord.alternativeCandidatesExcluding(emptySet()).filterNot { audioVerifier.hasFailedVerification(it.url) },
+            lastWorking = coord.lastWorkingStream,
+            sizes = coord.sizes,
+            maxHeight = DeviceCodecs.maxDecodableHeight(),
+        )
+        return when (decision) {
+            TurkishVerifyDecision.KeepWaiting -> true
+            is TurkishVerifyDecision.SelectTrack -> {
+                controller.selectAudio(decision.index)
+                true
+            }
+            TurkishVerifyDecision.Verified -> {
+                audioVerificationScanning = false
+                coord.markCurrentVerifiedWorking()
+                coord.setCurrentAudioTurkish(true)
+                coord.setAudioTracksEvaluated()
+                false
+            }
+            is TurkishVerifyDecision.TryNextDubbed -> {
+                audioVerificationScanning = false
+                audioVerificationNotice = decision.notice
+                coord.switchAfterUnverifiedDub(decision.stream)
+                true
+            }
+            is TurkishVerifyDecision.FallbackToAlternative -> {
+                audioVerificationScanning = false
+                audioVerificationNotice = decision.notice
+                coord.switchAfterUnverifiedDub(decision.stream)
+                true
+            }
+            is TurkishVerifyDecision.ContinueCurrent -> {
+                audioVerificationScanning = false
+                audioVerificationNotice = decision.notice
+                false
+            }
+        }
+    }
+
+    /** Ses parçası listesi değişti: elle seçilen dil korunur; yoksa Türkçe ses izi doğrulama veya otomatik seçim çalışır. */
     private fun syncAudio() {
+        val handledByVerifier = evaluateTurkishAudio()
         val tracks = controller.audioTracks()
         if (tracks.isEmpty()) {
             embeddedDub = false
             return
         }
         fun lang(t: AudioTrack) = SubtitleLanguages.normalize(t.language)
-        if (userAudioChosen) {
-            val wanted = userAudioLanguage
-            val match = if (wanted != null) tracks.firstOrNull { lang(it) == wanted } else null
-            if (match != null && !match.selected) controller.selectAudio(match.index)
-        } else if (preferDub) {
-            val turkish = tracks.firstOrNull { lang(it) == "tr" }
-            if (turkish != null && !turkish.selected) controller.selectAudio(turkish.index)
+        if (!handledByVerifier) {
+            if (userAudioChosen) {
+                val wanted = userAudioLanguage
+                val match = if (wanted != null) tracks.firstOrNull { lang(it) == wanted } else null
+                if (match != null && !match.selected) controller.selectAudio(match.index)
+            } else if (preferDub) {
+                val turkish = tracks.firstOrNull { TurkishAudioTrackRules.isTurkishTrack(it.language, it.label) }
+                if (turkish != null && !turkish.selected) controller.selectAudio(turkish.index)
+            }
         }
         val selected = tracks.firstOrNull { it.selected }
-        embeddedDub = selected != null && lang(selected) == "tr" && (tracks.size > 1 || currentStream?.dubbed == true)
+        val isTurkishTrack = selected != null && TurkishAudioTrackRules.isTurkishTrack(selected.language, selected.label)
+        embeddedDub = isTurkishTrack &&
+            (tracks.size > 1 || currentStream?.dubbed == true)
+        if (embeddedDub || isTurkishTrack) {
+            coordinator?.setCurrentAudioTurkish(true)
+        }
+        coordinator?.setAudioTracksEvaluated()
+        val infos = controller.allAudioTrackInfos()
+        val supported = infos.filter { it.isSupported }
+        val stream = currentStream
+        val streamUrl = stream?.url
+        if (session.offline == null && !userAudioChosen && !audioVerificationScanning && stream != null && streamUrl != null && supported.size > 1 && !AudioTrackRules.hasAnyLanguageInfo(infos)) {
+            if (learnedAppliedForUrl != streamUrl) {
+                learnedAppliedForUrl = streamUrl
+                val reqSnapshot = session.target.request
+                lifecycleScope.launch {
+                    val matchedIdx = appContainer.audioTrackLearning.findMatch(stream, reqSnapshot, infos)
+                    if (currentStream?.url != streamUrl || userAudioChosen || leaving) return@launch
+                    if (matchedIdx != null) {
+                        val currentSel = controller.allAudioTrackInfos().firstOrNull { it.isSelected }?.index
+                        if (currentSel != matchedIdx) {
+                            controller.selectAudio(matchedIdx)
+                        }
+                        audioTrackBanner = getString(R.string.player_audio_selecting_learned)
+                    } else if (unknownAudioHintStreamUrl != streamUrl) {
+                        unknownAudioHintStreamUrl = streamUrl
+                        audioTrackBanner = getString(R.string.player_audio_unknown_hint)
+                    }
+                }
+            }
+        }
         // Türkçe ses seçiliyken Türkçe altyazıya gerek yok; yoksa otomatik altyazı yeniden açılır.
         if (embeddedDub) subtitles.suppressAuto() else if (currentStream?.dubbed != true) subtitles.resumeAuto()
     }
 
-    /** Kullanıcı sesi Parçalar panelinden seçti: dil hatırlanır (kaynak değişince aynı dil aranır), otomatik seçim bir daha karışmaz. */
+    /** Alt çubuktan "Sonraki ses izi": sıradaki ses parçasına geçer ve elle seçim sayılır. */
+    private fun selectNextAudioTrack() {
+        val infos = controller.allAudioTrackInfos()
+        val next = AudioTrackRules.nextTrack(infos) ?: return
+        val hasLang = AudioTrackRules.hasAnyLanguageInfo(infos)
+        onAudioChosen(next.index)
+        val supportedPos = infos.filter { it.isSupported }.indexOfFirst { it.index == next.index }.coerceAtLeast(0) + 1
+        val uiIso = AppLanguage.effective().iso
+        val name = AudioTrackRules.displayNameForUi(
+            track = next,
+            displayIndexOneBased = supportedPos,
+            fallbackLabel = { getString(R.string.player_audio_track, it) },
+            languageDisplayName = { SubtitleLanguages.displayName(it, uiIso) },
+        )
+        audioTrackBanner = if (hasLang) name else getString(R.string.player_audio_unknown_named, name)
+    }
+
+    /** Kullanıcı sesi Parçalar panelinden seçti: dil hatırlanır (kaynak değişince aynı dil aranır), otomatik seçim ve tarama durur. */
     private fun onAudioChosen(index: Int) {
+        val infos = controller.allAudioTrackInfos()
         val track = controller.audioTracks().firstOrNull { it.index == index } ?: return
+        stopTurkishAudioScan()
         userAudioChosen = true
+        coordinator?.setUserAudioChosen(true)
         userAudioLanguage = SubtitleLanguages.normalize(track.language)
         controller.selectAudio(index)
+        scheduleAudioTrackLearning(index, infos)
+    }
+
+    private fun scheduleAudioTrackLearning(chosenIndex: Int, initialInfos: List<com.kaan.play.data.player.AudioTrackInfo>) {
+        pendingAudioLearnJob?.cancel()
+        val stream = currentStream ?: return
+        if (session.offline != null) return
+        val supported = initialInfos.filter { it.isSupported }
+        if (supported.size <= 1 || AudioTrackRules.hasAnyLanguageInfo(supported)) return
+        val streamUrl = stream.url
+        val requestSnapshot = session.target.request
+        pendingAudioLearnJob = lifecycleScope.launch {
+            var activeMs = 0L
+            while (isActive && !leaving && currentStream?.url == streamUrl) {
+                delay(1_000L)
+                if (controller.ui.isPlaying) {
+                    activeMs += 1_000L
+                    if (activeMs >= AudioTrackLearning.MIN_PLAYBACK_MS) {
+                        val latestInfos = controller.allAudioTrackInfos()
+                        val selectedIdx = latestInfos.firstOrNull { it.isSelected }?.index
+                        if (selectedIdx == chosenIndex) {
+                            appContainer.audioTrackLearning.record(stream, requestSnapshot, latestInfos, chosenIndex)
+                        }
+                        break
+                    }
+                }
+            }
+        }
     }
 
     // ---- otomatik sonraki bölüm ----
@@ -499,15 +1366,27 @@ class PlayerActivity : AppCompatActivity() {
      * İçerik doğrulaması için TMDB süresi (dk): film süresi; dizide önce o bölümün süresi, yoksa dizinin bölüm süresi.
      * Ağ/TMDB hatasında null: süre kontrolü yapılmaz (kaynak elenmez).
      */
+    private fun sessionDetailAsync(type: MediaType, tmdbId: Int): Deferred<MediaDetail?> {
+        val key = type to tmdbId
+        val existing = sessionDetailDeferred
+        if (sessionDetailKey == key && existing != null) return existing
+        val created = lifecycleScope.async(Dispatchers.IO) {
+            runCatching { appContainer.tmdb.detail(type, tmdbId) }.getOrNull()
+        }
+        sessionDetailKey = key
+        sessionDetailDeferred = created
+        return created
+    }
+
     private suspend fun expectedRuntimeMinutes(request: com.kaan.play.data.stream.StreamRequest): Int? = runCatching {
-        val detail = appContainer.tmdb.detail(request.type, request.tmdbId)
+        val detail = if (request.tmdbId > 0) sessionDetailAsync(request.type, request.tmdbId).await() else null
         val season = request.season
         val episode = request.episode
         if (request.type == MediaType.Tv && season != null && episode != null) {
             appContainer.tmdb.season(request.tmdbId, season).episodes.firstOrNull { it.number == episode }?.runtimeMinutes
-                ?: detail.runtimeMinutes
+                ?: detail?.runtimeMinutes
         } else {
-            detail.runtimeMinutes
+            detail?.runtimeMinutes
         }
     }.getOrNull()
 
@@ -551,7 +1430,11 @@ class PlayerActivity : AppCompatActivity() {
             dataUrl = dataUrl,
             refresh = false,
         )
-        val target = session.target.copy(request = request)
+        val target = session.target.copy(
+            request = request,
+            ageRating = resolvedAgeRating?.rating ?: session.target.ageRating,
+            ageRatingRegion = resolvedAgeRating?.region ?: session.target.ageRatingRegion,
+        )
         appContainer.downloads.completedFor(request)?.let { return NextPlayback.Offline(target, it) }
         if (session.offline != null) return null
         val playing = currentStream
@@ -585,6 +1468,16 @@ class PlayerActivity : AppCompatActivity() {
                 )
                 is NextPlayback.Offline -> PlaySession.offline(next.download, resumeAt, autoResumed = resumeAt > 0, fromAutoNext = true)
             }
+            val activeParty = container.watchPartyManager.session.value
+            if (activeParty != null && activeParty.isHost) {
+                container.watchPartyManager.updatePartyContent(
+                    tmdbId = next.target.request.tmdbId,
+                    mediaType = next.target.request.type.tmdbPath,
+                    season = next.target.request.season,
+                    episode = next.target.request.episode,
+                    title = next.target.title,
+                )
+            }
             finishedForAdvance = true
             saveProgress() // bu bölüm izlendi
             if (currentStream?.url?.let(TorrentLinks::isMagnet) == true) container.torrentEngine.closeActive()
@@ -615,6 +1508,17 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /** Duraklatma/bitiş anlarında da çağrılır: bitişte (ya da sonraki bölüme geçerken) konum süreye eşitlenir ("izlendi"). */
+    private fun broadcastPartyControlIfHost() {
+        val activeSession = (application as? PlayApp)?.container?.watchPartyManager?.session?.value
+        if (activeSession != null && activeSession.isHost && activeSession.room.tmdbId == session.target.request.tmdbId) {
+            appContainer.watchPartyManager.broadcastControl(
+                positionMs = controller.positionMs(),
+                isPlaying = controller.player.isPlaying,
+                speed = controller.ui.speed,
+            )
+        }
+    }
+
     private fun saveProgress() {
         if (!::session.isInitialized || !::controller.isInitialized) return
         if (session.noHistory) return
@@ -687,6 +1591,118 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+
+    private fun isDeviceOffline(): Boolean {
+        if (BuildConfig.DEBUG && testSimulatedOffline) return true
+        val cm = getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager ?: return false
+        val activeNet = cm.activeNetwork ?: return true
+        val caps = cm.getNetworkCapabilities(activeNet) ?: return true
+        val hasInternet = caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        val isValidated = caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+        return !hasInternet || !isValidated
+    }
+
+    private fun onControllerFailure(detail: String, targetCoord: SourceCoordinator?): Boolean {
+        if (leaving) return true
+        val isNetwork = NetworkResumeRules.isNetworkError(detail)
+        val isOffline = isDeviceOffline()
+        val isDownloaded = session.offline != null
+        if (NetworkResumeRules.shouldWaitForNetwork(isNetwork, isOffline, isDownloaded, alreadyRetriedOnNetworkReturn)) {
+            startWaitingForInternet()
+            return true
+        }
+        return targetCoord?.onFailure(detail) == true
+    }
+
+    private fun startWaitingForInternet() {
+        if (waitingForInternetJob != null) return
+        waitingStartTimeMs = android.os.SystemClock.elapsedRealtime()
+        val currentPos = controller.positionMs().takeIf { it > 0 } ?: (controller.positionMs() ?: 0L)
+        coordinator?.cancelDubSwitch()
+        coordinator?.notice = SourceNotice.WaitingForInternet
+        controller.player.pause()
+
+        registerNetworkCallback(currentPos)
+
+        waitingForInternetJob = lifecycleScope.launch {
+            kotlinx.coroutines.delay(NetworkResumeRules.WAIT_TIMEOUT_MS)
+            if (!leaving && coordinator?.notice is SourceNotice.WaitingForInternet) {
+                stopWaitingForInternet()
+                coordinator?.onFailure("TIMEOUT_WAITING_FOR_INTERNET")
+            }
+        }
+    }
+
+    private fun registerNetworkCallback(resumePositionMs: Long) {
+        unregisterNetworkCallback()
+        val cm = getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager ?: return
+        val request = android.net.NetworkRequest.Builder()
+            .addCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            .build()
+
+        networkCallback = object : android.net.ConnectivityManager.NetworkCallback() {
+            override fun onCapabilitiesChanged(network: android.net.Network, caps: android.net.NetworkCapabilities) {
+                if (BuildConfig.DEBUG && testSimulatedOffline) return
+                if (caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                    runOnUiThread { onNetworkReturned(resumePositionMs) }
+                }
+            }
+
+            override fun onAvailable(network: android.net.Network) {
+                if (BuildConfig.DEBUG && testSimulatedOffline) return
+                val caps = cm.getNetworkCapabilities(network)
+                if (caps?.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true) {
+                    runOnUiThread { onNetworkReturned(resumePositionMs) }
+                }
+            }
+        }
+        try {
+            cm.registerNetworkCallback(request, networkCallback!!)
+        } catch (t: Throwable) {
+            android.util.Log.w("PlayerActivity", "NetworkCallback register error: ${t.message}")
+        }
+    }
+
+    private fun onNetworkReturned(resumePositionMs: Long) {
+        if (leaving) return
+        val elapsed = android.os.SystemClock.elapsedRealtime() - waitingStartTimeMs
+        if (!NetworkResumeRules.shouldRetryOnNetworkReturn(alreadyRetriedOnNetworkReturn, elapsed)) {
+            stopWaitingForInternet()
+            coordinator?.onFailure("NETWORK_RESUME_RETRY_EXHAUSTED")
+            return
+        }
+
+        alreadyRetriedOnNetworkReturn = true
+        stopWaitingForInternet()
+
+        val currentStream = coordinator?.current
+        if (currentStream != null) {
+            coordinator?.retryCurrentStream(resumePositionMs)
+        } else {
+            coordinator?.onFailure("NO_CURRENT_STREAM")
+        }
+    }
+
+    private fun stopWaitingForInternet() {
+        waitingForInternetJob?.cancel()
+        waitingForInternetJob = null
+        unregisterNetworkCallback()
+        if (coordinator?.notice is SourceNotice.WaitingForInternet) {
+            coordinator?.notice = null
+        }
+    }
+
+    private fun unregisterNetworkCallback() {
+        networkCallback?.let {
+            try {
+                val cm = getSystemService(android.content.Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
+                cm?.unregisterNetworkCallback(it)
+            } catch (_: Throwable) {}
+        }
+        networkCallback = null
+    }
+
     private companion object {
         const val AUTO_NEXT_TICK_MS = 500L
     }

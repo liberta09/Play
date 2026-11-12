@@ -1,6 +1,7 @@
 package com.kaan.play.data.tmdb
 
 import com.kaan.play.data.match.toContentIdentity
+import com.kaan.play.data.model.AgeRating
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.net.PlayJson
 import com.kaan.play.i18n.UiLanguage
@@ -455,5 +456,131 @@ class TmdbRepositoryTest {
         fixtures["find/tt0000000|tr-TR"] = """{"movie_results":[],"tv_results":[]}"""
         val found = repo().findByImdb("tt0000000")
         assertNull(found)
+    }
+
+    @Test
+    fun ageRatingPrefersTrEvenUnderEnglishUiAndFallsBackToUs() = runTest {
+        language = UiLanguage.English
+        fixtures["movie/101|en-US"] = """
+            {"id":101,"title":"Film","overview":"x","release_dates":{"results":[
+              {"iso_3166_1":"US","release_dates":[{"certification":"R"}]},
+              {"iso_3166_1":"TR","release_dates":[{"certification":"16+"}]}
+            ]}}
+        """
+        val movie = repo().detail(MediaType.Movie, 101)
+        assertEquals("R", movie.certification)
+        assertEquals(AgeRating("16+", "TR"), movie.ageRating)
+
+        fixtures["tv/102|en-US"] = """
+            {"id":102,"name":"Show","overview":"x","content_ratings":{"results":[
+              {"iso_3166_1":"DE","rating":"12"},
+              {"iso_3166_1":"US","rating":"TV-14"}
+            ]}}
+        """
+        val tv = repo().detail(MediaType.Tv, 102)
+        assertEquals(AgeRating("TV-14", "US"), tv.ageRating)
+
+        fixtures["movie/103|en-US"] = """
+            {"id":103,"title":"NoTRUS","overview":"x","release_dates":{"results":[
+              {"iso_3166_1":"GB","release_dates":[{"certification":"15"}]}
+            ]}}
+        """
+        assertNull(repo().detail(MediaType.Movie, 103).ageRating)
+    }
+
+    @Test
+    fun collectionFolderFetchesListCollectionDiscoverAndSingleWithFilterWhitelist() = runTest {
+        fixtures["list/10|tr-TR"] = """{"items":[{"id":1,"media_type":"movie","title":"A"}]}"""
+        fixtures["collection/20|tr-TR"] = """{"parts":[{"id":1,"title":"A"},{"id":2,"title":"B"}]}"""
+        fixtures["discover/tv|tr-TR"] = """{"page":1,"total_pages":3,"results":[{"id":3,"name":"Dizi C"}]}"""
+        fixtures["movie/40|tr-TR"] = """{"id":40,"title":"Tek Film","release_date":"2020-01-01"}"""
+
+        val parsed = com.kaan.play.data.collection.CollectionJsonParser.parse(
+            """
+            {
+              "title": "Karışık",
+              "folders": [
+                {
+                  "title": "Karışık Raf",
+                  "sources": [
+                    {"provider": "tmdb", "tmdbSourceType": "list", "tmdbId": 10},
+                    {"provider": "tmdb", "tmdbSourceType": "collection", "tmdbId": 20},
+                    {
+                      "provider": "tmdb",
+                      "mediaType": "tv",
+                      "tmdbSourceType": "discover",
+                      "sortBy": "popularity.desc",
+                      "filters": {"with_genres": "10765", "evil_param": "bad"}
+                    },
+                    {"provider": "tmdb", "mediaType": "movie", "tmdbId": 40}
+                  ]
+                }
+              ]
+            }
+            """.trimIndent(),
+        )
+
+        val page = repo().collectionFolder(parsed.folders.single(), page = 1)
+        assertEquals(4, page.items.size)
+        assertEquals(3, page.totalPages)
+        assertEquals(listOf("A", "B", "Dizi C", "Tek Film"), page.items.map { it.title })
+
+        val discoverReq = seen.first { it.encodedPath.endsWith("/discover/tv") }
+        assertEquals("10765", discoverReq.queryParameter("with_genres"))
+        assertNull(discoverReq.queryParameter("evil_param"))
+    }
+
+    @Test
+    fun pickTrailerKey_prioritizesTrailerAndOfficialYouTubeVideos() {
+        assertEquals(null, pickTrailerKey(null))
+        assertEquals(null, pickTrailerKey(emptyList()))
+
+        val vimeo = VideoDto(key = "vim123", site = "Vimeo", type = "Trailer", official = true)
+        assertEquals(null, pickTrailerKey(listOf(vimeo)))
+
+        val teaser = VideoDto(key = "tea1", site = "YouTube", type = "Teaser", official = false)
+        val clip = VideoDto(key = "clip1", site = "YouTube", type = "Clip", official = true)
+        val unofficialTrailer = VideoDto(key = "tra1", site = "YouTube", type = "Trailer", official = false)
+        val officialTrailer = VideoDto(key = "tra2", site = "YouTube", type = "Trailer", official = true)
+
+        assertEquals("clip1", pickTrailerKey(listOf(teaser, clip)))
+        assertEquals("tra1", pickTrailerKey(listOf(teaser, unofficialTrailer)))
+        assertEquals("tra2", pickTrailerKey(listOf(unofficialTrailer, officialTrailer, teaser)))
+    }
+
+    @Test
+    fun trailerKey_fetchesAndCachesResultInMemory() = runTest {
+        fixtures["movie/550/videos|tr-TR"] = """
+            {
+              "results": [
+                {"key": "fight_club_tr", "site": "YouTube", "type": "Trailer", "official": true}
+              ]
+            }
+        """.trimIndent()
+
+        val repository = repo()
+        val key1 = repository.trailerKey(MediaType.Movie, 550)
+        assertEquals("fight_club_tr", key1)
+        assertEquals(1, seen.count { it.encodedPath.endsWith("/movie/550/videos") })
+
+        // İkinci çağrıda önbellekten döner, yeni HTTP isteği gitmez
+        val key2 = repository.trailerKey(MediaType.Movie, 550)
+        assertEquals("fight_club_tr", key2)
+        assertEquals(1, seen.count { it.encodedPath.endsWith("/movie/550/videos") })
+    }
+
+    @Test
+    fun trailerKey_cachesAbsenceOfTrailerToAvoidRepeatRequests() = runTest {
+        fixtures["tv/999/videos|tr-TR"] = """{"results": []}"""
+        fixtures["tv/999/videos|en-US"] = """{"results": []}"""
+
+        val repository = repo()
+        val key1 = repository.trailerKey(MediaType.Tv, 999)
+        assertNull(key1)
+
+        val countAfterFirst = seen.count { it.encodedPath.endsWith("/tv/999/videos") }
+        val key2 = repository.trailerKey(MediaType.Tv, 999)
+        assertNull(key2)
+        assertEquals(countAfterFirst, seen.count { it.encodedPath.endsWith("/tv/999/videos") })
     }
 }

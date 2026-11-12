@@ -1,5 +1,6 @@
 package com.kaan.play.ui.addons
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +36,8 @@ import com.kaan.play.ui.components.IconButton
 import com.kaan.play.ui.components.ScreenHeader
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.tv.focusRing
+
+import kotlinx.coroutines.launch
 
 /** CloudStream .cs3 depoları listesi ekranı. */
 @Composable
@@ -66,7 +70,11 @@ fun CsReposScreen(
                 )
                 LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
                     items(repos!!, key = { it.id }) { repo ->
-                        CsRepoRow(repo = repo, onRemove = { vm.remove(repo) })
+                        CsRepoRow(
+                            repo = repo,
+                            removableSubCount = { vm.removableSubRepoCount(it) },
+                            onRemove = { cascade -> vm.remove(repo, cascadeSubRepos = cascade) },
+                        )
                     }
                 }
             }
@@ -75,8 +83,13 @@ fun CsReposScreen(
 }
 
 @Composable
-internal fun CsRepoRow(repo: CsRepo, onRemove: () -> Unit) {
-    var confirmDelete by remember { mutableStateOf(false) }
+internal fun CsRepoRow(
+    repo: CsRepo,
+    removableSubCount: suspend (CsRepo) -> Int = { 0 },
+    onRemove: (cascadeSubRepos: Boolean) -> Unit,
+) {
+    var pendingSubCount by remember { mutableStateOf<Int?>(null) }
+    val scope = rememberCoroutineScope()
 
     androidx.compose.material3.Surface(
         shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
@@ -110,7 +123,14 @@ internal fun CsRepoRow(repo: CsRepo, onRemove: () -> Unit) {
                     )
                 }
             }
-            IconButton(onClick = { confirmDelete = true }, modifier = Modifier.focusRing()) {
+            IconButton(
+                onClick = {
+                    scope.launch {
+                        pendingSubCount = removableSubCount(repo)
+                    }
+                },
+                modifier = Modifier.focusRing(),
+            ) {
                 Icon(
                     PlayIcons.Trash,
                     contentDescription = stringResource(R.string.repos_remove),
@@ -120,20 +140,52 @@ internal fun CsRepoRow(repo: CsRepo, onRemove: () -> Unit) {
         }
     }
 
-    if (confirmDelete) {
+    val subCount = pendingSubCount
+    if (subCount != null) {
         AlertDialog(
-            onDismissRequest = { confirmDelete = false },
+            onDismissRequest = { pendingSubCount = null },
             shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
             containerColor = MaterialTheme.colorScheme.surface,
             title = { Text(stringResource(R.string.cs_repo_remove_title), style = MaterialTheme.typography.titleLarge) },
-            text = { Text(stringResource(R.string.cs_repo_remove_body, repo.name)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        text = if (subCount > 0) {
+                            pluralStringResource(R.plurals.cs_repo_remove_with_subs_body, subCount, repo.name, subCount)
+                        } else {
+                            stringResource(R.string.cs_repo_remove_body, repo.name)
+                        },
+                    )
+                    if (subCount > 0) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            com.kaan.play.ui.components.OutlinedButton(
+                                onClick = { pendingSubCount = null; onRemove(true) },
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text(stringResource(R.string.cs_repo_remove_yes), color = MaterialTheme.colorScheme.error)
+                            }
+                            com.kaan.play.ui.components.OutlinedButton(
+                                onClick = { pendingSubCount = null; onRemove(false) },
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text(stringResource(R.string.cs_repo_remove_only_this))
+                            }
+                        }
+                    }
+                }
+            },
             confirmButton = {
-                com.kaan.play.ui.components.TextButton(onClick = { confirmDelete = false; onRemove() }) {
-                    Text(stringResource(R.string.addons_remove), color = MaterialTheme.colorScheme.error)
+                if (subCount == 0) {
+                    com.kaan.play.ui.components.TextButton(onClick = { pendingSubCount = null; onRemove(false) }) {
+                        Text(stringResource(R.string.addons_remove), color = MaterialTheme.colorScheme.error)
+                    }
                 }
             },
             dismissButton = {
-                com.kaan.play.ui.components.TextButton(onClick = { confirmDelete = false }) {
+                com.kaan.play.ui.components.TextButton(onClick = { pendingSubCount = null }) {
                     Text(stringResource(R.string.common_cancel))
                 }
             },

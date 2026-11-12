@@ -62,6 +62,7 @@ import com.kaan.play.data.cloudstream.cloudflare.CloudflareCache
 import com.kaan.play.data.cloudstream.cloudflare.CloudflareCredentials
 import com.kaan.play.data.cloudstream.cloudflare.CloudflareSolver
 import com.kaan.play.data.settings.ThemeMode
+import com.kaan.play.data.settings.ThemeRules
 import com.kaan.play.ui.components.IconButton
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.theme.PlayTheme
@@ -113,6 +114,7 @@ class CloudflareVerifyActivity : AppCompatActivity() {
 
         val appSettings = (application as PlayApp).container.settings
         val initialTheme = runBlocking { appSettings.themeMode.first() }
+        val initialPerf = runBlocking { appSettings.performanceMode.first() }
 
         val view = WebView(this).apply {
             this.settings.apply {
@@ -198,11 +200,10 @@ class CloudflareVerifyActivity : AppCompatActivity() {
             ComposeView(this).apply {
                 setContent {
                     val mode by appSettings.themeMode.collectAsStateWithLifecycle(initialValue = initialTheme)
-                    val dark = when (mode) {
-                        ThemeMode.Dark -> true
-                        ThemeMode.Light -> false
-                        ThemeMode.System -> isSystemInDarkTheme()
-                    }
+                    val performanceMode by appSettings.performanceMode.collectAsStateWithLifecycle(initialValue = initialPerf)
+                    val systemDark = isSystemInDarkTheme()
+                    val resolvedTheme = ThemeRules.resolve(mode, systemDark)
+                    val dark = ThemeRules.isDark(mode, systemDark)
                     DisposableEffect(dark) {
                         runCatching {
                             val style = if (dark) SystemBarStyle.dark(Color.TRANSPARENT) else SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
@@ -210,7 +211,7 @@ class CloudflareVerifyActivity : AppCompatActivity() {
                         }
                         onDispose { }
                     }
-                    PlayTheme(darkTheme = dark) {
+                    PlayTheme(themeMode = resolvedTheme, performanceMode = performanceMode) {
                         CloudflareVerifyScreen(
                             providerName = providerName.ifEmpty { targetHost },
                             host = targetHost,

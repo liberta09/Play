@@ -296,17 +296,31 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
         tmdbId: Int,
         type: String,
         deletedAt: Long = System.currentTimeMillis(),
+    ) = recordDeletedHistory(userId, profileId, listOf(tmdbId to type), deletedAt)
+
+    /** Tek DataStore işleminde birden fazla içerik için silme kaydı (tombstone) yazar. */
+    suspend fun recordDeletedHistory(
+        userId: String,
+        profileId: String,
+        items: Collection<Pair<Int, String>>,
+        deletedAt: Long = System.currentTimeMillis(),
     ) {
+        if (items.isEmpty()) return
         store.edit { prefs ->
             val current = decodeDeletedHistory(prefs[DELETED_HISTORY] ?: "")
-            val newItem = DeletedHistoryItem(
-                userId = userId,
-                profileId = profileId,
-                tmdbId = tmdbId,
-                type = type.lowercase(),
-                deletedAt = deletedAt,
-            )
-            val updated = LocalSyncMerge.pruneDeletedHistory(current + newItem, nowMs = deletedAt)
+            val added = items
+                .map { (tmdbId, type) -> tmdbId to type.lowercase() }
+                .distinct()
+                .map { (tmdbId, normalizedType) ->
+                    DeletedHistoryItem(
+                        userId = userId,
+                        profileId = profileId,
+                        tmdbId = tmdbId,
+                        type = normalizedType,
+                        deletedAt = deletedAt,
+                    )
+                }
+            val updated = LocalSyncMerge.pruneDeletedHistory(current + added, nowMs = deletedAt)
             prefs[DELETED_HISTORY] = encodeDeletedHistory(updated)
         }
     }
@@ -317,6 +331,83 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
             val current = decodeDeletedHistory(prefs[DELETED_HISTORY] ?: "")
             val updated = LocalSyncMerge.mergeDeletedHistory(current, items)
             prefs[DELETED_HISTORY] = encodeDeletedHistory(updated)
+        }
+    }
+
+    fun decodeDeletedFavorites(raw: String): List<DeletedFavoriteItem> =
+        if (raw.isBlank()) emptyList()
+        else runCatching { json.decodeFromString(DeletedFavoriteListSerializer, raw) }.getOrDefault(emptyList())
+
+    fun encodeDeletedFavorites(items: List<DeletedFavoriteItem>): String =
+        json.encodeToString(DeletedFavoriteListSerializer, items)
+
+    suspend fun allDeletedFavorites(): List<DeletedFavoriteItem> {
+        val raw = store.data.first()[DELETED_FAVORITES] ?: return emptyList()
+        return decodeDeletedFavorites(raw)
+    }
+
+    suspend fun recordDeletedFavorite(
+        userId: String,
+        profileId: String,
+        tmdbId: Int,
+        type: String,
+        deletedAt: Long = System.currentTimeMillis(),
+    ) = recordDeletedFavorites(userId, profileId, listOf(tmdbId to type), deletedAt)
+
+    /** Tek DataStore işleminde birden fazla favori içerik için silme kaydı (tombstone) yazar. */
+    suspend fun recordDeletedFavorites(
+        userId: String,
+        profileId: String,
+        items: Collection<Pair<Int, String>>,
+        deletedAt: Long = System.currentTimeMillis(),
+    ) {
+        if (items.isEmpty()) return
+        store.edit { prefs ->
+            val current = decodeDeletedFavorites(prefs[DELETED_FAVORITES] ?: "")
+            val added = items
+                .map { (tmdbId, type) -> tmdbId to type.lowercase() }
+                .distinct()
+                .map { (tmdbId, normalizedType) ->
+                    DeletedFavoriteItem(
+                        userId = userId,
+                        profileId = profileId,
+                        tmdbId = tmdbId,
+                        type = normalizedType,
+                        deletedAt = deletedAt,
+                    )
+                }
+            val updated = LocalSyncMerge.pruneDeletedFavorites(current + added, nowMs = deletedAt)
+            prefs[DELETED_FAVORITES] = encodeDeletedFavorites(updated)
+        }
+    }
+
+    /** Favori yeniden eklendiğinde önceki tombstone kaydını kaldırır. */
+    suspend fun removeDeletedFavorite(profileId: String, tmdbId: Int, type: String) {
+        val normalizedType = type.lowercase()
+        store.edit { prefs ->
+            val current = decodeDeletedFavorites(prefs[DELETED_FAVORITES] ?: "")
+            if (current.isEmpty()) return@edit
+            val remaining = current.filterNot {
+                it.profileId == profileId &&
+                    it.tmdbId == tmdbId &&
+                    it.type.equals(normalizedType, ignoreCase = true)
+            }
+            if (remaining.size != current.size) {
+                if (remaining.isEmpty()) {
+                    prefs.remove(DELETED_FAVORITES)
+                } else {
+                    prefs[DELETED_FAVORITES] = encodeDeletedFavorites(remaining)
+                }
+            }
+        }
+    }
+
+    suspend fun saveDeletedFavorites(items: List<DeletedFavoriteItem>) {
+        if (items.isEmpty()) return
+        store.edit { prefs ->
+            val current = decodeDeletedFavorites(prefs[DELETED_FAVORITES] ?: "")
+            val updated = LocalSyncMerge.mergeDeletedFavorites(current, items)
+            prefs[DELETED_FAVORITES] = encodeDeletedFavorites(updated)
         }
     }
 
@@ -544,9 +635,11 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
         private val PEER_PORT = intPreferencesKey("sync_local_peer_port")
         private val PEER_CODE = stringPreferencesKey("sync_local_peer_code")
         private val DELETED_HISTORY = stringPreferencesKey("sync_deleted_history")
+        private val DELETED_FAVORITES = stringPreferencesKey("sync_deleted_favorites")
 
         private val SummaryListSerializer = ListSerializer(LocalProfileSummary.serializer())
         private val DeletedHistoryListSerializer = ListSerializer(DeletedHistoryItem.serializer())
+        private val DeletedFavoriteListSerializer = ListSerializer(DeletedFavoriteItem.serializer())
         private val ProfileMapSerializer = MapSerializer(String.serializer(), String.serializer())
 
         fun hashPin(pin: String): String {

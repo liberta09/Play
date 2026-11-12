@@ -21,6 +21,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -75,6 +76,8 @@ class CsRepository(
     private val cs3Downloader: Cs3Downloader = Cs3Downloader { url, hash, id ->
         downloadCs3(url, hash, httpClient, store, id)
     },
+    private val ownershipStore: SubRepoOwnershipStore? = null,
+    private val onSubReposDiscovered: ((parentUrl: String, subRepos: List<PluginRepoItem>) -> Unit)? = null,
 ) {
 
     val repos: Flow<List<CsRepo>> = combine(
@@ -98,13 +101,17 @@ class CsRepository(
      * Her CS eklentisi indirilip DEX ayıklanır; başarısızlar atlanır.
      * @throws AddonException
      */
-    suspend fun addFetched(url: String, raw: String): CsRepoAdded {
+    suspend fun addFetched(url: String, raw: String, recordManual: Boolean = true): CsRepoAdded {
         if (addonDao.countBySourceUrl(url) > 0) throw AddonException(Kind.AlreadyAdded)
-        val root = CsRepoManifestParser.parseRoot(raw)
+        val root = CsRepoManifestParser.parseRoot(raw, baseUrl = url)
 
-        // pluginLists adreslerinden eklenti listelerini paralel indir
-        val allEntries = fetchAllPluginLists(root.pluginLists, url)
-        if (allEntries.isEmpty()) throw AddonException(Kind.NoPlugins)
+        // pluginLists adreslerinden eklenti listelerini (ve varsa gömülü alt depo manifestlerini) paralel indir
+        val listsResult = fetchAllPluginLists(root.pluginLists, url)
+        val allEntries = listsResult.entries
+        val allSubRepos = (root.subRepos + listsResult.subRepos)
+            .distinctBy { PluginRepoRequestRules.normalizeUrl(it.url) }
+            .filter { PluginRepoRequestRules.normalizeUrl(it.url) != PluginRepoRequestRules.normalizeUrl(url) }
+        if (allEntries.isEmpty() && allSubRepos.isEmpty()) throw AddonException(Kind.NoPlugins)
 
         // Depo satırını ekle
         val repoEntity = AddonEntity(
@@ -123,19 +130,26 @@ class CsRepository(
         if (repoId == -1L) throw AddonException(Kind.AlreadyAdded)
 
         // .cs3 dosyalarını paralel indir
-        val downloads = downloadAll(allEntries, repoId)
+        val downloads = if (allEntries.isNotEmpty()) downloadAll(allEntries, repoId) else emptyList()
         val good = downloads.filter { it.success }
         val reasonCounts = downloads.filter { !it.success }.groupingBy { it.reason ?: "?" }.eachCount()
         if (reasonCounts.isNotEmpty()) {
             Log.d(TAG, "addFetched: atlanan eklentiler $reasonCounts (toplam ${downloads.size}, başarılı ${good.size})")
         }
 
-        if (good.isEmpty()) {
+        if (good.isEmpty() && allSubRepos.isEmpty()) {
             addonDao.delete(repoId)
             val first = downloads.firstOrNull()
             val detail = first?.let { "${it.entry.name}::${it.reason.orEmpty()}" }
             Log.d(TAG, "addFetched: tüm eklentiler başarısız (${downloads.size} denendi)")
             throw AddonException(Kind.PluginFileFailed, detail)
+        }
+
+        if (recordManual) {
+            ownershipStore?.recordManual(url)
+        }
+        if (allSubRepos.isNotEmpty()) {
+            onSubReposDiscovered?.invoke(url, allSubRepos)
         }
 
         return CsRepoAdded(
@@ -149,7 +163,7 @@ class CsRepository(
      * Doğrudan bir `.cs3` eklenti dosyasını tekil depo olarak kurar.
      * @throws AddonException
      */
-    suspend fun addDirectCs3(url: String): CsRepoAdded {
+    suspend fun addDirectCs3(url: String, recordManual: Boolean = true): CsRepoAdded {
         if (addonDao.countBySourceUrl(url) > 0) throw AddonException(Kind.AlreadyAdded)
 
         val tempId = System.nanoTime()
@@ -218,6 +232,9 @@ class CsRepository(
         if (tmpDex.exists()) tmpDex.renameTo(store.dexFile(rowId))
         if (tmpMf.exists()) tmpMf.renameTo(store.manifestFile(rowId))
         store.setReadOnly(rowId)
+        if (recordManual) {
+            ownershipStore?.recordManual(url)
+        }
 
         return CsRepoAdded(
             repo = repoEntity.copy(id = repoId).toCsRepo(1),
@@ -230,9 +247,40 @@ class CsRepository(
     // Kaldır
     // ---------------------------------------------------------------------------
 
-    suspend fun remove(repoId: Long) {
+    /** Bu depo kaldırılırken güvenle kaldırılabilecek alt depolar (ortak/elle eklenen hariç). */
+    suspend fun removableSubRepos(parentRepo: CsRepo): List<CsRepo> {
+        val ownership = ownershipStore ?: return emptyList()
+        val allEntities = addonDao.observeOfType(AddonType.CLOUDSTREAM_REPO).first()
+        val removableNorm = ownership.removableChildren(parentRepo.sourceUrl, allEntities.map { it.sourceUrl })
+        if (removableNorm.isEmpty()) return emptyList()
+        return allEntities
+            .filter { PluginRepoRequestRules.normalizeUrl(it.sourceUrl) in removableNorm }
+            .map { it.toCsRepo(pluginDao.ofRepo(it.id).size) }
+    }
+
+    suspend fun remove(repoId: Long, cascadeSubRepos: Boolean = false) {
+        val targetEntity = addonDao.byId(repoId)
+        val childEntities = if (cascadeSubRepos && targetEntity != null && ownershipStore != null) {
+            val allEntities = addonDao.observeOfType(AddonType.CLOUDSTREAM_REPO).first()
+            val removableNorm = ownershipStore.removableChildren(targetEntity.sourceUrl, allEntities.map { it.sourceUrl })
+            allEntities.filter { PluginRepoRequestRules.normalizeUrl(it.sourceUrl) in removableNorm && it.id != repoId }
+        } else {
+            emptyList()
+        }
+
+        for (child in childEntities) {
+            pluginDao.ofRepo(child.id).forEach { store.delete(it.id) }
+            addonDao.delete(child.id)
+        }
         pluginDao.ofRepo(repoId).forEach { store.delete(it.id) }
         addonDao.delete(repoId)
+
+        if (targetEntity != null) {
+            ownershipStore?.onRepoRemoved(
+                removedRepoUrl = targetEntity.sourceUrl,
+                deletedChildUrls = childEntities.mapTo(HashSet()) { it.sourceUrl },
+            )
+        }
     }
 
     // ---------------------------------------------------------------------------
@@ -297,20 +345,38 @@ class CsRepository(
     // İç yardımcılar
     // ---------------------------------------------------------------------------
 
-    private suspend fun fetchAllPluginLists(listUrls: List<String>, baseUrl: String): List<CsPluginEntry> =
-        listUrls.flatMap { listUrl ->
+    private class PluginListsResult(
+        val entries: List<CsPluginEntry>,
+        val subRepos: List<PluginRepoItem>,
+    )
+
+    private suspend fun fetchAllPluginLists(listUrls: List<String>, baseUrl: String): PluginListsResult {
+        val entries = mutableListOf<CsPluginEntry>()
+        val discoveredSubRepos = mutableListOf<PluginRepoItem>()
+        for (listUrl in listUrls) {
             try {
                 val raw = fetcher.fetch(listUrl)
-                val entries = CsRepoManifestParser.parsePluginList(raw, listUrl)
-                if (entries.isEmpty()) {
-                    Log.d(TAG, "fetchAllPluginLists: boş/çözümlenemedi host=${listUrl.toHttpUrlOrNull()?.host} bytes=${raw.length}")
+                val parsed = CsRepoManifestParser.parsePluginList(raw, listUrl)
+                if (parsed.isNotEmpty()) {
+                    entries += parsed
+                } else {
+                    val nested = runCatching { CsRepoManifestParser.parseRoot(raw, baseUrl = listUrl) }.getOrNull()
+                    if (nested != null) {
+                        discoveredSubRepos += PluginRepoItem(name = nested.name, url = listUrl)
+                        discoveredSubRepos += nested.subRepos
+                    } else {
+                        Log.d(TAG, "fetchAllPluginLists: boş/çözümlenemedi host=${listUrl.toHttpUrlOrNull()?.host} bytes=${raw.length}")
+                    }
                 }
-                entries
             } catch (e: Exception) {
                 Log.d(TAG, "fetchAllPluginLists: indirilemedi host=${listUrl.toHttpUrlOrNull()?.host} ${e.javaClass.simpleName}: ${e.message}")
-                emptyList()
             }
-        }.distinctBy { it.internalName }.take(CsRepoManifestParser.MAX_PLUGINS)
+        }
+        return PluginListsResult(
+            entries = entries.distinctBy { it.internalName }.take(CsRepoManifestParser.MAX_PLUGINS),
+            subRepos = discoveredSubRepos.distinctBy { PluginRepoRequestRules.normalizeUrl(it.url) },
+        )
+    }
 
     private class Dl(val entry: CsPluginEntry, val success: Boolean, val reason: String? = null)
 

@@ -303,6 +303,8 @@ Dizide bölüm bitmeye yaklaşınca (son ~20 sn) köşede "Sonraki bölüm: S1 B
 Film ve dizi bölümlerinde intro, özet, jenerik ve önizleme aralıkları biliniyorsa sağ altta "İntroyu geç" / "Özeti geç" / "Jeneriği geç" / "Önizlemeyi geç" düğmesi çıkar; kumandada Tamam ile atlanır. Ayarlar > Oynatıcı: "Atlama butonlarını göster" (varsayılan açık), "Atlama bölümlerini otomatik geç" (varsayılan kapalı; her segment oturumda en çok bir kez) ve dört tür anahtarı. Zamanlar önce videonun kendi bölüm işaretlerinden, yoksa topluluk veritabanı [TheIntroDB](https://theintrodb.org)'den (API v4) gelir; özellik ortak geliştiricinin 1.1.47 sürümünden uyarlandı (OCR jenerik algısı alınmadı). Bağlayıcı kurallar CLAUDE.md "İntro/özet/jenerik atlama"; cihaz kanıtı `docs/dogrulama-atla/SONUC.md`.
 - **Gizlilik:** TheIntroDB'ye yalnızca TMDB kimliği (yoksa IMDb), dizide sezon/bölüm ve video süresi gider; akış adresi, başlıklar, çerez, profil, hesap gönderilmez. **TheIntroDB isteği IP adresini ve izlenen içeriğin TMDB kimliğini görür.** Canlı TV'de istek atılmaz.
 - Veri yoksa ya da TheIntroDB'ye ulaşılamazsa (7 sn zaman aşımı) hiçbir şey görünmez; oynatma sorguyu beklemez.
+- **Kapak Fragmanı Gizliliği (Hero Trailer Privacy):** Ana sayfa kapak karuselinde sessiz fragmanlar oynatılırken YouTube sunucuları IP adresinizi görebilir. / When playing silent trailers on the home hero carousel, YouTube servers can see your IP address.
+- **Watch Party Gizliliği (Watch Party Privacy):** Watch Party kullanılırken Supabase sunucuları IP adresinizi ve oda bilgisini görür. / When using Watch Party, Supabase servers see your IP address and room information.
 
 ## Oynatıcı: hızlı başlangıç, kaynak/altyazı/parça panelleri (kullanıcının isteğiyle; 2026-10-14)
 Amaç: filme basınca olabildiğince hızlı açılmak; kaynağı, altyazıyı, sesi ve kaliteyi oynatıcının içinden değiştirebilmek. Sürüm 1.0.4'te kaldı (yayınlanmadı; CHANGELOG "Yayınlanmamış"). Ayarlar'a yeni ana kalem eklenmedi; iki anahtar **Ayarlar > Oynatıcı** içindedir.
@@ -468,6 +470,14 @@ Ana sayfa, seçilen eklentinin/sağlayıcının kendi kataloğuyla beslenir. "T�
   - **Sıralı İstek Sınırlandırması:** 20'den fazla kategori sunan eklentilerde ardışık istekler arasına 100 ms gecikme eklenerek sitelerin bot korumasının HTTP 429 tetiklemesi engellendi.
   - **Mükerrer Öğe ve Arayüz Çökmesi Koruması:** Bazı sağlayıcıların (ör. DiziKorea "Çin Dizileri") aynı içeriği tek bir kategoride birden fazla kez döndürmesi durumunda Compose'da oluşan `IllegalArgumentException: Key was already used` hatası; `CsCatalog` / `NuvioAddonCatalog` içinde `distinctBy` tekilleştirmesi ve `HomeScreen` `LazyRow`/`LazyColumn` anahtarlarında indeks birleştirmesi (`itemsIndexed`) ile kesin olarak çözüldü.
 - **Bilinen Sınırlar:** İnteraktif Turnstile gerektiren sitelerde (örn. DiziBox) ilk istekte kullanıcıya "Doğrula" butonu çıkar; kullanıcı kutucuğa bir kez dokunduğunda çerez önbelleğe alınır ve oturum boyunca tekrar sormaz. Alan adına ISP erişim engeli (Dizipal SSL) veya dış sunucu arızası (SineWix 404) bulunan siteler hata kartı verir, uygulamayı etkilemez.
+
+## Canlı TV, Devam et ve Veri yönetimi
+- **Canlı TV birleştirme, sıralama ve zap:** Farklı eklenti ve sağlayıcılardan gelen aynı kanallar tek kartta birleştirilir; 5 sıralama modu (A–Z, Z–A, son izlenen, önce favoriler, manuel yukarı/aşağı), yıldızla favorileme, kumanda kanal/sayfa tuşları ve görünür Önceki/Sonraki kanal düğmeleriyle geçiş, akış kesilince alternatif sağlayıcı rotası deneme ve "Başka sağlayıcıyı tara" desteği sunar.
+- **Devam et iyileştirmeleri:** Ana sayfa satırı en son izlenen, en eski, önce filmler, önce diziler veya A–Z sırasıyla kalıcı olarak sıralanabilir; kartlarda uzun basma veya `⋯` düğmesiyle Favorilere ekle, İzlendi olarak işaretle ve Geçmişten kaldır hızlı işlemleri açılır.
+- **Veri yönetimi:** Hakkında ekranı altında izleme geçmişini temizleme (senkron tombstone destekli), favorileri temizleme, önbellek ve eklenti temizliği araçları yer alır.
+
+## Bilinen sınırlar
+- Favori silme henüz senkronda yayılmaz; bir cihazda silinen favori diğer cihazdan geri gelebilir.
 
 ## Yayın Hazırlığı
 

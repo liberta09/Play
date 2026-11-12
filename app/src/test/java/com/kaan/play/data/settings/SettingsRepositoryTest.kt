@@ -4,6 +4,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.kaan.play.ui.nav.NavBarPosition
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -95,5 +96,81 @@ class SettingsRepositoryTest {
         assertEquals("tr", repo.subtitleLanguage.first())
         repo.setSubtitleLanguage("en")
         assertEquals("en", repo.subtitleLanguage.first())
+    }
+
+    @Test
+    fun themeSelectableContainsAllSixThemesAndMapsStoredValues() {
+        assertEquals(
+            listOf(
+                ThemeMode.Dark,
+                ThemeMode.Light,
+                ThemeMode.Amoled,
+                ThemeMode.OceanBlue,
+                ThemeMode.PurpleNight,
+                ThemeMode.HighContrast,
+            ),
+            ThemeMode.SELECTABLE,
+        )
+        assertEquals(ThemeMode.Dark, ThemeMode.fromStored("Dark"))
+        assertEquals(ThemeMode.Light, ThemeMode.fromStored("Light"))
+        assertEquals(ThemeMode.System, ThemeMode.fromStored("System"))
+        assertEquals(ThemeMode.Amoled, ThemeMode.fromStored("Amoled"))
+        assertEquals(ThemeMode.OceanBlue, ThemeMode.fromStored("ocean_blue"))
+        assertEquals(ThemeMode.PurpleNight, ThemeMode.fromStored("PurpleNight"))
+        assertEquals(ThemeMode.HighContrast, ThemeMode.fromStored("HighContrast"))
+        assertEquals(ThemeMode.Dark, ThemeMode.fromStored("Unknown"))
+        assertEquals(false, ThemeRules.isDark(ThemeMode.Light, systemIsDark = true))
+        assertEquals(true, ThemeRules.isDark(ThemeMode.HighContrast, systemIsDark = false))
+        assertEquals(ThemeMode.Amoled, ThemeRules.resolve(ThemeMode.Amoled, systemIsDark = false))
+    }
+
+    @Test
+    fun newThemesAreStoredAndReadBack() = runBlocking {
+        repo.setThemeMode(ThemeMode.PurpleNight)
+        assertEquals(ThemeMode.PurpleNight, repo.themeMode.first())
+    }
+
+    @Test
+    fun navBarPositionDefaultsToTopAndPersistsChoice() = runBlocking {
+        assertEquals(NavBarPosition.Top, repo.navBarPosition.first())
+        repo.setNavBarPosition(NavBarPosition.Left)
+        assertEquals(NavBarPosition.Left, repo.navBarPosition.first())
+    }
+
+    @Test
+    fun performanceModeDefaultsToOffAndPersistsChoice() = runBlocking {
+        assertEquals(false, repo.performanceMode.first())
+        repo.setPerformanceMode(true)
+        assertEquals(true, repo.performanceMode.first())
+    }
+
+    @Test
+    fun newEpisodeNotificationsDefaultOffAndPersistChoice() = runBlocking {
+        assertEquals(false, repo.newEpisodeNotifications.first())
+        repo.setNewEpisodeNotifications(true)
+        assertEquals(true, repo.newEpisodeNotifications.first())
+    }
+
+    @Test
+    fun heroAutoAdvanceDefaultsToOnAndPersistsChoice() = runBlocking {
+        assertEquals(true, repo.heroAutoAdvance.first())
+        assertEquals(true, SettingsRepository.DEFAULT_HERO_AUTO_ADVANCE)
+        repo.setHeroAutoAdvance(false)
+        assertEquals(false, repo.heroAutoAdvance.first())
+    }
+
+    @Test
+    fun heroTrailerEnabledDefaultsToOnAndPersistsChoice() = runBlocking {
+        assertEquals(true, repo.heroTrailerEnabled.first())
+        assertEquals(true, SettingsRepository.DEFAULT_HERO_TRAILER_ENABLED)
+        repo.setHeroTrailerEnabled(false)
+        assertEquals(false, repo.heroTrailerEnabled.first())
+    }
+
+    @Test
+    fun lastWhatsNewVersionDefaultsToNullAndPersistsVersion() = runBlocking {
+        assertEquals(null, repo.lastWhatsNewVersion.first())
+        repo.setLastWhatsNewVersion("1.3.0")
+        assertEquals("1.3.0", repo.lastWhatsNewVersion.first())
     }
 }

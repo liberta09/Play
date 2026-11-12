@@ -32,7 +32,13 @@ import java.net.UnknownHostException
 class NetworkPolicy(
     private val allowPrivate: Boolean = false,
     private val allowPrivateHosts: Set<String> = emptySet(),
+    private val upstreamDns: Dns = Dns.SYSTEM,
 ) {
+
+    fun withDns(dns: Dns): NetworkPolicy =
+        if (dns === upstreamDns) this else NetworkPolicy(allowPrivate, allowPrivateHosts, dns)
+
+    fun policyDns(): Dns = PolicyDns()
 
     /** [base]'i bu kurala bağlar: kendi DNS'imiz, proxy yok, yönlendirme elle. */
     fun apply(base: OkHttpClient.Builder): OkHttpClient.Builder = base
@@ -131,7 +137,7 @@ class NetworkPolicy(
         override fun lookup(hostname: String): List<InetAddress> {
             // IPv4 önce (IPv6 yedekte kalır): IPv6'sı yanıt vermeyen ağlarda/emülatörlerde ilk bağlantı saniyelerce beklemesin
             // ya da "network error" ile düşmesin. Yalnızca sıra değişir, adres denetimi aşağıda aynen sürer.
-            val all = com.kaan.play.data.net.Ipv4FirstDns.order(Dns.SYSTEM.lookup(hostname))
+            val all = com.kaan.play.data.net.Ipv4FirstDns.order(upstreamDns.lookup(hostname))
             if (allowPrivate || hostname in allowPrivateHosts) return all
             val allowed = all.filterNot { isBlocked(it) }
             if (allowed.isEmpty()) throw UnknownHostException("blocked")

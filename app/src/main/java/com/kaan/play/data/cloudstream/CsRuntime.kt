@@ -278,6 +278,7 @@ class CsRuntime {
                     ExtractorLinkType.DASH -> MimeTypes.APPLICATION_MPD
                     else -> null
                 },
+                label = link.name.trim().takeIf { it.isNotEmpty() },
             )
         }
     }

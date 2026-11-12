@@ -24,10 +24,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.kaan.play.R
 import com.kaan.play.ui.components.Button
 import com.kaan.play.ui.components.ScreenHeader
 import com.kaan.play.ui.components.TextButton
@@ -53,12 +55,12 @@ fun ProfileSetupScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         ScreenHeader(
-            title = "Yeni Profil Oluştur",
+            title = stringResource(R.string.profile_setup_title),
             onBack = onCancel,
         )
 
         Text(
-            text = "Avatar Seçin",
+            text = stringResource(R.string.profile_avatar_dialog_title),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.onBackground,
         )
@@ -80,8 +82,8 @@ fun ProfileSetupScreen(
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Profil Adı") },
-            placeholder = { Text("Örn: Kaan") },
+            label = { Text(stringResource(R.string.profile_edit_name_label)) },
+            placeholder = { Text(stringResource(R.string.profile_setup_name_hint)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth().dpadLeavesTextField(),
         )
@@ -93,12 +95,12 @@ fun ProfileSetupScreen(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Çocuk profili",
+                    text = stringResource(R.string.profile_setup_child_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
                 Text(
-                    text = "Yetişkin içerikleri gizler ve yalnızca çocuklara uygun içerikleri listeler.",
+                    text = stringResource(R.string.profile_setup_child_summary),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -113,14 +115,14 @@ fun ProfileSetupScreen(
         OutlinedTextField(
             value = pin,
             onValueChange = { if (it.length <= 4 && it.all { c -> c.isDigit() }) pin = it },
-            label = { Text("PIN Kodu (İsteğe bağlı)") },
-            placeholder = { Text("4 haneli sayı") },
+            label = { Text(stringResource(R.string.profile_setup_pin_label)) },
+            placeholder = { Text(stringResource(R.string.profile_setup_pin_hint)) },
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             modifier = Modifier.fillMaxWidth().dpadLeavesTextField(),
             supportingText = {
-                Text("Profil girişinde veya çocuk profilinden çıkarken sorulur.")
+                Text(stringResource(R.string.profile_setup_pin_help))
             },
         )
 
@@ -133,7 +135,7 @@ fun ProfileSetupScreen(
             horizontalArrangement = Arrangement.End,
         ) {
             TextButton(onClick = onCancel) {
-                Text("İptal")
+                Text(stringResource(R.string.common_cancel))
             }
             Button(
                 onClick = {
@@ -143,7 +145,7 @@ fun ProfileSetupScreen(
                 },
                 enabled = name.isNotBlank(),
             ) {
-                Text("Oluştur")
+                Text(stringResource(R.string.profile_setup_create_action))
             }
         }
     }

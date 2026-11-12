@@ -14,14 +14,18 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.data.settings.ThemeMode
+import com.kaan.play.data.settings.ThemeRules
 import com.kaan.play.data.plugin.DeepLink
 import com.kaan.play.data.subtitle.DebugEndpoints
 import com.kaan.play.ui.player.PlayerNoticeLogic
+import com.kaan.play.data.notify.NewEpisodeNotifier
+import com.kaan.play.data.notify.NewEpisodeScheduler
 import com.kaan.play.data.update.UpdateNotifications
 import com.kaan.play.ui.components.SplashOverlay
 import com.kaan.play.ui.nav.PlayRoot
 import com.kaan.play.ui.theme.PlayTheme
 import com.kaan.play.ui.addons.DeepLinkHost
+import com.kaan.play.ui.settings.WhatsNewDialog
 import com.kaan.play.ui.update.UpdateDialog
 import com.kaan.play.ui.announcement.AnnouncementDialog
 import kotlinx.coroutines.flow.first
@@ -45,8 +49,22 @@ class MainActivity : AppCompatActivity() {
         // Yalnızca debug derlemede, sahte release sunucusuyla denemek için: --es play_update_endpoint <adres>.
         val debugEndpoint = if (BuildConfig.DEBUG) intent.getStringExtra("play_update_endpoint") else null
         container.updateChecker.checkOnce(container.appScope, debugEndpoint)
+        val debugWhatsNew = BuildConfig.DEBUG && intent.getBooleanExtra("play_test_whats_new", false)
+        val debugUpgradeWhatsNew = BuildConfig.DEBUG && intent.getBooleanExtra("play_test_upgrade_whats_new", false)
+        container.whatsNewCoordinator.checkOnce(container.appScope, container.updateChecker, debugForceShow = debugWhatsNew, debugSimulateUpgrade = debugUpgradeWhatsNew)
         val debugAnnounce = if (BuildConfig.DEBUG) intent.getStringExtra("play_announcements_endpoint") else null
-        container.announcementChecker.checkOnce(container.appScope, container.updateChecker, debugAnnounce)
+        container.announcementChecker.checkOnce(container.appScope, container.updateChecker, debugAnnounce, container.whatsNewCoordinator)
+        if (BuildConfig.DEBUG && intent?.hasExtra("play_debug_disable_label_filtering") == true) {
+            com.kaan.play.data.match.EpisodeSourceLabelRules.debugDisableFiltering =
+                intent.getBooleanExtra("play_debug_disable_label_filtering", false)
+        }
+        container.appScope.launch(Dispatchers.IO) {
+            if (settings.newEpisodeNotifications.first()) {
+                NewEpisodeScheduler.schedule(applicationContext)
+            } else {
+                NewEpisodeScheduler.cancel(applicationContext)
+            }
+        }
 
         // SubtitleDao / CursorWindow koruma ve onbellek budama kalkani
         container.appScope.launch(Dispatchers.IO) {
@@ -120,6 +138,37 @@ class MainActivity : AppCompatActivity() {
                 val ids = raw.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
                 container.appScope.launch { container.providers.setSelectedProviders(ids) }
             }
+            if (intent.getBooleanExtra("play_test_seed_health", false)) {
+                container.appScope.launch {
+                    container.sourceHealth.seedSampleForDebug()
+                    val syncSrc = com.kaan.play.data.stream.StreamSource(902L, "HDFilmDemo")
+                    container.audioSyncReports.increment(syncSrc)
+                    container.audioSyncReports.increment(syncSrc)
+                    val sampleReq = com.kaan.play.data.stream.StreamRequest(
+                        tmdbId = 999_901,
+                        imdbId = "tt9999901",
+                        type = com.kaan.play.data.model.MediaType.Movie,
+                        title = "Örnek Test Filmi",
+                        year = 2024,
+                    )
+                    container.wrongContentBlocks.block(sampleReq, com.kaan.play.data.stream.StreamSource(904L, "WrongAddonDemo"))
+                }
+            }
+            if (intent.getBooleanExtra("play_test_clear_health", false)) {
+                container.appScope.launch {
+                    container.sourceHealth.clearHealthLogs()
+                    container.audioSyncReports.clear()
+                    val sampleReq = com.kaan.play.data.stream.StreamRequest(
+                        tmdbId = 999_901,
+                        imdbId = "tt9999901",
+                        type = com.kaan.play.data.model.MediaType.Movie,
+                        title = "Örnek Test Filmi",
+                        year = 2024,
+                    )
+                    val key = com.kaan.play.data.stream.WrongContentBlocker.blockKey(sampleReq, com.kaan.play.data.stream.StreamSource(904L, "WrongAddonDemo"))
+                    container.wrongContentBlocks.remove(key)
+                }
+            }
             val runDiag = intent.getBooleanExtra("play_diag", false) || intent.getStringExtra("play_diag") == "true"
             if (runDiag) {
                 val filter = intent.getStringExtra("diag_plugins")?.split(",")?.map { it.trim() }
@@ -133,23 +182,28 @@ class MainActivity : AppCompatActivity() {
 
         // Açılışta tek seferlik okuma (milisaniyeler): kayıtlı tema ilk karede doğru çıksın, yanıp sönmesin.
         val initialTheme = runBlocking { settings.themeMode.first() }
+        val initialPerf = runBlocking { settings.performanceMode.first() }
 
         // Yalnızca ilk açılışta: dil değişimi gibi yeniden oluşturmalarda aynı bağlantı tekrar işlenmesin.
         if (savedInstanceState == null) {
             handleLink(intent)
             handleUpdateIntent(intent)
+            handleNotificationIntent(intent)
             handlePlayIntent(intent)
+        if (BuildConfig.DEBUG && intent?.hasExtra("play_debug_disable_label_filtering") == true) {
+            com.kaan.play.data.match.EpisodeSourceLabelRules.debugDisableFiltering =
+                intent.getBooleanExtra("play_debug_disable_label_filtering", false)
+        }
         }
 
         try {
             StartupWindowGuard.checkDebugFailSetContent(intent)
             setContent {
             val mode by settings.themeMode.collectAsStateWithLifecycle(initialValue = initialTheme)
-            val dark = when (mode) {
-                ThemeMode.Dark -> true
-                ThemeMode.Light -> false
-                ThemeMode.System -> isSystemInDarkTheme()
-            }
+            val performanceMode by settings.performanceMode.collectAsStateWithLifecycle(initialValue = initialPerf)
+            val systemDark = isSystemInDarkTheme()
+            val resolvedTheme = ThemeRules.resolve(mode, systemDark)
+            val dark = ThemeRules.isDark(mode, systemDark)
             // Durum/gezinme çubuğu ikonları temaya uysun.
             // Durum/gezinme çubuğu ikonları temaya uysun (TV Box zırhı: getChildAt / decorView korumalı).
             DisposableEffect(dark) {
@@ -174,11 +228,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 onDispose { }
             }
-            PlayTheme(darkTheme = dark) {
+            PlayTheme(themeMode = resolvedTheme, performanceMode = performanceMode) {
                 Box {
                     PlayRoot()
                     SplashOverlay()
                     UpdateDialog(container.updateFlow)
+                    WhatsNewDialog(container.whatsNewCoordinator)
                     AnnouncementDialog(container.announcementChecker, container.updateFlow)
                     DeepLinkHost(container.deepLinks)
                 }
@@ -209,6 +264,10 @@ class MainActivity : AppCompatActivity() {
         intent.getStringExtra("sync_password")?.let { testSyncPassword = it }
         handleLink(intent)
         handleUpdateIntent(intent)
+        handleNotificationIntent(intent)
+        if (BuildConfig.DEBUG && intent.getBooleanExtra("play_test_whats_new", false)) {
+            (application as PlayApp).container.whatsNewCoordinator.forceDebugShow()
+        }
         handlePlayIntent(intent)
         if (BuildConfig.DEBUG) {
             if (intent.hasExtra("play_debug_fail_native")) {
@@ -242,6 +301,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun handlePlayIntent(intent: Intent?) {
         if (BuildConfig.DEBUG) {
+            if (intent?.getBooleanExtra("play_test_sub_repo_prompt", false) == true) triggerDebugSubRepoPrompt((application as PlayApp).container)
             val testUrl = intent?.getStringExtra("play_test_video")
             if (!testUrl.isNullOrBlank()) {
                 val scheme = runCatching { android.net.Uri.parse(testUrl)?.scheme?.lowercase() }.getOrNull()
@@ -254,6 +314,12 @@ class MainActivity : AppCompatActivity() {
                     }
                     if (intent?.hasExtra("play_test_fail_repeats") == true) {
                         playIntent.putExtra("play_test_fail_repeats", intent.getIntExtra("play_test_fail_repeats", 1))
+                    }
+                    if (intent?.getBooleanExtra("play_test_slow_prompt", false) == true) {
+                        playIntent.putExtra("play_test_slow_prompt", true)
+                    }
+                    if (intent?.hasExtra("play_test_offline_seconds") == true) {
+                        playIntent.putExtra("play_test_offline_seconds", intent.getIntExtra("play_test_offline_seconds", 0))
                     }
                     startActivity(playIntent)
                     return
@@ -297,6 +363,15 @@ class MainActivity : AppCompatActivity() {
                 if (intent?.hasExtra("play_test_fail_repeats") == true) {
                     playIntent.putExtra("play_test_fail_repeats", intent.getIntExtra("play_test_fail_repeats", 1))
                 }
+                if (intent?.getBooleanExtra("play_test_slow_prompt", false) == true) {
+                    playIntent.putExtra("play_test_slow_prompt", true)
+                }
+                if (intent?.hasExtra("play_test_delay_dubbed_ms") == true) {
+                    playIntent.putExtra("play_test_delay_dubbed_ms", intent.getLongExtra("play_test_delay_dubbed_ms", 0L))
+                }
+                if (intent?.hasExtra("play_test_offline_seconds") == true) {
+                    playIntent.putExtra("play_test_offline_seconds", intent.getIntExtra("play_test_offline_seconds", 0))
+                }
             }
             startActivity(playIntent)
         }
@@ -306,6 +381,21 @@ class MainActivity : AppCompatActivity() {
         if (intent?.action != UpdateNotifications.ACTION_INSTALL) return
         val info = UpdateNotifications.decode(intent.getStringExtra(UpdateNotifications.EXTRA_INFO)) ?: return
         (application as PlayApp).container.updateFlow.restoreReady(info)
+    }
+
+    private fun handleNotificationIntent(intent: Intent?) {
+        if (BuildConfig.DEBUG && intent?.hasExtra("play_test_new_episode_id") == true) {
+            val testId = intent.getIntExtra("play_test_new_episode_id", 0)
+            val testTitle = intent.getStringExtra("play_test_new_episode_title") ?: "Test Dizi"
+            val testSeason = intent.getIntExtra("play_test_new_episode_season", 1)
+            val testEp = intent.getIntExtra("play_test_new_episode_number", 2)
+            NewEpisodeNotifier.notify(this, testId, testTitle, testSeason, testEp)
+        }
+        if (intent?.action != NewEpisodeNotifier.ACTION_OPEN_SERIES) return
+        val tmdbId = intent.getIntExtra(NewEpisodeNotifier.EXTRA_TMDB_ID, 0)
+        if (tmdbId > 0) {
+            (application as PlayApp).container.pendingSeriesDetailId.value = tmdbId
+        }
     }
 
     /**
@@ -319,14 +409,32 @@ class MainActivity : AppCompatActivity() {
         when (uri.scheme) {
             "https" -> container.pendingAddonUrl.value = uri.toString()
             DeepLink.SCHEME -> {
-                // Opak ya da hiyerarşik olmayan bağlantıda (play:add?...) getQueryParameter fırlatır.
-                val repo = if (uri.isHierarchical) uri.getQueryParameter("repo") else null
-                val nuvio = if (uri.isHierarchical) uri.getQueryParameter("nuvio") else null
-                val nuvioPlugin = if (uri.isHierarchical) uri.getQueryParameter("nuvio_plugin") else null
-                container.deepLinks.handle(uri.scheme, uri.host, repo, nuvio, nuvioPlugin)
+                if (uri.host == "party") {
+                    val code = if (uri.isHierarchical) uri.getQueryParameter("code") else null
+                    if (!code.isNullOrBlank()) {
+                        container.pendingPartyCode.value = code.trim().uppercase()
+                    }
+                } else {
+                    // Opak ya da hiyerarşik olmayan bağlantıda (play:add?...) getQueryParameter fırlatır.
+                    val repo = if (uri.isHierarchical) uri.getQueryParameter("repo") else null
+                    val nuvio = if (uri.isHierarchical) uri.getQueryParameter("nuvio") else null
+                    val nuvioPlugin = if (uri.isHierarchical) uri.getQueryParameter("nuvio_plugin") else null
+                    container.deepLinks.handle(uri.scheme, uri.host, repo, nuvio, nuvioPlugin)
+                }
             }
         }
     }
+    private fun triggerDebugSubRepoPrompt(container: AppContainer) {
+        if (!BuildConfig.DEBUG) return
+        container.pluginRepoRequests.enqueueFromParent(
+            parentRepoUrl = "https://parent.example.com/repo.json",
+            candidates = listOf(
+                com.kaan.play.data.cloudstream.PluginRepoItem("Örnek Alt Depo 1", "https://example.com/sub1/repo.json"),
+                com.kaan.play.data.cloudstream.PluginRepoItem("Örnek Alt Depo 2", "https://example.org/sub2/repo.json"),
+            ),
+        )
+    }
+
     companion object {
         var testManyProviders: Boolean = false
         var testSyncEmail: String? = null

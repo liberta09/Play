@@ -193,4 +193,32 @@ class AddonManifestParserTest {
         assertFalse(m.providesCatalogs)
         assertTrue(m.providesStreams)
     }
+
+    @Test
+    fun parseCatalogOnlyStripsStreamAndRejectsStreamOnlyManifest() {
+        val mixedJson = """
+        {
+            "id": "org.mixed.catalog",
+            "name": "Harici Katalog",
+            "types": ["movie", "series"],
+            "resources": ["catalog", "stream", "subtitles"],
+            "catalogs": [{"type": "movie", "id": "featured", "name": "Öne Çıkanlar"}]
+        }
+        """.trimIndent()
+        val m = AddonManifestParser.parseCatalogOnly(mixedJson)
+        assertTrue(m.providesCatalogs)
+        assertFalse(m.providesStreams)
+        assertFalse(m.providesSubtitles)
+        assertFalse(m.supportsStream("movie", "tt0111161"))
+        assertEquals(listOf("catalog"), m.resources.map { it.name })
+
+        val streamOnlyJson = """{"id":"org.s","name":"S","types":["movie"],"resources":["stream"]}"""
+        try {
+            AddonManifestParser.parseCatalogOnly(streamOnlyJson)
+            fail("KindMismatch bekleniyordu")
+        } catch (e: AddonException) {
+            assertEquals(Kind.KindMismatch, e.kind)
+            assertEquals("external_catalog", e.detail)
+        }
+    }
 }

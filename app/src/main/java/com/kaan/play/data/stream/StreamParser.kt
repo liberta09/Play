@@ -64,6 +64,7 @@ object StreamParser {
             language = StreamLabels.language(text),
             torrentFileIdx = fileIdx?.takeIf { TorrentLinks.isMagnet(link) && it >= 0 },
             dubbed = DubDetector.isDubbed(text),
+            label = text.trim().takeIf { it.isNotEmpty() },
         )
     }
 

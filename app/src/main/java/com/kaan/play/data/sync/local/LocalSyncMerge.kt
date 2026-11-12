@@ -1,5 +1,6 @@
 package com.kaan.play.data.sync.local
 
+import com.kaan.play.data.sync.DeletedFavoriteItem
 import com.kaan.play.data.sync.DeletedHistoryItem
 import com.kaan.play.data.sync.FavoriteBackup
 import com.kaan.play.data.sync.HistoryBackup
@@ -23,8 +24,10 @@ data class LocalSyncPlan(
     val remappedProfileIds: Map<String, String> = emptyMap(),
     /** Birleştirmeden sonra uygulanacak aktif profil kimliği (atılan kimlikteyse korunana geçer). */
     val activeProfileId: String? = null,
-    /** İki tarafın birleşik ve budanmış mezar taşları. */
+    /** İki tarafın birleşik ve budanmış geçmiş mezar taşları. */
     val deletedHistory: List<DeletedHistoryItem> = emptyList(),
+    /** İki tarafın birleşik ve budanmış favori mezar taşları. */
+    val deletedFavorites: List<DeletedFavoriteItem> = emptyList(),
 ) {
     val historyCount: Int get() = libraries.values.sumOf { it.history.size }
 }
@@ -139,12 +142,14 @@ object LocalSyncMerge {
         sources: List<SourceTransferItem>,
         deviceName: String,
         deletedHistory: List<DeletedHistoryItem> = emptyList(),
+        deletedFavorites: List<DeletedFavoriteItem> = emptyList(),
     ): LocalProfileTransfer = LocalProfileTransfer(
         profiles = profiles.map(::forTransfer),
         backups = libraries.mapValues { encodeBackup(it.value) },
         sources = sources,
         deviceName = deviceName,
         deletedHistory = deletedHistory,
+        deletedFavorites = deletedFavorites,
     )
 
     /**
@@ -189,14 +194,21 @@ object LocalSyncMerge {
         }
 
         val mergedTombstones = mergeDeletedHistory(local.deletedHistory, remote.deletedHistory, remappedIds, nowMs)
+        val mergedFavoriteTombstones = mergeDeletedFavorites(local.deletedFavorites, remote.deletedFavorites, remappedIds, nowMs)
 
         val libraries = profiles.associate { p ->
             val profileTombstones = mergedTombstones.filter { it.profileId == p.id }
-            val base = mergeLibrary(decode(local.backups[p.id]), decode(remote.backups[p.id]), profileTombstones)
+            val profileFavTombstones = mergedFavoriteTombstones.filter { it.profileId == p.id }
+            val base = mergeLibrary(
+                local = decode(local.backups[p.id]),
+                remote = decode(remote.backups[p.id]),
+                tombstones = profileTombstones,
+                favoriteTombstones = profileFavTombstones,
+            )
             val finalLib = if (p.id == keptDefaultId) {
                 discardedDefaultIds.fold(base) { acc, dId ->
-                    val withLocal = mergeLibrary(acc, decode(local.backups[dId]), profileTombstones)
-                    mergeLibrary(withLocal, decode(remote.backups[dId]), profileTombstones)
+                    val withLocal = mergeLibrary(acc, decode(local.backups[dId]), profileTombstones, profileFavTombstones)
+                    mergeLibrary(withLocal, decode(remote.backups[dId]), profileTombstones, profileFavTombstones)
                 }
             } else {
                 base
@@ -217,6 +229,7 @@ object LocalSyncMerge {
             remappedProfileIds = remappedIds,
             activeProfileId = activeId,
             deletedHistory = mergedTombstones,
+            deletedFavorites = mergedFavoriteTombstones,
         )
     }
 
@@ -250,6 +263,7 @@ object LocalSyncMerge {
         local: LocalProfileBackup?,
         remote: LocalProfileBackup?,
         tombstones: List<DeletedHistoryItem> = emptyList(),
+        favoriteTombstones: List<DeletedFavoriteItem> = emptyList(),
     ): LocalProfileBackup {
         val base = local ?: remote ?: return LocalProfileBackup()
         val history = LinkedHashMap<String, HistoryBackup>()
@@ -265,10 +279,34 @@ object LocalSyncMerge {
             if (current == null || f.addedAt > current.addedAt) favorites[key] = f
         }
         val filteredHistory = filterHistoryWithTombstones(history.values.toList(), tombstones)
+        val filteredFavorites = filterFavoritesWithTombstones(favorites.values.toList(), favoriteTombstones)
         return base.copy(
             history = filteredHistory.sortedByDescending { it.lastWatchedAt },
-            favorites = favorites.values.sortedByDescending { it.addedAt },
+            favorites = filteredFavorites.sortedByDescending { it.addedAt },
         )
+    }
+
+    private inline fun <T> pruneTombstones(
+        items: List<T>,
+        nowMs: Long,
+        maxCount: Int,
+        retentionMs: Long,
+        crossinline profileOf: (T) -> String,
+        crossinline mediaKeyOf: (T) -> String,
+        crossinline deletedAtOf: (T) -> Long,
+    ): List<T> {
+        val cutoff = nowMs - retentionMs
+        return items
+            .filter { deletedAtOf(it) >= cutoff }
+            .groupBy { "${profileOf(it)}:${mediaKeyOf(it)}" }
+            .values
+            .map { group -> group.maxByOrNull { deletedAtOf(it) }!! }
+            .groupBy { profileOf(it) }
+            .values
+            .flatMap { profileGroup ->
+                profileGroup.sortedByDescending { deletedAtOf(it) }.take(maxCount)
+            }
+            .sortedByDescending { deletedAtOf(it) }
     }
 
     /** Mezar taşlarını profil başına en çok [maxCount] (500) ve [retentionMs] (90 gün) sınırlarıyla budar. */
@@ -277,20 +315,31 @@ object LocalSyncMerge {
         nowMs: Long = System.currentTimeMillis(),
         maxCount: Int = MAX_DELETED_HISTORY_PER_PROFILE,
         retentionMs: Long = DELETED_HISTORY_RETENTION_MS,
-    ): List<DeletedHistoryItem> {
-        val cutoff = nowMs - retentionMs
-        return items
-            .filter { it.deletedAt >= cutoff }
-            .groupBy { "${it.profileId}:${it.tmdbId}:${it.type.lowercase()}" }
-            .values
-            .map { group -> group.maxByOrNull { it.deletedAt }!! }
-            .groupBy { it.profileId }
-            .values
-            .flatMap { profileGroup ->
-                profileGroup.sortedByDescending { it.deletedAt }.take(maxCount)
-            }
-            .sortedByDescending { it.deletedAt }
-    }
+    ): List<DeletedHistoryItem> = pruneTombstones(
+        items = items,
+        nowMs = nowMs,
+        maxCount = maxCount,
+        retentionMs = retentionMs,
+        profileOf = { it.profileId },
+        mediaKeyOf = { "${it.tmdbId}:${it.type.lowercase()}" },
+        deletedAtOf = { it.deletedAt },
+    )
+
+    /** Favori mezar taşlarını profil başına en çok [maxCount] (500) ve [retentionMs] (90 gün) sınırlarıyla budar. */
+    fun pruneDeletedFavorites(
+        items: List<DeletedFavoriteItem>,
+        nowMs: Long = System.currentTimeMillis(),
+        maxCount: Int = MAX_DELETED_HISTORY_PER_PROFILE,
+        retentionMs: Long = DELETED_HISTORY_RETENTION_MS,
+    ): List<DeletedFavoriteItem> = pruneTombstones(
+        items = items,
+        nowMs = nowMs,
+        maxCount = maxCount,
+        retentionMs = retentionMs,
+        profileOf = { it.profileId },
+        mediaKeyOf = { "${it.tmdbId}:${it.type.lowercase()}" },
+        deletedAtOf = { it.deletedAt },
+    )
 
     /** İki tarafın mezar taşlarını birleştirir (aynı içerik için en yeni deletedAt), remapped profil kimliklerini taşır ve budar. */
     fun mergeDeletedHistory(
@@ -304,6 +353,38 @@ object LocalSyncMerge {
             if (targetProfId != item.profileId) item.copy(profileId = targetProfId) else item
         }
         return pruneDeletedHistory(combined, nowMs)
+    }
+
+    /** İki tarafın favori mezar taşlarını birleştirir, remapped profil kimliklerini taşır ve budar. */
+    fun mergeDeletedFavorites(
+        local: List<DeletedFavoriteItem>,
+        remote: List<DeletedFavoriteItem>,
+        remappedProfileIds: Map<String, String> = emptyMap(),
+        nowMs: Long = System.currentTimeMillis(),
+    ): List<DeletedFavoriteItem> {
+        val combined = (local + remote).map { item ->
+            val targetProfId = remappedProfileIds[item.profileId] ?: item.profileId
+            if (targetProfId != item.profileId) item.copy(profileId = targetProfId) else item
+        }
+        return pruneDeletedFavorites(combined, nowMs)
+    }
+
+    /**
+     * Mezar taşlarına göre favorileri filtreler: favori ancak `addedAt > deletedAt` ise kalır.
+     */
+    fun filterFavoritesWithTombstones(
+        favorites: List<FavoriteBackup>,
+        tombstones: List<DeletedFavoriteItem>,
+    ): List<FavoriteBackup> {
+        if (favorites.isEmpty() || tombstones.isEmpty()) return favorites
+        val newestDeleteByKey = tombstones
+            .groupBy { "${it.tmdbId}:${it.type.lowercase()}" }
+            .mapValues { (_, items) -> items.maxOf { it.deletedAt } }
+        return favorites.filterNot { f ->
+            val key = "${f.tmdbId}:${f.type.lowercase()}"
+            val deletedAt = newestDeleteByKey[key]
+            deletedAt != null && deletedAt >= f.addedAt
+        }
     }
 
     /**

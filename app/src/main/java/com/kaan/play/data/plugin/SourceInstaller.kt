@@ -20,6 +20,7 @@ enum class SourceType {
     CLOUDSTREAM,
     NUVIO_REPO,
     NUVIO_PLUGIN,
+    EXTERNAL_CATALOG,
 }
 
 /**
@@ -38,7 +39,7 @@ class SourceInstaller(
      * @param expectedType Beklenen kaynak türü; verilirse manifest türü ile kesin uyuşma aranır.
      * @throws AddonException
      */
-    suspend fun add(input: String, expectedType: SourceType? = null): AddResult {
+    suspend fun add(input: String, expectedType: SourceType? = null, fromSubRepo: Boolean = false): AddResult {
         val trimmed = input.trim()
         val isDirectCs3 = trimmed.removeSuffix("/").endsWith(".cs3", ignoreCase = true)
         val url = if (isDirectCs3) {
@@ -59,7 +60,7 @@ class SourceInstaller(
                     detectedType = SourceType.CLOUDSTREAM,
                 )
             }
-            val added = csRepos.addDirectCs3(url)
+            val added = csRepos.addDirectCs3(url, recordManual = !fromSubRepo)
             return AddResult.CsRepo(added.repo.name, added.installed, added.skipped)
         }
 
@@ -73,7 +74,8 @@ class SourceInstaller(
             ManifestKind.Unknown -> null
         }
 
-        if (expectedType != null && detectedType != null && detectedType != expectedType) {
+        val compatibleExternalCatalog = expectedType == SourceType.EXTERNAL_CATALOG && kind == ManifestKind.Addon
+        if (expectedType != null && detectedType != null && detectedType != expectedType && !compatibleExternalCatalog) {
             throw AddonException(
                 kind = Kind.KindMismatch,
                 detail = expectedType.name.lowercase(),
@@ -88,7 +90,7 @@ class SourceInstaller(
                 if (kind != ManifestKind.External) {
                     throw AddonException(Kind.KindMismatch, "cloudstream", detectedType = detectedType)
                 }
-                csRepos.addFetched(url, raw).let { AddResult.CsRepo(it.repo.name, it.installed, it.skipped) }
+                csRepos.addFetched(url, raw, recordManual = !fromSubRepo).let { AddResult.CsRepo(it.repo.name, it.installed, it.skipped) }
             }
             SourceType.NUVIO_REPO -> {
                 if (kind == ManifestKind.PluginRepo || kind == ManifestKind.External) {
@@ -101,6 +103,12 @@ class SourceInstaller(
                     throw AddonException(Kind.KindMismatch, "nuvio_plugin", detectedType = detectedType)
                 }
                 plugins.addFetched(url, raw).let { AddResult.PluginRepo(it.repo.name, it.installed, it.skipped) }
+            }
+            SourceType.EXTERNAL_CATALOG -> {
+                if (kind == ManifestKind.PluginRepo || kind == ManifestKind.External) {
+                    throw AddonException(Kind.KindMismatch, "external_catalog", detectedType = detectedType)
+                }
+                AddResult.Addon(addons.addFetched(url, raw, catalogOnly = true).manifest.name)
             }
         }
     }

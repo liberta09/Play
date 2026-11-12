@@ -1,152 +1,242 @@
 package com.kaan.play.ui.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import com.kaan.play.ui.components.Button
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.Surface
 import com.kaan.play.R
+import com.kaan.play.data.settings.ThemeMode
 import com.kaan.play.data.speedtest.InternetSpeedResult
+import com.kaan.play.data.speedtest.InternetSpeedTest
 import com.kaan.play.data.speedtest.SpeedTestError
 import com.kaan.play.data.speedtest.SpeedTestOutcome
+import com.kaan.play.i18n.AppLanguage
+import com.kaan.play.ui.components.Button
+import com.kaan.play.ui.components.OutlinedButton
 import com.kaan.play.ui.components.ScreenHeader
-import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.rememberContainer
+import com.kaan.play.ui.theme.LocalPlayThemeMode
+import com.kaan.play.ui.tv.focusMemory
+import com.kaan.play.ui.tv.rememberFocusMemory
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @Composable
 fun SpeedTestScreen(onBack: () -> Unit) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
+    val focus = rememberFocusMemory()
+    val locale = remember { Locale.forLanguageTag(AppLanguage.effective().iso) }
+
+    var activeJob by remember { mutableStateOf<Job?>(null) }
     var running by remember { mutableStateOf(false) }
+    var downloadedBytes by remember { mutableLongStateOf(0L) }
+    var totalBytes by remember { mutableLongStateOf(InternetSpeedTest.TARGET_BYTES) }
     var result by remember { mutableStateOf<InternetSpeedResult?>(null) }
     var failed by remember { mutableStateOf<SpeedTestError?>(null) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            activeJob?.cancel()
+            activeJob = null
+        }
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .padding(horizontal = 20.dp),
+            .navigationBarsPadding()
+            .padding(horizontal = 20.dp)
+            .verticalScroll(rememberScrollState()),
     ) {
         ScreenHeader(
-            title = "İnternet Hız Testi",
+            title = stringResource(R.string.settings_speed_test),
             onBack = onBack,
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Cloudflare CDN üzerinden ölçülen yaklaşık hız.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        failed?.let { error ->
-            val reason = stringResource(
-                when (error) {
-                    SpeedTestError.Unreachable -> R.string.speed_test_error_unreachable
-                    SpeedTestError.Timeout -> R.string.speed_test_error_timeout
-                },
-            )
-            Text(
-                text = stringResource(R.string.speed_test_failed, reason),
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 16.dp),
-            )
-        }
-
-        result?.let {
-            SpeedResultCard(it)
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        Button(
-            onClick = {
-                if (!running) {
-                    scope.launch {
-                        running = true
-                        failed = null
-                        val res = container.internetSpeedTest.runTest()
-                        running = false
-                        when (res) {
-                            is SpeedTestOutcome.Failure -> failed = res.error
-                            is SpeedTestOutcome.Success -> result = res.result
-                        }
-                    }
-                }
-            },
-            enabled = !running,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            if (running) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text("Test ediliyor...")
-            } else {
-                Text(if (result != null) "Tekrar Test Et" else "Hız testini başlat")
-            }
-        }
 
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Yaklaşık 9 MB veri kullanır. Bu test sunucusuna olan bağlantınızı ölçer, belirli bir video kaynağının hızını ölçmez.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            text = stringResource(R.string.speed_test_disclaimer),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        failed?.let { error ->
+            val reason = when (error) {
+                SpeedTestError.Unreachable -> stringResource(R.string.speed_test_error_unreachable)
+                SpeedTestError.Timeout -> stringResource(R.string.speed_test_error_timeout)
+                is SpeedTestError.Other -> error.detail
+            }
+            val displayText = if (error is SpeedTestError.Other) {
+                stringResource(R.string.speed_test_failed, reason)
+            } else {
+                reason
+            }
+            Text(
+                text = displayText,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                modifier = Modifier.padding(bottom = 16.dp),
+            )
+        }
+
+        if (running) {
+            val highContrast = LocalPlayThemeMode.current == ThemeMode.HighContrast
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f),
+                border = if (highContrast) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(
+                    modifier = Modifier.padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    val fraction = (downloadedBytes.toFloat() / totalBytes.coerceAtLeast(1L).toFloat()).coerceIn(0f, 1f)
+                    LinearProgressIndicator(
+                        progress = { fraction },
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.speed_test_progress_mb,
+                            InternetSpeedTest.formatMegabytes(downloadedBytes, locale),
+                            InternetSpeedTest.formatMegabytes(totalBytes, locale),
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(18.dp))
+        }
+
+        result?.let {
+            SpeedResultCard(result = it, locale = locale)
+            Spacer(modifier = Modifier.height(18.dp))
+        }
+
+        if (running) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Button(
+                    onClick = {},
+                    enabled = false,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(stringResource(R.string.speed_test_testing))
+                }
+                OutlinedButton(
+                    onClick = {
+                        activeJob?.cancel()
+                        activeJob = null
+                        running = false
+                    },
+                    modifier = Modifier.focusMemory(focus, "speed_cancel", isDefault = true),
+                ) {
+                    Text(stringResource(R.string.speed_test_cancel))
+                }
+            }
+        } else {
+            Button(
+                onClick = {
+                    if (activeJob == null) {
+                        running = true
+                        downloadedBytes = 0L
+                        totalBytes = InternetSpeedTest.TARGET_BYTES
+                        result = null
+                        failed = null
+                        activeJob = scope.launch {
+                            try {
+                                when (
+                                    val res = container.internetSpeedTest.runTest { down, total ->
+                                        downloadedBytes = down
+                                        totalBytes = total
+                                    }
+                                ) {
+                                    is SpeedTestOutcome.Failure -> failed = res.error
+                                    is SpeedTestOutcome.Success -> result = res.result
+                                }
+                            } catch (_: CancellationException) {
+                                // Kullanıcı iptal etti.
+                            } finally {
+                                running = false
+                                activeJob = null
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusMemory(focus, "speed_start", isDefault = true),
+            ) {
+                Text(stringResource(if (result != null) R.string.speed_test_retry else R.string.speed_test_start))
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
 @Composable
-private fun SpeedResultCard(result: InternetSpeedResult) {
+private fun SpeedResultCard(result: InternetSpeedResult, locale: Locale) {
+    val highContrast = LocalPlayThemeMode.current == ThemeMode.HighContrast
     Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f),
+        border = if (highContrast) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
     ) {
         Column(
             modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Text(
-                text = "Sonucunuz",
+                text = stringResource(R.string.speed_test_result_title),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface,
             )
@@ -154,15 +244,16 @@ private fun SpeedResultCard(result: InternetSpeedResult) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
             ) {
                 Column {
                     Text(
-                        text = "İndirme Hızı",
+                        text = stringResource(R.string.speed_test_download_label),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        text = "%.1f Mbps".format(result.downloadMbps),
+                        text = InternetSpeedTest.formatMbps(result.downloadMbps, locale),
                         style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -170,13 +261,13 @@ private fun SpeedResultCard(result: InternetSpeedResult) {
 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "Gecikme (Ping)",
+                        text = stringResource(R.string.speed_test_downloaded_label),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        text = "${result.pingMs} ms",
-                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                        text = InternetSpeedTest.formatMegabytes(result.bytesDownloaded, locale),
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                         color = MaterialTheme.colorScheme.secondary,
                     )
                 }

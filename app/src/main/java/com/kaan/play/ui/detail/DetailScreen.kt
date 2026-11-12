@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import com.kaan.play.data.db.WatchHistoryEntity
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -53,6 +55,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -74,6 +78,7 @@ import com.kaan.play.data.model.CastMember
 import com.kaan.play.data.model.Episode
 import com.kaan.play.data.model.MediaDetail
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.model.PersonRef
 import com.kaan.play.data.model.SeasonInfo
 import com.kaan.play.data.stream.PlayTarget
 import com.kaan.play.data.stream.StreamRequest
@@ -95,6 +100,7 @@ import com.kaan.play.ui.components.TextButton
 import com.kaan.play.ui.components.TitleOrLogo
 import com.kaan.play.ui.theme.isDarkScheme
 import com.kaan.play.ui.containerViewModel
+import com.kaan.play.ui.party.toWatchPartyErrorMessage
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.sources.DownloadStateIcon
@@ -102,6 +108,12 @@ import com.kaan.play.ui.sources.SourcesSheet
 import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.rememberInitialFocus
 import com.kaan.play.ui.tv.rememberPlayLayout
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 
 private val Gutter = 20.dp
 
@@ -116,6 +128,7 @@ fun DetailScreen(
     onBack: () -> Unit,
     onOpenSimilar: (MediaType, Int) -> Unit = { _, _ -> },
     onOpenActor: (String) -> Unit = {},
+    onOpenPerson: (Int, String) -> Unit = { _, _ -> },
     onPlay: (PlayTarget) -> Unit,
 ) {
     val vm = containerViewModel(key = "detail-${type.tmdbPath}-$id-${AppLanguage.effective().iso}") {
@@ -125,11 +138,51 @@ fun DetailScreen(
     val season by vm.season.collectAsStateWithLifecycle()
     val episodes by vm.episodes.collectAsStateWithLifecycle()
     val isFavorite by vm.isFavorite.collectAsStateWithLifecycle()
+    val history by vm.latestHistory.collectAsStateWithLifecycle()
     val layout = rememberPlayLayout()
     val downloads by rememberContainer().downloads.rows.collectAsStateWithLifecycle(initialValue = emptyList())
     // Detay'daki indir düğmesi: kaynak listesi indirme modunda açılır (yalnızca indirilebilir doğrudan kaynaklar).
     var downloadFor by remember { mutableStateOf<PlayTarget?>(null) }
     val listState = rememberLazyListState()
+    val context = LocalContext.current
+    val container = rememberContainer()
+    val scope = rememberCoroutineScope()
+    val cloudAccount by container.cloudSync.account.collectAsStateWithLifecycle()
+    val activeProfile by container.localProfile.activeProfile.collectAsStateWithLifecycle(initialValue = null)
+    var partyRoomDialog by remember { mutableStateOf<com.kaan.play.data.party.WatchPartyRoom?>(null) }
+    var partyLoginRequiredDialog by remember { mutableStateOf(false) }
+    var partyCreating by remember { mutableStateOf(false) }
+
+    val onStartParty: () -> Unit = {
+        if (cloudAccount == null) {
+            partyLoginRequiredDialog = true
+        } else {
+            val d = detail
+            if (d is Loadable.Ready) {
+                val media = d.value.summary
+                val isSeries = type == MediaType.Tv
+                val s = if (isSeries) season ?: 1 else null
+                partyCreating = true
+                scope.launch {
+                    val result = container.watchPartyManager.createParty(
+                        title = media.title,
+                        mediaType = if (isSeries) "tv" else "movie",
+                        tmdbId = media.id,
+                        season = s,
+                        episode = if (isSeries) 1 else null,
+                        displayName = activeProfile?.name,
+                    )
+                    partyCreating = false
+                    result.onSuccess { room ->
+                        partyRoomDialog = room
+                    }.onFailure { err ->
+                        val msg = err.toWatchPartyErrorMessage(context)
+                        android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
 
     Box(Modifier.fillMaxSize()) {
         when (val d = detail) {
@@ -142,19 +195,56 @@ fun DetailScreen(
                 isFavorite = isFavorite,
                 selectedSeason = season,
                 episodes = episodes,
+                history = history,
                 onToggleFavorite = vm::toggleFavorite,
                 onSelectSeason = vm::selectSeason,
                 onRetryEpisodes = vm::retryEpisodes,
                 onOpenSimilar = onOpenSimilar,
                 onOpenActor = onOpenActor,
+                onOpenPerson = onOpenPerson,
+                onStartWatchParty = onStartParty,
                 onPlay = { s, e ->
                     val media = d.value.summary
-                    onPlay(PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath, d.value.logoPath, media.backdropPath))
+                    onPlay(
+                        PlayTarget(
+                            request = StreamRequest(
+                                tmdbId = media.id,
+                                imdbId = d.value.imdbId,
+                                type = media.type,
+                                season = s,
+                                episode = e,
+                                title = media.title,
+                                year = media.year,
+                            ),
+                            title = media.title,
+                            posterPath = media.posterPath,
+                            logoPath = d.value.logoPath,
+                            backdropPath = media.backdropPath,
+                            ageRating = d.value.ageRating?.rating,
+                            ageRatingRegion = d.value.ageRating?.region,
+                        ),
+                    )
                 },
                 downloads = downloads,
                 onDownload = { s, e ->
                     val media = d.value.summary
-                    downloadFor = PlayTarget(StreamRequest(media.id, d.value.imdbId, media.type, s, e), media.title, media.posterPath, d.value.logoPath, media.backdropPath)
+                    downloadFor = PlayTarget(
+                        request = StreamRequest(
+                            tmdbId = media.id,
+                            imdbId = d.value.imdbId,
+                            type = media.type,
+                            season = s,
+                            episode = e,
+                            title = media.title,
+                            year = media.year,
+                        ),
+                        title = media.title,
+                        posterPath = media.posterPath,
+                        logoPath = d.value.logoPath,
+                        backdropPath = media.backdropPath,
+                        ageRating = d.value.ageRating?.rating,
+                        ageRatingRegion = d.value.ageRating?.region,
+                    )
                 },
                 listState = listState,
             )
@@ -198,6 +288,59 @@ fun DetailScreen(
     downloadFor?.let { target ->
         SourcesSheet(target = target, onDismiss = { downloadFor = null }, onPicked = {}, downloadMode = true)
     }
+
+    if (partyLoginRequiredDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { partyLoginRequiredDialog = false },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text(stringResource(R.string.watch_party_title)) },
+            text = { Text(stringResource(R.string.watch_party_login_required)) },
+            confirmButton = {
+                TextButton(onClick = { partyLoginRequiredDialog = false }) {
+                    Text(stringResource(R.string.announcement_ok))
+                }
+            },
+        )
+    }
+
+    partyRoomDialog?.let { room ->
+        val linkCopiedMsg = stringResource(R.string.watch_party_link_copied)
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { partyRoomDialog = null },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text(stringResource(R.string.watch_party_room_created_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        stringResource(R.string.watch_party_room_code_label, room.code),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        stringResource(R.string.watch_party_room_code_desc),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    clipboard.setPrimaryClip(ClipData.newPlainText("Watch Party Link", "play://party?code=${room.code}"))
+                    Toast.makeText(context, linkCopiedMsg, Toast.LENGTH_SHORT).show()
+                }) {
+                    Text(stringResource(R.string.watch_party_copy_link))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { partyRoomDialog = null }) {
+                    Text(stringResource(R.string.profile_dialog_close))
+                }
+            },
+        )
+    }
 }
 
 /** Bu kadar kaydırılınca geri düğmesinin arkasına şerit gelir. */
@@ -223,6 +366,9 @@ internal fun DetailContent(
     onRetryEpisodes: () -> Unit,
     onOpenSimilar: (MediaType, Int) -> Unit = { _, _ -> },
     onOpenActor: (String) -> Unit = {},
+    onOpenPerson: (Int, String) -> Unit = { _, _ -> },
+    onStartWatchParty: (() -> Unit)? = null,
+    history: WatchHistoryEntity? = null,
     onPlay: (Int?, Int?) -> Unit,
     downloads: List<DownloadEntity> = emptyList(),
     /** Verilmezse (ör. sağlayıcı detayı) indir düğmeleri görünmez. */
@@ -241,7 +387,22 @@ internal fun DetailContent(
         DownloadAction(DownloadRules.contentBadge(entry), entry) { download(null, null) }
     }
     val header: @Composable (Dp) -> Unit = { padding ->
-        HeaderBlock(detail, isFavorite, selectedSeason, primaryFocus, padding, isSeries, onToggleFavorite, onSelectSeason, onPlay, movieDownload)
+        HeaderBlock(
+            detail = detail,
+            isFavorite = isFavorite,
+            selectedSeason = selectedSeason,
+            primaryFocus = primaryFocus,
+            horizontalPadding = padding,
+            isSeries = isSeries,
+            onToggleFavorite = onToggleFavorite,
+            onSelectSeason = onSelectSeason,
+            onPlay = onPlay,
+            movieDownload = movieDownload,
+            onStartWatchParty = onStartWatchParty,
+            history = history,
+            episodes = (episodes as? Loadable.Ready)?.value,
+            twoPane = twoPane,
+        )
     }
 
     if (twoPane) {
@@ -255,10 +416,10 @@ internal fun DetailContent(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 item { Box(Modifier.statusBarsPadding()) { header(0.dp) } }
-                item { BodyBlock(detail, horizontalPadding = 0.dp) }
+                item { BodyBlock(detail, horizontalPadding = 0.dp, onOpenPerson = onOpenPerson) }
                 trailerSection(detail.trailerKey)
                 similarSection(detail.similar, detail.summary.type, 0.dp, onOpenSimilar)
-                castSection(detail.cast, horizontalPadding = 0.dp, onOpenActor = onOpenActor)
+                castSection(detail.cast, horizontalPadding = 0.dp, onOpenPerson = onOpenPerson)
                 if (isSeries) episodeSection(episodes, selectedSeason, 8.dp, onRetryEpisodes, onPlay, episodeDownload(detail, downloads, selectedSeason, onDownload))
             }
         }
@@ -273,8 +434,9 @@ internal fun DetailContent(
         ) {
             item {
                 val background = MaterialTheme.colorScheme.background
+                val smaller = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
                 Box(Modifier.fillMaxWidth().heightIn(min = headerHeight)) {
-                    TmdbImages.url(preferredPoster, TmdbImages.Size.BackdropLarge)?.let {
+                    TmdbImages.url(preferredPoster, TmdbImages.backdropSize(smaller))?.let {
                         AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.matchParentSize())
                     }
                     // Alt kenar sayfa rengine erir: başlık okunur, kapak "kesilmiş" görünmez.
@@ -282,10 +444,10 @@ internal fun DetailContent(
                     Box(Modifier.align(Alignment.BottomStart).padding(top = 72.dp)) { header(Gutter) }
                 }
             }
-            item { BodyBlock(detail, horizontalPadding = Gutter) }
+            item { BodyBlock(detail, horizontalPadding = Gutter, onOpenPerson = onOpenPerson) }
             trailerSection(detail.trailerKey)
             similarSection(detail.similar, detail.summary.type, Gutter, onOpenSimilar)
-            castSection(detail.cast, horizontalPadding = Gutter, onOpenActor = onOpenActor)
+            castSection(detail.cast, horizontalPadding = Gutter, onOpenPerson = onOpenPerson)
             if (isSeries) episodeSection(episodes, selectedSeason, Gutter, onRetryEpisodes, onPlay, episodeDownload(detail, downloads, selectedSeason, onDownload))
         }
     }
@@ -310,7 +472,7 @@ private fun episodeDownload(
     }
 }
 
-/** Başlık (logo ya da metin), tür satırı ve ana işler (film: Oynat + indir + ⋯; dizi: sezon seçici + ⋯). */
+/** Başlık (logo ya da metin), tür satırı ve ana işler (film: Oynat + indir + ⋯; dizi: Oynat + sezon seçici + ⋯). */
 @Composable
 private fun HeaderBlock(
     detail: MediaDetail,
@@ -323,6 +485,10 @@ private fun HeaderBlock(
     onSelectSeason: (Int) -> Unit,
     onPlay: (Int?, Int?) -> Unit,
     movieDownload: DownloadAction? = null,
+    onStartWatchParty: (() -> Unit)? = null,
+    history: WatchHistoryEntity? = null,
+    episodes: List<Episode>? = null,
+    twoPane: Boolean = true,
 ) {
     val media = detail.summary
     Column(Modifier.padding(horizontal = horizontalPadding), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -330,16 +496,70 @@ private fun HeaderBlock(
         genreLine(detail)?.let {
             Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (isSeries) {
-                SeasonPicker(
-                    seasons = detail.seasons,
-                    selected = selectedSeason,
-                    onSelect = onSelectSeason,
-                    modifier = Modifier.weight(1f),
-                    focus = primaryFocus,
-                )
+        if (isSeries) {
+            val scope = rememberCoroutineScope()
+            val container = rememberContainer()
+            val onPlaySeries: () -> Unit = {
+                scope.launch {
+                    val (targetSeason, targetEpisode) = SeriesPlayTarget.resolve(
+                        history = history,
+                        selectedSeason = selectedSeason,
+                        episodes = episodes,
+                        nextEpisode = { s, ep ->
+                            try {
+                                container.nextEpisodes.next(detail.summary.id, s, ep)
+                            } catch (e: Exception) {
+                                if (e is kotlinx.coroutines.CancellationException) throw e
+                                null
+                            }
+                        },
+                        today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date()),
+                    )
+                    onPlay(targetSeason, targetEpisode)
+                }
+            }
+            if (!twoPane) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = onPlaySeries,
+                        modifier = Modifier.fillMaxWidth().height(52.dp).focusRequester(primaryFocus),
+                    ) {
+                        Icon(PlayIcons.PlayTriangle, contentDescription = null, modifier = Modifier.size(22.dp))
+                        Text(stringResource(R.string.detail_play), modifier = Modifier.padding(start = 8.dp))
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        SeasonPicker(
+                            seasons = detail.seasons,
+                            selected = selectedSeason,
+                            onSelect = onSelectSeason,
+                            modifier = Modifier.weight(1f),
+                        )
+                        MoreButton(isFavorite, onToggleFavorite, onStartWatchParty)
+                    }
+                }
             } else {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Button(
+                        onClick = onPlaySeries,
+                        modifier = Modifier.weight(1f).height(52.dp).focusRequester(primaryFocus),
+                    ) {
+                        Icon(PlayIcons.PlayTriangle, contentDescription = null, modifier = Modifier.size(22.dp))
+                        Text(stringResource(R.string.detail_play), modifier = Modifier.padding(start = 8.dp))
+                    }
+                    SeasonPicker(
+                        seasons = detail.seasons,
+                        selected = selectedSeason,
+                        onSelect = onSelectSeason,
+                        modifier = Modifier.widthIn(min = 120.dp, max = 180.dp),
+                    )
+                    MoreButton(isFavorite, onToggleFavorite, onStartWatchParty)
+                }
+            }
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Button(
                     onClick = { onPlay(null, null) },
                     modifier = Modifier.weight(1f).height(52.dp).focusRequester(primaryFocus),
@@ -348,8 +568,8 @@ private fun HeaderBlock(
                     Text(stringResource(R.string.detail_play), modifier = Modifier.padding(start = 8.dp))
                 }
                 movieDownload?.let { DetailDownloadButton(it, Modifier.size(52.dp)) }
+                MoreButton(isFavorite, onToggleFavorite, onStartWatchParty)
             }
-            MoreButton(isFavorite, onToggleFavorite)
         }
     }
 }
@@ -357,7 +577,11 @@ private fun HeaderBlock(
 /** Yıl · süre, yaş sınırı çipi, TMDB puan rozeti; yönetmen/yazar; kısaltılmış özet. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun BodyBlock(detail: MediaDetail, horizontalPadding: Dp) {
+private fun BodyBlock(
+    detail: MediaDetail,
+    horizontalPadding: Dp,
+    onOpenPerson: (Int, String) -> Unit = { _, _ -> },
+) {
     val media = detail.summary
     Column(Modifier.padding(horizontal = horizontalPadding), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         val yearRuntime = yearRuntimeLine(detail)
@@ -373,26 +597,52 @@ private fun BodyBlock(detail: MediaDetail, horizontalPadding: Dp) {
             }
         }
         // Dizide yaratıcı aynı zamanda yönetmen/yazar görünüyorsa üç satırda aynı ad tekrarlanmasın.
-        val directors = detail.directors.filterNot { it in detail.creators }
-        val writers = detail.writers.filterNot { it in detail.creators }
-        if (directors.isNotEmpty()) CreditLine(stringResource(R.string.detail_director), directors)
-        if (writers.isNotEmpty()) CreditLine(stringResource(R.string.detail_writer), writers)
-        if (detail.creators.isNotEmpty()) CreditLine(stringResource(R.string.detail_creator), detail.creators)
+        val creatorNames = detail.creators.toSet()
+        val directors = detail.directorRefs.ifEmpty { detail.directors.map { PersonRef(0, it) } }
+            .filterNot { it.name in creatorNames }
+        val writers = detail.writerRefs.ifEmpty { detail.writers.map { PersonRef(0, it) } }
+            .filterNot { it.name in creatorNames }
+        val creators = detail.creatorRefs.ifEmpty { detail.creators.map { PersonRef(0, it) } }
+        if (directors.isNotEmpty()) CreditLine(stringResource(R.string.detail_director), directors, onOpenPerson)
+        if (writers.isNotEmpty()) CreditLine(stringResource(R.string.detail_writer), writers, onOpenPerson)
+        if (creators.isNotEmpty()) CreditLine(stringResource(R.string.detail_creator), creators, onOpenPerson)
         if (media.overview.isNotBlank()) Overview(media.overview)
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun CreditLine(label: String, names: List<String>) {
+private fun CreditLine(label: String, refs: List<PersonRef>, onOpenPerson: (Int, String) -> Unit) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
-    Text(
-        text = buildAnnotatedString {
-            withStyle(SpanStyle(color = muted)) { append(label) }
-            append("  ")
-            append(names.joinToString(", "))
-        },
-        style = MaterialTheme.typography.bodyMedium,
-    )
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        itemVerticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = "$label  ",
+            style = MaterialTheme.typography.bodyMedium,
+            color = muted,
+        )
+        refs.forEachIndexed { idx, person ->
+            val labelText = if (idx < refs.lastIndex) "${person.name}," else person.name
+            val shape = RoundedCornerShape(6.dp)
+            Text(
+                text = labelText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = if (person.id > 0) {
+                    Modifier
+                        .clip(shape)
+                        .focusRing(shape)
+                        .clickable { onOpenPerson(person.id, person.name) }
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                } else {
+                    Modifier
+                },
+            )
+        }
+    }
 }
 
 /** Özet 3 satıra kısaltılır; sığmıyorsa "Daha fazla göster" düğmesi çıkar. */
@@ -471,10 +721,11 @@ private fun LazyListScope.similarSection(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 items(items, key = { "similar-${it.type}-${it.id}" }) { media ->
+                    val smaller = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
                     PosterCard(
                         title = media.title,
                         subtitle = media.year?.toString(),
-                        imageUrl = TmdbImages.url(media.posterPath, TmdbImages.Size.Poster),
+                        imageUrl = TmdbImages.url(media.posterPath, TmdbImages.posterSize(smaller)),
                         tmdbId = media.id,
                         mediaType = media.type,
                         onClick = { onOpen(media.type, media.id) },
@@ -486,7 +737,7 @@ private fun LazyListScope.similarSection(
     }
 }
 
-private fun LazyListScope.castSection(cast: List<CastMember>, horizontalPadding: Dp, onOpenActor: (String) -> Unit = {}) {
+private fun LazyListScope.castSection(cast: List<CastMember>, horizontalPadding: Dp, onOpenPerson: (Int, String) -> Unit = { _, _ -> }) {
     if (cast.isEmpty()) return
     item(key = "cast") {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -495,21 +746,24 @@ private fun LazyListScope.castSection(cast: List<CastMember>, horizontalPadding:
                 contentPadding = PaddingValues(start = (horizontalPadding - 10.dp).coerceAtLeast(0.dp), end = horizontalPadding),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(cast, key = { it.id }) { CastItem(it, onOpenActor) }
+                items(cast, key = { it.id }) { CastItem(it, onOpenPerson) }
             }
         }
     }
 }
 
-/** Yuvarlak fotoğraf + ad + rol. Dokunulacak bir işi yok ama kumandayla odaklanır (listeyi kaydırabilmek için). */
+/** Yuvarlak fotoğraf + ad + rol. Dokunulunca ve kumanda Tamam ile kişi sayfasını açar. */
 @Composable
-private fun CastItem(member: CastMember, onOpenActor: (String) -> Unit = {}) {
+private fun CastItem(member: CastMember, onOpenPerson: (Int, String) -> Unit = { _, _ -> }) {
     val shape = RoundedCornerShape(12.dp)
     Column(
         modifier = Modifier
             .width(92.dp)
+            .clip(shape)
             .focusRing(shape)
-            .focusable()
+            .then(
+                if (member.id > 0) Modifier.clickable { onOpenPerson(member.id, member.name) } else Modifier.focusable(),
+            )
             .padding(horizontal = 6.dp, vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -573,8 +827,9 @@ private fun LazyListScope.episodeSection(
 @Composable
 private fun WideBackdrop(path: String?) {
     val background = MaterialTheme.colorScheme.background
+    val smaller = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
     Box(Modifier.fillMaxSize()) {
-        TmdbImages.url(path, TmdbImages.Size.BackdropLarge)?.let {
+        TmdbImages.url(path, TmdbImages.backdropSize(smaller))?.let {
             AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, alignment = Alignment.CenterEnd, modifier = Modifier.fillMaxSize())
         }
         Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(0f to background, 0.45f to background.copy(alpha = 0.94f), 1f to background.copy(alpha = 0.3f))))
@@ -607,7 +862,11 @@ private fun formatRuntime(minutes: Int): String =
 
 /** Yuvarlak "daha fazla" düğmesi; menüde favori ekle/çıkar (durum kalp simgesinde görünür). */
 @Composable
-private fun MoreButton(isFavorite: Boolean, onToggleFavorite: () -> Unit) {
+private fun MoreButton(
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
+    onStartWatchParty: (() -> Unit)? = null,
+) {
     var open by remember { mutableStateOf(false) }
     Box {
         OutlinedIconButton(onClick = { open = true }, modifier = Modifier.size(52.dp)) {
@@ -625,6 +884,19 @@ private fun MoreButton(isFavorite: Boolean, onToggleFavorite: () -> Unit) {
                 },
                 onClick = { open = false; onToggleFavorite() },
             )
+            if (onStartWatchParty != null) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.watch_party_start_button)) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = PlayIcons.SubtitleSync,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    },
+                    onClick = { open = false; onStartWatchParty() },
+                )
+            }
         }
     }
 }

@@ -43,12 +43,38 @@ data class PlaySession(
     val autoSource: Boolean = false,
     /** Yalnızca debug/duman testi oynatması ([testVideo]): izleme geçmişine ("İzlemeye devam et") yazılmaz. */
     val noHistory: Boolean = false,
+    /** Canlı TV kanalı anahtarı (`channelGroupKey`); ilk karede `live_channel_activity.lastWatchedAt` yazılır. */
+    val liveChannelKey: String? = null,
 ) {
-    fun toIntent(context: Context): Intent =
-        Intent(context, PlayerActivity::class.java).putExtra(EXTRA, PlayJson.encodeToString(serializer(), this))
+    fun toIntent(
+        context: Context,
+        zapKey: String? = null,
+        zapIndex: Int = -1,
+        liveCatalogId: String? = null,
+    ): Intent =
+        Intent(context, PlayerActivity::class.java)
+            .putExtra(EXTRA, PlayJson.encodeToString(serializer(), this))
+            .apply {
+                if (!zapKey.isNullOrBlank()) {
+                    putExtra(EXTRA_LIVE_ZAP_KEY, zapKey)
+                    putExtra(EXTRA_LIVE_ZAP_INDEX, zapIndex)
+                }
+                if (!liveCatalogId.isNullOrBlank()) {
+                    putExtra(EXTRA_LIVE_CATALOG_ID, liveCatalogId)
+                }
+            }
 
     companion object {
         private const val EXTRA = "session"
+        const val EXTRA_LIVE_ZAP_KEY = "live_zap_key"
+        const val EXTRA_LIVE_ZAP_INDEX = "live_zap_index"
+        const val EXTRA_LIVE_CATALOG_ID = "live_catalog_id"
+
+        fun liveZapKey(intent: Intent?): String? = intent?.getStringExtra(EXTRA_LIVE_ZAP_KEY)
+
+        fun liveZapIndex(intent: Intent?): Int = intent?.getIntExtra(EXTRA_LIVE_ZAP_INDEX, -1) ?: -1
+
+        fun liveCatalogId(intent: Intent?): String? = intent?.getStringExtra(EXTRA_LIVE_CATALOG_ID)
 
         /**
          * İndirilmiş kopyadan oturum. Hedef çevrimiçi oynatmayla birebir aynıdır (aynı `watch_history` satırı: kaldığı yerden

@@ -1,7 +1,7 @@
 # Play — Yol haritası ve çalışma sistemi
 
 > Bu dosya Play'in **uzun vadeli planının tek doğru kaynağıdır.** Her görev (Claude, Antigravity, masaüstü Claude) başlamadan önce bunu okur. Bir karar değişirse aynı işte bu dosya güncellenir.
-> Son güncelleme: 2026-10-21. Durum: **plan aşaması, aciliyet yok.** Kod yazılmadan önce ilgili aşamanın şartnamesi yazılır ve kullanıcı onaylar.
+> Son güncelleme: 2026-11-11. Durum: **1.3.0 tamam, yayın onayı bekliyor.** Kod yazılmadan önce ilgili aşamanın şartnamesi yazılır ve kullanıcı onaylar.
 
 ## 1. Hedef
 - Play'in pürüzsüz, kusursuza yakın çalışması. Hiçbir uygulama tamamen hatasız olmaz (eklentiler üçüncü taraf sitelere bağlı); hedef **hatalar kullanıcıya ulaşmadan yakalansın, ulaşırsa hemen görülüp çabuk düzeltilsin.**
@@ -77,3 +77,5 @@ Değişmez kurallar: main'e birleştirme ve release yalnızca kullanıcı onayı
 - 2026-11-03: Kullanıcı kararı 2026-11-03 (dal feat/devam-et-sil-senkron): "İzlemeye devam et"ten silinen içeriğin Wi-Fi veya bulut senkronunda diğer cihazdan geri gelmesini engelleyen mezar taşı (tombstone) senkronizasyonu onaylandı. Room şeması ve veritabanı sürümü değiştirilmeden, DataStore üzerinde profil başına silme kaydı {userId, profileId, tmdbId, type, deletedAt} tutulur (en çok 500 kayıt, 90 gün saklama). Senkron yüküne (LocalProfileTransfer) varsayılanı boş liste olan deletedHistory alanı eklenir; LocalSyncMerge kuralıyla deletedAt >= lastWatchedAt olan geçmiş kayıtları birleşik sonuçtan elenir ve yerel veritabanından silinir; silindikten sonra tekrar izlenen içerik (lastWatchedAt > deletedAt) geri gelir.
 - 2026-11-04: Kullanıcı kararı 2026-11-04 (dal `feat/torrent-yukleme-ekrani`): Yalnızca torrent kaynağı (magnet/infoHash, TorrentEngine yolu) açılırken ilk görüntü gelene kadar çalışan özel yükleme ekranı. Zemin filmin TMDB yatay sahnesi + ~%50 #07111A perde (sahne yoksa düz #07111A); ortada filmin logosu kendi renklerinde, iki katman (soluk/nefes alan + gerçek ilerlemeyle soldan sağa tam opak); logo yoksa #00E5FF büyük kalın film adı aynı dolumla; BAŞKA HİÇBİR YAZI/DÜĞME/HIZ YOK; ilk karede dolum %100 ve ~300 ms solma; seek/tamponlama/aynı akış yeniden hazırlama/doğrudan kaynakta çıkmaz; hata olursa sessizce eski yükleyici.
 - 2026-11-09: 1.2.8 sürümü: Depo kataloglarından Nuvio eklenti deposu yükleme düzeltmesi, torrent açılışındaki nadir hata giderimi, açılış hatasını daha iyi tespit edebilmek için tanı bilgisi ve MegaWio eklenti depo ekleme isteği (onay penceresi ve güvenlik kuralları). Sıradaki: modçu katkıları (kod gelince incelenecek).
+- 2026-11-10: 1.2.9 Paket 1 (Canlı TV, Devam et, Veri yönetimi) yapıldı; Paket 2 sırada.
+- 2026-11-11: 1.3.0 sürümü tamamlandı (Paket 1..8, Watch Party, sessiz fragman karuseli, Türkçe ses/dublaj iyileştirmeleri, kaynak sağlığı, yeni bölüm bildirimleri, 6 tema, gruplu Ayarlar, DNS ve hız testi). Durum: tamam, yayın onayı bekliyor.

@@ -7,6 +7,8 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
+import androidx.annotation.ColorInt
+import androidx.core.graphics.ColorUtils
 import com.kaan.play.data.web.WebCursorController
 
 /**
@@ -24,18 +26,24 @@ class WebCursorView @JvmOverloads constructor(
 
     private val density = resources.displayMetrics.density
 
-    // Turkuaz dolgu (#00E5FF)
+    // Tema vurgu rengi dışarıdan setCursorColor ile atanır; varsayılan tema açılışına kadar nötr beyazdır.
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#00E5FF")
+        color = Color.WHITE
         style = Paint.Style.FILL
     }
 
-    // Koyu dış çizgi (açık ve koyu arka planlarda imlecin net görünmesi için)
+    // Dış çizgi (açık ve koyu arka planlarda imlecin net görünmesi için)
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#121212")
         style = Paint.Style.STROKE
         strokeWidth = 1.5f * density
         strokeJoin = Paint.Join.ROUND
+    }
+
+    fun setCursorColor(@ColorInt color: Int) {
+        fillPaint.color = color
+        strokePaint.color = if (ColorUtils.calculateLuminance(color) < 0.35) Color.WHITE else Color.parseColor("#121212")
+        postInvalidateOnAnimation()
     }
 
     // Küçük, şık fare oku (ucu 0,0 koordinatında)

@@ -53,6 +53,7 @@ class LibraryRepository(
     suspend fun removeFavorite(type: MediaType, tmdbId: Int) {
         val (u, p) = scope()
         favorites.remove(u, p, tmdbId, type)
+        profile?.recordDeletedFavorite(u, p, tmdbId, type.name.lowercase(), clock())
     }
 
     suspend fun removeHistory(id: Long) {
@@ -70,10 +71,81 @@ class LibraryRepository(
         removeContinueWatching(item.entry.type, item.entry.tmdbId)
     }
 
+    /** "İzlemeye devam et" kartını izlendi olarak işaretler (konum = süre). */
+    suspend fun markAsWatched(item: ContinueItem) {
+        val (u, p) = scope()
+        val now = clock()
+        when (item) {
+            is ContinueItem.Resume -> {
+                val entry = item.entry
+                if (entry.durationMs > 0L) {
+                    history.markFinished(u, p, entry.id, now)
+                } else {
+                    val dur = entry.positionMs.coerceAtLeast(1L)
+                    history.upsert(
+                        entry.copy(
+                            userId = u,
+                            profileId = p,
+                            positionMs = dur,
+                            durationMs = dur,
+                            lastWatchedAt = now,
+                        ),
+                    )
+                }
+            }
+            is ContinueItem.Next -> {
+                val entry = item.entry
+                val existing = history.find(u, p, entry.tmdbId, entry.type, item.season, item.episode)
+                val dur = (existing?.durationMs ?: entry.durationMs).coerceAtLeast(1L)
+                history.upsert(
+                    WatchHistoryEntity(
+                        id = existing?.id ?: 0L,
+                        tmdbId = entry.tmdbId,
+                        type = entry.type,
+                        userId = u,
+                        profileId = p,
+                        season = item.season,
+                        episode = item.episode,
+                        positionMs = dur,
+                        durationMs = dur,
+                        lastWatchedAt = now,
+                        title = entry.title,
+                        posterPath = entry.posterPath,
+                        pluginId = entry.pluginId,
+                        dataUrl = entry.dataUrl,
+                        contentUrl = entry.contentUrl,
+                    ),
+                )
+            }
+        }
+    }
+
     suspend fun clearHistory() {
         val (u, p) = scope()
+        val entries = history.all(u, p)
+            .map { it.tmdbId to it.type.name.lowercase() }
+            .distinct()
+        if (entries.isNotEmpty()) {
+            profile?.recordDeletedHistory(u, p, entries, clock())
+        }
         history.clear(u, p)
     }
+
+    suspend fun clearFavorites() {
+        val (u, p) = scope()
+        val entries = favorites.all(u, p)
+            .map { it.tmdbId to it.type.name.lowercase() }
+            .distinct()
+        if (entries.isNotEmpty()) {
+            profile?.recordDeletedFavorites(u, p, entries, clock())
+        }
+        favorites.clear(u, p)
+    }
+
+    /** Tüm profillerdeki benzersiz favori dizileri (en son eklenen üstte, üst sınır [limit]). */
+    suspend fun distinctFavoriteSeries(
+        limit: Int = com.kaan.play.data.notify.NewEpisodeRules.MAX_SERIES_PER_CHECK,
+    ): List<com.kaan.play.data.db.SeriesFavoriteRef> = favorites.distinctByType(MediaType.Tv, limit)
 
     fun isFavorite(type: MediaType, tmdbId: Int): Flow<Boolean> =
         profile?.activeProfile?.flatMapLatest { p ->
@@ -96,8 +168,10 @@ class LibraryRepository(
                     addedAt = clock(),
                 ),
             )
+            profile?.removeDeletedFavorite(p, media.id, media.type.name)
         } else {
             favorites.remove(u, p, media.id, media.type)
+            profile?.recordDeletedFavorite(u, p, media.id, media.type.name.lowercase(), clock())
         }
     }
 
@@ -114,6 +188,7 @@ class LibraryRepository(
                 addedAt = clock(),
             )
         )
+        profile?.removeDeletedFavorite(p, entry.tmdbId, entry.type.name)
     }
 
     suspend fun progress(target: PlayTarget): WatchHistoryEntity? {

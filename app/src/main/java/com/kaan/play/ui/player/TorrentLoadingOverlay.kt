@@ -48,18 +48,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
-private val BackgroundColor = Color(0xFF07111A)
-private val AccentCyan = Color(0xFF00E5FF)
-
 /**
  * Yalnızca torrent kaynağı açılırken ilk video karesine kadar gösterilen sade yükleme ekranı.
  *
  * Kurallar (bağlayıcı):
  * 1. Arka plan görseli Coil ile normal AsyncImage olarak yüklenir (crossfade ile yumuşak belirir).
- *    Resim hazır değilken düz #07111A zemin görünür, resim gelince %50 perde ile belirir.
+ *    Resim hazır değilken tema zemin rengi görünür, resim gelince %50 perde ile belirir.
  * 2. Görsel yüklemesi video hazırlığını, ExoPlayer'ı ve torrent açılışını ASLA bekletmez veya bloklamaz.
  * 3. Logo AsyncImage ile kendi renkleriyle iki katmanlı dolar (alt katman nefes alan/0.28, üst katman soldan sağa kırpılmış).
- *    logoPath yoksa veya yükleme hata verirse camgöbeği #00E5FF film adı yedeği gösterilir.
+ *    logoPath yoksa veya yükleme hata verirse tema vurgu renginde film adı yedeği gösterilir.
  *    Logo yüklenirken yazı yedeği gösterilmez (yalnızca zemin görünür).
  * 4. Durum yazısı, hız, eş, bayt, buton vb. başka HİÇBİR ŞEY yer almaz.
  * 5. İlk kare gelince dolum %100'e tamamlanır ve ekran ~300 ms içinde şeffaflaşarak kaybolur (fade-out).
@@ -74,6 +71,8 @@ fun TorrentLoadingOverlay(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val accentColor = MaterialTheme.colorScheme.primary
     var rawProgress by remember { mutableFloatStateOf(0f) }
     var hasMetadataArrived by remember { mutableStateOf(false) }
     var overlayVisible by remember { mutableStateOf(true) }
@@ -161,7 +160,7 @@ fun TorrentLoadingOverlay(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(BackgroundColor),
+                .background(backgroundColor),
             contentAlignment = Alignment.Center,
         ) {
             // 1. En altta filmin yatay arka plan görseli (AsyncImage ile crossfade) + %50 opak perde
@@ -180,7 +179,7 @@ fun TorrentLoadingOverlay(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(BackgroundColor.copy(alpha = scrimAlpha)),
+                            .background(backgroundColor.copy(alpha = scrimAlpha)),
                     )
                 }
             }
@@ -229,30 +228,30 @@ fun TorrentLoadingOverlay(
                     }
                 }
             } else if (logoUrl == null || isLogoFailed) {
-                // Logo yoksa ya da yükleme hata verdiyse: film adı büyük ve kalın yazı, aynı iki katman ama #00E5FF camgöbeği renginde
+                // Logo yoksa ya da yükleme hata verdiyse: film adı büyük ve kalın yazı, aynı iki katman tema vurgu renginde
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.70f)
                         .padding(horizontal = 24.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    // Alt katman: soluk / nefes alan camgöbeği başlık
+                    // Alt katman: soluk / nefes alan vurgu renginde başlık
                     Text(
                         text = target.title,
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
-                            color = AccentCyan,
+                            color = accentColor,
                         ),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.graphicsLayer { alpha = bottomLayerAlpha },
                     )
 
-                    // Üst katman: tam opak camgöbeği başlık, soldan sağa kırpılmış
+                    // Üst katman: tam opak vurgu başlık, soldan sağa kırpılmış
                     Text(
                         text = target.title,
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
-                            color = AccentCyan,
+                            color = accentColor,
                         ),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.drawWithContent {

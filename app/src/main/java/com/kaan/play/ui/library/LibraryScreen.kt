@@ -62,6 +62,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import com.kaan.play.ui.tv.focusMemory
+import com.kaan.play.ui.tv.navBarReturnEdge
 import com.kaan.play.ui.tv.rememberFocusMemory
 import com.kaan.play.ui.tv.rememberRowControls
 import com.kaan.play.ui.tv.rowControl
@@ -121,23 +122,25 @@ fun LibraryScreen(
                     stringResource(R.string.library_favorites_empty),
                     modifier = Modifier
                         .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester).focusable() else it }
-                        .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it },
+                        .navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = history.isNullOrEmpty() && downloads.isNullOrEmpty()),
                 )
             }
         } else if (favs != null) {
             items(favs, key = { "fav-${it.type}-${it.tmdbId}" }) { fav ->
                 val removeLabel = stringResource(R.string.detail_favorite_remove)
+                val isFirstFav = fav == favs.first()
+                val smaller = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
                 PosterCard(
                     title = fav.title,
                     subtitle = stringResource(if (fav.type == MediaType.Movie) R.string.type_movie else R.string.type_series),
-                    imageUrl = TmdbImages.url(fav.posterPath, TmdbImages.Size.Poster),
+                    imageUrl = TmdbImages.url(fav.posterPath, TmdbImages.posterSize(smaller)),
                     tmdbId = fav.tmdbId,
                     mediaType = fav.type,
                     onClick = { onOpenDetail(fav.type, fav.tmdbId) },
                     modifier = Modifier
-                        .let { if (fav == favs.first() && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                        .let { if (fav == favs.first() && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
-                        .focusMemory(focus, "fav-${fav.type}-${fav.tmdbId}", isDefault = fav == favs.first()),
+                        .let { if (isFirstFav && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                        .let { if (isFirstFav) it.navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = false) else it }
+                        .focusMemory(focus, "fav-${fav.type}-${fav.tmdbId}", isDefault = isFirstFav),
                     overlay = {
                         IconButton(
                             onClick = { vm.removeFavorite(fav) },
@@ -176,7 +179,7 @@ fun LibraryScreen(
                     onRemove = { vm.removeHistory(entry) },
                     modifier = Modifier
                         .let { if (!firstIsFavorite && entry == hist.first() && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                        .let { if (!firstIsFavorite && entry == hist.first() && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                        .let { if (!firstIsFavorite && entry == hist.first()) it.navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = false) else it }
                         .focusMemory(focus, "hist-${entry.id}", isDefault = !firstIsFavorite && entry == hist.first()),
                 )
             }
@@ -338,7 +341,8 @@ private fun HistoryRow(entry: WatchHistoryEntity, onClick: () -> Unit, onRemove:
                     .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainer),
             ) {
-                resolvePosterImageUrl(TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster), null, entry.tmdbId, entry.type)?.let {
+                val smaller = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
+                resolvePosterImageUrl(TmdbImages.url(entry.posterPath, TmdbImages.posterSize(smaller)), null, entry.tmdbId, entry.type)?.let {
                     AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                 }
             }
@@ -428,7 +432,8 @@ private fun DownloadRow(
                     .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainer),
             ) {
-                resolvePosterImageUrl(TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster), null, entry.tmdbId, entry.type)?.let {
+                val smaller = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
+                resolvePosterImageUrl(TmdbImages.url(entry.posterPath, TmdbImages.posterSize(smaller)), null, entry.tmdbId, entry.type)?.let {
                     AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                 }
             }

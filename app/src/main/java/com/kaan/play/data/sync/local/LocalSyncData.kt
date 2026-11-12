@@ -6,6 +6,7 @@ import com.kaan.play.data.db.AddonType
 import com.kaan.play.data.db.FavoriteDao
 import com.kaan.play.data.db.PluginDao
 import com.kaan.play.data.db.WatchHistoryDao
+import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.plugin.PluginSettingsRepository
 import com.kaan.play.data.plugin.SourceInstaller
 import com.kaan.play.data.settings.SettingsRepository
@@ -83,13 +84,16 @@ class LocalSyncData(
             p.id to backup
         }
         val tombstones = profiles.allDeletedHistory()
-        return LocalSyncMerge.snapshot(all, libs, sources(), deviceName, tombstones)
+        val favTombstones = profiles.allDeletedFavorites()
+        return LocalSyncMerge.snapshot(all, libs, sources(), deviceName, tombstones, favTombstones)
     }
 
     /** Tüm kaynaklar: Nuvio addon'ları (altyazı addon'ları dahil), Nuvio eklenti depoları, CloudStream depoları, web siteleri. */
     private suspend fun sources(): List<SourceTransferItem> {
         val disabled = settings.disabledCatalogs.first()
-        return SYNCED_TYPES.flatMap { type -> addonDao.observeOfType(type).first() }.map { row ->
+        return SYNCED_TYPES.flatMap { type -> addonDao.observeOfType(type).first() }
+            .filter { LocalSyncFilterRules.isSyncableSource(it.sourceUrl, it.addonId) }
+            .map { row ->
             val prefix = "${row.id}:"
             SourceTransferItem(
                 type = row.type.name,
@@ -121,6 +125,21 @@ class LocalSyncData(
                         entity.type.name.equals(item.type, ignoreCase = true) &&
                         entity.lastWatchedAt <= item.deletedAt) {
                         history.delete(uId, profId, entity.id)
+                    }
+                }
+            }
+        }
+        if (plan.deletedFavorites.isNotEmpty()) {
+            profiles.saveDeletedFavorites(plan.deletedFavorites)
+            for (item in plan.deletedFavorites) {
+                val profId = plan.remappedProfileIds[item.profileId] ?: item.profileId
+                val existing = favorites.all(uId, profId)
+                val targetType = if (item.type.equals("tv", ignoreCase = true)) MediaType.Tv else MediaType.Movie
+                for (entity in existing) {
+                    if (entity.tmdbId == item.tmdbId &&
+                        entity.type == targetType &&
+                        entity.addedAt <= item.deletedAt) {
+                        favorites.remove(uId, profId, entity.tmdbId, entity.type)
                     }
                 }
             }

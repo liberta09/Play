@@ -1,5 +1,6 @@
 package com.kaan.play.data.stream
 
+import com.kaan.play.data.match.EpisodeSourceLabelRules
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 class CompositeStreamProvider(
     private val providers: List<StreamProvider>,
     private val verdicts: StreamVerdicts? = null,
+    private val isBlocked: (StreamRequest, StreamSource) -> Boolean = { _, _ -> false },
 ) : StreamProvider {
 
     constructor(vararg providers: StreamProvider) : this(providers.toList())
@@ -35,13 +37,47 @@ class CompositeStreamProvider(
     }
 
     private fun StreamResult.forContent(request: StreamRequest, key: String): StreamResult = when (this) {
-        is StreamResult.Found -> StreamResult.Found(
-            source,
-            streams
-                .filter { StreamOwnership.belongs(it, request) && verdicts?.isRejected(key, it.url) != true && SourceMediaRules.isAcceptable(it, request.type) }
-                .map { it.copy(forKey = key) },
-        )
+        is StreamResult.Found -> {
+            val filtered = if (isBlocked(request, source)) emptyList()
+            else streams
+                .filter { stream ->
+                    val belongs = StreamOwnership.belongs(stream, request)
+                    val rejected = verdicts?.isRejected(key, stream.url) == true
+                    val mediaOk = SourceMediaRules.isAcceptable(stream, request.type)
+                    val labelOk = passesLabelGuard(stream, request)
+                    if (!belongs || rejected || !mediaOk || !labelOk) {
+                        if (com.kaan.play.BuildConfig.DEBUG) {
+                            android.util.Log.d(
+                                "PlayMatch",
+                                "Akış elendi (${source.addonName}): belongs=$belongs rejected=$rejected mediaOk=$mediaOk labelOk=$labelOk label='${stream.label}'",
+                            )
+                        }
+                        false
+                    } else true
+                }
+                .map { it.copy(forKey = key) }
+            if (com.kaan.play.BuildConfig.DEBUG) {
+                android.util.Log.d(
+                    "PlayMatch",
+                    "Akış sonucu (${source.addonName}): toplam=${streams.size} kabul=${filtered.size} başlık='${request.title}'",
+                )
+            }
+            StreamResult.Found(source, filtered)
+        }
         is StreamResult.Failed -> this
+    }
+
+    private fun passesLabelGuard(stream: PlayableStream, request: StreamRequest): Boolean {
+        val decision = EpisodeSourceLabelRules.evaluate(stream.label, request)
+        if (!decision.accept) {
+            runCatching {
+                android.util.Log.d(
+                    "PlayMatch",
+                    "Etiket elemesi (${stream.source.addonName}): ${decision.reason.orEmpty()}${if (!stream.label.isNullOrBlank()) " [etiket=${stream.label}]" else ""}",
+                )
+            }
+        }
+        return decision.accept
     }
 
     override suspend fun sources(request: StreamRequest): List<StreamSource> = coroutineScope {

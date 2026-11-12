@@ -7,14 +7,59 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import com.kaan.play.data.library.ContinueSortMode
+import com.kaan.play.data.net.DnsMode
+import com.kaan.play.data.notify.NewEpisodeRules
+import com.kaan.play.data.notify.StoredEpisodeState
+import com.kaan.play.data.player.AutoRetryPolicy
+import com.kaan.play.data.provider.LiveTvSortMode
 import com.kaan.play.data.stream.TorrentLinks
 import com.kaan.play.data.tmdb.PosterUrlTemplate
+import com.kaan.play.ui.nav.NavBarPosition
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-/** Koyu tema varsayılandır. */
-enum class ThemeMode { Dark, Light, System }
+/** Koyu tema varsayılandır. Eski sürümlerdeki Dark/Light/System değerleriyle geriye uyumludur. */
+enum class ThemeMode {
+    Dark,
+    Light,
+    Amoled,
+    OceanBlue,
+    PurpleNight,
+    HighContrast,
+    System;
+
+    companion object {
+        /** Arayüzde sunulan 6 tema seçeneği. */
+        val SELECTABLE: List<ThemeMode> = listOf(Dark, Light, Amoled, OceanBlue, PurpleNight, HighContrast)
+
+        fun fromStored(raw: String?, defaultMode: ThemeMode = Dark): ThemeMode {
+            val trimmed = raw?.trim().orEmpty()
+            if (trimmed.isEmpty()) return defaultMode
+            return entries.firstOrNull { it.name.equals(trimmed, ignoreCase = true) }
+                ?: when (trimmed.lowercase(java.util.Locale.ROOT)) {
+                    "amoled_black", "amoled_siyah" -> Amoled
+                    "ocean_blue", "okyanus_mavisi" -> OceanBlue
+                    "purple_night", "mor_gece" -> PurpleNight
+                    "high_contrast", "yuksek_kontrast" -> HighContrast
+                    else -> defaultMode
+                }
+        }
+    }
+}
+
+/** Tema çözümleme ve koyu/açık çubuk kararları (Android bağımsız). */
+object ThemeRules {
+    fun resolve(mode: ThemeMode, systemIsDark: Boolean): ThemeMode = when (mode) {
+        ThemeMode.System -> if (systemIsDark) ThemeMode.Dark else ThemeMode.Light
+        else -> mode
+    }
+
+    fun isDark(mode: ThemeMode, systemIsDark: Boolean): Boolean =
+        resolve(mode, systemIsDark) != ThemeMode.Light
+}
 
 /** Oynatıcıda görüntünün ekrana oturma biçimi (seçim kaydedilir): sığdır, doldur (kırp), uzat, 16:9, 4:3. */
 enum class ResizeMode { Fit, Fill, Stretch, Ratio16x9, Ratio4x3 }
@@ -45,7 +90,16 @@ class SettingsRepository(val store: DataStore<Preferences>) {
     }
 
     val themeMode: Flow<ThemeMode> = store.data.map { prefs ->
-        ThemeMode.entries.firstOrNull { it.name == prefs[THEME] } ?: DEFAULT_THEME
+        ThemeMode.fromStored(prefs[THEME], DEFAULT_THEME)
+    }
+
+    /** Ana gezinti çubuğunun ekrandaki konumu; varsayılan Üst (yüzen hap menü). */
+    val navBarPosition: Flow<NavBarPosition> = store.data.map { prefs ->
+        NavBarPosition.fromStored(prefs[NAV_BAR_POSITION])
+    }.distinctUntilChanged()
+
+    suspend fun setNavBarPosition(position: NavBarPosition) {
+        store.edit { it[NAV_BAR_POSITION] = position.name }
     }
 
     /** Addon başına kaynak isteği zaman aşımı (saniye). */
@@ -85,12 +139,80 @@ class SettingsRepository(val store: DataStore<Preferences>) {
     /** Açıkken Türkçe dublajlı kaynaklar önce denenir (dublaj yoksa altyazılıyla başlanır). Varsayılan açık. */
     val preferDub: Flow<Boolean> = store.data.map { it[PREFER_DUB] ?: DEFAULT_PREFER_DUB }.distinctUntilChanged()
 
+    /** Açıkken dublajlı kaynaklarda Türkçe ses izi bulunana dek kaynaklar denenir; bulunamazsa en hızlı alternatif açılır. */
+    val trySourcesUntilTurkishAudio: Flow<Boolean> =
+        store.data.map { it[TRY_SOURCES_UNTIL_TURKISH_AUDIO] ?: DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO }.distinctUntilChanged()
+
+    /** Açıkken kullanıcı başka bir kaynak seçtiğinde açılmazsa önceki kaynağa dönülür; kapalıyken sıradaki uygun kaynağa geçilir. */
+    val revertOnSelectedFailure: Flow<Boolean> =
+        store.data.map { it[REVERT_ON_SELECTED_FAILURE] ?: DEFAULT_REVERT_ON_SELECTED_FAILURE }.distinctUntilChanged()
+
+    suspend fun setRevertOnSelectedFailure(enabled: Boolean) {
+        store.edit { it[REVERT_ON_SELECTED_FAILURE] = enabled }
+    }
+
+    /** Otomatik kaynak deneme sayısı sınırı (`0` = Sınırsız; seçenekler: 3 / 5 / 10 / 0). */
+    val autoSourceRetryLimit: Flow<Int> =
+        store.data.map { prefs -> AutoRetryPolicy.normalize(prefs[AUTO_SOURCE_RETRY_LIMIT]) }.distinctUntilChanged()
+
+    suspend fun setAutoSourceRetryLimit(limit: Int) {
+        require(limit in AUTO_SOURCE_RETRY_OPTIONS) { "Desteklenmeyen kaynak deneme sınırı: $limit" }
+        store.edit { it[AUTO_SOURCE_RETRY_LIMIT] = limit }
+    }
+
+    /** Açıkken oynatma başlayana (ilk kareye) kadar soluk kapak veya canlı TV kanal logosu görünür. */
+    val showPreplayPoster: Flow<Boolean> =
+        store.data.map { it[SHOW_PREPLAY_POSTER] ?: DEFAULT_SHOW_PREPLAY_POSTER }.distinctUntilChanged()
+
+    suspend fun setShowPreplayPoster(enabled: Boolean) {
+        store.edit { it[SHOW_PREPLAY_POSTER] = enabled }
+    }
+
+    /** Açıkken altyazılı oynarken sonradan dublajlı kaynak bulununca otomatik geçilir. Varsayılan açık. */
+    val autoDubSwitch: Flow<Boolean> = store.data.map { prefs ->
+        prefs[AUTO_DUB_SWITCH] ?: prefs[SHOW_DUB_SUGGESTION] ?: DEFAULT_AUTO_DUB_SWITCH
+    }.distinctUntilChanged()
+
+    val showDubSuggestion: Flow<Boolean> get() = autoDubSwitch
+
+    /** Dublajlı kaynakta Türkçe ses izi tarama süresi (5 / 7 / 10 sn). */
+    val audioProbeTimeoutSeconds: Flow<Int> = store.data.map { prefs ->
+        prefs[AUDIO_PROBE_TIMEOUT_SECONDS]?.takeIf { it in AUDIO_PROBE_TIMEOUT_OPTIONS } ?: DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS
+    }.distinctUntilChanged()
+
     suspend fun setAutoSource(enabled: Boolean) {
         store.edit { it[AUTO_SOURCE] = enabled }
     }
 
     suspend fun setPreferDub(enabled: Boolean) {
         store.edit { it[PREFER_DUB] = enabled }
+    }
+
+    suspend fun setTrySourcesUntilTurkishAudio(enabled: Boolean) {
+        store.edit { it[TRY_SOURCES_UNTIL_TURKISH_AUDIO] = enabled }
+    }
+
+    suspend fun setAutoDubSwitch(enabled: Boolean) {
+        store.edit { prefs ->
+            prefs[AUTO_DUB_SWITCH] = enabled
+            prefs.remove(SHOW_DUB_SUGGESTION)
+        }
+    }
+
+    suspend fun setShowDubSuggestion(enabled: Boolean) = setAutoDubSwitch(enabled)
+
+    suspend fun migrateLegacyDubSettings() {
+        store.edit { prefs ->
+            if (prefs[AUTO_DUB_SWITCH] == null && prefs.contains(SHOW_DUB_SUGGESTION)) {
+                prefs[AUTO_DUB_SWITCH] = prefs[SHOW_DUB_SUGGESTION] ?: DEFAULT_AUTO_DUB_SWITCH
+                prefs.remove(SHOW_DUB_SUGGESTION)
+            }
+        }
+    }
+
+    suspend fun setAudioProbeTimeoutSeconds(seconds: Int) {
+        require(seconds in AUDIO_PROBE_TIMEOUT_OPTIONS) { "Desteklenmeyen tarama süresi: $seconds" }
+        store.edit { it[AUDIO_PROBE_TIMEOUT_SECONDS] = seconds }
     }
 
     /** Oynatıcıdaki "Yeniden boyutlandır" seçimi; bilinmeyen değer "sığdır"a düşer. */
@@ -171,12 +293,111 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         return normalized
     }
 
+    /** Açıkken Play'in HTTP istemcisinde zaman aşımları 3× ve GET/HEAD ağ hatasında 1 kez yenilenir. Varsayılan kapalı. */
+    val slowConnectionMode: Flow<Boolean> =
+        store.data.map { it[SLOW_CONNECTION_MODE] ?: DEFAULT_SLOW_CONNECTION_MODE }.distinctUntilChanged()
+
+    /** Açıkken çevrimiçi oynatmada ~15 sn kesintisiz beklemede "Bağlantı yavaş mı?" önerisi gösterilir. Varsayılan açık. */
+    val suggestSlowConnection: Flow<Boolean> =
+        store.data.map { it[SUGGEST_SLOW_CONNECTION] ?: DEFAULT_SUGGEST_SLOW_CONNECTION }.distinctUntilChanged()
+
+    suspend fun setSlowConnectionMode(enabled: Boolean) {
+        store.edit { it[SLOW_CONNECTION_MODE] = enabled }
+    }
+
+    suspend fun setSuggestSlowConnection(enabled: Boolean) {
+        store.edit { it[SUGGEST_SLOW_CONNECTION] = enabled }
+    }
+
     suspend fun setDownloadWifiOnly(enabled: Boolean) {
         store.edit { it[DOWNLOAD_WIFI_ONLY] = enabled }
     }
 
     suspend fun setThemeMode(mode: ThemeMode) {
         store.edit { it[THEME] = mode.name }
+    }
+
+    /** Performans modu: varsayılan kapalı. Açıkken görsel efektler ve paralel katalog yüklemeleri azaltılır. */
+    val performanceMode: Flow<Boolean> =
+        store.data.map { it[PERFORMANCE_MODE] ?: DEFAULT_PERFORMANCE_MODE }.distinctUntilChanged()
+
+    suspend fun setPerformanceMode(enabled: Boolean) {
+        store.edit { it[PERFORMANCE_MODE] = enabled }
+    }
+
+    /** Kapak karuselinin otomatik ilerlemesi; varsayılan açık. */
+    val heroAutoAdvance: Flow<Boolean> =
+        store.data.map { it[HERO_AUTO_ADVANCE] ?: DEFAULT_HERO_AUTO_ADVANCE }.distinctUntilChanged()
+
+    suspend fun setHeroAutoAdvance(enabled: Boolean) {
+        store.edit { it[HERO_AUTO_ADVANCE] = enabled }
+    }
+
+    /** Ana sayfada sessiz fragman oynatma; varsayılan açık (yalnızca Wi-Fi ve performans modu kapalıyken). */
+    val heroTrailerEnabled: Flow<Boolean> =
+        store.data.map { it[HERO_TRAILER_ENABLED] ?: DEFAULT_HERO_TRAILER_ENABLED }.distinctUntilChanged()
+
+    suspend fun setHeroTrailerEnabled(enabled: Boolean) {
+        store.edit { it[HERO_TRAILER_ENABLED] = enabled }
+    }
+
+    /** Favori diziler için yeni bölüm bildirimleri; varsayılan kapalı. */
+    val newEpisodeNotifications: Flow<Boolean> =
+        store.data.map { it[NEW_EPISODE_NOTIFICATIONS] ?: DEFAULT_NEW_EPISODE_NOTIFICATIONS }.distinctUntilChanged()
+
+    suspend fun setNewEpisodeNotifications(enabled: Boolean) {
+        store.edit { it[NEW_EPISODE_NOTIFICATIONS] = enabled }
+    }
+
+    suspend fun readNotifiedEpisodes(): Map<Int, StoredEpisodeState> =
+        NewEpisodeRules.decodeState(store.data.map { it[LAST_NOTIFIED_EPISODES] }.first())
+
+    suspend fun saveNotifiedEpisodes(map: Map<Int, StoredEpisodeState>) {
+        store.edit { it[LAST_NOTIFIED_EPISODES] = NewEpisodeRules.encodeState(map) }
+    }
+
+    /** Kullanıcının en son gördüğü sürüm notu sürümü; ilk kurulumda sessizce kaydedilir. */
+    val lastWhatsNewVersion: Flow<String?> =
+        store.data.map { it[LAST_WHATS_NEW_VERSION] }.distinctUntilChanged()
+
+    suspend fun setLastWhatsNewVersion(version: String) {
+        store.edit { it[LAST_WHATS_NEW_VERSION] = version }
+    }
+
+    /** `last_whats_new_version` dışında önceden kaydedilmiş DataStore anahtarı varsa true (önceki sürümden kalma veri). */
+    suspend fun hasPriorAppState(): Boolean {
+        val map = store.data.first().asMap()
+        if (map.containsKey(DEFAULT_CATALOG_ADDON_SEEDED) || map.containsKey(DEFAULT_SUBTITLE_ADDONS_SEEDED)) {
+            return true
+        }
+        return map.keys.any { it.name != LAST_WHATS_NEW_VERSION.name }
+    }
+
+    /** Uygulama içi şifreli DNS (DoH) modu; varsayılan [DnsMode.Auto]. */
+    val dnsMode: Flow<DnsMode> = store.data.map { prefs ->
+        DnsMode.fromStored(prefs[DNS_MODE], DEFAULT_DNS_MODE)
+    }.distinctUntilChanged()
+
+    /** Seçili "Özel DoH" sunucu adresi. */
+    val customDohUrl: Flow<String> = store.data.map { prefs ->
+        prefs[CUSTOM_DOH_URL]?.trim().orEmpty()
+    }.distinctUntilChanged()
+
+    suspend fun setDnsMode(mode: DnsMode) {
+        store.edit { it[DNS_MODE] = mode.name }
+    }
+
+    suspend fun setCustomDohUrl(normalizedUrl: String) {
+        store.edit { it[CUSTOM_DOH_URL] = normalizedUrl.trim() }
+    }
+
+    suspend fun setDnsConfig(mode: DnsMode, customUrl: String) {
+        store.edit { prefs ->
+            prefs[DNS_MODE] = mode.name
+            if (customUrl.isNotBlank()) {
+                prefs[CUSTOM_DOH_URL] = customUrl.trim()
+            }
+        }
     }
 
     suspend fun setSourceTimeoutSeconds(seconds: Int) {
@@ -234,6 +455,47 @@ class SettingsRepository(val store: DataStore<Preferences>) {
     /** Katalog görünürlüğü değiştiğinde tetiklenir (önbellek temizliği için). */
     var onCatalogVisibilityChanged: ((addonId: Long) -> Unit)? = null
 
+    /** Canlı TV ekranı kanal sıralaması; bilinmeyen değer varsayılan A–Z'ye düşer. */
+    val liveTvSortMode: Flow<LiveTvSortMode> = store.data.map { prefs ->
+        LiveTvSortMode.entries.firstOrNull { it.name == prefs[LIVE_TV_SORT_MODE] } ?: DEFAULT_LIVE_TV_SORT_MODE
+    }.distinctUntilChanged()
+
+    suspend fun setLiveTvSortMode(mode: LiveTvSortMode) {
+        store.edit { it[LIVE_TV_SORT_MODE] = mode.name }
+    }
+
+    /** Ana sayfadaki "İzlemeye devam et" sıralaması; varsayılan en son izlenen. */
+    val continueSortMode: Flow<ContinueSortMode> = store.data.map { prefs ->
+        ContinueSortMode.entries.firstOrNull { it.name == prefs[CONTINUE_SORT_MODE] } ?: DEFAULT_CONTINUE_SORT_MODE
+    }.distinctUntilChanged()
+
+    suspend fun setContinueSortMode(mode: ContinueSortMode) {
+        store.edit { it[CONTINUE_SORT_MODE] = mode.name }
+    }
+
+    /**
+     * Yalnızca oynatıcı, tema, altyazı görünümü/dili, poster şablonu ve liste sıralama ayarlarını varsayılana döndürür.
+     * Eklenti görünürlüğü, seed bayrakları, torrent/profil ayarları, geçmiş, favoriler ve indirmeler SİLİNMEZ.
+     */
+    suspend fun resetAppearanceAndPlayerDefaults() {
+        store.edit { prefs ->
+            APPEARANCE_AND_PLAYER_KEYS.forEach { prefs.remove(it) }
+        }
+    }
+
+    /**
+     * Tüm kullanıcı ayarlarını varsayılana döndürür (DNS, profil hatırlama, görünüm ve oynatma ayarları).
+     * Veritabanı kayıtları (eklentiler, geçmiş, favoriler, indirmeler) silinmez.
+     */
+    suspend fun resetAll() {
+        store.edit { prefs ->
+            APPEARANCE_AND_PLAYER_KEYS.forEach { prefs.remove(it) }
+            prefs.remove(DNS_MODE)
+            prefs.remove(CUSTOM_DOH_URL)
+            prefs.remove(REMEMBER_LAST_PROFILE)
+        }
+    }
+
     /** Kullanıcının kapattığı Nuvio addon katalog anahtarları (`addonId:type:catalogId`). */
     val disabledCatalogs: Flow<Set<String>> = store.data.map { prefs ->
         prefs[DISABLED_CATALOGS] ?: emptySet()
@@ -272,11 +534,29 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         const val DEFAULT_ALWAYS_RESUME = true
         const val DEFAULT_REMEMBER_LAST_PROFILE = true
         const val DEFAULT_DOWNLOAD_WIFI_ONLY = true
+        const val DEFAULT_PERFORMANCE_MODE = false
+        const val DEFAULT_HERO_AUTO_ADVANCE = true
+        const val DEFAULT_HERO_TRAILER_ENABLED = true
+        const val DEFAULT_NEW_EPISODE_NOTIFICATIONS = false
+        const val DEFAULT_SLOW_CONNECTION_MODE = false
+        const val DEFAULT_SUGGEST_SLOW_CONNECTION = true
         const val DEFAULT_AUTO_NEXT = true
         const val DEFAULT_AUTO_TRANSLATE_SUBS = true
         const val DEFAULT_AUTO_SOURCE = true
         const val DEFAULT_PREFER_DUB = true
+        const val DEFAULT_TRY_SOURCES_UNTIL_TURKISH_AUDIO = true
+        const val DEFAULT_REVERT_ON_SELECTED_FAILURE = true
+        const val DEFAULT_AUTO_SOURCE_RETRY_LIMIT = AutoRetryPolicy.UNLIMITED
+        const val DEFAULT_SHOW_PREPLAY_POSTER = true
+        val AUTO_SOURCE_RETRY_OPTIONS = AutoRetryPolicy.OPTIONS
+        const val DEFAULT_AUTO_DUB_SWITCH = true
+        const val DEFAULT_SHOW_DUB_SUGGESTION = DEFAULT_AUTO_DUB_SWITCH
+        const val DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS = 7
+        val AUDIO_PROBE_TIMEOUT_OPTIONS = listOf(5, 7, 10)
         const val DEFAULT_AUTO_NEXT_SECONDS = 10
+        val DEFAULT_LIVE_TV_SORT_MODE = LiveTvSortMode.TitleAscending
+        val DEFAULT_CONTINUE_SORT_MODE = ContinueSortMode.Recent
+        val DEFAULT_DNS_MODE = DnsMode.Auto
         val AUTO_NEXT_OPTIONS = listOf(5, 10, 15)
         val TIMEOUT_OPTIONS = listOf(10, 15, 30, 60)
         const val DEFAULT_SUBTITLE_LANGUAGE = "tr"
@@ -289,10 +569,19 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         private val REMEMBER_LAST_PROFILE = booleanPreferencesKey("remember_last_profile")
         private val TORRENT_SERVER = stringPreferencesKey("torrent_server")
         private val DOWNLOAD_WIFI_ONLY = booleanPreferencesKey("download_wifi_only")
+        private val SLOW_CONNECTION_MODE = booleanPreferencesKey("slow_connection_mode")
+        private val SUGGEST_SLOW_CONNECTION = booleanPreferencesKey("suggest_slow_connection")
         private val AUTO_NEXT = booleanPreferencesKey("auto_next")
         private val AUTO_TRANSLATE_SUBS = booleanPreferencesKey("auto_translate_subs")
         private val AUTO_SOURCE = booleanPreferencesKey("auto_source")
         private val PREFER_DUB = booleanPreferencesKey("prefer_dub")
+        private val TRY_SOURCES_UNTIL_TURKISH_AUDIO = booleanPreferencesKey("try_sources_until_turkish_audio")
+        private val REVERT_ON_SELECTED_FAILURE = booleanPreferencesKey("revert_on_selected_failure")
+        private val AUTO_SOURCE_RETRY_LIMIT = intPreferencesKey("auto_source_retry_limit")
+        private val SHOW_PREPLAY_POSTER = booleanPreferencesKey("show_preplay_poster")
+        val AUTO_DUB_SWITCH = booleanPreferencesKey("auto_dub_switch")
+        val SHOW_DUB_SUGGESTION = booleanPreferencesKey("show_dub_suggestion")
+        private val AUDIO_PROBE_TIMEOUT_SECONDS = intPreferencesKey("audio_probe_timeout_seconds")
         private val RESIZE_MODE = stringPreferencesKey("resize_mode")
         private val AUTO_NEXT_SECONDS = intPreferencesKey("auto_next_seconds")
         private val SKIP_BUTTONS_ENABLED = booleanPreferencesKey("skip_buttons_enabled")
@@ -309,5 +598,54 @@ class SettingsRepository(val store: DataStore<Preferences>) {
         val DEFAULT_CATALOG_ADDON_SEEDED = booleanPreferencesKey("default_catalog_addon_seeded")
         val SEEN_ANNOUNCEMENT_IDS = stringSetPreferencesKey("seen_announcement_ids")
         private val DISABLED_CATALOGS = stringSetPreferencesKey("disabled_catalogs")
+        private val LIVE_TV_SORT_MODE = stringPreferencesKey("live_tv_sort_mode")
+        private val CONTINUE_SORT_MODE = stringPreferencesKey("continue_sort_mode")
+        private val NAV_BAR_POSITION = stringPreferencesKey("nav_bar_position")
+        private val PERFORMANCE_MODE = booleanPreferencesKey("performance_mode")
+        private val HERO_AUTO_ADVANCE = booleanPreferencesKey("hero_auto_advance")
+        private val HERO_TRAILER_ENABLED = booleanPreferencesKey("hero_trailer_enabled")
+        private val NEW_EPISODE_NOTIFICATIONS = booleanPreferencesKey("new_episode_notifications")
+        private val LAST_NOTIFIED_EPISODES = stringPreferencesKey("last_notified_episodes")
+        private val LAST_WHATS_NEW_VERSION = stringPreferencesKey("last_whats_new_version")
+        private val DNS_MODE = stringPreferencesKey("dns_mode")
+        private val CUSTOM_DOH_URL = stringPreferencesKey("custom_doh_url")
+
+        private val APPEARANCE_AND_PLAYER_KEYS: List<Preferences.Key<*>> = listOf(
+            THEME,
+            NAV_BAR_POSITION,
+            PERFORMANCE_MODE,
+            HERO_AUTO_ADVANCE,
+            HERO_TRAILER_ENABLED,
+            NEW_EPISODE_NOTIFICATIONS,
+            POSTER_URL_TEMPLATE,
+            ALWAYS_RESUME,
+            DOWNLOAD_WIFI_ONLY,
+            SLOW_CONNECTION_MODE,
+            SUGGEST_SLOW_CONNECTION,
+            AUTO_NEXT,
+            AUTO_TRANSLATE_SUBS,
+            AUTO_SOURCE,
+            PREFER_DUB,
+            TRY_SOURCES_UNTIL_TURKISH_AUDIO,
+            REVERT_ON_SELECTED_FAILURE,
+            AUTO_SOURCE_RETRY_LIMIT,
+            SHOW_PREPLAY_POSTER,
+            AUTO_DUB_SWITCH,
+            SHOW_DUB_SUGGESTION,
+            AUDIO_PROBE_TIMEOUT_SECONDS,
+            RESIZE_MODE,
+            AUTO_NEXT_SECONDS,
+            SKIP_BUTTONS_ENABLED,
+            SKIP_AUTO_ENABLED,
+            SKIP_ENABLED_CATEGORIES,
+            SUB_SIZE,
+            SUB_BOLD,
+            SUB_ITALIC,
+            SUB_COLOR,
+            SUB_BACKGROUND,
+            SUB_LANGUAGE,
+            LIVE_TV_SORT_MODE,
+            CONTINUE_SORT_MODE,
+        )
     }
 }

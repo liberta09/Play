@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -31,6 +32,8 @@ import kotlinx.coroutines.delay
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +42,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,8 +69,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
 import com.kaan.play.R
+import com.kaan.play.data.collection.CollectionFolderShelf
 import com.kaan.play.data.cloudstream.cloudflare.CloudflareSolver
 import com.kaan.play.data.library.ContinueItem
+import com.kaan.play.data.library.ContinueSortMode
+import com.kaan.play.data.model.MediaSummary
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.provider.ProviderRules
 import com.kaan.play.data.addon.CatalogVisibility
@@ -75,13 +82,20 @@ import com.kaan.play.data.tmdb.TmdbImages
 import com.kaan.play.data.tmdb.PosterUrlTemplate
 import com.kaan.play.i18n.AppLanguage
 import com.kaan.play.ui.components.Button
+import com.kaan.play.ui.components.ChoiceDialog
 import com.kaan.play.ui.components.ErrorMessage
+import com.kaan.play.ui.components.IconButton
 import com.kaan.play.ui.components.Loadable
+import com.kaan.play.ui.components.OutlinedButton
 import com.kaan.play.ui.components.PosterCard
 import com.kaan.play.ui.components.StatusBarScrim
 import com.kaan.play.ui.components.posterUrl
 import com.kaan.play.ui.containerViewModel
+import com.kaan.play.ui.nav.NavBarPosition
+import com.kaan.play.ui.nav.NavBarRules
 import com.kaan.play.ui.nav.PlayIcons
+import com.kaan.play.ui.tv.LocalNavBarPosition
+import com.kaan.play.ui.tv.navBarReturnEdge
 import com.kaan.play.ui.provider.ProviderSelectorSheet
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.tv.focusMemory
@@ -132,6 +146,18 @@ fun HomeScreen(
     val allProviders = loadedProviders.orEmpty()
     var showProviderSelector by remember { mutableStateOf(false) }
     var activeProviderRow by remember { mutableStateOf<CatalogRow?>(null) }
+    var activeCollectionShelf by remember { mutableStateOf<CollectionFolderShelf?>(null) }
+
+    val currentCollectionShelf = activeCollectionShelf
+    if (currentCollectionShelf != null) {
+        BackHandler { activeCollectionShelf = null }
+        CollectionCategoryScreen(
+            shelf = currentCollectionShelf,
+            onBack = { activeCollectionShelf = null },
+            onOpenDetail = onOpenDetail,
+        )
+        return
+    }
 
     val currentProviderRow = activeProviderRow
     if (currentProviderRow != null) {
@@ -196,6 +222,7 @@ fun HomeScreen(
                 onContinue = onContinue,
                 onOpenProviderDetail = onOpenProviderDetail,
                 onOpenProviderCategory = { activeProviderRow = it },
+                onOpenCollectionCategory = { activeCollectionShelf = it },
                 onOpenSearch = onOpenSearch,
                 contentFocusRequester = contentFocusRequester,
                 topBarFocusRequester = topBarFocusRequester,
@@ -205,16 +232,18 @@ fun HomeScreen(
 
         StatusBarScrim()
 
-        // Yüzen hap buton (sağ altta, alt menünün hemen üzerinde)
+        // Yüzen hap buton (sağ altta; Alt menüde üstüne kayar)
+        val pillBottomDp = NavBarRules.homeProviderPillBottomPaddingDp(LocalNavBarPosition.current).dp
         ProviderPillButton(
             text = pillText,
             isSelected = !effectiveIsAll,
             onClick = { showProviderSelector = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 20.dp, bottom = 20.dp)
+                .padding(end = 20.dp, bottom = pillBottomDp)
                 .let { if (pillFocusRequester != null) it.focusRequester(pillFocusRequester) else it }
-                .let { if (profileFocusRequester != null) it.focusProperties { left = profileFocusRequester } else it },
+                .let { if (profileFocusRequester != null) it.focusProperties { left = profileFocusRequester } else it }
+                .navBarReturnEdge(topBarFocusRequester, includeTop = false, includeBottom = true),
         )
 
         if (showProviderSelector) {
@@ -272,7 +301,7 @@ private fun HomeEmptyState(
             modifier = Modifier
                 .focusRequester(focus)
                 .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it },
+                .navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = true),
         ) { Text(stringResource(R.string.home_empty_action)) }
     }
 }
@@ -284,18 +313,26 @@ private fun HomeContent(
     onContinue: (ContinueItem) -> Unit,
     onOpenProviderDetail: (providerId: String, url: String) -> Unit = { _, _ -> },
     onOpenProviderCategory: (CatalogRow) -> Unit = {},
+    onOpenCollectionCategory: (CollectionFolderShelf) -> Unit = {},
     onOpenSearch: (String) -> Unit = {},
     contentFocusRequester: FocusRequester? = null,
     topBarFocusRequester: FocusRequester? = null,
     onRegisterScrollToTop: (suspend () -> Unit) -> Unit = {},
 ) {
     val container = rememberContainer()
+    val perfPolicy = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current
     val homeProviders by container.providers.homeProviders.collectAsStateWithLifecycle(initialValue = emptyList())
-    val loadSemaphore = remember { Semaphore(3) }
+    val collectionShelves by container.collections.folderShelves.collectAsStateWithLifecycle(initialValue = emptyList())
+    val loadSemaphore = remember(perfPolicy.maxConcurrentProviderLoads) { Semaphore(perfPolicy.maxConcurrentProviderLoads) }
+    val loadedProviderIds = remember(homeProviders) { mutableStateMapOf<String, Boolean>() }
 
     // Dil değişince (etkinlik yeniden kurulur) yeni dille taze bir ViewModel: satırlar yeni dilde yüklenir.
-    val vm = containerViewModel(key = "home-${AppLanguage.effective().iso}") { HomeViewModel(it.tmdb, it.continueWatching, it.library) }
+    val vm = containerViewModel(key = "home-${AppLanguage.effective().iso}") { HomeViewModel(it.tmdb, it.continueWatching, it.library, it.settings) }
     var itemToRemove by remember { mutableStateOf<ContinueItem?>(null) }
+    var quickActionItem by remember { mutableStateOf<ContinueItem?>(null) }
+    var showContinueSortDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val continueSortMode by vm.continueSortMode.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     val continueRequesters = remember { mutableMapOf<String, FocusRequester>() }
     val rows by vm.rows.collectAsStateWithLifecycle()
@@ -315,8 +352,15 @@ private fun HomeContent(
     val focus = rememberFocusMemory(enabled = firstReady)
 
     // LazyColumn anahtar bazlı konumu korur: en üste sonradan eklenen "devam et" satırı ekranın üstüne itilirdi.
+    // Geri dönüşte kaydırma konumunu sıfırlamamak için yalnızca ilk açılışta (restoreKey yokken) başa kaydırılır.
     val listState = rememberLazyListState()
-    LaunchedEffect(hasContinue) { if (hasContinue) listState.scrollToItem(0) }
+    var hadContinue by rememberSaveable { mutableStateOf(hasContinue) }
+    LaunchedEffect(hasContinue) {
+        if (hasContinue && !hadContinue && focus.restoreKey == null && listState.firstVisibleItemIndex <= 1) {
+            listState.scrollToItem(0)
+        }
+        hadContinue = hasContinue
+    }
     LaunchedEffect(listState) {
         onRegisterScrollToTop {
             if (listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0) {
@@ -335,12 +379,14 @@ private fun HomeContent(
         shownProviderTitles.filterKeys { it in providerIds }.values.flatten(),
     )
 
-    LazyColumn(
-        state = listState,
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 80.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        val extraBottom = NavBarRules.homeListExtraBottomDp(LocalNavBarPosition.current).dp
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 80.dp + extraBottom),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+        ) {
         item(key = "hero") {
             when {
                 hasHero -> HeroCarousel(
@@ -359,7 +405,20 @@ private fun HomeContent(
         }
         if (hasContinue) {
             item(key = "continue") {
-                Section(title = stringResource(R.string.home_row_continue)) {
+                Section(
+                    title = stringResource(R.string.home_row_continue),
+                    headerTrailing = {
+                        OutlinedButton(onClick = { showContinueSortDialog = true }) {
+                            Icon(PlayIcons.Sort, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Text(
+                                text = stringResource(R.string.continue_sort),
+                                modifier = Modifier.padding(start = 6.dp),
+                                maxLines = 1,
+                                softWrap = false,
+                            )
+                        }
+                    },
+                ) {
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = ScreenPadding),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -370,26 +429,39 @@ private fun HomeContent(
                                 continueRequesters.getOrPut(itemKey) { FocusRequester() }
                             }
                             val isFirstContinue = !hasHero && item === continueWatching.first()
+                            val navPos = LocalNavBarPosition.current
+                            val isContinueEdge = (navPos == NavBarPosition.Left && item === continueWatching.first()) ||
+                                (navPos == NavBarPosition.Right && item === continueWatching.last())
                             ContinueCard(
                                 item,
                                 modifier = Modifier
                                     .focusRequester(cardRequester)
                                     .let { if (isFirstContinue && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                                    .let { if (isFirstContinue && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                                    .let {
+                                        if (isFirstContinue || isContinueEdge) {
+                                            it.navBarReturnEdge(topBarFocusRequester, includeTop = isFirstContinue, includeBottom = false)
+                                        } else it
+                                    }
                                     .focusMemory(
                                         focus, "c-${item.entry.type}-${item.entry.tmdbId}",
                                         isDefault = isFirstContinue,
                                     ),
                                 width = cardWidth,
                                 onClick = { onContinue(item) },
-                                onLongClick = { itemToRemove = item },
+                                onLongClick = { quickActionItem = item },
+                                onMoreClick = { quickActionItem = item },
                             )
                         }
                     }
                 }
             }
         }
-        homeProviders.forEach { provider ->
+        val visibleProviderCount = com.kaan.play.data.settings.PerformanceBatchRules.visibleCount(
+            totalCount = homeProviders.size,
+            completedLoads = loadedProviderIds.size,
+            batchSize = perfPolicy.providerShelfBatchSize,
+        )
+        homeProviders.take(visibleProviderCount).forEach { provider ->
             item(key = "home_provider_${provider.id}") {
                 LazyProviderSection(
                     provider = provider,
@@ -401,6 +473,19 @@ private fun HomeContent(
                     onOpenProviderCategory = onOpenProviderCategory,
                     onOpenSearch = onOpenSearch,
                     onShownTitles = { titles -> shownProviderTitles[provider.id] = titles },
+                    onLoadFinished = { loadedProviderIds[provider.id] = true },
+                )
+            }
+        }
+        collectionShelves.forEach { shelf ->
+            item(key = "collection_${shelf.collectionId}_${shelf.folder.id}") {
+                LazyCollectionSection(
+                    shelf = shelf,
+                    cardWidth = cardWidth,
+                    focus = focus,
+                    loadSemaphore = loadSemaphore,
+                    onOpenDetail = onOpenDetail,
+                    onOpenCategory = { onOpenCollectionCategory(shelf) },
                 )
             }
         }
@@ -420,6 +505,9 @@ private fun HomeContent(
                         ) {
                             items(state.value, key = { "${it.type}-${it.id}" }) { media ->
                                 val isFirstTrending = !hasHero && !hasContinue && row == HomeRow.TrendingMovies && media == state.value.first()
+                                val navPos = LocalNavBarPosition.current
+                                val isRowEdge = (navPos == NavBarPosition.Left && media == state.value.first()) ||
+                                    (navPos == NavBarPosition.Right && media == state.value.last())
                                 PosterCard(
                                     title = media.title,
                                     subtitle = media.year?.toString(),
@@ -430,7 +518,11 @@ private fun HomeContent(
                                     modifier = Modifier
                                         .width(cardWidth)
                                         .let { if (isFirstTrending && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                                        .let { if (isFirstTrending && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                                        .let {
+                                            if (isFirstTrending || isRowEdge) {
+                                                it.navBarReturnEdge(topBarFocusRequester, includeTop = isFirstTrending, includeBottom = false)
+                                            } else it
+                                        }
                                         .focusMemory(
                                             focus,
                                             "${row.name}-${media.type}-${media.id}",
@@ -445,68 +537,161 @@ private fun HomeContent(
         }
     }
 
-    itemToRemove?.let { targetItem ->
-        val cancelFocus = rememberInitialFocus()
-        AlertDialog(
-            onDismissRequest = { itemToRemove = null },
-            shape = RoundedCornerShape(20.dp),
-            containerColor = MaterialTheme.colorScheme.surface,
-            title = {
-                Text(
-                    text = targetItem.entry.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            },
-            text = {
-                Text(
-                    text = stringResource(R.string.continue_remove_message),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val ruleTarget = ContinueDeletionRules.targetFrom(targetItem)
-                        val currentIndex = continueWatching.indexOfFirst {
-                            ContinueDeletionRules.shouldDelete(it, ruleTarget)
-                        }
-                        val remaining = ContinueDeletionRules.filterRemaining(continueWatching, ruleTarget)
-                        val nextItem = ContinueDeletionRules.nextFocusedItem(currentIndex, remaining)
-                        val nextKey = nextItem?.let { "${it.entry.type}-${it.entry.tmdbId}" }
-                        if (nextItem != null) {
-                            focus.lastKey = "c-${nextItem.entry.type}-${nextItem.entry.tmdbId}"
-                        } else {
-                            focus.lastKey = null
-                        }
-                        continueRequesters.remove("${ruleTarget.type}-${ruleTarget.tmdbId}")
-                        vm.removeContinueWatching(targetItem)
-                        itemToRemove = null
-                        if (nextKey != null) {
-                            coroutineScope.launch {
-                                delay(100)
-                                try {
-                                    continueRequesters[nextKey]?.requestFocus()
-                                } catch (_: Exception) {}
-                            }
-                        }
-                    },
-                ) {
+        if (showContinueSortDialog) {
+            ChoiceDialog(
+                title = stringResource(R.string.continue_sort),
+                options = ContinueSortMode.entries,
+                selected = continueSortMode,
+                label = { mode ->
+                    when (mode) {
+                        ContinueSortMode.Recent -> stringResource(R.string.continue_sort_recent)
+                        ContinueSortMode.Oldest -> stringResource(R.string.continue_sort_oldest)
+                        ContinueSortMode.MoviesFirst -> stringResource(R.string.continue_sort_movies_first)
+                        ContinueSortMode.SeriesFirst -> stringResource(R.string.continue_sort_series_first)
+                        ContinueSortMode.TitleAsc -> stringResource(R.string.continue_sort_title_asc)
+                    }
+                },
+                onSelect = { chosen ->
+                    showContinueSortDialog = false
+                    vm.setContinueSortMode(chosen)
+                },
+                onDismiss = { showContinueSortDialog = false },
+            )
+        }
+
+        fun advanceContinueFocusAfterRemoval(targetItem: ContinueItem) {
+            val ruleTarget = ContinueDeletionRules.targetFrom(targetItem)
+            val currentIndex = continueWatching.indexOfFirst {
+                ContinueDeletionRules.shouldDelete(it, ruleTarget)
+            }
+            val remaining = ContinueDeletionRules.filterRemaining(continueWatching, ruleTarget)
+            val nextItem = ContinueDeletionRules.nextFocusedItem(currentIndex, remaining)
+            val nextKey = nextItem?.let { "${it.entry.type}-${it.entry.tmdbId}" }
+            focus.lastKey = nextItem?.let { "c-${it.entry.type}-${it.entry.tmdbId}" }
+            continueRequesters.remove("${ruleTarget.type}-${ruleTarget.tmdbId}")
+            if (nextKey != null) {
+                coroutineScope.launch {
+                    delay(100)
+                    runCatching { continueRequesters[nextKey]?.requestFocus() }
+                }
+            }
+        }
+
+        quickActionItem?.let { targetItem ->
+            val firstActionFocus = rememberInitialFocus()
+            val addedFavoriteMessage = stringResource(R.string.continue_added_favorite)
+            val markedWatchedMessage = stringResource(R.string.continue_marked_watched)
+            AlertDialog(
+                onDismissRequest = { quickActionItem = null },
+                shape = RoundedCornerShape(20.dp),
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = {
                     Text(
-                        text = stringResource(R.string.continue_remove_confirm),
-                        color = MaterialTheme.colorScheme.error,
+                        text = targetItem.entry.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { itemToRemove = null },
-                    modifier = Modifier.focusRequester(cancelFocus),
-                ) {
-                    Text(stringResource(R.string.continue_remove_cancel))
-                }
-            },
+                },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(
+                            onClick = {
+                                vm.addContinueToFavorites(targetItem)
+                                quickActionItem = null
+                                coroutineScope.launch { snackbarHostState.showSnackbar(addedFavoriteMessage) }
+                            },
+                            modifier = Modifier.fillMaxWidth().focusRequester(firstActionFocus),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.continue_action_favorite),
+                                maxLines = 2,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                advanceContinueFocusAfterRemoval(targetItem)
+                                vm.markContinueWatched(targetItem)
+                                quickActionItem = null
+                                coroutineScope.launch { snackbarHostState.showSnackbar(markedWatchedMessage) }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.continue_action_mark_watched),
+                                maxLines = 2,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                quickActionItem = null
+                                itemToRemove = targetItem
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.continue_action_remove),
+                                color = MaterialTheme.colorScheme.error,
+                                maxLines = 2,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { quickActionItem = null }) {
+                        Text(stringResource(R.string.common_cancel))
+                    }
+                },
+            )
+        }
+
+        itemToRemove?.let { targetItem ->
+            val cancelFocus = rememberInitialFocus()
+            AlertDialog(
+                onDismissRequest = { itemToRemove = null },
+                shape = RoundedCornerShape(20.dp),
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = {
+                    Text(
+                        text = targetItem.entry.title,
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
+                text = {
+                    Text(
+                        text = stringResource(R.string.continue_remove_message),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            advanceContinueFocusAfterRemoval(targetItem)
+                            vm.removeContinueWatching(targetItem)
+                            itemToRemove = null
+                        },
+                    ) {
+                        Text(
+                            text = stringResource(R.string.continue_remove_confirm),
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { itemToRemove = null }, modifier = Modifier.focusRequester(cancelFocus)) {
+                        Text(stringResource(R.string.continue_remove_cancel))
+                    }
+                },
+            )
+        }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(16.dp),
         )
     }
 }
@@ -526,6 +711,7 @@ private fun Section(
     title: String,
     onSeeAll: (() -> Unit)? = null,
     headerModifier: Modifier = Modifier,
+    headerTrailing: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -535,15 +721,21 @@ private fun Section(
             modifier = headerModifier
                 .fillMaxWidth()
                 .padding(horizontal = ScreenPadding)
-                .categoryHeaderFocusable(
-                    interactionSource = interactionSource,
-                    onClick = onSeeAll,
-                    scale = 1.02f,
-                )
+                .let {
+                    if (onSeeAll != null) {
+                        it.categoryHeaderFocusable(
+                            interactionSource = interactionSource,
+                            onClick = onSeeAll,
+                            scale = 1.02f,
+                        )
+                    } else it
+                }
                 .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(text = title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            headerTrailing?.invoke()
             if (onSeeAll != null) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -574,6 +766,7 @@ private fun ContinueCard(
     width: Dp,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
+    onMoreClick: (() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
     val entry = item.entry
@@ -595,16 +788,32 @@ private fun ContinueCard(
             progress = null
         }
     }
+    val smallerPosters = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.useSmallerPosters
     PosterCard(
         title = entry.title,
         subtitle = subtitle,
-        imageUrl = TmdbImages.url(entry.posterPath, TmdbImages.Size.Poster),
+        imageUrl = TmdbImages.url(entry.posterPath, TmdbImages.posterSize(smallerPosters)),
         tmdbId = entry.tmdbId,
         mediaType = entry.type,
         onClick = onClick,
         onLongClick = onLongClick,
         modifier = modifier.width(width),
         progress = progress,
+        trailingAction = onMoreClick?.let { openActions ->
+            {
+                IconButton(
+                    onClick = openActions,
+                    modifier = Modifier.size(36.dp),
+                ) {
+                    Icon(
+                        imageVector = PlayIcons.More,
+                        contentDescription = stringResource(R.string.continue_quick_actions),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+            }
+        },
     )
 }
 
@@ -653,6 +862,7 @@ private fun LazyProviderSection(
     onOpenProviderCategory: (CatalogRow) -> Unit,
     onOpenSearch: (String) -> Unit,
     onShownTitles: (List<String>) -> Unit = {},
+    onLoadFinished: () -> Unit = {},
 ) {
     val container = rememberContainer()
     val scope = rememberCoroutineScope()
@@ -675,6 +885,7 @@ private fun LazyProviderSection(
         val visible = cached?.let { ProviderRules.withoutLiveRows(CatalogVisibility.filterRows(it, disabledCatalogs)) }
         if (visible != null) {
             state = if (visible.isNotEmpty()) ProviderSectionUiState.Ready(visible) else ProviderSectionUiState.Hidden
+            onLoadFinished()
             return@LaunchedEffect
         }
         loadSemaphore.withPermit {
@@ -686,6 +897,8 @@ private fun LazyProviderSection(
                 state = if (filtered.isNotEmpty()) ProviderSectionUiState.Ready(filtered) else ProviderSectionUiState.Hidden
             } catch (_: Throwable) {
                 state = ProviderSectionUiState.Hidden
+            } finally {
+                onLoadFinished()
             }
         }
     }
@@ -767,13 +980,15 @@ private fun LazyProviderSection(
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                 )
-                                Text(
-                                    text = row.providerName,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
+                                if (row.providerName.isNotBlank() && !row.providerName.equals(row.title, ignoreCase = true)) {
+                                    Text(
+                                        text = row.providerName,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
                             }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -1028,7 +1243,7 @@ private fun ProviderCatalogView(
                         onClick = { refreshKey++ },
                         modifier = Modifier
                             .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                            .let { if (topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it }
+                            .navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = true)
                             .focusRing(MaterialTheme.shapes.medium),
                     ) {
                         Text(stringResource(R.string.provider_catalog_retry))
@@ -1164,7 +1379,7 @@ private fun ProviderCatalogView(
                                     },
                                     modifier = Modifier.width(cardWidth)
                                         .let { if (isFirstProviderCard && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                                        .let { if (isFirstProviderCard && topBarFocusRequester != null) it.focusProperties { up = topBarFocusRequester } else it },
+                                        .let { if (isFirstProviderCard) it.navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = false) else it },
                                 )
 
                             }
@@ -1394,5 +1609,73 @@ private fun ProviderPillButton(
             tint = if (isSelected) accent else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(16.dp),
         )
+    }
+}
+
+private sealed interface CollectionShelfUiState {
+    data object Loading : CollectionShelfUiState
+    data class Ready(val items: List<MediaSummary>) : CollectionShelfUiState
+    data object Hidden : CollectionShelfUiState
+}
+
+@Composable
+private fun LazyCollectionSection(
+    shelf: CollectionFolderShelf,
+    cardWidth: Dp,
+    focus: FocusMemory,
+    loadSemaphore: Semaphore,
+    onOpenDetail: (MediaType, Int) -> Unit,
+    onOpenCategory: () -> Unit,
+) {
+    val container = rememberContainer()
+    val lang = AppLanguage.effective().tmdbTag
+    var state by remember(shelf.collectionId, shelf.folder.id, lang) {
+        mutableStateOf<CollectionShelfUiState>(CollectionShelfUiState.Loading)
+    }
+
+    LaunchedEffect(shelf.collectionId, shelf.folder.id, lang) {
+        state = CollectionShelfUiState.Loading
+        loadSemaphore.withPermit {
+            state = try {
+                val page = container.tmdb.collectionFolder(shelf.folder, page = 1)
+                if (page.items.isNotEmpty()) CollectionShelfUiState.Ready(page.items)
+                else CollectionShelfUiState.Hidden
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (_: Throwable) {
+                CollectionShelfUiState.Hidden
+            }
+        }
+    }
+
+    when (val current = state) {
+        is CollectionShelfUiState.Loading -> Section(title = shelf.folder.title) { SkeletonRow(cardWidth) }
+        is CollectionShelfUiState.Hidden -> Unit
+        is CollectionShelfUiState.Ready -> {
+            Section(
+                title = shelf.folder.title,
+                onSeeAll = onOpenCategory,
+                headerModifier = Modifier.focusMemory(focus, "col_h_${shelf.collectionId}_${shelf.folder.id}"),
+            ) {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = ScreenPadding),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    items(current.items, key = { "${it.type}-${it.id}" }) { media ->
+                        PosterCard(
+                            title = media.title,
+                            subtitle = media.year?.toString(),
+                            imageUrl = media.posterUrl(),
+                            tmdbId = media.id,
+                            mediaType = media.type,
+                            onClick = { onOpenDetail(media.type, media.id) },
+                            modifier = Modifier
+                                .width(cardWidth)
+                                .focusMemory(focus, "col_${shelf.collectionId}_${shelf.folder.id}_${media.type}_${media.id}"),
+                        )
+                    }
+                }
+            }
+        }
     }
 }

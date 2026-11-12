@@ -1,6 +1,11 @@
 package com.kaan.play.ui.addons
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,14 +18,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import com.kaan.play.ui.components.IconButton
 import com.kaan.play.ui.components.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -65,7 +73,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.R
 import com.kaan.play.data.addon.Addon
+import com.kaan.play.data.collection.CollectionImportException
+import com.kaan.play.data.collection.CollectionJsonParser
 import com.kaan.play.data.plugin.AddResult
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import com.kaan.play.data.settings.SettingsRepository
 import com.kaan.play.data.web.WebSite
 import com.kaan.play.ui.web.WebActivity
@@ -100,11 +114,15 @@ fun AddonsScreen(
     onOpenNuvioRepos: () -> Unit,
     onOpenNuvioPlugins: () -> Unit,
     onOpenCatalog: () -> Unit = {},
+    onOpenCollections: () -> Unit = {},
+    onOpenSourceHealth: () -> Unit = {},
+    onOpenNetwork: () -> Unit = {},
 ) {
     val vm = containerViewModel { AddonsViewModel(it.sourceInstaller, it.addons, it.pendingAddonUrl) }
     val dialog by vm.dialog.collectAsStateWithLifecycle()
     val container = rememberContainer()
     val installedCount by container.installedSourcesCount.collectAsStateWithLifecycle(initialValue = null)
+    val collections by container.collections.collections.collectAsStateWithLifecycle(initialValue = emptyList())
     val scope = rememberCoroutineScope()
     val timeout by container.settings.sourceTimeoutSeconds
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_TIMEOUT_SECONDS)
@@ -112,9 +130,82 @@ fun AddonsScreen(
     val torrentServer by container.settings.torrentServer.collectAsStateWithLifecycle(initialValue = null)
     var showTorrentServer by remember { mutableStateOf(false) }
     val focus = rememberFocusMemory()
+    val appContext = LocalContext.current
+
+    var importFeedback by remember { mutableStateOf<CollectionImportFeedback?>(null) }
+    val importMessage = when (val fb = importFeedback) {
+        null -> null
+        is CollectionImportFeedback.Partial -> stringResource(R.string.collection_import_partial, fb.folders, fb.unsupported)
+        is CollectionImportFeedback.Success -> stringResource(R.string.collection_import_success, fb.folders)
+        CollectionImportFeedback.TooLarge -> stringResource(R.string.collection_error_file_too_large)
+        CollectionImportFeedback.StorageFull -> stringResource(R.string.collection_error_storage_full)
+        CollectionImportFeedback.InvalidJson -> stringResource(R.string.collection_error_invalid_json)
+    }
+    LaunchedEffect(importFeedback, importMessage) {
+        if (importMessage != null) {
+            Toast.makeText(appContext, importMessage, Toast.LENGTH_LONG).show()
+            importFeedback = null
+        }
+    }
+
+    val importCollectionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            importFeedback = try {
+                val (bytes, fallbackTitle) = withContext(Dispatchers.IO) { readCollectionUri(appContext, uri) }
+                val res = container.collections.importBytes(bytes, fallbackTitle)
+                if (res.unsupportedSourcesCount > 0) {
+                    CollectionImportFeedback.Partial(res.foldersAdded, res.unsupportedSourcesCount)
+                } else {
+                    CollectionImportFeedback.Success(res.foldersAdded)
+                }
+            } catch (_: CollectionImportException.FileTooLarge) {
+                CollectionImportFeedback.TooLarge
+            } catch (_: CollectionImportException.StorageFull) {
+                CollectionImportFeedback.StorageFull
+            } catch (_: Throwable) {
+                CollectionImportFeedback.InvalidJson
+            }
+        }
+    }
+
+    val selectCatalogFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val (bytes, total) = withContext(Dispatchers.IO) {
+                try {
+                    appContext.contentResolver.openInputStream(uri)?.use { stream ->
+                        val out = ByteArrayOutputStream()
+                        val buf = ByteArray(8192)
+                        var readTotal = 0L
+                        while (true) {
+                            val r = stream.read(buf)
+                            if (r == -1) break
+                            readTotal += r
+                            if (readTotal > com.kaan.play.data.catalog.ExternalCatalogParser.MAX_BYTE_SIZE) {
+                                return@withContext null to readTotal
+                            }
+                            out.write(buf, 0, r)
+                        }
+                        out.toByteArray() to readTotal
+                    } ?: (null to 0L)
+                } catch (_: Exception) {
+                    null to 0L
+                }
+            }
+            if (bytes == null) {
+                vm.setCustomError(appContext.getString(R.string.external_catalog_error_too_large))
+            } else {
+                vm.importFromFile(String(bytes, Charsets.UTF_8), total, container.externalCatalogStore, appContext)
+            }
+        }
+    }
 
     // Başarılı ekleme bildirimi ve otomatik doğru ekrana yönlendirme
-    val appContext = LocalContext.current
     LaunchedEffect(vm) {
         vm.added.collect { result ->
             when (result) {
@@ -147,10 +238,6 @@ fun AddonsScreen(
     // Ana sayfadaki "eklenti ekle" düğmesinden geldiyse pencere hemen açılır.
     LaunchedEffect(startAdding) { if (startAdding) vm.startAddingOnce() }
 
-    val webVm = containerViewModel { WebSitesViewModel(it.webSites) }
-    val sites by webVm.sites.collectAsStateWithLifecycle()
-    val webDialog by webVm.dialog.collectAsStateWithLifecycle()
-    var siteToRemove by remember { mutableStateOf<WebSite?>(null) }
     val context = LocalContext.current
 
     Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
@@ -232,16 +319,6 @@ fun AddonsScreen(
                 )
             }
             item {
-                com.kaan.play.ui.components.PlayCardRow(
-                    title = stringResource(R.string.web_add),
-                    subtitle = stringResource(R.string.web_add_subtitle),
-                    icon = PlayIcons.Globe,
-                    iconTint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.focusMemory(focus, "web"),
-                    onClick = { webVm.openAdd() },
-                )
-            }
-            item {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -271,53 +348,7 @@ fun AddonsScreen(
                     )
                 }
             }
-            sites?.takeIf { it.isNotEmpty() }?.let { list ->
-                item {
-                    Text(
-                        text = stringResource(R.string.web_sites),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 4.dp, top = 16.dp, bottom = 4.dp),
-                    )
-                }
-                items(list, key = { "site-${it.id}" }) { site ->
-                    WebSiteRow(
-                        site = site,
-                        modifier = Modifier.focusMemory(focus, "site-${site.id}"),
-                        onOpen = { context.startActivity(WebActivity.intent(context, site.name, site.url)) },
-                        onRemove = { siteToRemove = site },
-                    )
-                }
-            }
         }
-    }
-
-    webDialog?.let { state ->
-        AddWebSiteDialog(
-            state = state,
-            onNameChange = webVm::onNameChange,
-            onAddressChange = webVm::onAddressChange,
-            onConfirm = webVm::submit,
-            onDismiss = webVm::dismissAdd,
-        )
-    }
-
-    siteToRemove?.let { site ->
-        AlertDialog(
-            onDismissRequest = { siteToRemove = null },
-            shape = RoundedCornerShape(20.dp),
-            containerColor = MaterialTheme.colorScheme.surface,
-            title = { Text(stringResource(R.string.web_remove_title), style = MaterialTheme.typography.titleLarge) },
-            text = { Text(stringResource(R.string.web_remove_message, site.name)) },
-            confirmButton = {
-                TextButton(onClick = { webVm.remove(site); siteToRemove = null }) {
-                    Text(stringResource(R.string.addons_remove), color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { siteToRemove = null }) { Text(stringResource(R.string.common_cancel)) }
-            },
-        )
     }
 
     if (showTorrentServer) {
@@ -357,6 +388,7 @@ fun AddonsScreen(
                 onInputChange = vm::onInputChange,
                 onConfirm = vm::submit,
                 onAcceptSuggestion = vm::acceptSuggestion,
+                onSelectFile = { selectCatalogFileLauncher.launch(arrayOf("application/json", "text/*", "*/*")) },
                 onDismiss = vm::dismissAdd,
             )
         }
@@ -391,11 +423,11 @@ internal fun AddonRow(
     val host = remember(addon.sourceUrl) { addon.sourceUrl.toHttpUrlOrNull()?.host ?: addon.sourceUrl }
     val toggleLabel = stringResource(R.string.addons_enabled_toggle, name)
     val typeLabel = when {
-        !addon.manifest.providesStreams && addon.manifest.providesCatalogs -> stringResource(R.string.addon_type_catalog)
         !addon.manifest.providesStreams && addon.manifest.providesSubtitles -> stringResource(R.string.addon_type_subtitles)
         else -> null
     }
     val detail = if (typeLabel != null) "$typeLabel • $host" else host
+    val isExternalCatalog = !addon.manifest.providesStreams && addon.manifest.providesCatalogs
     val controls = rememberRowControls(2)
 
     Surface(
@@ -414,7 +446,34 @@ internal fun AddonRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(modifier = Modifier.weight(1f).alpha(if (addon.enabled) 1f else 0.5f)) {
-                Text(text = name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    if (isExternalCatalog) {
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.addon_badge_external_catalog),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            )
+                        }
+                    }
+                }
                 Text(
                     text = stringResource(R.string.addons_row_info, addon.manifest.version ?: "—", detail),
                     style = MaterialTheme.typography.bodyMedium,
@@ -520,7 +579,10 @@ private fun AddChoiceDialog(
             }
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+            ) {
                 ChoiceOptionCard(
                     title = stringResource(R.string.addons_choice_cs_title),
                     subtitle = stringResource(R.string.addons_choice_cs_subtitle),
@@ -541,6 +603,13 @@ private fun AddChoiceDialog(
                     icon = PlayIcons.Extension,
                     accentColor = PlayColors.NuvioGreen,
                     onClick = { onSelect(SourceType.NUVIO_PLUGIN) },
+                )
+                ChoiceOptionCard(
+                    title = stringResource(R.string.addons_choice_external_catalog_title),
+                    subtitle = stringResource(R.string.addons_choice_external_catalog_subtitle),
+                    icon = PlayIcons.Library,
+                    accentColor = MaterialTheme.colorScheme.primary,
+                    onClick = { onSelect(SourceType.EXTERNAL_CATALOG) },
                 )
             }
         },
@@ -620,6 +689,7 @@ private fun AddSourceInputDialog(
     onInputChange: (String) -> Unit,
     onConfirm: () -> Unit,
     onAcceptSuggestion: () -> Unit,
+    onSelectFile: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val field = rememberCursorField(state.input, onInputChange)
@@ -628,19 +698,19 @@ private fun AddSourceInputDialog(
         SourceType.CLOUDSTREAM -> stringResource(R.string.addons_choice_cs_title)
         SourceType.NUVIO_REPO -> stringResource(R.string.addons_choice_nuvio_repo_title)
         SourceType.NUVIO_PLUGIN -> stringResource(R.string.addons_choice_nuvio_plugin_title)
-        else -> stringResource(R.string.addons_choice_cs_title)
+        SourceType.EXTERNAL_CATALOG -> stringResource(R.string.addons_choice_external_catalog_title)
     }
     val hint = when (state.type) {
         SourceType.CLOUDSTREAM -> stringResource(R.string.addons_add_cs_hint)
         SourceType.NUVIO_REPO -> stringResource(R.string.addons_add_nuvio_repo_hint)
         SourceType.NUVIO_PLUGIN -> stringResource(R.string.addons_add_nuvio_plugin_hint)
-        else -> stringResource(R.string.addons_add_cs_hint)
+        SourceType.EXTERNAL_CATALOG -> stringResource(R.string.addons_add_external_catalog_hint)
     }
     val accentColor = when (state.type) {
         SourceType.CLOUDSTREAM -> PlayColors.CloudStreamBlue
         SourceType.NUVIO_REPO -> PlayColors.NuvioPurple
         SourceType.NUVIO_PLUGIN -> PlayColors.NuvioGreen
-        else -> PlayColors.CloudStreamBlue
+        SourceType.EXTERNAL_CATALOG -> MaterialTheme.colorScheme.primary
     }
 
     AlertDialog(
@@ -678,6 +748,15 @@ private fun AddSourceInputDialog(
                     keyboardActions = KeyboardActions(onDone = { if (!state.busy && state.input.isNotBlank()) onConfirm() }),
                     modifier = Modifier.fillMaxWidth().dpadLeavesTextField(field),
                 )
+                OutlinedButton(
+                    onClick = onSelectFile,
+                    enabled = !state.busy,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(PlayIcons.Folder, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.external_catalog_select_file))
+                }
                 when {
                     state.busy -> Row(verticalAlignment = Alignment.CenterVertically) {
                         CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
@@ -687,12 +766,20 @@ private fun AddSourceInputDialog(
                             modifier = Modifier.padding(start = 12.dp),
                         )
                     }
+                    state.customErrorMessage != null -> {
+                        Text(
+                            text = state.customErrorMessage,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
                     state.error != null -> {
                         if (state.suggestedType != null) {
                             val suggestedTypeName = when (state.suggestedType) {
                                 SourceType.CLOUDSTREAM -> stringResource(R.string.source_type_cloudstream)
                                 SourceType.NUVIO_REPO -> stringResource(R.string.source_type_nuvio_repo)
                                 SourceType.NUVIO_PLUGIN -> stringResource(R.string.source_type_nuvio_plugin)
+                                SourceType.EXTERNAL_CATALOG -> stringResource(R.string.source_type_external_catalog)
                             }
                             Column(
                                 modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
@@ -736,5 +823,37 @@ private fun AddSourceInputDialog(
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
         },
     )
+}
+
+private fun readCollectionUri(context: Context, uri: Uri): Pair<ByteArray, String> {
+    val fileName = context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
+        if (c.moveToFirst()) c.getString(0) else null
+    } ?: uri.lastPathSegment
+    val fallbackTitle = fileName?.substringAfterLast('/')?.substringBeforeLast('.')?.trim().orEmpty()
+
+    val bytes = context.contentResolver.openInputStream(uri)?.use { input ->
+        val limit = CollectionJsonParser.MAX_IMPORT_BYTES
+        val out = ByteArrayOutputStream()
+        val buf = ByteArray(8192)
+        var total = 0
+        while (true) {
+            val read = input.read(buf)
+            if (read <= 0) break
+            total += read
+            if (total > limit) throw CollectionImportException.FileTooLarge()
+            out.write(buf, 0, read)
+        }
+        out.toByteArray()
+    } ?: throw CollectionImportException.InvalidJson()
+
+    return bytes to fallbackTitle
+}
+
+private sealed interface CollectionImportFeedback {
+    data class Success(val folders: Int) : CollectionImportFeedback
+    data class Partial(val folders: Int, val unsupported: Int) : CollectionImportFeedback
+    data object TooLarge : CollectionImportFeedback
+    data object StorageFull : CollectionImportFeedback
+    data object InvalidJson : CollectionImportFeedback
 }
 

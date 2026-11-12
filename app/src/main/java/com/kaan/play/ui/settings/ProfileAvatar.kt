@@ -66,10 +66,11 @@ fun ProfileAvatar(
         Modifier.border(1.dp, Color(0xFF1E3A5F).copy(alpha = 0.5f), CircleShape)
     }
 
+    val shadowsEnabled = com.kaan.play.ui.theme.LocalPlayPerformancePolicy.current.shadowsAndEffectsEnabled
     Box(
         modifier = modifier
             .size(size.dp)
-            .shadow(if (selected) 8.dp else 2.dp, CircleShape)
+            .let { if (shadowsEnabled) it.shadow(if (selected) 8.dp else 2.dp, CircleShape) else it }
             .clip(CircleShape)
             .then(activeBorder),
         contentAlignment = Alignment.Center,

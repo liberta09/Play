@@ -201,6 +201,8 @@ fun SourcePanel(
     subtitles: SubtitleController,
     embeddedDub: Boolean,
     online: Boolean,
+    audioVerificationScanning: Boolean = false,
+    onStopTurkishAudioScan: () -> Unit = {},
     onAddFile: () -> Unit,
     onAppearance: () -> Unit,
     onDismiss: () -> Unit,
@@ -275,6 +277,19 @@ fun SourcePanel(
                     item { SourceRow(s, selected = true, playing = true, embeddedDub = embeddedDub, sizeText = SizeText.format(s.sizeBytes, locale), onClick = {}, modifier = Modifier.focusRequester(focus)) }
                 }
             } else {
+                if (audioVerificationScanning) {
+                    item(key = "stop-turkish-scan") {
+                        ActionRow(
+                            label = stringResource(R.string.player_stop_turkish_audio_scan),
+                            onClick = {
+                                onStopTurkishAudioScan()
+                                onDismiss()
+                            },
+                            emphasized = true,
+                        )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(vertical = 4.dp))
+                    }
+                }
                 val ctx = coordinator.ctx
                 val shown = SourceRanking.filtered(SourceRanking.sorted(coordinator.streams, sort, ctx), filter)
                 val groups = shown.groupBy { it.source.addonId }
@@ -296,6 +311,7 @@ fun SourcePanel(
                             playing = current?.url == s.url,
                             embeddedDub = embeddedDub,
                             sizeText = if (ctx.isLive) null else SizeText.format(SourceRanking.sizeOf(s, ctx.sizes), locale),
+                            blacklisted = ctx.isBlacklistedHost(s.url),
                             onClick = { staged = s },
                             modifier = if (staged?.url == s.url) Modifier.focusRequester(focus) else Modifier,
                         )
@@ -310,6 +326,29 @@ fun SourcePanel(
                     SoftText(stringResource(R.string.sources_failed, it.addonName))
                 }
                 if (!coordinator.loading && shown.isEmpty()) item(key = "empty") { SoftText(stringResource(R.string.sources_empty)) }
+                if (!ctx.isLive && current != null) {
+                    item(key = "wrong-content-div") {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(vertical = 6.dp))
+                    }
+                    item(key = "wrong-content-block") {
+                        ActionRow(
+                            label = stringResource(R.string.player_wrong_content_block),
+                            onClick = {
+                                coordinator.blockCurrentSourceAndAdvance()
+                                onDismiss()
+                            },
+                        )
+                    }
+                    item(key = "audio-sync-broken") {
+                        ActionRow(
+                            label = stringResource(R.string.player_audio_sync_broken),
+                            onClick = {
+                                coordinator.reportAudioSyncAndSwitchNext()
+                                onDismiss()
+                            },
+                        )
+                    }
+                }
             }
         }
 
@@ -464,6 +503,7 @@ private fun SourceRow(
     sizeText: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    blacklisted: Boolean = false,
 ) {
     val tag = when {
         playing && embeddedDub -> stringResource(R.string.tag_dubbed_embedded)
@@ -491,6 +531,16 @@ private fun SourceRow(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
+        if (blacklisted) {
+            Text(
+                text = stringResource(R.string.tag_temporarily_skipped),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.error.copy(alpha = 0.9f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 2.dp),
+            )
+        }
     }
 }
 

@@ -30,6 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -68,6 +69,9 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.withFrameNanos
+import com.kaan.play.ui.nav.NavBarPosition
+import com.kaan.play.ui.theme.LocalPlayFocusStyle
+import com.kaan.play.ui.theme.LocalPlayPerformancePolicy
 import kotlinx.coroutines.launch
 
 private val RingWidth = 3.dp
@@ -131,29 +135,49 @@ fun Modifier.tvFocusableScaleGlow(
     var internalFocused by remember { mutableStateOf(false) }
     val currentFocused = isFocused ?: internalFocused
 
+    val focusStyle = LocalPlayFocusStyle.current
+    val perfPolicy = LocalPlayPerformancePolicy.current
+
     val animatedScale by animateFloatAsState(
-        targetValue = if (currentFocused) scale else 1.0f,
+        targetValue = if (currentFocused && perfPolicy.focusScaleAnimationEnabled) scale else 1.0f,
         animationSpec = spring(
             dampingRatio = 0.72f,
             stiffness = Spring.StiffnessMediumLow,
         ),
         label = "tv_scale",
     )
+    val effectiveScale = if (perfPolicy.focusScaleAnimationEnabled) animatedScale else 1.0f
 
-    val focusProgress by animateFloatAsState(
+    val animatedFocusProgress by animateFloatAsState(
         targetValue = if (currentFocused) 1.0f else 0.0f,
         animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing),
         label = "tv_focus_progress",
     )
+    val focusProgress = if (perfPolicy.focusScaleAnimationEnabled) {
+        animatedFocusProgress
+    } else if (currentFocused) {
+        1.0f
+    } else {
+        0.0f
+    }
 
     // İç çizgi: açık renklerde (turkuaz) rengin beyaza yarım karışımı, koyu renklerde (dolu düğmedeki ters renk) rengin kendisi.
     val innerColor = if (glowColor.luminance() > 0.5f) lerp(glowColor, Color.White, 0.5f) else glowColor
-    val borderModifier = if (focusProgress > 0.01f) {
-        Modifier
+    val borderModifier = when {
+        focusStyle.opaqueRing && currentFocused -> Modifier.border(
+            width = focusStyle.ringWidthDp.dp,
+            color = glowColor,
+            shape = shape,
+        )
+        !perfPolicy.focusGlowEnabled && currentFocused -> Modifier.border(
+            width = if (strong) 2.5.dp else 2.dp,
+            color = innerColor,
+            shape = shape,
+        )
+        focusProgress > 0.01f -> Modifier
             .border(width = if (strong) 4.dp else 3.dp, color = glowColor.copy(alpha = (if (strong) 0.5f else 0.25f) * focusProgress), shape = shape)
             .border(width = if (strong) 2.dp else 1.dp, color = innerColor.copy(alpha = (if (strong) 1f else 0.85f) * focusProgress), shape = shape)
-    } else {
-        Modifier
+        else -> Modifier
     }
 
     return this
@@ -163,14 +187,14 @@ fun Modifier.tvFocusableScaleGlow(
         }
         .zIndex(if (currentFocused) zIndex else 0f)
         .graphicsLayer {
-            scaleX = animatedScale
-            scaleY = animatedScale
+            scaleX = effectiveScale
+            scaleY = effectiveScale
             this.shape = shape
             this.clip = false
         }
         .then(borderModifier)
         .then(
-            if (fillGlowAlpha > 0.001f && focusProgress > 0.01f) {
+            if (perfPolicy.focusGlowEnabled && fillGlowAlpha > 0.001f && focusProgress > 0.01f) {
                 Modifier.drawBehind {
                     val minDim = minOf(size.width, size.height)
                     val cornerRadius = when (shape) {
@@ -250,6 +274,27 @@ fun Modifier.focusRing(
         shape = shape,
         strong = strong,
     )
+}
+
+val LocalNavBarPosition = staticCompositionLocalOf { NavBarPosition.Top }
+
+/** Gezinti çubuğunun aktif konumuna göre içerik öğesinden çubuğa dönen D-pad kenarını bağlar. */
+@Composable
+fun Modifier.navBarReturnEdge(
+    navFocusRequester: FocusRequester?,
+    includeTop: Boolean = true,
+    includeBottom: Boolean = false,
+): Modifier {
+    if (navFocusRequester == null) return this
+    val navPosition = LocalNavBarPosition.current
+    return this.focusProperties {
+        when (navPosition) {
+            NavBarPosition.Top -> if (includeTop) up = navFocusRequester
+            NavBarPosition.Bottom -> if (includeBottom) down = navFocusRequester
+            NavBarPosition.Left -> left = navFocusRequester
+            NavBarPosition.Right -> right = navFocusRequester
+        }
+    }
 }
 
 /**

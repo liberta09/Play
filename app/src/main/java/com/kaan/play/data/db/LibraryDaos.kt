@@ -199,6 +199,9 @@ interface FavoriteDao {
         profileId: String = "legacy-profile",
     ): List<FavoriteEntity>
 
+    @Query("SELECT tmdbId, MAX(title) AS title FROM favorites WHERE type = :type GROUP BY tmdbId ORDER BY MAX(addedAt) DESC LIMIT :limit")
+    suspend fun distinctByType(type: MediaType, limit: Int): List<SeriesFavoriteRef>
+
     @Query("SELECT COUNT(*) > 0 FROM favorites WHERE userId = :userId AND profileId = :profileId AND tmdbId = :tmdbId AND type = :type")
     fun observeIsFavorite(
         userId: String = "legacy-user",
@@ -232,3 +235,8 @@ interface FavoriteDao {
 
     suspend fun clear() = clear("legacy-user", "legacy-profile")
 }
+
+data class SeriesFavoriteRef(
+    val tmdbId: Int,
+    val title: String,
+)

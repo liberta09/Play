@@ -57,6 +57,19 @@ private class TestFavoritesDao : FavoriteDao {
     override suspend fun adoptLegacy(userId: String, profileId: String) {
         rows.value = rows.value.map { if (it.userId == "legacy-user") it.copy(userId = userId, profileId = profileId) else it }
     }
+
+    override suspend fun distinctByType(
+        type: MediaType,
+        limit: Int,
+    ): List<com.kaan.play.data.db.SeriesFavoriteRef> =
+        rows.value
+            .filter { it.type == type }
+            .groupBy { it.tmdbId }
+            .values
+            .map { group -> group.maxBy { it.addedAt } }
+            .sortedByDescending { it.addedAt }
+            .take(limit)
+            .map { com.kaan.play.data.db.SeriesFavoriteRef(it.tmdbId, it.title) }
 }
 
 private class TestHistoryDao : WatchHistoryDao {
