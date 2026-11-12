@@ -46,7 +46,7 @@ enum class LiveCategory(
     Kids(
         id = "kids",
         titleRes = R.string.live_category_kids,
-        keywords = listOf("cocuk", "kids", "cartoon", "minika", "disney", "nick", "baby", "trt cocuk"),
+        keywords = listOf("cocuk", "kids", "cartoon", "minika", "disney", "nick", "nickelodeon", "baby", "trt cocuk"),
     ),
     Documentary(
         id = "documentary",
@@ -87,6 +87,31 @@ enum class LiveCategory(
 
 object LiveCategoryRules {
 
+    val WHOLE_WORD_KEYWORDS: Set<String> = setOf(
+        "now", "atv", "fox", "nick", "nba", "tjk", "mtv", "ntv", "cnn", "hbo",
+    )
+
+    private val GENERIC_GROUP_NAMES: Set<String> = setOf(
+        "tum kanallar",
+        "tum kanal",
+        "all channels",
+        "all channel",
+        "kanallar",
+        "channels",
+        "genel",
+        "general",
+    )
+
+    private val GROUP_EXTRA_KEYWORDS: Map<LiveCategory, List<String>> = mapOf(
+        LiveCategory.OtherSports to listOf("spor", "sport", "sports"),
+        LiveCategory.News to listOf("haber", "news", "lajme"),
+        LiveCategory.Kids to listOf("cocuk", "kids", "femije"),
+        LiveCategory.Documentary to listOf("belgesel", "documentary", "dokumentar"),
+        LiveCategory.Cinema to listOf("sinema", "film", "movies"),
+        LiveCategory.Music to listOf("muzik", "music"),
+        LiveCategory.National to listOf("ulusal", "national", "kombetare"),
+    )
+
     /**
      * Kanal adını küçük harfe ve Türkçe karakter/aksan katlamaya tabi tutar.
      * Boş/null metin için boş dize döner.
@@ -110,18 +135,56 @@ object LiveCategoryRules {
     }
 
     /**
-     * Kanal adını sıralı ilk eşleşme mantığıyla 15 kategoriden birine sınıflandırır.
+     * Verilen anahtar sözcüğün tüm sözcük kuralına (WHOLE_WORD_KEYWORDS) veya alt dize kuralına göre
+     * metinle eşleşip eşleşmediğini kontrol eder.
      */
-    fun classify(channelName: String?): LiveCategory {
-        val normalized = fold(channelName)
+    fun matchesKeyword(normalizedText: String, keyword: String): Boolean {
+        if (WHOLE_WORD_KEYWORDS.contains(keyword)) {
+            return Regex("\\b${Regex.escape(keyword)}\\b").containsMatchIn(normalizedText)
+        }
+        return normalizedText.contains(keyword)
+    }
+
+    private fun isGenericGroup(normalizedGroup: String): Boolean {
+        if (normalizedGroup.isBlank()) return true
+        if (GENERIC_GROUP_NAMES.contains(normalizedGroup)) return true
+        if (normalizedGroup.startsWith("tum kanallar") || normalizedGroup.startsWith("all channels")) return true
+        return false
+    }
+
+    private fun classifyNormalized(normalized: String, isGroup: Boolean = false): LiveCategory {
         if (normalized.isBlank()) return LiveCategory.Other
+        if (isGroup && isGenericGroup(normalized)) return LiveCategory.Other
 
         for (category in LiveCategory.entries) {
             if (category == LiveCategory.Other) continue
-            if (category.keywords.any { normalized.contains(it) }) {
+            if (category.keywords.any { matchesKeyword(normalized, it) }) {
                 return category
+            }
+            if (isGroup) {
+                val extras = GROUP_EXTRA_KEYWORDS[category].orEmpty()
+                if (extras.any { matchesKeyword(normalized, it) }) {
+                    return category
+                }
             }
         }
         return LiveCategory.Other
+    }
+
+    /**
+     * Kanal adını (ve bulunamazsa grup adını) sıralı ilk eşleşme mantığıyla 15 kategoriden birine sınıflandırır.
+     * Kanal adı her zaman önceliklidir; grup adı yalnızca kanal adından Diğer çıktığında değerlendirilir.
+     * 'Tüm Kanallar' gibi genel grup adları eşleştirilmez.
+     */
+    fun classify(channelName: String?, groupName: String? = null): LiveCategory {
+        val normChannel = fold(channelName)
+        val channelCategory = classifyNormalized(normChannel, isGroup = false)
+        if (channelCategory != LiveCategory.Other) {
+            return channelCategory
+        }
+
+        if (groupName.isNullOrBlank()) return LiveCategory.Other
+        val normGroup = fold(groupName)
+        return classifyNormalized(normGroup, isGroup = true)
     }
 }

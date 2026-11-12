@@ -1054,7 +1054,7 @@
 
     <!-- Live TV Categories -->
     <string name="live_categories_title">Channel categories</string>
-    <string name="live_category_all">All</string>
+    <string name="live_category_all">All categories</string>
     <string name="live_category_bein">beIN</string>
     <string name="live_category_tabii">tabii</string>
     <string name="live_category_tivibu">Tivibu</string>

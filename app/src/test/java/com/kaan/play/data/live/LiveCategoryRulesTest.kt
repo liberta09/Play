@@ -129,4 +129,43 @@ class LiveCategoryRulesTest {
         assertEquals(LiveCategory.Other, LiveCategoryRules.classify("   "))
         assertEquals(LiveCategory.Other, LiveCategoryRules.classify(null))
     }
+
+    @Test
+    fun testWholeWordKeywords_SnowAndNowTv() {
+        // 'now' yalnız tüm sözcük olarak eşleşmeli: 'Now TV' evet, 'Snow' hayır
+        assertEquals(LiveCategory.National, LiveCategoryRules.classify("Now TV"))
+        assertEquals(LiveCategory.Other, LiveCategoryRules.classify("Snow"))
+        assertEquals(LiveCategory.National, LiveCategoryRules.classify("NOW HD"))
+        assertEquals(LiveCategory.National, LiveCategoryRules.classify("FOX TV"))
+        assertEquals(LiveCategory.National, LiveCategoryRules.classify("ATV"))
+    }
+
+    @Test
+    fun testGroupNameFallback() {
+        // Kanal adından kategori bulunamazsa grup adına bakılır
+        assertEquals(LiveCategory.Documentary, LiveCategoryRules.classify("Kanal X", "Belgesel Kanalları"))
+        assertEquals(LiveCategory.Documentary, LiveCategoryRules.classify("Kanal X", "Dokumentar"))
+        assertEquals(LiveCategory.News, LiveCategoryRules.classify("Koha", "Lajme"))
+        assertEquals(LiveCategory.Kids, LiveCategoryRules.classify("Kanal Çocuk", "Femijë"))
+        assertEquals(LiveCategory.Cinema, LiveCategoryRules.classify("Unknown Stream", "Movies"))
+        assertEquals(LiveCategory.OtherSports, LiveCategoryRules.classify("Unknown Stream", "Sports"))
+        assertEquals(LiveCategory.Music, LiveCategoryRules.classify("Unknown Stream", "Muzikë"))
+        assertEquals(LiveCategory.National, LiveCategoryRules.classify("Unknown Stream", "Kombëtare"))
+        assertEquals(LiveCategory.National, LiveCategoryRules.classify("Unknown Stream", "Ulusal"))
+    }
+
+    @Test
+    fun testChannelNamePriorityOverGroupName() {
+        // Kanal adı her zaman önceliklidir
+        assertEquals(LiveCategory.Cinema, LiveCategoryRules.classify("Sinema TV", "Belgesel Kanalları"))
+        assertEquals(LiveCategory.News, LiveCategoryRules.classify("NTV Haber", "Spor"))
+    }
+
+    @Test
+    fun testGenericGroupNameDoesNotMatch() {
+        // 'Tüm Kanallar' gibi genel grup adı hiçbir şey eşleştirmez
+        assertEquals(LiveCategory.Other, LiveCategoryRules.classify("Bilinmeyen Kanal", "Tüm Kanallar"))
+        assertEquals(LiveCategory.Other, LiveCategoryRules.classify("Bilinmeyen Kanal", "All Channels"))
+        assertEquals(LiveCategory.Other, LiveCategoryRules.classify("Bilinmeyen Kanal", "tum kanallar"))
+    }
 }

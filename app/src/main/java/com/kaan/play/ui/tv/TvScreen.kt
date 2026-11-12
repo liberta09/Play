@@ -241,7 +241,7 @@ fun TvScreen(
     val categoryCounts = remember(currentCatalogChannels) {
         val map = mutableMapOf<LiveCategory, Int>()
         currentCatalogChannels.forEach { ch ->
-            val cat = LiveCategoryRules.classify(ch.title)
+            val cat = LiveCategoryRules.classify(ch.title, ch.sources.firstOrNull()?.rowTitle)
             map[cat] = (map[cat] ?: 0) + 1
         }
         map
@@ -265,7 +265,7 @@ fun TvScreen(
         val categoryFiltered = if (selectedCategory == null) {
             baseChannels
         } else {
-            baseChannels.filter { LiveCategoryRules.classify(it.title) == selectedCategory }
+            baseChannels.filter { LiveCategoryRules.classify(it.title, it.sources.firstOrNull()?.rowTitle) == selectedCategory }
         }
         val textFiltered = if (needle.isBlank()) {
             categoryFiltered
