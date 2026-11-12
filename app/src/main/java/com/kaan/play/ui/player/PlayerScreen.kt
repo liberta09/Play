@@ -241,6 +241,7 @@ fun PlayerScreen(
     var controlsVisible by remember { mutableStateOf(true) }
     var interaction by remember { mutableIntStateOf(0) }
     var showPanel by remember { mutableStateOf(false) }
+    var showEpisodes by remember { mutableStateOf(false) }
     var showTracks by remember { mutableStateOf(false) }
     var showAppearance by remember { mutableStateOf(false) }
     var showSync by remember { mutableStateOf(false) }
@@ -304,7 +305,7 @@ fun PlayerScreen(
     val slowFocus = remember { FocusRequester() }
     var slowFocused by remember { mutableStateOf(false) }
 
-    val dialogOpen = showPanel || showTracks || showAppearance || showSync || autoNext?.picking == true
+    val dialogOpen = showPanel || showEpisodes || showTracks || showAppearance || showSync || autoNext?.picking == true
     // Senkron paneli açıkken kontroller gizlenir: altyazı (altta) ilerleme çubuğunun altında kalmasın.
     // Kaynaklar aranırken ve hiçbiri açılmadığında geri düğmesi ve kontroller görünür kalır.
     val showControls = !locked && ((controlsVisible && !showSync) || ui.error != null || resolving || sourcesFailed)
@@ -954,6 +955,19 @@ fun PlayerScreen(
                         bump()
                     })
                 }
+                val canShowEpisodes = EpisodePanelRules.canShowButton(
+                    type = target.request.type,
+                    season = target.request.season,
+                    episode = target.request.episode,
+                    addonType = target.request.addonType,
+                    isGuest = isWatchPartyGuest
+                )
+                if (canShowEpisodes) {
+                    add(BarAction(PlayIcons.Episodes, stringResource(R.string.player_btn_episodes)) {
+                        showEpisodes = true
+                        bump()
+                    })
+                }
                 val canShowNext = onNextEpisode != null && AutoNextRules.canShowNextEpisodeButton(target.request.type, target.request.season, target.request.episode, target.request.addonType, duration)
                 if (canShowNext) {
                     add(BarAction(PlayIcons.NextEpisode, stringResource(R.string.player_btn_next_episode)) {
@@ -1250,6 +1264,13 @@ fun PlayerScreen(
                 Icon(PlayIcons.Unlock, contentDescription = stringResource(R.string.player_btn_unlock), tint = Color.White)
             }
         }
+    }
+
+    if (showEpisodes) {
+        EpisodePanel(
+            activity = androidx.activity.compose.LocalActivity.current as PlayerActivity,
+            onDismiss = { showEpisodes = false },
+        )
     }
 
     if (showPanel) {

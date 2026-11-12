@@ -845,4 +845,15 @@ object PlayIcons {
             }
         }
     }
+
+    /** Bölümler paneli ikonu: basit liste görünümü. */
+    val Episodes: ImageVector by lazy {
+        icon("Episodes") {
+            line {
+                moveTo(4f, 6f); horizontalLineTo(20f)
+                moveTo(4f, 12f); horizontalLineTo(20f)
+                moveTo(4f, 18f); horizontalLineTo(20f)
+            }
+        }
+    }
 }

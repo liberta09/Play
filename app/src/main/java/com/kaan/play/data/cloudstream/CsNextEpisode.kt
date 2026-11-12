@@ -19,11 +19,13 @@ data class CsNextEpisode(val season: Int, val episode: Int, val dataUrl: String)
 class CsNextEpisodeFinder(private val csRepos: CsRepository) {
     private val cache = HashMap<String, CsNextEpisode?>()
 
+    private val listCache = HashMap<String, List<CsEpisodeRef>?>()
+
     suspend fun next(pluginId: String, contentUrl: String, dataUrl: String?, season: Int?, episode: Int?): CsNextEpisode? {
         val key = listOf(pluginId, contentUrl, dataUrl, season, episode).joinToString("|")
         synchronized(cache) { if (key in cache) return cache[key] }
         if (com.kaan.play.BuildConfig.DEBUG) android.util.Log.d("CsNextEpisode", "next(): s=$season e=$episode")
-        val episodes = load(pluginId, contentUrl)
+        val episodes = episodes(pluginId, contentUrl)
         if (episodes == null) {
             if (com.kaan.play.BuildConfig.DEBUG) android.util.Log.w("CsNextEpisode", "bölüm listesi alınamadı")
             return null
@@ -32,6 +34,14 @@ class CsNextEpisodeFinder(private val csRepos: CsRepository) {
         if (com.kaan.play.BuildConfig.DEBUG) android.util.Log.d("CsNextEpisode", "sıradaki: ${result?.season}/${result?.episode} (${episodes.size} bölüm)")
         synchronized(cache) { cache[key] = result }
         return result
+    }
+
+    suspend fun episodes(pluginId: String, contentUrl: String): List<CsEpisodeRef>? {
+        val key = "$pluginId|$contentUrl"
+        synchronized(listCache) { if (key in listCache) return listCache[key] }
+        val list = load(pluginId, contentUrl)
+        synchronized(listCache) { listCache[key] = list }
+        return list
     }
 
     private suspend fun load(pluginId: String, contentUrl: String): List<CsEpisodeRef>? = withContext(Dispatchers.IO) {

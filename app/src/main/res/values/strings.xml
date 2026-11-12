@@ -1085,4 +1085,14 @@
 
     <!-- Network Resume -->
     <string name="player_waiting_for_internet">Waiting for internet…</string>
+
+    <!-- Episodes Panel -->
+    <string name="player_btn_episodes">Episodes</string>
+    <string name="episodes_panel_title">Episodes</string>
+    <string name="episodes_panel_season_format">‹ Season %1$d ›</string>
+    <string name="episodes_panel_episode_format">Episode %1$d</string>
+    <string name="episodes_panel_now_playing">Now playing</string>
+    <string name="episodes_panel_searching">Searching source for S%1$d E%2$d…</string>
+    <string name="episodes_panel_source_not_found">Source not found for this episode</string>
+    <string name="episodes_panel_list_failed">Could not load episodes</string>
 </resources>
