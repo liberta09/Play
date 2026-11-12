@@ -1618,6 +1618,7 @@ class PlayerActivity : AppCompatActivity() {
         if (waitingForInternetJob != null) return
         waitingStartTimeMs = android.os.SystemClock.elapsedRealtime()
         val currentPos = controller.positionMs().takeIf { it > 0 } ?: (controller.positionMs() ?: 0L)
+        coordinator?.cancelDubSwitch()
         coordinator?.notice = SourceNotice.WaitingForInternet
         controller.player.pause()
 

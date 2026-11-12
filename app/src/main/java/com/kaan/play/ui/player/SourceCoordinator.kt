@@ -1139,7 +1139,7 @@ class SourceCoordinator(
     // ---- iç işler ----
 
     private fun maybeSuggestDub() {
-        if (!autoDubSwitch || !showDubSuggestion || !autoSource || !preferDub || userPicked || userAudioChosen || currentAudioTurkish) {
+        if (!autoDubSwitch || !showDubSuggestion || !autoSource || !preferDub || userPicked || userAudioChosen || currentAudioTurkish || notice is SourceNotice.WaitingForInternet) {
             scheduledDubSwitchJob?.cancel()
             scheduledDubSwitchJob = null
             return
@@ -1190,7 +1190,13 @@ class SourceCoordinator(
         applyAutoDubSwitch(playing, candidate)
     }
 
+    fun cancelDubSwitch() {
+        scheduledDubSwitchJob?.cancel()
+        scheduledDubSwitchJob = null
+    }
+
     private fun applyAutoDubSwitch(old: PlayableStream, candidate: PlayableStream) {
+        if (notice is SourceNotice.WaitingForInternet) return
         autoDubSwitchCount++
         lastAutoDubSwitchMs = clock()
         notice = SourceNotice.DubSwitched

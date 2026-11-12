@@ -980,13 +980,15 @@ private fun LazyProviderSection(
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                 )
-                                Text(
-                                    text = row.providerName,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
+                                if (row.providerName.isNotBlank() && !row.providerName.equals(row.title, ignoreCase = true)) {
+                                    Text(
+                                        text = row.providerName,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
                             }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
