@@ -25,7 +25,7 @@ class CsNextEpisodeFinder(private val csRepos: CsRepository) {
         val key = listOf(pluginId, contentUrl, dataUrl, season, episode).joinToString("|")
         synchronized(cache) { if (key in cache) return cache[key] }
         if (com.kaan.play.BuildConfig.DEBUG) android.util.Log.d("CsNextEpisode", "next(): s=$season e=$episode")
-        val episodes = episodes(pluginId, contentUrl)
+        val episodes = load(pluginId, contentUrl)
         if (episodes == null) {
             if (com.kaan.play.BuildConfig.DEBUG) android.util.Log.w("CsNextEpisode", "bölüm listesi alınamadı")
             return null
@@ -36,6 +36,7 @@ class CsNextEpisodeFinder(private val csRepos: CsRepository) {
         return result
     }
 
+    /** Bölümler paneli: eklentinin tüm bölüm listesi (ayrı önbellek; [next] etkilenmez). */
     suspend fun episodes(pluginId: String, contentUrl: String): List<CsEpisodeRef>? {
         val key = "$pluginId|$contentUrl"
         synchronized(listCache) { if (key in listCache) return listCache[key] }

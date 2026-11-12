@@ -1,94 +1,117 @@
 package com.kaan.play.ui.player
 
 import com.kaan.play.data.cloudstream.CsEpisodeRef
-import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.db.WatchHistoryEntity
-import com.kaan.play.data.model.SeasonDetail
 import com.kaan.play.data.model.Episode
-import org.junit.Assert.*
+import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.model.SeasonDetail
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 class EpisodePanelRulesTest {
 
+    private fun watchedEntry(season: Int, episode: Int) = WatchHistoryEntity(
+        tmdbId = 1, type = MediaType.Tv, title = "", posterPath = null,
+        season = season, episode = episode, positionMs = 100, durationMs = 100, lastWatchedAt = 0,
+    )
+
+    private fun ep(n: Int, airDate: String?) =
+        Episode(number = n, name = "E$n", overview = "", stillPath = null, runtimeMinutes = null, airDate = airDate)
+
     @Test
-    fun testCanShowButton() {
-        // Canlı tv/channel
+    fun canShowButton_onlyForSeriesAndNotForGuestOrLive() {
         assertFalse(EpisodePanelRules.canShowButton(MediaType.Tv, 1, 1, "tv", false))
         assertFalse(EpisodePanelRules.canShowButton(MediaType.Tv, 1, 1, "channel", false))
-        // Dizi
         assertTrue(EpisodePanelRules.canShowButton(MediaType.Tv, 1, 1, "series", false))
-        // Film
+        assertTrue(EpisodePanelRules.canShowButton(MediaType.Tv, 1, 1, null, false))
         assertFalse(EpisodePanelRules.canShowButton(MediaType.Movie, 1, 1, "series", false))
-        // Guest
         assertFalse(EpisodePanelRules.canShowButton(MediaType.Tv, 1, 1, "series", true))
-        // Null season
         assertFalse(EpisodePanelRules.canShowButton(MediaType.Tv, null, 1, "series", false))
+        assertFalse(EpisodePanelRules.canShowButton(MediaType.Tv, 1, null, "series", false))
     }
 
     @Test
-    fun testMapPluginEpisodes() {
-        val csEpisodes = listOf(
+    fun mapPluginEpisodes_filtersShownSeasonAndMarksCurrentAndWatched() {
+        val cs = listOf(
             CsEpisodeRef(1, 1, "url1"),
-            CsEpisodeRef(1, 2, "url2"), // current
-            CsEpisodeRef(2, 1, "url3"), // different season
-            CsEpisodeRef(null, null, "url4") // fallback 1,3
+            CsEpisodeRef(1, 2, "url2"),
+            CsEpisodeRef(2, 1, "url3"),
+            CsEpisodeRef(null, null, "url4"), // sezon 1, bölüm = liste sırası (4)
         )
-        val history = listOf(
-            WatchHistoryEntity(tmdbId = 1, type = MediaType.Tv, title = "", posterPath = null, season = 1, episode = 1, positionMs = 100, durationMs = 100, lastWatchedAt = 0) // Watched
-        )
+        val rows = EpisodePanelRules.mapPluginEpisodes(cs, shownSeason = 1, playingSeason = 1, playingEpisode = 2, playingDataUrl = null, history = listOf(watchedEntry(1, 1)))
 
-        val rows = EpisodePanelRules.mapPluginEpisodes(csEpisodes, currentSeason = 1, currentEpisode = 2, history)
-
-        assertEquals(3, rows.size)
-        // first
-        assertEquals(1, rows[0].season)
-        assertEquals(1, rows[0].episode)
+        assertEquals(listOf(1, 2, 4), rows.map { it.episode })
         assertTrue(rows[0].watched)
-        assertFalse(rows[0].isCurrent)
-
-        // second
-        assertEquals(1, rows[1].season)
-        assertEquals(2, rows[1].episode)
-        assertFalse(rows[1].watched)
         assertTrue(rows[1].isCurrent)
-
-        // fourth mapped to s=1, e=4
-        assertEquals(1, rows[2].season)
-        assertEquals(4, rows[2].episode)
-        assertFalse(rows[2].watched)
-        assertFalse(rows[2].isCurrent)
+        assertFalse(rows[0].isCurrent)
+        assertEquals("url2", rows[1].dataUrl)
     }
 
     @Test
-    fun testMapTmdbEpisodes() {
-        val today = LocalDate.now().toString()
-        val future = LocalDate.now().plusDays(2).toString()
-
-        val seasonDetail = SeasonDetail(
-            number = 1,
-            episodes = listOf(
-                Episode(number = 1, name = "E1", overview = "", stillPath = null, runtimeMinutes = null, airDate = today),
-                Episode(number = 2, name = "E2", overview = "", stillPath = null, runtimeMinutes = null, airDate = today),
-                Episode(number = 3, name = "E3", overview = "", stillPath = null, runtimeMinutes = null, airDate = future)
-            )
-        )
-        val history = listOf(
-            WatchHistoryEntity(tmdbId = 1, type = MediaType.Tv, title = "", posterPath = null, season = 1, episode = 1, positionMs = 100, durationMs = 100, lastWatchedAt = 0) // Watched
-        )
-
-        val rows = EpisodePanelRules.mapTmdbEpisodes(seasonDetail, currentSeason = 1, currentEpisode = 2, history)
-
-        assertEquals(2, rows.size) // future episode removed
-
-        assertEquals(1, rows[0].season)
-        assertEquals(1, rows[0].episode)
-        assertTrue(rows[0].watched)
+    fun mapPluginEpisodes_prefersDataUrlForCurrent() {
+        val cs = listOf(CsEpisodeRef(1, 1, "a"), CsEpisodeRef(1, 2, "b"))
+        // Numaralar 1/1 dese de oynayan verisi "b": şimdi oynuyor 2. satır.
+        val rows = EpisodePanelRules.mapPluginEpisodes(cs, 1, playingSeason = 1, playingEpisode = 1, playingDataUrl = "b", history = emptyList())
         assertFalse(rows[0].isCurrent)
-
-        assertEquals(1, rows[1].season)
-        assertEquals(2, rows[1].episode)
-        assertFalse(rows[1].watched)
         assertTrue(rows[1].isCurrent)
+    }
+
+    @Test
+    fun mapPluginEpisodes_otherSeasonHasNoCurrent() {
+        val cs = listOf(CsEpisodeRef(1, 1, "a"), CsEpisodeRef(2, 1, "b"), CsEpisodeRef(2, 2, "c"))
+        val rows = EpisodePanelRules.mapPluginEpisodes(cs, shownSeason = 2, playingSeason = 1, playingEpisode = 1, playingDataUrl = "a", history = emptyList())
+        assertEquals(listOf(1, 2), rows.map { it.episode })
+        assertTrue(rows.none { it.isCurrent })
+        assertEquals(0, EpisodePanelRules.initialIndex(rows))
+    }
+
+    @Test
+    fun mapTmdbEpisodes_hidesFutureKeepsUnknownDate() {
+        val season = SeasonDetail(number = 1, episodes = listOf(ep(1, "2026-01-01"), ep(2, "2026-11-13"), ep(3, null), ep(4, "2026-12-01")))
+        val rows = EpisodePanelRules.mapTmdbEpisodes(season, shownSeason = 1, playingSeason = 1, playingEpisode = 2, history = listOf(watchedEntry(1, 1)), today = "2026-11-13")
+
+        assertEquals(listOf(1, 2, 3), rows.map { it.episode })
+        assertTrue(rows[0].watched)
+        assertTrue(rows[1].isCurrent)
+        assertNull(rows[0].dataUrl)
+        assertEquals(1, EpisodePanelRules.initialIndex(rows))
+    }
+
+    @Test
+    fun mapTmdbEpisodes_otherSeasonNotCurrent() {
+        val season = SeasonDetail(number = 2, episodes = listOf(ep(1, "2026-01-01"), ep(2, "2026-01-08")))
+        val rows = EpisodePanelRules.mapTmdbEpisodes(season, shownSeason = 2, playingSeason = 1, playingEpisode = 2, history = emptyList(), today = "2026-11-13")
+        assertTrue(rows.none { it.isCurrent })
+        assertTrue(rows.all { it.season == 2 })
+    }
+
+    @Test
+    fun mapDownloadedEpisodes_sortedDistinctPositive() {
+        val rows = EpisodePanelRules.mapDownloadedEpisodes(listOf(3, 1, 3, 0), shownSeason = 1, playingSeason = 1, playingEpisode = 3, history = emptyList())
+        assertEquals(listOf(1, 3), rows.map { it.episode })
+        assertTrue(rows[1].isCurrent)
+    }
+
+    @Test
+    fun neighborSeason_neverBelowOne() {
+        assertEquals(2, EpisodePanelRules.neighborSeason(1, forward = true))
+        assertNull(EpisodePanelRules.neighborSeason(1, forward = false))
+        assertEquals(1, EpisodePanelRules.neighborSeason(2, forward = false))
+    }
+
+    @Test
+    fun shouldOpen_onlyOtherEpisodes() {
+        val current = EpisodePanelRules.EpisodeRow(1, 2, null, watched = false, isCurrent = true)
+        val other = current.copy(episode = 3, isCurrent = false)
+        assertFalse(EpisodePanelRules.shouldOpen(current))
+        assertTrue(EpisodePanelRules.shouldOpen(other))
+    }
+
+    @Test
+    fun initialIndex_defaultsToFirst() {
+        assertEquals(0, EpisodePanelRules.initialIndex(emptyList()))
     }
 }
