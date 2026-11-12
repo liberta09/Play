@@ -1,6 +1,5 @@
 package com.kaan.play.ui.tv
 
-import com.kaan.play.data.live.LiveCategory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -41,77 +40,46 @@ class TvScreenRulesTest {
     }
 
     @Test
-    fun testFilterChannels_CategoryAndSearch() {
-        val sampleChannels = listOf(
-            TvScreenRules.ChannelItem(
-                key = "trt-1",
-                title = "TRT 1",
-                sources = listOf("nuvio_addon:1", "cs:trt"),
-                category = LiveCategory.National,
-            ),
-            TvScreenRules.ChannelItem(
-                key = "trt-haber",
-                title = "TRT Haber",
-                sources = listOf("nuvio_addon:2"),
-                category = LiveCategory.News,
-            ),
-            TvScreenRules.ChannelItem(
-                key = "bein-sports",
-                title = "beIN Sports 1",
-                sources = listOf("cs:bein"),
-                category = LiveCategory.BeIn,
-            ),
+    fun channelActions_normalList_hasFavoriteAndAddOnly() {
+        val actions = TvScreenRules.channelActions(isCustomListView = false, canReorder = false, index = 2, lastIndex = 9)
+        assertEquals(
+            listOf(TvScreenRules.ChannelAction.ToggleFavorite, TvScreenRules.ChannelAction.AddToList),
+            actions,
         )
-
-        // 1. Kaynak Tümü, Kategori yok, Arama boş -> 3 kanal
-        assertEquals(3, TvScreenRules.filterChannels(sampleChannels, source = null, category = null, query = "").size)
-
-        // 2. Kaynak Nuvio -> 2 kanal (trt-1 ve trt-haber)
-        val nuvioOnly = TvScreenRules.filterChannels(sampleChannels, source = "nuvio", category = null, query = "")
-        assertEquals(2, nuvioOnly.size)
-        assertTrue(nuvioOnly.any { it.key == "trt-1" })
-        assertTrue(nuvioOnly.any { it.key == "trt-haber" })
-
-        // 3. Kaynak CloudStream -> 2 kanal (trt-1 ve bein-sports)
-        val csOnly = TvScreenRules.filterChannels(sampleChannels, source = "cs", category = null, query = "")
-        assertEquals(2, csOnly.size)
-        assertTrue(csOnly.any { it.key == "trt-1" })
-        assertTrue(csOnly.any { it.key == "bein-sports" })
-
-        // 4. Kategori Haber -> 1 kanal (trt-haber)
-        val newsOnly = TvScreenRules.filterChannels(sampleChannels, source = null, category = LiveCategory.News, query = "")
-        assertEquals(1, newsOnly.size)
-        assertEquals("trt-haber", newsOnly.first().key)
-
-        // 5. Arama + Kategori birlikte: arama "TRT", kategori National -> sadece TRT 1
-        val searchAndCat = TvScreenRules.filterChannels(sampleChannels, source = null, category = LiveCategory.National, query = "TRT")
-        assertEquals(1, searchAndCat.size)
-        assertEquals("trt-1", searchAndCat.first().key)
-
-        // 6. Eşleşmeyen arama -> boş sonuç
-        val noMatch = TvScreenRules.filterChannels(sampleChannels, source = null, category = null, query = "XYZ123")
-        assertTrue(noMatch.isEmpty())
     }
 
     @Test
-    fun testSourceCountsAndAllCategoriesCountEquivalence() {
-        // Nuvio: 129, CloudStream: 108, 43 ortak -> Tümü: 194
-        val nuvioCount = 129
-        val cloudStreamCount = 108
-        val overlap = 43
-        val allChannelsCount = nuvioCount + cloudStreamCount - overlap
-        assertEquals(194, allChannelsCount)
+    fun channelActions_manualOrder_middleChannelCanMoveBothWays() {
+        val actions = TvScreenRules.channelActions(isCustomListView = false, canReorder = true, index = 3, lastIndex = 9)
+        assertTrue(TvScreenRules.ChannelAction.MoveUp in actions)
+        assertTrue(TvScreenRules.ChannelAction.MoveDown in actions)
+        assertFalse(TvScreenRules.ChannelAction.RemoveFromList in actions)
+    }
 
-        // Kaynak 'Tümü' seçiliyken 'Tüm kategoriler' sayısı Tümü kanal sayısına (194) eşit olmalı
-        val selectedSourceAll = allChannelsCount
-        assertEquals(194, selectedSourceAll)
+    @Test
+    fun channelActions_firstAndLastChannelsCannotMoveOutOfRange() {
+        val first = TvScreenRules.channelActions(isCustomListView = false, canReorder = true, index = 0, lastIndex = 9)
+        assertFalse(TvScreenRules.ChannelAction.MoveUp in first)
+        assertTrue(TvScreenRules.ChannelAction.MoveDown in first)
+        val last = TvScreenRules.channelActions(isCustomListView = false, canReorder = true, index = 9, lastIndex = 9)
+        assertTrue(TvScreenRules.ChannelAction.MoveUp in last)
+        assertFalse(TvScreenRules.ChannelAction.MoveDown in last)
+    }
 
-        // Kaynak 'Nuvio' iken kategori menüsündeki tüm kanallar 129
-        val selectedSourceNuvio = nuvioCount
-        assertEquals(129, selectedSourceNuvio)
+    @Test
+    fun channelActions_customListAddsRemove_andMovingNeedsNoSearch() {
+        val actions = TvScreenRules.channelActions(isCustomListView = true, canReorder = true, index = 1, lastIndex = 4)
+        assertTrue(TvScreenRules.ChannelAction.RemoveFromList in actions)
+        assertTrue(TvScreenRules.ChannelAction.MoveUp in actions)
+        val searching = TvScreenRules.channelActions(isCustomListView = true, canReorder = false, index = 1, lastIndex = 4)
+        assertTrue(TvScreenRules.ChannelAction.RemoveFromList in searching)
+        assertFalse(TvScreenRules.ChannelAction.MoveUp in searching)
+    }
 
-        // Kaynak 'CloudStream' iken kategori menüsündeki tüm kanallar 108
-        val selectedSourceCs = cloudStreamCount
-        assertEquals(108, selectedSourceCs)
+    @Test
+    fun channelActions_unknownIndex_neverOffersMove() {
+        val actions = TvScreenRules.channelActions(isCustomListView = false, canReorder = true, index = -1, lastIndex = 9)
+        assertFalse(TvScreenRules.ChannelAction.MoveUp in actions)
+        assertFalse(TvScreenRules.ChannelAction.MoveDown in actions)
     }
 }

@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.navBarReturnEdge
 import androidx.compose.foundation.border
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -142,13 +144,6 @@ private data class LiveChannelGroup(
 
 /** Sağlayıcıların canlı tv/channel akışlarını aranabilir tek bir ekranda toplar. */
 object TvScreenRules {
-    data class ChannelItem(
-        val key: String,
-        val title: String,
-        val sources: List<String>,
-        val category: LiveCategory,
-    )
-
     fun calculateGridColumns(screenWidthDp: Int): Int {
         return maxOf(3, screenWidthDp / 130)
     }
@@ -165,22 +160,21 @@ object TvScreenRules {
         return count > 0
     }
 
-    fun filterChannels(
-        channels: List<ChannelItem>,
-        source: String?,
-        category: LiveCategory?,
-        query: String,
-    ): List<ChannelItem> {
-        val needle = query.trim().lowercase()
-        return channels.filter { ch ->
-            val matchesSource = when (source) {
-                "nuvio" -> ch.sources.any { it.startsWith("nuvio_addon:") }
-                "cs" -> ch.sources.any { it.startsWith("cs:") }
-                else -> true
-            }
-            val matchesCategory = category == null || ch.category == category
-            val matchesQuery = needle.isBlank() || ch.title.lowercase().contains(needle)
-            matchesSource && matchesCategory && matchesQuery
+    /** Kanal kutusundaki eylem menüsünün maddeleri. Gösterim kuralı tek yerde: menü bu listeden çizilir. */
+    enum class ChannelAction { ToggleFavorite, AddToList, RemoveFromList, MoveUp, MoveDown }
+
+    fun channelActions(
+        isCustomListView: Boolean,
+        canReorder: Boolean,
+        index: Int,
+        lastIndex: Int,
+    ): List<ChannelAction> = buildList {
+        add(ChannelAction.ToggleFavorite)
+        add(ChannelAction.AddToList)
+        if (isCustomListView) add(ChannelAction.RemoveFromList)
+        if (canReorder && index in 0..lastIndex) {
+            if (index > 0) add(ChannelAction.MoveUp)
+            if (index < lastIndex) add(ChannelAction.MoveDown)
         }
     }
 }
@@ -211,6 +205,7 @@ fun TvScreen(
     val chipFocusMemory = rememberFocusMemory()
     var selectedChannel by remember { mutableStateOf<LiveChannelGroup?>(null) }
     var addToListTarget by remember { mutableStateOf<LiveChannelGroup?>(null) }
+    var actionsTarget by remember { mutableStateOf<LiveChannelGroup?>(null) }
     var showRenameDialog by remember { mutableStateOf(false) }
     var showDeleteListConfirm by remember { mutableStateOf(false) }
     var listAddedToastName by remember { mutableStateOf<String?>(null) }
@@ -356,6 +351,17 @@ fun TvScreen(
                 order = orderByKey,
             )
         }
+    }
+
+    val manualOrderKeys = remember(allChannels, activityByKey, orderByKey) {
+        LiveChannelSort.sort(
+            channels = allChannels,
+            mode = LiveTvSortMode.Manual,
+            keyOf = { it.key },
+            titleOf = { it.title },
+            activity = activityByKey,
+            order = orderByKey,
+        ).map { it.key }
     }
 
     val nuvioCount = allChannels.count { group -> group.sources.any { it.item.providerId.startsWith("nuvio_addon:") } }
@@ -580,6 +586,8 @@ fun TvScreen(
                     items(visibleChannels, key = { channel -> channel.key }) { channel ->
                         LiveChannelCompactCard(
                             channel = channel,
+                            isFavorite = activityByKey[channel.key]?.isFavorite == true,
+                            onActions = { actionsTarget = channel },
                             onClick = {
                                 val zapSourceGroups = if (isCustomListView) catalogGroups else visibleChannels
                                 val zapIdx = zapSourceGroups.indexOfFirst { it.key == channel.key }.coerceAtLeast(0)
@@ -646,6 +654,71 @@ fun TvScreen(
             },
             confirmButton = {
                 TextButton(onClick = { selectedChannel = null }) { Text(stringResource(R.string.common_cancel)) }
+            },
+        )
+    }
+
+    actionsTarget?.let { target ->
+        val activeList = activeCatalog
+        val isFav = activityByKey[target.key]?.isFavorite == true
+        val actions = TvScreenRules.channelActions(
+            isCustomListView = activeList != null,
+            canReorder = if (activeList != null) query.isBlank() else sortMode == LiveTvSortMode.Manual,
+            index = visibleChannels.indexOfFirst { it.key == target.key },
+            lastIndex = visibleChannels.lastIndex,
+        )
+        val visibleKeys = visibleChannels.map { it.key }
+        val move: (Int) -> Unit = { delta ->
+            scope.launch {
+                if (activeList != null) {
+                    container.liveCatalogs.moveChannel(activeList.id, target.key, delta)
+                } else {
+                    container.liveChannels.moveOrder(
+                        visibleKeys = visibleKeys,
+                        allManualKeys = manualOrderKeys,
+                        channelKey = target.key,
+                        delta = delta,
+                    )
+                }
+            }
+        }
+        AlertDialog(
+            onDismissRequest = { actionsTarget = null },
+            title = { Text(target.title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    actions.forEach { action ->
+                        TextButton(onClick = {
+                            actionsTarget = null
+                            when (action) {
+                                TvScreenRules.ChannelAction.ToggleFavorite ->
+                                    scope.launch { container.liveChannels.toggleFavorite(target.key) }
+                                TvScreenRules.ChannelAction.AddToList -> addToListTarget = target
+                                TvScreenRules.ChannelAction.RemoveFromList ->
+                                    activeList?.let { list ->
+                                        scope.launch { container.liveCatalogs.removeChannel(list.id, target.key) }
+                                    }
+                                TvScreenRules.ChannelAction.MoveUp -> move(-1)
+                                TvScreenRules.ChannelAction.MoveDown -> move(1)
+                            }
+                        }) {
+                            Text(
+                                text = when (action) {
+                                    TvScreenRules.ChannelAction.ToggleFavorite -> stringResource(
+                                        if (isFav) R.string.tv_favorite_remove else R.string.tv_favorite_add,
+                                    )
+                                    TvScreenRules.ChannelAction.AddToList -> stringResource(R.string.tv_list_add)
+                                    TvScreenRules.ChannelAction.RemoveFromList -> stringResource(R.string.tv_list_remove_channel)
+                                    TvScreenRules.ChannelAction.MoveUp -> stringResource(R.string.tv_move_up)
+                                    TvScreenRules.ChannelAction.MoveDown -> stringResource(R.string.tv_move_down)
+                                },
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { actionsTarget = null }) { Text(stringResource(R.string.common_cancel)) }
             },
         )
     }
@@ -837,23 +910,33 @@ private fun CategorySheetItem(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LiveChannelCompactCard(
     channel: LiveChannelGroup,
+    isFavorite: Boolean,
     onClick: () -> Unit,
+    onActions: () -> Unit,
 ) {
+    val entry = channel.primary
     val interaction = remember { MutableInteractionSource() }
     val focused by interaction.collectIsFocusedAsState()
-    val shape = RoundedCornerShape(14.dp) // 14dp köşe
+    val shape = RoundedCornerShape(14.dp)
     val bgColor = Color(0xFF0F1E2E)
-    val focusedBorderColor = Color(0xFF062A3B) // seçili
-    val normalBorderColor = Color(0xFF1E3A5F) // çerçeve
+    val focusedBorderColor = Color(0xFF062A3B)
+    val normalBorderColor = Color(0xFF1E3A5F)
+    val accent = Color(0xFF00E5FF)
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .focusRing(shape, scale = 1.05f)
-            .clickable(interactionSource = interaction, indication = ripple(), onClick = onClick)
+            .combinedClickable(
+                interactionSource = interaction,
+                indication = ripple(),
+                onClick = onClick,
+                onLongClick = onActions,
+            )
     ) {
         Box(
             modifier = Modifier
@@ -868,10 +951,23 @@ private fun LiveChannelCompactCard(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            val logoUrl = channel.logoUrl
-            if (!logoUrl.isNullOrBlank()) {
+            val posterUrl = resolvePosterImageUrl(
+                fallbackUrl = channel.logoUrl,
+                posterId = PosterUrlTemplate.findImdbId(
+                    entry.item.id,
+                    entry.item.rawUrl,
+                    channel.logoUrl,
+                ),
+                tmdbId = entry.item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(
+                    entry.item.id,
+                    entry.item.rawUrl,
+                    channel.logoUrl,
+                ),
+                mediaType = entry.item.mediaType,
+            )
+            if (!posterUrl.isNullOrBlank()) {
                 AsyncImage(
-                    model = logoUrl,
+                    model = posterUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize().padding(8.dp),
@@ -881,8 +977,16 @@ private fun LiveChannelCompactCard(
                 Text(
                     text = initials,
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFF00E5FF),
+                    color = accent,
                     fontWeight = FontWeight.Bold
+                )
+            }
+            if (isFavorite) {
+                Icon(
+                    imageVector = PlayIcons.StarFilled,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.align(Alignment.TopEnd).padding(6.dp).size(16.dp),
                 )
             }
         }
@@ -895,27 +999,46 @@ private fun LiveChannelCompactCard(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.fillMaxWidth()
         )
+        val routeCount = if (channel.routes.isNotEmpty()) channel.routes.size else channel.sources.size
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(top = 4.dp)
+            modifier = Modifier.fillMaxWidth().padding(top = 2.dp)
         ) {
+            if (routeCount <= 1) {
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(Color.Red)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+            }
+            Text(
+                text = if (routeCount > 1) stringResource(R.string.tv_sources_count, routeCount) else stringResource(R.string.tv_live_badge),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
             Box(
                 modifier = Modifier
-                    .size(6.dp)
+                    .size(32.dp)
                     .clip(CircleShape)
-                    .background(Color.Red)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = stringResource(R.string.tv_live_badge),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                    .focusRing(CircleShape, scale = 1.10f)
+                    .clickable(role = Role.Button, onClick = onActions),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = PlayIcons.More,
+                    contentDescription = stringResource(R.string.tv_channel_actions),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
         }
     }
 }
-
-
 
 @Composable
 private fun AddChannelToListDialog(

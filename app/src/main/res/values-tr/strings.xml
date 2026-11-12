@@ -98,6 +98,7 @@
     <string name="tv_category">Kategori</string>
     <string name="tv_category_select">Kategori seç</string>
     <string name="tv_category_remove">Kategori süzgecini kaldır</string>
+    <string name="tv_channel_actions">Kanal seçenekleri</string>
     <string name="tv_no_results_with_search">Bu aramayla eşleşen kanal yok.</string>
     <plurals name="tv_live_channels_count">
         <item quantity="one">%d canlı kanal</item>

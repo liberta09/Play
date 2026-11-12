@@ -109,6 +109,7 @@
     <string name="tv_category">Category</string>
     <string name="tv_category_select">Select category</string>
     <string name="tv_category_remove">Remove category filter</string>
+    <string name="tv_channel_actions">Channel options</string>
     <string name="tv_no_results_with_search">No channels match this search.</string>
     <plurals name="tv_live_channels_count">
         <item quantity="one">%d live channel</item>
