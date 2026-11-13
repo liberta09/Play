@@ -956,19 +956,7 @@ fun PlayerScreen(
                         bump()
                     })
                 }
-                val canShowEpisodes = EpisodePanelRules.canShowButton(
-                    type = target.request.type,
-                    season = target.request.season,
-                    episode = target.request.episode,
-                    addonType = target.request.addonType,
-                    isGuest = isWatchPartyGuest
-                )
-                if (canShowEpisodes) {
-                    add(BarAction(PlayIcons.Episodes, stringResource(R.string.player_btn_episodes)) {
-                        showEpisodes = true
-                        bump()
-                    })
-                }
+                episodesBarAction(target.request, isWatchPartyGuest) { showEpisodes = true; bump() }?.let { add(it) }
                 val canShowNext = onNextEpisode != null && AutoNextRules.canShowNextEpisodeButton(target.request.type, target.request.season, target.request.episode, target.request.addonType, duration)
                 if (canShowNext) {
                     add(BarAction(PlayIcons.NextEpisode, stringResource(R.string.player_btn_next_episode)) {
@@ -1365,7 +1353,7 @@ private fun resizeText(mode: ResizeMode): String = stringResource(
 )
 
 /** Alt düğme satırındaki bir eylem. */
-private class BarAction(val icon: ImageVector, val label: String, val onClick: () -> Unit)
+internal class BarAction(val icon: ImageVector, val label: String, val onClick: () -> Unit)
 
 /** Altyazı yükleniyor / yüklenemedi: tek satırlık, sade bildirim. */
 @Composable
