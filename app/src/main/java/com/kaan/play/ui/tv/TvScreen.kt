@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import com.kaan.play.ui.tv.focusRing
 import com.kaan.play.ui.tv.navBarReturnEdge
 import androidx.compose.foundation.border
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -40,10 +42,32 @@ import com.kaan.play.ui.components.OutlinedButton
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.InputChipDefaults
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.ui.platform.LocalConfiguration
 import com.kaan.play.ui.components.TextButton
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -67,6 +91,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -118,7 +143,43 @@ private data class LiveChannelGroup(
 }
 
 /** Sağlayıcıların canlı tv/channel akışlarını aranabilir tek bir ekranda toplar. */
-@OptIn(ExperimentalLayoutApi::class)
+object TvScreenRules {
+    fun calculateGridColumns(screenWidthDp: Int): Int {
+        return maxOf(3, screenWidthDp / 130)
+    }
+
+    fun showSourceRow(
+        userCatalogsCount: Int,
+        nuvioCount: Int,
+        cloudStreamCount: Int,
+    ): Boolean {
+        return userCatalogsCount > 0 || (nuvioCount > 0 && cloudStreamCount > 0)
+    }
+
+    fun shouldShowSourceChip(count: Int): Boolean {
+        return count > 0
+    }
+
+    /** Kanal kutusundaki eylem menüsünün maddeleri. Gösterim kuralı tek yerde: menü bu listeden çizilir. */
+    enum class ChannelAction { ToggleFavorite, AddToList, RemoveFromList, MoveUp, MoveDown }
+
+    fun channelActions(
+        isCustomListView: Boolean,
+        canReorder: Boolean,
+        index: Int,
+        lastIndex: Int,
+    ): List<ChannelAction> = buildList {
+        add(ChannelAction.ToggleFavorite)
+        add(ChannelAction.AddToList)
+        if (isCustomListView) add(ChannelAction.RemoveFromList)
+        if (canReorder && index in 0..lastIndex) {
+            if (index > 0) add(ChannelAction.MoveUp)
+            if (index < lastIndex) add(ChannelAction.MoveDown)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TvScreen(
     onPlay: (item: CatalogItem, zapChannels: List<LiveZapChannel>, zapIndex: Int, liveCatalogId: String?) -> Unit,
@@ -139,10 +200,12 @@ fun TvScreen(
     var loading by remember { mutableStateOf(false) }
     var query by remember { mutableStateOf("") }
     var sourceFilter by remember { mutableStateOf(ChannelSourceFilter.All) }
+    var showCategorySheet by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf<LiveCategory?>(null) }
     val chipFocusMemory = rememberFocusMemory()
     var selectedChannel by remember { mutableStateOf<LiveChannelGroup?>(null) }
     var addToListTarget by remember { mutableStateOf<LiveChannelGroup?>(null) }
+    var actionsTarget by remember { mutableStateOf<LiveChannelGroup?>(null) }
     var showRenameDialog by remember { mutableStateOf(false) }
     var showDeleteListConfirm by remember { mutableStateOf(false) }
     var listAddedToastName by remember { mutableStateOf<String?>(null) }
@@ -289,6 +352,7 @@ fun TvScreen(
             )
         }
     }
+
     val manualOrderKeys = remember(allChannels, activityByKey, orderByKey) {
         LiveChannelSort.sort(
             channels = allChannels,
@@ -299,6 +363,7 @@ fun TvScreen(
             order = orderByKey,
         ).map { it.key }
     }
+
     val nuvioCount = allChannels.count { group -> group.sources.any { it.item.providerId.startsWith("nuvio_addon:") } }
     val cloudStreamCount = allChannels.count { group -> group.sources.any { it.item.providerId.startsWith("cs:") } }
     val keyboard = LocalSoftwareKeyboardController.current
@@ -316,14 +381,9 @@ fun TvScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.tv_live_badge),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.error,
-                )
                 Text(stringResource(R.string.tv_title), style = MaterialTheme.typography.headlineMedium)
                 Text(
-                    text = stringResource(R.string.tv_results_count, allChannels.size),
+                    text = pluralStringResource(R.plurals.tv_live_channels_count, visibleChannels.size, visibleChannels.size),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -345,58 +405,135 @@ fun TvScreen(
             }
         }
 
-        OutlinedTextField(
-            value = field.value,
-            onValueChange = field.onValueChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
-                .focusRequester(initialFocus)
-                .navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = allChannels.isEmpty())
-                .dpadLeavesTextField(field),
-            placeholder = { Text(stringResource(R.string.tv_search_hint)) },
-            leadingIcon = { Icon(PlayIcons.Search, contentDescription = null) },
-            trailingIcon = {
-                if (query.isNotEmpty()) {
-                    IconButton(onClick = { query = "" }) {
-                        Icon(PlayIcons.Close, contentDescription = stringResource(R.string.search_clear))
-                    }
-                }
-            },
-            singleLine = true,
-            shape = MaterialTheme.shapes.medium,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, showKeyboardOnFocus = false),
-            keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
-        )
-
-        // Çipler kendi genişliğini alır ve satır yana kayar; etiket tek satırdır. (Eskiden dar ekran/büyük yazıda etiket harf
-        // harf sarıp satırı ekran boyu uzatıyor, `weight(1f)` ızgaraya sıfır yükseklik kalıyordu.)
+        val categoryButtonFocusRequester = remember { FocusRequester() }
         Row(
-            modifier = Modifier.horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            FilterChip(
-                selected = activeCatalogId == null && sourceFilter == ChannelSourceFilter.All,
-                onClick = { activeCatalogId = null; sourceFilter = ChannelSourceFilter.All },
-                label = { Text(stringResource(R.string.tv_filter_all, allChannels.size), maxLines = 1, softWrap = false) },
+            OutlinedTextField(
+                value = field.value,
+                onValueChange = field.onValueChange,
+                modifier = Modifier
+                    .weight(1f)
+                    .let { if (contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
+                    .focusRequester(initialFocus)
+                    .navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = allChannels.isEmpty())
+                    .dpadLeavesTextField(field)
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionRight &&
+                            (field.atStart && field.value.text.isEmpty() || field.value.selection.collapsed && field.value.selection.end == field.value.text.length)
+                        ) {
+                            categoryButtonFocusRequester.requestFocus()
+                            true
+                        } else {
+                            false
+                        }
+                    },
+                placeholder = { Text(stringResource(R.string.tv_search_hint)) },
+                leadingIcon = { Icon(PlayIcons.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = { query = "" }) {
+                            Icon(PlayIcons.Close, contentDescription = stringResource(R.string.search_clear))
+                        }
+                    }
+                },
+                singleLine = true,
+                shape = MaterialTheme.shapes.medium,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search, showKeyboardOnFocus = false),
+                keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() }),
             )
-            userCatalogs.forEach { catalog ->
-                FilterChip(
-                    selected = activeCatalogId == catalog.id,
-                    onClick = { activeCatalogId = catalog.id; sourceFilter = ChannelSourceFilter.All },
-                    label = { Text("${catalog.name} (${catalog.channels.size})", maxLines = 1, softWrap = false) },
+
+            val isCategorySelected = selectedCategory != null
+            val categoryButtonColor = if (isCategorySelected) {
+                ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color(0xFF00E5FF).copy(alpha = 0.12f),
+                    contentColor = Color(0xFF00E5FF),
                 )
+            } else ButtonDefaults.outlinedButtonColors()
+            val categoryBorder = if (isCategorySelected) {
+                BorderStroke(1.dp, Color(0xFF00E5FF))
+            } else BorderStroke(1.dp, Color(0xFF1E3A5F))
+
+            androidx.compose.material3.OutlinedButton(
+                onClick = { showCategorySheet = true },
+                modifier = Modifier
+                    .height(48.dp)
+                    .focusRequester(categoryButtonFocusRequester)
+                    .focusRing(RoundedCornerShape(14.dp)),
+                colors = categoryButtonColor,
+                border = categoryBorder,
+                shape = RoundedCornerShape(14.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+            ) {
+                Icon(PlayIcons.Sort, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.tv_category))
             }
-            FilterChip(
-                selected = activeCatalogId == null && sourceFilter == ChannelSourceFilter.Nuvio,
-                onClick = { activeCatalogId = null; sourceFilter = ChannelSourceFilter.Nuvio },
-                label = { Text(stringResource(R.string.tv_filter_nuvio, nuvioCount), maxLines = 1, softWrap = false) },
+        }
+
+        if (selectedCategory != null) {
+            InputChip(
+                selected = true,
+                onClick = { selectedCategory = null },
+                label = { Text(stringResource(selectedCategory!!.titleRes)) },
+                trailingIcon = {
+                    Icon(
+                        imageVector = PlayIcons.Close,
+                        contentDescription = stringResource(R.string.tv_category_remove),
+                        modifier = Modifier.size(InputChipDefaults.AvatarSize),
+                    )
+                },
+                colors = InputChipDefaults.inputChipColors(
+                    selectedContainerColor = Color(0xFF00E5FF).copy(alpha = 0.15f),
+                    selectedLabelColor = Color(0xFF00E5FF),
+                    selectedTrailingIconColor = Color(0xFF00E5FF),
+                ),
+                border = InputChipDefaults.inputChipBorder(
+                    enabled = true,
+                    selected = true,
+                    borderColor = Color(0xFF00E5FF),
+                    borderWidth = 1.dp,
+                ),
+                modifier = Modifier.focusRing(RoundedCornerShape(8.dp)),
             )
-            FilterChip(
-                selected = activeCatalogId == null && sourceFilter == ChannelSourceFilter.CloudStream,
-                onClick = { activeCatalogId = null; sourceFilter = ChannelSourceFilter.CloudStream },
-                label = { Text(stringResource(R.string.tv_filter_cloudstream, cloudStreamCount), maxLines = 1, softWrap = false) },
-            )
+        }
+
+        // Çipler kendi genişliğini alır ve satır yana kayar; etiket tek satırdır.
+        val showSourceRow = TvScreenRules.showSourceRow(userCatalogs.size, nuvioCount, cloudStreamCount)
+        if (showSourceRow) {
+            Row(
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                FilterChip(
+                    selected = activeCatalogId == null && sourceFilter == ChannelSourceFilter.All,
+                    onClick = { activeCatalogId = null; sourceFilter = ChannelSourceFilter.All },
+                    label = { Text(stringResource(R.string.tv_filter_all, allChannels.size), maxLines = 1, softWrap = false) },
+                )
+                userCatalogs.forEach { catalog ->
+                    FilterChip(
+                        selected = activeCatalogId == catalog.id,
+                        onClick = { activeCatalogId = catalog.id; sourceFilter = ChannelSourceFilter.All },
+                        label = { Text("${catalog.name} (${catalog.channels.size})", maxLines = 1, softWrap = false) },
+                    )
+                }
+                if (TvScreenRules.shouldShowSourceChip(nuvioCount)) {
+                    FilterChip(
+                        selected = activeCatalogId == null && sourceFilter == ChannelSourceFilter.Nuvio,
+                        onClick = { activeCatalogId = null; sourceFilter = ChannelSourceFilter.Nuvio },
+                        label = { Text(stringResource(R.string.tv_filter_nuvio, nuvioCount), maxLines = 1, softWrap = false) },
+                    )
+                }
+                if (TvScreenRules.shouldShowSourceChip(cloudStreamCount)) {
+                    FilterChip(
+                        selected = activeCatalogId == null && sourceFilter == ChannelSourceFilter.CloudStream,
+                        onClick = { activeCatalogId = null; sourceFilter = ChannelSourceFilter.CloudStream },
+                        label = { Text(stringResource(R.string.tv_filter_cloudstream, cloudStreamCount), maxLines = 1, softWrap = false) },
+                    )
+                }
+            }
         }
 
         if (activeCatalog != null) {
@@ -409,38 +546,6 @@ fun TvScreen(
                 }
                 OutlinedButton(onClick = { showDeleteListConfirm = true }) {
                     Text(stringResource(R.string.tv_list_delete), color = MaterialTheme.colorScheme.error, maxLines = 1, softWrap = false)
-                }
-            }
-        }
-
-        if (currentCatalogChannels.isNotEmpty()) {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(
-                    text = stringResource(R.string.live_categories_title),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    itemVerticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    FilterPill(
-                        text = "${stringResource(R.string.live_category_all)} (${currentCatalogChannels.size})",
-                        selected = selectedCategory == null,
-                        onClick = { selectedCategory = null },
-                        modifier = Modifier.focusMemory(chipFocusMemory, "cat-all", isDefault = selectedCategory == null),
-                    )
-                    visibleCategories.forEach { cat ->
-                        val count = categoryCounts[cat] ?: 0
-                        FilterPill(
-                            text = "${stringResource(cat.titleRes)} ($count)",
-                            selected = selectedCategory == cat,
-                            onClick = { selectedCategory = cat },
-                            modifier = Modifier.focusMemory(chipFocusMemory, "cat-${cat.id}", isDefault = selectedCategory == cat),
-                        )
-                    }
                 }
             }
         }
@@ -461,33 +566,28 @@ fun TvScreen(
                 text = when {
                     activeCatalog != null && catalogGroups.isEmpty() -> stringResource(R.string.tv_list_empty)
                     activeCatalog == null && allChannels.isEmpty() -> stringResource(R.string.tv_empty)
-                    query.isNotBlank() -> stringResource(R.string.tv_no_results, query)
+                    query.isNotBlank() -> stringResource(R.string.tv_no_results_with_search)
                     else -> stringResource(R.string.tv_filtered_empty)
                 },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 28.dp),
             )
             else -> {
-                val visibleKeys = remember(visibleChannels) { visibleChannels.map { it.key } }
                 val activeList = activeCatalog
                 val isCustomListView = activeList != null
-                val canReorderCards = if (isCustomListView) query.isBlank() else sortMode == LiveTvSortMode.Manual
+                val columnsCount = TvScreenRules.calculateGridColumns(LocalConfiguration.current.screenWidthDp)
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 156.dp),
+                    columns = GridCells.Fixed(columnsCount),
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                     contentPadding = PaddingValues(bottom = 28.dp),
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                     verticalArrangement = Arrangement.spacedBy(18.dp),
                 ) {
-                    itemsIndexed(visibleChannels, key = { _, channel -> channel.key }) { index, channel ->
-                        val isFav = activityByKey[channel.key]?.isFavorite == true
-                        LiveChannelCard(
+                    items(visibleChannels, key = { channel -> channel.key }) { channel ->
+                        LiveChannelCompactCard(
                             channel = channel,
-                            isFavorite = isFav,
-                            showReorder = canReorderCards,
-                            showRemoveFromList = isCustomListView,
-                            canMoveUp = index > 0,
-                            canMoveDown = index < visibleChannels.lastIndex,
+                            isFavorite = activityByKey[channel.key]?.isFavorite == true,
+                            onActions = { actionsTarget = channel },
                             onClick = {
                                 val zapSourceGroups = if (isCustomListView) catalogGroups else visibleChannels
                                 val zapIdx = zapSourceGroups.indexOfFirst { it.key == channel.key }.coerceAtLeast(0)
@@ -498,44 +598,7 @@ fun TvScreen(
                                 } else {
                                     selectedChannel = channel
                                 }
-                            },
-                            onToggleFavorite = {
-                                scope.launch { container.liveChannels.toggleFavorite(channel.key) }
-                            },
-                            onAddToList = { addToListTarget = channel },
-                            onRemoveFromList = {
-                                activeList?.let { list ->
-                                    scope.launch { container.liveCatalogs.removeChannel(list.id, channel.key) }
-                                }
-                            },
-                            onMoveUp = {
-                                scope.launch {
-                                    if (activeList != null) {
-                                        container.liveCatalogs.moveChannel(activeList.id, channel.key, -1)
-                                    } else {
-                                        container.liveChannels.moveOrder(
-                                            visibleKeys = visibleKeys,
-                                            allManualKeys = manualOrderKeys,
-                                            channelKey = channel.key,
-                                            delta = -1,
-                                        )
-                                    }
-                                }
-                            },
-                            onMoveDown = {
-                                scope.launch {
-                                    if (activeList != null) {
-                                        container.liveCatalogs.moveChannel(activeList.id, channel.key, +1)
-                                    } else {
-                                        container.liveChannels.moveOrder(
-                                            visibleKeys = visibleKeys,
-                                            allManualKeys = manualOrderKeys,
-                                            channelKey = channel.key,
-                                            delta = +1,
-                                        )
-                                    }
-                                }
-                            },
+                            }
                         )
                     }
                 }
@@ -591,6 +654,71 @@ fun TvScreen(
             },
             confirmButton = {
                 TextButton(onClick = { selectedChannel = null }) { Text(stringResource(R.string.common_cancel)) }
+            },
+        )
+    }
+
+    actionsTarget?.let { target ->
+        val activeList = activeCatalog
+        val isFav = activityByKey[target.key]?.isFavorite == true
+        val actions = TvScreenRules.channelActions(
+            isCustomListView = activeList != null,
+            canReorder = if (activeList != null) query.isBlank() else sortMode == LiveTvSortMode.Manual,
+            index = visibleChannels.indexOfFirst { it.key == target.key },
+            lastIndex = visibleChannels.lastIndex,
+        )
+        val visibleKeys = visibleChannels.map { it.key }
+        val move: (Int) -> Unit = { delta ->
+            scope.launch {
+                if (activeList != null) {
+                    container.liveCatalogs.moveChannel(activeList.id, target.key, delta)
+                } else {
+                    container.liveChannels.moveOrder(
+                        visibleKeys = visibleKeys,
+                        allManualKeys = manualOrderKeys,
+                        channelKey = target.key,
+                        delta = delta,
+                    )
+                }
+            }
+        }
+        AlertDialog(
+            onDismissRequest = { actionsTarget = null },
+            title = { Text(target.title, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    actions.forEach { action ->
+                        TextButton(onClick = {
+                            actionsTarget = null
+                            when (action) {
+                                TvScreenRules.ChannelAction.ToggleFavorite ->
+                                    scope.launch { container.liveChannels.toggleFavorite(target.key) }
+                                TvScreenRules.ChannelAction.AddToList -> addToListTarget = target
+                                TvScreenRules.ChannelAction.RemoveFromList ->
+                                    activeList?.let { list ->
+                                        scope.launch { container.liveCatalogs.removeChannel(list.id, target.key) }
+                                    }
+                                TvScreenRules.ChannelAction.MoveUp -> move(-1)
+                                TvScreenRules.ChannelAction.MoveDown -> move(1)
+                            }
+                        }) {
+                            Text(
+                                text = when (action) {
+                                    TvScreenRules.ChannelAction.ToggleFavorite -> stringResource(
+                                        if (isFav) R.string.tv_favorite_remove else R.string.tv_favorite_add,
+                                    )
+                                    TvScreenRules.ChannelAction.AddToList -> stringResource(R.string.tv_list_add)
+                                    TvScreenRules.ChannelAction.RemoveFromList -> stringResource(R.string.tv_list_remove_channel)
+                                    TvScreenRules.ChannelAction.MoveUp -> stringResource(R.string.tv_move_up)
+                                    TvScreenRules.ChannelAction.MoveDown -> stringResource(R.string.tv_move_down)
+                                },
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { actionsTarget = null }) { Text(stringResource(R.string.common_cancel)) }
             },
         )
     }
@@ -668,189 +796,247 @@ fun TvScreen(
             },
         )
     }
-}
 
-@Composable
-private fun LiveChannelCard(
-    channel: LiveChannelGroup,
-    isFavorite: Boolean,
-    showReorder: Boolean,
-    showRemoveFromList: Boolean,
-    canMoveUp: Boolean,
-    canMoveDown: Boolean,
-    onClick: () -> Unit,
-    onToggleFavorite: () -> Unit,
-    onAddToList: () -> Unit,
-    onRemoveFromList: () -> Unit,
-    onMoveUp: () -> Unit,
-    onMoveDown: () -> Unit,
-) {
-    val entry = channel.primary
-    val interaction = remember { MutableInteractionSource() }
-    val focused by interaction.collectIsFocusedAsState()
-    val shape = RoundedCornerShape(16.dp)
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRing(shape, scale = 1.04f)
-                .clickable(interactionSource = interaction, indication = ripple(), onClick = onClick)
-                .padding(3.dp),
+    if (showCategorySheet) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            onDismissRequest = { showCategorySheet = false },
+            sheetState = sheetState,
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentWindowInsets = { WindowInsets.navigationBars },
         ) {
-            Box(
+            Text(
+                text = stringResource(R.string.tv_category_select),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+            )
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1.58f)
-                    .clip(shape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .border(
-                        width = if (focused) 3.dp else 1.dp,
-                        color = if (focused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
-                        shape = shape,
-                    ),
+                    .verticalScroll(rememberScrollState())
+                    .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
+                    .navigationBarsPadding(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                val posterUrl = resolvePosterImageUrl(
-                    fallbackUrl = channel.logoUrl,
-                    posterId = PosterUrlTemplate.findImdbId(
-                        entry.item.id,
-                        entry.item.rawUrl,
-                        channel.logoUrl,
-                    ),
-                    tmdbId = entry.item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(
-                        entry.item.id,
-                        entry.item.rawUrl,
-                        channel.logoUrl,
-                    ),
-                    mediaType = entry.item.mediaType,
-                )
-                if (!posterUrl.isNullOrBlank()) {
-                    AsyncImage(
-                        model = posterUrl,
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.fillMaxSize().padding(12.dp),
-                    )
-                } else {
-                    Text(
-                        text = channel.title,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.align(Alignment.Center).padding(16.dp),
-                    )
+                val allItems = remember(visibleCategories) {
+                    listOf<LiveCategory?>(null) + visibleCategories
                 }
-                Row(
-                    modifier = Modifier.align(Alignment.TopStart).padding(9.dp)
-                        .clip(RoundedCornerShape(50)).background(MaterialTheme.colorScheme.error)
-                        .padding(horizontal = 9.dp, vertical = 5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text("●", style = MaterialTheme.typography.labelSmall, color = Color.White)
-                    Text(
-                        stringResource(R.string.tv_live_badge),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.White,
-                        modifier = Modifier.padding(start = 5.dp),
-                    )
+                allItems.chunked(2).forEach { pair ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        val first = pair[0]
+                        val firstTitle = if (first == null) stringResource(R.string.live_category_all) else stringResource(first.titleRes)
+                        val firstCount = if (first == null) currentCatalogChannels.size else (categoryCounts[first] ?: 0)
+                        val firstSelected = selectedCategory == first
+                        CategorySheetItem(
+                            title = firstTitle,
+                            count = firstCount,
+                            isSelected = firstSelected,
+                            onClick = {
+                                selectedCategory = first
+                                showCategorySheet = false
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .focusMemory(chipFocusMemory, if (first == null) "cat-all" else "cat-${first.id}", isDefault = firstSelected),
+                        )
+                        if (pair.size > 1) {
+                            val second = pair[1]
+                            val secondTitle = if (second == null) stringResource(R.string.live_category_all) else stringResource(second.titleRes)
+                            val secondCount = if (second == null) currentCatalogChannels.size else (categoryCounts[second] ?: 0)
+                            val secondSelected = selectedCategory == second
+                            CategorySheetItem(
+                                title = secondTitle,
+                                count = secondCount,
+                                isSelected = secondSelected,
+                                onClick = {
+                                    selectedCategory = second
+                                    showCategorySheet = false
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .focusMemory(chipFocusMemory, if (second == null) "cat-all" else "cat-${second.id}", isDefault = secondSelected),
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
                 }
-                val routeCount = if (channel.routes.isNotEmpty()) channel.routes.size else channel.sources.size
-                Text(
-                    text = if (routeCount > 1) stringResource(R.string.tv_sources_count, routeCount) else entry.providerName,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.White,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0.62f)).padding(horizontal = 9.dp, vertical = 6.dp),
-                )
-            }
-            Text(
-                text = channel.title,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Text(
-                text = entry.rowTitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            LiveChannelCardAction(
-                icon = if (isFavorite) PlayIcons.StarFilled else PlayIcons.Star,
-                contentDescription = stringResource(
-                    if (isFavorite) R.string.tv_favorite_remove else R.string.tv_favorite_add,
-                ),
-                tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                onClick = onToggleFavorite,
-            )
-            LiveChannelCardAction(
-                icon = PlayIcons.Plus,
-                contentDescription = stringResource(R.string.tv_list_add),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                onClick = onAddToList,
-            )
-            if (showRemoveFromList) {
-                LiveChannelCardAction(
-                    icon = PlayIcons.Trash,
-                    contentDescription = stringResource(R.string.tv_list_remove_channel),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    onClick = onRemoveFromList,
-                )
-            }
-            if (showReorder) {
-                LiveChannelCardAction(
-                    icon = PlayIcons.ChevronUp,
-                    contentDescription = stringResource(R.string.tv_move_up),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    enabled = canMoveUp,
-                    onClick = onMoveUp,
-                )
-                LiveChannelCardAction(
-                    icon = PlayIcons.ChevronDown,
-                    contentDescription = stringResource(R.string.tv_move_down),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    enabled = canMoveDown,
-                    onClick = onMoveDown,
-                )
             }
         }
     }
 }
 
 @Composable
-private fun RowScope.LiveChannelCardAction(
-    icon: ImageVector,
-    contentDescription: String,
-    tint: Color,
-    enabled: Boolean = true,
+private fun CategorySheetItem(
+    title: String,
+    count: Int,
+    isSelected: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = Modifier
-            .weight(1f)
-            .height(34.dp)
-            .clip(CircleShape)
-            .focusRing(CircleShape, scale = 1.10f)
-            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-            .alpha(if (enabled) 1f else 0.38f),
-        contentAlignment = Alignment.Center,
+    val backgroundColor = if (isSelected) Color(0xFF00E5FF).copy(alpha = 0.12f) else Color(0xFF0F1E2E)
+    val borderColor = if (isSelected) Color(0xFF00E5FF) else Color(0xFF1E3A5F)
+    val contentColor = if (isSelected) Color(0xFF00E5FF) else MaterialTheme.colorScheme.onSurface
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(backgroundColor)
+            .border(1.dp, borderColor, RoundedCornerShape(14.dp))
+            .focusRing(RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = tint,
-            modifier = Modifier.size(18.dp),
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = contentColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f).padding(end = 8.dp),
         )
+        Text(
+            text = count.toString(),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+            color = if (isSelected) Color(0xFF00E5FF) else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun LiveChannelCompactCard(
+    channel: LiveChannelGroup,
+    isFavorite: Boolean,
+    onClick: () -> Unit,
+    onActions: () -> Unit,
+) {
+    val entry = channel.primary
+    val interaction = remember { MutableInteractionSource() }
+    val focused by interaction.collectIsFocusedAsState()
+    val shape = RoundedCornerShape(14.dp)
+    val bgColor = Color(0xFF0F1E2E)
+    val focusedBorderColor = Color(0xFF062A3B)
+    val normalBorderColor = Color(0xFF1E3A5F)
+    val accent = Color(0xFF00E5FF)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRing(shape, scale = 1.05f)
+            .combinedClickable(
+                interactionSource = interaction,
+                indication = ripple(),
+                onClick = onClick,
+                onLongClick = onActions,
+            )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1.6f) // 16:10
+                .clip(shape)
+                .background(bgColor)
+                .border(
+                    width = if (focused) 3.dp else 1.dp,
+                    color = if (focused) focusedBorderColor else normalBorderColor,
+                    shape = shape,
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            val posterUrl = resolvePosterImageUrl(
+                fallbackUrl = channel.logoUrl,
+                posterId = PosterUrlTemplate.findImdbId(
+                    entry.item.id,
+                    entry.item.rawUrl,
+                    channel.logoUrl,
+                ),
+                tmdbId = entry.item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(
+                    entry.item.id,
+                    entry.item.rawUrl,
+                    channel.logoUrl,
+                ),
+                mediaType = entry.item.mediaType,
+            )
+            if (!posterUrl.isNullOrBlank()) {
+                AsyncImage(
+                    model = posterUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxSize().padding(8.dp),
+                )
+            } else {
+                val initials = channel.title.split(" ").mapNotNull { it.firstOrNull()?.uppercase() }.take(2).joinToString("")
+                Text(
+                    text = initials,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = accent,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            if (isFavorite) {
+                Icon(
+                    imageVector = PlayIcons.StarFilled,
+                    contentDescription = null,
+                    tint = accent,
+                    modifier = Modifier.align(Alignment.TopEnd).padding(6.dp).size(16.dp),
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = channel.title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth()
+        )
+        val routeCount = if (channel.routes.isNotEmpty()) channel.routes.size else channel.sources.size
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(top = 2.dp)
+        ) {
+            if (routeCount <= 1) {
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(Color.Red)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+            }
+            Text(
+                text = if (routeCount > 1) stringResource(R.string.tv_sources_count, routeCount) else stringResource(R.string.tv_live_badge),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .focusRing(CircleShape, scale = 1.10f)
+                    .clickable(role = Role.Button, onClick = onActions),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = PlayIcons.More,
+                    contentDescription = stringResource(R.string.tv_channel_actions),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+        }
     }
 }
 
