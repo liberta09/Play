@@ -140,6 +140,9 @@ class PlayerActivity : AppCompatActivity() {
     private var leaving = false
     private var finishedForAdvance = false
 
+    /** Bölümler paneli: tek aktif kaynak araması; yeni seçim öncekini iptal eder. */
+    private var episodeJob: Job? = null
+
     /** CloudStream dizilerinde sıradaki bölümün dataUrl adresi. */
     private var nextCsDataUrl: String? = null
 
@@ -1444,11 +1447,93 @@ class PlayerActivity : AppCompatActivity() {
         return if (ordered.isEmpty()) null else NextPlayback.Online(target, ordered)
     }
 
+    // ---- Bölümler paneli ----
+
+    /** Bölümler paneli: oynayan bölümün sezonu (panel bu sezonla açılır). */
+    fun playingSeason(): Int? = session.target.request.season
+
+    /**
+     * Bölümler paneli: [season] sezonunun bölümleri. Çevrimdışı oturumda yalnızca indirilmiş bölümler; eklentinin kendi
+     * içeriğiyse (pluginId + contentUrl) eklentinin listesi; değilse TMDB. Alınamazsa null.
+     */
+    suspend fun loadEpisodes(season: Int): List<EpisodePanelRules.EpisodeRow>? {
+        val request = session.target.request
+        val tmdbId = request.tmdbId
+        val playingSeason = request.season ?: return null
+        val playingEpisode = request.episode ?: return null
+        val history = runCatching { appContainer.library.watchHistory.first() }.getOrDefault(emptyList())
+            .filter { it.tmdbId == tmdbId && it.type == MediaType.Tv }
+        if (session.offline != null) {
+            val downloaded = runCatching { appContainer.downloads.completedForSeason(tmdbId, season) }.getOrNull() ?: return null
+            return EpisodePanelRules.mapDownloadedEpisodes(downloaded.map { it.episode }, season, playingSeason, playingEpisode, history)
+        }
+        val pluginId = request.pluginId
+        val contentUrl = request.contentUrl
+        if (!pluginId.isNullOrBlank() && !contentUrl.isNullOrBlank()) {
+            val list = appContainer.csNextEpisodes.episodes(pluginId, contentUrl)
+            if (!list.isNullOrEmpty()) {
+                return EpisodePanelRules.mapPluginEpisodes(list, season, playingSeason, playingEpisode, request.dataUrl, history)
+            }
+        }
+        if (tmdbId > 0) {
+            val detail = runCatching { appContainer.tmdb.season(tmdbId, season) }.getOrNull() ?: return null
+            val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date())
+            return EpisodePanelRules.mapTmdbEpisodes(detail, season, playingSeason, playingEpisode, history, today)
+        }
+        return null
+    }
+
+    /**
+     * Panelden seçilen bölüm: kaynak aranırken oynayan bölüm sürer (siyah ekran yok); bulunursa o bölüm açılır, bulunamazsa
+     * kısa ileti çıkar ve oynayan bölüm aynen sürer. Yeni seçim önceki aramayı iptal eder.
+     */
+    fun openEpisode(season: Int, episode: Int, dataUrl: String?) {
+        if (leaving) return
+        episodeJob?.cancel()
+        Toast.makeText(this, getString(R.string.episodes_panel_searching, season, episode), Toast.LENGTH_SHORT).show()
+        episodeJob = lifecycleScope.launch {
+            val next = try {
+                prepareEpisode(season, episode, dataUrl)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                null
+            }
+            if (!isActive) return@launch
+            if (next != null) {
+                advanceTo(next, markWatched = false)
+            } else {
+                Toast.makeText(this@PlayerActivity, R.string.episodes_panel_source_not_found, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /** [prepareNext] ile aynı yol, ama sezon/bölüm/eklenti bölüm verisi panelden gelir ([prepareNext]'e dokunulmaz). */
+    private suspend fun prepareEpisode(season: Int, episode: Int, dataUrl: String?): NextPlayback? {
+        val request = session.target.request.copy(
+            season = season,
+            episode = episode,
+            dataUrl = dataUrl ?: session.target.request.dataUrl,
+            refresh = false,
+        )
+        val target = session.target.copy(
+            request = request,
+            ageRating = resolvedAgeRating?.rating ?: session.target.ageRating,
+            ageRatingRegion = resolvedAgeRating?.region ?: session.target.ageRatingRegion,
+        )
+        appContainer.downloads.completedFor(request)?.let { return NextPlayback.Offline(target, it) }
+        if (session.offline != null) return null
+        val playing = currentStream
+        val found = AutoNextRules.collect(appContainer.streams.streams(request), playing?.source?.addonId)
+        val ordered = if (playing != null) AutoNextRules.order(found, playing) else found.ranked().take(AutoNextRules.MAX_CANDIDATES)
+        return if (ordered.isEmpty()) null else NextPlayback.Online(target, ordered)
+    }
+
     /**
      * Sonraki bölümü yeni bir oynatıcı etkinliğinde açar (altyazı, başlık, geçmiş hepsi o bölüm için sıfırdan kurulur) ve bunu
      * kapatır. Bu bölüm "izlendi" yazılır; önceki torrent oturumu kapatılır; kayıtlı konumu varsa oradan devam edilir.
      */
-    private fun advanceTo(next: NextPlayback) {
+    private fun advanceTo(next: NextPlayback, markWatched: Boolean = true) {
         if (leaving) return
         leaving = true
         lifecycleScope.launch {
@@ -1478,8 +1563,9 @@ class PlayerActivity : AppCompatActivity() {
                     title = next.target.title,
                 )
             }
-            finishedForAdvance = true
-            saveProgress() // bu bölüm izlendi
+            // Panelden elle seçimde (markWatched = false) bu bölüm izlendi sayılmaz; gerçek konumu kaydedilir.
+            if (markWatched) finishedForAdvance = true
+            saveProgress() // markWatched ise bu bölüm izlendi
             if (currentStream?.url?.let(TorrentLinks::isMagnet) == true) container.torrentEngine.closeActive()
             startActivity(nextSession.toIntent(this@PlayerActivity))
             noTransition(open = false)

@@ -241,6 +241,7 @@ fun PlayerScreen(
     var controlsVisible by remember { mutableStateOf(true) }
     var interaction by remember { mutableIntStateOf(0) }
     var showPanel by remember { mutableStateOf(false) }
+    var showEpisodes by remember { mutableStateOf(false) }
     var showTracks by remember { mutableStateOf(false) }
     var showAppearance by remember { mutableStateOf(false) }
     var showSync by remember { mutableStateOf(false) }
@@ -304,10 +305,11 @@ fun PlayerScreen(
     val slowFocus = remember { FocusRequester() }
     var slowFocused by remember { mutableStateOf(false) }
 
-    val dialogOpen = showPanel || showTracks || showAppearance || showSync || autoNext?.picking == true
+    val dialogOpen = showPanel || showEpisodes || showTracks || showAppearance || showSync || autoNext?.picking == true
     // Senkron paneli açıkken kontroller gizlenir: altyazı (altta) ilerleme çubuğunun altında kalmasın.
     // Kaynaklar aranırken ve hiçbiri açılmadığında geri düğmesi ve kontroller görünür kalır.
-    val showControls = !locked && ((controlsVisible && !showSync) || ui.error != null || resolving || sourcesFailed)
+    // Bölümler paneli açıkken kontroller gizlenir: liste videonun üstünde arka plansız durur, düğmelerle üst üste binmez.
+    val showControls = !locked && !showEpisodes && ((controlsVisible && !showSync) || ui.error != null || resolving || sourcesFailed)
     // Atlama düğmeleri (sağ altta): segmentin ilk 20 sn'sinde kontroller gizliyken de, sonra kontroller açılınca görünür.
     val skipSettings = skips?.settings ?: SkipPlaybackSettings.Default
     val skipPosition = skips?.positionMs ?: 0L
@@ -435,7 +437,7 @@ fun PlayerScreen(
     // Odak: kilitliyken ve simge görünürken açma simgesinde; kilitli ve simge gizliyken kök yüzeyde;
     // hata/kaynak yokken hata düğmesinde; sonraki bölüm kartında; kontroller açıkken ilerleme
     // çubuğunda; gizliyken kök yüzeyde (yön tuşları orada yakalanır).
-    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, showSlowPromptCard, skipVisible, keyboard) {
+    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, showSlowPromptCard, skipVisible, keyboard, showEpisodes) {
         when {
             locked && lockHintVisible -> unlockFocus.requestWhenAttached()
             locked -> runCatching { rootFocus.requestFocus() }
@@ -444,7 +446,7 @@ fun PlayerScreen(
             showSlowPromptCard && keyboard -> slowFocus.requestWhenAttached()
             // Atlama düğmesi görünürken kumandada odak ondadır: Tamam = atla.
             skipVisible && keyboard -> skipFocus.requestWhenAttached()
-            controlsVisible && keyboard -> barFocus.requestWhenAttached()
+            controlsVisible && keyboard && !showEpisodes -> barFocus.requestWhenAttached()
             else -> runCatching { rootFocus.requestFocus() }
         }
     }
@@ -954,6 +956,7 @@ fun PlayerScreen(
                         bump()
                     })
                 }
+                episodesBarAction(target.request, isWatchPartyGuest) { showEpisodes = true; bump() }?.let { add(it) }
                 val canShowNext = onNextEpisode != null && AutoNextRules.canShowNextEpisodeButton(target.request.type, target.request.season, target.request.episode, target.request.addonType, duration)
                 if (canShowNext) {
                     add(BarAction(PlayIcons.NextEpisode, stringResource(R.string.player_btn_next_episode)) {
@@ -1252,6 +1255,13 @@ fun PlayerScreen(
         }
     }
 
+    if (showEpisodes) {
+        EpisodePanel(
+            activity = androidx.activity.compose.LocalActivity.current as PlayerActivity,
+            onDismiss = { showEpisodes = false },
+        )
+    }
+
     if (showPanel) {
         SourcePanel(
             coordinator = coordinator,
@@ -1343,7 +1353,7 @@ private fun resizeText(mode: ResizeMode): String = stringResource(
 )
 
 /** Alt düğme satırındaki bir eylem. */
-private class BarAction(val icon: ImageVector, val label: String, val onClick: () -> Unit)
+internal class BarAction(val icon: ImageVector, val label: String, val onClick: () -> Unit)
 
 /** Altyazı yükleniyor / yüklenemedi: tek satırlık, sade bildirim. */
 @Composable

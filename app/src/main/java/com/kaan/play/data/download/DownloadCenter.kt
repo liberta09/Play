@@ -355,6 +355,10 @@ class DownloadCenter(
         dao.findContent(request.tmdbId, request.type, request.season ?: 0, request.episode ?: 0)
             ?.takeIf { it.status == DownloadStatus.Completed }
 
+    /** Bu dizi/sezonun tüm tamamlanmış indirmeleri. */
+    suspend fun completedForSeason(tmdbId: Int, season: Int): List<DownloadEntity> =
+        dao.all().filter { it.tmdbId == tmdbId && it.type == com.kaan.play.data.model.MediaType.Tv && it.season == season && it.status == DownloadStatus.Completed }
+
     /** Oynatıcının çalacağı öğe: kayıtlı istekten (HLS/DASH'te seçilen kaliteyle birlikte) kurulur. */
     suspend fun mediaItem(id: Long): MediaItem? = withContext(Dispatchers.IO) {
         manager.downloadIndex.getDownload(id.toString())

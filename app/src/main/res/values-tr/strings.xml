@@ -1066,4 +1066,14 @@
 
     <!-- Ağ Kurtarma -->
     <string name="player_waiting_for_internet">İnternet bekleniyor…</string>
+
+    <!-- Bölümler Paneli -->
+    <string name="player_btn_episodes">Bölümler</string>
+    <string name="episodes_panel_title">Bölümler</string>
+    <string name="episodes_panel_season_format">Sezon %1$d</string>
+    <string name="episodes_panel_episode_format">%1$d. Bölüm</string>
+    <string name="episodes_panel_now_playing">Şimdi oynuyor</string>
+    <string name="episodes_panel_searching">S%1$d B%2$d için kaynak aranıyor…</string>
+    <string name="episodes_panel_source_not_found">Bu bölüm için kaynak bulunamadı</string>
+    <string name="episodes_panel_list_failed">Bölüm listesi alınamadı</string>
 </resources>
