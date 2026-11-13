@@ -1,5 +1,13 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.3.1] — 2026-11-13
+
+### Türkçe
+- Oynatıcıda Bölümler paneli: Dizi izlerken sağdan açılan bölüm listesi; kumandayla gezilir, Sol/Sağ ile sezon değişir, Tamam bölümü açar. Dokunmatikte de çalışır. Panelden geçişte önceki bölüm "izlendi" sayılmaz.
+
+### English
+- Episodes panel in the player: a list of episodes that slides in from the right while watching a series; navigate with the remote, Left/Right switches season, OK opens the episode. Works with touch too. Switching from the panel does not mark the previous episode as watched.
+
 ## [1.3.0] — 2026-11-11
 
 ### Türkçe
