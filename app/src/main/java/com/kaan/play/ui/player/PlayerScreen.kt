@@ -437,7 +437,7 @@ fun PlayerScreen(
     // Odak: kilitliyken ve simge görünürken açma simgesinde; kilitli ve simge gizliyken kök yüzeyde;
     // hata/kaynak yokken hata düğmesinde; sonraki bölüm kartında; kontroller açıkken ilerleme
     // çubuğunda; gizliyken kök yüzeyde (yön tuşları orada yakalanır).
-    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, showSlowPromptCard, skipVisible, keyboard) {
+    LaunchedEffect(controlsVisible, ui.error, sourcesFailed, cardPhase, locked, lockHintVisible, showSlowPromptCard, skipVisible, keyboard, showEpisodes) {
         when {
             locked && lockHintVisible -> unlockFocus.requestWhenAttached()
             locked -> runCatching { rootFocus.requestFocus() }
@@ -446,7 +446,7 @@ fun PlayerScreen(
             showSlowPromptCard && keyboard -> slowFocus.requestWhenAttached()
             // Atlama düğmesi görünürken kumandada odak ondadır: Tamam = atla.
             skipVisible && keyboard -> skipFocus.requestWhenAttached()
-            controlsVisible && keyboard -> barFocus.requestWhenAttached()
+            controlsVisible && keyboard && !showEpisodes -> barFocus.requestWhenAttached()
             else -> runCatching { rootFocus.requestFocus() }
         }
     }
