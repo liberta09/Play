@@ -1,5 +1,13 @@
 # Changelog / Değişiklik günlüğü
 
+## [1.3.2] — 2026-11-13
+
+### Türkçe
+- Canlı TV: kompakt kanal ızgarası (satırda daha fazla kanal, her kanalda tek satır bilgi) ve kategori alt menüsü. Kanal seçenekleri (favori, listeye ekle, sırala) kanaldaki ⋯ düğmesiyle ya da uzun basarak açılır; aramada sonuç sayısı gösterilir.
+
+### English
+- Live TV: compact channel grid (more channels per row, one info line per channel) and a category bottom sheet. Channel options (favorite, add to list, reorder) open from the ⋯ button or a long press; search shows the result count.
+
 ## [1.3.1] — 2026-11-13
 
 ### Türkçe
