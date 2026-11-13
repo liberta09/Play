@@ -68,6 +68,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import com.kaan.play.ui.components.TextButton
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -144,8 +145,10 @@ private data class LiveChannelGroup(
 
 /** Sağlayıcıların canlı tv/channel akışlarını aranabilir tek bir ekranda toplar. */
 object TvScreenRules {
-    fun calculateGridColumns(screenWidthDp: Int): Int {
-        return maxOf(3, screenWidthDp / 130)
+    /** Büyük yazı ölçüsünde kutular genişler (etiketler kesilmesin); 1.0'da düzen aynıdır. */
+    fun calculateGridColumns(screenWidthDp: Int, fontScale: Float = 1f): Int {
+        val cell = 130 * maxOf(1f, fontScale)
+        return maxOf(3, (screenWidthDp / cell).toInt())
     }
 
     fun showSourceRow(
@@ -575,7 +578,7 @@ fun TvScreen(
             else -> {
                 val activeList = activeCatalog
                 val isCustomListView = activeList != null
-                val columnsCount = TvScreenRules.calculateGridColumns(LocalConfiguration.current.screenWidthDp)
+                val columnsCount = TvScreenRules.calculateGridColumns(LocalConfiguration.current.screenWidthDp, LocalDensity.current.fontScale)
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(columnsCount),
                     modifier = Modifier.weight(1f).fillMaxWidth(),
@@ -989,13 +992,32 @@ private fun LiveChannelCompactCard(
                     modifier = Modifier.align(Alignment.TopEnd).padding(6.dp).size(16.dp),
                 )
             }
+            // Kanal seçenekleri düğmesi görselin köşesinde: etiket satırı tam genişlik kalır ("2 kaynak" kesilmez).
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(4.dp)
+                    .size(30.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = 0.45f))
+                    .focusRing(CircleShape, scale = 1.10f)
+                    .clickable(role = Role.Button, onClick = onActions),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = PlayIcons.More,
+                    contentDescription = stringResource(R.string.tv_channel_actions),
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = channel.title,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 2,
+            maxLines = 3,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.fillMaxWidth()
         )
@@ -1021,21 +1043,6 @@ private fun LiveChannelCompactCard(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
             )
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .focusRing(CircleShape, scale = 1.10f)
-                    .clickable(role = Role.Button, onClick = onActions),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = PlayIcons.More,
-                    contentDescription = stringResource(R.string.tv_channel_actions),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp),
-                )
-            }
         }
     }
 }

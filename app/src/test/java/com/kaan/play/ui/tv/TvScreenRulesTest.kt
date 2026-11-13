@@ -16,6 +16,15 @@ class TvScreenRulesTest {
     }
 
     @Test
+    fun calculateGridColumns_largeFontWidensTiles() {
+        assertEquals(8, TvScreenRules.calculateGridColumns(1067, 1f))
+        assertEquals(6, TvScreenRules.calculateGridColumns(1067, 1.3f))
+        assertEquals(4, TvScreenRules.calculateGridColumns(1067, 2f))
+        assertEquals(3, TvScreenRules.calculateGridColumns(360, 2f))
+        assertEquals(8, TvScreenRules.calculateGridColumns(1067, 0.85f))
+    }
+
+    @Test
     fun testShowSourceRow() {
         // User catalogs > 0
         assertTrue(TvScreenRules.showSourceRow(1, 0, 0))
