@@ -33,3 +33,22 @@ Dal `feature/bolumler-paneli`. Cihaz: LDPlayer `127.0.0.1:5555` (1600x900, Türk
 - Kontroller birkaç sn sonra gizlendiği için kumanda dizisi (Yukarı, Aşağı×2, Sağ×5–6, Tamam) tek komut grubunda verilmeli; gizliyken Tamam oynat/duraklat, Aşağı Kaynak menüsünü açar (`PlayerKeys.kt`). Bunlar yeni davranış değil.
 - Tüm ekran görüntüleri bu klasördedir; yanlış ekran olduğu anlaşılanlar silindi.
 - `docs/dogrulama-bolumler/` dışındaki kök PNG'ler commit'lenmedi.
+
+## Yayın APK'sı duman testi (düzeltme sonrası)
+APK: `Play-1.3.1.apk` (versionCode 45, R8, release imzalı), SHA-256 `6971f5c25a1ebb2de6fb1e799ea47703bc86262ff25051b27d69b379cc7f8c9b` (kendi hesabım = txt). LDPlayer Android 9 (SDK 28), 44 → 45 güncelleme olarak kuruldu. Görüntüler: `docs/dogrulama-bolumler/yayin2/`.
+
+**Kök neden (R8 VerifyError):** 1.3.0 (3061cc6) sağlam; panel dalının her commit'i `VerifyError: jl3 (PlayerScreenKt) ... type Conflict unexpected as arg to if-eqz/if-nez` veriyordu. "Bölümler" düğme bloğu çıkarılınca (deney X2) hata kalkıyordu. Düzeltme: blok `EpisodesAction.kt` içindeki `episodesBarAction(...)` küçük fonksiyonuna taşındı, `PlayerScreen.kt`'de tek satır kaldı (net -14 satır; `BarAction` `private` → `internal`). Kesin mekanizma (bloğun kendisi mi, metot boyutu mu) ayrıştırılmadı.
+
+| Madde | Sonuç | Kanıt |
+|---|---|---|
+| a) Criminal Minds oynuyor, ilk kare geliyor | GEÇTİ | `f1_a_player_bar.png` |
+| b) Bölümler düğmesi, panel, bölüm seçimi (B6→B7), kapanışta odak, Sağ=+10 sn | GEÇTİ (12:20→12:32) | `f2`–`f3`, `g1`–`g4` |
+| c) Sezon Sağ/Sol, Geri paneli kapatır | GEÇTİ ("Sezon 2" → geri; Geri sonrası oynatıcı açık) | `f4`–`f6` |
+| d) Film (Joker): düğme yok, oynuyor | GEÇTİ | `h1_joker_bar.png` |
+| e) Örümcek-Adam oynuyor | GEÇTİ | `h2_spider_bar.png` |
+| f) Canlı kanal 60 sn + Geri | GEÇTİ | `i1`–`i3` |
+| g) HDFilmCehennemi kaynağı açılıyor | GEÇTİ (Joker/Örümcek-Adam) | `h1`, `h2` |
+| h) İngilizce panel, taşma yok; dil "Sistem"e geri alındı | GEÇTİ | `j1`, `j2`, `k1` |
+| i) Son tarama | VerifyError 0, FATAL 0, Play ANR 0, ClassNotFound/NoSuchMethod 0 | logcat |
+
+**"Hiçbir kaynak açılamadı / Oda sahibi kontrol ediyor" (a2, a3, d1):** Watch Party kalıntısı değil, düğmeyle ilgisi yok. Aynı kod debug derlemede de çıktı. Neden: Ayarlar > "Kaynak hata geçmişi ve kara liste"de `dbx.molystream.org` (DiziBOX) "Geçici olarak atlanan sunucular" listesindeydi (kalan 5 sa 20 dk); önceki başarısız denemelerin zaman aşımları (05:11–05:39) sunucuyu karalisteye almıştı. Listeden "Yeniden etkinleştir" ile kaldırılınca oynadı. "Oda sahibi kontrol ediyor" metni kaynak yokken görünen mevcut bir etiket; ayrıca incelenmedi. Not: karalisteye düşme test ortamının yan etkisi, cihazdaki veri silinmedi.
