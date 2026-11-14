@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Eklentiye özgü üst sürgüler (ui/home/slider). Ayrı dosya: strings.xml birleşmelerinde çakışmasın. -->
+<resources>
+    <string name="slider_previous">Previous</string>
+    <string name="slider_next">Next</string>
+</resources>
