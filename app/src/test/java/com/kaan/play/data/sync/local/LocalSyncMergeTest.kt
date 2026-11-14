@@ -111,23 +111,29 @@ class LocalSyncMergeTest {
     }
 
     @Test
-    fun newerPinChangeWins_includingRemoval_andBothSidesConverge() {
+    fun remoteCannotRemoveOrChangeLocalPin() {
         val oldPin = LocalProfileSummary("p1", "Ev", pinHash = "old", pinUpdatedAt = 100)
         val newPin = LocalProfileSummary("p1", "Ev", pinHash = "new", pinUpdatedAt = 200)
         val removed = LocalProfileSummary("p1", "Ev", pinHash = null, pinUpdatedAt = 300)
-        fun both(a: LocalProfileSummary, b: LocalProfileSummary): Pair<LocalProfileSummary, LocalProfileSummary> =
-            LocalSyncMerge.mergeProfiles(listOf(a), listOf(b), remoteIsAuthority = true)[0] to
-                LocalSyncMerge.mergeProfiles(listOf(b), listOf(a), remoteIsAuthority = false)[0]
-        both(oldPin, newPin).let { (client, server) -> assertEquals("new", client.pinHash); assertEquals("new", server.pinHash) }
-        both(newPin, oldPin).let { (client, server) -> assertEquals("new", client.pinHash); assertEquals("new", server.pinHash) }
-        both(newPin, removed).let { (client, server) ->
-            assertNull(client.pinHash); assertNull(server.pinHash); assertEquals(300L, client.pinUpdatedAt)
+        for (authority in listOf(true, false)) {
+            // Daha yeni damgalı başka PIN ya da PIN kaldırma yerel PIN'i değiştirmez.
+            assertEquals("old", LocalSyncMerge.mergeProfiles(listOf(oldPin), listOf(newPin), authority)[0].pinHash)
+            assertEquals("old", LocalSyncMerge.mergeProfiles(listOf(oldPin), listOf(removed), authority)[0].pinHash)
+            // Yerelde PIN yokken karşının PIN'i alınır (daha kısıtlı olan kazanır).
+            assertEquals("new", LocalSyncMerge.mergeProfiles(listOf(removed), listOf(newPin), authority)[0].pinHash)
         }
-        // Eşit damga, iki farklı PIN: kodu gösteren cihazınki (sunucu) iki tarafta da.
-        val serverPin = LocalProfileSummary("p1", "Ev", pinHash = "server")
-        val clientPin = LocalProfileSummary("p1", "Ev", pinHash = "client")
-        assertEquals("server", LocalSyncMerge.mergeProfiles(listOf(clientPin), listOf(serverPin), remoteIsAuthority = true)[0].pinHash)
-        assertEquals("server", LocalSyncMerge.mergeProfiles(listOf(serverPin), listOf(clientPin), remoteIsAuthority = false)[0].pinHash)
+    }
+
+    @Test
+    fun remotePinStampIsClampedToNow() {
+        val future = Long.MAX_VALUE / 2
+        val mine = LocalProfileSummary("p1", "Ev")
+        val theirs = LocalProfileSummary("p1", "Ev", pinHash = "x", pinUpdatedAt = future)
+        val won = LocalSyncMerge.pinWinner(mine, theirs, remoteIsAuthority = true, nowMs = 1_000)
+        assertEquals("x", won.pinHash)
+        assertEquals(1_000L, won.pinUpdatedAt)
+        val newProfile = LocalSyncMerge.mergeProfiles(emptyList(), listOf(theirs.copy(id = "p2")), remoteIsAuthority = true)[0]
+        assertTrue(newProfile.pinUpdatedAt <= System.currentTimeMillis())
     }
 
     @Test

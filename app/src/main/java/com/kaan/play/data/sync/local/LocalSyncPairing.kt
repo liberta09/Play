@@ -27,6 +27,11 @@ data class PairRecord(
     /** İstemci tarafında karşının son bilinen adresi (özel IPv4). */
     val lastHost: String? = null,
     val lastSyncAt: Long = 0,
+    /**
+     * Sunucu tarafında: kodla gelen eşleşme isteği bu cihazda kullanıcı onaylayana kadar beklemededir (sır kullanılmaz;
+     * eşli istekler 403 alır). İstemci tarafındaki kayıt kullanıcı karşının adını onayladıktan sonra yazılır (hep true).
+     */
+    val confirmed: Boolean = true,
 )
 
 /** Bu cihazın eşleşmede görünen kimliği: kalıcı rastgele [id] (onaltılık) ve okunur [name]. */
@@ -36,9 +41,12 @@ data class DeviceIdentity(val id: String, val name: String)
 interface PairDirectory {
     val identity: DeviceIdentity
 
-    /** Bu eşleşmenin sırrı; bilinmiyorsa (silinmiş) null. */
+    /** Bu eşleşmenin sırrı; bilinmiyorsa (silinmiş) ya da onay bekliyorsa null. */
     fun secretFor(pairId: String): String?
 
-    /** Yeni eşleşme kuruldu: kalıcı olarak sakla. */
+    /** Eşleşme kaydı var ama bu cihazda kullanıcı henüz onaylamadı. */
+    fun isPending(pairId: String): Boolean = false
+
+    /** Yeni eşleşme isteği (kodla): onay bekleyen kayıt olarak sakla ([PairRecord.confirmed] = false). */
     fun paired(record: PairRecord)
 }

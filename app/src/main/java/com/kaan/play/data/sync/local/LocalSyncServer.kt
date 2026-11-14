@@ -226,8 +226,8 @@ class LocalSyncServer(
             return null
         }
         val record = PairRecord(LocalSyncCrypto.newNonce(random), secret, hello.deviceId, hello.deviceName.take(MAX_NAME))
-        directory.paired(record)
-        log("sync server: paired")
+        directory.paired(record.copy(confirmed = false))
+        log("sync server: pairing request (waiting for user confirmation)")
         val reply = PairHello(LocalSyncCrypto.encodePublicKey(own), directory.identity.id, directory.identity.name.take(MAX_NAME), record.pairId)
         return LocalSyncCrypto.seal(auth.keys, req.path, json.encodeToString(PairHello.serializer(), reply), random)
     }
@@ -244,6 +244,11 @@ class LocalSyncServer(
         val clientNonce = req.headers[LocalSyncProtocol.HEADER_CLIENT_NONCE.lowercase()]
         val proof = req.headers[LocalSyncProtocol.HEADER_PROOF.lowercase()]
         val pairId = req.headers[LocalSyncProtocol.HEADER_PAIR.lowercase()]
+        // Onay bekleyen eşleşme: deneme sayılmaz, istemci kaydını silmesin diye 401 değil 403 döner.
+        if (pairId != null && allowPair && pairs != null && LocalSyncCrypto.isHexId(pairId) && pairs.isPending(pairId)) {
+            respond(out, 403, """{"error":"pair_pending"}""")
+            return
+        }
         val currentCode = code
         val secret: String? = when {
             pairId == null -> currentCode

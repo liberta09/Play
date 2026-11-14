@@ -34,7 +34,7 @@
     <string name="tv_settings_about">Hakkında</string>
 
     <!-- Telefondan aktar (Wi-Fi) -->
-    <string name="tv_sync_body">Kolay yol: \"Kodu TV\'de göster\"e basın, telefonda Play → Ayarlar → \"Wi-Fi senkronizasyonu\" kartındaki \"Diğer cihazın kodu\" kutusuna TV\'deki kodu yazıp Bağlan\'a basın. Ya da telefondaki kodu aşağıya girin. Eklenti depoları, izleme geçmişi ve favoriler iki cihaz arasında eşitlenir; ilk eşitlemeden sonra cihazlar eşleşmiş kalır ve kod girmeden eşitlenir.</string>
+    <string name="tv_sync_body">Kolay yol: \"Kodu TV\'de göster\"e basın, telefonda Play → Ayarlar → \"Wi-Fi senkronizasyonu\" kartındaki \"Diğer cihazın kodu\" kutusuna TV\'deki kodu yazıp Bağlan\'a basın. Ya da telefondaki kodu aşağıya girin. Eklenti depoları, izleme geçmişi ve favoriler iki cihaz arasında eşitlenir. \"Eşleşmiş cihazları hatırla\" iki cihazda da açıksa eşitlemeden sonra cihazları eşleştirebilirsiniz (iki taraf da onaylar); sonra kod girmeden eşitlenirler.</string>
     <string name="tv_sync_hide_code">Kodu kapat</string>
     <string name="tv_sync_show_code">Kodu TV\'de göster</string>
     <string name="tv_sync_code">Kod: %1$s</string>

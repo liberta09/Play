@@ -57,7 +57,7 @@ data class ProfileConsolidationResult(
  * görüntüsünü alır ve aynı kurallarla birleştirir; böylece sonunda aynı veriye sahip olurlar:
  *
  * - **Profiller:** kimliğe göre birleşim. PIN özeti yalnız Wi-Fi'da (şifreli kanal) aktarılır, buluta hiç girmez ([forTransfer]);
- *   iki tarafta da olan profilde PIN [pinWinner] kuralıyla seçilir (daha yeni damga kazanır, eski sürümden gelen boş PIN silmez).
+ *   iki tarafta da olan profilde PIN [pinWinner] kuralıyla seçilir (karşıdan gelen değişiklik yerel PIN'i kaldıramaz/değiştiremez).
  *   PIN'siz ve adı tam olarak [DEFAULT_NAME] olan profiller tekilleştirilir; daha eski/sabit kimlik ([DEFAULT_ID] ya da
  *   deterministik en küçük kimlik) korunur, atılan kimliğin kitaplığı (geçmiş + favori) korunana eklenir.
  * - **Geçmiş / kaldığı yer:** aynı içerikte (film ya da sezon+bölüm) en yeni `lastWatchedAt` kazanır; eşitlikte daha ileri konum.
@@ -151,17 +151,20 @@ object LocalSyncMerge {
     fun forWifi(profile: LocalProfileSummary): LocalProfileSummary = profile.copy(syncCode = null)
 
     /**
-     * İki cihazda da olan profilde geçerli PIN hangisinin? Daha yeni [LocalProfileSummary.pinUpdatedAt] kazanır (kaldırma da
-     * damgalıdır). Damga eşitse (ör. ikisi de 0 = eski kayıt) PIN'li olan kazanır: eski sürüm PIN göndermez, bu yüzden boş gelen
-     * PIN yerel PIN'i silmez. İkisi de PIN'liyse kodu gösteren cihazınki (istemcide karşı taraf, sunucuda kendisi): iki taraf
-     * aynı sonuca varır.
+     * İki cihazda da olan profilde geçerli PIN: karşıdan gelen değişiklik yerel PIN'i **kaldıramaz ve değiştiremez** (ebeveyn
+     * kilidi atlatılamasın). Yerelde PIN varsa yerel kalır; yalnız yerelde PIN yokken karşının PIN'i alınır (daha kısıtlı
+     * olan kazanır). Damga gelecekten gelemez: karşının [LocalProfileSummary.pinUpdatedAt] değeri [nowMs]'e kırpılır.
+     * [remoteIsAuthority] PIN kararında rol oynamaz (eski imza korunur).
      */
-    fun pinWinner(mine: LocalProfileSummary, theirs: LocalProfileSummary, remoteIsAuthority: Boolean): LocalProfileSummary = when {
-        theirs.pinUpdatedAt > mine.pinUpdatedAt -> theirs
-        mine.pinUpdatedAt > theirs.pinUpdatedAt -> mine
-        mine.pinHash == null -> theirs
-        theirs.pinHash == null -> mine
-        remoteIsAuthority -> theirs
+    @Suppress("UNUSED_PARAMETER")
+    fun pinWinner(
+        mine: LocalProfileSummary,
+        theirs: LocalProfileSummary,
+        remoteIsAuthority: Boolean,
+        nowMs: Long = System.currentTimeMillis(),
+    ): LocalProfileSummary = when {
+        mine.pinHash != null -> mine
+        theirs.pinHash != null -> theirs.copy(pinUpdatedAt = theirs.pinUpdatedAt.coerceIn(0L, nowMs))
         else -> mine
     }
 
@@ -290,7 +293,9 @@ object LocalSyncMerge {
             base.copy(pinHash = pin.pinHash, pinUpdatedAt = pin.pinUpdatedAt)
         }
         val known = local.mapTo(HashSet()) { it.id }
+        val now = System.currentTimeMillis()
         val allMerged = merged + remote.filter { it.id !in known }.distinctBy { it.id }.map(::forWifi)
+            .map { it.copy(pinUpdatedAt = it.pinUpdatedAt.coerceIn(0L, now)) }
 
         val eligibleDefaults = allMerged.filter(::isEligibleDefault)
         if (eligibleDefaults.size <= 1) return allMerged

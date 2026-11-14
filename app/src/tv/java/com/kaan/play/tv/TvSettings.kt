@@ -41,6 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Button
 import androidx.tv.material3.Text
 import com.kaan.play.PlayApp
+import kotlinx.coroutines.launch
 import com.kaan.play.data.sync.local.LocalSyncController
 
 /**
@@ -175,6 +176,42 @@ private fun WifiSync(sync: LocalSyncController, onCatalogChanged: () -> Unit) {
         InitialFocus(field) { focused }
         Spacer(Modifier.height(8.dp))
         Text(statusText(state), color = if (state.phase == LocalSyncController.Phase.Failed) Accent else TextDim, fontSize = TvText.Body)
+        // Kalıcı eşleşme (varsayılan kapalı; telefonda da açılmalı): öneri ve gelen istek kullanıcı onayıyla.
+        val container = (LocalContext.current.applicationContext as PlayApp).container
+        val pairing by container.settings.wifiPairing.collectAsStateWithLifecycle(initialValue = false)
+        val requests by sync.pairRequests.collectAsStateWithLifecycle()
+        val pairScope = androidx.compose.runtime.rememberCoroutineScope()
+        Spacer(Modifier.height(12.dp))
+        ListItem(
+            selected = false,
+            onClick = {
+                val on = !pairing
+                pairScope.launch {
+                    container.settings.setWifiPairing(on)
+                    if (!on) sync.forgetAllPairs()
+                }
+            },
+            headlineContent = { Text(stringResource(com.kaan.play.R.string.wifi_sync_pairing_setting)) },
+            supportingContent = { Text(stringResource(com.kaan.play.R.string.wifi_sync_pairing_setting_hint), color = TextDim) },
+            trailingContent = { Text(stringResource(if (pairing) R.string.tv_on else R.string.tv_off), color = if (pairing) Accent else TextDim) },
+        )
+        val offer = state.pairOffer
+        if (pairing && offer != null) {
+            Spacer(Modifier.height(8.dp))
+            Text(stringResource(com.kaan.play.R.string.wifi_sync_pair_offer, offer), color = TextMain, fontSize = TvText.Body)
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Button(onClick = sync::acceptPairOffer) { Text(stringResource(com.kaan.play.R.string.wifi_sync_pair_accept)) }
+                Button(onClick = sync::declinePairOffer) { Text(stringResource(com.kaan.play.R.string.wifi_sync_pair_decline)) }
+            }
+        }
+        if (pairing) requests.forEach { r ->
+            Spacer(Modifier.height(8.dp))
+            Text(stringResource(com.kaan.play.R.string.wifi_sync_pair_request, r.peerName), color = TextMain, fontSize = TvText.Body)
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                Button(onClick = { sync.confirmPairRequest(r.pairId) }) { Text(stringResource(com.kaan.play.R.string.wifi_sync_pair_allow)) }
+                Button(onClick = { sync.unpair(r.pairId) }) { Text(stringResource(com.kaan.play.R.string.wifi_sync_pair_reject)) }
+            }
+        }
         val paired by sync.pairedDevices.collectAsStateWithLifecycle()
         if (paired.isNotEmpty()) {
             Spacer(Modifier.height(12.dp))

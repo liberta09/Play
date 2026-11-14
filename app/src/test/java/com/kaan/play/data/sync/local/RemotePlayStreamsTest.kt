@@ -31,6 +31,45 @@ class RemotePlayStreamsTest {
     )
 
     @Test
+    fun incomingStreamsAreCheckedAgainOnTheReceiver() {
+        val ok = stream("https://cdn.example/v/1.m3u8").copy(
+            headers = mapOf("Referer" to "https://site.example/", "X-Forwarded-For" to "1.2.3.4", "Host" to "evil"),
+            subtitles = listOf(
+                com.kaan.play.data.stream.StreamSubtitle("https://cdn.example/s.vtt", "tr"),
+                com.kaan.play.data.stream.StreamSubtitle("http://172.16.1.5/s.vtt", "tr"),
+            ),
+        )
+        val bad = listOf(
+            stream("http://172.16.1.5/v.m3u8"), stream("http://10.1.2.3/v.m3u8"), stream("http://169.254.1.1/v.m3u8"),
+            stream("http://127.0.0.1:8090/v"), stream("http://[::1]/v"), stream("http://[fe80::1]/v"),
+            stream("http://printer.local/v"), stream("file:///sdcard/v.mp4"), stream("https://user:pw@cdn.example/v"),
+            stream("https://cdn.example/v", transport = true),
+        )
+        val accepted = RemotePlayStreams.acceptIncoming(listOf(ok) + bad)
+        assertEquals(1, accepted.size)
+        assertEquals(mapOf("Referer" to "https://site.example/"), accepted[0].headers)
+        assertEquals(listOf("https://cdn.example/s.vtt"), accepted[0].subtitles.map { it.url })
+        assertTrue(RemotePlayStreams.acceptIncoming(bad).isEmpty())
+        assertEquals(RemotePlayStreams.MAX_STREAMS, RemotePlayStreams.acceptIncoming(List(9) { ok }).size)
+    }
+
+    @Test
+    fun receiverRejectsObfuscatedPrivateAddresses() {
+        val rejected = listOf(
+            "http://[::ffff:172.16.1.1]/v", "http://[::ffff:7f00:1]/v", "http://[::ffff:a9fe:101]/v", "http://[fd12::1]/v",
+            "http://[::]/v", "http://[ff02::1]/v", "http://2130706433/v", "http://0x7f.1/v", "http://0x7f000001/v",
+            "http://127.1/v", "http://017.0.0.1/v", "http://100.64.0.1/v", "http://100.127.255.254/v", "http://0.0.0.0/v",
+            "http://255.255.255.255/v", "http://224.0.0.1/v", "http://1.2.3.4.5/v", "http://bad_host.example/v",
+        )
+        for (url in rejected) assertFalse(url, RemotePlayStreams.safeRemoteUrl(url))
+        val accepted = listOf(
+            "https://cdn.example.com/v/1.m3u8", "http://video.example.org:8080/a.mp4", "https://8.8.8.8/v",
+            "https://[2606:4700::1111]/v", "https://100.128.0.1/v", "https://cdn-1.example.co.uk./v",
+        )
+        for (url in accepted) assertTrue(url, RemotePlayStreams.safeRemoteUrl(url))
+    }
+
+    @Test
     fun castable_onlyPlainRemoteHttp() {
         assertTrue(RemotePlayStreams.castable(stream("https://cdn.example/v/1.m3u8")))
         assertTrue(RemotePlayStreams.castable(stream("http://cdn.example/v/1.mp4")))

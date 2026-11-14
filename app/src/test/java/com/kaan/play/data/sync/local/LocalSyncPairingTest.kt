@@ -77,6 +77,36 @@ class LocalSyncPairingTest {
         }
     }
 
+    /** Gerçek kayıt gibi: sunucu tarafında yeni eşleşme kullanıcı onaylayana kadar beklemede. */
+    private class ConfirmingDirectory : PairDirectory {
+        val records = ConcurrentHashMap<String, PairRecord>()
+        override val identity = DeviceIdentity(id = "b".repeat(32), name = "TV")
+        override fun secretFor(pairId: String): String? = records[pairId]?.takeIf { it.confirmed }?.secret
+        override fun isPending(pairId: String): Boolean = records[pairId]?.confirmed == false
+        override fun paired(record: PairRecord) {
+            records[record.pairId] = record
+        }
+    }
+
+    @Test
+    fun serverSidePairingWaitsForUserConfirmation() = runBlocking<Unit> {
+        val dir = ConfirmingDirectory()
+        val tv = Device()
+        val (_, port) = server("246810", dir, tv)
+        val record = client.pair("127.0.0.1", port, "246810", phone)
+        assertEquals(false, dir.records.getValue(record.pairId).confirmed)
+        // Onay yokken eşli istek kabul edilmez; 403 (Invalid) döner, istemci kaydını silmesin diye 401 (WrongCode) değil.
+        try {
+            client.exchangePaired("127.0.0.1", port, record, "{}")
+            fail("onaylanmamış eşleşme kabul edilmemeli")
+        } catch (e: LocalSyncException) {
+            assertEquals(LocalSyncException.Kind.Invalid, e.kind)
+        }
+        assertEquals(0, tv.exchanges.get())
+        dir.records[record.pairId] = dir.records.getValue(record.pairId).copy(confirmed = true)
+        assertEquals("""{"from":"tv"}""", client.exchangePaired("127.0.0.1", port, record, """{"from":"phone"}"""))
+    }
+
     @Test
     fun eachPairingGetsItsOwnSecret() = runBlocking<Unit> {
         val dir = Directory()

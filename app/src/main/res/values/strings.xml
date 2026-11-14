@@ -1143,6 +1143,14 @@
     <string name="cast_tv_finding_stream">%1$s doesn\'t have this title\'s extension; finding a source on this phone to send…</string>
     <string name="cast_tv_sent_stream">Source found on this phone; opening on %1$s</string>
     <string name="cast_tv_no_stream">%1$s doesn\'t have this title\'s extension and no source could be sent from this phone.</string>
+    <string name="wifi_sync_pairing_setting">Remember paired devices</string>
+    <string name="wifi_sync_pairing_setting_hint">Off by default. When on (on both devices), a device you confirm after a code sync syncs again without a code and enables Play on TV and the remote. Turning it off removes all pairings.</string>
+    <string name="wifi_sync_pair_offer">Pair with %1$s? It will then sync without a code. Only pair with your own devices.</string>
+    <string name="wifi_sync_pair_accept">Pair</string>
+    <string name="wifi_sync_pair_decline">Not now</string>
+    <string name="wifi_sync_pair_request">%1$s wants to pair with this device. Allow only if it is your own device.</string>
+    <string name="wifi_sync_pair_allow">Allow</string>
+    <string name="wifi_sync_pair_reject">Reject</string>
     <string name="wifi_sync_paired_title">Paired devices</string>
     <string name="wifi_sync_paired_remove">Remove</string>
     <string name="wifi_sync_paired_hint">These devices sync automatically on the same Wi-Fi, without a code.</string>

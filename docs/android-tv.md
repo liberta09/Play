@@ -30,19 +30,28 @@ Sol menü: Ara, Ana sayfa, Canlı TV, Filmler, Diziler, Shorts Drama (aşağıya
   testi, poster adres şablonu).
 
 ### Telefonla bağlantı
-- **Eşleşme:** TV'de Ayarlar → Telefondan aktar → "Kodu TV'de göster"; telefonda Play → Ayarlar → Wi-Fi senkronizasyonu
-  kartına kod yazılır (ya da tersi). İlk kodlu eşitlemeden sonra cihazlar **kalıcı olarak eşleşir** (ECDH ile türetilen
-  eşleşme sırrı; `LocalSyncPairing`, `LocalSyncPairStore`). Eşleşmiş cihazlar uygulama açıkken kod girmeden eşitlenir
-  (açılış, ön plana dönüş; en sık 30 sn'de bir). Eşleşmiş cihazlar arasında eksik kaynaklar onay sorulmadan kurulur.
-  Eşleşme Wi-Fi kartından (telefon) ya da Telefondan aktar sayfasından (TV) kaldırılır.
+- **Eşleşme (isteğe bağlı, varsayılan kapalı):** "Eşleşmiş cihazları hatırla" ayarı iki cihazda da açılır (telefonda
+  Wi-Fi senkronizasyonu kartında, TV'de Ayarlar → Telefondan aktar sayfasında). TV'de "Kodu TV'de göster"; telefonda
+  kod yazılıp Bağlan (ya da tersi). Kodlu eşitlemeden sonra kodu yazan cihaz karşının adını gösterip "Eşleş" diye sorar;
+  kodu gösteren cihaz da gelen isteği "İzin ver / Reddet" ile onaylar. İki onay olmadan eşleşme kullanılmaz (sunucu
+  onay bekleyen eşleşmeye 403 verir). Eşleşme sırrı ECDH + HKDF ile türetilir (`LocalSyncPairing`, `LocalSyncPairStore`).
+  Eşleşmiş cihazlar uygulama açıkken kod girmeden eşitlenir (açılış, ön plana dönüş; en sık 30 sn'de bir). Eksik
+  kaynaklar her zaman kullanıcı onayıyla kurulur ("Şunlar eklensin mi?"). Eşleşme tek tek kaldırılabilir; ayarı kapatmak
+  bütün eşleşmeleri siler.
 - **Telefondan TV'de oynat:** telefonda detay ekranının sağ üstündeki TV düğmesi (`TvCastButton`) açıkken Oynat, içeriği
   eşleşmiş TV'de açar. TV'de içeriğin eklentisi yoksa telefon kaynağı kendisi bulur ve doğrudan akış gönderir; TV'de
   eklenti kapalıysa yalnız o izleme için açılır.
 - **Kumanda:** eşleşmiş cihaz varken telefonun üst menüsünde kumanda simgesi çıkar (`ui/remote/RemoteScreen.kt`): yön
   halkası, Tamam/Geri/Ana sayfa, oynat/duraklat, ±10 sn, ses, liste ve TV'ye yazı gönderme; üstte TV'de oynayanın kartı.
 - **Güvenlik:** Wi-Fi eşitlemesinin bütün kuralları geçerli (yalnız özel IPv4, HMAC kanıtı, AES-GCM gövde, deneme
-  sınırı). Oynatma ve kumanda uçları (`/play`, `/remote`) yalnız eşleşmiş cihazdan gelen isteği kabul eder; tek
-  kullanımlık kodla gelen istek reddedilir. Eşli sunucu yalnız uygulama ön plandayken açıktır.
+  sınırı). Oynatma ve kumanda uçları (`/play`, `/remote`) yalnız onaylanmış eşleşmeden gelen isteği kabul eder; tek
+  kullanımlık kodla gelen istek reddedilir. Telefondan gelen doğrudan akışlar TV'de yeniden denetlenir (yalnız http/https,
+  yerel/özel/loopback/link-local/CGNAT adres yok, sayısal adres biçimleri sıkı denetlenir, başlık izin listesi;
+  `RemotePlayStreams.acceptIncoming`). Sınır: DNS ile çözülen adlar bağlantı anında yeniden denetlenmez (akış yalnız
+  kullanıcının onayladığı eşli cihazdan gelir). Karşıdan gelen
+  eşitleme yerel profil PIN'ini kaldıramaz ya da değiştiremez. Eşli sunucu yalnız uygulama ön plandayken açıktır.
+  Not: 6 haneli kod parola tabanlı bir anlaşma (PAKE) değildir; eşleşme aynı ağdaki sahte bir cihaza karşı iki taraftaki
+  kullanıcı onayıyla korunur. Yalnız kendi cihazlarınızla eşleşin.
 
 ### Bulut hesabı
 TV, Play'in kendi bulut eşitlemesini (`SupabaseCloudSync`) kullanır: Ayarlar → Profiller ve hesap → Bulut hesabı'nda
@@ -106,7 +115,10 @@ screens are TV-specific (Compose for TV).
   `tv` = Play TV (`com.kaan.play.tv`). Both can be installed side by side. TV sources live in `app/src/tv/`.
 - Screens: Search, Home, Live TV, Movies, Series, Shorts Drama (see above), Library, Settings (Wi-Fi transfer, add-ons, player, profiles & account,
   general). Play's icon/banner and cyan accent.
-- Phone link: after one code-based Wi-Fi sync the devices stay **paired** and sync automatically while the app is open;
+- Phone link (opt-in, off by default, "Remember paired devices" on both devices): after a code-based Wi-Fi sync both
+  users confirm the pairing (device name shown); paired devices then sync automatically while the app is open; missing
+  sources still need confirmation; incoming direct streams are re-checked on the TV; a remote sync cannot remove or change
+  a local profile PIN;
   "Play on TV" on the phone's detail screen opens the title on the paired TV (direct streams are sent when the TV lacks
   the add-on); the phone gets a remote-control screen. Play/remote endpoints accept paired devices only.
 - Cloud: the TV uses Play's own cloud sync (email sign-in on the TV); sessions are not transferred from the phone.

@@ -624,18 +624,25 @@ class AppContainer(context: Context) {
      * Wi-Fi senkronizasyonu (aynı ağdaki iki cihaz). Tembel: uygulama açılışında hiçbir sunucu başlamaz; yalnızca
      * kart açılınca [com.kaan.play.data.sync.local.LocalSyncController.open] çağrılır.
      */
+    /** Kalıcı eşleşme ayarının son değeri (eşitleme iş parçacıkları her seferinde DataStore beklemesin). */
+    @Volatile
+    private var wifiPairingEnabled: Boolean? = null
+
     val localSync: com.kaan.play.data.sync.local.LocalSyncController by lazy {
+        appScope.launch { settings.wifiPairing.collect { wifiPairingEnabled = it } }
         com.kaan.play.data.sync.local.LocalSyncController(
             data = localSyncData,
             nsd = com.kaan.play.data.sync.local.LocalSyncNsd(appContext),
             scope = appScope,
-            // Kalıcı eşleşme: kodla bir kez eşitlenen cihazlar sonra kod girilmeden eşitlenir (telefondan TV'ye oynatma ve
-            // kumanda da bu kanaldan gider). Eşleşmiş cihazlar arasında eksik kaynaklar onay sorulmadan kurulur.
+            // Kalıcı eşleşme (ayarla açılır, varsayılan kapalı): kodla eşitledikten sonra iki cihazda da onaylanan eşleşme
+            // kod girmeden eşitlenir; telefondan TV'ye oynatma ve kumanda da bu kanaldan gider. Eksik kaynaklar her zaman
+            // kullanıcı onayıyla kurulur.
             pairs = com.kaan.play.data.sync.local.LocalSyncPairStore(appContext),
+            pairingEnabled = { wifiPairingEnabled ?: kotlinx.coroutines.runBlocking { settings.wifiPairing.first() } },
             acceptRemotePlay = (appContext as? PlayApp)?.acceptsRemotePlay == true,
             acceptRemoteControl = (appContext as? PlayApp)?.acceptsRemotePlay == true,
             resolveRemotePlay = { req -> (appContext as? PlayApp).let { app -> if (app == null) req.target else app.resolveRemotePlay(req) } },
-            autoInstallSources = true,
+            autoInstallSources = false,
             remoteStateSource = (appContext as? PlayApp)?.remoteStateSource,
         )
     }

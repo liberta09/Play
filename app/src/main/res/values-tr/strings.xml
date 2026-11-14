@@ -1124,6 +1124,14 @@
     <string name="cast_tv_finding_stream">%1$s\'de bu içeriğin eklentisi yok; kaynak telefonda bulunup TV\'ye gönderiliyor…</string>
     <string name="cast_tv_sent_stream">Kaynak telefonda bulundu, %1$s\'de açılıyor</string>
     <string name="cast_tv_no_stream">%1$s\'de bu içeriğin eklentisi yok ve telefondan gönderilebilecek bir kaynak bulunamadı.</string>
+    <string name="wifi_sync_pairing_setting">Eşleşmiş cihazları hatırla</string>
+    <string name="wifi_sync_pairing_setting_hint">Varsayılan kapalı. Açıkken (iki cihazda da), kodlu eşitlemeden sonra onayladığınız cihaz bir dahaki sefer kod girmeden eşitlenir; TV\'de oynat ve kumanda da açılır. Kapatınca bütün eşleşmeler silinir.</string>
+    <string name="wifi_sync_pair_offer">%1$s ile eşleşilsin mi? Sonra kod girmeden eşitlenir. Yalnız kendi cihazlarınızla eşleşin.</string>
+    <string name="wifi_sync_pair_accept">Eşleş</string>
+    <string name="wifi_sync_pair_decline">Şimdi değil</string>
+    <string name="wifi_sync_pair_request">%1$s bu cihazla eşleşmek istiyor. Yalnız kendi cihazınızsa izin verin.</string>
+    <string name="wifi_sync_pair_allow">İzin ver</string>
+    <string name="wifi_sync_pair_reject">Reddet</string>
     <string name="wifi_sync_paired_title">Eşleşmiş cihazlar</string>
     <string name="wifi_sync_paired_remove">Kaldır</string>
     <string name="wifi_sync_paired_hint">Bu cihazlar aynı Wi-Fi ağında kod girmeden kendiliğinden eşitlenir.</string>

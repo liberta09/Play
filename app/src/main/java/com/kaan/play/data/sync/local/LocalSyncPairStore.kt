@@ -28,7 +28,9 @@ class LocalSyncPairStore(context: Context) : PairDirectory {
         DeviceIdentity(id, Build.MODEL.orEmpty().ifBlank { "Play" })
     }
 
-    override fun secretFor(pairId: String): String? = _pairs.value.firstOrNull { it.pairId == pairId }?.secret
+    override fun secretFor(pairId: String): String? = _pairs.value.firstOrNull { it.pairId == pairId && it.confirmed }?.secret
+
+    override fun isPending(pairId: String): Boolean = _pairs.value.any { it.pairId == pairId && !it.confirmed }
 
     /** Aynı karşı cihazla yeniden eşleşme eskisinin yerine geçer (bir cihaz başına tek kayıt). */
     @Synchronized
@@ -40,6 +42,10 @@ class LocalSyncPairStore(context: Context) : PairDirectory {
 
     @Synchronized
     fun remove(pairId: String) = save(_pairs.value.filterNot { it.pairId == pairId })
+
+    /** Bütün eşleşmeleri siler (kalıcı eşleşme ayarı kapatıldı). */
+    @Synchronized
+    fun clear() = save(emptyList())
 
     private fun save(list: List<PairRecord>) {
         prefs.edit().putString(KEY_PAIRS, json.encodeToString(serializer, list)).apply()

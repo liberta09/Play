@@ -41,7 +41,7 @@
     <string name="tv_settings_about">About</string>
 
     <!-- Telefondan aktar (Wi-Fi) -->
-    <string name="tv_sync_body">Easy way: press \"Show code on TV\", then on your phone open Play → Settings → \"Wi-Fi sync\" card, type the TV\'s code into the \"Other device\'s code\" box and press Connect. Or enter the phone\'s code below. Add-on repositories, watch history and favorites are synced between the two devices; after the first sync the devices stay paired and sync without a code.</string>
+    <string name="tv_sync_body">Easy way: press \"Show code on TV\", then on your phone open Play → Settings → \"Wi-Fi sync\" card, type the TV\'s code into the \"Other device\'s code\" box and press Connect. Or enter the phone\'s code below. Add-on repositories, watch history and favorites are synced between the two devices. If \"Remember paired devices\" is on on both devices, you can pair them after the sync (both sides confirm) so they sync without a code.</string>
     <string name="tv_sync_hide_code">Hide code</string>
     <string name="tv_sync_show_code">Show code on TV</string>
     <string name="tv_sync_code">Code: %1$s</string>
