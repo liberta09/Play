@@ -50,6 +50,27 @@ object PlayIcons {
         }
     }
 
+    /** Kumanda: dik gövde, üstte yön halkası, altta iki tuş. */
+    val Remote: ImageVector by lazy {
+        icon("Remote") {
+            line {
+                moveTo(9.5f, 2.5f); horizontalLineTo(14.5f)
+                arcToRelative(2f, 2f, 0f, false, true, 2f, 2f)
+                verticalLineTo(19.5f)
+                arcToRelative(2f, 2f, 0f, false, true, -2f, 2f)
+                horizontalLineTo(9.5f)
+                arcToRelative(2f, 2f, 0f, false, true, -2f, -2f)
+                verticalLineTo(4.5f)
+                arcToRelative(2f, 2f, 0f, false, true, 2f, -2f)
+                moveTo(12f, 5.8f)
+                arcToRelative(2.2f, 2.2f, 0f, true, true, 0f, 4.4f)
+                arcToRelative(2.2f, 2.2f, 0f, true, true, 0f, -4.4f)
+                moveTo(10.5f, 14f); horizontalLineTo(13.5f)
+                moveTo(10.5f, 17f); horizontalLineTo(13.5f)
+            }
+        }
+    }
+
     val Search: ImageVector by lazy {
         icon("Search") {
             line {

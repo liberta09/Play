@@ -65,6 +65,10 @@ interface WatchHistoryDao {
         type: String,
     )
 
+    /** Resmi olmayan kayıtlara (ör. buluttan gelen eklenti kaydı; bulut tam adresi taşımaz) resim yazar. */
+    @Query("UPDATE watch_history SET posterPath = :posterPath WHERE userId = :userId AND profileId = :profileId AND tmdbId = :tmdbId AND type = :type AND (posterPath IS NULL OR posterPath = '')")
+    suspend fun fillMissingPoster(userId: String, profileId: String, tmdbId: Int, type: MediaType, posterPath: String)
+
     @Query("DELETE FROM watch_history WHERE userId = :userId AND profileId = :profileId")
     suspend fun clear(
         userId: String = "legacy-user",

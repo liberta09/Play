@@ -7,6 +7,7 @@ import com.kaan.play.data.db.WatchHistoryEntity
 import com.kaan.play.data.model.MediaSummary
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.stream.PlayTarget
+import com.kaan.play.data.sync.DeletedLibraryItem
 import com.kaan.play.data.sync.LocalProfileRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -21,44 +22,55 @@ class LibraryRepository(
     private val profile: LocalProfileRepository? = null,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
-    private val userFlow: Flow<String> = profile?.userId?.map { it.ifEmpty { "legacy-user" } } ?: kotlinx.coroutines.flow.flowOf("legacy-user")
-    private val profileFlow: Flow<String> = profile?.id?.map { it.ifEmpty { "legacy-profile" } } ?: kotlinx.coroutines.flow.flowOf("legacy-profile")
+    private val libraryScope = profile?.libraryScope ?: kotlinx.coroutines.flow.flowOf("legacy-user" to "legacy-profile")
+    private suspend fun scope(): Pair<String, String> = libraryScope.first()
 
-    private suspend fun scope(): Pair<String, String> {
-        val u = profile?.userId?.first()?.ifEmpty { "legacy-user" } ?: "legacy-user"
-        val p = profile?.id?.first()?.ifEmpty { "legacy-profile" } ?: "legacy-profile"
-        return Pair(u, p)
+    val latestPerContent: Flow<List<WatchHistoryEntity>> = libraryScope.flatMapLatest { (u, p) ->
+        history.observeLatestPerContent(u, p)
     }
-
-    /** Her içeriğin (film/dizi) en son kaydı, yeniden eskiye. */
-    val latestPerContent: Flow<List<WatchHistoryEntity>> = profile?.activeProfile?.flatMapLatest { p ->
-        val u = p?.id?.let { profile?.userId?.first()?.ifEmpty { "legacy-user" } } ?: "legacy-user"
-        val profId = p?.id ?: "legacy-profile"
-        history.observeLatestPerContent(u, profId)
-    } ?: history.observeLatestPerContent("legacy-user", "legacy-profile")
-
-    /** Geçmiş ekranı: her kayıt ayrı (film, dizide her bölüm), son izlenen üstte. */
-    val watchHistory: Flow<List<WatchHistoryEntity>> = profile?.activeProfile?.flatMapLatest { p ->
-        val u = p?.id?.let { profile?.userId?.first()?.ifEmpty { "legacy-user" } } ?: "legacy-user"
-        val profId = p?.id ?: "legacy-profile"
-        history.observeHistory(u, profId)
-    } ?: history.observeHistory("legacy-user", "legacy-profile")
-
-    val allFavorites: Flow<List<FavoriteEntity>> = profile?.activeProfile?.flatMapLatest { p ->
-        val u = p?.id?.let { profile?.userId?.first()?.ifEmpty { "legacy-user" } } ?: "legacy-user"
-        val profId = p?.id ?: "legacy-profile"
-        favorites.observeAll(u, profId)
-    } ?: favorites.observeAll("legacy-user", "legacy-profile")
+    val watchHistory: Flow<List<WatchHistoryEntity>> = libraryScope.flatMapLatest { (u, p) ->
+        history.observeHistory(u, p)
+    }
+    val allFavorites: Flow<List<FavoriteEntity>> = libraryScope.flatMapLatest { (u, p) ->
+        favorites.observeAll(u, p)
+    }
 
     suspend fun removeFavorite(type: MediaType, tmdbId: Int) {
         val (u, p) = scope()
         favorites.remove(u, p, tmdbId, type)
         profile?.recordDeletedFavorite(u, p, tmdbId, type.name.lowercase(), clock())
+        recordFavoriteRemoved(p, type, tmdbId)
     }
 
+    /**
+     * Favoriden çıkarma silinenler kaydına yazılır: eşitlemede öteki cihazın kopyası geri getirmez. Bulut biçiminde
+     * favori silme kaydı yok (sunucu ve yayındaki sürümler tanımaz) → yalnız Wi-Fi'de taşınır, bulutta bu cihazda süzer.
+     */
+    private suspend fun recordFavoriteRemoved(profileId: String, type: MediaType, tmdbId: Int) {
+        profile?.saveDeletedItems(
+            listOf(DeletedLibraryItem(profileId, DeletedLibraryItem.KIND_FAVORITE, tmdbId, type.name.lowercase(), deletedAt = clock())),
+        )
+    }
+
+    /**
+     * Geçmişten tek kayıt silme. İçeriğin son kaydıysa "Devam et'ten kaldır" ile aynı içerik mezar taşı (bulut dahil
+     * her yolda, yayındaki sürümler de uygular); dizinin başka bölümleri duruyorsa yalnız bu bölüm (Wi-Fi kaydı — içerik
+     * mezar taşı öteki bölümleri de silerdi, bulut biçiminde bölüm kaydı yok).
+     */
     suspend fun removeHistory(id: Long) {
         val (u, p) = scope()
+        val row = history.all(u, p).firstOrNull { it.id == id }
         history.delete(u, p, id)
+        row ?: return
+        val now = clock()
+        val type = row.type.name.lowercase()
+        if (history.all(u, p).none { it.tmdbId == row.tmdbId && it.type == row.type }) {
+            profile?.recordDeletedHistory(u, p, row.tmdbId, type, now)
+        } else {
+            profile?.saveDeletedItems(
+                listOf(DeletedLibraryItem(p, DeletedLibraryItem.KIND_EPISODE, row.tmdbId, type, row.season, row.episode, now)),
+            )
+        }
     }
 
     suspend fun removeContinueWatching(type: MediaType, tmdbId: Int) {
@@ -120,24 +132,53 @@ class LibraryRepository(
         }
     }
 
+    /**
+     * Geçmişi temizle: silinen her içerik için içerik mezar taşı (bulut dahil) + profilin "temizle" kaydı (Wi-Fi; bu
+     * cihazda henüz olmayan, öteki cihazdaki eski kayıtları da kapsar).
+     */
     suspend fun clearHistory() {
         val (u, p) = scope()
-        val entries = history.all(u, p)
-            .map { it.tmdbId to it.type.name.lowercase() }
-            .distinct()
-        if (entries.isNotEmpty()) {
-            profile?.recordDeletedHistory(u, p, entries, clock())
-        }
+        val rows = history.all(u, p)
         history.clear(u, p)
+        val now = clock()
+        // Yukarı akış 1.3.x toplu kayıt yolu (tek işlem, budama silme zamanına göre); aynı DeletedHistoryItem kaydı.
+        profile?.recordDeletedHistory(u, p, rows.map { it.tmdbId to it.type.name.lowercase() }.distinct(), now)
+        profile?.saveDeletedItems(listOf(DeletedLibraryItem(p, DeletedLibraryItem.KIND_CLEAR, deletedAt = now)))
+    }
+
+    /**
+     * Eklenti içeriği favorisinin (negatif kimlik; ör. TV'de eklenip eşitlemeyle gelen) açılacağı eklenti + içerik adresi:
+     * aynı kimlikli izleme geçmişi satırından. Bilinmiyorsa null (favori satırı eklentiyi taşımaz).
+     */
+    suspend fun providerSourceOf(type: MediaType, tmdbId: Int): Pair<String, String>? {
+        if (tmdbId >= 0) return null
+        val (u, p) = scope()
+        val row = history.all(u, p).firstOrNull {
+            it.tmdbId == tmdbId && it.type == type && it.pluginId?.startsWith("cs:") == true && !it.contentUrl.isNullOrBlank()
+        } ?: return null
+        return row.pluginId!! to row.contentUrl!!
+    }
+
+    /** Detay açılınca: bu içeriğin resimsiz geçmiş satırlarına detaydaki resmi yazar (kendiliğinden onarım). */
+    suspend fun fillMissingPoster(type: MediaType, tmdbId: Int, posterPath: String?) {
+        if (posterPath.isNullOrBlank()) return
+        val (u, p) = scope()
+        history.fillMissingPoster(u, p, tmdbId, type, posterPath)
     }
 
     suspend fun clearFavorites() {
         val (u, p) = scope()
-        val entries = favorites.all(u, p)
+        val rows = favorites.all(u, p)
+        val entries = rows
             .map { it.tmdbId to it.type.name.lowercase() }
             .distinct()
         if (entries.isNotEmpty()) {
             profile?.recordDeletedFavorites(u, p, entries, clock())
+        }
+        // Wi-Fi eşitlemesinin silinenler kaydı (DeletedLibraryItem): toplu silme de oraya yazılır.
+        if (rows.isNotEmpty()) {
+            val now = clock()
+            profile?.saveDeletedItems(rows.map { DeletedLibraryItem(p, DeletedLibraryItem.KIND_FAVORITE, it.tmdbId, it.type.name.lowercase(), deletedAt = now) })
         }
         favorites.clear(u, p)
     }
@@ -148,11 +189,7 @@ class LibraryRepository(
     ): List<com.kaan.play.data.db.SeriesFavoriteRef> = favorites.distinctByType(MediaType.Tv, limit)
 
     fun isFavorite(type: MediaType, tmdbId: Int): Flow<Boolean> =
-        profile?.activeProfile?.flatMapLatest { p ->
-            val u = p?.id?.let { profile?.userId?.first()?.ifEmpty { "legacy-user" } } ?: "legacy-user"
-            val profId = p?.id ?: "legacy-profile"
-            favorites.observeIsFavorite(u, profId, tmdbId, type)
-        } ?: favorites.observeIsFavorite("legacy-user", "legacy-profile", tmdbId, type)
+        libraryScope.flatMapLatest { (u, p) -> favorites.observeIsFavorite(u, p, tmdbId, type) }
 
     suspend fun setFavorite(media: MediaSummary, favorite: Boolean) {
         val (u, p) = scope()
@@ -172,6 +209,7 @@ class LibraryRepository(
         } else {
             favorites.remove(u, p, media.id, media.type)
             profile?.recordDeletedFavorite(u, p, media.id, media.type.name.lowercase(), clock())
+            recordFavoriteRemoved(p, media.type, media.id)
         }
     }
 
@@ -197,10 +235,10 @@ class LibraryRepository(
         return history.find(u, p, r.tmdbId, r.type, r.season ?: 0, r.episode ?: 0)
     }
 
-    suspend fun saveProgress(target: PlayTarget, positionMs: Long, durationMs: Long): Boolean {
+    suspend fun saveProgress(target: PlayTarget, positionMs: Long, durationMs: Long, playbackScope: Pair<String, String>? = null): Boolean {
         if (target.request.addonType in listOf("tv", "channel")) return false
         if (!WatchRules.shouldRecord(positionMs, durationMs)) return false
-        val (u, p) = scope()
+        val (u, p) = playbackScope ?: scope()
         val r = target.request
         val season = r.season ?: 0
         val episode = r.episode ?: 0

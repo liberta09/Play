@@ -6,11 +6,13 @@ import com.kaan.play.data.db.AddonType
 import com.kaan.play.data.db.FavoriteDao
 import com.kaan.play.data.db.PluginDao
 import com.kaan.play.data.db.WatchHistoryDao
+import com.kaan.play.data.library.ProviderFavoriteRefs
 import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.plugin.PluginSettingsRepository
 import com.kaan.play.data.plugin.SourceInstaller
 import com.kaan.play.data.settings.SettingsRepository
 import com.kaan.play.data.sync.FavoriteBackup
+import com.kaan.play.data.sync.FavoriteSourceTransfer
 import com.kaan.play.data.sync.HistoryBackup
 import com.kaan.play.data.sync.LocalProfileBackup
 import com.kaan.play.data.sync.LocalProfileRepository
@@ -39,6 +41,15 @@ class LocalSyncData(
     private val installer: SourceInstaller,
     private val webSites: WebSiteRepository,
     private val deviceName: String,
+    /** Geçmişteki yanlış eklenti numaralarının onarımı (eşitlemeden önce ve sonra); null: onarım yok (testler). */
+    private val pluginRepair: HistoryPluginRepair? = null,
+    /**
+     * Kurulu CS deposuna adı verilen eklentileri depodan indirip kurar (depo satırı, depo adresi, eklenti adları → kurulan
+     * sayı); null: yapılmaz (testler). Yalnız [apply]'da `installPlugins = true` ile.
+     */
+    private val installCsPlugins: (suspend (repoId: Long, repoUrl: String, names: Set<String>) -> Int)? = null,
+    /** Eklenti favorilerinin açılış bilgileri (yalnız Wi-Fi'de taşınır); null: taşınmaz (testler). */
+    private val favoriteRefs: ProviderFavoriteRefs? = null,
 ) {
 
     private val migrator = ProfileDataMigrator(profiles, backups, history, favorites)
@@ -47,12 +58,46 @@ class LocalSyncData(
 
     suspend fun activeProfileId(): String = profiles.id.first()
 
+    /**
+     * Tüm profillerin geçmişinde başka cihazdan yanlış numarayla gelmiş eklenti kayıtlarını düzeltir ([HistoryPluginRepair]).
+     * Eşitlemeyi asla bozmaz: hata olursa 0 döner. Eklenti kodundan gelen Error (ör. LinkageError) de yakalanır; yoksa Wi-Fi
+     * birleştirmesini ve TV'nin açılış onarımını düşürür. Kilit ve onarım hatasının kaydı
+     * [HistoryPluginRepair.repairSafely] içinde; burada yalnız profil okuma hatası kalır.
+     */
+    suspend fun repairHistoryPlugins(): Int {
+        val repair = pluginRepair ?: return 0
+        migrateContentIds()
+        return try {
+            repair.repairSafely(userId(), profiles.allProfiles().map { it.id })
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e // iptal yutulmaz
+        } catch (_: Throwable) {
+            0
+        }
+    }
+
+    /**
+     * Eski (eklenti numaralı) içerik kimliklerini kalıcı kimliğe taşır ([HistoryPluginRepair.migrateIds]). Eklenti yüklemez;
+     * açılışta hemen ve her eşitleme yazımından sonra (bulut dahil) çalışır. Hata 0 döner, iptal yutulmaz.
+     */
+    suspend fun migrateContentIds(): Int {
+        val repair = pluginRepair ?: return 0
+        return try {
+            repair.migrateIdsSafely(userId(), profiles.allProfiles().map { it.id })
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Throwable) {
+            0
+        }
+    }
+
     suspend fun consolidateLocalDefaultProfiles() {
         profiles.consolidateDefaultProfiles()
         migrator.migrateAllPending(userId())
     }
 
-    suspend fun export(): LocalProfileTransfer {
+    /** [includePins]: yalnız Wi-Fi (şifreli yerel kanal) için PIN özeti ve damgası yüke girer; bulut yükünde hiç yoktur. */
+    suspend fun export(includePins: Boolean = false): LocalProfileTransfer {
         consolidateLocalDefaultProfiles()
         profiles.ensureId()
         val uId = userId()
@@ -85,7 +130,46 @@ class LocalSyncData(
         }
         val tombstones = profiles.allDeletedHistory()
         val favTombstones = profiles.allDeletedFavorites()
-        return LocalSyncMerge.snapshot(all, libs, sources(), deviceName, tombstones, favTombstones)
+        // Bölüm/temizle/favori silinenleri ve favori açılış bilgileri de yüke girer (yeni alanlar; eski sürüm bilinmeyen alanı atar).
+        return LocalSyncMerge.snapshot(
+            all, libs, sources(), deviceName, tombstones, includePins = includePins,
+            deletedItems = profiles.allDeletedItems(),
+            favoriteSources = favoriteSources(libs.values.flatMap { it.favorites }),
+            deletedFavorites = favTombstones,
+        )
+    }
+
+    private suspend fun favoriteSources(favs: List<FavoriteBackup>): List<FavoriteSourceTransfer> {
+        val refs = favoriteRefs?.all().orEmpty()
+        if (refs.isEmpty()) return emptyList()
+        val keys = favs.mapNotNull { f -> MediaType.fromTmdb(f.type)?.let { it to f.tmdbId } }.toSet()
+        val names = pluginDao.observeOfType(AddonType.CLOUDSTREAM_REPO).first().associate { it.id to it.pluginId }
+        return LocalSyncMerge.outgoingFavoriteSources(refs, keys, names)
+    }
+
+    /**
+     * Karşıdan gelen eklenti favorisi açılış bilgilerini bu cihazın eklentisine çevirip yerel kayda yazar (burada zaten
+     * bilinen favoriye dokunulmaz). Favori satırlarından ÖNCE yazılır: Kütüphane favoriyi gördüğünde açılış bilgisi hazırdır.
+     */
+    private suspend fun storeFavoriteSources(items: List<FavoriteSourceTransfer>) {
+        val refs = favoriteRefs ?: return
+        if (items.isEmpty()) return
+        val plugins = pluginDao.observeOfType(AddonType.CLOUDSTREAM_REPO).first()
+        var stored = 0
+        var unresolved = 0
+        for (item in items) {
+            if (MediaType.fromTmdb(item.type)?.let { refs.get(it, item.tmdbId) } != null) continue
+            val target = LocalSyncMerge.favoriteSourceTarget(item, plugins)
+            if (target == null) {
+                unresolved++
+                continue
+            }
+            refs.put(target.first, item.tmdbId, target.second, item.contentUrl)
+            stored++
+        }
+        if (stored > 0 || unresolved > 0) {
+            android.util.Log.i("PlaySync", "favorite sources: ${items.size} received, $stored stored, $unresolved unresolved")
+        }
     }
 
     /** Tüm kaynaklar: Nuvio addon'ları (altyazı addon'ları dahil), Nuvio eklenti depoları, CloudStream depoları, web siteleri. */
@@ -108,10 +192,22 @@ class LocalSyncData(
         }
     }
 
-    /** Planı yazar: profiller, geçmiş + favoriler, (karşı esas ise) ortak kaynakların durumları. */
-    suspend fun apply(plan: LocalSyncPlan) {
-        profiles.replaceProfilesKeepingActive(plan.profiles, plan.remappedProfileIds)
+    /**
+     * Planı yazar: profiller, geçmiş + favoriler, (karşı esas ise) ortak kaynakların durumları.
+     * [preserveProfileSecrets]: bulutta PIN yerelden korunur (varsayılan); Wi-Fi (false) birleştirmenin seçtiği PIN'i yazar.
+     * [repairPlugins]: yalnız Wi-Fi birleştirmesi (true) yazdıktan sonra geçmişi bu cihazın eklentilerine çevirir; bulut
+     * eşitlemesi sık çalıştığından ve onarım tüm eklentileri yüklediğinden orada yapılmaz.
+     */
+    suspend fun apply(
+        plan: LocalSyncPlan,
+        includePluginSettings: Boolean = true,
+        preserveProfileSecrets: Boolean = true,
+        repairPlugins: Boolean = false,
+        installPlugins: Boolean = false,
+    ) {
+        profiles.replaceProfilesKeepingActive(plan.profiles, plan.remappedProfileIds, preserveLocalSecrets = preserveProfileSecrets)
         val uId = userId()
+        storeFavoriteSources(plan.favoriteSources)
         for ((profileId, library) in plan.libraries) {
             backups.mergeJsonFor(uId, profileId, LocalSyncMerge.encodeBackup(library)).getOrThrow()
         }
@@ -144,14 +240,54 @@ class LocalSyncData(
                 }
             }
         }
+        // Wi-Fi silinenleri (bölüm, geçmişi temizle, favori): birleşim yalnız ekler; bu cihazda duran eski kopya burada silinir.
+        if (plan.deletedItems.isNotEmpty()) {
+            profiles.saveDeletedItems(plan.deletedItems)
+            for ((profId, items) in plan.deletedItems.groupBy { plan.remappedProfileIds[it.profileId] ?: it.profileId }) {
+                for (e in history.all(uId, profId)) {
+                    if (LocalSyncMerge.isHistoryDeleted(e.tmdbId, e.type.name, e.season, e.episode, e.lastWatchedAt, items)) {
+                        history.delete(uId, profId, e.id)
+                    }
+                }
+                for (f in favorites.all(uId, profId)) {
+                    if (LocalSyncMerge.isFavoriteDeleted(f.tmdbId, f.type.name, f.addedAt, items)) favorites.remove(uId, profId, f.tmdbId, f.type)
+                }
+            }
+        }
         migrator.migrateAllPending(uId, plan.remappedProfileIds)
+        if (installPlugins) {
+            for (item in plan.sharedSources) rowFor(item.sourceUrl)?.let { installMissingPlugins(it, item) }
+        }
         for (item in plan.sourceStates) {
-            rowFor(item.sourceUrl)?.let { applyState(it, item) }
+            rowFor(item.sourceUrl)?.let { applyState(it, item, includePluginSettings) }
+        }
+        // Karşı cihazın numarasıyla gelen kayıtlar bu cihazın eklentilerine çevrilir. Göndermeden önce onarım gerekmez: her
+        // cihaz aldığını kendi eklentileriyle onarır (karşının numarasına güvenmez).
+        // Başka cihazın eski kimlikleri her yolda (bulut dahil) kalıcı kimliğe çevrilir; eklenti onarımı yalnız Wi-Fi'de.
+        if (repairPlugins) repairHistoryPlugins() else migrateContentIds()
+    }
+
+    /**
+     * Ortak CS deposunda karşıda açık olup burada kurulu olmayan eklentiler (depoya sonradan eklenenler dahil) kurulur.
+     * Burada kurulu eklentiler kaldırılmaz ve kapatılmaz. Hata eşitlemeyi bozmaz.
+     */
+    private suspend fun installMissingPlugins(row: AddonEntity, item: SourceTransferItem) {
+        val install = installCsPlugins ?: return
+        if (row.type != AddonType.CLOUDSTREAM_REPO) return
+        val have = pluginDao.ofRepo(row.id).map { it.pluginId }.toSet()
+        val wanted = item.plugins.filter { it.enabled && it.pluginId !in have }.map { it.pluginId }.toSet()
+        if (wanted.isEmpty()) return
+        try {
+            val n = install(row.id, row.sourceUrl, wanted)
+            android.util.Log.i("PlaySync", "plugins installed from shared repo: $n/${wanted.size}")
+        } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            android.util.Log.w("PlaySync", "plugin install failed: ${e.javaClass.simpleName}")
         }
     }
 
     /** Onaylanan eksik kaynağı bu cihazda kurar ve durumlarını gönderenle aynı yapar. Başarısızsa false. */
-    suspend fun install(item: SourceTransferItem): Boolean {
+    suspend fun install(item: SourceTransferItem, includePluginSettings: Boolean = true): Boolean {
         val ok = try {
             if (item.type == AddonType.WEB_SITE.name) {
                 webSites.add(item.name, item.sourceUrl)
@@ -164,7 +300,7 @@ class LocalSyncData(
             false
         }
         val row = rowFor(item.sourceUrl) ?: return ok
-        applyState(row, item)
+        applyState(row, item, includePluginSettings)
         return true
     }
 
@@ -189,13 +325,13 @@ class LocalSyncData(
     }
 
     /** Açık/kapalı, eklenti başına açık/kapalı + ayarlar, katalog anahtarları gönderenle aynı yapılır. */
-    private suspend fun applyState(row: AddonEntity, item: SourceTransferItem) {
+    private suspend fun applyState(row: AddonEntity, item: SourceTransferItem, includePluginSettings: Boolean) {
         if (row.enabled != item.enabled) addonDao.setEnabled(row.id, item.enabled)
         val wanted = item.plugins.associateBy { it.pluginId }
         for (plugin in pluginDao.ofRepo(row.id)) {
             val state = wanted[plugin.pluginId] ?: continue
             if (plugin.enabled != state.enabled) pluginDao.setEnabled(plugin.id, state.enabled)
-            if (plugin.hasSettings) {
+            if (includePluginSettings && plugin.hasSettings) {
                 val current = pluginSettings.get(plugin.id)
                 if (current != state.settings) {
                     pluginSettings.clear(plugin.id)

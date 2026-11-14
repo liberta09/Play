@@ -362,6 +362,23 @@ class AppContainer(context: Context) {
             installer = sourceInstaller,
             webSites = webSites,
             deviceName = Build.MODEL,
+            installCsPlugins = { repoId, url, names -> csRepos.installMissing(repoId, url, names) },
+            favoriteRefs = com.kaan.play.data.library.ProviderFavoriteRefs(appContext),
+            pluginRepair = com.kaan.play.data.sync.local.HistoryPluginRepair(
+                history = database.watchHistoryDao(),
+                pluginHosts = {
+                    csRepos.enabledPlugins().associate { p ->
+                        // Yeniden indirme yok: onarım için eksik eklenti dosyası indirilmez.
+                        p.id to csRepos.loadApis(p.id, allowRedownload = false).apisOrEmpty()
+                            .mapNotNull { com.kaan.play.data.sync.local.HistoryPluginRepair.host(it.mainUrl) }.toSet()
+                    }
+                },
+                pluginNames = { csRepos.enabledPlugins().associate { it.id to it.pluginId } },
+                log = { android.util.Log.i("PlaySync", it) },
+                favorites = database.favoriteDao(),
+                tombstones = { localProfile.allDeletedHistory() },
+                dropTombstones = { localProfile.removeDeletedHistory(it) },
+            ),
         )
     }
 
@@ -606,6 +623,14 @@ class AppContainer(context: Context) {
             data = localSyncData,
             nsd = com.kaan.play.data.sync.local.LocalSyncNsd(appContext),
             scope = appScope,
+            // Kalıcı eşleşme: kodla bir kez eşitlenen cihazlar sonra kod girilmeden eşitlenir (telefondan TV'ye oynatma ve
+            // kumanda da bu kanaldan gider). Eşleşmiş cihazlar arasında eksik kaynaklar onay sorulmadan kurulur.
+            pairs = com.kaan.play.data.sync.local.LocalSyncPairStore(appContext),
+            acceptRemotePlay = (appContext as? PlayApp)?.acceptsRemotePlay == true,
+            acceptRemoteControl = (appContext as? PlayApp)?.acceptsRemotePlay == true,
+            resolveRemotePlay = { req -> (appContext as? PlayApp).let { app -> if (app == null) req.target else app.resolveRemotePlay(req) } },
+            autoInstallSources = true,
+            remoteStateSource = (appContext as? PlayApp)?.remoteStateSource,
         )
     }
 

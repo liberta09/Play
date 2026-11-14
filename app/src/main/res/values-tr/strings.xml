@@ -1084,4 +1084,43 @@
     <string name="episodes_panel_searching">S%1$d B%2$d için kaynak aranıyor…</string>
     <string name="episodes_panel_source_not_found">Bu bölüm için kaynak bulunamadı</string>
     <string name="episodes_panel_list_failed">Bölüm listesi alınamadı</string>
+
+    <!-- Eşleşme, telefondan TV'ye oynatma, kumanda, dikey tam ekran, CloudStream eklenti ayarları -->
+    <string name="library_favorite_unavailable">Bu eklenti içeriği başka bir cihazda eklendi ve burada henüz izlenmedi; kaynağı bilinmiyor. Aramadan ya da eklentiden bulabilirsin.</string>
+    <string name="remote_title">Kumanda</string>
+    <string name="remote_type_hint">TV\'ye yaz</string>
+    <string name="remote_unreachable">%1$s bulunamadı. Uygulama orada açık mı?</string>
+    <string name="remote_unsupported">%1$s kumandayı kabul etmiyor.</string>
+    <string name="remote_ok">Tamam</string>
+    <string name="remote_back">Geri</string>
+    <string name="remote_home">Ana sayfa</string>
+    <string name="remote_play_pause">Oynat/Duraklat</string>
+    <string name="remote_up">Yukarı</string>
+    <string name="remote_down">Aşağı</string>
+    <string name="remote_left">Sol</string>
+    <string name="remote_right">Sağ</string>
+    <string name="remote_volume_up">Sesi aç</string>
+    <string name="remote_volume_down">Sesi kıs</string>
+    <string name="remote_volume">Ses</string>
+    <string name="remote_volume_level">Ses %1$d</string>
+    <string name="remote_mute">Sessiz</string>
+    <string name="remote_menu">Menü</string>
+    <string name="remote_list">Liste</string>
+    <string name="remote_list_up">Liste yukarı</string>
+    <string name="remote_list_down">Liste aşağı</string>
+    <string name="remote_rewind">10 saniye geri</string>
+    <string name="remote_forward">10 saniye ileri</string>
+    <string name="remote_state_playing">Oynatılıyor</string>
+    <string name="remote_state_paused">Duraklatıldı</string>
+    <string name="cast_tv_label">TV\'de oynat</string>
+    <string name="cast_tv_on">TV\'de oynat açık: oynatma %1$s\'de açılır</string>
+    <string name="cast_tv_off">TV\'de oynat kapalı: oynatma bu telefonda açılır</string>
+    <string name="cast_tv_sent">%1$s\'de açılıyor</string>
+    <string name="cast_tv_unreachable">TV\'ye ulaşılamadı. Aynı Wi-Fi\'de Play TV açık mı?</string>
+    <string name="cast_tv_finding_stream">%1$s\'de bu içeriğin eklentisi yok; kaynak telefonda bulunup TV\'ye gönderiliyor…</string>
+    <string name="cast_tv_sent_stream">Kaynak telefonda bulundu, %1$s\'de açılıyor</string>
+    <string name="cast_tv_no_stream">%1$s\'de bu içeriğin eklentisi yok ve telefondan gönderilebilecek bir kaynak bulunamadı.</string>
+    <string name="wifi_sync_paired_title">Eşleşmiş cihazlar</string>
+    <string name="wifi_sync_paired_remove">Kaldır</string>
+    <string name="wifi_sync_paired_hint">Bu cihazlar aynı Wi-Fi ağında kod girmeden kendiliğinden eşitlenir.</string>
 </resources>

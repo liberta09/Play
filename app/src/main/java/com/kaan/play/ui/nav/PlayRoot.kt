@@ -1,5 +1,7 @@
 package com.kaan.play.ui.nav
 
+import com.kaan.play.data.sync.local.CastResult
+import com.kaan.play.data.sync.local.RemotePlayStreams
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -161,6 +163,7 @@ import kotlinx.coroutines.launch
 private const val SPEED_TEST_ROUTE = "settings/speed-test"
 private const val PROFILE_ROUTE = "settings/profile"
 private const val SYNC_ROUTE = "settings/sync"
+private const val REMOTE_ROUTE = "remote"
 private const val REPO_MANAGER_CATALOG_ROUTE = "settings/addons/catalog"
 private const val ADDONS_ROUTE = "settings/addons?add={add}"
 private const val ADDONS_COLLECTIONS_ROUTE = "settings/addons/collections"
@@ -368,6 +371,7 @@ fun PlayRoot() {
 
     // https eklenti bağlantısıyla açılınca (MainActivity -> pendingAddonUrl) ekleme ekranına git.
     val pendingAddonUrl by container.pendingAddonUrl.collectAsStateWithLifecycle()
+    val pairedDevices by container.localSync.pairedDevices.collectAsStateWithLifecycle()
     LaunchedEffect(pendingAddonUrl) {
         if (pendingAddonUrl != null) openAddons(startAdding = false)
     }
@@ -496,6 +500,36 @@ fun PlayRoot() {
     }
 
     // Geçmiş/"devam et" kaydından oynatma. IMDb kimliği için TMDB'ye bir kez sorulur; olmazsa detay açılır.
+    // Detaydan oynat: "TV'de oynat" anahtarı açıksa (TvCastButton) eşleşmiş cihazda açılır, değilse bu telefonda. TV'de
+    // içeriğin eklentisi yoksa kaynak bu telefonda bulunur ve doğrudan akış olarak gönderilir.
+    fun playFromDetail(target: PlayTarget) {
+        if (!container.localSync.castToTv.value) return play(target)
+        fun toast(text: String) = android.widget.Toast.makeText(context, text, android.widget.Toast.LENGTH_LONG).show()
+        scope.launch {
+            val sync = container.localSync
+            val pluginName = target.request.pluginId?.removePrefix("cs:")?.toLongOrNull()
+                ?.let { id -> kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { container.csRepos.enabledPlugins().firstOrNull { it.id == id }?.pluginId } }
+            val text = when (val r = sync.playOnPeer(target, pluginName = pluginName)) {
+                is CastResult.Sent -> context.getString(R.string.cast_tv_sent, r.peer)
+                CastResult.Unreachable -> context.getString(R.string.cast_tv_unreachable)
+                is CastResult.NoPlugin -> {
+                    toast(context.getString(R.string.cast_tv_finding_stream, r.peer))
+                    val streams = RemotePlayStreams.collect(container.streams, target)
+                    android.util.Log.i("PlaySync", "cast: no plugin on TV, ${streams.size} sendable streams")
+                    if (streams.isEmpty()) {
+                        context.getString(R.string.cast_tv_no_stream, r.peer)
+                    } else {
+                        when (val s = sync.playOnPeer(target, streams)) {
+                            is CastResult.Sent -> context.getString(R.string.cast_tv_sent_stream, s.peer)
+                            else -> context.getString(R.string.cast_tv_unreachable)
+                        }
+                    }
+                }
+            }
+            toast(text)
+        }
+    }
+
     fun playEntry(entry: WatchHistoryEntity, season: Int?, episode: Int?, startAt: Long) {
         scope.launch {
             // İçerik indirilmişse internete ve TMDB'ye hiç gerek yok: indirilmiş kopyadan oynar (çevrimdışı "devam et").
@@ -575,6 +609,18 @@ fun PlayRoot() {
         }
     }
 
+    // Kütüphane favorisi: TMDB kimliği TMDB detayını açar; eklenti içeriği (negatif kimlik, ör. TV'de eklenen) geçmişteki
+    // eklenti + adresle eklenti detayını; o bilinmiyorsa (bu cihazda hiç izlenmemiş) açılamaz, ileti gösterilir.
+    fun openFavorite(type: MediaType, id: Int) {
+        if (id > 0) return openDetail(type, id)
+        scope.launch {
+            val source = container.library.providerSourceOf(type, id)
+                ?: com.kaan.play.data.library.ProviderFavoriteRefs(context).get(type, id)
+            if (source != null) openProviderDetail(source.first, source.second)
+            else android.widget.Toast.makeText(context, R.string.library_favorite_unavailable, android.widget.Toast.LENGTH_LONG).show()
+        }
+    }
+
     // Kütüphane > Geçmiş satırı: yarım kaldıysa kayıtlı konumdan, izlendiyse baştan.
     fun playHistory(entry: WatchHistoryEntity) {
         val isSeries = entry.type == MediaType.Tv
@@ -603,7 +649,8 @@ fun PlayRoot() {
         currentRoute?.startsWith("detail/") == true ||
         currentRoute?.startsWith("provider_detail/") == true ||
         currentRoute?.startsWith("home/category") == true ||
-        currentRoute?.startsWith("settings/") == true
+        currentRoute?.startsWith("settings/") == true ||
+        currentRoute == REMOTE_ROUTE
     val showNav = !isSubScreen
 
     val focusManager = LocalFocusManager.current
@@ -752,7 +799,7 @@ fun PlayRoot() {
             composable(Tab.Library.route) {
                 ReadableWidth(PlayLayout.GRID_WIDTH_DP.dp) {
                     LibraryScreen(
-                        onOpenDetail = ::openDetail,
+                        onOpenDetail = ::openFavorite,
                         onPlayEntry = ::playHistory,
                         onPlayDownload = ::playDownload,
                         contentFocusRequester = libraryFocusRequester,
@@ -914,6 +961,9 @@ fun PlayRoot() {
                     ProfileScreen(onBack = { navController.popBackStack() })
                 }
             }
+            composable(REMOTE_ROUTE) {
+                ReadableWidth { com.kaan.play.ui.remote.RemoteScreen(onBack = { navController.popBackStack() }) }
+            }
             composable(SYNC_ROUTE) {
                 ReadableWidth {
                     SyncScreen(onBack = { navController.popBackStack() })
@@ -936,15 +986,18 @@ fun PlayRoot() {
             ) { entry ->
                 val type = MediaType.fromTmdb(entry.arguments?.getString("type")) ?: MediaType.Movie
                 val id = entry.arguments?.getInt("id") ?: 0
-                DetailScreen(
-                    type = type,
-                    id = id,
-                    onBack = { navController.popBackStack() },
-                    onOpenSimilar = ::openDetail,
-                    onOpenActor = { name -> navController.navigate("search?q=${Uri.encode(name)}") },
-                    onOpenPerson = { personId, personName -> navController.navigate("person/$personId?name=${Uri.encode(personName)}") },
-                    onPlay = { target -> play(target) },
-                )
+                Box(Modifier.fillMaxSize()) {
+                    DetailScreen(
+                        type = type,
+                        id = id,
+                        onBack = { navController.popBackStack() },
+                        onOpenSimilar = ::openDetail,
+                        onOpenActor = { name -> navController.navigate("search?q=${Uri.encode(name)}") },
+                        onOpenPerson = { personId, personName -> navController.navigate("person/$personId?name=${Uri.encode(personName)}") },
+                        onPlay = { target -> playFromDetail(target) },
+                    )
+                    com.kaan.play.ui.detail.TvCastButton(Modifier.align(Alignment.TopEnd))
+                }
             }
             composable(
                 route = PERSON_ROUTE,
@@ -977,12 +1030,15 @@ fun PlayRoot() {
                 } catch (_: Exception) {
                     Uri.decode(b64)
                 }
-                ProviderDetailScreen(
-                    providerId = providerId,
-                    url = rawUrl,
-                    onBack = { navController.popBackStack() },
-                    onPlay = { target -> play(target) },
-                )
+                Box(Modifier.fillMaxSize()) {
+                    ProviderDetailScreen(
+                        providerId = providerId,
+                        url = rawUrl,
+                        onBack = { navController.popBackStack() },
+                        onPlay = { target -> playFromDetail(target) },
+                    )
+                    com.kaan.play.ui.detail.TvCastButton(Modifier.align(Alignment.TopEnd))
+                }
             }
         }
             }
@@ -1006,6 +1062,8 @@ fun PlayRoot() {
                     avatarKey = avatarKey,
                     onOpenTab = ::openTab,
                     onOpenProfile = { profileGate = true },
+                    onOpenRemote = { navController.navigate(REMOTE_ROUTE) { launchSingleTop = true } }
+                        .takeIf { pairedDevices.isNotEmpty() },
                     contentFocusRequester = currentContentFocusRequester,
                     topBarFocusRequester = topBarFocusRequester,
                     profileFocusRequester = profileFocusRequester,
@@ -1093,6 +1151,7 @@ private fun rememberNavEntries(
     profileFocusRequester: FocusRequester,
     onOpenTab: (Tab) -> Unit,
     onOpenProfile: () -> Unit,
+    onOpenRemote: (() -> Unit)? = null,
 ): List<NavEntrySpec> {
     val homeSelected = currentRoute == Tab.Home.route || currentRoute == null
     val searchSelected = currentRoute == Tab.Search.route || currentRoute?.startsWith("search") == true
@@ -1105,8 +1164,10 @@ private fun rememberNavEntries(
         NavEntrySpec(PlayIcons.Tv, stringResource(R.string.tab_tv), tvSelected, topBarFocusRequester.takeIf { tvSelected }) { onOpenTab(Tab.Tv) },
         NavEntrySpec(PlayIcons.Folder, stringResource(R.string.tab_library), librarySelected, topBarFocusRequester.takeIf { librarySelected }) { onOpenTab(Tab.Library) },
         NavEntrySpec(PlayIcons.Gear, stringResource(R.string.tab_settings), settingsSelected, topBarFocusRequester.takeIf { settingsSelected }) { onOpenTab(Tab.Settings) },
+        // Eşleşmiş cihaz varken kumanda ekranı.
+        onOpenRemote?.let { NavEntrySpec(PlayIcons.Remote, stringResource(R.string.remote_title), false, null, onClick = it) },
         NavEntrySpec(null, stringResource(R.string.tab_profile), false, profileFocusRequester, isProfile = true, onClick = onOpenProfile),
-    )
+    ).filterNotNull()
 }
 
 /**
@@ -1121,13 +1182,15 @@ fun PlayNavBar(
     onOpenTab: (Tab) -> Unit,
     onOpenProfile: () -> Unit,
     contentFocusRequester: FocusRequester,
+    /** Eşleşmiş cihaz varken kumanda ekranı; null ise öğe görünmez. */
+    onOpenRemote: (() -> Unit)? = null,
     topBarFocusRequester: FocusRequester,
     profileFocusRequester: FocusRequester,
     pillFocusRequester: FocusRequester?,
     onExitToContent: () -> Boolean = { false },
     modifier: Modifier = Modifier,
 ) {
-    val entries = rememberNavEntries(currentRoute, topBarFocusRequester, profileFocusRequester, onOpenTab, onOpenProfile)
+    val entries = rememberNavEntries(currentRoute, topBarFocusRequester, profileFocusRequester, onOpenTab, onOpenProfile, onOpenRemote)
     val verticalStrip = NavBarRules.isVerticalStrip(position)
     val exitKey = when (NavBarRules.menuExitDirection(position)) {
         EdgeDirection.Down -> Key.DirectionDown

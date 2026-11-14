@@ -35,6 +35,11 @@ import org.junit.Test
 /** Room'un REPLACE + "içerik başına son kayıt" davranışını taklit eden bellek içi DAO. */
 private class FakeHistoryDao : WatchHistoryDao {
     val rows = MutableStateFlow<List<WatchHistoryEntity>>(emptyList())
+    override suspend fun fillMissingPoster(userId: String, profileId: String, tmdbId: Int, type: com.kaan.play.data.model.MediaType, posterPath: String) {
+        rows.value = rows.value.map {
+            if (it.userId == userId && it.profileId == profileId && it.tmdbId == tmdbId && it.type == type && it.posterPath.isNullOrBlank()) it.copy(posterPath = posterPath) else it
+        }
+    }
     private var nextId = 1L
 
     override fun observeLatestPerContent(userId: String, profileId: String): Flow<List<WatchHistoryEntity>> = rows.map { list ->
@@ -212,6 +217,20 @@ class LibraryRepositoryTest {
         assertEquals(2_000L, second.lastWatchedAt)
         assertEquals("Film 1", second.title)
         assertEquals("/p1.jpg", second.posterPath)
+    }
+
+    @Test
+    fun pluginFavoriteOpensThroughHistorySource() = runTest {
+        val id = ProviderContentId.of("cs:7", "https://site.example/dizi")
+        val target = PlayTarget(
+            StreamRequest(id, null, MediaType.Tv, 1, 2, pluginId = "cs:7", dataUrl = "https://site.example/b2", contentUrl = "https://site.example/dizi"),
+            "Dizi", null,
+        )
+        assertNull(repo.providerSourceOf(MediaType.Tv, id)) // geçmiş yok: açılamaz
+        repo.saveProgress(target, 60_000, 600_000)
+        assertEquals("cs:7" to "https://site.example/dizi", repo.providerSourceOf(MediaType.Tv, id))
+        assertNull(repo.providerSourceOf(MediaType.Movie, id)) // tür de eşleşmeli
+        assertNull(repo.providerSourceOf(MediaType.Tv, 42)) // TMDB kimliği: TMDB detayı açılır
     }
 
     @Test
@@ -558,7 +577,8 @@ class LibraryManagementTest {
         syncedRepo.clearHistory()
 
         assertTrue(syncedRepo.watchHistory.first().isEmpty())
-        assertEquals(1, store.writeCount)
+        // Geçmiş mezar taşlarına ek olarak "geçmişi temizle" Wi-Fi kaydı da yazılır (iki işlem).
+        assertEquals(2, store.writeCount)
         val tombstones = profileRepo.allDeletedHistory()
         assertEquals(3, tombstones.size)
         assertEquals(setOf(101 to "movie", 102 to "movie", 103 to "tv"), tombstones.map { it.tmdbId to it.type }.toSet())
@@ -624,10 +644,71 @@ class LibraryManagementTest {
         store.writeCount = 0
         syncedRepo.clearFavorites()
         assertTrue(syncedRepo.allFavorites.first().isEmpty())
-        assertEquals(1, store.writeCount)
+        // Favori mezar taşına ek olarak Wi-Fi silinenler kaydı (DeletedLibraryItem) da tek işlemde yazılır.
+        assertEquals(2, store.writeCount)
         val tombstones = profileRepo.allDeletedFavorites()
         assertEquals(3, tombstones.size)
         assertEquals(setOf(201, 202, 203), tombstones.map { it.tmdbId }.toSet())
         assertTrue(tombstones.all { it.profileId == profileId && it.userId == userId })
+    }
+}
+
+private class LibraryMemoryStore : androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> {
+    private val state = MutableStateFlow(androidx.datastore.preferences.core.emptyPreferences())
+    override val data: Flow<androidx.datastore.preferences.core.Preferences> = state
+    override suspend fun updateData(
+        transform: suspend (t: androidx.datastore.preferences.core.Preferences) -> androidx.datastore.preferences.core.Preferences,
+    ) = transform(state.value).also { state.value = it }
+}
+
+/** geçmişten silme, geçmişi temizle ve favoriden çıkarma silinenler kaydı yazar (eşitlemede geri gelmesin). */
+class LibraryDeletionRecordTest {
+    private val history = FakeHistoryDao()
+    private val favorites = FakeFavorites()
+    private val profiles = com.kaan.play.data.sync.LocalProfileRepository(LibraryMemoryStore())
+    private var clock = System.currentTimeMillis()
+    private val repo = LibraryRepository(history, favorites, profiles, clock = { ++clock })
+
+    private suspend fun watch(tmdb: Int, type: MediaType, s: Int, e: Int) {
+        val target = PlayTarget(StreamRequest(tmdbId = tmdb, imdbId = null, type = type, season = s.takeIf { type == MediaType.Tv },
+            episode = e.takeIf { type == MediaType.Tv }), title = "T$tmdb", posterPath = null)
+        assertTrue(repo.saveProgress(target, 60_000, 600_000))
+    }
+
+    @Test
+    fun removingOneEpisodeWritesEpisodeRecordLastRowWritesContentTombstone() = runTest {
+        watch(5, MediaType.Tv, 1, 1)
+        watch(5, MediaType.Tv, 1, 2)
+        val ep2 = history.rows.value.first { it.episode == 2 }
+        repo.removeHistory(ep2.id)
+        val items = profiles.allDeletedItems()
+        assertEquals(listOf(Triple("episode", 5, 2)), items.map { Triple(it.kind, it.tmdbId, it.episode) })
+        assertTrue(profiles.allDeletedHistory().isEmpty()) // öteki bölüm duruyor: içerik mezar taşı YOK
+        repo.removeHistory(history.rows.value.single().id)
+        val tomb = profiles.allDeletedHistory().single()
+        assertEquals(5 to "tv", tomb.tmdbId to tomb.type)
+    }
+
+    @Test
+    fun clearHistoryWritesContentTombstonesAndClearRecord() = runTest {
+        watch(5, MediaType.Tv, 1, 1)
+        watch(5, MediaType.Tv, 1, 2)
+        watch(9, MediaType.Movie, 0, 0)
+        repo.clearHistory()
+        assertTrue(history.rows.value.isEmpty())
+        assertEquals(setOf(5 to "tv", 9 to "movie"), profiles.allDeletedHistory().map { it.tmdbId to it.type }.toSet())
+        assertEquals(listOf(com.kaan.play.data.sync.DeletedLibraryItem.KIND_CLEAR), profiles.allDeletedItems().map { it.kind })
+    }
+
+    @Test
+    fun removingFavoriteBothWaysWritesFavoriteRecord() = runTest {
+        val media = MediaSummary(id = -42, type = MediaType.Tv, title = "Drama", overview = "", posterPath = null, backdropPath = null, year = null, rating = null)
+        repo.setFavorite(media, true)
+        repo.setFavorite(media, false)
+        repo.setFavorite(media.copy(id = 8, type = MediaType.Movie), true)
+        repo.removeFavorite(MediaType.Movie, 8)
+        assertTrue(favorites.rows.value.isEmpty())
+        val recorded = profiles.allDeletedItems().map { it.kind to it.tmdbId }.toSet()
+        assertEquals(setOf("favorite" to -42, "favorite" to 8), recorded)
     }
 }

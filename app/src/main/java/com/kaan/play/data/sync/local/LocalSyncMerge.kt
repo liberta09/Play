@@ -1,7 +1,13 @@
 package com.kaan.play.data.sync.local
 
+import com.kaan.play.data.db.PluginEntity
+import com.kaan.play.data.library.PermanentIdMap
+import com.kaan.play.data.library.ProviderContentId
+import com.kaan.play.data.model.MediaType
 import com.kaan.play.data.sync.DeletedFavoriteItem
 import com.kaan.play.data.sync.DeletedHistoryItem
+import com.kaan.play.data.sync.DeletedLibraryItem
+import com.kaan.play.data.sync.FavoriteSourceTransfer
 import com.kaan.play.data.sync.FavoriteBackup
 import com.kaan.play.data.sync.HistoryBackup
 import com.kaan.play.data.sync.LocalProfileBackup
@@ -12,7 +18,7 @@ import kotlinx.serialization.json.Json
 
 /** Bir cihazın birleştirmeden sonra yazacakları. */
 data class LocalSyncPlan(
-    /** Birleşik profil listesi (PIN'ler yerelde kalır, karşıdan gelen profil PIN'siz gelir). */
+    /** Birleşik profil listesi (PIN: [LocalSyncMerge.mergeProfiles] kuralı). */
     val profiles: List<LocalProfileSummary>,
     /** Profil başına birleşik geçmiş + favoriler. */
     val libraries: Map<String, LocalProfileBackup>,
@@ -20,12 +26,18 @@ data class LocalSyncPlan(
     val missingSources: List<SourceTransferItem>,
     /** İki cihazda da olan kaynakların uygulanacak durumları (yalnızca karşı taraf esas alınıyorsa dolu). */
     val sourceStates: List<SourceTransferItem>,
+    /** İki cihazda da olan kaynakların karşıdaki hali (her yönde dolu): karşıda açık olup burada kurulu olmayan eklentiler için. */
+    val sharedSources: List<SourceTransferItem> = emptyList(),
     /** Tekilleştirilen Varsayılan profillerin eski kimlik -> korunan kimlik haritası. */
     val remappedProfileIds: Map<String, String> = emptyMap(),
     /** Birleştirmeden sonra uygulanacak aktif profil kimliği (atılan kimlikteyse korunana geçer). */
     val activeProfileId: String? = null,
     /** İki tarafın birleşik ve budanmış geçmiş mezar taşları. */
     val deletedHistory: List<DeletedHistoryItem> = emptyList(),
+    /** İki tarafın birleşik ve budanmış Wi-Fi silinenler kaydı (bölüm, geçmişi temizle, favori). */
+    val deletedItems: List<DeletedLibraryItem> = emptyList(),
+    /** Karşı cihazın eklenti favorisi açılış bilgileri (yalnız Wi-Fi; bulutta hep boş). */
+    val favoriteSources: List<FavoriteSourceTransfer> = emptyList(),
     /** İki tarafın birleşik ve budanmış favori mezar taşları. */
     val deletedFavorites: List<DeletedFavoriteItem> = emptyList(),
 ) {
@@ -44,11 +56,14 @@ data class ProfileConsolidationResult(
  * Wi-Fi senkronizasyonunun birleştirme kuralları (Android'den bağımsız, birim testli). İki cihaz birbirinin anlık
  * görüntüsünü alır ve aynı kurallarla birleştirir; böylece sonunda aynı veriye sahip olurlar:
  *
- * - **Profiller:** kimliğe göre birleşim. PIN hiçbir zaman aktarılmaz ([forTransfer]); yerel profil PIN'ini korur.
+ * - **Profiller:** kimliğe göre birleşim. PIN özeti yalnız Wi-Fi'da (şifreli kanal) aktarılır, buluta hiç girmez ([forTransfer]);
+ *   iki tarafta da olan profilde PIN [pinWinner] kuralıyla seçilir (daha yeni damga kazanır, eski sürümden gelen boş PIN silmez).
  *   PIN'siz ve adı tam olarak [DEFAULT_NAME] olan profiller tekilleştirilir; daha eski/sabit kimlik ([DEFAULT_ID] ya da
  *   deterministik en küçük kimlik) korunur, atılan kimliğin kitaplığı (geçmiş + favori) korunana eklenir.
  * - **Geçmiş / kaldığı yer:** aynı içerikte (film ya da sezon+bölüm) en yeni `lastWatchedAt` kazanır; eşitlikte daha ileri konum.
  * - **Favoriler:** birleşim.
+ * - **Silinenler:** içerik düzeyindeki mezar taşları ([DeletedHistoryItem], bulutta da) ve yalnız Wi-Fi'de taşınan bölüm /
+ *   "geçmişi temizle" / favori kayıtları ([DeletedLibraryItem]) birleşimden önce süzer; silme anından eski kopya geri gelmez.
  * - **Kaynaklar:** yalnızca karşıda olanlar [LocalSyncPlan.missingSources] olur (onay sorulur). İki tarafta da olanlarda
  *   açık/kapalı, eklenti ayarları ve katalog anahtarları **kodu gösteren cihazınki** esas alınır: bağlanan (istemci)
  *   cihaz `remoteIsAuthority = true` ile çağırır ve bunları uygular, sunucu kendi durumunu korur.
@@ -129,11 +144,29 @@ object LocalSyncMerge {
         )
     }
 
-    /** Aktarım için: PIN ve bulut kodu çıkarılır. */
-    fun forTransfer(profile: LocalProfileSummary): LocalProfileSummary = profile.copy(pinHash = null, syncCode = null)
+    /** Bulut aktarımı için: PIN, PIN damgası ve bulut kodu çıkarılır. */
+    fun forTransfer(profile: LocalProfileSummary): LocalProfileSummary = profile.copy(pinHash = null, syncCode = null, pinUpdatedAt = 0L)
+
+    /** Wi-Fi aktarımı için: yalnız bulut kodu çıkarılır; PIN özeti (PBKDF2) ve damgası şifreli yerel kanalda gider. */
+    fun forWifi(profile: LocalProfileSummary): LocalProfileSummary = profile.copy(syncCode = null)
 
     /**
-     * Bir cihazın anlık görüntüsü (Wi-Fi ve bulut aynı yükü kullanır). PIN ve kod hiçbir zaman girmez; kaynaklarda
+     * İki cihazda da olan profilde geçerli PIN hangisinin? Daha yeni [LocalProfileSummary.pinUpdatedAt] kazanır (kaldırma da
+     * damgalıdır). Damga eşitse (ör. ikisi de 0 = eski kayıt) PIN'li olan kazanır: eski sürüm PIN göndermez, bu yüzden boş gelen
+     * PIN yerel PIN'i silmez. İkisi de PIN'liyse kodu gösteren cihazınki (istemcide karşı taraf, sunucuda kendisi): iki taraf
+     * aynı sonuca varır.
+     */
+    fun pinWinner(mine: LocalProfileSummary, theirs: LocalProfileSummary, remoteIsAuthority: Boolean): LocalProfileSummary = when {
+        theirs.pinUpdatedAt > mine.pinUpdatedAt -> theirs
+        mine.pinUpdatedAt > theirs.pinUpdatedAt -> mine
+        mine.pinHash == null -> theirs
+        theirs.pinHash == null -> mine
+        remoteIsAuthority -> theirs
+        else -> mine
+    }
+
+    /**
+     * Bir cihazın anlık görüntüsü (Wi-Fi ve bulut aynı yükü kullanır). Bulut kodu hiç, PIN yalnız [includePins] (Wi-Fi) ise girer; kaynaklarda
      * yalnızca adresler ve durumlar vardır (eklenti JS/DEX dosyaları taşınmaz, karşı cihaz kendisi indirir).
      */
     fun snapshot(
@@ -142,13 +175,18 @@ object LocalSyncMerge {
         sources: List<SourceTransferItem>,
         deviceName: String,
         deletedHistory: List<DeletedHistoryItem> = emptyList(),
+        includePins: Boolean = false,
+        deletedItems: List<DeletedLibraryItem> = emptyList(),
+        favoriteSources: List<FavoriteSourceTransfer> = emptyList(),
         deletedFavorites: List<DeletedFavoriteItem> = emptyList(),
     ): LocalProfileTransfer = LocalProfileTransfer(
-        profiles = profiles.map(::forTransfer),
+        profiles = profiles.map(if (includePins) ::forWifi else ::forTransfer),
         backups = libraries.mapValues { encodeBackup(it.value) },
         sources = sources,
         deviceName = deviceName,
         deletedHistory = deletedHistory,
+        deletedItems = deletedItems,
+        favoriteSources = favoriteSources,
         deletedFavorites = deletedFavorites,
     )
 
@@ -194,21 +232,24 @@ object LocalSyncMerge {
         }
 
         val mergedTombstones = mergeDeletedHistory(local.deletedHistory, remote.deletedHistory, remappedIds, nowMs)
+        val mergedItems = mergeDeletedItems(local.deletedItems, remote.deletedItems, remappedIds, nowMs)
         val mergedFavoriteTombstones = mergeDeletedFavorites(local.deletedFavorites, remote.deletedFavorites, remappedIds, nowMs)
 
         val libraries = profiles.associate { p ->
             val profileTombstones = mergedTombstones.filter { it.profileId == p.id }
+            val profileItems = mergedItems.filter { it.profileId == p.id }
             val profileFavTombstones = mergedFavoriteTombstones.filter { it.profileId == p.id }
             val base = mergeLibrary(
-                local = decode(local.backups[p.id]),
-                remote = decode(remote.backups[p.id]),
+                localRaw = decode(local.backups[p.id]),
+                remoteRaw = decode(remote.backups[p.id]),
                 tombstones = profileTombstones,
+                deletedItems = profileItems,
                 favoriteTombstones = profileFavTombstones,
             )
             val finalLib = if (p.id == keptDefaultId) {
                 discardedDefaultIds.fold(base) { acc, dId ->
-                    val withLocal = mergeLibrary(acc, decode(local.backups[dId]), profileTombstones, profileFavTombstones)
-                    mergeLibrary(withLocal, decode(remote.backups[dId]), profileTombstones, profileFavTombstones)
+                    val withLocal = mergeLibrary(acc, decode(local.backups[dId]), profileTombstones, profileItems, profileFavTombstones)
+                    mergeLibrary(withLocal, decode(remote.backups[dId]), profileTombstones, profileItems, profileFavTombstones)
                 }
             } else {
                 base
@@ -226,9 +267,12 @@ object LocalSyncMerge {
             libraries = libraries,
             missingSources = missing,
             sourceStates = states,
+            sharedSources = remote.sources.filter { urlKey(it.sourceUrl) in localByUrl }.distinctBy { urlKey(it.sourceUrl) },
             remappedProfileIds = remappedIds,
             activeProfileId = activeId,
             deletedHistory = mergedTombstones,
+            deletedItems = mergedItems,
+            favoriteSources = remote.favoriteSources,
             deletedFavorites = mergedFavoriteTombstones,
         )
     }
@@ -240,15 +284,13 @@ object LocalSyncMerge {
     ): List<LocalProfileSummary> {
         val remoteById = remote.associateBy { it.id }
         val merged = local.map { mine ->
-            val theirs = remoteById[mine.id]
-            if (theirs != null && remoteIsAuthority) {
-                forTransfer(theirs).copy(pinHash = mine.pinHash, syncCode = mine.syncCode)
-            } else {
-                mine
-            }
+            val theirs = remoteById[mine.id] ?: return@map mine
+            val base = if (remoteIsAuthority) forWifi(theirs).copy(syncCode = mine.syncCode) else mine
+            val pin = pinWinner(mine, theirs, remoteIsAuthority)
+            base.copy(pinHash = pin.pinHash, pinUpdatedAt = pin.pinUpdatedAt)
         }
         val known = local.mapTo(HashSet()) { it.id }
-        val allMerged = merged + remote.filter { it.id !in known }.distinctBy { it.id }.map(::forTransfer)
+        val allMerged = merged + remote.filter { it.id !in known }.distinctBy { it.id }.map(::forWifi)
 
         val eligibleDefaults = allMerged.filter(::isEligibleDefault)
         if (eligibleDefaults.size <= 1) return allMerged
@@ -260,11 +302,13 @@ object LocalSyncMerge {
     }
 
     fun mergeLibrary(
-        local: LocalProfileBackup?,
-        remote: LocalProfileBackup?,
+        localRaw: LocalProfileBackup?,
+        remoteRaw: LocalProfileBackup?,
         tombstones: List<DeletedHistoryItem> = emptyList(),
+        deletedItems: List<DeletedLibraryItem> = emptyList(),
         favoriteTombstones: List<DeletedFavoriteItem> = emptyList(),
     ): LocalProfileBackup {
+        val (local, remote) = withPermanentIds(localRaw, remoteRaw)
         val base = local ?: remote ?: return LocalProfileBackup()
         val history = LinkedHashMap<String, HistoryBackup>()
         for (h in (local?.history.orEmpty() + remote?.history.orEmpty())) {
@@ -279,11 +323,57 @@ object LocalSyncMerge {
             if (current == null || f.addedAt > current.addedAt) favorites[key] = f
         }
         val filteredHistory = filterHistoryWithTombstones(history.values.toList(), tombstones)
+            .filterNot { isHistoryDeleted(it.tmdbId, it.type, it.season, it.episode, it.lastWatchedAt, deletedItems) }
         val filteredFavorites = filterFavoritesWithTombstones(favorites.values.toList(), favoriteTombstones)
         return base.copy(
             history = filteredHistory.sortedByDescending { it.lastWatchedAt },
-            favorites = filteredFavorites.sortedByDescending { it.addedAt },
+            favorites = filteredFavorites.filterNot { isFavoriteDeleted(it.tmdbId, it.type, it.addedAt, deletedItems) }
+                .sortedByDescending { it.addedAt },
         )
+    }
+
+    /**
+     * Eklenti içeriğinin eski (cihaza özel cs:N ile türetilmiş) kimliklerini birleştirmeden ve mezar taşı süzmesinden ÖNCE
+     * kalıcı kimliğe ([ProviderContentId.of]) çevirir; iki tarafa birlikte bakar.
+     *
+     * 1. Adresini taşıyan satır doğrudan çevrilir (eski kimliği birebir eski hesapsa).
+     * 2. Adres taşımayan satır (bulut kopyası) ve favori: adresli satırlardan öğrenilen "eski kimlik → kalıcı kimlik"
+     *    eşlemesiyle, o yoksa aynı başlık + tür tek bir kalıcı kimliğe gidiyorsa onunla çevrilir; eklenti ve içerik adresi de
+     *    o satırdan alınır (kart açılabilir olur). Başlık birden çok kalıcı kimliğe gidiyorsa dokunulmaz.
+     *
+     * Böylece güncellenmemiş bir cihazın eski kimlikli bölümü silinmeden aynı içeriğe katılır,
+     * taşınmış favorinin eski kopyası ayrı favori olarak geri gelmez. Eşleme yalnız bu iki yedekten öğrenilir.
+     */
+    fun withPermanentIds(
+        local: LocalProfileBackup?,
+        remote: LocalProfileBackup?,
+    ): Pair<LocalProfileBackup?, LocalProfileBackup?> {
+        val sides = listOfNotNull(local, remote)
+        if (sides.none { b -> b.history.any { it.tmdbId < 0 } || b.favorites.any { it.tmdbId < 0 } }) return local to remote
+        // Yerel taraf önce: çevrilen satır bu cihazın eklenti numarasını alsın.
+        val map = PermanentIdMap.from(
+            sides.asSequence().flatMap { it.history.asSequence() }
+                .map { PermanentIdMap.Row(it.tmdbId, it.pluginId, it.contentUrl, it.title, it.type) },
+        )
+        if (map.isEmpty) return local to remote
+        fun convert(b: LocalProfileBackup?): LocalProfileBackup? {
+            b ?: return null
+            val history = b.history.map { h ->
+                val plugin = h.pluginId
+                val url = h.contentUrl
+                if (plugin != null && url != null) {
+                    return@map if (h.tmdbId < 0 && h.tmdbId == ProviderContentId.legacy(plugin, url)) {
+                        h.copy(tmdbId = ProviderContentId.of(plugin, url))
+                    } else h
+                }
+                val id = map.target(h.tmdbId, h.title, h.type) ?: return@map h
+                val src = map.source(id)
+                h.copy(tmdbId = id, pluginId = src.pluginId, contentUrl = src.contentUrl)
+            }
+            val favorites = b.favorites.map { f -> map.target(f.tmdbId, f.title, f.type)?.let { f.copy(tmdbId = it) } ?: f }
+            return b.copy(history = history, favorites = favorites)
+        }
+        return convert(local) to convert(remote)
     }
 
     private inline fun <T> pruneTombstones(
@@ -388,6 +478,93 @@ object LocalSyncMerge {
     }
 
     /**
+     * Wi-Fi silinenler kaydını budar: aynı kayıt (profil + tür + içerik + bölüm) için en yeni silme; [retentionMs] (90 gün)
+     * ve profil başına her türden en çok [maxCount] (500) kayıt. "Geçmişi temizle" kaydı profil başına tektir (en yenisi).
+     */
+    fun pruneDeletedItems(
+        items: List<DeletedLibraryItem>,
+        nowMs: Long = System.currentTimeMillis(),
+        maxCount: Int = MAX_DELETED_HISTORY_PER_PROFILE,
+        retentionMs: Long = DELETED_HISTORY_RETENTION_MS,
+    ): List<DeletedLibraryItem> {
+        val cutoff = nowMs - retentionMs
+        return items
+            .filter { it.deletedAt >= cutoff && it.kind in KNOWN_KINDS }
+            .groupBy { "${it.profileId}:${it.kind}:${it.tmdbId}:${it.type.lowercase()}:${it.season}:${it.episode}" }
+            .values
+            .map { group -> group.maxBy { it.deletedAt } }
+            .groupBy { it.profileId to it.kind }
+            .values
+            .flatMap { group -> group.sortedByDescending { it.deletedAt }.take(maxCount) }
+            .sortedByDescending { it.deletedAt }
+    }
+
+    /** İki tarafın Wi-Fi silinenler kaydını birleştirir, tekilleştirilen profil kimliklerini taşır ve budar. */
+    fun mergeDeletedItems(
+        local: List<DeletedLibraryItem>,
+        remote: List<DeletedLibraryItem>,
+        remappedProfileIds: Map<String, String> = emptyMap(),
+        nowMs: Long = System.currentTimeMillis(),
+    ): List<DeletedLibraryItem> = pruneDeletedItems(
+        (local + remote).map { item -> remappedProfileIds[item.profileId]?.let { item.copy(profileId = it) } ?: item },
+        nowMs,
+    )
+
+    /**
+     * Geçmiş satırı Wi-Fi silinenler kaydıyla silinmiş mi: aynı bölüm (ya da film) kaydı ya da profilin "geçmişi temizle"
+     * kaydı, satırın son izlenme anından yeni ya da eşitse. [items] tek profile ait olmalı.
+     */
+    fun isHistoryDeleted(tmdbId: Int, type: String, season: Int, episode: Int, lastWatchedAt: Long, items: List<DeletedLibraryItem>): Boolean =
+        items.any { d ->
+            d.deletedAt >= lastWatchedAt && when (d.kind) {
+                DeletedLibraryItem.KIND_CLEAR -> true
+                DeletedLibraryItem.KIND_EPISODE -> d.tmdbId == tmdbId && d.type.equals(type, ignoreCase = true) &&
+                    d.season == season && d.episode == episode
+                else -> false
+            }
+        }
+
+    /** Favori Wi-Fi silinenler kaydıyla çıkarılmış mı (çıkarma anından önce eklenmişse). [items] tek profile ait olmalı. */
+    fun isFavoriteDeleted(tmdbId: Int, type: String, addedAt: Long, items: List<DeletedLibraryItem>): Boolean =
+        items.any { d ->
+            d.kind == DeletedLibraryItem.KIND_FAVORITE && d.tmdbId == tmdbId && d.type.equals(type, ignoreCase = true) && d.deletedAt >= addedAt
+        }
+
+    /**
+     * Gönderilecek eklenti favorisi açılış bilgileri: yalnız bir profilde favori olan negatif kimlikli içerik, CS eklentisi
+     * (`cs:N`) ve bu cihazda adı bilinen eklenti. [pluginNames]: eklenti satırı → iç adı (CS `internalName`).
+     */
+    fun outgoingFavoriteSources(
+        refs: Map<Pair<MediaType, Int>, Pair<String, String>>,
+        favorites: Set<Pair<MediaType, Int>>,
+        pluginNames: Map<Long, String>,
+    ): List<FavoriteSourceTransfer> = refs.mapNotNull { (key, ref) ->
+        val (type, id) = key
+        if (id >= 0 || key !in favorites) return@mapNotNull null
+        val row = ref.first.takeIf { it.startsWith("cs:") }?.removePrefix("cs:")?.toLongOrNull() ?: return@mapNotNull null
+        val name = pluginNames[row] ?: return@mapNotNull null
+        FavoriteSourceTransfer(id, type.tmdbPath, name, ref.second)
+    }.sortedBy { it.tmdbId }
+
+    /**
+     * Karşıdan gelen açılış bilgisinin bu cihazdaki karşılığı (tür, `cs:N`): aynı iç adlı eklenti (açık olan önce, sonra en
+     * küçük numara; TV'nin telefondan oynatma çevirisiyle aynı kural). Kimlik adresle tutmuyorsa, adres http(s) değilse ya
+     * da eklenti bu cihazda yoksa null (sonraki eşitlemede yeniden denenir).
+     */
+    fun favoriteSourceTarget(item: FavoriteSourceTransfer, plugins: List<PluginEntity>): Pair<MediaType, String>? {
+        val type = MediaType.fromTmdb(item.type) ?: return null
+        val url = item.contentUrl
+        if (item.tmdbId >= 0 || url.length > 2048 || !url.matches(Regex("^https?://\\S+$", RegexOption.IGNORE_CASE))) return null
+        val plugin = plugins.filter { it.pluginId == item.pluginName }.sortedWith(compareBy({ !it.enabled }, { it.id })).firstOrNull()
+            ?: return null
+        val providerId = "cs:${plugin.id}"
+        if (ProviderContentId.of(providerId, url) != item.tmdbId) return null
+        return type to providerId
+    }
+
+    private val KNOWN_KINDS = setOf(DeletedLibraryItem.KIND_EPISODE, DeletedLibraryItem.KIND_CLEAR, DeletedLibraryItem.KIND_FAVORITE)
+
+    /**
      * Mezar taşlarına göre geçmişi filtreler: aynı içerik için deletedAt >= lastWatchedAt ise elenir;
      * lastWatchedAt > deletedAt ise (silindikten sonra tekrar izlenmiş) korunur.
      * Dizilerde mezar taşı (type=tv) tüm bölümleri kapsar.
@@ -408,9 +585,12 @@ object LocalSyncMerge {
     /** Aynı içerik: film ya da dizinin aynı sezon+bölümü. */
     fun historyKey(h: HistoryBackup): String = "${h.tmdbId}:${h.type.lowercase()}:${h.season}:${h.episode}"
 
+    /** Tam eşitlikte adresini taşıyan satır kazanır (adressiz bulut kopyası eklenti/adres/oynatma verisini silmesin). */
     private fun newer(candidate: HistoryBackup, current: HistoryBackup): Boolean =
         candidate.lastWatchedAt > current.lastWatchedAt ||
-            (candidate.lastWatchedAt == current.lastWatchedAt && candidate.positionMs > current.positionMs)
+            (candidate.lastWatchedAt == current.lastWatchedAt && candidate.positionMs > current.positionMs) ||
+            (candidate.lastWatchedAt == current.lastWatchedAt && candidate.positionMs == current.positionMs &&
+                current.contentUrl == null && candidate.contentUrl != null)
 
     /** Adres karşılaştırması: baştaki/sondaki boşluk ve sondaki "/" yok sayılır; şema ve alan adı küçük harfe iner. */
     fun urlKey(url: String): String {

@@ -338,6 +338,19 @@ class CsRepository(
         return result
     }
 
+    /**
+     * Kurulu depoya ([repoId], adresi [repoUrl]) depoda olup burada kurulu olmayan [internalNames] eklentilerini indirip
+     * kurar (Wi-Fi eşitlemesi: karşı cihazda açık olanlar; depoya sonradan eklenenler dahil). Kurulan sayıyı döndürür.
+     */
+    suspend fun installMissing(repoId: Long, repoUrl: String, internalNames: Set<String>): Int {
+        val have = pluginDao.ofRepo(repoId).map { it.pluginId }.toSet()
+        val wanted = internalNames - have
+        if (wanted.isEmpty()) return 0
+        val root = CsRepoManifestParser.parseRoot(fetcher.fetch(repoUrl))
+        val entries = fetchAllPluginLists(root.pluginLists, repoUrl).entries.filter { it.internalName in wanted }
+        return downloadAll(entries, repoId).count { it.success }
+    }
+
     suspend fun enabledPlugins(): List<InstalledCsPlugin> =
         pluginDao.enabledOfType(AddonType.CLOUDSTREAM_REPO).map { it.toInstalled() }
 

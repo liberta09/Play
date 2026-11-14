@@ -1,5 +1,7 @@
 package com.kaan.play.data.sync.local
 
+import kotlinx.serialization.json.Json
+
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -25,9 +27,14 @@ import java.util.concurrent.atomic.AtomicBoolean
  *   okuma zaman aşımı [readTimeoutMs].
  *
  * Sunucu yalnızca kart açıkken çalışır; kapatmak (ya da kilitlenmek) kodu geçersiz kılar.
+ *
+ * Kalıcı eşleşme ([pairs] verilirse): `POST /pair` (kodla) eşleşme kurar; [LocalSyncProtocol.HEADER_PAIR] taşıyan istekler
+ * anahtarı o eşleşmenin sırrından türetir ve kod gerektirmez. Bu kipte sunucu kod olmadan da açık kalabilir
+ * ([setCode] null); kodda [maxAttempts]. yanlışta yalnız kod kapanır ([onCodeLocked]), bir eşleşmede [maxAttempts].
+ * yanlışta yalnız o eşleşme bu oturum için askıya alınır. [pairs] null ise davranış eskisiyle aynıdır.
  */
 class LocalSyncServer(
-    private val code: String,
+    code: String?,
     private val handler: Handler,
     private val port: Int = LocalSyncProtocol.PORT,
     private val addressAllowed: (InetAddress) -> Boolean = LocalNetwork::isPrivateLan,
@@ -36,6 +43,14 @@ class LocalSyncServer(
     private val maxBodyBytes: Int = LocalSyncProtocol.MAX_BODY_BYTES,
     private val random: SecureRandom = SecureRandom(),
     private val log: (String) -> Unit = {},
+    private val pairs: PairDirectory? = null,
+    /**
+     * "Başka cihazda oynat" isteği alıcısı: açılmış gövde → yanıt JSON'u (şifrelenip döner). Yalnız [pairs] ile birlikte ve
+     * eşli istekte çalışır; kodla gelen istek reddedilir. null ise `POST /play` 404 döner (bu cihaz oynatma hedefi değil).
+     */
+    private val remotePlay: ((String) -> String)? = null,
+    /** Kumanda/klavye isteği alıcısı ([LocalSyncProtocol.PATH_REMOTE]); [remotePlay] gibi yalnız eşli istek. null ise 404. */
+    private val remoteInput: ((String) -> String)? = null,
 ) {
     /** Uygulamanın verisi. Sunucu iş parçacıklarında (engelleyerek) çağrılır. */
     interface Handler {
@@ -52,7 +67,19 @@ class LocalSyncServer(
     @Volatile
     var onClosed: ((CloseReason) -> Unit)? = null
 
-    private val limiter = SyncAttemptLimiter(maxAttempts)
+    /** Eşleşme kipinde kod çok yanlış girildi: kod kapandı, sunucu açık. */
+    @Volatile
+    var onCodeLocked: (() -> Unit)? = null
+
+    private val maxAttempts = maxAttempts
+
+    @Volatile
+    private var code: String? = code
+
+    @Volatile
+    private var limiter = SyncAttemptLimiter(maxAttempts)
+    private val pairLimiters = HashMap<String, SyncAttemptLimiter>()
+    private val json = Json { ignoreUnknownKeys = true }
     private val running = AtomicBoolean(false)
     private var socket: ServerSocket? = null
     private var workers: ExecutorService? = null
@@ -76,6 +103,13 @@ class LocalSyncServer(
     }
 
     fun stop() = close(CloseReason.Stopped)
+
+    /** Tek kullanımlık kodu değiştirir (null: kod kabul edilmez); yanlış deneme sayacı sıfırlanır. */
+    @Synchronized
+    fun setCode(newCode: String?) {
+        code = newCode
+        limiter = SyncAttemptLimiter(maxAttempts)
+    }
 
     private fun close(reason: CloseReason) {
         if (!running.compareAndSet(true, false)) return
@@ -133,28 +167,91 @@ class LocalSyncServer(
                 val nonce = issueNonce()
                 respond(out, 200, """{"app":"play","version":1,"nonce":"$nonce"}""")
             }
-            req.method == "GET" && req.path == LocalSyncProtocol.PATH_PROFILES -> authed(req, out) { keys ->
-                LocalSyncCrypto.seal(keys, req.path, handler.profiles(), random)
+            req.method == "GET" && req.path == LocalSyncProtocol.PATH_PROFILES -> authed(req, out) { auth ->
+                LocalSyncCrypto.seal(auth.keys, req.path, handler.profiles(), random)
             }
-            req.method == "POST" && req.path == LocalSyncProtocol.PATH_SYNC -> authed(req, out) { keys ->
+            req.method == "POST" && req.path == LocalSyncProtocol.PATH_SYNC -> authed(req, out) { auth ->
                 val remote = try {
-                    LocalSyncCrypto.open(keys, req.path, req.body.toString(Charsets.UTF_8))
+                    LocalSyncCrypto.open(auth.keys, req.path, req.body.toString(Charsets.UTF_8))
                 } catch (_: SyncAuthException) {
                     null
                 } ?: return@authed null
-                LocalSyncCrypto.seal(keys, req.path, handler.exchange(remote), random)
+                LocalSyncCrypto.seal(auth.keys, req.path, handler.exchange(remote), random)
             }
+            req.method == "POST" && req.path == LocalSyncProtocol.PATH_PAIR && pairs != null ->
+                authed(req, out, allowPair = false) { auth -> pair(req, auth, pairs) }
+            req.method == "POST" && req.path == LocalSyncProtocol.PATH_PLAY && pairs != null && remotePlay != null ->
+                pairedOnly(req, out, remotePlay)
+            req.method == "POST" && req.path == LocalSyncProtocol.PATH_REMOTE && pairs != null && remoteInput != null ->
+                pairedOnly(req, out, remoteInput)
             else -> respond(out, 404, """{"error":"not_found"}""")
         }
     }
 
-    /** Kanıtı denetler; [body] null dönerse (şifre çözülemedi) o da yanlış deneme sayılır. */
-    private fun authed(req: Request, out: OutputStream, body: (SyncKeys) -> String?) {
+    /**
+     * Yalnız eşleşmiş cihaz: tek kullanımlık kodla (eşleşme kurulmadan) istek gönderilemez. Kodsuz istek kod sayacına
+     * yazılmaz. Gövde açılıp [handle]'a verilir, yanıtı şifrelenip döner.
+     */
+    private fun pairedOnly(req: Request, out: OutputStream, handle: (String) -> String) {
+        if (req.headers[LocalSyncProtocol.HEADER_PAIR.lowercase()] == null) {
+            respond(out, 401, """{"error":"unauthorized"}""")
+            return
+        }
+        authed(req, out) { auth ->
+            val body = try {
+                LocalSyncCrypto.open(auth.keys, req.path, req.body.toString(Charsets.UTF_8))
+            } catch (_: SyncAuthException) {
+                null
+            } ?: return@authed null
+            LocalSyncCrypto.seal(auth.keys, req.path, handle(body), random)
+        }
+    }
+
+    private class Auth(val keys: SyncKeys, val serverNonce: String, val clientNonce: String)
+
+    /** Kodla kurulan eşleşme: karşının geçici açık anahtarıyla ECDH, kayıt dizine yazılır, kendi açık anahtarı döner. */
+    private fun pair(req: Request, auth: Auth, directory: PairDirectory): String? {
+        val hello = try {
+            json.decodeFromString(PairHello.serializer(), LocalSyncCrypto.open(auth.keys, req.path, req.body.toString(Charsets.UTF_8)))
+        } catch (_: SyncAuthException) {
+            return null
+        } catch (_: IllegalArgumentException) { // bozuk JSON (SerializationException dahil)
+            return null
+        }
+        if (!LocalSyncCrypto.isHexId(hello.deviceId)) return null
+        val own = LocalSyncCrypto.newPairKeyPair(random)
+        val secret = try {
+            LocalSyncCrypto.pairSecret(own.private, hello.publicKey, auth.serverNonce, auth.clientNonce)
+        } catch (_: SyncAuthException) {
+            return null
+        }
+        val record = PairRecord(LocalSyncCrypto.newNonce(random), secret, hello.deviceId, hello.deviceName.take(MAX_NAME))
+        directory.paired(record)
+        log("sync server: paired")
+        val reply = PairHello(LocalSyncCrypto.encodePublicKey(own), directory.identity.id, directory.identity.name.take(MAX_NAME), record.pairId)
+        return LocalSyncCrypto.seal(auth.keys, req.path, json.encodeToString(PairHello.serializer(), reply), random)
+    }
+
+    @Synchronized
+    private fun pairLimiter(pairId: String): SyncAttemptLimiter = pairLimiters.getOrPut(pairId) { SyncAttemptLimiter(maxAttempts) }
+
+    /**
+     * Kanıtı denetler; [body] null dönerse (şifre çözülemedi) o da yanlış deneme sayılır. Anahtar kodla ya da (izin
+     * verilmişse) [LocalSyncProtocol.HEADER_PAIR]'daki eşleşmenin sırrıyla türetilir.
+     */
+    private fun authed(req: Request, out: OutputStream, allowPair: Boolean = true, body: (Auth) -> String?) {
         val serverNonce = req.headers[LocalSyncProtocol.HEADER_SERVER_NONCE.lowercase()]
         val clientNonce = req.headers[LocalSyncProtocol.HEADER_CLIENT_NONCE.lowercase()]
         val proof = req.headers[LocalSyncProtocol.HEADER_PROOF.lowercase()]
-        val keys = if (LocalSyncCrypto.isNonce(serverNonce) && LocalSyncCrypto.isNonce(clientNonce) && knownNonce(serverNonce!!)) {
-            LocalSyncCrypto.deriveKeys(code, serverNonce, clientNonce!!)
+        val pairId = req.headers[LocalSyncProtocol.HEADER_PAIR.lowercase()]
+        val currentCode = code
+        val secret: String? = when {
+            pairId == null -> currentCode
+            !allowPair || pairs == null || !LocalSyncCrypto.isHexId(pairId) || pairLimiter(pairId).locked -> null
+            else -> pairs.secretFor(pairId)
+        }
+        val keys = if (secret != null && LocalSyncCrypto.isNonce(serverNonce) && LocalSyncCrypto.isNonce(clientNonce) && knownNonce(serverNonce!!)) {
+            LocalSyncCrypto.deriveKeys(secret, serverNonce, clientNonce!!)
         } else {
             null
         }
@@ -163,7 +260,7 @@ class LocalSyncServer(
             markUsed("$clientNonce|${req.path}")
         val payload = if (ok) {
             try {
-                body(keys!!)
+                body(Auth(keys!!, serverNonce!!, clientNonce!!))
             } catch (e: Exception) {
                 log("sync server handler failed: ${e.javaClass.simpleName}")
                 respond(out, 500, """{"error":"internal"}""")
@@ -173,10 +270,25 @@ class LocalSyncServer(
             null
         }
         if (payload == null) {
-            val locked = limiter.fail()
-            log("sync server: wrong key (remaining=${limiter.remaining})")
             respond(out, 401, """{"error":"unauthorized"}""")
-            if (locked) close(CloseReason.TooManyAttempts)
+            when {
+                // Eşli istek: yalnız bilinen eşleşmenin yanlışları sayılır (bilinmeyen kimlikte tahmin edilecek sır yok).
+                pairId != null -> if (secret != null && pairLimiter(pairId).fail()) log("sync server: pair suspended")
+                // Kod yokken (yalnız eşleşme kipi) tahmin edilecek kod da yok.
+                currentCode == null -> Unit
+                else -> {
+                    val locked = limiter.fail()
+                    log("sync server: wrong key (remaining=${limiter.remaining})")
+                    if (locked) {
+                        if (pairs == null) {
+                            close(CloseReason.TooManyAttempts)
+                        } else {
+                            setCode(null)
+                            onCodeLocked?.invoke()
+                        }
+                    }
+                }
+            }
             return
         }
         respond(out, 200, payload)
@@ -268,5 +380,6 @@ class LocalSyncServer(
         const val WORKERS = 2
         const val MAX_NONCES = 16
         const val MAX_HEAD_BYTES = 16 * 1024
+        const val MAX_NAME = 64
     }
 }
