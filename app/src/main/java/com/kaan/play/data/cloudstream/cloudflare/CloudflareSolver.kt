@@ -36,6 +36,24 @@ object CloudflareSolver {
 
     var customContext: Context? = null
 
+    /**
+     * Süren kaynak aramalarından gizli doğrulama tarayıcısını istemeyenlerin sayısı ([CsSearchBudget.skipChallengeSolve], az
+     * bellekli cihaz). Sayı sıfırdan büyükken [solveSkipped] doğrudur: bot doğrulaması isteyen site çözülmeden "doğrulama
+     * gerekiyor" diye işaretlenir. 2 GB'lık kutuda arama sırasında açılan bu WebView süreci 6 sn'de 345 → 773 MB'a çıkarmıştı.
+     */
+    private val noSolveSearches = java.util.concurrent.atomic.AtomicInteger()
+
+    /** Kaynak araması başladı; [skipSolve] doğruysa arama sürerken gizli WebView açılmaz. Aynı bayrakla [sourceSearchFinished] kapatır. */
+    fun sourceSearchStarted(skipSolve: Boolean) {
+        if (skipSolve) noSolveSearches.incrementAndGet()
+    }
+
+    fun sourceSearchFinished(skipSolve: Boolean) {
+        if (skipSolve) noSolveSearches.updateAndGet { (it - 1).coerceAtLeast(0) }
+    }
+
+    fun solveSkipped(): Boolean = noSolveSearches.get() > 0
+
     private fun getEffectiveContext(): Context? {
         return customContext ?: runCatching { PlayApp.appContext }.getOrNull()
     }

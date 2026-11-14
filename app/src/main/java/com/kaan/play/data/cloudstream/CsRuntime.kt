@@ -253,7 +253,11 @@ class CsRuntime {
             collected.map { "${it.name}/${it.type}/${it.quality}@${runCatching { java.net.URI(it.url).host }.getOrNull()}" })
 
         return collected.map { link ->
+            // Match Cloudstream: one optional provider interceptor for video, audio and source captions.
+            val interceptor = api.getVideoInterceptor(link)
             PlayableStream(
+                httpInterceptor = interceptor,
+                providerTransportRequired = interceptor != null,
                 source = source,
                 url = link.url,
                 resolution = qualityToResolution(link.quality),
@@ -269,7 +273,7 @@ class CsRuntime {
                         if (link.referer.isNotEmpty()) put("Referer", link.referer)
                         sub.headers?.let { putAll(it) }
                     }
-                    StreamSubtitle(url = sub.url, language = sub.lang, headers = subHeaders)
+                    StreamSubtitle(url = sub.url, language = sub.lang, headers = subHeaders, httpInterceptor = interceptor)
                 },
                 language = null,
                 dubbed = com.kaan.play.data.stream.DubDetector.isDubbed(link.name),

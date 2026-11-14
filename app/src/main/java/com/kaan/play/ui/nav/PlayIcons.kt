@@ -392,6 +392,22 @@ object PlayIcons {
     }
 
     /** Oynatıcı: yeniden boyutlandır (köşe işaretleri + iç dikdörtgen). */
+    val PortraitFullscreen: ImageVector by lazy {
+        icon("PortraitFullscreen") { line {
+            moveTo(7.5f, 4f); horizontalLineTo(16.5f); verticalLineTo(20f); horizontalLineTo(7.5f); close()
+            moveTo(10f, 7f); horizontalLineTo(14f)
+            moveTo(10f, 17f); horizontalLineTo(14f)
+        } }
+    }
+
+    val LandscapeFullscreen: ImageVector by lazy {
+        icon("LandscapeFullscreen") { line {
+            moveTo(4f, 7.5f); horizontalLineTo(20f); verticalLineTo(16.5f); horizontalLineTo(4f); close()
+            moveTo(7f, 10f); verticalLineTo(14f)
+            moveTo(17f, 10f); verticalLineTo(14f)
+        } }
+    }
+
     val Resize: ImageVector by lazy {
         icon("Resize") {
             line {

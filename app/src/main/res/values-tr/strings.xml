@@ -1086,6 +1086,10 @@
     <string name="episodes_panel_list_failed">Bölüm listesi alınamadı</string>
 
     <!-- Eşleşme, telefondan TV'ye oynatma, kumanda, dikey tam ekran, CloudStream eklenti ayarları -->
+    <string name="cs_plugin_settings_open">%1$s ayarlarını aç</string>
+    <string name="cs_plugin_settings_unsupported">Bu eklenti bir ayar ekranı sunmuyor.</string>
+    <string name="cs_plugin_settings_disabled">Ayarlarını açmak için bu eklentiyi etkinleştirin.</string>
+    <string name="cs_plugin_settings_unavailable">Eklenti değişti veya bu ekran artık açık değil. Ayarlarını yeniden açın.</string>
     <string name="library_favorite_unavailable">Bu eklenti içeriği başka bir cihazda eklendi ve burada henüz izlenmedi; kaynağı bilinmiyor. Aramadan ya da eklentiden bulabilirsin.</string>
     <string name="remote_title">Kumanda</string>
     <string name="remote_type_hint">TV\'ye yaz</string>
@@ -1123,4 +1127,7 @@
     <string name="wifi_sync_paired_title">Eşleşmiş cihazlar</string>
     <string name="wifi_sync_paired_remove">Kaldır</string>
     <string name="wifi_sync_paired_hint">Bu cihazlar aynı Wi-Fi ağında kod girmeden kendiliğinden eşitlenir.</string>
+    <string name="player_portrait_fullscreen">Dikey tam ekran</string>
+    <string name="player_landscape_fullscreen">Yatay tam ekran</string>
+    <string name="settings_auto_portrait_videos">Dikey videoları otomatik dikey oynat</string>
 </resources>

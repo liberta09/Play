@@ -187,10 +187,14 @@ class AppContainer(context: Context) {
         }
         .build()
 
+    /** Kaynak aramasının bellek bütçesi: az bellekli cihazda (ör. 2 GB'lık TV kutusu) daha sıkı, telefonda önceki davranış. */
+    val csSearchBudget: com.kaan.play.data.cloudstream.CsSearchBudget =
+        com.kaan.play.data.cloudstream.CsSearchBudget.forDevice(appContext)
+
     init {
         // CloudStream eklentileri app.get()/post() ve depolama için ilklendirilir
         try {
-            com.lagradost.cloudstream3.initApp(httpClient)
+            com.lagradost.cloudstream3.initApp(httpClient, maxResponseBytes = csSearchBudget.maxResponseBytes)
             com.lagradost.cloudstream3.utils.DataStore.init(appContext)
             com.lagradost.cloudstream3.DataStore.init(appContext)
             com.lagradost.cloudstream3.AcraApplication.context = appContext
@@ -604,7 +608,9 @@ class AppContainer(context: Context) {
     val pluginRuntime: PluginRuntime by lazy {
         PluginRuntime(
             httpClient, BuildConfig.TMDB_API_KEY,
-            maxConcurrent = PluginStreamProvider.MAX_PARALLEL,
+            // Az bellekli cihazda kaynak aramasıyla aynı sınır ([csSearchBudget]): çok sayıda QuickJS ve CloudStream eklentisi
+            // birlikte çalışınca küçük Java yığını doluyordu.
+            maxConcurrent = minOf(PluginStreamProvider.MAX_PARALLEL, csSearchBudget.maxParallel),
             log = { level, message -> Log.d("PlayPlugin", "[$level] $message") },
         )
     }
@@ -698,7 +704,7 @@ class AppContainer(context: Context) {
                     settings = pluginSettings::get,
                     // Eklentiler kendi 45 sn bütçeleriyle yazılır; kaynak zaman aşımı ayarı (vars. 15 sn) onları erken öldürmesin.
                     timeout = { PluginStreamProvider.runBudget(sourceTimeout()) },
-                    maxParallel = 6,
+                    maxParallel = minOf(PluginStreamProvider.MAX_PARALLEL, csSearchBudget.maxParallel),
                 ),
                 CsStreamProvider(
                     repository = csRepos,
@@ -726,6 +732,7 @@ class AppContainer(context: Context) {
                     // yavaş sitelerde bulunan bağlantıları da atıyordu (Nuvio dış sınırı 120 sn).
                     timeoutMs = 30_000L,
                     totalBudgetMs = 90_000L,
+                    budget = csSearchBudget,
                 ),
             ),
             verdicts = streamVerdicts,

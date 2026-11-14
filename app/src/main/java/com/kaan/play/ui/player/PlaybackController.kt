@@ -50,6 +50,7 @@ import java.util.concurrent.TimeUnit
 private class PlaybackHttpSession(
     headers: Map<String, String>,
     val cookieJar: StreamPlaybackCookieJar,
+    val interceptor: okhttp3.Interceptor? = null,
 ) {
     @Volatile var headers: Map<String, String> = headers
 }
@@ -151,6 +152,7 @@ class PlaybackController(
                 .followRedirects(true)
                 .followSslRedirects(true)
                 .cookieJar(session.cookieJar)
+                .apply { session.interceptor?.let { addInterceptor(it) } }
                 .build()
             TsSniffingDataSource(OkHttpDataSource.Factory(okHttpClient).setUserAgent(DEFAULT_USER_AGENT).createDataSource())
         }
@@ -168,6 +170,7 @@ class PlaybackController(
     val player: ExoPlayer = run {
         val renderersFactory = DefaultRenderersFactory(context)
             .setEnableDecoderFallback(true)
+        com.kaan.play.data.device.NativeVideoDecoderProfile.applyTo(renderersFactory)
 
         // [ADIM 4] TV Box RAM sınırı (b7dab38) + Telefon 4K yüksek bit hızı uyumu (PlayerBufferConfig)
         val targetBufferBytes = PlayerBufferConfig.fromContext(context)
@@ -510,7 +513,8 @@ class PlaybackController(
             StreamPlaybackCookieJar().apply {
                 val cookies = StreamSessionCookies.forPlayback(stream.source.addonId, stream.url)
                 if (cookies.isNotEmpty()) replace(cookies)
-            }
+            },
+            stream.httpInterceptor,
         )
         onlineSource = createOnlineSource(activeHttpSession)
         headers = stream.headers
@@ -795,6 +799,7 @@ class PlaybackController(
                 client.newBuilder()
                     .dns(com.kaan.play.data.net.Ipv4FirstDns.wrapping(client.dns))
                     .cookieJar(session.cookieJar)
+                    .apply { session.interceptor?.let { addInterceptor(it) } }
                     .callTimeout(8, TimeUnit.SECONDS)
                     .build()
                     .newCall(builder.build())

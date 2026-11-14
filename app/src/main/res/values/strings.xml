@@ -1105,6 +1105,10 @@
     <string name="episodes_panel_list_failed">Could not load episodes</string>
 
     <!-- Eşleşme, telefondan TV'ye oynatma, kumanda, dikey tam ekran, CloudStream eklenti ayarları -->
+    <string name="cs_plugin_settings_open">Open %1$s settings</string>
+    <string name="cs_plugin_settings_unsupported">This plugin does not provide a settings screen.</string>
+    <string name="cs_plugin_settings_disabled">Enable this plugin to open its settings.</string>
+    <string name="cs_plugin_settings_unavailable">The plugin changed or this screen is no longer active. Open its settings again.</string>
     <string name="library_favorite_unavailable">This add-on title was added on another device and has not been watched here yet, so its source is unknown. Find it in search or the add-on.</string>
     <string name="remote_title">Remote</string>
     <string name="remote_type_hint">Type on TV</string>
@@ -1142,4 +1146,7 @@
     <string name="wifi_sync_paired_title">Paired devices</string>
     <string name="wifi_sync_paired_remove">Remove</string>
     <string name="wifi_sync_paired_hint">These devices sync automatically on the same Wi-Fi, without a code.</string>
+    <string name="player_portrait_fullscreen">Portrait fullscreen</string>
+    <string name="player_landscape_fullscreen">Landscape fullscreen</string>
+    <string name="settings_auto_portrait_videos">Automatically use portrait for vertical videos</string>
 </resources>

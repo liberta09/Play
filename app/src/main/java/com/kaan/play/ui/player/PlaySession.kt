@@ -39,6 +39,10 @@ data class PlaySession(
     val fallbacks: List<PlayableStream> = emptyList(),
     /** Önceki bölümden otomatik geçişle açıldı: etkinlik geçişi animasyonsuz olur (kesintisiz görünsün). */
     val fromAutoNext: Boolean = false,
+    /** Manuel dikey tam ekran seçimi sonraki bölümde de korunur. */
+    val portraitMode: Boolean = false,
+    /** Null preserves old explicit portrait sessions; false distinguishes automatic portrait from a manual choice. */
+    val orientationManuallyChosen: Boolean? = null,
     /** Kaynak listesi beklenmeden açıldı: [stream] yok, oynatıcı uygun ilk kaynağı arka planda bulur. */
     val autoSource: Boolean = false,
     /** Yalnızca debug/duman testi oynatması ([testVideo]): izleme geçmişine ("İzlemeye devam et") yazılmaz. */
@@ -52,20 +56,26 @@ data class PlaySession(
         zapIndex: Int = -1,
         liveCatalogId: String? = null,
     ): Intent =
-        Intent(context, PlayerActivity::class.java)
-            .putExtra(EXTRA, PlayJson.encodeToString(serializer(), this))
-            .apply {
-                if (!zapKey.isNullOrBlank()) {
-                    putExtra(EXTRA_LIVE_ZAP_KEY, zapKey)
-                    putExtra(EXTRA_LIVE_ZAP_INDEX, zapIndex)
-                }
-                if (!liveCatalogId.isNullOrBlank()) {
-                    putExtra(EXTRA_LIVE_CATALOG_ID, liveCatalogId)
-                }
+        Intent(context, PlayerActivity::class.java).apply {
+            val serialized = PlayJson.encodeToString(serializer(), this@PlaySession)
+            putExtra(EXTRA, serialized)
+            val needsRuntime = (listOfNotNull(stream) + fallbacks).any { candidate ->
+                candidate.httpInterceptor != null || candidate.subtitles.any { it.httpInterceptor != null }
             }
+            if (needsRuntime) putExtra(RUNTIME_EXTRA, runtime.put(serialized, this@PlaySession))
+            if (!zapKey.isNullOrBlank()) {
+                putExtra(EXTRA_LIVE_ZAP_KEY, zapKey)
+                putExtra(EXTRA_LIVE_ZAP_INDEX, zapIndex)
+            }
+            if (!liveCatalogId.isNullOrBlank()) {
+                putExtra(EXTRA_LIVE_CATALOG_ID, liveCatalogId)
+            }
+        }
 
     companion object {
         private const val EXTRA = "session"
+        private const val RUNTIME_EXTRA = "provider_runtime"
+        private val runtime = ProviderSessionHandoff<PlaySession>()
         const val EXTRA_LIVE_ZAP_KEY = "live_zap_key"
         const val EXTRA_LIVE_ZAP_INDEX = "live_zap_index"
         const val EXTRA_LIVE_CATALOG_ID = "live_catalog_id"
@@ -148,7 +158,16 @@ data class PlaySession(
             try {
                 val text = intent.getStringExtra(EXTRA)
                 if (!text.isNullOrBlank()) {
-                    return PlayJson.decodeFromString(serializer(), text)
+                    val decoded = PlayJson.decodeFromString(serializer(), text)
+                    val token = intent.getStringExtra(RUNTIME_EXTRA)
+                    if (token != null) runtime.get(token, text)?.let { return it }
+                    val requiresRuntime = (listOfNotNull(decoded.stream) + decoded.fallbacks).any { it.providerTransportRequired }
+                    if (token != null || requiresRuntime) {
+                        // Process death or bounded-cache expiry: resolve provider sessions afresh.
+                        // Never send a URL requiring a lost interceptor directly to the network.
+                        return decoded.copy(stream = null, fallbacks = emptyList(), autoSource = true)
+                    }
+                    return decoded
                 }
             } catch (_: Throwable) {
                 // Hatalı JSON veya serialization hatası

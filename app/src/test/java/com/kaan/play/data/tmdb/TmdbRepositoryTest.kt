@@ -114,6 +114,35 @@ class TmdbRepositoryTest {
         assertEquals("false", seen.single().queryParameter("include_adult"))
     }
 
+    @Test
+    fun personNameSearchPutsActingCreditsFirstAndSkipsTalkShows() = runTest {
+        fixtures["search/multi|tr-TR"] =
+            """{"page":1,"total_pages":1,"results":[{"id":9,"media_type":"person","name":"Tim Robbins"},{"id":1,"media_type":"movie","title":"Başka"}]}"""
+        fixtures["person/9/combined_credits|tr-TR"] = """{"cast":[
+            {"id":2,"media_type":"movie","title":"Esaretin Bedeli","poster_path":"/a.jpg","popularity":50.0,"character":"Andy"},
+            {"id":3,"media_type":"tv","name":"Gece Şovu","poster_path":"/b.jpg","popularity":90.0,"genre_ids":[10767],"character":"Self - Guest"},
+            {"id":4,"media_type":"tv","name":"Dizi","poster_path":"/c.jpg","popularity":10.0,"character":"Self"},
+            {"id":5,"media_type":"tv","name":"Gerçek Dizi","poster_path":"/d.jpg","popularity":20.0,"character":"Lynn","episode_count":12},
+            {"id":6,"media_type":"tv","name":"Konuk Dizi","poster_path":"/e.jpg","popularity":95.0,"character":"Gina","episode_count":1}]}"""
+        fixtures["search/movie|tr-TR"] = """{"page":1,"total_pages":1,"results":[]}"""
+        fixtures["search/person|tr-TR"] = """{"results":[{"id":9,"name":"Tim Robbins"}]}"""
+
+        // Konuk rol (1 bölüm) en popüler olsa da ana işlerden (film + ana dizi) sonra gelir.
+        assertEquals(listOf("Esaretin Bedeli", "Gerçek Dizi", "Konuk Dizi", "Başka"), repo().search("tim robbins").items.map { it.title })
+        assertEquals(listOf("Esaretin Bedeli"), repo().search("Tim Robbins", type = MediaType.Movie).items.map { it.title })
+        // TV araması bu işaretle film/dizi satırını eklenti sonuçlarının üstüne alır.
+        assertTrue(repo().searchWithPerson("tim robbins").second)
+    }
+
+    @Test
+    fun titleSearchIsNotMarkedAsPerson() = runTest {
+        fixtures["search/multi|tr-TR"] =
+            """{"page":1,"total_pages":1,"results":[{"id":1,"media_type":"movie","title":"Film","poster_path":"/a.jpg"}]}"""
+        val (page, person) = repo().searchWithPerson("film")
+        assertEquals("Film", page.items.single().title)
+        assertFalse(person)
+    }
+
     // ---- dil ----
 
     @Test

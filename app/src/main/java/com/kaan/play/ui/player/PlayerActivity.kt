@@ -1,5 +1,6 @@
 package com.kaan.play.ui.player
 
+import android.content.pm.ActivityInfo
 import android.media.AudioManager
 import com.kaan.play.BuildConfig
 import android.os.Build
@@ -90,11 +91,17 @@ import kotlinx.coroutines.withContext
  * uygun ilk kaynakla başlanır; kaynak/altyazı/ses/çözünürlük oynatıcının içinden değiştirilir.
  */
 class PlayerActivity : AppCompatActivity() {
+    // Captured for the video session: a delayed appScope write must not adopt a later profile.
+    private var playbackLibraryScope: Pair<String, String>? = null
+
 
     private lateinit var session: PlaySession
     private lateinit var controller: PlaybackController
     private lateinit var subtitles: SubtitleController
     private lateinit var autoNext: AutoNextController
+    private var portraitPlayback by mutableStateOf(false)
+    private var orientationManuallyChosen = false
+    private var autoPortraitEnabled = false
 
     /** Çevrimiçi oynatmada kaynak seçimi; indirilmiş kopyada (çevrimdışı) null. */
     private var coordinator by mutableStateOf<SourceCoordinator?>(null)
@@ -199,6 +206,9 @@ class PlayerActivity : AppCompatActivity() {
             return
         }
         session = parsed
+        orientationManuallyChosen = savedInstanceState?.getBoolean("play_orientation_manual",
+            VideoOrientationPolicy.wasManuallyChosen(parsed.orientationManuallyChosen, parsed.portraitMode))
+            ?: VideoOrientationPolicy.wasManuallyChosen(parsed.orientationManuallyChosen, parsed.portraitMode)
         activeTarget = parsed.target
         if (parsed.fromAutoNext) noTransition(open = true)
         val incomingZapKey = PlaySession.liveZapKey(incomingIntent)
@@ -226,6 +236,11 @@ class PlayerActivity : AppCompatActivity() {
             showLiveChannelBanner(parsed.target.title, switching = false)
         }
         val container = (application as PlayApp).container
+        autoPortraitEnabled = runBlocking { container.settings.autoPortraitVideos.first() }
+        val restoredPortrait = savedInstanceState?.getBoolean("play_portrait_playback", parsed.portraitMode) ?: parsed.portraitMode
+        applyPlaybackOrientation(if (orientationManuallyChosen || autoPortraitEnabled) restoredPortrait else false)
+        playbackLibraryScope = kotlinx.coroutines.runBlocking { container.localProfile.libraryScope.first() }
+
         if (!isLiveSession && parsed.offline == null) {
             val targetRating = parsed.target.ageRating?.takeIf { it.isNotBlank() }
             val targetRegion = parsed.target.ageRatingRegion?.takeIf { it.isNotBlank() }
@@ -271,6 +286,10 @@ class PlayerActivity : AppCompatActivity() {
         )
         skips.attach(controller.player)
         controller.player.addListener(object : Player.Listener {
+            override fun onVideoSizeChanged(videoSize: androidx.media3.common.VideoSize) {
+                followVideoOrientation(videoSize)
+            }
+
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (!isPlaying) saveProgress() // duraklatma
                 broadcastPartyControlIfHost()
@@ -294,6 +313,14 @@ class PlayerActivity : AppCompatActivity() {
                 }
             }
         })
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                container.settings.autoPortraitVideos.collect { enabled ->
+                    autoPortraitEnabled = enabled
+                    followVideoOrientation(controller.player.videoSize)
+                }
+            }
+        }
         autoNext = AutoNextController(
             scope = lifecycleScope,
             target = session.target,
@@ -566,6 +593,8 @@ class PlayerActivity : AppCompatActivity() {
                     canSwitchSource = offline == null,
                     levels = levels,
                     autoNext = autoNext,
+                    portraitMode = portraitPlayback,
+                    onToggleOrientation = if (DeviceLevels.supportsTouch(this)) ({ orientationManuallyChosen = true; applyPlaybackOrientation(!portraitPlayback) }) else null,
                     onAutoNextCancel = ::cancelAutoNext,
                     onNextEpisode = if (isSeries) ::onNextEpisodeClicked else null,
                     coordinator = coordinator,
@@ -852,7 +881,7 @@ class PlayerActivity : AppCompatActivity() {
             position = { controller.positionMs() },
             clock = SystemClock::elapsedRealtime,
             sourceProbe = { stream ->
-                container.sourceProbe.probe(stream.url, stream.headers, timeoutMs = 1_500L)
+                container.sourceProbe.probe(stream.url, stream.headers, timeoutMs = 1_500L, interceptor = stream.httpInterceptor)
             },
             isOffline = session.offline != null,
             isWatchPartyGuest = { val party = container.watchPartyManager.session.value; party != null && !party.isHost },
@@ -1567,7 +1596,7 @@ class PlayerActivity : AppCompatActivity() {
             if (markWatched) finishedForAdvance = true
             saveProgress() // markWatched ise bu bölüm izlendi
             if (currentStream?.url?.let(TorrentLinks::isMagnet) == true) container.torrentEngine.closeActive()
-            startActivity(nextSession.toIntent(this@PlayerActivity))
+            startActivity(nextSession.copy(portraitMode = portraitPlayback, orientationManuallyChosen = orientationManuallyChosen).toIntent(this@PlayerActivity))
             noTransition(open = false)
             finish()
         }
@@ -1580,6 +1609,24 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /** Etkinlik geçişi animasyonsuz: bölümden bölüme geçiş kesintisiz görünür. */
+    private fun followVideoOrientation(size: androidx.media3.common.VideoSize) {
+        val portrait = VideoOrientationPolicy.resolve(DeviceLevels.supportsTouch(this), autoPortraitEnabled,
+            orientationManuallyChosen, portraitPlayback, size.width, size.height,
+            size.pixelWidthHeightRatio, size.unappliedRotationDegrees)
+        if (portrait != portraitPlayback) applyPlaybackOrientation(portrait)
+    }
+    private fun applyPlaybackOrientation(enabled: Boolean) {
+        val allowed = enabled && DeviceLevels.supportsTouch(this)
+        portraitPlayback = allowed
+        session = session.copy(portraitMode = allowed, orientationManuallyChosen = orientationManuallyChosen)
+        requestedOrientation = if (allowed) ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+            else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("play_portrait_playback", portraitPlayback)
+        outState.putBoolean("play_orientation_manual", orientationManuallyChosen)
+        super.onSaveInstanceState(outState)
+    }
     private fun noTransition(open: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             overrideActivityTransition(
@@ -1614,7 +1661,9 @@ class PlayerActivity : AppCompatActivity() {
         val position = if (controller.ui.ended || finishedForAdvance) duration else controller.positionMs()
         val container = (application as PlayApp).container
         // Etkinlik kapanırken de tamamlansın diye uygulama kapsamında.
-        container.appScope.launch { container.library.saveProgress(session.target, position, duration) }
+        val target = session.target
+        val capturedScope = playbackLibraryScope ?: return
+        container.appScope.launch { container.library.saveProgress(target, position, duration, capturedScope) }
     }
 
     override fun onNewIntent(intent: android.content.Intent) {
@@ -1624,7 +1673,13 @@ class PlayerActivity : AppCompatActivity() {
             finish()
             return
         }
+        saveProgress()
+        playbackLibraryScope = kotlinx.coroutines.runBlocking {
+            (application as PlayApp).container.localProfile.libraryScope.first()
+        }
         session = parsed
+        orientationManuallyChosen = VideoOrientationPolicy.wasManuallyChosen(parsed.orientationManuallyChosen, parsed.portraitMode)
+        applyPlaybackOrientation(if (orientationManuallyChosen || autoPortraitEnabled) parsed.portraitMode else false)
         if (::controller.isInitialized) {
             val stream = parsed.stream
             if (stream != null && !stream.url.isNullOrBlank()) {
