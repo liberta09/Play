@@ -101,11 +101,22 @@ Yayın derlemesi / Release build: `local.properties` içine `KEYSTORE_PASSWORD` 
 
 ## Derleme ve çalıştırma
 ```powershell
-.\gradlew assembleDebug
+.\gradlew assembleDebug          # iki çeşit: telefon (phone) ve Android TV (tv)
 adb connect 127.0.0.1:5555        # LDPlayer
-adb install -r app\build\outputs\apk\debug\app-debug.apk
+adb install -r app\build\outputs\apk\phone\debug\app-phone-debug.apk
 adb shell am start -n com.kaan.play/.MainActivity
 ```
+Birim testler: `.\gradlew testPhoneDebugUnitTest testTvDebugUnitTest`. Yayın: `.\gradlew assemblePhoneRelease` → `Play-<sürüm>.apk`, `.\gradlew assembleTvRelease` → `PlayTV-<sürüm>.apk` (her biri `-SHA256.txt` ile).
+
+## 📺 Play TV (Android TV)
+Play'in Android TV için ayrı arayüzlü çeşidi (`tv` ürün çeşidi, paket `com.kaan.play.tv`, kaynaklar `app/src/tv/`). Telefonla aynı eklentileri, kaynak toplamayı, oynatıcıyı, profilleri ve bulut hesabını kullanır; ekranlar kumandaya göre çizilir (sol menü: Ara, Ana sayfa, Canlı TV, Filmler, Diziler, Shorts Drama, Kütüphane, Ayarlar).
+- **Telefonla eşleşme (isteğe bağlı, varsayılan kapalı):** "Eşleşmiş cihazları hatırla" iki cihazda da açıksa, Wi-Fi koduyla eşitledikten sonra iki taraf da onaylayınca telefon ve TV eşleşir; sonra kod girmeden kendiliğinden eşitlenir. Eksik kaynaklar her zaman onayla kurulur.
+- **Telefondan TV'de oynat:** telefonda detayın sağ üstündeki TV düğmesi açıkken Oynat, içeriği TV'de açar (TV'de eklenti yoksa telefon akışı gönderir).
+- **Kumanda:** eşleşmiş cihaz varken telefonun üst menüsünde kumanda ekranı (yön halkası, Tamam/Geri, oynat/duraklat, ses, TV'ye yazı).
+- **Shorts Drama (kaldırılabilir):** Shorts Drama menüsü Arcana Drama TV uygulamasında eklenmiştir; kısa dizileri Arcana Drama eklenti deposundan gösterir. Depo kendiliğinden eklenmez: Shorts Drama ilk açıldığında onay penceresi sorar (Ekle/Vazgeç; Ana sayfa, Filmler ve Diziler depoyu hiç eklemez). Play'in "varsayılan depo gömülmez" kuralıyla çelişir; istemezseniz `app/src/tv/java/com/kaan/play/tv/ShortsDrama.kt` dosyasının başında ve [docs/android-tv.md](docs/android-tv.md) "Shorts Drama" bölümünde listelenen dosya/satırları kaldırarak (ya da `feat(tv): Shorts Drama section` commit'ini geri alarak) tamamen çıkarabilirsiniz.
+- Ayrıntı, derleme ve sınırlar: [docs/android-tv.md](docs/android-tv.md). Ana sayfadaki eklentiye özgü kayan alanlar: [docs/eklenti-kayan-alanlari.md](docs/eklenti-kayan-alanlari.md).
+
+*EN: Play TV is the Android TV flavor (`com.kaan.play.tv`) with a remote-first UI on top of the same add-on, source, player, profile and cloud layers. Phone and TV can pair over Wi-Fi (opt-in on both devices, confirmed on both sides) and then sync automatically; the phone can start playback on the TV and act as a remote. The Shorts Drama menu was added in the Arcana Drama TV app; it shows short dramas from the Arcana Drama add-on repository; the repository is added only after the user confirms a dialog when opening Shorts Drama. This conflicts with Play's "no default repository is bundled" rule; to remove it completely, delete the files/lines listed at the top of `ShortsDrama.kt` and in docs/android-tv.md (or revert the `feat(tv): Shorts Drama section` commit). See [docs/android-tv.md](docs/android-tv.md).*
 `local.properties` içinde şunlar olmalı (dosya git'e girmez):
 ```
 sdk.dir=C\:\\Users\\<kullanıcı>\\AppData\\Local\\Android\\Sdk
