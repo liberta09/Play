@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ana sayfa, Filmler ve diziler, Canlı TV, Kütüphane metinleri (Türkçesi values-tr/strings_home.xml). -->
+<resources>
+    <!-- Ana sayfa -->
+    <string name="tv_home_retry">Try again</string>
+    <string name="tv_home_no_film_addons">No add-on installed for movies and series. Settings → Add repository or Transfer from phone.</string>
+    <string name="tv_home_no_content">No content came from the add-ons.</string>
+    <string name="tv_home_continue">Continue watching</string>
+    <string name="tv_home_dramas">Dramas</string>
+    <string name="tv_home_pick_default">Choose add-ons</string>
+    <plurals name="tv_home_pick_count">
+        <item quantity="one">Choose add-ons: %1$d add-on</item>
+        <item quantity="other">Choose add-ons: %1$d add-ons</item>
+    </plurals>
+    <string name="tv_home_picker_title">Home add-ons (pin)</string>
+    <string name="tv_home_picker_note">Checked add-ons are pinned (the pin on the phone). Pinned CloudStream add-ons are shown on Home; with none pinned, Home has no add-on rows. Addon catalogs are always shown; to hide them one by one, go to Settings &gt; Add-ons &gt; Home catalogs. Pinning many add-ons slows the box down. Back saves.</string>
+    <string name="tv_home_picker_default">No add-on rows (default)</string>
+    <string name="tv_home_picker_addon">Addon</string>
+    <string name="tv_home_picker_pinned">✓ Pinned</string>
+    <!-- Aynı adlı iki addon satırını ayıran tür eki: "izlelan · Popular movies" -->
+    <string name="tv_home_kind_movies">movies</string>
+    <string name="tv_home_kind_series">series</string>
+    <!-- "See all" card and grid (Play: Show all) -->
+    <string name="tv_home_see_all">See all</string>
+
+    <!-- TMDB satırları -->
+    <string name="tv_home_trending_movies">Trending movies</string>
+    <string name="tv_home_popular_movies">Popular movies</string>
+    <string name="tv_home_trending_series">Trending series</string>
+    <string name="tv_home_popular_series">Popular series</string>
+    <string name="tv_home_type_series">Series</string>
+    <string name="tv_home_type_movie">Movie</string>
+
+    <!-- Canlı TV -->
+    <string name="tv_live_search_placeholder">Search channels</string>
+    <string name="tv_live_all">All</string>
+    <string name="tv_live_searching">Looking for channels…</string>
+    <string name="tv_live_load_failed">Couldn\'t load channels. Check your internet connection.</string>
+    <string name="tv_live_no_addons">No add-on provides live channels. Settings → Add repository or Transfer from phone.</string>
+    <string name="tv_live_no_match">No channel named \"%1$s\".</string>
+    <string name="tv_live_more_searching">Searching other add-ons…</string>
+
+    <!-- Kütüphane -->
+    <string name="tv_library_next">Up next · Episode %1$d</string>
+    <string name="tv_library_left_episode">Episode %1$d · %2$d min left</string>
+    <string name="tv_library_left_movie">%1$d min left</string>
+    <string name="tv_library_empty_title">Library is empty</string>
+    <string name="tv_library_empty_body">Episodes you watch and titles you add to favorites appear here.</string>
+    <string name="tv_library_favorites">Favorites</string>
+    <string name="tv_library_history">History</string>
+    <string name="tv_library_history_clear">Clear history</string>
+    <string name="tv_library_history_clear_message">All watch history of this profile will be deleted. Favorites are kept.</string>
+    <string name="tv_library_history_clear_confirm">Clear</string>
+    <string name="tv_library_history_remove">Remove from history</string>
+    <string name="tv_library_continue_remove">Remove from Continue watching</string>
+    <string name="tv_library_open_detail">Open details</string>
+    <string name="tv_library_history_watched">Watched</string>
+    <string name="tv_library_history_episode">S%1$d · E%2$d</string>
+    <string name="tv_library_history_percent">%1$d%% watched</string>
+</resources>

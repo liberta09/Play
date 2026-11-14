@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  TV arayüz metinleri. Play'in düzeni: values/ = İngilizce (varsayılan), values-tr/ = Türkçe.
+  Her ad "tv_" ile başlar: TV uygulaması Play modülünün kaynaklarıyla birleşir, aynı ad Play'in metnini ezerdi.
+  Play'in kendi "tv_…" adları da var (ör. tv_loading, tv_search_hint): yeni ad eklerken Play'de olmadığına bakın.
+  Bölüm metinleri ayrı dosyalarda (strings_*.xml); burada ortak metinler ve ana ekran/Ayarlar/Genel.
+-->
+<resources>
+    <string name="app_name" translatable="false">Play TV</string>
+
+    <!-- Ortak -->
+    <string name="tv_on">On</string>
+    <string name="tv_off">Off</string>
+    <string name="tv_save">Save</string>
+    <string name="tv_cancel">Cancel</string>
+    <string name="tv_common_loading">Loading…</string>
+    <string name="tv_system">System</string>
+
+    <!-- Sol menü -->
+    <string name="tv_section_search">Search</string>
+    <string name="tv_section_home">Home</string>
+    <string name="tv_section_live">Live TV</string>
+    <string name="tv_section_films">Movies &amp; series</string>
+    <string name="tv_section_movies">Movies</string>
+    <string name="tv_section_series">Series</string>
+    <string name="tv_section_library">Library</string>
+    <string name="tv_section_settings">Settings</string>
+
+    <!-- Ayarlar ana ekranı -->
+    <string name="tv_settings_sync_title">Transfer from phone (Wi-Fi)</string>
+    <string name="tv_settings_sync_summary">Pair with phone, paired devices, transfer with a code</string>
+    <string name="tv_settings_addons_title">Add-ons</string>
+    <string name="tv_settings_addons_summary">Add add-ons and repositories, installed add-ons, add-on settings, repository catalog, Nuvio</string>
+    <string name="tv_settings_player_title">Player</string>
+    <string name="tv_settings_player_summary">Subtitle appearance and language, Turkish dub priority, next episode</string>
+    <string name="tv_settings_profile_title">Profiles &amp; account</string>
+    <string name="tv_settings_profile_summary">Choose, create, edit and delete profiles, PIN, hidden profile, remember last profile</string>
+    <string name="tv_settings_general_title">General</string>
+    <string name="tv_settings_general_summary">Language, theme, internet speed test, poster URL template</string>
+    <string name="tv_settings_about">About</string>
+
+    <!-- Telefondan aktar (Wi-Fi) -->
+    <string name="tv_sync_body">Easy way: press \"Show code on TV\", then on your phone open Play → Settings → \"Wi-Fi sync\" card, type the TV\'s code into the \"Other device\'s code\" box and press Connect. Or enter the phone\'s code below. Add-on repositories, watch history and favorites are synced between the two devices; after the first sync the devices stay paired and sync without a code.</string>
+    <string name="tv_sync_hide_code">Hide code</string>
+    <string name="tv_sync_show_code">Show code on TV</string>
+    <string name="tv_sync_code">Code: %1$s</string>
+    <string name="tv_sync_code_valid">Valid for 3 minutes</string>
+    <string name="tv_sync_code_expired">The code has expired; press twice for a new code.</string>
+    <string name="tv_sync_code_placeholder">6-digit code</string>
+    <string name="tv_sync_connect">Connect</string>
+    <string name="tv_sync_paired_title">Paired devices (sync automatically on the same Wi-Fi, no code needed):</string>
+    <string name="tv_sync_unpair">Remove</string>
+    <string name="tv_sync_pending_title">Repositories on the phone but not on the TV:</string>
+    <string name="tv_sync_installing_button">Installing…</string>
+    <string name="tv_sync_install_all">Install all (%1$d)</string>
+    <string name="tv_sync_status_installing">Installing repositories…</string>
+    <plurals name="tv_sync_status_install_failed">
+        <item quantity="one">%1$d repository couldn\'t be installed.</item>
+        <item quantity="other">%1$d repositories couldn\'t be installed.</item>
+    </plurals>
+    <string name="tv_sync_status_searching">Looking for the phone…</string>
+    <string name="tv_sync_status_connecting">Connecting…</string>
+    <string name="tv_sync_status_syncing">Syncing…</string>
+    <string name="tv_sync_status_done_counts">Synced: %1$d repositories, %2$d add-ons, %3$d watch history entries.</string>
+    <string name="tv_sync_status_done">Synced.</string>
+    <string name="tv_sync_error_code">Wrong code. Enter the phone\'s code again.</string>
+    <string name="tv_sync_error_not_found">Phone not found. Are both on the same Wi-Fi, and is the card open?</string>
+    <string name="tv_sync_error_locked">Too many wrong attempts. Get a new code on the phone.</string>
+    <string name="tv_sync_error_other">Couldn\'t sync. Try again.</string>
+
+    <!-- Ayarlar → Genel -->
+    <string name="tv_general_language">Language</string>
+    <string name="tv_general_language_note">The screen reloads in the new language.</string>
+    <string name="tv_language_english" translatable="false">English</string>
+    <string name="tv_language_turkish" translatable="false">Türkçe</string>
+    <string name="tv_general_theme">Theme</string>
+    <string name="tv_theme_dark">Dark</string>
+    <string name="tv_theme_light">Light</string>
+    <string name="tv_theme_system">System (device night mode)</string>
+    <string name="tv_poster_title">Poster URL template</string>
+    <string name="tv_poster_off">Off · add-on / TMDB posters</string>
+    <string name="tv_poster_custom">Using a custom poster template</string>
+    <string name="tv_poster_help">Use {imdb_id}; leave empty to use the add-on or TMDB poster. Applies to portrait posters on the TV.</string>
+    <string name="tv_poster_invalid">The address must start with https:// and contain {imdb_id}.</string>
+    <string name="tv_poster_reset">Reset to default</string>
+    <string name="tv_poster_disable">Turn off custom posters</string>
+    <string name="tv_speed_title">Internet speed test</string>
+    <string name="tv_speed_body">Approximate download speed measured via the Cloudflare CDN.</string>
+    <string name="tv_speed_retest">Test again</string>
+    <string name="tv_speed_start">Start test</string>
+    <string name="tv_speed_measuring">Measuring…</string>
+    <string name="tv_speed_failed">The test couldn\'t finish: %1$s</string>
+    <string name="tv_speed_timeout">timed out</string>
+    <string name="tv_speed_unreachable">couldn\'t reach the server</string>
+    <string name="tv_speed_ping">Latency %1$d ms</string>
+    <string name="tv_speed_note">Uses about 9 MB of data. It measures the connection to the test server, not the speed of a particular video source.</string>
+    <string name="tv_remote_plugin_enabled_once">%1$s was turned on for this viewing.</string>
+</resources>

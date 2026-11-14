@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Oynatma hazırlığı ve TV oynatıcısı metinlerinin Türkçesi (values/strings_playback.xml ile aynı adlar). -->
+<resources>
+    <string name="tv_play_season_episode">%1$d. Sezon · %2$d. Bölüm</string>
+    <string name="tv_play_episode">%1$d. Bölüm</string>
+    <string name="tv_play_loading">Yükleniyor…</string>
+    <string name="tv_play_searching_sources">Kaynaklar aranıyor…</string>
+
+    <!-- Hazırlık ekranı -->
+    <string name="tv_play_status_testing">Kaynaklar sınanıyor · %1$d bulundu, %2$d çalışıyor</string>
+    <string name="tv_play_status_testing_dead">Kaynaklar sınanıyor · %1$d bulundu, %2$d çalışıyor, %3$d kapalı</string>
+    <plurals name="tv_play_status_listed">
+        <item quantity="one">%1$d kaynak · %2$d çalışıyor</item>
+        <item quantity="other">%1$d kaynak · %2$d çalışıyor</item>
+    </plurals>
+    <string name="tv_play_resume_title">İzlemeye devam edilsin mi?</string>
+    <string name="tv_play_resume_continue">Kaldığın yerden devam (%1$s)</string>
+    <string name="tv_play_resume_restart">Baştan başla</string>
+    <string name="tv_play_choose_source">Kaynak seçin</string>
+    <string name="tv_play_turkish_dub">Türkçe dublaj</string>
+    <string name="tv_play_turkish_audio">Türkçe ses</string>
+    <string name="tv_play_probe_testing">sınanıyor…</string>
+    <string name="tv_play_probe_alive">çalışıyor</string>
+    <string name="tv_play_probe_dead">yanıt yok</string>
+    <string name="tv_play_probe_unknown">sınanamadı</string>
+
+    <!-- Oynatıcı -->
+    <string name="tv_play_last_episode">Son bölüm</string>
+    <string name="tv_play_video_failed">Video açılamadı</string>
+    <string name="tv_play_back_to_exit">Geri tuşuyla çıkabilirsiniz.</string>
+    <string name="tv_play_channel_failed">Bu kanal şu an açılamadı</string>
+    <string name="tv_play_no_sources_episode">Bu bölüm için kaynak bulunamadı</string>
+    <string name="tv_play_no_sources_title">Bu içerik için kaynak bulunamadı</string>
+    <string name="tv_play_all_failed">Kaynakların hiçbiri açılmadı</string>
+    <string name="tv_play_stalled">Video akışı durdu</string>
+    <string name="tv_play_stalled_hint">OK: yeniden dene · Geri: çık</string>
+    <string name="tv_play_still_watching">Hâlâ izliyor musunuz?</string>
+    <string name="tv_play_still_watching_hint">Devam etmek için bir tuşa basın.</string>
+    <string name="tv_play_paused">Duraklatıldı</string>
+    <string name="tv_play_osd_hint_episodes">◀ ▶ sar · ▲ bölümler · ▼ ses, altyazı, ayarlar</string>
+    <string name="tv_play_osd_hint">◀ ▶ sar · ▼ ses, altyazı, ayarlar</string>
+    <string name="tv_play_channel_list">Kanal listesi</string>
+    <string name="tv_play_live_badge">• CANLI</string>
+    <string name="tv_play_audio">Ses</string>
+    <string name="tv_play_audio_track">Ses %1$d</string>
+    <string name="tv_play_subtitles">Altyazı</string>
+    <string name="tv_play_language_unknown">Dili belirtilmemiş</string>
+    <string name="tv_play_embedded">%1$s (videoda)</string>
+    <string name="tv_play_lang_turkish">Türkçe</string>
+    <string name="tv_play_lang_english">İngilizce</string>
+    <string name="tv_play_skip_intro">İntroyu geç</string>
+    <string name="tv_play_skip_recap">Özeti geç</string>
+    <string name="tv_play_skip_credits">Jeneriği geç</string>
+    <string name="tv_play_skip_preview">Önizlemeyi geç</string>
+    <string name="tv_play_next_countdown">Sonraki: %1$d. Bölüm · %2$d sn  (OK: şimdi · Geri: iptal)</string>
+    <string name="tv_play_next_loading">Sonraki bölüm açılıyor…</string>
+    <string name="tv_play_next_no_source">Sonraki bölüm için kaynak bulunamadı</string>
+
+    <!-- Oynatıcı ayarları (▼ panelinin üstü; Play oynatıcısındaki Kaynak / Senkron / Parçalar / Boyut düğmelerinin TV karşılığı) -->
+    <string name="tv_play_settings">Oynatıcı</string>
+    <string name="tv_play_setting_row">%1$s: %2$s  ›</string>
+    <string name="tv_play_source">Kaynak</string>
+    <string name="tv_play_source_switch">Kaynak değiştir</string>
+    <string name="tv_play_sources_checking">Diğer kaynaklar aranıyor…</string>
+    <string name="tv_play_sources_empty">Başka kaynak bulunamadı</string>
+    <string name="tv_play_deep_search">Daha fazla kaynak ara (deneysel)</string>
+    <string name="tv_play_deep_running">Daha fazla kaynak aranıyor… (bellek izleniyor)</string>
+    <string name="tv_play_deep_done">Arama bitti; bulunanlar aşağıda.</string>
+    <string name="tv_play_deep_all_searched">Tüm eklentiler zaten sorulmuştu; başka kaynak yok.</string>
+    <string name="tv_play_deep_memory_stopped">Bellek azaldığı için arama durduruldu; o ana kadar bulunanlar aşağıda.</string>
+    <string name="tv_play_deep_confirm_title">Daha fazla kaynak aransın mı?</string>
+    <string name="tv_play_deep_confirm_body">Telefondaki gibi tüm açık eklentilerde yeniden kaynak aranır. Bu deneyseldir: belleği az olan TV kutularında uygulama (ve TV\'deki başka uygulamalar) kapanabilir. Bellek azalırsa arama kendiliğinden durdurulur.</string>
+    <string name="tv_play_deep_confirm_ok">Yine de ara</string>
+    <string name="tv_play_tag_dubbed">Dublaj</string>
+    <string name="tv_play_tag_subbed">Altyazılı</string>
+    <string name="tv_play_tag_torrent">Torrent</string>
+    <string name="tv_play_tag_direct">Doğrudan</string>
+    <string name="tv_play_sub_delay">Altyazı gecikmesi</string>
+    <string name="tv_play_sub_delay_value">%1$s sn</string>
+    <string name="tv_play_sub_delay_hint">Eksi altyazıyı öne alır, artı geciktirir. ◀ ▶ seç · OK uygula · Geri bitti</string>
+    <string name="tv_play_sub_delay_reset">Sıfırla</string>
+    <string name="tv_play_speed">Hız</string>
+    <string name="tv_play_speed_normal">Normal (1×)</string>
+    <string name="tv_play_resize">Görüntü</string>
+    <string name="tv_play_resize_fit">Sığdır</string>
+    <string name="tv_play_resize_fill">Doldur (kırp)</string>
+    <string name="tv_play_resize_stretch">Uzat</string>
+    <string name="tv_play_quality">Kalite</string>
+    <string name="tv_play_quality_auto">Otomatik</string>
+    <string name="tv_play_torrent_loading">Torrent yükleniyor · %%%1$d</string>
+    <string name="tv_play_verify_hint">OK: siteyi doğrula · Geri: çık</string>
+</resources>

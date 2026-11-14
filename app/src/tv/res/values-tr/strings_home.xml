@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ana sayfa, Filmler ve diziler, Canlı TV, Kütüphane metinlerinin Türkçesi. -->
+<resources>
+    <!-- Ana sayfa -->
+    <string name="tv_home_retry">Tekrar dene</string>
+    <string name="tv_home_no_film_addons">Film ve dizi için eklenti kurulu değil. Ayarlar → Depo ekle ya da Telefondan aktar.</string>
+    <string name="tv_home_no_content">Eklentilerden içerik gelmedi.</string>
+    <string name="tv_home_continue">İzlemeye devam et</string>
+    <string name="tv_home_dramas">Dramalar</string>
+    <string name="tv_home_pick_default">Eklenti seç</string>
+    <plurals name="tv_home_pick_count">
+        <item quantity="one">Eklenti seç: %1$d eklenti</item>
+        <item quantity="other">Eklenti seç: %1$d eklenti</item>
+    </plurals>
+    <string name="tv_home_picker_title">Ana sayfa eklentileri (sabitle)</string>
+    <string name="tv_home_picker_note">İşaretlenen eklentiler sabitlenir (telefondaki iğne). Sabitlenen CloudStream eklentileri ana sayfada gösterilir; hiçbiri sabitli değilse ana sayfada eklenti satırı olmaz. Addon katalogları her zaman gösterilir; tek tek gizlemek için Ayarlar &gt; Eklentiler &gt; Ana sayfa katalogları. Çok eklenti sabitlemek kutuyu yavaşlatır. Geri kaydeder.</string>
+    <string name="tv_home_picker_default">Eklenti satırı yok (varsayılan)</string>
+    <string name="tv_home_picker_addon">Addon</string>
+    <string name="tv_home_picker_pinned">✓ Sabit</string>
+    <string name="tv_home_kind_movies">filmler</string>
+    <string name="tv_home_kind_series">diziler</string>
+    <!-- "Tümünü gör" kartı ve ızgarası (Play: Tümünü göster) -->
+    <string name="tv_home_see_all">Tümünü gör</string>
+
+    <!-- TMDB satırları -->
+    <string name="tv_home_trending_movies">Trend filmler</string>
+    <string name="tv_home_popular_movies">Popüler filmler</string>
+    <string name="tv_home_trending_series">Trend diziler</string>
+    <string name="tv_home_popular_series">Popüler diziler</string>
+    <string name="tv_home_type_series">Dizi</string>
+    <string name="tv_home_type_movie">Film</string>
+
+    <!-- Canlı TV -->
+    <string name="tv_live_search_placeholder">Kanal ara</string>
+    <string name="tv_live_all">Tümü</string>
+    <string name="tv_live_searching">Kanallar aranıyor…</string>
+    <string name="tv_live_load_failed">Kanallar yüklenemedi. İnternet bağlantısını kontrol edin.</string>
+    <string name="tv_live_no_addons">Canlı yayın veren eklenti yok. Ayarlar → Depo ekle ya da Telefondan aktar.</string>
+    <string name="tv_live_no_match">\"%1$s\" adlı kanal yok.</string>
+    <string name="tv_live_more_searching">Diğer eklentiler aranıyor…</string>
+
+    <!-- Kütüphane -->
+    <string name="tv_library_next">Sıradaki · %1$d. Bölüm</string>
+    <string name="tv_library_left_episode">%1$d. Bölüm · %2$d dk kaldı</string>
+    <string name="tv_library_left_movie">%1$d dk kaldı</string>
+    <string name="tv_library_empty_title">Kütüphane boş</string>
+    <string name="tv_library_empty_body">İzlediğiniz bölümler ve favorilere eklediğiniz içerikler burada görünür.</string>
+    <string name="tv_library_favorites">Favoriler</string>
+    <string name="tv_library_history">Geçmiş</string>
+    <string name="tv_library_history_clear">Geçmişi temizle</string>
+    <string name="tv_library_history_clear_message">Bu profilin bütün izleme geçmişi silinecek. Favoriler kalır.</string>
+    <string name="tv_library_history_clear_confirm">Temizle</string>
+    <string name="tv_library_history_remove">Geçmişten kaldır</string>
+    <string name="tv_library_continue_remove">Devam et listesinden kaldır</string>
+    <string name="tv_library_open_detail">Detayı aç</string>
+    <string name="tv_library_history_watched">İzlendi</string>
+    <string name="tv_library_history_episode">S%1$d · %2$d. Bölüm</string>
+    <string name="tv_library_history_percent">%%%1$d izlendi</string>
+</resources>

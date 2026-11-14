@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Detay, arama ve küçük ortak iletiler (İngilizce; Türkçesi values-tr/strings_detail.xml). -->
+<resources>
+    <!-- Detay -->
+    <string name="tv_detail_retry">Try again</string>
+    <plurals name="tv_detail_seasons_count">
+        <item quantity="one">%1$d season</item>
+        <item quantity="other">%1$d seasons</item>
+    </plurals>
+    <plurals name="tv_detail_episodes_count">
+        <item quantity="one">%1$d episode</item>
+        <item quantity="other">%1$d episodes</item>
+    </plurals>
+    <string name="tv_detail_movie">Movie</string>
+    <string name="tv_detail_season_episode">Season %1$d Episode %2$d</string>
+    <string name="tv_detail_minutes_left">%1$d min left</string>
+    <string name="tv_detail_start_over">Start over</string>
+    <string name="tv_detail_favorite_add">Add to favorites</string>
+    <string name="tv_detail_favorite_remove">Remove from favorites</string>
+    <string name="tv_detail_episodes">Episodes</string>
+    <string name="tv_detail_season">Season %1$d</string>
+    <string name="tv_detail_episode_n">Episode %1$d</string>
+    <string name="tv_detail_episode_named">E%1$d: %2$s</string>
+    <string name="tv_detail_action_episode" translatable="false">%1$s · %2$s</string>
+    <string name="tv_detail_play">Play</string>
+    <string name="tv_detail_resume">Resume</string>
+    <string name="tv_detail_rewatch">Watch again</string>
+    <string name="tv_detail_up_next">Up next</string>
+    <string name="tv_detail_error_unrecognized">Content not recognized.</string>
+    <string name="tv_detail_error_tmdb_not_found">This title wasn\'t found on TMDB.</string>
+    <string name="tv_detail_error_unsupported">This source type can\'t be opened on TV yet.</string>
+    <string name="tv_detail_error_plugin_missing">Add-on not found (it may have been removed).</string>
+    <string name="tv_detail_error_plugin_load">Couldn\'t open the add-on (it may be disabled).</string>
+    <string name="tv_detail_error_plugin_incompatible">The add-on isn\'t compatible with this version; update the add-on.</string>
+    <string name="tv_detail_error_plugin_empty">The add-on didn\'t provide any content.</string>
+    <string name="tv_detail_error_load">Couldn\'t load the content. Try again.</string>
+
+    <!-- Arama -->
+    <string name="tv_search_series">Series</string>
+    <string name="tv_search_recent">Recent searches</string>
+    <string name="tv_search_input_hint">Type a series or movie title and press Search.</string>
+    <string name="tv_search_no_results">No results for \"%1$s\".</string>
+    <string name="tv_search_progress">Searching… %1$d/%2$d sources</string>
+    <string name="tv_search_placeholder">Search series, movies</string>
+    <string name="tv_search_key_space">space</string>
+    <string name="tv_search_key_delete">delete</string>
+    <string name="tv_search_key_clear">clear</string>
+    <string name="tv_search_button">Search</string>
+
+    <!-- Engelli siteler -->
+    <!-- Fragman (E5) -->
+    <string name="tv_trailer_loading">Loading trailer · %1$s</string>
+    <string name="tv_trailer_failed">Couldn\'t play the trailer.</string>
+</resources>

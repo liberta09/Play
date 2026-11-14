@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TV arayüz metinlerinin Türkçesi (values/strings.xml ile aynı adlar). -->
+<resources>
+    <!-- Ortak -->
+    <string name="tv_on">Açık</string>
+    <string name="tv_off">Kapalı</string>
+    <string name="tv_save">Kaydet</string>
+    <string name="tv_cancel">İptal</string>
+    <string name="tv_common_loading">Yükleniyor…</string>
+    <string name="tv_system">Sistem</string>
+
+    <!-- Sol menü -->
+    <string name="tv_section_search">Ara</string>
+    <string name="tv_section_home">Ana sayfa</string>
+    <string name="tv_section_live">Canlı TV</string>
+    <string name="tv_section_films">Filmler ve diziler</string>
+    <string name="tv_section_movies">Filmler</string>
+    <string name="tv_section_series">Diziler</string>
+    <string name="tv_section_library">Kütüphane</string>
+    <string name="tv_section_settings">Ayarlar</string>
+
+    <!-- Ayarlar ana ekranı -->
+    <string name="tv_settings_sync_title">Telefondan aktar (Wi-Fi)</string>
+    <string name="tv_settings_sync_summary">Telefonla eşleşme, eşleşmiş cihazlar, kodla aktarma</string>
+    <string name="tv_settings_addons_title">Eklentiler</string>
+    <string name="tv_settings_addons_summary">Eklenti ve depo ekleme, yüklü eklentiler, eklenti ayarları, depo kataloğu, Nuvio</string>
+    <string name="tv_settings_player_title">Oynatıcı</string>
+    <string name="tv_settings_player_summary">Altyazı görünümü ve dili, Türkçe dublaj önceliği, sonraki bölüm</string>
+    <string name="tv_settings_profile_title">Profiller ve hesap</string>
+    <string name="tv_settings_profile_summary">Profil seçme, oluşturma, düzenleme ve silme, PIN, gizli profil, son profili hatırla</string>
+    <string name="tv_settings_general_title">Genel</string>
+    <string name="tv_settings_general_summary">Dil, tema, internet hız testi, poster URL şablonu</string>
+    <string name="tv_settings_about">Hakkında</string>
+
+    <!-- Telefondan aktar (Wi-Fi) -->
+    <string name="tv_sync_body">Kolay yol: \"Kodu TV\'de göster\"e basın, telefonda Play → Ayarlar → \"Wi-Fi senkronizasyonu\" kartındaki \"Diğer cihazın kodu\" kutusuna TV\'deki kodu yazıp Bağlan\'a basın. Ya da telefondaki kodu aşağıya girin. Eklenti depoları, izleme geçmişi ve favoriler iki cihaz arasında eşitlenir; ilk eşitlemeden sonra cihazlar eşleşmiş kalır ve kod girmeden eşitlenir.</string>
+    <string name="tv_sync_hide_code">Kodu kapat</string>
+    <string name="tv_sync_show_code">Kodu TV\'de göster</string>
+    <string name="tv_sync_code">Kod: %1$s</string>
+    <string name="tv_sync_code_valid">3 dakika geçerli</string>
+    <string name="tv_sync_code_expired">Kodun süresi doldu; yeni kod için iki kez basın.</string>
+    <string name="tv_sync_code_placeholder">6 haneli kod</string>
+    <string name="tv_sync_connect">Bağlan</string>
+    <string name="tv_sync_paired_title">Eşleşmiş cihazlar (aynı Wi-Fi\'de kod girmeden kendiliğinden eşitlenir):</string>
+    <string name="tv_sync_unpair">Kaldır</string>
+    <string name="tv_sync_pending_title">Telefonda olup TV\'de olmayan depolar:</string>
+    <string name="tv_sync_installing_button">Kuruluyor…</string>
+    <string name="tv_sync_install_all">Hepsini kur (%1$d)</string>
+    <string name="tv_sync_status_installing">Depolar kuruluyor…</string>
+    <plurals name="tv_sync_status_install_failed">
+        <item quantity="one">%1$d depo kurulamadı.</item>
+        <item quantity="other">%1$d depo kurulamadı.</item>
+    </plurals>
+    <string name="tv_sync_status_searching">Telefon aranıyor…</string>
+    <string name="tv_sync_status_connecting">Bağlanıyor…</string>
+    <string name="tv_sync_status_syncing">Eşitleniyor…</string>
+    <string name="tv_sync_status_done_counts">Eşitlendi: %1$d depo, %2$d eklenti, %3$d izleme kaydı.</string>
+    <string name="tv_sync_status_done">Eşitlendi.</string>
+    <string name="tv_sync_error_code">Kod hatalı. Telefondaki kodu tekrar girin.</string>
+    <string name="tv_sync_error_not_found">Telefon bulunamadı. İkisi aynı Wi-Fi\'da mı, kart açık mı?</string>
+    <string name="tv_sync_error_locked">Çok fazla yanlış deneme. Telefonda yeni kod alın.</string>
+    <string name="tv_sync_error_other">Eşitlenemedi. Tekrar deneyin.</string>
+
+    <!-- Ayarlar → Genel -->
+    <string name="tv_general_language">Dil</string>
+    <string name="tv_general_language_note">Ekran yeni dilde yeniden açılır.</string>
+    <string name="tv_general_theme">Tema</string>
+    <string name="tv_theme_dark">Koyu</string>
+    <string name="tv_theme_light">Açık</string>
+    <string name="tv_theme_system">Sistem (cihazın gece modu)</string>
+    <string name="tv_poster_title">Poster URL şablonu</string>
+    <string name="tv_poster_off">Kapalı · eklenti / TMDB afişleri</string>
+    <string name="tv_poster_custom">Özel poster şablonu kullanılıyor</string>
+    <string name="tv_poster_help">{imdb_id} kullanın; boş bırakırsanız eklenti veya TMDB afişi kullanılır. TV\'de dikey afişlere uygulanır.</string>
+    <string name="tv_poster_invalid">Adres https:// ile başlamalı ve {imdb_id} içermeli.</string>
+    <string name="tv_poster_reset">Varsayılana dön</string>
+    <string name="tv_poster_disable">Özel afişleri kapat</string>
+    <string name="tv_speed_title">İnternet hız testi</string>
+    <string name="tv_speed_body">Cloudflare CDN üzerinden ölçülen yaklaşık indirme hızı.</string>
+    <string name="tv_speed_retest">Tekrar test et</string>
+    <string name="tv_speed_start">Testi başlat</string>
+    <string name="tv_speed_measuring">Ölçülüyor…</string>
+    <string name="tv_speed_failed">Test tamamlanamadı: %1$s</string>
+    <string name="tv_speed_timeout">zaman aşımı</string>
+    <string name="tv_speed_unreachable">sunucuya ulaşılamadı</string>
+    <string name="tv_speed_ping">Gecikme %1$d ms</string>
+    <string name="tv_speed_note">Yaklaşık 9 MB veri kullanır. Test sunucusuna olan bağlantıyı ölçer, belirli bir video kaynağının hızını ölçmez.</string>
+    <string name="tv_remote_plugin_enabled_once">%1$s bu izleme için açıldı.</string>
+</resources>
