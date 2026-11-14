@@ -3,6 +3,14 @@
 <resources>
     <!-- Ana sayfa -->
     <string name="tv_home_retry">Tekrar dene</string>
+    <!-- Shorts Drama (ShortsDrama.kt) -->
+    <string name="tv_shorts_repo_title">Shorts Drama deposu eklensin mi?</string>
+    <string name="tv_shorts_repo_body">Shorts Drama, kısa dizileri Arcana Drama eklenti deposundan gösterir. Bu depo eklensin mi?</string>
+    <string name="tv_shorts_repo_add">Ekle</string>
+    <string name="tv_shorts_repo_not_added">Depo eklenmedi. Shorts Drama için Arcana Drama eklenti deposu gerekir.</string>
+    <string name="tv_shorts_repo_ask_again">Tekrar sor</string>
+    <string name="tv_home_installing_shorts">Shorts Drama eklentileri kuruluyor…</string>
+    <string name="tv_home_shorts_install_failed">Shorts Drama eklentileri kurulamadı. İnternet bağlantısını kontrol edip tekrar deneyin.</string>
     <string name="tv_home_no_film_addons">Film ve dizi için eklenti kurulu değil. Ayarlar → Depo ekle ya da Telefondan aktar.</string>
     <string name="tv_home_no_content">Eklentilerden içerik gelmedi.</string>
     <string name="tv_home_continue">İzlemeye devam et</string>

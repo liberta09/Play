@@ -20,6 +20,7 @@ class TvHomeCache(context: Context, kind: HomeKind) {
         HomeKind.Home -> "tv_home_drama.json"
         HomeKind.Movies -> "tv_home_movies.json"
         HomeKind.Series -> "tv_home_series.json"
+        HomeKind.Shorts -> "tv_home_shorts.json" // Shorts Drama
     })
 
     init {

@@ -16,6 +16,7 @@
     <string name="tv_section_films">Filmler ve diziler</string>
     <string name="tv_section_movies">Filmler</string>
     <string name="tv_section_series">Diziler</string>
+    <string name="tv_section_shorts">Shorts Drama</string> <!-- Shorts Drama (ShortsDrama.kt) -->
     <string name="tv_section_library">Kütüphane</string>
     <string name="tv_section_settings">Ayarlar</string>
 

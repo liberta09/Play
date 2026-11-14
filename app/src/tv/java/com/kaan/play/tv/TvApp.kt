@@ -51,6 +51,7 @@ import kotlinx.coroutines.flow.first
 enum class Section(@StringRes val label: Int) {
     Search(R.string.tv_section_search), Home(R.string.tv_section_home), Live(R.string.tv_section_live),
     Movies(R.string.tv_section_movies), Series(R.string.tv_section_series),
+    Shorts(R.string.tv_section_shorts), // Shorts Drama (ShortsDrama.kt)
     Library(R.string.tv_section_library), Settings(R.string.tv_section_settings)
 }
 
@@ -67,6 +68,7 @@ fun TvApp(onPlay: PlayLauncher) {
     val home: TvHomeModel = viewModel(key = "home-$lang")
     val movies: TvHomeModel = viewModel(key = "movies-$lang")
     val series: TvHomeModel = viewModel(key = "series-$lang")
+    val shorts: TvHomeModel = viewModel(key = "shorts-$lang") // Shorts Drama
     val live: TvLiveModel = viewModel()
     home.configure(HomeKind.Home) // Filmler / Diziler ilk açıldıklarında yüklenir (açılışta kutu yalnız ana sayfayı yükler)
     var section by rememberSaveable { mutableStateOf(Section.Home) }
@@ -194,10 +196,14 @@ fun TvApp(onPlay: PlayLauncher) {
                             series.configure(HomeKind.Series)
                             TvHomeScreen(model = series, onOpen = open, onPlay = onPlay, onSeeAll = { categoryGrid = it })
                         }
+                        Section.Shorts -> { // Shorts Drama
+                            shorts.configure(HomeKind.Shorts)
+                            TvHomeScreen(model = shorts, onOpen = open, onPlay = onPlay, onSeeAll = { categoryGrid = it })
+                        }
                         Section.Search -> TvSearchScreen(onOpen = open, pendingQuery = pendingSearch, onQueryUsed = { pendingSearch = null })
                         Section.Live -> TvLiveScreen(onPlay = onPlay)
                         Section.Library -> TvLibraryScreen(onOpen = open, onPlay = onPlay)
-                        Section.Settings -> TvSettingsScreen(onCatalogChanged = { home.load(); movies.load(); series.load(); live.invalidate(); TvDetailLoader.forgetProviders() })
+                        Section.Settings -> TvSettingsScreen(onCatalogChanged = { home.load(); movies.load(); series.load(); shorts.load(); live.invalidate(); TvDetailLoader.forgetProviders() })
                     }
                 }
             }
@@ -210,6 +216,7 @@ private fun Section.icon(): ImageVector = when (this) {
     Section.Live -> PlayIcons.Tv
     Section.Movies -> PlayIcons.PlayCircle
     Section.Series -> PlayIcons.NextEpisode
+    Section.Shorts -> PlayIcons.PortraitFullscreen // Shorts Drama
     Section.Search -> PlayIcons.Search
     Section.Library -> PlayIcons.Library
     Section.Settings -> PlayIcons.Settings

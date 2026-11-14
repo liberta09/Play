@@ -3,6 +3,14 @@
 <resources>
     <!-- Ana sayfa -->
     <string name="tv_home_retry">Try again</string>
+    <!-- Shorts Drama (ShortsDrama.kt) -->
+    <string name="tv_shorts_repo_title">Add the Shorts Drama repository?</string>
+    <string name="tv_shorts_repo_body">Shorts Drama shows short dramas from the Arcana Drama add-on repository. Add this repository?</string>
+    <string name="tv_shorts_repo_add">Add</string>
+    <string name="tv_shorts_repo_not_added">Repository not added. Shorts Drama needs the Arcana Drama add-on repository.</string>
+    <string name="tv_shorts_repo_ask_again">Ask again</string>
+    <string name="tv_home_installing_shorts">Installing Shorts Drama add-ons…</string>
+    <string name="tv_home_shorts_install_failed">Couldn\'t install the Shorts Drama add-ons. Check your internet connection and try again.</string>
     <string name="tv_home_no_film_addons">No add-on installed for movies and series. Settings → Add repository or Transfer from phone.</string>
     <string name="tv_home_no_content">No content came from the add-ons.</string>
     <string name="tv_home_continue">Continue watching</string>

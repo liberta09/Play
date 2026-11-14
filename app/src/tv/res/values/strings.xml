@@ -23,6 +23,7 @@
     <string name="tv_section_films">Movies &amp; series</string>
     <string name="tv_section_movies">Movies</string>
     <string name="tv_section_series">Series</string>
+    <string name="tv_section_shorts">Shorts Drama</string> <!-- Shorts Drama (ShortsDrama.kt) -->
     <string name="tv_section_library">Library</string>
     <string name="tv_section_settings">Settings</string>
 

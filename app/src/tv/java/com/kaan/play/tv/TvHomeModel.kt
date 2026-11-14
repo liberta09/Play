@@ -33,6 +33,9 @@ sealed interface HomeState {
     data class Preparing(@StringRes val message: Int) : HomeState
     data class Ready(val sections: List<ProviderRows>) : HomeState
     data class Failed(@StringRes val message: Int) : HomeState
+
+    /** Shorts Drama: depo kurulu değil; onay penceresi ([declined] false) ya da "Depo eklenmedi" + "Tekrar sor". */
+    data class ShortsRepoMissing(val declined: Boolean) : HomeState
 }
 
 /**
@@ -41,6 +44,9 @@ sealed interface HomeState {
  */
 enum class HomeKind {
     Home, Movies, Series,
+
+    /** Shorts Drama ([ShortsDrama]): Arcana Drama deposunun bütün eklentilerinin satırları. */
+    Shorts,
 }
 
 /** TV ana sayfası. Etkinlik ömrü boyunca yaşar: detaydan dönünce satırlar yeniden yüklenmez, odak son karta döner. */
@@ -126,11 +132,16 @@ class TvHomeModel(app: Application) : AndroidViewModel(app) {
                 _state.value = HomeState.Preparing(R.string.tv_common_loading)
             }
             val previous = (_state.value as? HomeState.Ready)?.sections.orEmpty()
+            // Shorts Drama: depo kendiliğinden eklenmez; kurulu değilse kullanıcıya sorulur ([addShortsRepo]).
+            if (kind == HomeKind.Shorts && shortsRepos().isEmpty()) {
+                _state.value = HomeState.ShortsRepoMissing(declined = prefs.getBoolean(KEY_SHORTS_REPO_DECLINED, false))
+                return@launch
+            }
             // TMDB satırları Play ana sayfasındaki sırayla ve yerde: addon/eklenti satırlarının altında. Filmler / Diziler yalnız
             // kendi türünün satırlarını alır.
             val filmSources = container.hasFilmSources()
             launch {
-                val fresh = if (filmSources) container.tmdbRows(tmdbRowsOf(kind)) else emptyList()
+                val fresh = if (filmSources && kind != HomeKind.Shorts) container.tmdbRows(tmdbRowsOf(kind)) else emptyList()
                 // Ağ hatasında (boş yanıt) önbellekteki satırlar korunur.
                 if (fresh.isNotEmpty() || !filmSources) { _tmdbRows.value = fresh; scheduleSave() }
             }
@@ -145,6 +156,7 @@ class TvHomeModel(app: Application) : AndroidViewModel(app) {
             val addons = ProviderRules.buildHomeProviders(container.providers.nuvioProviders.first(), emptyList(), emptySet())
             val providers = when (kind) {
                 HomeKind.Home -> addons + dramaProviders()
+                HomeKind.Shorts -> shortsProviders() // Shorts Drama
                 else -> addons
             }
             if ((kind == HomeKind.Movies || kind == HomeKind.Series) && !filmSources) {
@@ -152,6 +164,11 @@ class TvHomeModel(app: Application) : AndroidViewModel(app) {
                 return@launch
             }
             // Addon'u olmayan kutuda boş Ana sayfa hata değildir (devam et + TMDB kalır).
+            // Shorts Drama: depo kurulamadıysa bölüm boş kalır.
+            if (kind == HomeKind.Shorts && providers.isEmpty()) {
+                _state.value = HomeState.Failed(R.string.tv_home_shorts_install_failed)
+                return@launch
+            }
             // Önce bellek, sonra disk önbelleği; önbellekten gelen satırlar görünür kalır, yerinde yenilenir.
             val sections = providers.map { p ->
                 ProviderRows(p, container.catalogRepository.cache.get(p.id)?.let { ofKind(ProviderRules.withoutLiveRows(visible(it))) }
@@ -196,7 +213,7 @@ class TvHomeModel(app: Application) : AndroidViewModel(app) {
 
     /** Filmler / Diziler: addon satırlarından yalnız o türünkiler (Nuvio satır kimliği `tür:katalog`, ör. `movie:top`). */
     private fun ofKind(rows: List<CatalogRow>): List<CatalogRow> = when (kind) {
-        HomeKind.Home -> rows
+        HomeKind.Home, HomeKind.Shorts -> rows
         HomeKind.Movies -> rows.filter { it.id.substringBefore(':') == "movie" }
         HomeKind.Series -> rows.filter { it.id.substringBefore(':') == "series" }
     }
@@ -224,7 +241,8 @@ class TvHomeModel(app: Application) : AndroidViewModel(app) {
      * katalog verip vermediğini anlamak için her eklentinin kodu yüklenmez (2 GB'lık kutu).
      */
     suspend fun pickerOptions(): List<ProviderItem> {
-        val cs = csOptions().map { ProviderItem(id = "cs:${it.id}", name = it.name, subtitle = "CloudStream", kind = ProviderKind.CloudStream) }
+        val shorts = shortsRepos() // Shorts Drama: bu eklentiler kendi bölümünde, Ana sayfa seçicisinde yok
+        val cs = csOptions().filterNot { it.repoId in shorts }.map { ProviderItem(id = "cs:${it.id}", name = it.name, subtitle = "CloudStream", kind = ProviderKind.CloudStream) }
         return ProviderRules.applyPinningAndSort(container.providers.nuvioProviders.first() + cs, pinnedIds())
     }
 
@@ -265,13 +283,46 @@ class TvHomeModel(app: Application) : AndroidViewModel(app) {
      */
     private suspend fun dramaProviders(): List<ProviderItem> {
         val pinned = pinnedIds()
-        val chosen = csOptions().filter { "cs:${it.id}" in pinned }
+        val shorts = shortsRepos() // Shorts Drama: bu eklentiler Ana sayfada gösterilmez
+        val chosen = csOptions().filter { "cs:${it.id}" in pinned && it.repoId !in shorts }
         return chosen.map { ProviderItem(id = "cs:${it.id}", name = it.name, subtitle = "CloudStream", kind = ProviderKind.CloudStream) }
     }
+
+    /** Shorts Drama: Arcana Drama depolarındaki açık eklentiler ([ShortsDrama.plugins]). */
+    private suspend fun shortsProviders(): List<ProviderItem> = ShortsDrama.plugins(csOptions(), shortsRepos())
+        .map { ProviderItem(id = "cs:${it.id}", name = it.name, subtitle = "CloudStream", kind = ProviderKind.CloudStream) }
+
+    /** Shorts Drama: kullanıcı onay penceresinde "Ekle" dedi; depo eklenir, bölüm yeniden yüklenir. */
+    fun addShortsRepo() {
+        viewModelScope.launch {
+            _state.value = HomeState.Preparing(R.string.tv_home_installing_shorts)
+            if (ShortsDrama.addRepo(container)) {
+                prefs.edit().remove(KEY_SHORTS_REPO_DECLINED).apply()
+                load()
+            } else {
+                _state.value = HomeState.Failed(R.string.tv_home_shorts_install_failed)
+            }
+        }
+    }
+
+    /** Shorts Drama: "Vazgeç"; pencere bir daha kendiliğinden açılmaz, bölümde "Tekrar sor" kalır. */
+    fun declineShortsRepo() {
+        prefs.edit().putBoolean(KEY_SHORTS_REPO_DECLINED, true).apply()
+        _state.value = HomeState.ShortsRepoMissing(declined = true)
+    }
+
+    /** Shorts Drama: "Tekrar sor" onay penceresini yeniden açar. */
+    fun askShortsRepoAgain() {
+        _state.value = HomeState.ShortsRepoMissing(declined = false)
+    }
+
+    /** Shorts Drama: kurulu Arcana Drama depolarının satır kimlikleri. */
+    private suspend fun shortsRepos(): Set<Long> = ShortsDrama.repoIds(container.csRepos.repos.first())
 
     private companion object {
         const val TAG = "PlayTv"
         const val KEY_PINS_MIGRATED = "drama_pick_to_pins_migrated"
+        const val KEY_SHORTS_REPO_DECLINED = "shorts_repo_declined" // Shorts Drama
     }
 }
 
@@ -280,6 +331,7 @@ private fun tmdbRowsOf(kind: HomeKind): List<HomeRow> = when (kind) {
     HomeKind.Home -> HomeRow.entries
     HomeKind.Movies -> listOf(HomeRow.TrendingMovies, HomeRow.PopularMovies)
     HomeKind.Series -> listOf(HomeRow.TrendingSeries, HomeRow.PopularSeries)
+    HomeKind.Shorts -> emptyList() // Shorts Drama
 }
 
 internal fun isLiveOnlyPlugin(p: InstalledCsPlugin): Boolean =

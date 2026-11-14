@@ -92,6 +92,9 @@ fun TvHomeScreen(model: TvHomeModel, onOpen: (DetailRef) -> Unit, onPlay: PlayLa
                 LaunchedEffect(Unit) { runCatching { retry.requestFocus() } }
             }
             is HomeState.Ready -> Home(model, s, onOpen, onPlay, onSeeAll)
+            // Shorts Drama: depo onayı (ShortsDrama.kt)
+            is HomeState.ShortsRepoMissing -> ShortsRepoConsent(s.declined, onAdd = model::addShortsRepo,
+                onCancel = model::declineShortsRepo, onAskAgain = model::askShortsRepoAgain)
         }
     }
 }
@@ -120,6 +123,8 @@ private fun Home(model: TvHomeModel, state: HomeState.Ready, onOpen: (DetailRef)
     ).filter { it.items.isNotEmpty() }
     val dramaRows: List<CatalogRow> = state.sections.filter { it.provider.kind == ProviderKind.CloudStream }
         .flatMap { it.rows.orEmpty() }.filter { it.items.isNotEmpty() }
+        // Shorts Drama: çok eklenti alt alta; satır eklenti adıyla başlar ("AnyShort · Öne Çıkanlar").
+        .let { rows -> if (model.kind != HomeKind.Shorts) rows else rows.map { it.copy(title = "${ShortsDrama.shortName(it.providerName)} · ${it.title}") } }
     // Play gibi: görünen bir eklenti satırıyla aynı adı taşıyan TMDB satırı (ör. "Popüler filmler") ikinci kopya olarak gizlenir.
     val hiddenTmdb = ProviderRules.duplicateTmdbRows(tmdbRows.associate { it.id to it.title }, shownRows.map { it.title })
     val tmdbShown: List<CatalogRow> = tmdbRows.filter { it.id !in hiddenTmdb && it.items.isNotEmpty() }
@@ -138,13 +143,19 @@ private fun Home(model: TvHomeModel, state: HomeState.Ready, onOpen: (DetailRef)
     val verifyRow: @Composable (Pair<String, VerifySite>) -> Unit = { (id, site) ->
         VerifyRow(site, onVerify = { verifying = id; verifyLauncher.launch(site.intent(context)) }, onRetry = { model.reloadProvider(id) })
     }
-    // Devam et: Ana sayfada hepsi; Filmler / Diziler'de o türün TMDB kayıtları.
-    val continueLoaded = rememberContinueItemsOrNull()
+    // Devam et: Ana sayfada hepsi; Filmler / Diziler'de o türün TMDB kayıtları. Shorts Drama: kısa dizi kayıtları yalnız
+    // Shorts Drama'da ([ShortsDrama.isRecord]); eklenti listesi gelmeden liste hazır sayılmaz (açılış odağı bekler).
+    val csRepos = remember { (context.applicationContext as PlayApp).container.csRepos }
+    val plugins by remember { csRepos.plugins }.collectAsStateWithLifecycle(initialValue = null)
+    val repos by remember { csRepos.repos }.collectAsStateWithLifecycle(initialValue = null)
+    val shortsRepos = remember(repos) { repos?.let(ShortsDrama::repoIds) }
+    val continueLoaded = rememberContinueItemsOrNull()?.takeIf { plugins != null && shortsRepos != null }
     val continueItems = continueLoaded.orEmpty().filter { c ->
         when (model.kind) {
-            HomeKind.Home -> true
+            HomeKind.Home -> !ShortsDrama.isRecord(c.entry.pluginId, plugins.orEmpty(), shortsRepos.orEmpty())
             HomeKind.Movies -> c.entry.pluginId == null && c.entry.type == MediaType.Movie
             HomeKind.Series -> c.entry.pluginId == null && c.entry.type == MediaType.Tv
+            HomeKind.Shorts -> ShortsDrama.isRecord(c.entry.pluginId, plugins.orEmpty(), shortsRepos.orEmpty())
         }
     }
     // Açılışta odak: geri dönüşte son kart, yoksa devam et satırının ilk kartı, yoksa ilk katalog kartı. Devam et listesi

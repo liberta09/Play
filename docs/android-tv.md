@@ -16,7 +16,7 @@ ekranlar kumandaya göre yeniden çizilmiştir (Compose for TV).
 - TV bağımlılığı yalnız `tvImplementation(libs.androidx.tv.material)`.
 
 ### Ekranlar
-Sol menü: Ara, Ana sayfa, Canlı TV, Filmler, Diziler, Kütüphane, Ayarlar.
+Sol menü: Ara, Ana sayfa, Canlı TV, Filmler, Diziler, Shorts Drama (aşağıya bakın), Kütüphane, Ayarlar.
 - **Ana sayfa / Filmler / Diziler:** üstte odaktaki içeriğin büyük tanıtımı ve (odakta 3 sn kalınca) sesli önizleme;
   altında "İzlemeye devam et", addon katalogları, sabitlenen CloudStream eklentilerinin satırları ve TMDB satırları
   (Play ana sayfasının sırasıyla). "Eklenti seç" Play'in sabitleme (iğne) ayarını kullanır. "Tümünü gör" ızgarası.
@@ -63,6 +63,39 @@ aktarılmaz; TV'de ayrıca giriş yapılır. Sunucu bilgisi derlemede yoksa pane
 - `CLAUDE.md` "Kapsam dışı" maddesinde "ayrı bir Android TV arayüzü" yer alıyordu; bu çeşit o kararın güncellenmesini
   gerektirir.
 
+## Shorts Drama (Arcana Drama TV'den; kaldırılabilir) / Shorts Drama (from Arcana Drama TV; removable)
+
+**TR:** Shorts Drama menüsü Arcana Drama TV uygulamasında eklenmiştir; kısa dizileri Arcana Drama eklenti deposundan
+gösterir (`https://raw.githubusercontent.com/banadabi/arcanadrama-addons/main/repo.json`). Depo kendiliğinden eklenmez:
+kullanıcı Shorts Drama'yı açtığında bir kez onay penceresi çıkar ("Shorts Drama, kısa dizileri Arcana Drama eklenti
+deposundan gösterir. Bu depo eklensin mi?", deponun host + yolu görünür, **Ekle / Vazgeç**, kumandayla kullanılır).
+Vazgeç'te bölümde "Depo eklenmedi" ve **Tekrar sor** düğmesi kalır, pencere bir daha kendiliğinden açılmaz. Ana sayfa,
+Filmler ve Diziler depoyu hiç eklemez. Yine de Play'in "varsayılan depo gömülmez" kuralıyla çelişir; istemezseniz şu
+dosyaları/satırları kaldırarak tamamen çıkarabilirsiniz (ya da yalnız bu parçayı getiren commit'i geri alın:
+`feat(tv): Shorts Drama section`):
+
+- `app/src/tv/java/com/kaan/play/tv/ShortsDrama.kt` (depo adresi, depo tanıma, eklenti listesi, onaylı depo ekleme, onay
+  penceresi) ve `app/src/testTv/java/com/kaan/play/tv/ShortDramaRecordTest.kt`;
+- `TvApp.kt`: `Section.Shorts`, `shorts` modeli, `Section.Shorts ->` dalları ve `shorts.load()`;
+- `TvHomeModel.kt`: `HomeKind.Shorts`, `HomeState.ShortsRepoMissing`, `addShortsRepo`, `declineShortsRepo`,
+  `askShortsRepoAgain`, `shortsProviders`, `shortsRepos`, `KEY_SHORTS_REPO_DECLINED` ve "Shorts Drama" yorumlu satırlar;
+- `TvHomeScreen.kt`: "Shorts Drama" yorumlu satırlar (onay dalı, satır başlığına eklenti adı, "İzlemeye devam et" süzgeci);
+- `TvHomeCache.kt`: `HomeKind.Shorts` satırı;
+- `res/values*/strings.xml` ve `strings_home.xml`: `tv_section_shorts`, `tv_home_installing_shorts`,
+  `tv_home_shorts_install_failed`, `tv_shorts_repo_*`.
+
+Davranış: depo eklendikten sonra "Shorts Drama" bölümü Arcana Drama depolarındaki (kök depo ve
+`https://arcanadrama.download/ArcanaDrama/<ad>-repo.json` alt depoları) bütün açık eklentilerin satırlarını, eklenti adıyla
+başlayan başlıklarla gösterir; bu eklentilerin "İzlemeye devam et" kayıtları yalnız burada görünür, Ana sayfada ve Ana
+sayfa eklenti seçicisinde bu eklentiler yer almaz. Kullanıcı depoyu silebilir; silinince bölüm yeniden sorar.
+
+**EN:** The Shorts Drama menu was added in the Arcana Drama TV app; it shows short dramas from the Arcana Drama add-on
+repository. The repository is never added silently: opening Shorts Drama shows a one-time confirmation dialog (repository
+host + path visible, **Add / Cancel**, remote-friendly); after Cancel the section shows "Repository not added" with an
+**Ask again** button. Home, Movies and Series never add it. It still conflicts with Play's "no default repository is
+bundled" rule; if you don't want it, remove it completely by deleting the files/lines listed above (or revert the single
+commit `feat(tv): Shorts Drama section`).
+
 ## English
 
 Play TV is Play's Android TV flavor with its own remote-first UI. It shares **all** of the phone app's layers (add-ons,
@@ -71,7 +104,7 @@ screens are TV-specific (Compose for TV).
 
 - Product flavors in `:app` (dimension `target`): `phone` = today's app, unchanged (`com.kaan.play`, single universal APK);
   `tv` = Play TV (`com.kaan.play.tv`). Both can be installed side by side. TV sources live in `app/src/tv/`.
-- Screens: Search, Home, Live TV, Movies, Series, Library, Settings (Wi-Fi transfer, add-ons, player, profiles & account,
+- Screens: Search, Home, Live TV, Movies, Series, Shorts Drama (see above), Library, Settings (Wi-Fi transfer, add-ons, player, profiles & account,
   general). Play's icon/banner and cyan accent.
 - Phone link: after one code-based Wi-Fi sync the devices stay **paired** and sync automatically while the app is open;
   "Play on TV" on the phone's detail screen opens the title on the paired TV (direct streams are sent when the TV lacks
