@@ -36,6 +36,12 @@ import kotlinx.coroutines.runBlocking
 // AppCompatActivity: uygulama başına dil (AppCompatDelegate.setApplicationLocales) için gerekli.
 class MainActivity : AppCompatActivity() {
 
+    override fun onStart() {
+        super.onStart()
+        // Eşleşmiş cihazla sessiz eşitleme (açılış, oynatıcıdan dönüş; en sık 30 sn'de bir; eşleşme yoksa bir şey yapmaz).
+        (application as PlayApp).containerOrNull?.localSync?.autoSync()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val intentSafe = intent?.getBooleanExtra(StartupGuardRules.EXTRA_SAFE_WINDOW, false) ?: false
         val storedSafe = StartupGuardRules.isSafeWindow(this)
@@ -66,6 +72,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Başka cihazdan eklenti numarasıyla gelmiş eski geçmiş kayıtları süreçte bir kez onarılır. Ana sayfa eklentileri
+        // yükledikten sonra çalışsın diye 60 sn bekler; cs: kaydı yoksa eklenti yüklemez.
+        if (!historyRepairStarted) {
+            historyRepairStarted = true
+            container.appScope.launch(Dispatchers.IO) {
+                // Eski (eklenti numaralı) içerik kimlikleri hemen kalıcı kimliğe taşınır: eklenti yüklemez.
+                container.localSyncData.migrateContentIds()
+                kotlinx.coroutines.delay(60_000)
+                container.localSyncData.repairHistoryPlugins()
+            }
+        }
         // SubtitleDao / CursorWindow koruma ve onbellek budama kalkani
         container.appScope.launch(Dispatchers.IO) {
             try {
@@ -436,6 +453,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        /** Açılış geçmiş onarımı süreçte bir kez başlatılır (etkinlik yeniden oluşunca tekrar etmez). */
+        private var historyRepairStarted = false
         var testManyProviders: Boolean = false
         var testSyncEmail: String? = null
         var testSyncPassword: String? = null

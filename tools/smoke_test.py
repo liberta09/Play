@@ -12,7 +12,7 @@ Kullanım:
 Gereksinimler (2026-10-21 Kullanıcı Kararı):
 1. Tek komutla insan müdahalesi olmadan en çok 15 dakikada uygulamanın ana yollarını dener.
 2. adb connect 127.0.0.1:5555 (takılırsa kill-server/start-server, bir kez).
-3. İsteğe bağlı --install ile gradlew installDebug.
+3. İsteğe bağlı --install ile gradlew installPhoneDebug.
 4. Cihazdaki sonuç JSON'unu (smoke_test.json) çeker, docs/smoke-test.md'ye yazar.
 5. docs/smoke-test.prev.json ile karşılaştırır; ÖNCE OK olup ŞİMDİ X olanlar en üstte
    "GERİLEMELER" başlığıyla listelenir. Gerileme varsa çıkış kodu 1, yoksa 0.
@@ -100,13 +100,13 @@ def connect_adb(adb, target="127.0.0.1:5555"):
 
 
 def run_install_debug():
-    print("Debug APK derlenip cihaza yukleniyor (gradlew.bat installDebug)...")
+    print("Debug APK derlenip cihaza yukleniyor (gradlew.bat installPhoneDebug)...")
     gradlew = os.path.join(REPO_ROOT, "gradlew.bat")
     if not os.path.isfile(gradlew):
         gradlew = "gradlew"
-    res = subprocess.run([gradlew, "installDebug"], cwd=REPO_ROOT)
+    res = subprocess.run([gradlew, "installPhoneDebug"], cwd=REPO_ROOT)
     if res.returncode != 0:
-        raise RuntimeError(f"installDebug basarisiz oldu! (kod {res.returncode})")
+        raise RuntimeError(f"installPhoneDebug basarisiz oldu! (kod {res.returncode})")
     print("Kurulum basarili.")
 
 
@@ -573,7 +573,7 @@ def generate_markdown(curr_data, duration_str, regressions):
 
 def main():
     parser = argparse.ArgumentParser(description="Play Tek Komutluk Otomatik Duman Testi (Smoke Test)")
-    parser.add_argument("--install", action="store_true", help="Testten önce gradlew installDebug çalıştırır")
+    parser.add_argument("--install", action="store_true", help="Testten önce gradlew installPhoneDebug çalıştırır")
     parser.add_argument("--filter", type=str, default="", help="Yalnızca belirtilen eklentileri test eder (virgülle ayrılmış)")
     parser.add_argument("--timeout", type=int, default=900, help="Toplam zaman aşımı süresi (saniye, varsayılan 900 = 15 dk)")
     parser.add_argument("--adb", type=str, default="", help="Özel ADB yolu")

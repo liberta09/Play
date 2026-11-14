@@ -54,6 +54,20 @@ android {
         buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"$supabasePublishableKey\"")
     }
 
+    // İki hedef: telefon/tablet (bugünkü uygulama, tek evrensel APK) ve Android TV (ayrı paket `com.kaan.play.tv`; kaynaklar
+    // app/src/tv). TV çeşidi telefonun bütün katmanlarını (eklentiler, kaynak toplama, oynatıcı, eşitleme) aynen kullanır;
+    // yalnız ekranlar TV'ye özgüdür (Compose for TV). İkisi aynı cihaza yan yana kurulabilir.
+    flavorDimensions += "target"
+    productFlavors {
+        create("phone") {
+            dimension = "target"
+        }
+        create("tv") {
+            dimension = "target"
+            applicationIdSuffix = ".tv"
+        }
+    }
+
     // Yayın imzası: keystore yolu repoda, şifreler yalnızca local.properties'te (ya da ortam değişkeninde).
     signingConfigs {
         create("release") {
@@ -185,6 +199,9 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 
+    // TV çeşidi: kumanda odaklı Compose bileşenleri (odakla büyüyen kartlar, yan menü).
+    "tvImplementation"(libs.androidx.tv.material)
+
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
@@ -217,30 +234,33 @@ configurations.matching { it.name.endsWith("UnitTestRuntimeClasspath") }.configu
 }
 
 
-// Release derlemesi sonunda Play-<sürüm>.apk ve Play-<sürüm>-SHA256.txt üretilir.
-tasks.matching { it.name == "assembleRelease" }.configureEach {
-    doLast {
-        val releaseDir = layout.buildDirectory.dir("outputs/apk/release").get().asFile
-        val targetApk = File(releaseDir, "Play-${android.defaultConfig.versionName}.apk")
-        val generatedApk = releaseDir.listFiles()?.firstOrNull { it.name.endsWith(".apk") && it.name != targetApk.name }
-        if (generatedApk != null) {
-            generatedApk.copyTo(targetApk, overwrite = true)
-            generatedApk.delete()
-        }
-        if (targetApk.exists()) {
-            val md = MessageDigest.getInstance("SHA-256")
-            val hash = targetApk.inputStream().use { stream ->
-                val buffer = ByteArray(8192)
-                var read: Int
-                while (stream.read(buffer).also { read = it } > 0) {
-                    md.update(buffer, 0, read)
-                }
-                md.digest().joinToString("") { "%02x".format(it) }
+// Release derlemesi sonunda Play-<sürüm>.apk (telefon) / PlayTV-<sürüm>.apk (TV) ve -SHA256.txt dosyaları üretilir.
+// Uygulama içi güncelleme yalnız telefon çeşidinin Play-<sürüm>.apk dosyasını arar (UpdateApkRules).
+listOf("phone" to "Play", "tv" to "PlayTV").forEach { (flavor, baseName) ->
+    tasks.matching { it.name == "assemble${flavor.replaceFirstChar { c -> c.uppercase() }}Release" }.configureEach {
+        doLast {
+            val releaseDir = layout.buildDirectory.dir("outputs/apk/$flavor/release").get().asFile
+            val targetApk = File(releaseDir, "$baseName-${android.defaultConfig.versionName}.apk")
+            val generatedApk = releaseDir.listFiles()?.firstOrNull { it.name.endsWith(".apk") && it.name != targetApk.name }
+            if (generatedApk != null) {
+                generatedApk.copyTo(targetApk, overwrite = true)
+                generatedApk.delete()
             }
-            val hashFile = File(releaseDir, "Play-${android.defaultConfig.versionName}-SHA256.txt")
-            hashFile.writeText("$hash *${targetApk.name}\n")
-            println("Release APK: ${targetApk.name} (${targetApk.length()} bytes)")
-            println("SHA-256: $hash -> ${hashFile.name}")
+            if (targetApk.exists()) {
+                val md = MessageDigest.getInstance("SHA-256")
+                val hash = targetApk.inputStream().use { stream ->
+                    val buffer = ByteArray(8192)
+                    var read: Int
+                    while (stream.read(buffer).also { read = it } > 0) {
+                        md.update(buffer, 0, read)
+                    }
+                    md.digest().joinToString("") { "%02x".format(it) }
+                }
+                val hashFile = File(releaseDir, "$baseName-${android.defaultConfig.versionName}-SHA256.txt")
+                hashFile.writeText("$hash *${targetApk.name}\n")
+                println("Release APK: ${targetApk.name} (${targetApk.length()} bytes)")
+                println("SHA-256: $hash -> ${hashFile.name}")
+            }
         }
     }
 }

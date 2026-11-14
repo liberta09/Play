@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ayarlar → Eklentiler (TvSettingsAddons.kt). Türkçesi values-tr/strings_addons.xml. -->
+<resources>
+    <string name="tv_addons_third_party_note">Add-ons are written by third parties; the app doesn\'t provide content.</string>
+    <string name="tv_addons_catalog_install_failed">Couldn\'t install the repository (%1$s).</string>
+
+    <!-- Bölüm listesi -->
+    <string name="tv_addons_manage">Manage</string>
+    <string name="tv_addons_installed_repos">Installed repositories</string>
+    <string name="tv_addons_repos_summary">CloudStream repositories: %1$d · Nuvio addons: %2$d, plugin repositories: %3$d</string>
+    <string name="tv_addons_installed_plugins">Installed add-ons</string>
+    <plurals name="tv_addons_cs_summary">
+        <item quantity="one">%1$d drama add-on (CloudStream): search, turn on/off, add-on settings</item>
+        <item quantity="other">%1$d drama add-ons (CloudStream): search, turn on/off, add-on settings</item>
+    </plurals>
+    <string name="tv_addons_nuvio_plugins">Nuvio plugins</string>
+    <plurals name="tv_addons_nuvio_summary">
+        <item quantity="one">%1$d movie and series source: turn on/off, plugin settings</item>
+        <item quantity="other">%1$d movie and series sources: turn on/off, plugin settings</item>
+    </plurals>
+    <string name="tv_addons_catalog">Repository catalog</string>
+    <string name="tv_addons_catalog_summary">Discover community repositories and install them with one press</string>
+    <string name="tv_addons_options">Options</string>
+    <string name="tv_addons_timeout">Source timeout</string>
+    <string name="tv_addons_timeout_summary">The longest time to wait for an add-on while searching for sources. Press to change.</string>
+    <string name="tv_addons_seconds">%1$d s</string>
+    <string name="tv_addons_torrent">Torrent server</string>
+    <string name="tv_addons_torrent_server">Server: %1$s</string>
+    <string name="tv_addons_torrent_builtin">Built-in engine</string>
+
+    <!-- Ekleme kutusu -->
+    <string name="tv_addons_adding_long">Adding… Large repositories can take a few minutes.</string>
+    <string name="tv_addons_add_failed">Couldn\'t add: check your connection.</string>
+    <string name="tv_addons_add_title">Add add-on / repository</string>
+    <string name="tv_addons_add_body">CloudStream repository (repo.json or .cs3), Nuvio addon (manifest.json) or Nuvio plugin repository address. The type is detected automatically. You can also type it with the remote keyboard on your phone.</string>
+    <string name="tv_addons_adding">Adding…</string>
+    <string name="tv_addons_add">Add</string>
+
+    <!-- Kurulu depolar -->
+    <string name="tv_addons_updated">Updated.</string>
+    <string name="tv_addons_up_to_date">Everything is up to date.</string>
+    <string name="tv_addons_repos_empty">No repositories installed. Enter an address in the box on the Add-ons page or install one from the Repository catalog.</string>
+    <string name="tv_addons_cs_repos">CloudStream repositories</string>
+    <plurals name="tv_addons_plugin_count">
+        <item quantity="one">%1$d add-on</item>
+        <item quantity="other">%1$d add-ons</item>
+    </plurals>
+    <string name="tv_addons_nuvio_addons">Nuvio addons</string>
+    <string name="tv_addons_kind_catalog">catalog</string>
+    <string name="tv_addons_kind_streams">streams</string>
+    <string name="tv_addons_kind_subtitles">subtitles</string>
+    <string name="tv_addons_catalogs">Catalogs</string>
+    <string name="tv_addons_nuvio_plugin_repos">Nuvio plugin repositories</string>
+    <string name="tv_addons_wait">Please wait…</string>
+    <plurals name="tv_addons_pending_changes">
+        <item quantity="one">%1$d change: press to update</item>
+        <item quantity="other">%1$d changes: press to update</item>
+    </plurals>
+    <string name="tv_addons_check_updates">Check for updates</string>
+
+    <!-- Addon katalogları -->
+    <string name="tv_addons_catalogs_of">%1$s: catalogs</string>
+    <string name="tv_addons_catalogs_note">Catalogs that are off aren\'t shown on the home screen.</string>
+    <string name="tv_addons_catalogs_all_off">Turn all catalogs off</string>
+    <string name="tv_addons_catalogs_all_on">Turn all catalogs on</string>
+    <string name="tv_addons_catalogs_on_count">%1$d of %2$d catalogs on</string>
+    <string name="tv_addons_home_catalogs">Home catalogs</string>
+    <string name="tv_addons_home_catalogs_summary">Turn addon catalog rows on or off (as on the phone)</string>
+    <string name="tv_addons_home_catalogs_note">Catalogs that are off aren\'t shown on Home, Movies or Series; the order stays the same. Same setting as on the phone: Wi-Fi sync carries the TV\'s choice to the phone too.</string>
+    <string name="tv_addons_home_catalogs_empty">No enabled addon provides catalogs.</string>
+
+    <!-- Yüklü eklentiler (CloudStream) -->
+    <string name="tv_addons_search_plugins">Search add-ons</string>
+    <string name="tv_addons_repo_filter">Repository: %1$s</string>
+    <string name="tv_addons_all">All</string>
+    <string name="tv_addons_repo_all_off">Turn all off in repository</string>
+    <string name="tv_addons_repo_all_on">Turn all on in repository</string>
+    <plurals name="tv_addons_cs_count">
+        <item quantity="one">%1$d add-on · %2$d on. %3$s</item>
+        <item quantity="other">%1$d add-ons · %2$d on. %3$s</item>
+    </plurals>
+    <string name="tv_addons_no_settings">This add-on has no settings.</string>
+    <string name="tv_addons_settings_enable_first">Turn the add-on on first to open its settings.</string>
+    <string name="tv_addons_settings_changed">The add-on changed; open its settings again.</string>
+    <string name="tv_addons_settings_failed">Couldn\'t open the add-on settings.</string>
+    <string name="tv_addons_opening">Opening…</string>
+    <string name="tv_addons_settings">Settings</string>
+
+    <!-- Nuvio eklentileri -->
+    <string name="tv_addons_nuvio_empty">No Nuvio plugin repository. Enter the repository address in the box on the Add-ons page.</string>
+    <string name="tv_addons_all_off">Turn all off</string>
+    <string name="tv_addons_all_on">Turn all on</string>
+    <string name="tv_addons_type_movie">Movie</string>
+    <string name="tv_addons_type_series">Series</string>
+    <string name="tv_addons_settings_of">%1$s: settings</string>
+    <string name="tv_addons_plugin_settings">Add-on settings</string>
+    <string name="tv_addons_settings_load_failed">Couldn\'t load the add-on settings.</string>
+    <string name="tv_addons_retry">Try again</string>
+    <string name="tv_addons_press_to_change">Press to change.</string>
+
+    <!-- Depo kataloğu -->
+    <string name="tv_addons_catalog_intro">Community repositories. Press a row to install the repository. %1$s</string>
+    <string name="tv_addons_search_repos">Search repositories (name, type, address)</string>
+    <string name="tv_addons_catalog_failed">Couldn\'t load the catalog.</string>
+    <string name="tv_addons_catalog_empty">The catalog is empty.</string>
+    <string name="tv_addons_no_results">No results.</string>
+    <string name="tv_addons_install_busy">Wait for the current installation to finish.</string>
+    <string name="tv_addons_installed">Installed</string>
+    <string name="tv_addons_installing">Installing…</string>
+    <string name="tv_addons_install">Install</string>
+
+    <!-- Torrent sunucusu -->
+    <string name="tv_addons_torrent_invalid">Enter an address like server:8090.</string>
+    <string name="tv_addons_torrent_info">Torrent sources play with the built-in engine. If you have your own server (TorrServer compatible), enter its address; leave empty to use the built-in engine.</string>
+    <string name="tv_addons_torrent_use_builtin">Use built-in engine</string>
+
+    <!-- Ortak parçalar -->
+    <string name="tv_addons_remove_confirm">Remove? Press again</string>
+    <string name="tv_addons_remove">Remove</string>
+
+    <!-- Ekleme sonucu -->
+    <plurals name="tv_addons_added_skipped">
+        <item quantity="one">", %1$d add-on couldn\'t be installed"</item>
+        <item quantity="other">", %1$d add-ons couldn\'t be installed"</item>
+    </plurals>
+    <plurals name="tv_addons_added_cs">
+        <item quantity="one">%1$s: %2$d add-on installed%3$s.</item>
+        <item quantity="other">%1$s: %2$d add-ons installed%3$s.</item>
+    </plurals>
+    <plurals name="tv_addons_added_nuvio">
+        <item quantity="one">%1$s: %2$d Nuvio plugin installed%3$s.</item>
+        <item quantity="other">%1$s: %2$d Nuvio plugins installed%3$s.</item>
+    </plurals>
+    <string name="tv_addons_added_addon">%1$s added (Nuvio addon).</string>
+
+    <!-- Hata iletileri -->
+    <string name="tv_addons_err_already">This address is already added.</string>
+    <string name="tv_addons_err_invalid">Invalid address: enter the full address starting with http(s).</string>
+    <string name="tv_addons_err_network">Couldn\'t reach the address. Check your internet connection.</string>
+    <string name="tv_addons_err_http">The server returned an error (HTTP %1$s).</string>
+    <string name="tv_addons_err_too_large">The response is unexpectedly large; not added.</string>
+    <string name="tv_addons_err_no_plugins">This repository has no usable add-ons.</string>
+    <string name="tv_addons_err_plugin_file">Couldn\'t download “%1$s”. Try again.</string>
+    <string name="tv_addons_err_no_streams">This add-on doesn\'t offer movies or series.</string>
+    <string name="tv_addons_err_unsupported">This kind of source isn\'t supported.</string>
+    <string name="tv_addons_err_other">This address didn\'t return a valid repository or add-on.</string>
+
+    <!-- Kaynak türleri -->
+    <string name="tv_addons_src_cs">CloudStream repository</string>
+    <string name="tv_addons_src_nuvio_repo">Nuvio repository</string>
+    <string name="tv_addons_src_nuvio_plugin">Nuvio plugin</string>
+</resources>

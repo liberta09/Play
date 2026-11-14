@@ -3,9 +3,16 @@ package com.kaan.play.data.sync.local
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.security.GeneralSecurityException
+import java.security.KeyFactory
+import java.security.KeyPair
+import java.security.KeyPairGenerator
 import java.security.MessageDigest
+import java.security.PrivateKey
 import java.security.SecureRandom
+import java.security.spec.ECGenParameterSpec
+import java.security.spec.X509EncodedKeySpec
 import javax.crypto.Cipher
+import javax.crypto.KeyAgreement
 import javax.crypto.Mac
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
@@ -29,6 +36,7 @@ object LocalSyncCrypto {
     private const val IV_BYTES = 12
     private const val TAG_BITS = 128
     private val INFO = "play-sync-v1".toByteArray(Charsets.UTF_8)
+    private val PAIR_INFO = "play-pair-v1".toByteArray(Charsets.UTF_8)
     private val json = Json { ignoreUnknownKeys = true }
 
     fun newNonce(random: SecureRandom = SecureRandom()): String = ByteArray(NONCE_BYTES).also(random::nextBytes).toHex()
@@ -81,6 +89,39 @@ object LocalSyncCrypto {
             throw SyncAuthException()
         }
     }
+
+    /**
+     * Kalıcı eşleşme: iki taraf birer geçici EC P-256 anahtar çifti üretir, açık anahtarlar kodla şifrelenmiş /pair
+     * isteğinde değiş tokuş edilir. Eşleşme sırrı ECDH'den ve oturum nonce'larından HKDF ile türetilir: kodu sonradan
+     * kaba kuvvetle bulan pasif dinleyici bu sırrı elde edemez (ECDH özel anahtarları ağa çıkmaz); araya giren biri ise
+     * kodu canlı tahmin etmek zorundadır ve yanlış deneme sınırına takılır.
+     */
+    fun newPairKeyPair(random: SecureRandom = SecureRandom()): KeyPair =
+        KeyPairGenerator.getInstance("EC").apply { initialize(ECGenParameterSpec("secp256r1"), random) }.generateKeyPair()
+
+    /** Açık anahtarın ağ biçimi: X.509 SubjectPublicKeyInfo, Base64. */
+    fun encodePublicKey(keys: KeyPair): String = Base64.encode(keys.public.encoded)
+
+    /** Eşleşme sırrı (onaltılık, 32 bayt); karşı açık anahtar geçersizse [SyncAuthException]. */
+    fun pairSecret(own: PrivateKey, peerPublicKey: String, serverNonce: String, clientNonce: String): String {
+        val shared = try {
+            val peer = KeyFactory.getInstance("EC").generatePublic(X509EncodedKeySpec(Base64.decode(peerPublicKey)))
+            KeyAgreement.getInstance("ECDH").run {
+                init(own)
+                doPhase(peer, true)
+                generateSecret()
+            }
+        } catch (_: GeneralSecurityException) {
+            throw SyncAuthException()
+        } catch (_: IllegalArgumentException) {
+            throw SyncAuthException()
+        }
+        return hkdf(shared, serverNonce.hexToBytes() + clientNonce.hexToBytes(), PAIR_INFO, 32).toHex()
+    }
+
+    /** Eşleşme kimliği / cihaz kimliği gibi rastgele onaltılık değerler. */
+    fun isHexId(value: String?, bytes: Int = NONCE_BYTES): Boolean =
+        value != null && value.length == bytes * 2 && value.all { it in '0'..'9' || it in 'a'..'f' }
 
     /** RFC 5869 HKDF (HMAC-SHA256). */
     internal fun hkdf(ikm: ByteArray, salt: ByteArray, info: ByteArray, length: Int): ByteArray {

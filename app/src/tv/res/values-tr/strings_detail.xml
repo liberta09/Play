@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Detay, arama ve küçük ortak iletilerin Türkçesi (values/strings_detail.xml ile aynı adlar). -->
+<resources>
+    <!-- Detay -->
+    <string name="tv_detail_retry">Tekrar dene</string>
+    <plurals name="tv_detail_seasons_count">
+        <item quantity="one">%1$d Sezon</item>
+        <item quantity="other">%1$d Sezon</item>
+    </plurals>
+    <plurals name="tv_detail_episodes_count">
+        <item quantity="one">%1$d Bölüm</item>
+        <item quantity="other">%1$d Bölüm</item>
+    </plurals>
+    <string name="tv_detail_movie">Film</string>
+    <string name="tv_detail_season_episode">%1$d. Sezon %2$d. Bölüm</string>
+    <string name="tv_detail_minutes_left">%1$d dk kaldı</string>
+    <string name="tv_detail_start_over">Baştan başla</string>
+    <string name="tv_detail_favorite_add">Favorilere ekle</string>
+    <string name="tv_detail_favorite_remove">Favorilerden çıkar</string>
+    <string name="tv_detail_episodes">Bölümler</string>
+    <string name="tv_detail_season">Sezon %1$d</string>
+    <string name="tv_detail_episode_n">%1$d. Bölüm</string>
+    <string name="tv_detail_episode_named">B%1$d: %2$s</string>
+    <string name="tv_detail_play">İzle</string>
+    <string name="tv_detail_resume">Devam et</string>
+    <string name="tv_detail_rewatch">Yeniden izle</string>
+    <string name="tv_detail_up_next">Sıradaki</string>
+    <string name="tv_detail_error_unrecognized">İçerik tanınmadı.</string>
+    <string name="tv_detail_error_tmdb_not_found">Bu içerik TMDB\'de bulunamadı.</string>
+    <string name="tv_detail_error_unsupported">Bu kaynak türü TV\'de henüz açılmıyor.</string>
+    <string name="tv_detail_error_plugin_missing">Eklenti bulunamadı (kaldırılmış olabilir).</string>
+    <string name="tv_detail_error_plugin_load">Eklenti açılamadı (kapalı olabilir).</string>
+    <string name="tv_detail_error_plugin_incompatible">Eklenti bu sürümle uyumsuz; eklentiyi güncelleyin.</string>
+    <string name="tv_detail_error_plugin_empty">Eklenti içerik sağlamadı.</string>
+    <string name="tv_detail_error_load">İçerik yüklenemedi. Tekrar deneyin.</string>
+
+    <!-- Arama -->
+    <string name="tv_search_series">Dizi</string>
+    <string name="tv_search_recent">Son aramalar</string>
+    <string name="tv_search_input_hint">Dizi ya da film adını yazıp Ara\'ya basın.</string>
+    <string name="tv_search_no_results">\"%1$s\" için sonuç yok.</string>
+    <string name="tv_search_progress">Aranıyor… %1$d/%2$d kaynak</string>
+    <string name="tv_search_placeholder">Dizi, film ara</string>
+    <string name="tv_search_key_space">boşluk</string>
+    <string name="tv_search_key_delete">sil</string>
+    <string name="tv_search_key_clear">temizle</string>
+    <string name="tv_search_button">Ara</string>
+
+    <!-- Engelli siteler -->
+    <!-- Fragman (E5) -->
+    <string name="tv_trailer_loading">Fragman yükleniyor · %1$s</string>
+    <string name="tv_trailer_failed">Fragman oynatılamadı.</string>
+</resources>

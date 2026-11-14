@@ -52,6 +52,10 @@ internal class TmdbService(
             "query" to query, "page" to page.toString(), "include_adult" to "false",
         )
 
+    /** Kişinin oynadığı/çalıştığı film ve diziler (`person/{id}/combined_credits`; yalnız `cast` kullanılır). */
+    suspend fun personCredits(personId: Int, language: String): PersonCastCreditsDto =
+        get("person/$personId/combined_credits", PersonCastCreditsDto.serializer(), language)
+
     suspend fun findByImdb(imdbId: String, language: String): FindResultDto =
         get("find/$imdbId", FindResultDto.serializer(), language, "external_source" to "imdb_id")
 

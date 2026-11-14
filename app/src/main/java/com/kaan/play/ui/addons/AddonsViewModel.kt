@@ -1,5 +1,7 @@
 package com.kaan.play.ui.addons
 
+import android.content.Context
+import com.kaan.play.data.cloudstream.CsPluginSettingsResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kaan.play.data.addon.Addon
@@ -209,6 +211,10 @@ class InstalledAddonsViewModel(
     fun setCsPluginEnabled(plugin: InstalledCsPlugin, enabled: Boolean) {
         viewModelScope.launch { csRepos.setEnabled(plugin.id, enabled) }
     }
+
+    /** Caller-owned UI coroutine passes its current context; the ViewModel does not retain it. */
+    suspend fun openCsPluginSettings(pluginId: Long, context: Context): CsPluginSettingsResult =
+        csRepos.openSettings(pluginId, context)
 
     fun setRepoPluginsEnabled(repoId: Long, enabled: Boolean) {
         viewModelScope.launch { pluginRepo.setRepoEnabled(repoId, enabled) }

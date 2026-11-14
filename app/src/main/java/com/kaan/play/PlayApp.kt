@@ -16,10 +16,28 @@ import okio.Path.Companion.toOkioPath
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
-class PlayApp : Application(), SingletonImageLoader.Factory {
+open class PlayApp : Application(), SingletonImageLoader.Factory {
+
+    /**
+     * Eşleşmiş telefondan gelen "TV'de oynat" ve kumanda/klavye isteklerini kabul eder. Yalnız oynatma hedefi olan uygulama
+     * (TV çeşidi) açar; kumandayı uygulama kendisi uygular (`LocalSyncController.remoteInputs`).
+     */
+    open val acceptsRemotePlay: Boolean get() = false
+
+    /** Telefon kumandasının durum sorusuna yanıt veren kaynak (TV); null: bu uygulama durum vermez. */
+    open val remoteStateSource: (() -> com.kaan.play.data.sync.local.RemoteState)? get() = null
+
+    /**
+     * Eşleşmiş cihazdan gelen oynatma hedefini bu cihazda açılabilir yapar (ör. eklenti numarasını buradakine çevirir);
+     * null: içeriğin eklentisi burada yok (telefon doğrudan akış gönderir). Varsayılan: hedef olduğu gibi.
+     */
+    open suspend fun resolveRemotePlay(request: com.kaan.play.data.sync.local.RemotePlay): com.kaan.play.data.stream.PlayTarget? = request.target
 
     lateinit var container: AppContainer
         private set
+
+    val containerOrNull: AppContainer?
+        get() = if (::container.isInitialized) container else null
 
     companion object {
         lateinit var appContext: android.content.Context

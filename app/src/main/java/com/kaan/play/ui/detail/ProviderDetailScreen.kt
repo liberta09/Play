@@ -19,7 +19,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,7 +61,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import kotlin.math.abs
 import kotlin.time.Duration.Companion.seconds
 
 @Serializable
@@ -140,9 +141,8 @@ fun ProviderDetailScreen(
     var selectedSeason by remember(providerId, url) { mutableStateOf<Int?>(null) }
     var refreshKey by remember { mutableIntStateOf(0) }
 
-    val syntheticId = remember(providerId, url) {
-        -(abs("$providerId:$url".hashCode()).coerceAtLeast(1))
-    }
+    // Kalıcı kimlik: eklentinin cihaza özel numarası değil, türü + içerik adresi (cihazlar arası aynı kayıt).
+    val syntheticId = remember(providerId, url) { com.kaan.play.data.library.ProviderContentId.of(providerId, url) }
 
     LaunchedEffect(providerId, url, refreshKey) {
         state = ProviderDetailUiState.Loading
@@ -448,15 +448,31 @@ fun ProviderDetailScreen(
                     emptyList()
                 }
 
+                // Favori: izleme geçmişiyle aynı kimlik + tür (TV de aynısını yazar; eşitlemeyle iki yöne gider).
+                val favType = if (s.isSeries || s.addonType in listOf("tv", "channel")) MediaType.Tv else s.detail.summary.type
+                val isFavorite by remember(s.detail.summary.id, favType) {
+                    container.library.isFavorite(favType, s.detail.summary.id)
+                }.collectAsState(initial = false)
+                val favScope = androidx.compose.runtime.rememberCoroutineScope()
+                // Buluttan gelen eklenti kayıtları resimsizdir (bulut tam adres taşımaz): detay açılınca geçmişe yazılır.
+                LaunchedEffect(s.detail.summary.id, favType) {
+                    container.library.fillMissingPoster(favType, s.detail.summary.id, s.detail.summary.posterPath)
+                }
+
                 DetailContent(
                     detail = s.detail,
-                    isFavorite = false,
+                    isFavorite = isFavorite,
                     selectedSeason = selectedSeason ?: s.detail.seasons.firstOrNull()?.number ?: 1,
                     episodes = Loadable.Ready(currentEpisodes),
                     twoPane = layout.twoPane,
                     screenHeight = layout.heightDp.dp,
                     isSeries = s.isSeries,
-                    onToggleFavorite = { /* Favori */ },
+                    onToggleFavorite = {
+                        if (!isFavorite && s.detail.summary.id < 0) {
+                            com.kaan.play.data.library.ProviderFavoriteRefs(context).put(favType, s.detail.summary.id, providerId, url)
+                        }
+                        favScope.launch { container.library.setFavorite(s.detail.summary.copy(type = favType), !isFavorite) }
+                    },
                     onSelectSeason = { sNum -> selectedSeason = sNum },
                     onRetryEpisodes = { refreshKey++ },
                     onPlay = { season, episode ->

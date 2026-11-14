@@ -270,7 +270,7 @@ class SubtitleController(
         val reqEpisode = request.episode
         val reqSeason = request.season
         streamTracks = stream.subtitles.map {
-            SubtitleTrack(it.url, SubtitleLanguages.normalize(it.language), stream.source.addonName, headers = it.headers, season = reqSeason, episode = reqEpisode)
+            SubtitleTrack(it.url, SubtitleLanguages.normalize(it.language), stream.source.addonName, headers = it.headers, season = reqSeason, episode = reqEpisode, httpInterceptor = it.httpInterceptor)
         }
         rebuild()
     }

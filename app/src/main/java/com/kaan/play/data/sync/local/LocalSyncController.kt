@@ -8,9 +8,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.buildJsonArray
@@ -26,13 +31,36 @@ import java.net.InetAddress
  *
  * Kodu gösteren cihaz sunucudur; kodu yazıp "Bağlan"a basan cihaz istemcidir. İkisi de karşının anlık görüntüsünü alıp
  * [LocalSyncMerge] ile birleştirir (ortak kaynakların durumlarında kodu gösteren cihaz esas). Eksik kaynaklar
- * [State.pending] listesinde onay bekler.
+ * [State.pending] listesinde onay bekler; [autoInstallSources] açıksa onay beklemeden kurulur.
+ *
+ * Kalıcı eşleşme ([pairs] verilirse; bkz. [LocalSyncPairing]): kodlu bağlantıdan sonra eşleşme kendiliğinden kurulur.
+ * Eşleşmiş cihazlar [autoSync] ile kod girilmeden eşitlenir; karşı taraf [startPairedHosting] ile (uygulama ön plandayken)
+ * sunucuyu kodsuz açık tutar, kart açılınca aynı sunucuya kod eklenir. [pairs] null ise davranış eskisiyle aynıdır.
  */
 class LocalSyncController(
     private val data: LocalSyncData,
     private val nsd: LocalSyncNsd,
     private val scope: CoroutineScope,
     private val client: LocalSyncClient = LocalSyncClient(),
+    private val pairs: LocalSyncPairStore? = null,
+    /**
+     * Kalıcı eşleşme açık mı (kullanıcı ayarı; varsayılan kapalı, iki cihazda da açılmalı). Kapalıyken kodlu eşitleme
+     * eskisi gibi çalışır: eşleşme isteği yapılmaz/kabul edilmez, eşli sunucu ve otomatik eşitleme çalışmaz.
+     */
+    private val pairingEnabled: () -> Boolean = { true },
+    /** Bu cihaz eşleşmiş cihazdan gelen "bunu oynat" isteklerini kabul eder ([playRequests]); yalnız [pairs] ile anlamlı. */
+    private val acceptRemotePlay: Boolean = false,
+    /**
+     * Gelen isteği bu cihazda oynatılabilir yapar (ör. karşının eklenti numarasını buradakine çevirir); null: bu içeriğin
+     * eklentisi bu cihazda yok, karşı cihaza [CastResult.NoPlugin] döner. Yalnız [acceptRemotePlay] ile anlamlı.
+     */
+    private val resolveRemotePlay: suspend (RemotePlay) -> com.kaan.play.data.stream.PlayTarget? = { it.target },
+    /** Eşitlemede karşıda olup burada olmayan kaynaklar onay sorulmadan kurulur (eşleşmiş cihazlar arası tam eşitleme). */
+    private val autoInstallSources: Boolean = false,
+    /** Bu cihaz eşleşmiş cihazdan kumanda/klavye isteklerini kabul eder ([remoteInputs]); yalnız [pairs] ile anlamlı. */
+    private val acceptRemoteControl: Boolean = false,
+    /** Kumandanın durum sorusuna yanıt (TV: oynayan yapım + ses); null: bu cihaz durum vermez. Sunucu iş parçacığında çağrılır. */
+    private val remoteStateSource: (() -> RemoteState)? = null,
 ) {
     enum class Phase { Idle, Searching, Connecting, Syncing, Done, Failed }
 
@@ -51,6 +79,8 @@ class LocalSyncController(
         val installFailed: Int = 0,
         /** Kodun süresi doldu (kart açık kalabilir; "Yeni kod" ile yeniden açılır). */
         val expired: Boolean = false,
+        /** Kodlu eşitleme bitti, kalıcı eşleşme açık: bu adı taşıyan cihazla eşleşilsin mi? (kullanıcı onaylar) */
+        val pairOffer: String? = null,
     ) {
         val busy: Boolean get() = phase == Phase.Searching || phase == Phase.Connecting || phase == Phase.Syncing
     }
@@ -67,6 +97,178 @@ class LocalSyncController(
     @Volatile
     private var wanted = false
 
+    /** Uygulama ön planda ve eşli sunucu isteniyor (eşleşme sonradan kurulsa da kart kapanınca sunucu açık kalır). */
+    @Volatile
+    private var pairedHosting = false
+
+    private val pairingOn: Boolean get() = pairs != null && pairingEnabled()
+
+    private val hasPairs: Boolean get() = pairingOn && pairs?.pairs?.value?.any { it.confirmed } == true
+
+    private val allPairs: StateFlow<List<PairRecord>> = pairs?.pairs ?: MutableStateFlow(emptyList())
+
+    /** Onaylanmış eşleşmeler (arayüz, TV'de oynat, kumanda). */
+    val pairedDevices: StateFlow<List<PairRecord>> = allPairs.map { list -> list.filter { it.confirmed } }
+        .stateIn(scope, SharingStarted.Eagerly, allPairs.value.filter { it.confirmed })
+
+    /** Bu cihazda onay bekleyen eşleşme istekleri (karşı cihaz kodla eşleşmek istedi). */
+    val pairRequests: StateFlow<List<PairRecord>> = allPairs.map { list -> list.filterNot { it.confirmed } }
+        .stateIn(scope, SharingStarted.Eagerly, allPairs.value.filterNot { it.confirmed })
+
+    /** Kodlu eşitlemeden sonra onay bekleyen eşleşme önerisi (adres ve kod yalnız bellekte). */
+    @Volatile
+    private var offer: Pair<String, String>? = null
+
+    private var autoJob: Job? = null
+    private var lastAutoAt = 0L
+
+    private val _playRequests = MutableSharedFlow<RemotePlay>(extraBufferCapacity = 1)
+
+    /**
+     * Eşleşmiş cihazdan gelen oynatma istekleri ([acceptRemotePlay]); uygulama ön plandayken sunucu açıktır. İçerik isteği
+     * [resolveRemotePlay]'den geçmiştir; akışlı istekte ([RemotePlay.streams]) karşının eklenti numarası silinmiştir.
+     */
+    val playRequests: SharedFlow<RemotePlay> = _playRequests
+
+    private val _remoteInputs = MutableSharedFlow<RemoteInput>(extraBufferCapacity = 32)
+
+    /** Eşleşmiş cihazdan gelen kumanda tuşları ve yazılar ([acceptRemoteControl]); sırası korunur, uygulama uygular. */
+    val remoteInputs: SharedFlow<RemoteInput> = _remoteInputs
+
+    /** Sunucu iş parçacığında; dinleyen yoksa (uygulama uygulamıyor) karşıya [REPLY_UNSUPPORTED]. */
+    private val remoteInput: ((String) -> String)? = if (acceptRemoteControl && pairs != null) { body ->
+        val input = runCatching { com.kaan.play.data.net.PlayJson.decodeFromString(RemoteInput.serializer(), body) }.getOrNull()
+            ?.let { it.copy(text = it.text?.take(RemoteInput.MAX_TEXT)) }
+        when {
+            input != null && input.state ->
+                remoteStateSource?.let { com.kaan.play.data.net.PlayJson.encodeToString(RemoteState.serializer(), it()) } ?: REPLY_UNSUPPORTED
+            input == null || (input.key == null && input.text == null) -> REPLY_BAD
+            _remoteInputs.subscriptionCount.value == 0 -> REPLY_UNSUPPORTED
+            _remoteInputs.tryEmit(input) -> REPLY_OK
+            else -> REPLY_BAD
+        }
+    } else null
+
+    private val _castToTv = MutableStateFlow(false)
+
+    /** Telefondaki "TV'de oynat" anahtarı (süreç boyunca): açıkken detaydan başlatılan oynatma eşleşmiş cihaza gider. */
+    val castToTv: StateFlow<Boolean> = _castToTv
+
+    fun setCastToTv(on: Boolean) {
+        _castToTv.value = on && hasPairs
+    }
+
+    /** Sunucu iş parçacığında: istek çözülür, oynatma başlatılır, karşıya sonuç döner ([REPLY_OK] / [REPLY_NO_PLUGIN]). */
+    private val remotePlay: ((String) -> String)? = if (acceptRemotePlay && pairs != null) { body ->
+        val req = runCatching { com.kaan.play.data.net.PlayJson.decodeFromString(RemotePlay.serializer(), body) }.getOrNull()
+        when {
+            req == null -> {
+                Log.w(TAG, "remote play: bad request")
+                REPLY_BAD
+            }
+            req.streams.isNotEmpty() -> {
+                // Gelen akışlar burada yeniden denetlenir: yalnız http(s), yerel/özel adres yok, izinli başlıklar.
+                val streams = RemotePlayStreams.acceptIncoming(req.streams)
+                Log.i(TAG, "remote play request (${streams.size}/${req.streams.size} direct streams accepted)")
+                if (streams.isEmpty()) {
+                    REPLY_BAD
+                } else {
+                    val request = req.target.request.copy(pluginId = null) // karşının numarası burada başka eklenti olabilir
+                    _playRequests.tryEmit(req.copy(target = req.target.copy(request = request), streams = streams))
+                    REPLY_OK
+                }
+            }
+            else -> {
+                val resolved = try {
+                    runBlocking { resolveRemotePlay(req) }
+                } catch (e: Exception) {
+                    Log.w(TAG, "remote play resolve failed: ${e.javaClass.simpleName}")
+                    null
+                }
+                if (resolved == null) {
+                    Log.i(TAG, "remote play request: no plugin here")
+                    REPLY_NO_PLUGIN
+                } else {
+                    Log.i(TAG, "remote play request")
+                    _playRequests.tryEmit(RemotePlay(resolved))
+                    REPLY_OK
+                }
+            }
+        }
+    } else null
+
+    /**
+     * [target]'ı eşleşmiş cihazda (en son eşitlenen önce) oynatır: önce son adres, yanıt yoksa ağda arama. [streams] doluysa
+     * içerik değil bu akışlar gönderilir (karşıda eklenti yoksa). Karşıda eklenti yoksa [CastResult.NoPlugin].
+     * [pluginName]: hedefin eklentisinin adı ([RemotePlay.pluginName]).
+     */
+    suspend fun playOnPeer(
+        target: com.kaan.play.data.stream.PlayTarget,
+        streams: List<com.kaan.play.data.stream.PlayableStream> = emptyList(),
+        pluginName: String? = null,
+    ): CastResult {
+        val body = com.kaan.play.data.net.PlayJson.encodeToString(RemotePlay.serializer(), RemotePlay(target, streams, pluginName))
+        val (pair, reply) = sendToPeer("remote play", body) { pair, host, b -> client.playPaired(host, LocalSyncProtocol.PORT, pair, b) }
+            ?: return CastResult.Unreachable
+        return if (reply.contains("\"$ERROR_NO_PLUGIN\"")) CastResult.NoPlugin(pair.peerName) else CastResult.Sent(pair.peerName)
+    }
+
+    /** Kumanda tuşu ya da yazı eşleşmiş cihaza ([playOnPeer] gibi: son adres, yoksa ağda arama). */
+    suspend fun remoteToPeer(input: RemoteInput): RemoteSendResult {
+        val body = com.kaan.play.data.net.PlayJson.encodeToString(RemoteInput.serializer(), input)
+        val (_, reply) = sendToPeer("remote input", body) { pair, host, b -> client.remotePaired(host, LocalSyncProtocol.PORT, pair, b) }
+            ?: return RemoteSendResult.Unreachable
+        return if (reply.contains("\"$ERROR_UNSUPPORTED\"")) RemoteSendResult.Unsupported else RemoteSendResult.Sent
+    }
+
+    /**
+     * Eşleşmiş cihazın durumu (kumanda ekranı saniyede bir sorar). Ağda arama YAPMAZ: yalnız eşlerin son adresi denenir;
+     * ulaşılamazsa ya da karşı durum vermiyorsa (eski sürüm) null.
+     */
+    suspend fun remoteStateFromPeer(): RemoteState? = kotlinx.coroutines.withContext(Dispatchers.IO) {
+        val store = pairs?.takeIf { pairingOn } ?: return@withContext null
+        val body = com.kaan.play.data.net.PlayJson.encodeToString(RemoteInput.serializer(), RemoteInput(state = true))
+        for (pair in store.pairs.value.filter { it.confirmed }.sortedByDescending { it.lastSyncAt }) {
+            val host = pair.lastHost ?: continue
+            val reply = try {
+                client.remotePaired(host, LocalSyncProtocol.PORT, pair, body)
+            } catch (e: LocalSyncException) {
+                continue
+            } catch (e: IOException) {
+                continue
+            }
+            return@withContext runCatching { com.kaan.play.data.net.PlayJson.decodeFromString(RemoteState.serializer(), reply) }
+                .getOrNull()?.takeIf { it.v >= 1 }
+        }
+        null
+    }
+
+    /** [body]'yi eşleşmiş cihaza (en son eşitlenen önce) gönderir: önce son adres, yanıt yoksa ağda arama. Eş + yanıt ya da null. */
+    private suspend fun sendToPeer(
+        label: String,
+        body: String,
+        send: suspend (pair: PairRecord, host: String, body: String) -> String,
+    ): Pair<PairRecord, String>? = kotlinx.coroutines.withContext(Dispatchers.IO) {
+        val store = pairs?.takeIf { pairingOn } ?: return@withContext null
+        val list = store.pairs.value.filter { it.confirmed }.sortedByDescending { it.lastSyncAt }
+        suspend fun tryAt(pair: PairRecord, host: String): Pair<PairRecord, String>? = try {
+            val reply = send(pair, host, body)
+            if (pair.lastHost != host) store.update(pair.pairId) { it.copy(lastHost = host) }
+            pair to reply
+        } catch (e: LocalSyncException) {
+            Log.w(TAG, "$label failed: ${e.kind}")
+            null
+        } catch (e: IOException) {
+            Log.w(TAG, "$label failed: ${e.javaClass.simpleName}")
+            null
+        }
+        for (pair in list) pair.lastHost?.let { host -> tryAt(pair, host)?.let { return@withContext it } }
+        val found = discover().mapNotNull { it.hostAddress }.distinct()
+        for (pair in list) for (host in found.filter { it != pair.lastHost }) tryAt(pair, host)?.let { return@withContext it }
+        Log.i(TAG, "$label: no paired device reachable")
+        null
+    }
+
     /** Kart açıldı: yeni kod, sunucu + UDP dinleyici + NSD kaydı; 3 dk sonra kendiliğinden kapanır. */
     fun open() {
         wanted = true
@@ -75,15 +277,45 @@ class LocalSyncController(
 
     @Synchronized
     private fun openNow() {
-        if (!wanted || server?.isRunning == true) return
+        if (!wanted) return
         val code = LocalSyncCode.generate()
-        val srv = LocalSyncServer(code, handler, log = { Log.i(TAG, it) })
+        val running = server?.takeIf { it.isRunning }
+        if (running != null) {
+            if (!pairedHosting) return // kart zaten açık
+            running.setCode(code) // eşli sunucu açık: yalnız kod eklenir
+            _state.value = State(code = code, pending = _state.value.pending) // otomatik eşitlemenin onay bekleyen kaynakları kalır
+            startTtl()
+            return
+        }
+        if (!startServer(code)) return
+        _state.value = State(code = code, pending = _state.value.pending)
+        startTtl()
+    }
+
+    private fun startTtl() {
+        ttlJob?.cancel()
+        ttlJob = scope.launch {
+            delay(LocalSyncProtocol.CODE_TTL_MS)
+            close()
+            _state.value = State(expired = true, pending = _state.value.pending)
+        }
+    }
+
+    /** Sunucu + UDP dinleyici + NSD kaydı; [code] null ise yalnız eşleşmiş cihazları kabul eder. */
+    @Synchronized
+    private fun startServer(code: String?): Boolean {
+        val srv = LocalSyncServer(code, handler, log = { Log.i(TAG, it) }, pairs = pairs?.takeIf { pairingOn }, remotePlay = remotePlay,
+            remoteInput = remoteInput)
         try {
             srv.start()
         } catch (e: IOException) {
             Log.w(TAG, "sync server start failed: ${e.javaClass.simpleName}")
             _state.update { it.copy(code = null, phase = Phase.Failed, error = Error.PortBusy) }
-            return
+            return false
+        }
+        srv.onCodeLocked = {
+            ttlJob?.cancel()
+            _state.update { it.copy(code = null, phase = Phase.Failed, error = Error.Locked) }
         }
         srv.onClosed = { reason ->
             if (reason != LocalSyncServer.CloseReason.Stopped) {
@@ -103,15 +335,31 @@ class LocalSyncController(
             }
         }
         nsd.register(LocalSyncProtocol.PORT)
-        _state.value = State(code = code)
-        ttlJob = scope.launch {
-            delay(LocalSyncProtocol.CODE_TTL_MS)
-            close()
-            _state.value = State(expired = true)
+        return true
+    }
+
+    /**
+     * Uygulama ön plana geldi: eşleşmiş cihaz varsa sunucu kodsuz açılır (karşı cihaz kod girmeden eşitler, ileride
+     * "TV'de aç" ve kumanda da bu kanaldan gelir). Eşleşme kapalıysa ya da eşleşme yoksa bir şey yapılmaz.
+     */
+    fun startPairedHosting() {
+        if (!pairingOn) return
+        scope.launch(Dispatchers.IO) {
+            synchronized(this@LocalSyncController) {
+                pairedHosting = true
+                if (hasPairs && server?.isRunning != true) startServer(code = null)
+            }
         }
     }
 
-    /** Kart kapandı / uygulama arka plana geçti / süre doldu: her şey durur, kod geçersiz. */
+    /** Uygulama arka plana geçti: eşli sunucu da durur. */
+    @Synchronized
+    fun stopPairedHosting() {
+        pairedHosting = false
+        if (!wanted) stopHosting()
+    }
+
+    /** Kart kapandı / uygulama arka plana geçti / süre doldu: kod geçersiz; eşli sunucu istendiyse kodsuz açık kalır. */
     @Synchronized
     fun close() {
         wanted = false
@@ -119,8 +367,96 @@ class LocalSyncController(
         ttlJob = null
         connectJob?.cancel()
         connectJob = null
-        stopHosting()
+        if (pairedHosting && hasPairs && server?.isRunning == true) server?.setCode(null) else stopHosting()
         _state.value = State()
+    }
+
+    /** Eşleşmeyi bu cihazda kaldırır (karşı taraf bir sonraki denemede 401 alır ve kendi kaydını siler). */
+    fun unpair(pairId: String) {
+        pairs?.remove(pairId)
+    }
+
+    /** Onay bekleyen eşleşme isteğini kabul eder (karşı cihaz bundan sonra kodsuz bağlanabilir). */
+    fun confirmPairRequest(pairId: String) {
+        pairs?.update(pairId) { it.copy(confirmed = true) }
+    }
+
+    /** Kalıcı eşleşme ayarı kapatıldı: bütün eşleşmeler silinir, eşli sunucu durur. */
+    @Synchronized
+    fun forgetAllPairs() {
+        pairs?.clear()
+        offer = null
+        _castToTv.value = false
+        _state.update { it.copy(pairOffer = null) }
+        if (!wanted) stopHosting()
+    }
+
+    /** Kodlu eşitlemeden sonraki eşleşme önerisi kabul edildi: kod hâlâ geçerliyse (3 dk) eşleşme isteği gönderilir. */
+    fun acceptPairOffer() {
+        val (host, code) = offer ?: return
+        offer = null
+        _state.update { it.copy(pairOffer = null) }
+        scope.launch(Dispatchers.IO) { rememberPeer(host, code) }
+    }
+
+    fun declinePairOffer() {
+        offer = null
+        _state.update { it.copy(pairOffer = null) }
+    }
+
+    /**
+     * Eşleşmiş cihazlarla sessiz eşitleme (açılış, ön plana dönüş, oynatma bitişi). [MIN_AUTO_INTERVAL_MS]'den sık
+     * çalışmaz, kodlu bağlantı sürerken çalışmaz; hata arayüzü bozmaz, bir sonraki tetikte yeniden denenir.
+     */
+    fun autoSync() {
+        val store = pairs ?: return
+        if (!pairingOn || store.pairs.value.none { it.confirmed } || autoJob?.isActive == true || connectJob?.isActive == true) return
+        val now = System.currentTimeMillis()
+        if (now - lastAutoAt < MIN_AUTO_INTERVAL_MS) return
+        lastAutoAt = now
+        autoJob = scope.launch(Dispatchers.IO) {
+            for (pair in store.pairs.value.filter { it.confirmed }.sortedByDescending { it.lastSyncAt }) {
+                try {
+                    syncPaired(store, pair)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w(TAG, "auto sync failed: ${e.javaClass.simpleName}")
+                }
+            }
+        }
+    }
+
+    /** Önce son adres denenir; UDP bulma (birkaç saniye) yalnız orada yanıt yoksa yapılır. */
+    private suspend fun syncPaired(store: LocalSyncPairStore, pair: PairRecord) {
+        pair.lastHost?.let { if (syncPairedAt(store, pair, it)) return }
+        for (host in discover().mapNotNull { it.hostAddress }.filter { it != pair.lastHost }.distinct()) {
+            if (syncPairedAt(store, pair, host)) return
+        }
+    }
+
+    /** true: iş bitti (eşitlendi ya da eşleşme kaldırılmış); false: bu adreste yok, sıradakini dene. */
+    private suspend fun syncPairedAt(store: LocalSyncPairStore, pair: PairRecord, host: String): Boolean {
+        val local = data.export(includePins = true)
+        val remoteJson = try {
+            client.exchangePaired(host, LocalSyncProtocol.PORT, pair, LocalSyncMerge.encode(local))
+        } catch (e: LocalSyncException) {
+            // Son adreste 401: karşı taraf eşleşmeyi kaldırmış; başka adreste 401 başka bir Play cihazıdır.
+            if (e.kind == LocalSyncException.Kind.WrongCode && host == pair.lastHost) {
+                Log.i(TAG, "auto sync: pairing removed on the other device")
+                store.remove(pair.pairId)
+                return true
+            }
+            return false
+        }
+        val plan = LocalSyncMerge.plan(local, LocalSyncMerge.decodeTransfer(remoteJson), remoteIsAuthority = true, localActiveProfileId = data.activeProfileId())
+        data.apply(plan, preserveProfileSecrets = false, repairPlugins = true, installPlugins = autoInstallSources)
+        store.update(pair.pairId) { it.copy(lastHost = host, lastSyncAt = System.currentTimeMillis()) }
+        Log.i(TAG, "auto sync done (${plan.missingSources.size} sources missing)")
+        if (plan.missingSources.isNotEmpty()) {
+            if (autoInstallSources) installSources(plan.missingSources) else _state.update { it.copy(pending = plan.missingSources) }
+        }
+        return true
     }
 
     @Synchronized
@@ -150,7 +486,7 @@ class LocalSyncController(
                     return@launch
                 }
                 _state.update { it.copy(phase = Phase.Connecting) }
-                val local = data.export()
+                val local = data.export(includePins = true)
                 var lastError = Error.Unreachable
                 for (host in hosts) {
                     val remoteJson = try {
@@ -165,6 +501,11 @@ class LocalSyncController(
                     }
                     val remote = LocalSyncMerge.decodeTransfer(remoteJson)
                     merge(local, remote, remoteIsAuthority = true)
+                    // Kalıcı eşleşme kendiliğinden kurulmaz: kullanıcı karşının adını görüp onaylar ([acceptPairOffer]).
+                    if (pairingOn) {
+                        offer = host.hostAddress!! to code
+                        _state.update { it.copy(pairOffer = remote.deviceName.ifBlank { host.hostAddress!! }.take(64)) }
+                    }
                     return@launch
                 }
                 _state.update { it.copy(phase = Phase.Failed, error = lastError) }
@@ -174,6 +515,17 @@ class LocalSyncController(
                 Log.w(TAG, "sync failed: ${e.javaClass.simpleName}")
                 _state.update { it.copy(phase = Phase.Failed, error = Error.Failed) }
             }
+        }
+    }
+
+    /** Kodlu eşitlemeden sonra kalıcı eşleşme (karşı sürüm bilmiyorsa sessizce atlanır; kod 3 dk geçerli). */
+    private suspend fun rememberPeer(host: String, code: String) {
+        val store = pairs?.takeIf { pairingOn } ?: return
+        try {
+            store.paired(client.pair(host, LocalSyncProtocol.PORT, code, store.identity))
+            Log.i(TAG, "paired with peer")
+        } catch (e: LocalSyncException) {
+            Log.i(TAG, "pairing skipped: ${e.kind}")
         }
     }
 
@@ -193,9 +545,11 @@ class LocalSyncController(
     private suspend fun merge(local: LocalProfileTransfer, remote: LocalProfileTransfer, remoteIsAuthority: Boolean) {
         _state.update { it.copy(phase = Phase.Syncing, error = null) }
         val plan = LocalSyncMerge.plan(local, remote, remoteIsAuthority, localActiveProfileId = data.activeProfileId())
-        data.apply(plan)
+        data.apply(plan, preserveProfileSecrets = false, repairPlugins = true, installPlugins = autoInstallSources)
         val counts = data.counts()
-        _state.update { it.copy(phase = Phase.Done, result = counts, pending = plan.missingSources, installFailed = 0) }
+        val pending = if (autoInstallSources) emptyList() else plan.missingSources
+        _state.update { it.copy(phase = Phase.Done, result = counts, pending = pending, installFailed = 0) }
+        if (autoInstallSources && plan.missingSources.isNotEmpty()) installSources(plan.missingSources)
     }
 
     /** Sunucu tarafı: iş parçacığında engelleyerek çağrılır. */
@@ -209,7 +563,7 @@ class LocalSyncController(
 
         override fun exchange(remoteJson: String): String = runBlocking {
             val remote = LocalSyncMerge.decodeTransfer(remoteJson)
-            val local = data.export()
+            val local = data.export(includePins = true)
             // Yanıt (birleştirmeden önceki görüntü) hemen gider; bu cihaz kendi tarafını arka planda yazar.
             scope.launch {
                 try {
@@ -230,16 +584,21 @@ class LocalSyncController(
             dismissPending()
             return
         }
-        scope.launch {
-            _state.update { it.copy(installing = true) }
-            var failed = 0
-            for (item in items) {
-                if (!data.install(item)) failed++
-            }
-            val counts = data.counts()
-            _state.update { s ->
-                s.copy(installing = false, pending = emptyList(), installFailed = failed, result = counts)
-            }
+        scope.launch { installSources(items) }
+    }
+
+    private suspend fun installSources(items: List<SourceTransferItem>) {
+        _state.update { it.copy(installing = true) }
+        var failed = 0
+        for (item in items) {
+            if (!data.install(item)) failed++
+        }
+        // Yeni kurulan eklentinin kayıtları bir sonraki eşitlemeyi beklemeden ona taşınır.
+        if (failed < items.size) data.repairHistoryPlugins()
+        val counts = data.counts()
+        Log.i(TAG, "sources installed: ${items.size - failed}/${items.size}")
+        _state.update { s ->
+            s.copy(installing = false, pending = emptyList(), installFailed = failed, result = counts)
         }
     }
 
@@ -248,5 +607,12 @@ class LocalSyncController(
     private companion object {
         const val TAG = "PlaySync"
         const val NSD_TIMEOUT_MS = 4_000L
+        const val MIN_AUTO_INTERVAL_MS = 30_000L
+        const val ERROR_NO_PLUGIN = "no_plugin"
+        const val REPLY_OK = """{"ok":true}"""
+        const val REPLY_NO_PLUGIN = """{"error":"$ERROR_NO_PLUGIN"}"""
+        const val REPLY_BAD = """{"error":"bad_request"}"""
+        const val ERROR_UNSUPPORTED = "unsupported"
+        const val REPLY_UNSUPPORTED = """{"error":"$ERROR_UNSUPPORTED"}"""
     }
 }

@@ -167,6 +167,9 @@ fun PlayerScreen(
     levels: DeviceLevels? = null,
     /** Dizide sonraki bölüm kartı ve geçişi; null: yok (film). */
     autoNext: AutoNextController? = null,
+    /** Kullanıcının seçtiği tam ekran yönü; varsayılan yataydır. */
+    portraitMode: Boolean = false,
+    onToggleOrientation: (() -> Unit)? = null,
     /** "İptal" ya da kart açıkken Geri: kart kapanır; video bitmişse etkinlik de kapanır. */
     onAutoNextCancel: () -> Unit = {},
     /** Dizide sonraki bölüm düğmesine basıldığında çağrılır; null: sonraki bölüm düğmesi yok (film). */
@@ -232,6 +235,8 @@ fun PlayerScreen(
     val scope = rememberCoroutineScope()
     val subtitleStyle by container.settings.subtitleStyle.collectAsStateWithLifecycle(initialValue = SubtitleStyle())
     val resize by container.settings.resizeMode.collectAsStateWithLifecycle(initialValue = ResizeMode.Fit)
+    var portraitResize by remember(portraitMode) { mutableStateOf(ResizeMode.Fit) }
+    val displayResize = if (portraitMode) portraitResize else resize
     val locale = remember { Locale.forLanguageTag(AppLanguage.effective().iso) }
 
     val ui = controller.ui
@@ -341,8 +346,8 @@ fun PlayerScreen(
         if (step > 0) seek(direction * step) else bump()
     }
     fun nextResize() {
-        val next = ResizeMode.entries[(resize.ordinal + 1) % ResizeMode.entries.size]
-        scope.launch { container.settings.setResizeMode(next) }
+        val next = ResizeMode.entries[(displayResize.ordinal + 1) % ResizeMode.entries.size]
+        if (portraitMode) portraitResize = next else scope.launch { container.settings.setResizeMode(next) }
         resizeToast = next
         bump()
     }
@@ -584,7 +589,7 @@ fun PlayerScreen(
     ) {
         // Görüntü: sığdır / doldur (kırp) / uzat; 16:9 ve 4:3'te görüntü o oranda bir alana uzatılır.
         BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            val ratio = when (resize) {
+            val ratio = when (displayResize) {
                 ResizeMode.Ratio16x9 -> 16f / 9f
                 ResizeMode.Ratio4x3 -> 4f / 3f
                 else -> null
@@ -683,7 +688,7 @@ fun PlayerScreen(
                 update = { view ->
                     try {
                         view.setKeepContentOnPlayerReset(isLiveBroadcast)
-                        view.resizeMode = when (resize) {
+                        view.resizeMode = when (displayResize) {
                             ResizeMode.Fit -> AspectRatioFrameLayout.RESIZE_MODE_FIT
                             ResizeMode.Fill -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
                             else -> AspectRatioFrameLayout.RESIZE_MODE_FILL
@@ -989,6 +994,8 @@ fun PlayerScreen(
                 noticeFocus = if (resumeNotice) noticeFocus else null,
                 actions = actions,
                 onBack = onBack,
+                portraitMode = portraitMode,
+                onToggleOrientation = onToggleOrientation?.let { toggle -> { toggle(); bump() } },
                 onTogglePlay = { controller.togglePlay(); bump() },
                 onSeek = ::seek,
                 onSeekTo = { controller.seekTo(it); position = it; etaRefreshKey++; bump() },
@@ -1565,6 +1572,8 @@ private fun Controls(
     noticeFocus: FocusRequester?,
     actions: List<BarAction>,
     onBack: () -> Unit,
+    portraitMode: Boolean,
+    onToggleOrientation: (() -> Unit)?,
     onTogglePlay: () -> Unit,
     onSeek: (Long) -> Unit,
     onSeekTo: (Long) -> Unit,
@@ -1660,6 +1669,15 @@ private fun Controls(
                     maxLines = 2,
                     modifier = Modifier.padding(end = 12.dp),
                 )
+            }
+            if (onToggleOrientation != null) {
+                IconButton(onClick = onToggleOrientation) {
+                    Icon(
+                        if (portraitMode) PlayIcons.LandscapeFullscreen else PlayIcons.PortraitFullscreen,
+                        contentDescription = stringResource(if (portraitMode) R.string.player_landscape_fullscreen else R.string.player_portrait_fullscreen),
+                        tint = tint,
+                    )
+                }
             }
         }
 

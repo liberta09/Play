@@ -54,6 +54,8 @@ import com.kaan.play.data.sync.local.LocalSyncController.Phase
 import com.kaan.play.data.sync.local.LocalSyncData
 import com.kaan.play.ui.components.Button
 import com.kaan.play.ui.components.TextButton
+import kotlinx.coroutines.launch
+import com.kaan.play.data.sync.local.PairRecord
 import com.kaan.play.ui.nav.PlayIcons
 import com.kaan.play.ui.rememberContainer
 import com.kaan.play.ui.theme.PlayTheme
@@ -72,6 +74,11 @@ private const val LOCAL_NETWORK_PERMISSION_SDK = 37
 fun WifiSyncCard(modifier: Modifier = Modifier) {
     val controller = rememberContainer().localSync
     val state by controller.state.collectAsStateWithLifecycle()
+    val paired by controller.pairedDevices.collectAsStateWithLifecycle()
+    val requests by controller.pairRequests.collectAsStateWithLifecycle()
+    val container = rememberContainer()
+    val pairing by container.settings.wifiPairing.collectAsStateWithLifecycle(initialValue = false)
+    val pairingScope = androidx.compose.runtime.rememberCoroutineScope()
     var expanded by rememberSaveable { mutableStateOf(false) }
     var permissionDenied by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -117,8 +124,35 @@ fun WifiSyncCard(modifier: Modifier = Modifier) {
         onConfirm = controller::confirm,
         onSkip = controller::dismissPending,
         modifier = modifier,
+        paired = paired,
+        onUnpair = controller::unpair,
+        pairing = PairingUi(
+            enabled = pairing,
+            requests = requests,
+            onEnabledChange = { on ->
+                pairingScope.launch {
+                    container.settings.setWifiPairing(on)
+                    if (!on) controller.forgetAllPairs()
+                }
+            },
+            onAcceptOffer = controller::acceptPairOffer,
+            onDeclineOffer = controller::declinePairOffer,
+            onAllowRequest = controller::confirmPairRequest,
+            onRejectRequest = controller::unpair,
+        ),
     )
 }
+
+/** Kalıcı eşleşme arayüzü: ayar, kodlu eşitlemeden sonraki öneri ve bu cihaza gelen eşleşme istekleri. */
+internal class PairingUi(
+    val enabled: Boolean,
+    val requests: List<PairRecord>,
+    val onEnabledChange: (Boolean) -> Unit,
+    val onAcceptOffer: () -> Unit,
+    val onDeclineOffer: () -> Unit,
+    val onAllowRequest: (String) -> Unit,
+    val onRejectRequest: (String) -> Unit,
+)
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -133,6 +167,9 @@ internal fun WifiSyncCardContent(
     onConfirm: (List<SourceTransferItem>) -> Unit,
     onSkip: () -> Unit,
     modifier: Modifier = Modifier,
+    paired: List<PairRecord> = emptyList(),
+    onUnpair: (String) -> Unit = {},
+    pairing: PairingUi? = null,
 ) {
     val shape = RoundedCornerShape(16.dp)
     Surface(
@@ -249,7 +286,59 @@ internal fun WifiSyncCardContent(
             if (state.pending.isNotEmpty()) {
                 PendingSourcesList(state.pending, state.installing, onConfirm, onSkip)
             }
+            pairing?.let { PairingSection(it, state.pairOffer) }
+            if (paired.isNotEmpty()) PairedDevicesList(paired, onUnpair)
         }
+    }
+}
+
+/**
+ * Kalıcı eşleşme: ayar (varsayılan kapalı; iki cihazda da açılmalı), kodlu eşitlemeden sonra karşının adıyla onay ve bu
+ * cihaza gelen isteklerin onayı. Onaylanmayan eşleşme kullanılmaz.
+ */
+@Composable
+private fun PairingSection(ui: PairingUi, offer: String?) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.wifi_sync_pairing_setting), style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.wifi_sync_pairing_setting_hint), style = MaterialTheme.typography.bodySmall)
+            }
+            androidx.compose.material3.Switch(
+                checked = ui.enabled,
+                onCheckedChange = ui.onEnabledChange,
+                modifier = Modifier.focusRing(),
+            )
+        }
+        if (ui.enabled && offer != null) {
+            Text(stringResource(R.string.wifi_sync_pair_offer, offer), style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = ui.onAcceptOffer) { Text(stringResource(R.string.wifi_sync_pair_accept)) }
+                TextButton(onClick = ui.onDeclineOffer) { Text(stringResource(R.string.wifi_sync_pair_decline)) }
+            }
+        }
+        if (ui.enabled) ui.requests.forEach { r ->
+            Text(stringResource(R.string.wifi_sync_pair_request, r.peerName), style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { ui.onAllowRequest(r.pairId) }) { Text(stringResource(R.string.wifi_sync_pair_allow)) }
+                TextButton(onClick = { ui.onRejectRequest(r.pairId) }) { Text(stringResource(R.string.wifi_sync_pair_reject)) }
+            }
+        }
+    }
+}
+
+/** Kalıcı eşleşmeler: bu cihazlar kod girilmeden kendiliğinden eşitlenir; "Kaldır" yalnız bu cihazdaki kaydı siler. */
+@Composable
+private fun PairedDevicesList(paired: List<PairRecord>, onUnpair: (String) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(stringResource(R.string.wifi_sync_paired_title), style = MaterialTheme.typography.titleSmall)
+        paired.forEach { p ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(p.peerName, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                TextButton(onClick = { onUnpair(p.pairId) }) { Text(stringResource(R.string.wifi_sync_paired_remove)) }
+            }
+        }
+        Text(stringResource(R.string.wifi_sync_paired_hint), style = MaterialTheme.typography.bodySmall)
     }
 }
 

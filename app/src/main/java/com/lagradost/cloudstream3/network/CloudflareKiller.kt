@@ -61,6 +61,15 @@ open class CloudflareKiller : Interceptor {
             return@runBlocking response
         }
 
+        // Az bellekli cihazda kaynak araması sürerken gizli WebView açılmaz: site çözülmeden "doğrulama gerekiyor" diye işaretlenir
+        // (telefondaki Doğrula akışı bu kaydı kullanır), eklenti engel sayfasını alır ve kaynak vermez.
+        if (CloudflareSolver.solveSkipped()) {
+            Log.d(TAG, "Cloudflare engeli, kaynak araması sürüyor: çözücü açılmadı ($host)")
+            CloudflareSolver.markBlocked(host, request.url.toString())
+            CloudflareSolver.noteUnresolved(host, request.url.toString())
+            return@runBlocking response
+        }
+
         // 2. Cloudflare engeli ile karşılaşıldı: taze çözümleme dene
         response.close()
         Log.d(TAG, "Cloudflare engeli algılandı: ${request.url}")

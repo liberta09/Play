@@ -88,7 +88,9 @@ class ProviderRepository(
      * ([ProviderRules.nuvioCatalogProviders]). Plugin deposu manifesti addon manifesti olarak okunamıyorsa
      * (yalnızca `scrapers` listesi) katalog sunmaz sayılır.
      */
-    private val nuvioProviders: Flow<List<ProviderItem>> = combine(
+    // Herkese açık: yalnız Nuvio kataloglarını isteyen ekran (ör. TV "Filmler ve diziler") [allProviders] üzerinden her açık
+    // CloudStream eklentisinin kodunu yüklemek zorunda kalmasın.
+    val nuvioProviders: Flow<List<ProviderItem>> = combine(
         addonDao.observeOfType(AddonType.NUVIO_ADDON),
         addonDao.observeOfType(AddonType.NUVIO_PLUGIN_REPO),
     ) { addons, pluginRepos ->

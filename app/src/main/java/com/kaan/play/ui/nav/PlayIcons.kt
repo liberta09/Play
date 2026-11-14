@@ -50,6 +50,27 @@ object PlayIcons {
         }
     }
 
+    /** Kumanda: dik gövde, üstte yön halkası, altta iki tuş. */
+    val Remote: ImageVector by lazy {
+        icon("Remote") {
+            line {
+                moveTo(9.5f, 2.5f); horizontalLineTo(14.5f)
+                arcToRelative(2f, 2f, 0f, false, true, 2f, 2f)
+                verticalLineTo(19.5f)
+                arcToRelative(2f, 2f, 0f, false, true, -2f, 2f)
+                horizontalLineTo(9.5f)
+                arcToRelative(2f, 2f, 0f, false, true, -2f, -2f)
+                verticalLineTo(4.5f)
+                arcToRelative(2f, 2f, 0f, false, true, 2f, -2f)
+                moveTo(12f, 5.8f)
+                arcToRelative(2.2f, 2.2f, 0f, true, true, 0f, 4.4f)
+                arcToRelative(2.2f, 2.2f, 0f, true, true, 0f, -4.4f)
+                moveTo(10.5f, 14f); horizontalLineTo(13.5f)
+                moveTo(10.5f, 17f); horizontalLineTo(13.5f)
+            }
+        }
+    }
+
     val Search: ImageVector by lazy {
         icon("Search") {
             line {
@@ -371,6 +392,22 @@ object PlayIcons {
     }
 
     /** Oynatıcı: yeniden boyutlandır (köşe işaretleri + iç dikdörtgen). */
+    val PortraitFullscreen: ImageVector by lazy {
+        icon("PortraitFullscreen") { line {
+            moveTo(7.5f, 4f); horizontalLineTo(16.5f); verticalLineTo(20f); horizontalLineTo(7.5f); close()
+            moveTo(10f, 7f); horizontalLineTo(14f)
+            moveTo(10f, 17f); horizontalLineTo(14f)
+        } }
+    }
+
+    val LandscapeFullscreen: ImageVector by lazy {
+        icon("LandscapeFullscreen") { line {
+            moveTo(4f, 7.5f); horizontalLineTo(20f); verticalLineTo(16.5f); horizontalLineTo(4f); close()
+            moveTo(7f, 10f); verticalLineTo(14f)
+            moveTo(17f, 10f); verticalLineTo(14f)
+        } }
+    }
+
     val Resize: ImageVector by lazy {
         icon("Resize") {
             line {

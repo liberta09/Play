@@ -78,7 +78,8 @@ class SearchTypeTest {
     @Test
     fun seriesUseSearchTv() = runTest {
         val page = repo().search("kara", 1, MediaType.Tv)
-        assertEquals("search/tv", seen.single().encodedPath.removePrefix("/3/"))
+        // 1. sayfada kişi adı mı diye ayrıca search/person sorulur (oyuncu araması); tür uç noktası önce.
+        assertEquals(listOf("search/tv", "search/person"), seen.map { it.encodedPath.removePrefix("/3/") })
         assertEquals(listOf(MediaType.Tv), page.items.map { it.type })
         assertEquals("Dizi", page.items.single().title)
     }

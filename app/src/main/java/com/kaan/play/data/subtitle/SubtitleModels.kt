@@ -22,6 +22,7 @@ data class SubtitleTrack(
     val headers: Map<String, String> = emptyMap(),
     val season: Int? = null,
     val episode: Int? = null,
+    @kotlinx.serialization.Transient val httpInterceptor: okhttp3.Interceptor? = null,
 )
 
 /**

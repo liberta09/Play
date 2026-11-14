@@ -1,5 +1,6 @@
 package com.kaan.play.ui.player
 
+import android.content.res.Configuration
 import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -46,6 +47,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -123,21 +125,32 @@ fun EpisodePanel(
             }
         }
 
+        // Telefon dik tutulunca saydam yan liste videonun üstüne biniyordu; dikeyde koyu zeminli alt
+        // panel olur (videonun üstü görünür kalır). Yatayda yukarı akıştaki sağ liste aynen.
+        val portrait = LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
         // Listenin dışına (videoya) dokunmak paneli kapatır; bu alan kumanda odağı almaz.
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .focusProperties { canFocus = false }
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { onDismiss() },
-            contentAlignment = Alignment.CenterEnd,
+            contentAlignment = if (portrait) Alignment.BottomCenter else Alignment.CenterEnd,
         ) {
         Box(
             modifier = Modifier
                 // Panelin boş yerine dokunmak kapatmasın (dış alanın dokunuşunu yutar); odak almaz.
                 .focusProperties { canFocus = false }
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
-                .fillMaxHeight()
-                .width(360.dp)
+                .then(
+                    if (portrait) {
+                        Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.62f)
+                            .background(Color.Black.copy(alpha = 0.88f), RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                    } else {
+                        Modifier.fillMaxHeight().width(360.dp)
+                    },
+                )
                 .padding(16.dp)
                 .onPreviewKeyEvent { event ->
                     if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false

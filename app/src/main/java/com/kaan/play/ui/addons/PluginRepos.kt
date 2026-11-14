@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaan.play.R
 import com.kaan.play.data.addon.Addon
+import com.kaan.play.data.cloudstream.CsPluginSettingsResult
 import com.kaan.play.data.plugin.InstalledPlugin
 import com.kaan.play.data.plugin.PluginRepo
 import com.kaan.play.ui.components.IconButton
@@ -262,6 +263,13 @@ private fun RepoRow(repo: PluginRepo, busy: Boolean, enabled: Boolean, onCheck: 
 @Composable
 fun InstalledAddonsScreen(onBack: () -> Unit, onOpenPlugin: (Long) -> Unit, onOpenAddon: (Long) -> Unit = {}) {
     val vm = containerViewModel { InstalledAddonsViewModel(it.addons, it.plugins, it.csRepos) }
+    val context = LocalContext.current
+    val settingsScope = rememberCoroutineScope()
+    var settingsBusy by remember { mutableStateOf<Long?>(null) }
+    val settingsUnsupported = stringResource(R.string.cs_plugin_settings_unsupported)
+    val settingsDisabled = stringResource(R.string.cs_plugin_settings_disabled)
+    val settingsUnavailable = stringResource(R.string.cs_plugin_settings_unavailable)
+    val settingsFailed = stringResource(R.string.plugin_settings_failed)
     val addons by vm.addons.collectAsStateWithLifecycle()
     val groups by vm.groups.collectAsStateWithLifecycle()
     val csGroups by vm.csGroups.collectAsStateWithLifecycle()
@@ -368,7 +376,31 @@ fun InstalledAddonsScreen(onBack: () -> Unit, onOpenPlugin: (Long) -> Unit, onOp
                         }
                     }
                     items(group.plugins, key = { "csp-${it.id}" }) { plugin ->
-                        CsPluginRow(plugin = plugin, onToggle = { vm.setCsPluginEnabled(plugin, it) })
+                        CsPluginRow(
+                            plugin = plugin,
+                            onToggle = { vm.setCsPluginEnabled(plugin, it) },
+                            settingsBusy = settingsBusy == plugin.id,
+                            onSettings = {
+                                if (settingsBusy == null) {
+                                    settingsBusy = plugin.id
+                                    settingsScope.launch {
+                                        try {
+                                            val result = vm.openCsPluginSettings(plugin.id, context)
+                                            val message = when (result) {
+                                                CsPluginSettingsResult.Opened -> null
+                                                CsPluginSettingsResult.NotSupported -> settingsUnsupported
+                                                CsPluginSettingsResult.Disabled -> settingsDisabled
+                                                CsPluginSettingsResult.Unavailable -> settingsUnavailable
+                                                is CsPluginSettingsResult.Failed -> settingsFailed
+                                            }
+                                            if (message != null) Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                                        } finally {
+                                            settingsBusy = null
+                                        }
+                                    }
+                                }
+                            },
+                        )
                     }
                 }
             }

@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -198,7 +200,12 @@ internal fun CsRepoRow(
  * [onToggle]: eklentiyi aç/kapat.
  */
 @Composable
-fun CsPluginRow(plugin: InstalledCsPlugin, onToggle: (Boolean) -> Unit) {
+fun CsPluginRow(
+    plugin: InstalledCsPlugin,
+    onToggle: (Boolean) -> Unit,
+    onSettings: () -> Unit,
+    settingsBusy: Boolean = false,
+) {
     androidx.compose.material3.Surface(
         shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -225,6 +232,19 @@ fun CsPluginRow(plugin: InstalledCsPlugin, onToggle: (Boolean) -> Unit) {
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
+            }
+            // Capability is discovered only after this explicit action; no eager plugin execution.
+            IconButton(
+                onClick = onSettings,
+                enabled = plugin.enabled && !settingsBusy,
+                modifier = Modifier.focusRing(),
+            ) {
+                if (settingsBusy) CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                else Icon(
+                    PlayIcons.Gear,
+                    contentDescription = stringResource(R.string.cs_plugin_settings_open, plugin.name),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
             Switch(
                 checked = plugin.enabled,

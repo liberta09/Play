@@ -15,7 +15,7 @@ import com.lagradost.cloudstream3.MainAPI
  * - [NoApiRegistered]: Yükleme hatasız bitti ancak hiçbir MainAPI kaydedilmedi.
  */
 sealed interface CsApiResult {
-    data class Success(val apis: List<MainAPI>) : CsApiResult
+    data class Success(val apis: List<MainAPI>, val plugin: CsLoadedPlugin? = null) : CsApiResult
 
     sealed interface Failure : CsApiResult {
         val pluginId: String?
