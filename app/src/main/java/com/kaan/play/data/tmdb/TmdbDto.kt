@@ -13,6 +13,9 @@ internal data class ListDto(
 )
 
 @Serializable
+internal data class PersonCastCreditsDto(val cast: List<ItemDto> = emptyList()) // Oyuncu adıyla arama (CombinedCreditsDto kişi sayfasınındır)
+
+@Serializable
 internal data class TmdbListDetailDto(
     val items: List<ItemDto> = emptyList(),
 )
@@ -42,6 +45,10 @@ internal data class ItemDto(
     @SerialName("vote_average") val voteAverage: Double? = null,
     val popularity: Double? = null,
     @SerialName("genre_ids") val genreIds: List<Int> = emptyList(),
+    /** Yalnız `person/{id}/combined_credits` yanıtında: oynadığı rol ("Self" = konuk/kendisi). */
+    val character: String? = null,
+    /** Yalnız `combined_credits` dizi kayıtlarında: oynadığı bölüm sayısı (1–2 = konuk rol). */
+    @SerialName("episode_count") val episodeCount: Int? = null,
 )
 
 @Serializable

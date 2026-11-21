@@ -1,6 +1,7 @@
 package com.kaan.play.data.cloudstream
 
 import android.util.Log
+import android.content.Context
 import com.lagradost.cloudstream3.MainAPI
 import com.kaan.play.data.addon.AddonException
 import com.kaan.play.data.addon.AddonException.Kind
@@ -16,6 +17,13 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -27,6 +35,9 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
+import java.nio.file.Files
+import java.nio.file.LinkOption
+import java.nio.file.attribute.BasicFileAttributes
 
 private const val TAG = "PlayCs"
 
@@ -80,6 +91,9 @@ class CsRepository(
     private val onSubReposDiscovered: ((parentUrl: String, subRepos: List<PluginRepoItem>) -> Unit)? = null,
 ) {
 
+    private val runtimeLock = Mutex()
+    private val runtime = CsPluginRuntimeCache()
+
     val repos: Flow<List<CsRepo>> = combine(
         addonDao.observeOfType(AddonType.CLOUDSTREAM_REPO),
         pluginDao.observeAll(),
@@ -90,6 +104,7 @@ class CsRepository(
 
     val plugins: Flow<List<InstalledCsPlugin>> =
         pluginDao.observeOfType(AddonType.CLOUDSTREAM_REPO)
+            // UI emissions can be queued snapshots; they must never retire a newer runtime handle.
             .map { rows -> rows.map { it.toInstalled() } }
 
     // ---------------------------------------------------------------------------
@@ -258,7 +273,8 @@ class CsRepository(
             .map { it.toCsRepo(pluginDao.ofRepo(it.id).size) }
     }
 
-    suspend fun remove(repoId: Long, cascadeSubRepos: Boolean = false) {
+    // Çalışan eklenti örnekleri silmeden önce kilit altında geçersiz kılınır.
+    suspend fun remove(repoId: Long, cascadeSubRepos: Boolean = false): Unit = runtimeLock.withLock {
         val targetEntity = addonDao.byId(repoId)
         val childEntities = if (cascadeSubRepos && targetEntity != null && ownershipStore != null) {
             val allEntities = addonDao.observeOfType(AddonType.CLOUDSTREAM_REPO).first()
@@ -269,10 +285,16 @@ class CsRepository(
         }
 
         for (child in childEntities) {
-            pluginDao.ofRepo(child.id).forEach { store.delete(it.id) }
+            pluginDao.ofRepo(child.id).forEach {
+                runtime.invalidate(it.id)
+                store.delete(it.id)
+            }
             addonDao.delete(child.id)
         }
-        pluginDao.ofRepo(repoId).forEach { store.delete(it.id) }
+        pluginDao.ofRepo(repoId).forEach {
+            runtime.invalidate(it.id)
+            store.delete(it.id)
+        }
         addonDao.delete(repoId)
 
         if (targetEntity != null) {
@@ -287,9 +309,18 @@ class CsRepository(
     // Açık/kapalı
     // ---------------------------------------------------------------------------
 
-    suspend fun setEnabled(pluginId: Long, enabled: Boolean) = pluginDao.setEnabled(pluginId, enabled)
-    suspend fun setRepoEnabled(repoId: Long, enabled: Boolean) = pluginDao.setEnabledForRepo(repoId, enabled)
-    suspend fun setAllEnabled(enabled: Boolean) = pluginDao.setAllEnabledOfType(AddonType.CLOUDSTREAM_REPO, enabled)
+    suspend fun setEnabled(pluginId: Long, enabled: Boolean) = runtimeLock.withLock {
+        pluginDao.setEnabled(pluginId, enabled)
+        if (!enabled) runtime.invalidate(pluginId)
+    }
+    suspend fun setRepoEnabled(repoId: Long, enabled: Boolean) = runtimeLock.withLock {
+        pluginDao.setEnabledForRepo(repoId, enabled)
+        if (!enabled) pluginDao.ofRepo(repoId).forEach { runtime.invalidate(it.id) }
+    }
+    suspend fun setAllEnabled(enabled: Boolean) = runtimeLock.withLock {
+        pluginDao.setAllEnabledOfType(AddonType.CLOUDSTREAM_REPO, enabled)
+        if (!enabled) runtime.clear()
+    }
 
     // ---------------------------------------------------------------------------
     // Çalışma zamanı
@@ -297,45 +328,187 @@ class CsRepository(
 
     /**
      * Açık eklentiler için [MainAPI] listesini döner.
-     * Her çağrıda DEX'i [PathClassLoader] ile yükler (Android sınıf yükleyici önbelleği bunu ucuzlatır).
+     * Aynı kurulu DEX için API ve ayar callback'i birlikte korunur; değişim eski örneği bırakır.
      */
-    suspend fun loadApis(pluginRowId: Long, allowRedownload: Boolean = true): CsApiResult {
+    suspend fun loadApis(pluginRowId: Long, allowRedownload: Boolean = true): CsApiResult =
+        runtimeLock.withLock { loadApisLocked(pluginRowId, allowRedownload) }
+
+    /**
+     * [pluginRowId]'nin API'leriyle [block]'u çalıştırır. [release] açıksa ve eklenti bu çağrıdan önce yüklü değilse, iş bitince
+     * (iptalde de) bırakılır: kodu ve kayıtlı çıkarıcıları bellekten çıkar, sonraki [loadApis] yeniden yükler. [keep] sonuca bakıp
+     * eklentiyi yerinde tutabilir (ör. kaynak bulduysa: oynatıcı onun bağlantı yakalayıcısını kullanır). Önceden yüklü eklenti
+     * (ana sayfa, detay) hiç bırakılmaz. Az bellekli cihazda kaynak araması için ([CsSearchBudget.releaseAfterSearch]).
+     *
+     * Runs [block] with the plugin's APIs; with [release], a plugin that was not loaded before this call is unloaded afterwards
+     * (also on cancellation) unless [keep] says otherwise. Plugins loaded earlier stay loaded.
+     */
+    suspend fun <T> useApis(
+        pluginRowId: Long,
+        release: Boolean,
+        keep: (T) -> Boolean = { false },
+        block: suspend (CsApiResult) -> T,
+    ): T {
+        var loadedHere = false
+        val result = runtimeLock.withLock {
+            loadedHere = !runtime.contains(pluginRowId)
+            loadApisLocked(pluginRowId)
+        }
+        val success = result as? CsApiResult.Success
+        if (!release || !loadedHere || success == null) return block(result)
+        var kept = false
+        try {
+            return block(result).also { kept = keep(it) }
+        } finally {
+            if (!kept) withContext(NonCancellable) { runtimeLock.withLock { runtime.releaseIfSame(pluginRowId, success) } }
+        }
+    }
+
+    private suspend fun loadApisLocked(pluginRowId: Long, allowRedownload: Boolean = true): CsApiResult {
         val row = pluginDao.byId(pluginRowId) ?: run {
+            runtime.invalidate(pluginRowId)
             val failure = CsApiResult.PluginRowMissing(pluginRowId)
             Log.w(TAG, formatCsLog(failure))
             return failure
+        }
+        if (!row.enabled) {
+            runtime.invalidate(pluginRowId)
+            return CsApiResult.LoadFailed("PluginDisabled", row.pluginId)
         }
         if (row.pluginId.contains("traktsync", ignoreCase = true) ||
             row.name.contains("traktsync", ignoreCase = true) ||
             row.pluginId.contains("pltmustafa", ignoreCase = true)
         ) {
+            runtime.invalidate(pluginRowId)
             Log.w(TAG, "Trakt eklentisi yuklenmedi (devre disi): ${row.pluginId}")
             return CsApiResult.LoadFailed("TraktSyncDisabled", row.pluginId)
         }
         val dexFile = store.dexFile(pluginRowId)
         if (!dexFile.exists()) {
+            runtime.invalidate(pluginRowId)
             if (allowRedownload) {
                 Log.w(TAG, "${row.pluginId}: DexFileMissing (tek seferlik yeniden indirme deneniyor)")
                 val downloaded = try {
                     cs3Downloader.download(row.scriptUrl, row.sha256, pluginRowId)
                     dexFile.exists()
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
                 } catch (e: Exception) {
                     false
                 }
                 if (downloaded) {
-                    return loadApis(pluginRowId, allowRedownload = false)
+                    return loadApisLocked(pluginRowId, allowRedownload = false)
                 }
             }
             val failure = CsApiResult.DexFileMissing(row.pluginId)
             Log.w(TAG, formatCsLog(failure))
             return failure
         }
-        val className = resolveMainClassName(store.readManifest(pluginRowId), row.pluginId)
-        val result = loader.loadPlugin(dexFile, className, row.pluginId)
-        if (result is CsApiResult.Failure) {
-            Log.w(TAG, formatCsLog(result))
+        val identity = runtimeIdentity(row)
+        runtime.get(identity)?.let { return it }
+        val className = resolveMainClassName(identity.manifest, row.pluginId)
+        var result: CsApiResult? = null
+        try {
+            currentCoroutineContext().ensureActive()
+            result = loader.loadPlugin(dexFile, className, row.pluginId)
+            currentCoroutineContext().ensureActive()
+            val current = pluginDao.byId(pluginRowId)
+            if (current == null || !current.enabled || !matchesRow(identity, current) || runtimeIdentity(current) != identity) {
+                (result as? CsApiResult.Success)?.plugin?.unload()
+                return CsApiResult.LoadFailed("PluginChangedDuringLoad", row.pluginId)
+            }
+            if (result is CsApiResult.Success) runtime.put(identity, result)
+            if (result is CsApiResult.Failure) Log.w(TAG, formatCsLog(result))
+            return result
+        } catch (cancelled: CancellationException) {
+            (result as? CsApiResult.Success)?.plugin?.unload()
+            throw cancelled
+        } catch (error: Throwable) {
+            (result as? CsApiResult.Success)?.plugin?.unload()
+            val failure = classifyDexError(error, row.pluginId)
+            Log.w(TAG, formatCsLog(failure))
+            return failure
         }
-        return result
+    }
+
+    /** Explicit lazy UI action: do not execute every plugin just to discover settings. */
+    suspend fun openSettings(pluginRowId: Long, context: Context): CsPluginSettingsResult {
+        try {
+            if (withContext(Dispatchers.Main.immediate) { settingsActivity(context) } == null) {
+                return CsPluginSettingsResult.Unavailable
+            }
+            return withContext(Dispatchers.IO) {
+                runtimeLock.withLock {
+                    val row = pluginDao.byId(pluginRowId) ?: return@withLock CsPluginSettingsResult.Unavailable
+                    if (!isCsRow(row)) {
+                        runtime.invalidate(pluginRowId)
+                        return@withLock CsPluginSettingsResult.Unavailable
+                    }
+                    if (!row.enabled) {
+                        runtime.invalidate(pluginRowId)
+                        return@withLock CsPluginSettingsResult.Disabled
+                    }
+                    val result = loadApisLocked(pluginRowId)
+                    if (result !is CsApiResult.Success) {
+                        return@withLock CsPluginSettingsResult.Failed(
+                            when (result) {
+                                is CsApiResult.IncompatibleLibrary -> result.causeClass
+                                is CsApiResult.LoadFailed -> result.causeClass
+                                else -> result.javaClass.simpleName
+                            }
+                        )
+                    }
+                    val identity = runtimeIdentity(row)
+                    withContext(Dispatchers.Main.immediate) settings@{
+                        currentCoroutineContext().ensureActive()
+                        // DAO work can suspend: recheck type, enabled state and file identity immediately before invoking.
+                        val current = pluginDao.byId(pluginRowId)
+                        val eligible = current != null && current.enabled && isCsRow(current) && matchesRow(identity, current)
+                        val unchanged = eligible && withContext(Dispatchers.IO) { runtimeIdentity(current!!) == identity }
+                        if (!unchanged || runtime.get(identity) !== result) {
+                            runtime.invalidate(pluginRowId)
+                            return@settings CsPluginSettingsResult.Unavailable
+                        }
+                        currentCoroutineContext().ensureActive()
+                        if (settingsActivity(context) == null) return@settings CsPluginSettingsResult.Unavailable
+                        if (result.plugin?.openSettings(context) == true) CsPluginSettingsResult.Opened
+                        else CsPluginSettingsResult.NotSupported
+                    }
+                }
+            }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (error: Throwable) {
+            Log.w(TAG, "Plugin settings failed: ${error.javaClass.simpleName}")
+            return CsPluginSettingsResult.Failed(error.javaClass.simpleName)
+        }
+    }
+
+    private suspend fun isCsRow(row: PluginEntity): Boolean =
+        addonDao.byId(row.repoId)?.let { it.type == AddonType.CLOUDSTREAM_REPO && it.enabled } == true
+
+    private fun matchesRow(key: CsRuntimeIdentity, row: PluginEntity): Boolean =
+        key.rowId == row.id && key.repoId == row.repoId && key.pluginId == row.pluginId && key.version == row.version && key.artifactHash == row.sha256
+
+    private fun runtimeIdentity(row: PluginEntity): CsRuntimeIdentity {
+        val dex = store.dexFile(row.id)
+        val attributes = runCatching {
+            Files.readAttributes(dex.toPath(), BasicFileAttributes::class.java, LinkOption.NOFOLLOW_LINKS)
+        }.getOrNull()
+        return CsRuntimeIdentity(row.id, row.repoId, row.pluginId, row.version, row.sha256, dex.absolutePath,
+            dex.length(), dex.lastModified(), attributes?.fileKey()?.toString(), store.readManifest(row.id))
+    }
+
+    /**
+     * Kurulu depoya ([repoId], adresi [repoUrl]) depoda olup burada kurulu olmayan [internalNames] eklentilerini indirip
+     * kurar (Wi-Fi eşitlemesi: karşı cihazda açık olanlar; depoya sonradan eklenenler dahil). Kurulan sayıyı döndürür.
+     */
+    suspend fun installMissing(repoId: Long, repoUrl: String, internalNames: Set<String>): Int {
+        val have = pluginDao.ofRepo(repoId).map { it.pluginId }.toSet()
+        val wanted = internalNames - have
+        if (wanted.isEmpty()) return 0
+        val root = CsRepoManifestParser.parseRoot(fetcher.fetch(repoUrl))
+        val entries = fetchAllPluginLists(root.pluginLists, repoUrl).entries.filter { it.internalName in wanted }
+        return downloadAll(entries, repoId).count { it.success }
     }
 
     suspend fun enabledPlugins(): List<InstalledCsPlugin> =

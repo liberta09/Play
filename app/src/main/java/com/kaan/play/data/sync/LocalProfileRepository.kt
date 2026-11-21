@@ -31,6 +31,15 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
     val id: Flow<String> = store.data.map { it[ID] ?: "" }.distinctUntilChanged()
     val name: Flow<String> = store.data.map { it[NAME] ?: DEFAULT_NAME }.distinctUntilChanged()
     val userId: Flow<String> = store.data.map { it[USER_ID] ?: "" }.distinctUntilChanged()
+
+    /** User/profile are read from ONE DataStore snapshot (no mixed user/profile pair while the active profile changes). */
+    val libraryScope: Flow<Pair<String, String>> = store.data.map { prefs ->
+        val rows = decodeProfiles(prefs[PROFILES] ?: "")
+        val selected = rows.firstOrNull { it.id == prefs[ID] } ?: rows.firstOrNull()
+        (prefs[USER_ID]?.ifEmpty { "legacy-user" } ?: "legacy-user") to
+            (selected?.id ?: "legacy-profile")
+    }.distinctUntilChanged()
+
     val syncCode: Flow<String> = store.data.map { it[SYNC_CODE] ?: "" }.distinctUntilChanged()
     val profileSetupComplete: Flow<Boolean> = store.data.map { it[PROFILE_SETUP_COMPLETE] ?: false }.distinctUntilChanged()
 
@@ -106,6 +115,7 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
             avatar = avatar,
             isChild = isChild,
             pinHash = pinHash,
+            pinUpdatedAt = if (pinHash != null) System.currentTimeMillis() else 0L,
         )
         store.edit { prefs ->
             val list = decodeProfiles(prefs[PROFILES] ?: "").toMutableList()
@@ -147,6 +157,7 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
                 avatar = avatar,
                 isChild = isChild,
                 pinHash = if (pin != null) (if (pin.isBlank()) null else hashPin(pin)) else current.pinHash,
+                pinUpdatedAt = if (pin != null) System.currentTimeMillis() else current.pinUpdatedAt,
             )
         }
     }
@@ -162,6 +173,7 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
             prefs[PROFILES] = encodeProfiles(list)
             val deletedHist = decodeDeletedHistory(prefs[DELETED_HISTORY] ?: "").filterNot { it.profileId == profileId }
             prefs[DELETED_HISTORY] = encodeDeletedHistory(deletedHist)
+            prefs[DELETED_ITEMS] = encodeDeletedItems(decodeDeletedItems(prefs[DELETED_ITEMS] ?: "").filterNot { it.profileId == profileId })
             if (prefs[ID] == profileId) {
                 val next = list.firstOrNull()
                 if (next != null) {
@@ -196,7 +208,7 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
 
     suspend fun setProfilePin(profileId: String, pin: String?) {
         val hash = pin?.takeIf { it.isNotEmpty() }?.let { hashPin(it) }
-        updateProfile(profileId) { it.copy(pinHash = hash) }
+        updateProfile(profileId) { it.copy(pinHash = hash, pinUpdatedAt = System.currentTimeMillis()) }
     }
 
     suspend fun setName(name: String) {
@@ -325,12 +337,42 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
         }
     }
 
+    /** Verilen mezar taşlarını siler (profil + tmdbId + tür + zaman birebir). */
+    suspend fun removeDeletedHistory(items: Collection<DeletedHistoryItem>) {
+        if (items.isEmpty()) return
+        val drop = items.map { listOf(it.profileId, it.tmdbId, it.type.lowercase(), it.deletedAt) }.toSet()
+        store.edit { prefs ->
+            val current = decodeDeletedHistory(prefs[DELETED_HISTORY] ?: "")
+            prefs[DELETED_HISTORY] = encodeDeletedHistory(
+                current.filterNot { listOf(it.profileId, it.tmdbId, it.type.lowercase(), it.deletedAt) in drop },
+            )
+        }
+    }
+
     suspend fun saveDeletedHistory(items: List<DeletedHistoryItem>) {
         if (items.isEmpty()) return
         store.edit { prefs ->
             val current = decodeDeletedHistory(prefs[DELETED_HISTORY] ?: "")
             val updated = LocalSyncMerge.mergeDeletedHistory(current, items)
             prefs[DELETED_HISTORY] = encodeDeletedHistory(updated)
+        }
+    }
+
+    fun decodeDeletedItems(raw: String): List<DeletedLibraryItem> =
+        if (raw.isBlank()) emptyList()
+        else runCatching { json.decodeFromString(DeletedItemListSerializer, raw) }.getOrDefault(emptyList())
+
+    fun encodeDeletedItems(items: List<DeletedLibraryItem>): String = json.encodeToString(DeletedItemListSerializer, items)
+
+    /** Wi-Fi'ye özel silinenler kaydı (bölüm, geçmişi temizle, favori — [DeletedLibraryItem]). */
+    suspend fun allDeletedItems(): List<DeletedLibraryItem> = decodeDeletedItems(store.data.first()[DELETED_ITEMS] ?: "")
+
+    /** Kayıtlılarla birleştirir ve budar ([LocalSyncMerge.mergeDeletedItems]). */
+    suspend fun saveDeletedItems(items: List<DeletedLibraryItem>) {
+        if (items.isEmpty()) return
+        store.edit { prefs ->
+            val current = decodeDeletedItems(prefs[DELETED_ITEMS] ?: "")
+            prefs[DELETED_ITEMS] = encodeDeletedItems(LocalSyncMerge.mergeDeletedItems(current, items))
         }
     }
 
@@ -476,13 +518,25 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
         }
     }
 
-    /** Wi-Fi senkronizasyonu: profil listesini değiştirir, etkin profil (varsa) değişmez; atılan kimlik korunan kimliğe geçer. */
+    /**
+     * Wi-Fi/bulut senkronizasyonu: profil listesini değiştirir, etkin profil (varsa) değişmez; atılan kimlik korunan kimliğe geçer.
+     * [preserveLocalSecrets] (bulut): PIN, PIN damgası ve bulut kodu aynı düzenlemede yerelden korunur. Wi-Fi'da (false) plan
+     * olduğu gibi yazılır; PIN birleştirmenin seçtiği değerdir ([com.kaan.play.data.sync.local.LocalSyncMerge.mergeProfiles]).
+     */
     suspend fun replaceProfilesKeepingActive(
         newProfiles: List<LocalProfileSummary>,
         remappedIds: Map<String, String> = emptyMap(),
+        preserveLocalSecrets: Boolean = false,
     ) {
         store.edit { prefs ->
-            prefs[PROFILES] = encodeProfiles(newProfiles)
+            // Cloud never owns local PINs/codes: use the latest values in the SAME edit, including a cleared PIN.
+            val currentById = if (preserveLocalSecrets) decodeProfiles(prefs[PROFILES] ?: "").associateBy { it.id } else emptyMap()
+            val committedProfiles = if (preserveLocalSecrets) newProfiles.map { planned ->
+                currentById[planned.id]?.let { current ->
+                    planned.copy(pinHash = current.pinHash, pinUpdatedAt = current.pinUpdatedAt, syncCode = current.syncCode)
+                } ?: planned
+            } else newProfiles
+            prefs[PROFILES] = encodeProfiles(committedProfiles)
             val currentId = prefs[ID]
             val resolvedId = remappedIds[currentId] ?: currentId
             val active = newProfiles.firstOrNull { it.id == resolvedId }
@@ -635,10 +689,12 @@ class LocalProfileRepository(val store: DataStore<Preferences>) {
         private val PEER_PORT = intPreferencesKey("sync_local_peer_port")
         private val PEER_CODE = stringPreferencesKey("sync_local_peer_code")
         private val DELETED_HISTORY = stringPreferencesKey("sync_deleted_history")
+        private val DELETED_ITEMS = stringPreferencesKey("sync_deleted_library_items")
         private val DELETED_FAVORITES = stringPreferencesKey("sync_deleted_favorites")
 
         private val SummaryListSerializer = ListSerializer(LocalProfileSummary.serializer())
         private val DeletedHistoryListSerializer = ListSerializer(DeletedHistoryItem.serializer())
+        private val DeletedItemListSerializer = ListSerializer(DeletedLibraryItem.serializer())
         private val DeletedFavoriteListSerializer = ListSerializer(DeletedFavoriteItem.serializer())
         private val ProfileMapSerializer = MapSerializer(String.serializer(), String.serializer())
 

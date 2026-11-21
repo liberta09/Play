@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Oynatma hazırlığı (TvPlayStartActivity) ve TV oynatıcısı (TvPlayerActivity) metinleri. Türkçesi values-tr/. -->
+<resources>
+    <string name="tv_play_season_episode">Season %1$d · Episode %2$d</string>
+    <string name="tv_play_episode">Episode %1$d</string>
+    <string name="tv_play_loading">Loading…</string>
+    <string name="tv_play_searching_sources">Searching for sources…</string>
+
+    <!-- Hazırlık ekranı -->
+    <string name="tv_play_status_testing">Testing sources · %1$d found, %2$d working</string>
+    <string name="tv_play_status_testing_dead">Testing sources · %1$d found, %2$d working, %3$d down</string>
+    <plurals name="tv_play_status_listed">
+        <item quantity="one">%1$d source · %2$d working</item>
+        <item quantity="other">%1$d sources · %2$d working</item>
+    </plurals>
+    <string name="tv_play_resume_title">Continue watching?</string>
+    <string name="tv_play_resume_continue">Resume (%1$s)</string>
+    <string name="tv_play_resume_restart">Start over</string>
+    <string name="tv_play_choose_source">Choose a source</string>
+    <string name="tv_play_turkish_dub">Turkish dub</string>
+    <string name="tv_play_turkish_audio">Turkish audio</string>
+    <string name="tv_play_probe_testing">testing…</string>
+    <string name="tv_play_probe_alive">working</string>
+    <string name="tv_play_probe_dead">no response</string>
+    <string name="tv_play_probe_unknown">couldn\'t test</string>
+
+    <!-- Oynatıcı -->
+    <string name="tv_play_last_episode">Last episode</string>
+    <string name="tv_play_video_failed">Couldn\'t open the video</string>
+    <string name="tv_play_back_to_exit">Press Back to exit.</string>
+    <string name="tv_play_channel_failed">This channel can\'t be opened right now</string>
+    <string name="tv_play_no_sources_episode">No sources found for this episode</string>
+    <string name="tv_play_no_sources_title">No sources found for this title</string>
+    <string name="tv_play_all_failed">None of the sources could be opened</string>
+    <string name="tv_play_stalled">The video stream stopped</string>
+    <string name="tv_play_stalled_hint">OK: retry · Back: exit</string>
+    <string name="tv_play_still_watching">Are you still watching?</string>
+    <string name="tv_play_still_watching_hint">Press any button to continue.</string>
+    <string name="tv_play_paused">Paused</string>
+    <string name="tv_play_osd_hint_episodes">◀ ▶ seek · ▲ episodes · ▼ audio, subtitles, settings</string>
+    <string name="tv_play_osd_hint">◀ ▶ seek · ▼ audio, subtitles, settings</string>
+    <string name="tv_play_channel_list">Channel list</string>
+    <string name="tv_play_live_badge">• LIVE</string>
+    <string name="tv_play_audio">Audio</string>
+    <string name="tv_play_audio_track">Audio %1$d</string>
+    <string name="tv_play_subtitles">Subtitles</string>
+    <string name="tv_play_language_unknown">Unknown language</string>
+    <string name="tv_play_embedded">%1$s (in the video)</string>
+    <string name="tv_play_lang_turkish">Turkish</string>
+    <string name="tv_play_lang_english">English</string>
+    <string name="tv_play_skip_intro">Skip intro</string>
+    <string name="tv_play_skip_recap">Skip recap</string>
+    <string name="tv_play_skip_credits">Skip credits</string>
+    <string name="tv_play_skip_preview">Skip preview</string>
+    <string name="tv_play_next_countdown">Next: Episode %1$d · %2$d s  (OK: now · Back: cancel)</string>
+    <string name="tv_play_next_loading">Opening the next episode…</string>
+    <string name="tv_play_next_no_source">No sources found for the next episode</string>
+
+    <!-- Player settings (top of the ▼ panel; TV counterpart of the Play player's Source / Sync / Tracks / Resize buttons) -->
+    <string name="tv_play_settings">Player</string>
+    <string name="tv_play_setting_row">%1$s: %2$s  ›</string>
+    <string name="tv_play_source">Source</string>
+    <string name="tv_play_source_switch">Switch source</string>
+    <string name="tv_play_sources_checking">Looking for more sources…</string>
+    <string name="tv_play_sources_empty">No other sources found</string>
+    <string name="tv_play_deep_search">Search for more sources (experimental)</string>
+    <string name="tv_play_deep_running">Searching for more sources… (watching memory)</string>
+    <string name="tv_play_deep_done">Search finished; results are below.</string>
+    <string name="tv_play_deep_all_searched">Every add-on was already asked; no other sources.</string>
+    <string name="tv_play_deep_memory_stopped">Search stopped because memory ran low; what was found so far is below.</string>
+    <string name="tv_play_deep_confirm_title">Search for more sources?</string>
+    <string name="tv_play_deep_confirm_body">Like on the phone, all enabled add-ons are searched again. This is experimental: on TV boxes with little memory the app (and other apps on the TV) may close. If memory runs low, the search stops by itself.</string>
+    <string name="tv_play_deep_confirm_ok">Search anyway</string>
+    <string name="tv_play_tag_dubbed">Dubbed</string>
+    <string name="tv_play_tag_subbed">Subtitled</string>
+    <string name="tv_play_tag_torrent">Torrent</string>
+    <string name="tv_play_tag_direct">Direct</string>
+    <string name="tv_play_sub_delay">Subtitle delay</string>
+    <string name="tv_play_sub_delay_value">%1$s s</string>
+    <string name="tv_play_sub_delay_hint">Minus shows the subtitles earlier, plus later. ◀ ▶ choose · OK apply · Back done</string>
+    <string name="tv_play_sub_delay_reset">Reset</string>
+    <string name="tv_play_speed">Speed</string>
+    <string name="tv_play_speed_normal">Normal (1×)</string>
+    <string name="tv_play_resize">Picture</string>
+    <string name="tv_play_resize_fit">Fit</string>
+    <string name="tv_play_resize_fill">Fill (crop)</string>
+    <string name="tv_play_resize_stretch">Stretch</string>
+    <string name="tv_play_quality">Quality</string>
+    <string name="tv_play_quality_auto">Auto</string>
+    <string name="tv_play_torrent_loading">Loading torrent · %1$d%%</string>
+    <string name="tv_play_verify_hint">OK: verify the site · Back: exit</string>
+</resources>

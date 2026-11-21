@@ -187,10 +187,14 @@ class AppContainer(context: Context) {
         }
         .build()
 
+    /** Kaynak aramasının bellek bütçesi: az bellekli cihazda (ör. 2 GB'lık TV kutusu) daha sıkı, telefonda önceki davranış. */
+    val csSearchBudget: com.kaan.play.data.cloudstream.CsSearchBudget =
+        com.kaan.play.data.cloudstream.CsSearchBudget.forDevice(appContext)
+
     init {
         // CloudStream eklentileri app.get()/post() ve depolama için ilklendirilir
         try {
-            com.lagradost.cloudstream3.initApp(httpClient)
+            com.lagradost.cloudstream3.initApp(httpClient, maxResponseBytes = csSearchBudget.maxResponseBytes)
             com.lagradost.cloudstream3.utils.DataStore.init(appContext)
             com.lagradost.cloudstream3.DataStore.init(appContext)
             com.lagradost.cloudstream3.AcraApplication.context = appContext
@@ -362,6 +366,23 @@ class AppContainer(context: Context) {
             installer = sourceInstaller,
             webSites = webSites,
             deviceName = Build.MODEL,
+            installCsPlugins = { repoId, url, names -> csRepos.installMissing(repoId, url, names) },
+            favoriteRefs = com.kaan.play.data.library.ProviderFavoriteRefs(appContext),
+            pluginRepair = com.kaan.play.data.sync.local.HistoryPluginRepair(
+                history = database.watchHistoryDao(),
+                pluginHosts = {
+                    csRepos.enabledPlugins().associate { p ->
+                        // Yeniden indirme yok: onarım için eksik eklenti dosyası indirilmez.
+                        p.id to csRepos.loadApis(p.id, allowRedownload = false).apisOrEmpty()
+                            .mapNotNull { com.kaan.play.data.sync.local.HistoryPluginRepair.host(it.mainUrl) }.toSet()
+                    }
+                },
+                pluginNames = { csRepos.enabledPlugins().associate { it.id to it.pluginId } },
+                log = { android.util.Log.i("PlaySync", it) },
+                favorites = database.favoriteDao(),
+                tombstones = { localProfile.allDeletedHistory() },
+                dropTombstones = { localProfile.removeDeletedHistory(it) },
+            ),
         )
     }
 
@@ -587,7 +608,9 @@ class AppContainer(context: Context) {
     val pluginRuntime: PluginRuntime by lazy {
         PluginRuntime(
             httpClient, BuildConfig.TMDB_API_KEY,
-            maxConcurrent = PluginStreamProvider.MAX_PARALLEL,
+            // Az bellekli cihazda kaynak aramasıyla aynı sınır ([csSearchBudget]): çok sayıda QuickJS ve CloudStream eklentisi
+            // birlikte çalışınca küçük Java yığını doluyordu.
+            maxConcurrent = minOf(PluginStreamProvider.MAX_PARALLEL, csSearchBudget.maxParallel),
             log = { level, message -> Log.d("PlayPlugin", "[$level] $message") },
         )
     }
@@ -601,11 +624,26 @@ class AppContainer(context: Context) {
      * Wi-Fi senkronizasyonu (aynı ağdaki iki cihaz). Tembel: uygulama açılışında hiçbir sunucu başlamaz; yalnızca
      * kart açılınca [com.kaan.play.data.sync.local.LocalSyncController.open] çağrılır.
      */
+    /** Kalıcı eşleşme ayarının son değeri (eşitleme iş parçacıkları her seferinde DataStore beklemesin). */
+    @Volatile
+    private var wifiPairingEnabled: Boolean? = null
+
     val localSync: com.kaan.play.data.sync.local.LocalSyncController by lazy {
+        appScope.launch { settings.wifiPairing.collect { wifiPairingEnabled = it } }
         com.kaan.play.data.sync.local.LocalSyncController(
             data = localSyncData,
             nsd = com.kaan.play.data.sync.local.LocalSyncNsd(appContext),
             scope = appScope,
+            // Kalıcı eşleşme (ayarla açılır, varsayılan kapalı): kodla eşitledikten sonra iki cihazda da onaylanan eşleşme
+            // kod girmeden eşitlenir; telefondan TV'ye oynatma ve kumanda da bu kanaldan gider. Eksik kaynaklar her zaman
+            // kullanıcı onayıyla kurulur.
+            pairs = com.kaan.play.data.sync.local.LocalSyncPairStore(appContext),
+            pairingEnabled = { wifiPairingEnabled ?: kotlinx.coroutines.runBlocking { settings.wifiPairing.first() } },
+            acceptRemotePlay = (appContext as? PlayApp)?.acceptsRemotePlay == true,
+            acceptRemoteControl = (appContext as? PlayApp)?.acceptsRemotePlay == true,
+            resolveRemotePlay = { req -> (appContext as? PlayApp).let { app -> if (app == null) req.target else app.resolveRemotePlay(req) } },
+            autoInstallSources = false,
+            remoteStateSource = (appContext as? PlayApp)?.remoteStateSource,
         )
     }
 
@@ -673,7 +711,7 @@ class AppContainer(context: Context) {
                     settings = pluginSettings::get,
                     // Eklentiler kendi 45 sn bütçeleriyle yazılır; kaynak zaman aşımı ayarı (vars. 15 sn) onları erken öldürmesin.
                     timeout = { PluginStreamProvider.runBudget(sourceTimeout()) },
-                    maxParallel = 6,
+                    maxParallel = minOf(PluginStreamProvider.MAX_PARALLEL, csSearchBudget.maxParallel),
                 ),
                 CsStreamProvider(
                     repository = csRepos,
@@ -701,6 +739,7 @@ class AppContainer(context: Context) {
                     // yavaş sitelerde bulunan bağlantıları da atıyordu (Nuvio dış sınırı 120 sn).
                     timeoutMs = 30_000L,
                     totalBudgetMs = 90_000L,
+                    budget = csSearchBudget,
                 ),
             ),
             verdicts = streamVerdicts,

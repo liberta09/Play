@@ -27,10 +27,10 @@ private fun stream(addon: Long, url: String, res: Int? = 1080, size: Long? = 1_0
 class AutoNextRulesTest {
 
     @Test
-    fun cardWindowIsTheLastTwentySeconds() {
+    fun cardWindowIsTheLastFiveSeconds() {
         val duration = 1_200_000L
-        assertFalse(AutoNextRules.inCardWindow(duration - 21_000, duration))
-        assertTrue(AutoNextRules.inCardWindow(duration - 20_000, duration))
+        assertFalse(AutoNextRules.inCardWindow(duration - 6_000, duration))
+        assertTrue(AutoNextRules.inCardWindow(duration - 5_000, duration))
         assertTrue(AutoNextRules.inCardWindow(duration - 1, duration))
         assertTrue(AutoNextRules.inCardWindow(duration, duration))
     }
@@ -51,8 +51,8 @@ class AutoNextRulesTest {
     @Test
     fun seekingWellBeforeTheWindowLeavesIt() {
         val duration = 1_200_000L
-        assertFalse(AutoNextRules.leftCardWindow(duration - 21_000, duration)) // sınırda: kart titremesin
-        assertTrue(AutoNextRules.leftCardWindow(duration - 23_000, duration))
+        assertFalse(AutoNextRules.leftCardWindow(duration - 6_000, duration)) // sınırda: kart titremesin
+        assertTrue(AutoNextRules.leftCardWindow(duration - 8_000, duration))
     }
 
     @Test
@@ -182,6 +182,7 @@ class AutoNextControllerTest {
         next: Pair<Int, Int>? = 1 to 4,
         prepared: NextPlayback? = null,
         failLookups: Int = 0,
+        private val durationMs: Long = 1_200_000L,
     ) {
         val advanced = mutableListOf<NextPlayback>()
         var prepareCalls = 0
@@ -211,7 +212,7 @@ class AutoNextControllerTest {
         /** [remainingMs]: bölümün bitmesine kalan süre. Zaman 500 ms ilerler. */
         fun tick(remainingMs: Long, playing: Boolean = true, ended: Boolean = false, step: Long = 500) {
             clock += step
-            controller.tick(clock, 1_200_000L - remainingMs, 1_200_000L, playing, ended)
+            controller.tick(clock, durationMs - remainingMs, durationMs, playing, ended)
         }
     }
 
@@ -219,40 +220,49 @@ class AutoNextControllerTest {
         NextPlayback.Online(target.copy(request = target.request.copy(episode = 4)), streams.toList())
 
     @Test
-    fun cardCountsDownThenAdvances() = runTest {
+    fun countdownCannotCutOffTheCurrentEpisode() = runTest {
         val next = online(seriesTarget, stream(1, "https://a.example/s1e4.mp4"))
-        val rig = Rig(this, seriesTarget, prepared = next)
-
-        rig.tick(remainingMs = 300_000)
+        val rig = Rig(this, seriesTarget, seconds = 5, prepared = next, durationMs = 102_000L)
+        rig.tick(remainingMs = 19_000) // 1:23 / 1:42
         assertEquals(AutoNextPhase.Hidden, rig.controller.phase)
-
-        rig.tick(remainingMs = 19_500)
+        rig.tick(remainingMs = 9_000) // old countdown would skip at 1:33
+        assertEquals(AutoNextPhase.Hidden, rig.controller.phase)
+        rig.tick(remainingMs = 5_000)
         assertEquals(AutoNextPhase.Countdown, rig.controller.phase)
+        assertEquals(5, rig.controller.secondsLeft)
         assertEquals(1, rig.controller.season)
         assertEquals(4, rig.controller.episode)
-        assertEquals(10, rig.controller.secondsLeft)
-
-        repeat(10) { rig.tick(remainingMs = 19_000 - it * 500L) }
+        repeat(30) { rig.tick(remainingMs = 5_000) } // wall time cannot consume video
         assertEquals(5, rig.controller.secondsLeft)
-
-        repeat(10) { rig.tick(remainingMs = 14_000 - it * 500L) }
+        rig.tick(remainingMs = 2_500)
+        assertEquals(3, rig.controller.secondsLeft)
+        rig.tick(remainingMs = 0, ended = false) // rounded position isn't an ended event
+        runCurrent()
+        assertTrue(rig.advanced.isEmpty())
+        rig.tick(remainingMs = 0, ended = true)
         runCurrent()
         assertEquals(listOf<NextPlayback>(next), rig.advanced)
     }
 
     @Test
-    fun countdownFollowsTheConfiguredSeconds() = runTest {
-        val rig = Rig(this, seriesTarget, seconds = 5, prepared = online(seriesTarget, stream(1, "https://a.example/x.mp4")))
+    fun existingTenSecondPreferenceUsesTheLastTenMediaSeconds() = runTest {
+        val rig = Rig(this, seriesTarget, seconds = 10, prepared = online(seriesTarget, stream(1, "https://a.example/x.mp4")))
         rig.tick(remainingMs = 19_000)
-        assertEquals(5, rig.controller.secondsLeft)
+        assertEquals(AutoNextPhase.Hidden, rig.controller.phase)
+        rig.tick(remainingMs = 9_000)
+        assertEquals(AutoNextPhase.Countdown, rig.controller.phase)
+        assertEquals(9, rig.controller.secondsLeft)
+        repeat(30) { rig.tick(remainingMs = 9_000) }
+        runCurrent()
+        assertTrue(rig.advanced.isEmpty())
     }
 
     @Test
     fun countdownDoesNotRunWhilePaused() = runTest {
         val rig = Rig(this, seriesTarget, prepared = online(seriesTarget, stream(1, "https://a.example/x.mp4")))
-        rig.tick(remainingMs = 19_000)
-        repeat(40) { rig.tick(remainingMs = 19_000, playing = false) }
-        assertEquals(10, rig.controller.secondsLeft)
+        rig.tick(remainingMs = 4_500)
+        repeat(40) { rig.tick(remainingMs = 4_500, playing = false) }
+        assertEquals(5, rig.controller.secondsLeft)
         runCurrent()
         assertTrue(rig.advanced.isEmpty())
     }
@@ -261,7 +271,7 @@ class AutoNextControllerTest {
     fun playNowAdvancesWithoutWaitingForTheCountdown() = runTest {
         val next = online(seriesTarget, stream(1, "https://a.example/s1e4.mp4"))
         val rig = Rig(this, seriesTarget, prepared = next)
-        rig.tick(remainingMs = 19_000)
+        rig.tick(remainingMs = 4_500)
         rig.controller.playNow()
         runCurrent()
         assertEquals(listOf<NextPlayback>(next), rig.advanced)
@@ -270,11 +280,11 @@ class AutoNextControllerTest {
     @Test
     fun cancelHidesTheCardForGood() = runTest {
         val rig = Rig(this, seriesTarget, prepared = online(seriesTarget, stream(1, "https://a.example/x.mp4")))
-        rig.tick(remainingMs = 19_000)
+        rig.tick(remainingMs = 4_500)
         rig.controller.cancel()
         assertEquals(AutoNextPhase.Hidden, rig.controller.phase)
 
-        repeat(60) { rig.tick(remainingMs = 19_000 - it * 300L) }
+        repeat(60) { rig.tick(remainingMs = 4_500 - it * 300L) }
         runCurrent()
         assertEquals(AutoNextPhase.Hidden, rig.controller.phase)
         assertTrue(rig.advanced.isEmpty())
@@ -315,14 +325,14 @@ class AutoNextControllerTest {
         runCurrent()
         assertEquals(1, rig.prepareCalls)
         assertEquals(AutoNextPhase.Hidden, rig.controller.phase)
-        repeat(30) { rig.tick(remainingMs = 19_000 - it * 100L) }
+        repeat(30) { rig.tick(remainingMs = 4_500 - it * 100L) }
         assertEquals(1, rig.prepareCalls) // bir kez
     }
 
     @Test
     fun seekingBackOutOfTheWindowClosesTheCard() = runTest {
         val rig = Rig(this, seriesTarget, prepared = online(seriesTarget, stream(1, "https://a.example/x.mp4")))
-        rig.tick(remainingMs = 19_000)
+        rig.tick(remainingMs = 4_500)
         assertEquals(AutoNextPhase.Countdown, rig.controller.phase)
         rig.tick(remainingMs = 200_000)
         assertEquals(AutoNextPhase.Hidden, rig.controller.phase)
@@ -340,7 +350,7 @@ class AutoNextControllerTest {
     @Test
     fun noSourceAsksForAnotherSourceInsteadOfLeavingABlackScreen() = runTest {
         val rig = Rig(this, seriesTarget, prepared = null)
-        rig.tick(remainingMs = 19_000)
+        rig.tick(remainingMs = 4_500)
         rig.controller.playNow()
         runCurrent()
         assertEquals(AutoNextPhase.NoSource, rig.controller.phase)
@@ -378,7 +388,7 @@ class AutoNextControllerTest {
         rig.tick(remainingMs = 40_000)
         runCurrent()
         assertEquals(2, rig.lookupCalls)
-        rig.tick(remainingMs = 19_000)
+        rig.tick(remainingMs = 4_500)
         assertEquals(AutoNextPhase.Countdown, rig.controller.phase)
     }
 
@@ -395,7 +405,7 @@ class AutoNextControllerTest {
     @Test
     fun nextTargetKeepsTheShowButMovesTheEpisode() = runTest {
         val rig = Rig(this, seriesTarget)
-        rig.tick(remainingMs = 19_000)
+        rig.tick(remainingMs = 4_500)
         val target = rig.controller.nextTarget()
         assertEquals("Dizi", target.title)
         assertEquals(10, target.request.tmdbId)

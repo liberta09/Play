@@ -1,5 +1,6 @@
 package com.kaan.play.ui.home
 
+import com.kaan.play.ui.home.slider.PluginSliders
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -1279,6 +1280,24 @@ private fun ProviderCatalogView(
                 }
             } else {
                 val listState = rememberLazyListState()
+                val openItem: (CatalogItem) -> Unit = { item ->
+                    if (!item.rawUrl.isNullOrBlank() && item.providerId.startsWith("cs:")) {
+                        onOpenProviderDetail(item.providerId, item.rawUrl)
+                    } else {
+                        scope.launch {
+                            resolveAndOpenPoster(
+                                item = item,
+                                tmdb = container.tmdb,
+                                addons = container.addons,
+                                onOpenDetail = onOpenDetail,
+                                onOpenProviderDetail = onOpenProviderDetail,
+                                onOpenSearch = onOpenSearch,
+                            )
+                        }
+                    }
+                }
+                // Eklentiye özgü üst kayan alan: seçili eklentinin sitesine göre stil (slider/PluginSliders; yoksa hiçbir şey).
+                val slider = remember(rows, validSelected) { PluginSliders.pick(validSelected.map { it.name }, rows) }
                 LaunchedEffect(listState) {
                     onRegisterScrollToTop {
                         if (listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0) {
@@ -1295,6 +1314,9 @@ private fun ProviderCatalogView(
                 contentPadding = PaddingValues(top = 16.dp, bottom = 96.dp),
                 verticalArrangement = Arrangement.spacedBy(28.dp),
             ) {
+                slider?.let { pick ->
+                    item(key = pick.slider.key) { pick.slider.content?.invoke(pick.items, openItem) }
+                }
                 itemsIndexed(rows, key = { index, row -> "${row.providerId}_${row.id}_$index" }) { _, row ->
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -1361,22 +1383,7 @@ private fun ProviderCatalogView(
                                     posterId = PosterUrlTemplate.findImdbId(item.id, item.rawUrl, item.posterUrl),
                                     tmdbId = item.id.toIntOrNull() ?: PosterUrlTemplate.findTmdbId(item.id, item.rawUrl, item.posterUrl),
                                     mediaType = item.mediaType,
-                                    onClick = {
-                                        if (!item.rawUrl.isNullOrBlank() && item.providerId.startsWith("cs:")) {
-                                            onOpenProviderDetail(item.providerId, item.rawUrl)
-                                        } else {
-                                            scope.launch {
-                                                resolveAndOpenPoster(
-                                                    item = item,
-                                                    tmdb = container.tmdb,
-                                                    addons = container.addons,
-                                                    onOpenDetail = onOpenDetail,
-                                                    onOpenProviderDetail = onOpenProviderDetail,
-                                                    onOpenSearch = onOpenSearch,
-                                                )
-                                            }
-                                        }
-                                    },
+                                    onClick = { openItem(item) },
                                     modifier = Modifier.width(cardWidth)
                                         .let { if (isFirstProviderCard && contentFocusRequester != null) it.focusRequester(contentFocusRequester) else it }
                                         .let { if (isFirstProviderCard) it.navBarReturnEdge(topBarFocusRequester, includeTop = true, includeBottom = false) else it },

@@ -48,8 +48,8 @@ class LocalSyncClient(
 ) {
     private val json = Json { ignoreUnknownKeys = true }
 
-    /** Oturum: sunucunun verdiği nonce + bu istemcinin nonce'u. */
-    private class Session(val base: String, val serverNonce: String, val clientNonce: String, val keys: SyncKeys)
+    /** Oturum: sunucunun verdiği nonce + bu istemcinin nonce'u; [pairId] doluysa eşli istek. */
+    private class Session(val base: String, val serverNonce: String, val clientNonce: String, val keys: SyncKeys, val pairId: String? = null)
 
     /** Sunucu Play mi? (şifresiz) */
     suspend fun health(host: String, port: Int = LocalSyncProtocol.PORT): Boolean =
@@ -72,7 +72,57 @@ class LocalSyncClient(
         return call(request) { LocalSyncCrypto.open(session.keys, LocalSyncProtocol.PATH_SYNC, it) }
     }
 
-    private suspend fun openSession(host: String, port: Int, code: String): Session {
+    /**
+     * Kodla kalıcı eşleşme kurar ([LocalSyncPairing]); karşının kaydı döner ([PairRecord.lastHost] = [host]). Karşı sürüm
+     * eşleşmeyi bilmiyorsa [LocalSyncException.Kind.Invalid].
+     */
+    suspend fun pair(host: String, port: Int = LocalSyncProtocol.PORT, code: String, identity: DeviceIdentity): PairRecord {
+        val session = openSession(host, port, code)
+        val own = LocalSyncCrypto.newPairKeyPair(random)
+        val hello = PairHello(LocalSyncCrypto.encodePublicKey(own), identity.id, identity.name.take(64))
+        val sealed = LocalSyncCrypto.seal(session.keys, LocalSyncProtocol.PATH_PAIR, json.encodeToString(PairHello.serializer(), hello), random)
+        val request = authed(session, "POST", LocalSyncProtocol.PATH_PAIR).post(sealed.toRequestBody(JSON_TYPE)).build()
+        val reply = call(request) { body ->
+            try {
+                json.decodeFromString(PairHello.serializer(), LocalSyncCrypto.open(session.keys, LocalSyncProtocol.PATH_PAIR, body))
+            } catch (_: IllegalArgumentException) {
+                throw LocalSyncException(LocalSyncException.Kind.Invalid)
+            }
+        }
+        val pairId = reply.pairId
+        if (!LocalSyncCrypto.isHexId(pairId) || !LocalSyncCrypto.isHexId(reply.deviceId)) throw LocalSyncException(LocalSyncException.Kind.Invalid)
+        val secret = try {
+            LocalSyncCrypto.pairSecret(own.private, reply.publicKey, session.serverNonce, session.clientNonce)
+        } catch (_: SyncAuthException) {
+            throw LocalSyncException(LocalSyncException.Kind.Invalid)
+        }
+        return PairRecord(pairId!!, secret, reply.deviceId, reply.deviceName.take(64), lastHost = host)
+    }
+
+    /** Eşleşmeyle (kodsuz) anlık görüntü değiş tokuşu; eşleşme karşıda silinmişse [LocalSyncException.Kind.WrongCode]. */
+    suspend fun exchangePaired(host: String, port: Int = LocalSyncProtocol.PORT, pair: PairRecord, localJson: String): String {
+        val session = openSession(host, port, pair.secret, pair.pairId)
+        val sealed = LocalSyncCrypto.seal(session.keys, LocalSyncProtocol.PATH_SYNC, localJson, random)
+        val request = authed(session, "POST", LocalSyncProtocol.PATH_SYNC).post(sealed.toRequestBody(JSON_TYPE)).build()
+        return call(request) { LocalSyncCrypto.open(session.keys, LocalSyncProtocol.PATH_SYNC, it) }
+    }
+
+    /** Eşleşmiş cihaza oynatma isteği ([targetJson]: `RemotePlay`); karşının (açılmış) yanıt JSON'unu döndürür. */
+    suspend fun playPaired(host: String, port: Int = LocalSyncProtocol.PORT, pair: PairRecord, targetJson: String): String =
+        postPaired(host, port, pair, LocalSyncProtocol.PATH_PLAY, targetJson)
+
+    /** Eşleşmiş cihaza kumanda/klavye isteği ([inputJson]: `RemoteInput`); karşının (açılmış) yanıt JSON'unu döndürür. */
+    suspend fun remotePaired(host: String, port: Int = LocalSyncProtocol.PORT, pair: PairRecord, inputJson: String): String =
+        postPaired(host, port, pair, LocalSyncProtocol.PATH_REMOTE, inputJson)
+
+    private suspend fun postPaired(host: String, port: Int, pair: PairRecord, path: String, json: String): String {
+        val session = openSession(host, port, pair.secret, pair.pairId)
+        val sealed = LocalSyncCrypto.seal(session.keys, path, json, random)
+        val request = authed(session, "POST", path).post(sealed.toRequestBody(JSON_TYPE)).build()
+        return call(request) { LocalSyncCrypto.open(session.keys, path, it) }
+    }
+
+    private suspend fun openSession(host: String, port: Int, code: String, pairId: String? = null): Session {
         val address = LocalNetwork.parseIpv4(host) ?: throw LocalSyncException(LocalSyncException.Kind.NotLocal)
         if (!addressAllowed(address)) throw LocalSyncException(LocalSyncException.Kind.NotLocal)
         val base = "http://${address.hostAddress}:$port"
@@ -85,12 +135,13 @@ class LocalSyncClient(
         }
         if (!LocalSyncCrypto.isNonce(nonce)) throw LocalSyncException(LocalSyncException.Kind.Invalid)
         val clientNonce = LocalSyncCrypto.newNonce(random)
-        return Session(base, nonce!!, clientNonce, LocalSyncCrypto.deriveKeys(code, nonce, clientNonce))
+        return Session(base, nonce!!, clientNonce, LocalSyncCrypto.deriveKeys(code, nonce, clientNonce), pairId)
     }
 
     private fun authed(session: Session, method: String, path: String): Request.Builder =
         Request.Builder()
             .url(session.base + path)
+            .apply { session.pairId?.let { header(LocalSyncProtocol.HEADER_PAIR, it) } }
             .header(LocalSyncProtocol.HEADER_SERVER_NONCE, session.serverNonce)
             .header(LocalSyncProtocol.HEADER_CLIENT_NONCE, session.clientNonce)
             .header(LocalSyncProtocol.HEADER_PROOF, LocalSyncCrypto.proof(session.keys, method, path, session.serverNonce, session.clientNonce))

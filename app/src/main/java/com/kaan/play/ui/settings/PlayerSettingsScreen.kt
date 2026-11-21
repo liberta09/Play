@@ -58,6 +58,7 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_DOWNLOAD_WIFI_ONLY)
     val subtitleLanguage by container.settings.subtitleLanguage
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_SUBTITLE_LANGUAGE)
+    val autoPortrait by container.settings.autoPortraitVideos.collectAsStateWithLifecycle(initialValue = true)
     val autoTranslate by container.settings.autoTranslateSubtitles
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_TRANSLATE_SUBS)
     val autoSource by container.settings.autoSource
@@ -117,6 +118,9 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
             }
             SwitchRow(stringResource(R.string.settings_prefer_dub), preferDub) {
                 scope.launch { container.settings.setPreferDub(it) }
+            }
+            SwitchRow(stringResource(R.string.settings_auto_portrait_videos), autoPortrait) {
+                scope.launch { container.settings.setAutoPortraitVideos(it) }
             }
             if (preferDub) {
                 SwitchRow(stringResource(R.string.settings_try_until_turkish_audio), tryUntilTurkishAudio) {

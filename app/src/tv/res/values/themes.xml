@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TV ekranları AppCompatActivity (Play'in "Dil" seçimi için); Play'in görsel kimliği: koyu zemin, camgöbeği vurgu. -->
+    <style name="Theme.PlayTv" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">#07111A</item>
+        <item name="android:statusBarColor">#07111A</item>
+        <item name="android:navigationBarColor">#07111A</item>
+        <item name="android:colorAccent">#00E5FF</item>
+        <item name="android:colorPrimary">#00E5FF</item>
+    </style>
+</resources>

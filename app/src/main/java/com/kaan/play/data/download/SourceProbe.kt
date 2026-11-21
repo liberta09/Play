@@ -51,12 +51,13 @@ class SourceProbe(
     private val timeoutMs: Long = 15_000,
 ) {
 
-    suspend fun probe(url: String, headers: Map<String, String>, timeoutMs: Long = this.timeoutMs): Probe = withContext(Dispatchers.IO) {
+    suspend fun probe(url: String, headers: Map<String, String>, timeoutMs: Long = this.timeoutMs, interceptor: okhttp3.Interceptor? = null): Probe = withContext(Dispatchers.IO) {
         val httpUrl = url.toHttpUrlOrNull()
         if (httpUrl == null || (httpUrl.scheme != "http" && httpUrl.scheme != "https")) {
             return@withContext Probe.Rejected(Probe.Reason.NotMedia)
         }
-        val http = client.newBuilder().callTimeout(timeoutMs, TimeUnit.MILLISECONDS).build()
+        val http = client.newBuilder().callTimeout(timeoutMs, TimeUnit.MILLISECONDS)
+            .apply { interceptor?.let { addInterceptor(it) } }.build()
         val request = Request.Builder().url(httpUrl).get().apply {
             val hasUa = headers.keys.any { it.equals("User-Agent", ignoreCase = true) }
             if (!hasUa) header("User-Agent", PlaybackController.DEFAULT_USER_AGENT)

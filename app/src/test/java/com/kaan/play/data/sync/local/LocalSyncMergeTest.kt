@@ -1,5 +1,6 @@
 package com.kaan.play.data.sync.local
 
+import com.kaan.play.data.library.ProviderContentId
 import com.kaan.play.data.sync.DeletedHistoryItem
 import com.kaan.play.data.sync.FavoriteBackup
 import com.kaan.play.data.sync.HistoryBackup
@@ -69,22 +70,80 @@ class LocalSyncMergeTest {
     }
 
     @Test
-    fun pinIsNeverTransferredAndLocalPinIsKept() {
-        val mine = LocalProfileSummary("p1", "Ben", pinHash = "pbkdf2-sha256\$x", syncCode = "ABC")
-        val theirsSame = LocalProfileSummary("p1", "Ben (TV)", avatar = "ocean", pinHash = "other")
-        val theirsNew = LocalProfileSummary("p2", "Çocuk", isChild = true, pinHash = "secret")
+    fun cloudPayloadHasNoPin_wifiPayloadKeepsPinButNoSyncCode() {
+        val mine = LocalProfileSummary("p1", "Ben", pinHash = "pbkdf2-sha256\$x", syncCode = "ABC", pinUpdatedAt = 5)
         assertNull(LocalSyncMerge.forTransfer(mine).pinHash)
         assertNull(LocalSyncMerge.forTransfer(mine).syncCode)
+        assertEquals(0L, LocalSyncMerge.forTransfer(mine).pinUpdatedAt)
+        val cloud = LocalSyncMerge.snapshot(listOf(mine), emptyMap(), emptyList(), "T")
+        assertNull(cloud.profiles[0].pinHash)
+        val wifi = LocalSyncMerge.snapshot(listOf(mine), emptyMap(), emptyList(), "T", includePins = true)
+        assertEquals("pbkdf2-sha256\$x", wifi.profiles[0].pinHash)
+        assertEquals(5L, wifi.profiles[0].pinUpdatedAt)
+        assertNull(wifi.profiles[0].syncCode)
+    }
 
-        val asClient = LocalSyncMerge.mergeProfiles(listOf(mine), listOf(theirsSame, theirsNew), remoteIsAuthority = true)
-        assertEquals(listOf("p1", "p2"), asClient.map { it.id })
-        assertEquals("Ben (TV)", asClient[0].name) // kodu gösteren cihaz esas
-        assertEquals("pbkdf2-sha256\$x", asClient[0].pinHash) // yerel PIN korunur
-        assertNull("yeni profil PIN'siz gelir", asClient[1].pinHash)
+    @Test
+    fun oldPeerWithoutPinNeverWipesLocalPin() {
+        // Eski sürüm (1.1.47 ve öncesi) PIN göndermez: damga 0, PIN boş.
+        val mine = LocalProfileSummary("p1", "Ben", pinHash = "mine", pinUpdatedAt = 0)
+        val mineStamped = mine.copy(pinUpdatedAt = 10)
+        val oldTheirs = LocalProfileSummary("p1", "Ben (TV)")
+        for (authority in listOf(true, false)) {
+            assertEquals("mine", LocalSyncMerge.mergeProfiles(listOf(mine), listOf(oldTheirs), authority)[0].pinHash)
+            assertEquals("mine", LocalSyncMerge.mergeProfiles(listOf(mineStamped), listOf(oldTheirs), authority)[0].pinHash)
+        }
+    }
 
-        val asServer = LocalSyncMerge.mergeProfiles(listOf(mine), listOf(theirsSame, theirsNew), remoteIsAuthority = false)
-        assertEquals("Ben", asServer[0].name)
-        assertNull(asServer[1].pinHash)
+    @Test
+    fun pinTravelsToDeviceWithoutPin_andNewProfileKeepsItsPin() {
+        val tvNoPin = LocalProfileSummary("p1", "Ev")
+        val phonePin = LocalProfileSummary("p1", "Ev", pinHash = "phone", pinUpdatedAt = 0)
+        val phoneNew = LocalProfileSummary("p2", "Çocuk", isChild = true, pinHash = "kid", pinUpdatedAt = 7)
+        // TV istemci (telefon kodu gösterir) ve TV sunucu: iki durumda da PIN TV'ye gelir.
+        val asClient = LocalSyncMerge.mergeProfiles(listOf(tvNoPin), listOf(phonePin, phoneNew), remoteIsAuthority = true)
+        val asServer = LocalSyncMerge.mergeProfiles(listOf(tvNoPin), listOf(phonePin, phoneNew), remoteIsAuthority = false)
+        for (r in listOf(asClient, asServer)) {
+            assertEquals("phone", r.first { it.id == "p1" }.pinHash)
+            assertEquals("kid", r.first { it.id == "p2" }.pinHash)
+            assertEquals(7L, r.first { it.id == "p2" }.pinUpdatedAt)
+        }
+    }
+
+    @Test
+    fun remoteCannotRemoveOrChangeLocalPin() {
+        val oldPin = LocalProfileSummary("p1", "Ev", pinHash = "old", pinUpdatedAt = 100)
+        val newPin = LocalProfileSummary("p1", "Ev", pinHash = "new", pinUpdatedAt = 200)
+        val removed = LocalProfileSummary("p1", "Ev", pinHash = null, pinUpdatedAt = 300)
+        for (authority in listOf(true, false)) {
+            // Daha yeni damgalı başka PIN ya da PIN kaldırma yerel PIN'i değiştirmez.
+            assertEquals("old", LocalSyncMerge.mergeProfiles(listOf(oldPin), listOf(newPin), authority)[0].pinHash)
+            assertEquals("old", LocalSyncMerge.mergeProfiles(listOf(oldPin), listOf(removed), authority)[0].pinHash)
+            // Yerelde PIN yokken karşının PIN'i alınır (daha kısıtlı olan kazanır).
+            assertEquals("new", LocalSyncMerge.mergeProfiles(listOf(removed), listOf(newPin), authority)[0].pinHash)
+        }
+    }
+
+    @Test
+    fun remotePinStampIsClampedToNow() {
+        val future = Long.MAX_VALUE / 2
+        val mine = LocalProfileSummary("p1", "Ev")
+        val theirs = LocalProfileSummary("p1", "Ev", pinHash = "x", pinUpdatedAt = future)
+        val won = LocalSyncMerge.pinWinner(mine, theirs, remoteIsAuthority = true, nowMs = 1_000)
+        assertEquals("x", won.pinHash)
+        assertEquals(1_000L, won.pinUpdatedAt)
+        val newProfile = LocalSyncMerge.mergeProfiles(emptyList(), listOf(theirs.copy(id = "p2")), remoteIsAuthority = true)[0]
+        assertTrue(newProfile.pinUpdatedAt <= System.currentTimeMillis())
+    }
+
+    @Test
+    fun authorityStillDecidesNameButSyncCodeStaysLocal() {
+        val mine = LocalProfileSummary("p1", "Ben", syncCode = "ABC")
+        val theirs = LocalProfileSummary("p1", "Ben (TV)", avatar = "ocean", syncCode = "XYZ")
+        val asClient = LocalSyncMerge.mergeProfiles(listOf(mine), listOf(theirs), remoteIsAuthority = true)[0]
+        assertEquals("Ben (TV)", asClient.name)
+        assertEquals("ABC", asClient.syncCode)
+        assertEquals("Ben", LocalSyncMerge.mergeProfiles(listOf(mine), listOf(theirs), remoteIsAuthority = false)[0].name)
     }
 
     @Test
@@ -107,6 +166,9 @@ class LocalSyncMergeTest {
         val server = LocalSyncMerge.plan(local, remote, remoteIsAuthority = false)
         assertEquals(listOf(onlyRemote), server.missingSources)
         assertTrue(server.sourceStates.isEmpty())
+        // Eksik eklenti kurulumu için ortak kaynağın karşıdaki hali iki yönde de gelir (sunucu durumunu yine korur).
+        assertEquals(listOf(sharedRemote), server.sharedSources)
+        assertEquals(listOf(sharedRemote), client.sharedSources)
     }
 
     @Test
@@ -467,5 +529,91 @@ class LocalSyncMergeTest {
         val multiPruned = LocalSyncMerge.pruneDeletedHistory(allItems + p2Items, nowMs = now)
         assertEquals(500, multiPruned.count { it.profileId == "p1" })
         assertEquals(10, multiPruned.count { it.profileId == "p2" })
+    }
+
+    @Test
+    fun legacyIdsBecomePermanentBeforeTombstonesFilter() {
+        // Bu cihaz eski kimliği taşıyıp mezar taşı bıraktı (zaman 50); karşı cihaz aynı cs:N ile, bu cihazın
+        // görmediği 2. bölümü daha önce (20) izlemiş ve henüz taşımamış. Bölüm silinmemeli, kalıcı kimliğe geçmeli.
+        val url = "https://dramacix.com/dizi/kahraman-koca"
+        val legacy = ProviderContentId.legacy("cs:718", url)
+        val permanent = ProviderContentId.of("cs:718", url)
+        val mine = HistoryBackup(permanent, "tv", 1, 1, 1_000, 10_000, 50, "K", null, "cs:718", null, url)
+        val theirs = HistoryBackup(legacy, "tv", 1, 2, 2_000, 10_000, 20, "K", null, "cs:718", null, url)
+        val merged = LocalSyncMerge.mergeLibrary(
+            LocalProfileBackup(history = listOf(mine)),
+            LocalProfileBackup(history = listOf(theirs), favorites = listOf(FavoriteBackup(legacy, "tv", "K", null, 5))),
+            tombstones = listOf(dh(legacy, 50, type = "tv")),
+        )
+        assertEquals(listOf(1, 2), merged.history.map { it.episode }.sorted())
+        assertTrue(merged.history.all { it.tmdbId == permanent })
+        assertEquals(listOf(permanent), merged.favorites.map { it.tmdbId }) // eski kopya ayrı favori olmaz
+    }
+
+    @Test
+    fun rowsWithoutUrlKeepTheirIdAndStillMeetTombstones() {
+        // Buluttan gelen satır adres taşımaz: çevrilemez; mezar taşından eskiyse süzülür (yinelenen kart olmasın).
+        val legacy = ProviderContentId.legacy("cs:718", "https://dramacix.com/x")
+        val cloud = HistoryBackup(legacy, "tv", 1, 1, 1_000, 10_000, 40, "K", null, null, null, null)
+        val merged = LocalSyncMerge.mergeLibrary(null, LocalProfileBackup(history = listOf(cloud)), listOf(dh(legacy, 50, type = "tv")))
+        assertTrue(merged.history.isEmpty())
+    }
+
+    @Test
+    fun cloudRowsWithoutUrlJoinThePermanentContent() {
+        // Bulut satırı adres taşımaz. Güncellenmemiş eş (aynı cs:718) 2. bölümü eski kimlikle yükledi;
+        // bu cihaz 1. ve 3. bölümü kalıcı kimlikle tutuyor. 2. bölüm silinmeden içeriğe katılır, eklenti + adres de gelir.
+        val url = "https://dramacix.com/dizi/kahraman-koca"
+        val permanent = ProviderContentId.of("cs:718", url)
+        val legacy = ProviderContentId.legacy("cs:718", url)
+        val local = LocalProfileBackup(history = listOf(
+            HistoryBackup(permanent, "tv", 1, 1, 1, 10, 10, "Kahraman Koca", null, "cs:718", null, url),
+            HistoryBackup(permanent, "tv", 1, 3, 1, 10, 30, "Kahraman Koca", null, "cs:718", null, url),
+        ))
+        val cloud = LocalProfileBackup(
+            history = listOf(HistoryBackup(legacy, "tv", 1, 2, 1, 10, 20, "Kahraman Koca", null, "cloud:x", null, null)),
+            favorites = listOf(FavoriteBackup(legacy, "tv", "Kahraman Koca", null, 5)),
+        )
+        val merged = LocalSyncMerge.mergeLibrary(local, cloud)
+        assertEquals(listOf(1, 2, 3), merged.history.map { it.episode }.sorted())
+        assertTrue(merged.history.all { it.tmdbId == permanent && it.contentUrl == url && it.pluginId == "cs:718" })
+        assertEquals(listOf(permanent), merged.favorites.map { it.tmdbId })
+    }
+
+    @Test
+    fun cloudRowFromOtherPluginNumberJoinsByUniqueTitle() {
+        val url = "https://dramacix.com/dizi/kahraman-koca"
+        val permanent = ProviderContentId.of("cs:718", url)
+        val local = LocalProfileBackup(history = listOf(HistoryBackup(permanent, "tv", 1, 1, 1, 10, 10, "Kahraman Koca", null, "cs:718", null, url)))
+        val otherDevice = ProviderContentId.legacy("cs:801", url) // eşin numarasıyla: eski hesapla eşlenemez, başlıkla eşlenir
+        val cloud = LocalProfileBackup(history = listOf(HistoryBackup(otherDevice, "tv", 1, 1, 1, 10, 20, " kahraman koca ", null, null, null, null)))
+        val merged = LocalSyncMerge.mergeLibrary(local, cloud).history
+        assertEquals(1, merged.size) // aynı bölüm: tek satır, yeni izlenen
+        assertEquals(20, merged.single().lastWatchedAt)
+        assertEquals(permanent, merged.single().tmdbId)
+        assertEquals(url, merged.single().contentUrl)
+    }
+
+    @Test
+    fun ambiguousTitleIsLeftAlone() {
+        val a = "https://dramacix.com/dizi/aile"
+        val b = "https://dizipal.com/dizi/aile"
+        val local = LocalProfileBackup(history = listOf(
+            HistoryBackup(ProviderContentId.of("cs:1", a), "tv", 1, 1, 1, 10, 10, "Aile", null, "cs:1", null, a),
+            HistoryBackup(ProviderContentId.of("cs:2", b), "tv", 1, 1, 1, 10, 10, "Aile", null, "cs:2", null, b),
+        ))
+        val cloud = LocalProfileBackup(history = listOf(HistoryBackup(-12345, "tv", 1, 2, 1, 10, 20, "Aile", null, null, null, null)))
+        val merged = LocalSyncMerge.mergeLibrary(local, cloud).history
+        assertTrue(merged.any { it.tmdbId == -12345 && it.contentUrl == null })
+    }
+
+    @Test
+    fun equalTimeKeepsTheCopyWithUrl() {
+        val url = "https://dramacix.com/dizi/kahraman-koca"
+        val permanent = ProviderContentId.of("cs:718", url)
+        val withUrl = HistoryBackup(permanent, "tv", 1, 1, 5, 10, 10, "K", null, "cs:718", "d", url)
+        val bare = HistoryBackup(permanent, "tv", 1, 1, 5, 10, 10, "K", null, null, null, null)
+        assertEquals(url, LocalSyncMerge.mergeLibrary(LocalProfileBackup(history = listOf(bare)), LocalProfileBackup(history = listOf(withUrl))).history.single().contentUrl)
+        assertEquals(url, LocalSyncMerge.mergeLibrary(LocalProfileBackup(history = listOf(withUrl)), LocalProfileBackup(history = listOf(bare))).history.single().contentUrl)
     }
 }

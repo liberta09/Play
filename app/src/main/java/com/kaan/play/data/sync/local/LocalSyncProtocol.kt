@@ -20,9 +20,21 @@ object LocalSyncProtocol {
     const val PATH_PROFILES = "/profiles"
     const val PATH_SYNC = "/sync"
 
+    /** Kalıcı eşleşme kurulumu (kodla); sonraki istekler [HEADER_PAIR] ile kodsuz yapılır. */
+    const val PATH_PAIR = "/pair"
+
     const val HEADER_SERVER_NONCE = "X-Play-Server-Nonce"
     const val HEADER_CLIENT_NONCE = "X-Play-Client-Nonce"
     const val HEADER_PROOF = "X-Play-Proof"
+
+    /** "Başka cihazda oynat" (yalnız eşli istek): gövde şifreli `PlayTarget` JSON'u; karşı cihaz kendi oynatıcısında açar. */
+    const val PATH_PLAY = "/play"
+
+    /** Kumanda/klavye (yalnız eşli istek): gövde şifreli `RemoteInput` JSON'u; karşı cihaz tuşu basar ya da yazıyı yazar. */
+    const val PATH_REMOTE = "/remote"
+
+    /** Eşli istek: anahtar kod yerine bu eşleşmenin sırrından türetilir. */
+    const val HEADER_PAIR = "X-Play-Pair"
 
     /** Gövde sınırı (istek ve yanıt). */
     const val MAX_BODY_BYTES = 5 * 1024 * 1024

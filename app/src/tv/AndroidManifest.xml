@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android TV çeşidi (com.kaan.play.tv): telefonun manifest'i aynen birleşir; burada yalnız TV'nin uygulama sınıfı, TV ekranları
+     ve başlatıcı değişir. Telefon arayüzü (MainActivity) başlatıcıdan ve bağlantılardan çıkar. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Sesli arama: Android 11+ paket görünürlüğü; yoksa konuşma tanıyıcı bulunamaz ve mikrofon tuşu gizlenir. -->
+    <queries>
+        <intent>
+            <action android:name="android.speech.action.RECOGNIZE_SPEECH" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".tv.TvPlayApp"
+        tools:replace="android:name">
+
+        <activity android:name=".MainActivity">
+            <intent-filter tools:node="removeAll" />
+        </activity>
+
+        <activity
+            android:name=".tv.TvMainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.PlayTv"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|navigation|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- Oynatıcıdan önceki kısa hazırlık: kaynak yoklama. -->
+        <activity
+            android:name=".tv.TvPlayStartActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.PlayTv"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|navigation|uiMode" />
+        <!-- Detaydaki YouTube fragmanı. -->
+        <activity
+            android:name=".tv.TvTrailerActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.PlayTv"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|navigation|uiMode" />
+        <!-- TV oynatıcı: Play'in oynatma/kaynak/altyazı katmanları, TV düzeni ve kumandası. -->
+        <activity
+            android:name=".tv.TvPlayerActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.PlayTv"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|keyboard|navigation|uiMode" />
+    </application>
+</manifest>

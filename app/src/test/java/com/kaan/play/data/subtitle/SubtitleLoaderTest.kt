@@ -6,6 +6,8 @@ import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import mockwebserver3.RecordedRequest
 import okhttp3.OkHttpClient
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Buffer
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -63,6 +65,23 @@ class SubtitleLoaderTest {
         "2\r\n00:00:04,000 --> 00:00:06,000\r\nÖĞRENCİ ŞEKER, Işık yok, ışık var.\r\n\r\n"
 
     private fun cached(url: String): String = File(cacheDir, SubtitleLoader.cacheName(url)).readText(Charsets.UTF_8)
+
+    @Test
+    fun providerInterceptorAppliesOnlyToItsSourceTrack() = runTest {
+        val observed = mutableListOf<String>()
+        val provider = okhttp3.Interceptor { chain ->
+            observed += chain.request().url.host
+            okhttp3.Response.Builder().request(chain.request()).protocol(okhttp3.Protocol.HTTP_1_1)
+                .code(200).message("OK").body(turkishSrt.toResponseBody("application/x-subrip".toMediaType())).build()
+        }
+        val source = SubtitleTrack("https://provider.invalid/source.srt", "tr", "Provider", httpInterceptor = provider)
+        val loaded = loader().load(source) as SubtitleLoad.Loaded
+        assertEquals("İstanbul'da şöyle bir gün: ığdır, çağrı.", loaded.cues.first().text)
+        routes["/online.srt"] = { bytesResponse(turkishSrt.toByteArray()) }
+        assertTrue(loader().load(track("/online.srt", "tr")) is SubtitleLoad.Loaded)
+        assertEquals(listOf("provider.invalid"), observed)
+        assertTrue(hits.contains("/online.srt"))
+    }
 
     @Test
     fun windows1254TurkishSrtIsDecodedAndCachedAsUtf8() = runTest {

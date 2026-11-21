@@ -73,6 +73,7 @@ private class TestFavoritesDao : FavoriteDao {
 }
 
 private class TestHistoryDao : WatchHistoryDao {
+    override suspend fun fillMissingPoster(userId: String, profileId: String, tmdbId: Int, type: com.kaan.play.data.model.MediaType, posterPath: String) = Unit
     val rows = MutableStateFlow<List<WatchHistoryEntity>>(emptyList())
     var shouldThrowOnUpsert = false
     private var nextId = 1L

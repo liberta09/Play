@@ -82,13 +82,18 @@ data class PlayableStream(
     val dubbed: Boolean = false,
     /** Kaynağın ait olduğu içeriğin anahtarı ([StreamOwnership.keyOf]); birleşik sağlayıcı damgalar. Başka içeriğin kaynağı oynatılmaz. */
     val forKey: String? = null,
+    /** Serialized marker: a missing runtime provider requires fresh resolution. */
+    val providerTransportRequired: Boolean = false,
+    /** Provider-owned runtime transport; never persisted as catalogue or history data. */
+    @kotlinx.serialization.Transient val httpInterceptor: okhttp3.Interceptor? = null,
     /** Kaynak/dosya etiketi (eklentiden gelen ad/başlık/dosya adı; bölüm ve yıl doğrulaması için). */
     val label: String? = null,
 )
 
 /** Akışla gelen altyazı; [language] addon'un verdiği ham etiket (`eng`, `tur` ...). */
 @Serializable
-data class StreamSubtitle(val url: String, val language: String?, val headers: Map<String, String> = emptyMap())
+data class StreamSubtitle(val url: String, val language: String?, val headers: Map<String, String> = emptyMap(),
+    @kotlinx.serialization.Transient val httpInterceptor: okhttp3.Interceptor? = null)
 
 enum class FailureReason { Timeout, Network, Http, InvalidResponse }
 

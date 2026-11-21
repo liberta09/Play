@@ -90,12 +90,7 @@ suspend fun downloadCs3(
                 Log.d(TAG, "downloadCs3: çok büyük (contentLength=$len) host=$host")
                 throw AddonException(Kind.TooLarge)
             }
-            body.bytes().also {
-                if (it.size > CS3_MAX_BYTES) {
-                    Log.d(TAG, "downloadCs3: çok büyük (gerçek boyut=${it.size}) host=$host")
-                    throw AddonException(Kind.TooLarge)
-                }
-            }
+            body.byteStream().use { readBounded(it, CS3_MAX_BYTES.toInt()) }
         }
     } catch (e: AddonException) { throw e }
     catch (e: Exception) {
@@ -131,17 +126,39 @@ private fun extractCs3(bytes: ByteArray, store: CsDexStore, id: Long, host: Stri
     try {
         ZipInputStream(bytes.inputStream()).use { zip ->
             var entry = zip.nextEntry
+            var entries = 0
+            var inflated = 0L
             while (entry != null) {
+                if (++entries > 128) throw AddonException(Kind.TooLarge)
                 val name = entry.name
                 entryNames += name
+                var remainingIgnored = CS3_MAX_BYTES
                 when {
-                    name == "classes.dex" || name.endsWith("/classes.dex") -> {
-                        dexBytes = zip.readBytes().also { if (it.size > CS3_MAX_BYTES) throw AddonException(Kind.TooLarge) }
+                    name == "classes.dex" -> {
+                        if (dexBytes != null) throw AddonException(Kind.InvalidField, "duplicate dex")
+                        dexBytes = readBounded(zip, CS3_MAX_BYTES.toInt())
                     }
-                    name == "manifest.json" || name.endsWith("/manifest.json") -> {
-                        manifestText = zip.readBytes().toString(Charsets.UTF_8)
+                    name == "manifest.json" -> {
+                        if (manifestText != null) throw AddonException(Kind.InvalidField, "duplicate manifest")
+                        manifestText = readBounded(zip, 256 * 1024).toString(Charsets.UTF_8)
+                    }
+                    else -> {
+                        // Bound ignored entries too: closeEntry must not inflate an unbounded ZIP bomb.
+                        val scratch = ByteArray(8192)
+                        while (true) {
+                            val n = zip.read(scratch)
+                            if (n < 0) break
+                            remainingIgnored -= n
+                            if (remainingIgnored < 0) throw AddonException(Kind.TooLarge)
+                        }
                     }
                 }
+                inflated += when (name) {
+                    "classes.dex" -> dexBytes?.size?.toLong() ?: 0L
+                    "manifest.json" -> manifestText?.toByteArray(Charsets.UTF_8)?.size?.toLong() ?: 0L
+                    else -> CS3_MAX_BYTES - remainingIgnored
+                }
+                if (inflated > 2 * CS3_MAX_BYTES) throw AddonException(Kind.TooLarge)
                 zip.closeEntry()
                 entry = zip.nextEntry
             }
@@ -157,14 +174,31 @@ private fun extractCs3(bytes: ByteArray, store: CsDexStore, id: Long, host: Stri
         Log.d(TAG, "extractCs3: classes.dex yok host=$host zipBoyutu=${bytes.size} girişler=$entryNames")
         throw AddonException(Kind.MissingField, "classes.dex not found in .cs3")
     }
-    val manifest = manifestText ?: "{}"
+    val manifest = manifestText ?: throw AddonException(Kind.MissingField, "manifest missing")
+    if (dex.size < 8 || !dex.copyOfRange(0, 4).contentEquals(byteArrayOf(100, 101, 120, 10))) {
+        throw AddonException(Kind.InvalidField, "invalid dex header")
+    }
 
     // DEX dosyasına yaz
     val dexFile = store.dexFile(id)
     dexFile.parentFile?.mkdirs()
-    FileOutputStream(dexFile).use { it.write(dex) }
-    store.setReadOnly(id)
-    store.manifestFile(id).writeText(manifest)
+    val stageDex = File.createTempFile("native-", ".dex", dexFile.parentFile)
+    val stageManifest = File.createTempFile("native-", ".manifest", dexFile.parentFile)
+    try {
+        FileOutputStream(stageDex).use { out ->
+            if (!stageDex.setReadOnly()) throw AddonException(Kind.InvalidField, "readonly dex failed")
+            out.write(dex)
+            out.fd.sync()
+        }
+        stageManifest.writeText(manifest)
+        java.nio.file.Files.move(stageDex.toPath(), dexFile.toPath(),
+            java.nio.file.StandardCopyOption.ATOMIC_MOVE, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        java.nio.file.Files.move(stageManifest.toPath(), store.manifestFile(id).toPath(),
+            java.nio.file.StandardCopyOption.ATOMIC_MOVE, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+    } finally {
+        stageDex.delete()
+        stageManifest.delete()
+    }
 
     return Cs3Contents(
         sha256 = sha256Hex(bytes),
@@ -183,4 +217,19 @@ internal fun normalizeSha256(raw: String): String? {
     val trimmed = raw.trim()
     val stripped = if (trimmed.startsWith("sha256-", ignoreCase = true)) trimmed.substring(7) else trimmed
     return stripped.takeIf { SHA256_HEX.matches(it) }?.lowercase()
+}
+
+/** Stops before allocating an unbounded response/ZIP entry. */
+internal fun readBounded(input: java.io.InputStream, limit: Int): ByteArray {
+    val output = java.io.ByteArrayOutputStream(minOf(limit, 8192))
+    val buffer = ByteArray(8192)
+    var total = 0
+    while (true) {
+        val count = input.read(buffer, 0, minOf(buffer.size, limit - total + 1))
+        if (count < 0) break
+        total += count
+        if (total > limit) throw AddonException(Kind.TooLarge)
+        output.write(buffer, 0, count)
+    }
+    return output.toByteArray()
 }

@@ -115,10 +115,33 @@ class TmdbRepository(
      * Boş sorgu ağa gitmeden boş sonuç verir. [type] null ise `search/multi` (kişi sonuçları ayıklanır); verilirse
      * TMDB'nin `search/movie` / `search/tv` uç noktası çağrılır (sonuçlar istemcide süzülmez, sayfalama bozulmaz).
      */
-    suspend fun search(query: String, page: Int = 1, type: MediaType? = null): Page<MediaSummary> {
+    suspend fun search(query: String, page: Int = 1, type: MediaType? = null): Page<MediaSummary> = searchWithPerson(query, page, type).first
+
+    /**
+     * [search] ile aynı; ikinci değer true ise sonuç kişinin film/dizileriyle başlıyor (sorgu bir oyuncunun tam adı). TV araması
+     * bu durumda film/dizi satırını eklenti sonuçlarının üstüne alır. Same as [search]; second value: results start with a person's credits.
+     */
+    suspend fun searchWithPerson(query: String, page: Int = 1, type: MediaType? = null): Pair<Page<MediaSummary>, Boolean> {
         val q = query.trim()
-        if (q.isEmpty()) return Page(emptyList(), 1, 1)
-        return service.search(q, lang(), page, type?.tmdbPath ?: "multi").toPage(defaultType = type)
+        if (q.isEmpty()) return Page(emptyList<MediaSummary>(), 1, 1) to false
+        val dto = service.search(q, lang(), page, type?.tmdbPath ?: "multi")
+        val result = dto.toPage(defaultType = type)
+        if (page != 1) return result to false
+        // Sorgu bir kişinin tam adıysa (ör. detayda oyuncuya dokunuldu) o kişinin film/dizileri öne eklenir. "Tümü"de
+        // kişi `search/multi` yanıtında zaten var; Filmler/Diziler sekmesinde kişi ayrıca aranır.
+        val people = if (type == null) dto.results.filter { it.mediaType == "person" }
+        else bestEffort { service.search(q, lang(), 1, "person") }?.results.orEmpty()
+        val person = people.firstOrNull { (it.name ?: "").equals(q, ignoreCase = true) } ?: return result to false
+        val credits = bestEffort { service.personCredits(person.id, lang()) }?.cast.orEmpty()
+            .filter { it.isActingCredit() }
+            // Ana işler önde (filmler, 3+ bölümlük ya da bölüm sayısı bilinmeyen diziler), 1–2 bölümlük konuk dizi rolleri
+            // arkada; her grup kendi içinde popülerliğe göre.
+            .sortedWith(compareBy<ItemDto> { it.mediaType == "tv" && it.episodeCount in 1..2 }.thenByDescending { it.popularity ?: 0.0 })
+            .mapNotNull { it.toSummary(null) }
+            .filter { it.posterPath != null && (type == null || it.type == type) }
+        val seen = HashSet<Pair<MediaType, Int>>()
+        val merged = (credits + result.items).filter { seen.add(it.type to it.id) }
+        return result.copy(items = merged) to credits.isNotEmpty()
     }
 
     /** IMDb kimliğine göre TMDB'de ara. Bulunursa (MediaType, tmdbId), yoksa null döner. */
@@ -271,6 +294,17 @@ private fun ListDto.toPage(defaultType: MediaType? = null): Page<MediaSummary> =
     page = page,
     totalPages = totalPages,
 )
+
+/**
+ * Oyunculuk kaydı mı: sohbet/haber/gerçeklik programı (TMDB tür 10767/10763/10764) ve "kendisi" olarak konukluk değil.
+ * Yoksa ünlü oyuncunun aramasını konuk olduğu gece programları doldurur.
+ */
+private fun ItemDto.isActingCredit(): Boolean {
+    if (genreIds.any { it == 10767 || it == 10763 || it == 10764 }) return false
+    val role = character?.trim()?.lowercase().orEmpty()
+    return !(role == "self" || role.startsWith("self ") || role.startsWith("self -") || role == "himself" || role == "herself" ||
+        role.startsWith("himself") || role.startsWith("herself") || role == "kendisi")
+}
 
 /** Film/dizi değilse (ör. kişi) null döner. */
 private fun ItemDto.toSummary(defaultType: MediaType?): MediaSummary? {

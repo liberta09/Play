@@ -66,6 +66,7 @@ class CsRepositoryLoadApisTest {
         version = "1.0",
         scriptUrl = "https://example.com/test.cs3",
         sha256 = "dummy-sha256",
+        enabled = true,
         installedAt = 1000L,
     )
 

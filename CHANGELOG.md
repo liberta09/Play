@@ -1,5 +1,29 @@
 # Changelog / Değişiklik günlüğü
 
+## [Unreleased]
+
+### Türkçe
+- Play TV (Android TV): telefonla aynı katmanları kullanan, kumandaya göre tasarlanmış ayrı çeşit (`com.kaan.play.tv`): Ana sayfa, Filmler, Diziler, Canlı TV, Ara, Kütüphane, detay, oynatıcı ve Ayarlar sayfaları.
+- Play TV'de Shorts Drama bölümü (Arcana Drama TV'den, kaldırılabilir): kısa dizileri Arcana Drama eklenti deposundan gösterir; depo yalnız bölüm açılınca kullanıcı onaylarsa eklenir; "varsayılan depo gömülmez" kuralıyla çeliştiği için ayrı tutuldu, kaldırma adımları `docs/android-tv.md`.
+- Wi-Fi eşleşmesi (isteğe bağlı, varsayılan kapalı; "Eşleşmiş cihazları hatırla"): kodla eşitledikten sonra iki cihazda da onaylanan eşleşme kod girmeden kendiliğinden eşitlenir; eksik kaynaklar yine onayla kurulur; silinen bölüm/geçmiş/favori kayıtları da taşınır; karşıdan gelen eşitleme yerel profil PIN'ini kaldıramaz ya da değiştiremez.
+- Telefondan TV'de oynat (detaydaki TV düğmesi; gönderilen akışlar TV'de yeniden denetlenir) ve telefonda TV kumandası.
+- Eklenti içeriği için cihazlar arası kalıcı kimlik (geçmiş ve favoriler başka cihazda da doğru eklentiyle açılır) ve eklenti favorilerinin taşınması.
+- CloudStream: az bellekli cihazlarda kaynak araması bütçesi (eş zamanlılık, eklenti bırakma, yanıt boyutu sınırı), yalnız canlı yayın veren eklentiler film/dizi aramasında sorulmaz, eklenti ayarları ekranı (dişli simgesi), eklentinin kendi bağlantı yakalayıcısı video ve altyazıda kullanılır, .cs3 indirmesinde boyut/ZIP sınırları.
+- Oynatıcı: dikey videolar için otomatik dikey tam ekran (Ayarlar > Oynatıcı) ve elle yön düğmesi; dikeyde Bölümler paneli alttan açılır; sonraki bölüm geri sayımı gerçek video konumunu izler.
+- Ana sayfa: bazı sitelerin eklentilerine özgü üst kayan alanlar.
+- Ara: tam oyuncu adıyla aramada oyuncunun film ve dizileri öne gelir.
+
+### English
+- Play TV (Android TV): a separate remote-first flavor (`com.kaan.play.tv`) sharing the phone app's layers: Home, Movies, Series, Live TV, Search, Library, detail, player and Settings pages.
+- Shorts Drama section on Play TV (from Arcana Drama TV, removable): shows short dramas from the Arcana Drama add-on repository; the repository is added only after the user confirms when opening the section; kept separate because it conflicts with the "no default repository" rule, removal steps in `docs/android-tv.md`.
+- Wi-Fi pairing (opt-in, off by default; "Remember paired devices"): after a code sync, a pairing confirmed on both devices syncs automatically without a code; missing sources still need confirmation; deleted episodes/history/favorites are carried over; a remote sync cannot remove or change a local profile PIN.
+- Play on TV from the phone (TV button on the detail screen; sent streams are re-checked on the TV) and a phone remote control for the TV.
+- Device-independent IDs for add-on content (history and favorites open with the right add-on on other devices) and transfer of add-on favorites.
+- CloudStream: source-search budget for low-memory devices (concurrency, unloading, response size cap), live-only add-ons are skipped in movie/series search, add-on settings screen (gear icon), the add-on's own link interceptor is used for video and subtitles, size/ZIP limits for .cs3 downloads.
+- Player: automatic portrait fullscreen for vertical videos (Settings > Player) and a manual orientation button; the Episodes panel opens from the bottom in portrait; the next-episode countdown follows the real video position.
+- Home: site-specific sliders at the top for some add-ons.
+- Search: searching an actor's full name lists their movies and series first.
+
 ## [1.3.2] — 2026-11-13
 
 ### Türkçe

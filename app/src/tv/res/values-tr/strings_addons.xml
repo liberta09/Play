@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ayarlar → Eklentiler metinlerinin Türkçesi (values/strings_addons.xml ile aynı adlar). -->
+<resources>
+    <string name="tv_addons_third_party_note">Eklentileri üçüncü taraflar yazar; uygulama içerik sağlamaz.</string>
+    <string name="tv_addons_catalog_install_failed">Depo kurulamadı (%1$s).</string>
+
+    <!-- Bölüm listesi -->
+    <string name="tv_addons_manage">Yönet</string>
+    <string name="tv_addons_installed_repos">Kurulu depolar</string>
+    <string name="tv_addons_repos_summary">CloudStream: %1$d depo · Nuvio: %2$d addon, %3$d eklenti deposu</string>
+    <string name="tv_addons_installed_plugins">Yüklü eklentiler</string>
+    <plurals name="tv_addons_cs_summary">
+        <item quantity="one">%1$d drama eklentisi (CloudStream): ara, aç/kapat, eklenti ayarları</item>
+        <item quantity="other">%1$d drama eklentisi (CloudStream): ara, aç/kapat, eklenti ayarları</item>
+    </plurals>
+    <string name="tv_addons_nuvio_plugins">Nuvio eklentileri</string>
+    <plurals name="tv_addons_nuvio_summary">
+        <item quantity="one">%1$d film ve dizi kaynağı: aç/kapat, eklenti ayarları</item>
+        <item quantity="other">%1$d film ve dizi kaynağı: aç/kapat, eklenti ayarları</item>
+    </plurals>
+    <string name="tv_addons_catalog">Depo kataloğu</string>
+    <string name="tv_addons_catalog_summary">Topluluk depolarını keşfet ve tek tuşla kur</string>
+    <string name="tv_addons_options">Seçenekler</string>
+    <string name="tv_addons_timeout">Kaynak zaman aşımı</string>
+    <string name="tv_addons_timeout_summary">Kaynak ararken bir eklentinin en çok beklendiği süre. Basınca değişir.</string>
+    <string name="tv_addons_seconds">%1$d sn</string>
+    <string name="tv_addons_torrent">Torrent sunucusu</string>
+    <string name="tv_addons_torrent_server">Sunucu: %1$s</string>
+    <string name="tv_addons_torrent_builtin">Yerleşik motor</string>
+
+    <!-- Ekleme kutusu -->
+    <string name="tv_addons_adding_long">Ekleniyor… Büyük depolarda birkaç dakika sürebilir.</string>
+    <string name="tv_addons_add_failed">Eklenemedi: bağlantıyı kontrol edin.</string>
+    <string name="tv_addons_add_title">Eklenti / depo ekle</string>
+    <string name="tv_addons_add_body">CloudStream deposu (repo.json ya da .cs3), Nuvio addon\'u (manifest.json) veya Nuvio eklenti deposu adresi. Türü kendiliğinden anlaşılır. Telefondaki kumanda klavyesiyle de yazılabilir.</string>
+    <string name="tv_addons_adding">Ekleniyor…</string>
+    <string name="tv_addons_add">Ekle</string>
+
+    <!-- Kurulu depolar -->
+    <string name="tv_addons_updated">Güncellendi.</string>
+    <string name="tv_addons_up_to_date">Her şey güncel.</string>
+    <string name="tv_addons_repos_empty">Kurulu depo yok. Eklentiler sayfasındaki kutuya adres girin ya da Depo kataloğundan kurun.</string>
+    <string name="tv_addons_cs_repos">CloudStream depoları</string>
+    <plurals name="tv_addons_plugin_count">
+        <item quantity="one">%1$d eklenti</item>
+        <item quantity="other">%1$d eklenti</item>
+    </plurals>
+    <string name="tv_addons_nuvio_addons">Nuvio addon\'ları</string>
+    <string name="tv_addons_kind_catalog">katalog</string>
+    <string name="tv_addons_kind_streams">yayın</string>
+    <string name="tv_addons_kind_subtitles">altyazı</string>
+    <string name="tv_addons_catalogs">Kataloglar</string>
+    <string name="tv_addons_nuvio_plugin_repos">Nuvio eklenti depoları</string>
+    <string name="tv_addons_wait">Bekleyin…</string>
+    <plurals name="tv_addons_pending_changes">
+        <item quantity="one">%1$d değişiklik: güncellemek için basın</item>
+        <item quantity="other">%1$d değişiklik: güncellemek için basın</item>
+    </plurals>
+    <string name="tv_addons_check_updates">Güncelleme denetle</string>
+
+    <!-- Addon katalogları -->
+    <string name="tv_addons_catalogs_of">%1$s: kataloglar</string>
+    <string name="tv_addons_catalogs_note">Kapalı kataloglar ana sayfada gösterilmez.</string>
+    <string name="tv_addons_catalogs_all_off">Tüm katalogları kapat</string>
+    <string name="tv_addons_catalogs_all_on">Tüm katalogları aç</string>
+    <string name="tv_addons_catalogs_on_count">%1$d / %2$d katalog açık</string>
+    <string name="tv_addons_home_catalogs">Ana sayfa katalogları</string>
+    <string name="tv_addons_home_catalogs_summary">Addon katalog satırlarını aç / kapat (telefondaki gibi)</string>
+    <string name="tv_addons_home_catalogs_note">Kapalı kataloglar ana sayfada, Filmler\'de ve Diziler\'de gösterilmez; sıra değişmez. Telefondaki ayarın aynısıdır: Wi-Fi eşitlemesinde TV\'deki seçim telefona da geçer.</string>
+    <string name="tv_addons_home_catalogs_empty">Katalog veren açık addon yok.</string>
+
+    <!-- Yüklü eklentiler (CloudStream) -->
+    <string name="tv_addons_search_plugins">Eklenti ara</string>
+    <string name="tv_addons_repo_filter">Depo: %1$s</string>
+    <string name="tv_addons_all">Tümü</string>
+    <string name="tv_addons_repo_all_off">Depoda hepsini kapat</string>
+    <string name="tv_addons_repo_all_on">Depoda hepsini aç</string>
+    <plurals name="tv_addons_cs_count">
+        <item quantity="one">%1$d eklenti · %2$d açık. %3$s</item>
+        <item quantity="other">%1$d eklenti · %2$d açık. %3$s</item>
+    </plurals>
+    <string name="tv_addons_no_settings">Bu eklentinin ayarı yok.</string>
+    <string name="tv_addons_settings_enable_first">Ayarını açmak için önce eklentiyi açın.</string>
+    <string name="tv_addons_settings_changed">Eklenti değişti; ayarı yeniden açın.</string>
+    <string name="tv_addons_settings_failed">Eklenti ayarı açılamadı.</string>
+    <string name="tv_addons_opening">Açılıyor…</string>
+    <string name="tv_addons_settings">Ayarlar</string>
+
+    <!-- Nuvio eklentileri -->
+    <string name="tv_addons_nuvio_empty">Nuvio eklenti deposu yok. Eklentiler sayfasındaki kutuya depo adresini girin.</string>
+    <string name="tv_addons_all_off">Hepsini kapat</string>
+    <string name="tv_addons_all_on">Hepsini aç</string>
+    <string name="tv_addons_type_movie">Film</string>
+    <string name="tv_addons_type_series">Dizi</string>
+    <string name="tv_addons_settings_of">%1$s: ayarlar</string>
+    <string name="tv_addons_plugin_settings">Eklenti ayarları</string>
+    <string name="tv_addons_settings_load_failed">Eklenti ayarları yüklenemedi.</string>
+    <string name="tv_addons_retry">Tekrar dene</string>
+    <string name="tv_addons_press_to_change">Basınca değişir.</string>
+
+    <!-- Depo kataloğu -->
+    <string name="tv_addons_catalog_intro">Topluluk depoları. Bir satıra basınca depo kurulur. %1$s</string>
+    <string name="tv_addons_search_repos">Depo ara (ad, tür, adres)</string>
+    <string name="tv_addons_catalog_failed">Katalog yüklenemedi.</string>
+    <string name="tv_addons_catalog_empty">Katalog boş.</string>
+    <string name="tv_addons_no_results">Sonuç yok.</string>
+    <string name="tv_addons_install_busy">Önce süren kurulum bitsin.</string>
+    <string name="tv_addons_installed">Yüklü</string>
+    <string name="tv_addons_installing">Kuruluyor…</string>
+    <string name="tv_addons_install">Yükle</string>
+
+    <!-- Torrent sunucusu -->
+    <string name="tv_addons_torrent_invalid">sunucu:8090 gibi bir adres girin.</string>
+    <string name="tv_addons_torrent_info">Torrent kaynakları yerleşik motorla oynar. Kendi sunucunuz (TorrServer uyumlu) varsa adresini girin; boş bırakırsanız yerleşik motor kullanılır.</string>
+    <string name="tv_addons_torrent_use_builtin">Yerleşik motoru kullan</string>
+
+    <!-- Ortak parçalar -->
+    <string name="tv_addons_remove_confirm">Silinsin mi? Tekrar basın</string>
+    <string name="tv_addons_remove">Kaldır</string>
+
+    <!-- Ekleme sonucu -->
+    <plurals name="tv_addons_added_skipped">
+        <item quantity="one">", %1$d eklenti kurulamadı"</item>
+        <item quantity="other">", %1$d eklenti kurulamadı"</item>
+    </plurals>
+    <plurals name="tv_addons_added_cs">
+        <item quantity="one">%1$s: %2$d eklenti kuruldu%3$s.</item>
+        <item quantity="other">%1$s: %2$d eklenti kuruldu%3$s.</item>
+    </plurals>
+    <plurals name="tv_addons_added_nuvio">
+        <item quantity="one">%1$s: %2$d Nuvio eklentisi kuruldu%3$s.</item>
+        <item quantity="other">%1$s: %2$d Nuvio eklentisi kuruldu%3$s.</item>
+    </plurals>
+    <string name="tv_addons_added_addon">%1$s eklendi (Nuvio addon\'u).</string>
+
+    <!-- Hata iletileri -->
+    <string name="tv_addons_err_already">Bu adres zaten ekli.</string>
+    <string name="tv_addons_err_invalid">Adres geçersiz: http(s) ile başlayan tam adresi girin.</string>
+    <string name="tv_addons_err_network">Adrese ulaşılamadı. İnterneti kontrol edin.</string>
+    <string name="tv_addons_err_http">Sunucu hata verdi (HTTP %1$s).</string>
+    <string name="tv_addons_err_too_large">Yanıt beklenmedik ölçüde büyük; eklenmedi.</string>
+    <string name="tv_addons_err_no_plugins">Bu depoda kullanılabilir eklenti yok.</string>
+    <string name="tv_addons_err_plugin_file">“%1$s” indirilemedi. Tekrar deneyin.</string>
+    <string name="tv_addons_err_no_streams">Bu eklenti film ya da dizi sunmuyor.</string>
+    <string name="tv_addons_err_unsupported">Bu tür kaynak desteklenmiyor.</string>
+    <string name="tv_addons_err_other">Bu adres geçerli bir depo ya da eklenti döndürmedi.</string>
+
+    <!-- Kaynak türleri -->
+    <string name="tv_addons_src_cs">CloudStream deposu</string>
+    <string name="tv_addons_src_nuvio_repo">Nuvio deposu</string>
+    <string name="tv_addons_src_nuvio_plugin">Nuvio eklentisi</string>
+</resources>
