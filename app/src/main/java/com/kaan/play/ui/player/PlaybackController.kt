@@ -727,6 +727,16 @@ class PlaybackController(
     /** Video seçimi elle sabitlenmiş mi (aksi hâlde "Otomatik")? */
     fun videoPinned(): Boolean = player.trackSelectionParameters.overrides.keys.any { it.type == C.TRACK_TYPE_VIDEO }
 
+    /**
+     * İlk ses parçası seçiminde tercih edilen diller (öncelik sırasıyla; [com.kaan.play.data.player.AudioLanguagePolicy]):
+     * dosyanın varsayılanı (ör. Hintçe) bir an bile çalmasın. Elle seçim (override) bundan etkilenmez; altyazı parametrelerine dokunmaz.
+     */
+    fun setPreferredAudioLanguages(languages: List<String>) {
+        player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
+            .setPreferredAudioLanguages(*languages.toTypedArray())
+            .build()
+    }
+
     fun selectAudio(index: Int) {
         val group = audioGroups().getOrNull(index) ?: return
         player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()

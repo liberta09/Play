@@ -34,6 +34,7 @@ import com.kaan.play.data.library.WatchRules
 import com.kaan.play.data.model.AgeRating
 import com.kaan.play.data.model.MediaDetail
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.player.AudioLanguagePolicy
 import com.kaan.play.data.player.AudioPlayabilityRules
 import com.kaan.play.data.player.AudioTrackLearning
 import com.kaan.play.data.player.AutoRetryPolicy
@@ -365,6 +366,7 @@ class PlayerActivity : AppCompatActivity() {
             // Ayarlar: tek seferlik okuma (milisaniyeler); oynatma başlamadan önce bilinmeli.
             autoSourceSetting = runBlocking { settings.autoSource.first() }
             preferDub = runBlocking { settings.preferDub.first() }
+            controller.setPreferredAudioLanguages(AudioLanguagePolicy.preferredLanguages(preferDub))
             tryUntilTurkishAudio = runBlocking { settings.trySourcesUntilTurkishAudio.first() }
             autoDubSwitchSetting = runBlocking { settings.autoDubSwitch.first() }
             revertOnSelectedFailureSetting = runBlocking { settings.revertOnSelectedFailure.first() }
@@ -1261,6 +1263,9 @@ class PlayerActivity : AppCompatActivity() {
                 val wanted = userAudioLanguage
                 val match = if (wanted != null) tracks.firstOrNull { lang(it) == wanted } else null
                 if (match != null && !match.selected) controller.selectAudio(match.index)
+            } else if (session.offline == null) {
+                // Ses dili sırası (Kullanıcı kararı 2026-11-23): Türkçe dublaj (açıksa) → İngilizce → dosyanın varsayılanı.
+                AudioLanguagePolicy.choose(controller.allAudioTrackInfos(), preferDub)?.let(controller::selectAudio)
             } else if (preferDub) {
                 val turkish = tracks.firstOrNull { TurkishAudioTrackRules.isTurkishTrack(it.language, it.label) }
                 if (turkish != null && !turkish.selected) controller.selectAudio(turkish.index)
