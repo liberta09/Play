@@ -24,6 +24,13 @@
 -keep class androidx.media3.** { *; }
 -dontwarn androidx.media3.**
 
+# ── FFmpeg ses çözücüsü (NextLib) ──────────────────────────────────────────────
+# Yerel kod (libmedia3ext.so) Java sınıflarına, alanlarına ve geri çağrılarına JNI ile adıyla erişir;
+# R8 bunları silerse ya da yeniden adlandırırsa release'te UnsatisfiedLinkError / NoSuchMethodError çıkar.
+-keep class io.github.anilbeesetti.nextlib.** { *; }
+-keepclasseswithmembernames class * { native <methods>; }
+-dontwarn io.github.anilbeesetti.nextlib.**
+
 # ── CloudStream eklentileri (Faz 3) ──────────────────────────────────────────────
 # .cs3 eklentileri çalışma anında yüklenen ayrı DEX'lerdir; uygulamadaki sınıflara ADLA ve İMZAYLA
 # bağlanırlar (Kotlin stdlib, coroutines, Jackson, jsoup, OkHttp dahil). R8 bunları kırpar ya da
