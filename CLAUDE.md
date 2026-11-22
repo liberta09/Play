@@ -189,6 +189,7 @@ Kanıt ve kök neden analizi: `docs/dogrulama-film/SONUC.md`.
 Aniyomi, ayrı Stremio ekosistemi, manga, IPTV, Telegram, tracker, profil/kilit, ayrı bir Android TV arayüzü (Compose for TV / Leanback ekranları; mevcut ekranlar kumandayla da kullanılır), torrent indirme (çevrimdışı saklama; torrent yalnızca izlenir, bkz. "Torrent — yerleşik motor"), toplu indirme (sezonu/diziyi tek dokunuşla indirme; bölüm başına indirme Faz 4/B'de vardır).
 
 ## Mimari kararlar
+- **FFmpeg ses çözücü istisnası (Kullanıcı kararı 2026-11-22):** 4K dosyalardaki AC-3/E-AC-3/DTS/TrueHD sesleri için NextLib (GPL-3.0) yalnızca ses çözücüsü olarak eklenir (`PlayRenderersFactory`; önce cihaz çözücüsü, olmazsa FFmpeg); video ve altyazı Media3'te kalır. APK ~+18,6 MB, kullanıcı kabul etti. `proguard-rules.pro`'daki NextLib kuralları silinmez.
 - Uygulamaya bot anahtarı/gizli anahtar gömülmez; çökme raporu Supabase Edge Function üzerinden iletilir, Telegram anahtarı yalnızca sunucuda durur (Kullanıcı kararı 2026-11-05).
 - **Watch Party (Kullanıcı kararı 2026-11-11):** 6 haneli kodla birlikte izleme; Supabase Realtime özel kanal ve RLS politikaları; görünen ad kuralı (aktif profil adı, yoksa Misafir/Guest; e-posta asla kullanılmaz).
 - **PlayDatabase v8:** 7→8 göçüyle Canlı TV kullanıcı kanal listeleri için `live_catalog` ve `live_catalog_channel` tabloları eklendi.
