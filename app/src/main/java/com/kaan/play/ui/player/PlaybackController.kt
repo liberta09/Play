@@ -25,7 +25,6 @@ import androidx.media3.datasource.ResolvingDataSource
 import androidx.media3.datasource.cache.Cache
 import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
-import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.hls.DefaultHlsExtractorFactory
@@ -166,7 +165,7 @@ class PlaybackController(
     private val bandwidthMeter = DefaultBandwidthMeter.getSingletonInstance(context)
 
     val player: ExoPlayer = run {
-        val renderersFactory = DefaultRenderersFactory(context)
+        val renderersFactory = PlayRenderersFactory(context)
             .setEnableDecoderFallback(true)
 
         // [ADIM 4] TV Box RAM sınırı (b7dab38) + Telefon 4K yüksek bit hızı uyumu (PlayerBufferConfig)

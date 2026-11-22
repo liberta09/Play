@@ -13,7 +13,6 @@ import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.datasource.cache.NoOpCacheEvictor
 import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.datasource.okhttp.OkHttpDataSource
-import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.offline.DefaultDownloadIndex
 import androidx.media3.exoplayer.offline.DefaultDownloaderFactory
 import androidx.media3.exoplayer.offline.Download
@@ -32,6 +31,7 @@ import com.kaan.play.data.stream.PlayTarget
 import com.kaan.play.data.stream.PlayableStream
 import com.kaan.play.data.stream.StreamRequest
 import com.kaan.play.ui.player.PlaybackController
+import com.kaan.play.ui.player.PlayRenderersFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -255,7 +255,7 @@ class DownloadCenter(
         return withContext(Dispatchers.Main) {
             withTimeout(PREPARE_TIMEOUT_MS) {
                 suspendCancellableCoroutine<DownloadRequest> { cont ->
-                    val helper = DownloadHelper.forMediaItem(appContext, item, DefaultRenderersFactory(appContext), source)
+                    val helper = DownloadHelper.forMediaItem(appContext, item, PlayRenderersFactory(appContext), source)
                     cont.invokeOnCancellation { helper.release() }
                     helper.prepare(object : DownloadHelper.Callback {
                         override fun onPrepared(helper: DownloadHelper, tracksInfoAvailable: Boolean) {
