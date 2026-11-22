@@ -1,0 +1,114 @@
+# Yeni APK 1.3.3 (vc50) — logcat özeti. Ana makine adları '(adres çıkarıldı)' ile değiştirildi.
+
+## 6a Jinbe 4K
+11-23 00:11:36.852  8346  8346 D PlayMatch: kaynak başlatılıyor: Jinbe (adres çıkarıldı)
+11-23 00:11:39.225  8346  8346 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=evet; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/vnd.dts.hd 6k dil=en destek=evet seçili=hayır
+11-23 00:11:39.324  8346  8346 I PlayMatch: Video çözücü: decoder=OMX.qcom.video.decoder.hevc tür=donanım süre=15ms
+11-23 00:11:39.324  8346  8346 I PlayMatch: Ses çözücü: decoder=ffmpegLavc63.1.101-eac3 süre=0ms
+11-23 00:11:41.053  8346  8346 D PlayMatch: ilk kare: Jinbe (faz=Starting)
+11-23 00:12:05.618  8346  8577 W AudioTrack: releaseBuffer() track 0x763875633000 disabled due to previous underrun, restarting
+(underrun uyarısı: 1, FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6c ileri sarma (+~5 dk)
+11-23 00:13:58.124  8346  8346 D PlayMatch: ilk kare: Jinbe (faz=Playing)
+(underrun uyarısı: 0, FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6c geri sarma
+11-23 00:13:58.124  8346  8346 D PlayMatch: ilk kare: Jinbe (faz=Playing)
+11-23 00:14:30.348  8346  8346 D PlayMatch: ilk kare: Jinbe (faz=Playing)
+(underrun uyarısı: 0, FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6a 4KHDHub 4K — 1. deneme (ilk kare 10 sn'de gelmedi, önceki kaynağa dönüldü)
+11-23 00:16:38.642  8346  8346 D PlayMatch: kaynak başlatılıyor: 4KHDHub (adres çıkarıldı)
+11-23 00:16:40.860  8346  8346 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/vnd.dts.hd 6k dil=en destek=evet seçili=evet
+11-23 00:16:40.932  8346  8346 I PlayMatch: Video çözücü: decoder=OMX.qcom.video.decoder.hevc tür=donanım süre=16ms
+11-23 00:16:40.933  8346  8346 I PlayMatch: Ses çözücü: decoder=ffmpegLavc63.1.101-dca süre=0ms
+11-23 00:16:49.236  8346  8346 D PlayMatch: kaynak başlatılıyor: Jinbe (adres çıkarıldı)
+11-23 00:16:52.815  8346  8346 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/vnd.dts.hd 6k dil=en destek=evet seçili=evet
+11-23 00:16:52.925  8346  8346 I PlayMatch: Video çözücü: decoder=OMX.qcom.video.decoder.hevc tür=donanım süre=21ms
+11-23 00:16:52.925  8346  8346 I PlayMatch: Ses çözücü: decoder=ffmpegLavc63.1.101-dca süre=1ms
+11-23 00:16:53.937  8346  8346 D PlayMatch: ilk kare: Jinbe (faz=Starting)
+11-23 00:17:05.061  8346  8577 W AudioTrack: releaseBuffer() track 0x76388a303800 disabled due to previous underrun, restarting
+11-23 00:17:06.549  8346  8577 W AudioTrack: releaseBuffer() track 0x76388a303800 disabled due to previous underrun, restarting
+11-23 00:17:08.073  8346  8577 W AudioTrack: releaseBuffer() track 0x76388a303800 disabled due to previous underrun, restarting
+(underrun uyarısı: 3, FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6a 4KHDHub 4K — 2. deneme
+11-23 00:18:16.931  8346  8346 D PlayMatch: kaynak başlatılıyor: 4KHDHub (adres çıkarıldı)
+11-23 00:18:17.766  8346  8577 W AudioTrack: releaseBuffer() track 0x76388a303800 disabled due to previous underrun, restarting
+11-23 00:18:21.756  8346  8346 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/vnd.dts.hd 6k dil=en destek=evet seçili=evet
+11-23 00:18:21.847  8346  8346 I PlayMatch: Video çözücü: decoder=OMX.qcom.video.decoder.hevc tür=donanım süre=19ms
+11-23 00:18:21.848  8346  8346 I PlayMatch: Ses çözücü: decoder=ffmpegLavc63.1.101-dca süre=0ms
+11-23 00:18:24.850  8346  8346 D PlayMatch: ilk kare: 4KHDHub (faz=Starting)
+(underrun uyarısı: 1, FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6a 4KHDHub 4K — 60 sn sonu
+11-23 00:18:16.931  8346  8346 D PlayMatch: kaynak başlatılıyor: 4KHDHub (adres çıkarıldı)
+11-23 00:18:17.766  8346  8577 W AudioTrack: releaseBuffer() track 0x76388a303800 disabled due to previous underrun, restarting
+11-23 00:18:21.756  8346  8346 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/vnd.dts.hd 6k dil=en destek=evet seçili=evet
+11-23 00:18:21.847  8346  8346 I PlayMatch: Video çözücü: decoder=OMX.qcom.video.decoder.hevc tür=donanım süre=19ms
+11-23 00:18:21.848  8346  8346 I PlayMatch: Ses çözücü: decoder=ffmpegLavc63.1.101-dca süre=0ms
+11-23 00:18:24.850  8346  8346 D PlayMatch: ilk kare: 4KHDHub (faz=Starting)
+(underrun uyarısı: 1, FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6b Jinbe 1080p
+11-23 00:20:59.040  8346  8346 D PlayMatch: kaynak başlatılıyor: Jinbe (adres çıkarıldı)
+11-23 00:21:01.025  8346  8346 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=en destek=evet seçili=evet
+11-23 00:21:01.070  8346  8346 I PlayMatch: Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=22ms
+11-23 00:21:01.076  1539  9482 I OMXMaster: makeComponentInstance(OMX.google.aac.decoder) in omx@1.0-service process
+11-23 00:21:01.083  8346  8346 I PlayMatch: Ses çözücü: decoder=OMX.google.aac.decoder süre=9ms
+11-23 00:21:01.125  1539 10928 I SoftAAC2: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-23 00:21:01.413  8346  8346 D PlayMatch: ilk kare: Jinbe (faz=Starting)
+(underrun uyarısı: 0, FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6d Örümcek-Adam
+11-23 00:23:02.247  8346  8346 D PlayMatch: kaynak başlatılıyor: 4KHDHub (adres çıkarıldı)
+11-23 00:23:03.652  8346  8346 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=evet; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/eac3 6k dil=en destek=evet seçili=hayır
+11-23 00:23:03.657  8346  8346 I PlayMatch: Ses çözücü: decoder=ffmpegLavc63.1.101-eac3 süre=2ms
+11-23 00:23:03.689  8346  8346 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=evet; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/eac3 6k dil=en destek=evet seçili=hayır
+11-23 00:23:04.112  8346  8346 D PlayMatch: ilk kare: 4KHDHub (faz=Starting)
+11-23 00:23:43.683  8346  8346 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=evet; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/eac3 6k dil=en destek=evet seçili=hayır
+(underrun uyarısı: 0, FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6d Joker
+11-23 00:24:19.412  8346  8346 D PlayMatch: kaynak başlatılıyor: DesiFlix (adres çıkarıldı)
+11-23 00:24:34.422  8346  8346 D PlayMatch: kaynak başlatılıyor: Reanime (adres çıkarıldı)
+11-23 00:24:40.058  8346  8346 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=ja destek=evet seçili=evet; audio/mp4a-latm 2k dil=en destek=evet seçili=hayır
+11-23 00:24:40.078  8346  8346 I PlayMatch: Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=21ms
+11-23 00:24:40.086  1539  9482 I OMXMaster: makeComponentInstance(OMX.google.aac.decoder) in omx@1.0-service process
+11-23 00:24:40.090  8346  8346 I PlayMatch: Ses çözücü: decoder=OMX.google.aac.decoder süre=12ms
+11-23 00:24:40.718  1539 11704 I SoftAAC2: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-23 00:24:40.979  8346  8346 D PlayMatch: ilk kare: Reanime (faz=Starting)
+11-23 00:24:40.995  8346  8346 D PlayMatch: kaynak başlatılıyor: 🏰 Castle (adres çıkarıldı)
+11-23 00:24:40.996  8346  8346 D PlayMatch: ilk kare olayı yok sayıldı (eski kaynaktan kalma): 🏰 Castle
+11-23 00:24:41.827  8346  8346 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-23 00:24:42.119  8346  8346 D PlayMatch: ilk kare: 🏰 Castle (faz=Starting)
+(underrun uyarısı: 0, FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6d Criminal Minds
+11-23 00:25:29.146  8346  8346 D PlayMatch: kaynak başlatılıyor: 4KHDHub (adres çıkarıldı)
+11-23 00:25:42.987  8346  8346 D PlayMatch: kaynak başlatılıyor: Dahmermovies (adres çıkarıldı)
+11-23 00:25:56.704  8346  8346 D PlayMatch: kaynak başlatılıyor: 🏰 Castle (adres çıkarıldı)
+11-23 00:25:57.675  8346  8346 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-23 00:25:57.693  8346  8346 I PlayMatch: Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=15ms
+11-23 00:25:57.704  1539  1582 I OMXMaster: makeComponentInstance(OMX.google.aac.decoder) in omx@1.0-service process
+11-23 00:25:57.709  8346  8346 I PlayMatch: Ses çözücü: decoder=OMX.google.aac.decoder süre=17ms
+11-23 00:25:57.730  1539 12067 I SoftAAC2: Reconfiguring decoder: 0->48000 Hz, 0->2 channels
+11-23 00:25:57.869  8346  8346 D PlayMatch: ilk kare: 🏰 Castle (faz=Starting)
+(underrun uyarısı: 0, FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6d Canlı ATV
+11-23 00:26:53.593  8346  8346 D PlayMatch: kaynak başlatılıyor: Anthology — Canlı TV (adres çıkarıldı)
+11-23 00:27:06.248  8346  8346 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-23 00:27:06.509  8346  8346 I PlayMatch: Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=16ms
+11-23 00:27:06.515  1539  9311 I OMXMaster: makeComponentInstance(OMX.google.aac.decoder) in omx@1.0-service process
+11-23 00:27:06.520  8346  8346 I PlayMatch: Ses çözücü: decoder=OMX.google.aac.decoder süre=7ms
+11-23 00:27:06.526  1539 12287 I SoftAAC2: Reconfiguring decoder: 0->48000 Hz, 0->2 channels
+11-23 00:27:06.571  8346  8346 D PlayMatch: ilk kare: Anthology — Canlı TV (faz=Failed)
+(underrun uyarısı: 0, FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6e indirme başlat
+(underrun uyarısı: 0, FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6e indirme iptal
+(underrun uyarısı: 0, FATAL/VerifyError/UnsatisfiedLinkError: 0)

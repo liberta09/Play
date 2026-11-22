@@ -1,0 +1,24 @@
+## 4khub
+  Normal mixer raw underrun counters: partial=0 empty=0
+  2 Tracks of which 0 are active
+    T Name Active Client Session S  Flags   Format Chn mask  SRate ST  L dB  R dB  VS dB   Server FrmCnt  FrmRdy F Underruns  Flushed Main Buf  Aux Buf
+    S    0     no   1598     105 S  0x600 00000001 00000003  48000  1  -inf  -inf     0  000011A0   4512       0 f         0        0 F3F0F000 00000000
+    S    1     no   1598     113 S  0x600 00000001 00000003  48000  1  -inf  -inf     0  0001A700   4512       0 f         0        0 F3F0F000 00000000
+  0 Effect Chains
+  Local log:
+## jinbe
+  Normal mixer raw underrun counters: partial=0 empty=0
+  2 Tracks of which 0 are active
+    T Name Active Client Session S  Flags   Format Chn mask  SRate ST  L dB  R dB  VS dB   Server FrmCnt  FrmRdy F Underruns  Flushed Main Buf  Aux Buf
+    S    0     no   1598     105 S  0x600 00000001 00000003  48000  1  -inf  -inf     0  000011A0   4512       0 f         0        0 F3F0F000 00000000
+    S    1     no   1598     113 S  0x600 00000001 00000003  48000  1  -inf  -inf     0  000210C0   4512       0 f         0        0 F3F0F000 00000000
+  0 Effect Chains
+  Local log:
+## 1080
+  Normal mixer raw underrun counters: partial=0 empty=0
+  3 Tracks of which 1 are active
+    T Name Active Client Session S  Flags   Format Chn mask  SRate ST  L dB  R dB  VS dB   Server FrmCnt  FrmRdy F Underruns  Flushed Main Buf  Aux Buf
+    S    0     no   1598     105 S  0x600 00000001 00000003  48000  1  -inf  -inf     0  000011A0   4512       0 f         0        0 F3F0F000 00000000
+    S    1     no   1598     113 S  0x600 00000001 00000003  48000  1  -inf  -inf     0  00028C20   4512       0 f         0        0 F3F0F000 00000000
+         2    yes   4408     145 A  0x000 00000001 00000003  44100  3     0     0     0  00154DB3  22050   21109 A         0        0 F3F0F000 00000000
+  0 Effect Chains

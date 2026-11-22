@@ -1,0 +1,13 @@
+# dumpsys media.audio_flinger — yeni APK, Play (pid 8346) aktif izleri
+## jinbe
+  3 Tracks of which 1 are active
+    T Name Active Client Session S  Flags   Format Chn mask  SRate ST  L dB  R dB  VS dB   Server FrmCnt  FrmRdy F Underruns  Flushed Main Buf  Aux Buf
+         2    yes   8346     161 A  0x001 00000001 0000003F  48000  3     0     0     0  00271F80  24000   11712 A   1384164        0 F3F0F000 00000000
+## hub2
+  3 Tracks of which 1 are active
+    T Name Active Client Session S  Flags   Format Chn mask  SRate ST  L dB  R dB  VS dB   Server FrmCnt  FrmRdy F Underruns  Flushed Main Buf  Aux Buf
+         2    yes   8346     161 A  0x001 00000001 0000003F  48000  3     0     0     0  002C1E00  24000   24000 A    171846        0 F3F0F000 00000000
+## 1080
+  3 Tracks of which 1 are active
+    T Name Active Client Session S  Flags   Format Chn mask  SRate ST  L dB  R dB  VS dB   Server FrmCnt  FrmRdy F Underruns  Flushed Main Buf  Aux Buf
+         2    yes   8346     161 A  0x000 00000001 00000003  44100  3     0     0     0  0026EE99  22050   22050 A         0        0 F3F0F000 00000000
