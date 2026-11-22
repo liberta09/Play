@@ -1387,6 +1387,7 @@ private fun SourceNoticePill(notice: SourceNotice, modifier: Modifier = Modifier
         SourceNotice.AudioSyncSwitching -> R.string.player_audio_sync_switching to null
         SourceNotice.AudioSyncNoOtherSource -> R.string.player_audio_sync_no_other to null
         SourceNotice.WaitingForInternet -> R.string.player_waiting_for_internet to null
+        SourceNotice.AudioUnsupported -> R.string.player_audio_unsupported to null
     }
     Column(
         modifier = modifier

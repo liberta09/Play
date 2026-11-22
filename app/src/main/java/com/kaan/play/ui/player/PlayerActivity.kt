@@ -34,6 +34,7 @@ import com.kaan.play.data.library.WatchRules
 import com.kaan.play.data.model.AgeRating
 import com.kaan.play.data.model.MediaDetail
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.player.AudioPlayabilityRules
 import com.kaan.play.data.player.AudioTrackLearning
 import com.kaan.play.data.player.AutoRetryPolicy
 import com.kaan.play.data.player.AudioTrackRules
@@ -1234,8 +1235,20 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Ses parçaları var ama hiçbiri çalınamıyorsa (görüntü sessiz oynardı) kaynak koordinatörüne bildirilir: otomatik modda sıradaki
+     * kaynağa geçilir, elle seçilmişse kısa ileti çıkar. Tanı satırı adres içermez (yalnızca biçim/kanal/dil/destek).
+     */
+    private fun checkAudioPlayable() {
+        val all = controller.allAudioTrackInfos()
+        if (all.isEmpty()) return
+        android.util.Log.i("PlayMatch", "ses parçaları: ${AudioPlayabilityRules.describe(all)}")
+        if (AudioPlayabilityRules.isUnplayable(all)) coordinator?.onAudioUnplayable()
+    }
+
     /** Ses parçası listesi değişti: elle seçilen dil korunur; yoksa Türkçe ses izi doğrulama veya otomatik seçim çalışır. */
     private fun syncAudio() {
+        checkAudioPlayable()
         val handledByVerifier = evaluateTurkishAudio()
         val tracks = controller.audioTracks()
         if (tracks.isEmpty()) {
