@@ -42,11 +42,38 @@ Kullanıcı kararı 2026-11-22: NextLib eklenir, APK artışı (~+18,6 MB) kabul
 | 6d regresyon | Örümcek-Adam (FFmpeg eac3), Joker (AAC), Criminal Minds (AAC), Canlı ATV (AAC) 60'ar sn sesli; Geri çalışıyor. FATAL / VerifyError / UnsatisfiedLinkError: 0 | `r_20`–`r_23` |
 | 6e indirme | Başlatıldı (312 MB / 1,2 GB), iptal edildi, liste boş, çökme yok. Dosya boyutu bilinen düz bir dosyaydı; HLS/DASH (DownloadHelper) yolu bu denemeyle kanıtlanmadı | `24`–`26` |
 
-## Açık konular (yayın kararından önce)
-1. **Varsayılan ses dili:** Play tercih edilen ses dili vermiyor; Media3 dosyanın varsayılan parçasını seçiyor. Eskiden bu cihazda yalnızca AAC çalınabildiği için İngilizce seçiliyordu; şimdi E-AC-3 de çalınabildiği için:
-   - The Odyssey (4KHDHub 1080p, Jinbe 4K) ve Örümcek-Adam'da **Hintçe** açılıyor; İngilizce parça var.
-   - Joker'de (Reanime, AAC) Japonca açılıyor; bu FFmpeg'den bağımsız, önceden de vardı.
-   - E-AC-3 çözücüsü olan gerçek TV kutularında da aynı seçim zaten oluyordu. Öneri: oynatıcıya tercih edilen ses dili olarak uygulama dili, sonra İngilizce vermek. Bu iş kapsamında yapılmadı, karar kullanıcıda.
-2. **Parçalar paneli:** desteklenen yeni parçalar dosyadaki etiketiyle görünüyor ("Dolby Digital Plus / 5.1 / 48 kHz / 640 kbps • E-AC3", "DTS-HD Master Audio … • DTS"). Arayüz kuralı 3 (teknik ayrıntı yok) açısından etiket sadeleştirmesi gerekebilir. Panelin bu davranışı bu işte değiştirilmedi.
-3. **Açılış değişiklik notu:** "Bu sürümde neler yeni?" penceresi 1.3.3 için eski maddeleri gösteriyor (`10_acilis_neler_yeni.png`). Değişiklik notu güncellenmedi.
-4. **Emülatörde 4K:** ilk kare kimi zaman 10 sn'yi aşıyor. Elle seçimde önceki kaynağa dönülüyor, otomatikte sıradakine geçiliyor. Bu mevcut kural; gerçek cihazda denenmeli.
+## Ses dili sırası (Kullanıcı kararı 2026-11-23)
+FFmpeg eklenince bütün parçalar çalınabilir oldu ve oynatıcı dosyanın varsayılan parçasını (Hintçe) seçiyordu. Bunun yerine:
+- **Sıra:** "Türkçe dublajı öncele" açıkken Türkçe → İngilizce → dosyanın varsayılanı; kapalıyken İngilizce → dosyanın varsayılanı.
+- **Kural `AudioLanguagePolicy`** (Android'siz):
+  - Yalnızca desteklenen parçalar aday olur.
+  - Türkçe `TurkishAudioTrackRules.isTurkishTrack` ile, İngilizce `SubtitleLanguages.normalize(dil) == "en"` ile (en/eng/English) tanınır.
+  - Hiçbir parçada dil bilgisi yoksa karar verilmez; öğrenilmiş parça akışı aynen kalır.
+- **İlk seçim:** `PlaybackController.setPreferredAudioLanguages("tr","en")` (dublaj önceliği kapalıysa yalnızca "en"). Böylece Hintçe hiç açılmaz.
+- **`syncAudio`:** elle seçim yoksa ve Türkçe doğrulayıcı işi üstlenmediyse kural uygulanır.
+- **Dokunulmayanlar:** kullanıcının elle seçtiği ses, öğrenilmiş parça, Türkçe doğrulayıcı ve çevrimdışı kopya. Çevrimdışında ne tercih parametresi ne yeni kural uygulanır; eski Türkçe dalı aynen çalışır.
+- **Testler:** `AudioLanguagePolicyTest` 9 test: istenen (a)–(g) + "hedef zaten seçili" + dil sırası. Tüm paket **1554 test, 0 hata, 2 atlanan.**
+- **APK:** 68.010.252 B, SHA-256 `dfb923548f5e7ae5ece95035bddc7f356a7b0a82e4d853f256f5f5618c1d6f8f`, `adb install -r` ile kuruldu.
+
+| Madde | Seçilen ses | Kanıt |
+|---|---|---|
+| Ayar | "Türkçe dublajı öncele" açık | `dil_00_ayar.png` |
+| The Odyssey, otomatik başlangıç (4KHDHub 1080p: en AAC + hi/ta/te E-AC-3) | **en** AAC, cihaz çözücüsü | `dil_logcat.txt` |
+| 3 Jinbe 4K (hi/ta/te E-AC-3 + en DTS-HD) | **en** DTS-HD (`ffmpeg…-dca`); E-AC-3 çözücüsü hiç açılmadı. Aktif akış 6 kanal 48 kHz | `dil_01_jinbe4k_parcalar.png`, `dil_audioflinger.txt` |
+| 3 4KHDHub 4K (aynı parça seti, 53,3 GB) | **en** DTS-HD; aktif akış 6 kanal | `dil_02_4khub4k_oynatici.png`, `dil_02_4khub4k_parcalar.png` |
+| 3 Örümcek-Adam (4KHDHub, hi/ta/te/en E-AC-3) | **en** E-AC-3; aktif akış | `dil_03_orumcek_adam_parcalar.png` |
+| 4 Türkçe dublaj: Ters Yüz 2, Imu ("Dublaj / Altyazılı"; tr + en AAC) | **tr**; üst çubukta "Dublajlı (gömülü ses)" | `dil_04_tr_dublaj_oynatici.png`, `dil_04_tr_dublaj_parcalar.png` |
+| 5 Elle Hintçe (4KHDHub 4K) | 30 sn sonra hâlâ **hi**; otomatik geri dönüş yok | `dil_05_elle_hintce_30sn.png` |
+| 6 Joker | Reanime açıldı (en seçildi; eskiden ja), süre kontrolü 23,6 dk ≠ 122 dk ile elendi, Castle (und AAC) sesli | `dil_06_joker.png` |
+| 6 Criminal Minds | Castle, und AAC, sesli, Geri çalışıyor | `dil_07_criminal_minds.png` |
+| 6 Canlı A2 TV | und AAC, sesli, Geri çalışıyor | `dil_08_canli_a2.png` |
+| 7 "Neler yeni" (Türkçe) | Yeni üç madde, taşma yok; 1.3 yazı ölçeğinde de sığıyor | `dil_09_neler_yeni_tr.png`, `dil_10_neler_yeni_tr_buyuk_yazi.png` |
+
+Tüm turda FATAL / VerifyError / UnsatisfiedLinkError: 0 (`dil_logcat.txt`).
+
+**"Neler yeni" görüntüsü nasıl alındı:** cihaz 1.3.3'ü daha önce "görüldü" kaydetmişti. Ayarlar silinmeden pencereyi yeniden açmak için kodu değiştirmeyen bir Gradle init betiğiyle yalnızca versionName'i "1.3.3-wn" olan geçici bir derleme kuruldu (aynı versionCode 50). Ardından gerçek 1.3.3 APK'sı (`dfb92354…`) yeniden kuruldu ve pencere "Sürüm 1.3.3" başlığıyla açıldı. Cihazda kalan sürüm gerçek 1.3.3'tür.
+
+## Açık konular
+1. **Parçalar paneli:** desteklenen parçalar dosyadaki teknik etiketiyle görünüyor. Kullanıcı kararıyla panelde kalabilir; değiştirilmedi.
+2. **Emülatörde 4K:** ilk kare kimi zaman 10 sn'yi aşıyor. Elle seçimde önceki kaynağa dönülüyor, otomatikte sıradakine geçiliyor. Bu mevcut kural; gerçek cihazda denenmeli.
+3. **Türkçe dublaj denemesi:** Imu akışında Türkçe parça zaten listede ilkti. Türkçenin varsayılan olmadığı, ikinci sırada olduğu çok sesli bir dosya bulunamadı; bu durum birim testle (b) güvence altında.

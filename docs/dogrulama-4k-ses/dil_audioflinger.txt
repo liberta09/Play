@@ -1,0 +1,9 @@
+# dumpsys media.audio_flinger — Play'in aktif akışları (ses dili turu)
+## jinbe
+  3 Tracks of which 1 are active
+    T Name Active Client Session S  Flags   Format Chn mask  SRate ST  L dB  R dB  VS dB   Server FrmCnt  FrmRdy F Underruns  Flushed Main Buf  Aux Buf
+         2    yes  13862     225 A  0x001 00000001 0000003F  48000  3     0     0     0  00208580  24000     448 A   1125108        0 F3F0F000 00000000
+## hub
+  3 Tracks of which 1 are active
+    T Name Active Client Session S  Flags   Format Chn mask  SRate ST  L dB  R dB  VS dB   Server FrmCnt  FrmRdy F Underruns  Flushed Main Buf  Aux Buf
+         2    yes  13862     225 A  0x001 00000001 0000003F  48000  3     0     0     0  0028E780  24000   22976 A     28854        0 F3F0F000 00000000
