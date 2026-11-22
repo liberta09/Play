@@ -207,6 +207,15 @@ class PlaybackController(
                     val isSw = isSoftwareDecoder(decoderName)
                     Log.i("PlayMatch", "Video çözücü: decoder=$decoderName tür=${if (isSw) "yazılım" else "donanım"} süre=${initializationDurationMs}ms")
                 }
+
+                override fun onAudioDecoderInitialized(
+                    eventTime: AnalyticsListener.EventTime,
+                    decoderName: String,
+                    initializedTimestampMs: Long,
+                    initializationDurationMs: Long,
+                ) {
+                    Log.i("PlayMatch", "Ses çözücü: decoder=$decoderName süre=${initializationDurationMs}ms")
+                }
             })
             // Altyazı varsayılan olarak kapalıdır; seçilince açılır (videonun içindekiler Media3'le, diğerleri kendi katmanımızla).
             exo.trackSelectionParameters = exo.trackSelectionParameters.buildUpon()
