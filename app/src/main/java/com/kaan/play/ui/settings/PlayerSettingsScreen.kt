@@ -76,6 +76,7 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_DUB_SWITCH)
     val audioProbeSeconds by container.settings.audioProbeTimeoutSeconds
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUDIO_PROBE_TIMEOUT_SECONDS)
+    val autoPortrait by container.settings.autoPortraitVideos.collectAsStateWithLifecycle(initialValue = true)
     val autoNext by container.settings.autoNext
         .collectAsStateWithLifecycle(initialValue = SettingsRepository.DEFAULT_AUTO_NEXT)
     val autoNextSeconds by container.settings.autoNextSeconds
@@ -143,6 +144,9 @@ fun PlayerSettingsScreen(onBack: () -> Unit) {
                 value = stringResource(R.string.settings_audio_probe_seconds, audioProbeSeconds),
                 onClick = { pickAudioTimeout = true },
             )
+            SwitchRow(stringResource(R.string.settings_auto_portrait_videos), autoPortrait) {
+                scope.launch { container.settings.setAutoPortraitVideos(it) }
+            }
             SwitchRow(stringResource(R.string.settings_always_resume), alwaysResume) {
                 scope.launch { container.settings.setAlwaysResume(it) }
             }

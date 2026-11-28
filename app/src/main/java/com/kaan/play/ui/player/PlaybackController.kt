@@ -25,7 +25,6 @@ import androidx.media3.datasource.ResolvingDataSource
 import androidx.media3.datasource.cache.Cache
 import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.datasource.okhttp.OkHttpDataSource
-import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.hls.DefaultHlsExtractorFactory
@@ -166,7 +165,7 @@ class PlaybackController(
     private val bandwidthMeter = DefaultBandwidthMeter.getSingletonInstance(context)
 
     val player: ExoPlayer = run {
-        val renderersFactory = DefaultRenderersFactory(context)
+        val renderersFactory = PlayRenderersFactory(context)
             .setEnableDecoderFallback(true)
 
         // [ADIM 4] TV Box RAM sınırı (b7dab38) + Telefon 4K yüksek bit hızı uyumu (PlayerBufferConfig)
@@ -207,6 +206,15 @@ class PlaybackController(
                 ) {
                     val isSw = isSoftwareDecoder(decoderName)
                     Log.i("PlayMatch", "Video çözücü: decoder=$decoderName tür=${if (isSw) "yazılım" else "donanım"} süre=${initializationDurationMs}ms")
+                }
+
+                override fun onAudioDecoderInitialized(
+                    eventTime: AnalyticsListener.EventTime,
+                    decoderName: String,
+                    initializedTimestampMs: Long,
+                    initializationDurationMs: Long,
+                ) {
+                    Log.i("PlayMatch", "Ses çözücü: decoder=$decoderName süre=${initializationDurationMs}ms")
                 }
             })
             // Altyazı varsayılan olarak kapalıdır; seçilince açılır (videonun içindekiler Media3'le, diğerleri kendi katmanımızla).
@@ -718,6 +726,16 @@ class PlaybackController(
 
     /** Video seçimi elle sabitlenmiş mi (aksi hâlde "Otomatik")? */
     fun videoPinned(): Boolean = player.trackSelectionParameters.overrides.keys.any { it.type == C.TRACK_TYPE_VIDEO }
+
+    /**
+     * İlk ses parçası seçiminde tercih edilen diller (öncelik sırasıyla; [com.kaan.play.data.player.AudioLanguagePolicy]):
+     * dosyanın varsayılanı (ör. Hintçe) bir an bile çalmasın. Elle seçim (override) bundan etkilenmez; altyazı parametrelerine dokunmaz.
+     */
+    fun setPreferredAudioLanguages(languages: List<String>) {
+        player.trackSelectionParameters = player.trackSelectionParameters.buildUpon()
+            .setPreferredAudioLanguages(*languages.toTypedArray())
+            .build()
+    }
 
     fun selectAudio(index: Int) {
         val group = audioGroups().getOrNull(index) ?: return

@@ -1,0 +1,192 @@
+11-28 12:34:38.681 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10211
+11-28 12:34:42.335 D/PlayMatch( 8609): kaynak başlatılıyor: 4KHDHub (<sunucu>)
+11-28 12:34:45.290 D/PlayMatch( 8609): oynatıcı hatası: 4KHDHub (faz=Starting) ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED (3003)
+11-28 12:34:45.290 D/PlayMatch( 8609): oynatıcı hatası: 4KHDHub (ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED (3003)) faz=Starting
+11-28 12:34:48.792 D/PlayMatch( 8609): kaynak başlatılıyor: 4KHDHub (<sunucu>)
+11-28 12:34:52.011 D/PlayMatch( 8609): oynatıcı hatası: 4KHDHub (faz=Starting) ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED (3003)
+11-28 12:34:52.011 D/PlayMatch( 8609): oynatıcı hatası: 4KHDHub (ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED (3003)) faz=Starting
+11-28 12:34:52.860 D/PlayMatch( 8609): kaynak boyutu çok küçük (sahte kaynak): <sunucu> (824720B)
+11-28 12:34:55.513 D/PlayMatch( 8609): kaynak başlatılıyor: Reanime (<sunucu>)
+11-28 12:35:01.597 I/PlayMatch( 8609): ses parçaları: audio/mp4a-latm 2k dil=ja destek=evet seçili=hayır; audio/mp4a-latm 2k dil=en destek=evet seçili=evet
+11-28 12:35:01.603 I/PlayMatch( 8609): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=17ms
+11-28 12:35:01.626 I/PlayMatch( 8609): Ses çözücü: decoder=OMX.google.aac.decoder süre=23ms
+11-28 12:35:02.236 D/PlayMatch( 8609): ilk kare: Reanime (faz=Starting)
+11-28 12:35:02.373 D/PlayMatch( 8609): süre kontrolü kaynak=Reanime (<sunucu>) süre=23.6 dk beklenen=122 dk tür=Movie -> Mismatch
+11-28 12:35:02.373 D/PlayMatch( 8609): kaynak başlatılıyor: 4KHDHub (<sunucu>)
+11-28 12:35:17.377 D/PlayMatch( 8609): kaynak başlatılıyor: 🏰 Castle (<sunucu>)
+11-28 12:35:18.615 I/PlayMatch( 8609): ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-28 12:35:18.921 D/PlayMatch( 8609): ilk kare: 🏰 Castle (faz=Starting)
+11-28 12:35:18.953 D/PlayMatch( 8609): süre kontrolü kaynak=🏰 Castle (<sunucu>) süre=121.8 dk beklenen=122 dk tür=Movie -> Ok
+11-28 12:35:28.923 D/PlayMatch( 8609): kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)
+11-28 12:36:06.997 D/PlayMatch( 8609): takılma kaynak=🏰 Castle sayı=0 toplam=0.0 sn oynama=0 dk
+11-28 12:36:06.997 D/PlayMatch( 8609): takılma-ayrıntı kaynak=🏰 Castle bitHızı=bilinmiyor bantTahmini=6.84 Mbps tampon=34.7 sn
+11-28 12:37:28.296 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10211
+11-28 12:37:31.831 D/PlayMatch( 8609): kaynak başlatılıyor: DiziBOX TV (<sunucu>)
+11-28 12:37:32.628 I/PlayMatch( 8609): ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-28 12:37:32.645 I/PlayMatch( 8609): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=15ms
+11-28 12:37:32.663 I/PlayMatch( 8609): Ses çözücü: decoder=OMX.google.aac.decoder süre=17ms
+11-28 12:37:32.841 D/PlayMatch( 8609): ilk kare: DiziBOX TV (faz=Starting)
+11-28 12:37:33.332 D/PlayMatch( 8609): süre kontrolü kaynak=DiziBOX TV (<sunucu>) süre=43.7 dk beklenen=42 dk tür=Tv -> Ok
+11-28 12:37:42.843 D/PlayMatch( 8609): kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)
+11-28 12:38:11.987 D/PlayMatch( 8609): ilk kare: DiziBOX TV (faz=Playing)
+11-28 12:39:06.340 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10211
+11-28 12:39:06.374 D/PlayMatch( 8609): kaynak başlatılıyor: DiziBOX TV (<sunucu>)
+11-28 12:39:06.553 D/PlayMatch( 8609): takılma kaynak=DiziBOX TV sayı=0 toplam=0.0 sn oynama=1 dk
+11-28 12:39:06.553 D/PlayMatch( 8609): takılma-ayrıntı kaynak=DiziBOX TV bitHızı=2.80 Mbps bantTahmini=5.73 Mbps tampon=0.0 sn
+11-28 12:39:07.288 I/PlayMatch( 8609): ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-28 12:39:07.311 I/PlayMatch( 8609): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=16ms
+11-28 12:39:07.323 I/PlayMatch( 8609): Ses çözücü: decoder=OMX.google.aac.decoder süre=11ms
+11-28 12:39:07.366 D/PlayMatch( 8609): ilk kare: DiziBOX TV (faz=Starting)
+11-28 12:39:07.597 D/PlayMatch( 8609): süre kontrolü kaynak=DiziBOX TV (<sunucu>) süre=43.3 dk beklenen=42 dk tür=Tv -> Ok
+11-28 12:39:17.369 D/PlayMatch( 8609): kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)
+11-28 12:40:34.856 D/PlayMatch( 8609): ilk kare: DiziBOX TV (faz=Playing)
+11-28 12:41:38.685 D/PlayMatch( 8609): ilk kare: DiziBOX TV (faz=Playing)
+11-28 12:41:39.160 D/PlayMatch( 8609): ilk kare: DiziBOX TV (faz=Playing)
+11-28 12:42:08.538 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10211
+11-28 12:42:08.619 D/PlayMatch( 8609): kaynak başlatılıyor: DiziBOX TV (<sunucu>)
+11-28 12:42:08.763 D/PlayMatch( 8609): takılma kaynak=DiziBOX TV sayı=0 toplam=0.0 sn oynama=2 dk
+11-28 12:42:08.763 D/PlayMatch( 8609): takılma-ayrıntı kaynak=DiziBOX TV bitHızı=2.80 Mbps bantTahmini=6.54 Mbps tampon=0.0 sn
+11-28 12:42:09.491 I/PlayMatch( 8609): ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-28 12:42:09.507 I/PlayMatch( 8609): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=8ms
+11-28 12:42:09.517 I/PlayMatch( 8609): Ses çözücü: decoder=OMX.google.aac.decoder süre=9ms
+11-28 12:42:09.553 D/PlayMatch( 8609): ilk kare: DiziBOX TV (faz=Starting)
+11-28 12:42:09.770 D/PlayMatch( 8609): süre kontrolü kaynak=DiziBOX TV (<sunucu>) süre=42.3 dk beklenen=41 dk tür=Tv -> Ok
+11-28 12:42:19.554 D/PlayMatch( 8609): kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)
+11-28 12:42:30.288 D/PlayMatch( 8609): ilk kare: DiziBOX TV (faz=Playing)
+11-28 12:42:56.640 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10211
+11-28 12:42:56.706 D/PlayMatch( 8609): kaynak başlatılıyor: DiziBOX TV (<sunucu>)
+11-28 12:42:56.857 D/PlayMatch( 8609): takılma kaynak=DiziBOX TV sayı=0 toplam=0.0 sn oynama=0 dk
+11-28 12:42:56.857 D/PlayMatch( 8609): takılma-ayrıntı kaynak=DiziBOX TV bitHızı=2.80 Mbps bantTahmini=6.29 Mbps tampon=0.0 sn
+11-28 12:42:57.620 I/PlayMatch( 8609): ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-28 12:42:57.635 I/PlayMatch( 8609): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=12ms
+11-28 12:42:57.647 I/PlayMatch( 8609): Ses çözücü: decoder=OMX.google.aac.decoder süre=8ms
+11-28 12:42:57.679 D/PlayMatch( 8609): ilk kare: DiziBOX TV (faz=Starting)
+11-28 12:42:57.891 D/PlayMatch( 8609): süre kontrolü kaynak=DiziBOX TV (<sunucu>) süre=42.5 dk beklenen=41 dk tür=Tv -> Ok
+11-28 12:43:07.680 D/PlayMatch( 8609): kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)
+11-28 12:43:25.356 D/PlayMatch( 8609): ilk kare: DiziBOX TV (faz=Playing)
+11-28 12:44:33.475 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10211
+11-28 12:44:33.528 D/PlayMatch( 8609): kaynak başlatılıyor: DiziBOX TV (<sunucu>)
+11-28 12:44:33.711 D/PlayMatch( 8609): takılma kaynak=DiziBOX TV sayı=0 toplam=0.0 sn oynama=1 dk
+11-28 12:44:33.711 D/PlayMatch( 8609): takılma-ayrıntı kaynak=DiziBOX TV bitHızı=2.80 Mbps bantTahmini=7.52 Mbps tampon=7.5 sn
+11-28 12:44:34.318 I/PlayMatch( 8609): ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-28 12:44:34.330 I/PlayMatch( 8609): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=11ms
+11-28 12:44:34.349 I/PlayMatch( 8609): Ses çözücü: decoder=OMX.google.aac.decoder süre=19ms
+11-28 12:44:34.393 D/PlayMatch( 8609): ilk kare: DiziBOX TV (faz=Starting)
+11-28 12:44:34.643 D/PlayMatch( 8609): süre kontrolü kaynak=DiziBOX TV (<sunucu>) süre=44.6 dk beklenen=43 dk tür=Tv -> Ok
+11-28 12:44:44.394 D/PlayMatch( 8609): kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)
+11-28 12:45:10.779 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10211
+11-28 12:45:10.812 D/PlayMatch( 8609): kaynak başlatılıyor: DiziBOX TV (<sunucu>)
+11-28 12:45:10.977 D/PlayMatch( 8609): takılma kaynak=DiziBOX TV sayı=0 toplam=0.0 sn oynama=0 dk
+11-28 12:45:10.977 D/PlayMatch( 8609): takılma-ayrıntı kaynak=DiziBOX TV bitHızı=2.80 Mbps bantTahmini=13.20 Mbps tampon=23.8 sn
+11-28 12:45:11.644 I/PlayMatch( 8609): ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-28 12:45:11.656 I/PlayMatch( 8609): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=12ms
+11-28 12:45:11.668 I/PlayMatch( 8609): Ses çözücü: decoder=OMX.google.aac.decoder süre=12ms
+11-28 12:45:11.713 D/PlayMatch( 8609): ilk kare: DiziBOX TV (faz=Starting)
+11-28 12:45:11.863 D/PlayMatch( 8609): süre kontrolü kaynak=DiziBOX TV (<sunucu>) süre=41.9 dk beklenen=40 dk tür=Tv -> Ok
+11-28 12:45:21.714 D/PlayMatch( 8609): kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)
+11-28 12:46:15.137 D/PlayMatch( 8609): takılma kaynak=DiziBOX TV sayı=0 toplam=0.0 sn oynama=1 dk
+11-28 12:46:15.137 D/PlayMatch( 8609): takılma-ayrıntı kaynak=DiziBOX TV bitHızı=2.80 Mbps bantTahmini=11.06 Mbps tampon=17.9 sn
+11-28 12:46:35.653 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10211
+11-28 12:46:39.177 D/PlayMatch( 8609): kaynak başlatılıyor: 4KHDHub (<sunucu>)
+11-28 12:46:40.305 I/PlayMatch( 8609): ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/eac3 8k dil=en destek=evet seçili=evet
+11-28 12:46:40.309 I/PlayMatch( 8609): Video çözücü: decoder=OMX.qcom.video.decoder.hevc tür=donanım süre=12ms
+11-28 12:46:40.309 I/PlayMatch( 8609): Ses çözücü: decoder=ffmpegLavc63.1.101-eac3 süre=9ms
+11-28 12:46:41.967 D/PlayMatch( 8609): ilk kare: 4KHDHub (faz=Starting)
+11-28 12:46:41.996 D/PlayMatch( 8609): süre kontrolü kaynak=4KHDHub (<sunucu>) süre=145.0 dk beklenen=145 dk tür=Movie -> Ok
+11-28 12:46:51.969 D/PlayMatch( 8609): kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)
+11-28 12:47:47.343 D/PlayMatch( 8609): takılma kaynak=4KHDHub sayı=0 toplam=0.0 sn oynama=1 dk
+11-28 12:47:47.345 D/PlayMatch( 8609): takılma-ayrıntı kaynak=4KHDHub bitHızı=bilinmiyor bantTahmini=2.20 Mbps tampon=11.6 sn
+11-28 12:48:00.142 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10211
+11-28 12:48:03.665 D/PlayMatch( 8609): kaynak başlatılıyor: 4KHDHub (<sunucu>)
+11-28 12:48:05.081 I/PlayMatch( 8609): ses parçaları: audio/mp4a-latm 6k dil=en destek=evet seçili=evet; audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır
+11-28 12:48:05.091 I/PlayMatch( 8609): Video çözücü: decoder=OMX.qcom.video.decoder.hevc tür=donanım süre=14ms
+11-28 12:48:05.091 I/PlayMatch( 8609): Ses çözücü: decoder=OMX.google.aac.decoder süre=5ms
+11-28 12:48:07.064 D/PlayMatch( 8609): ilk kare: 4KHDHub (faz=Starting)
+11-28 12:48:07.070 D/PlayMatch( 8609): süre kontrolü kaynak=4KHDHub (<sunucu>) süre=176.8 dk beklenen=173 dk tür=Movie -> Ok
+11-28 12:48:17.065 D/PlayMatch( 8609): kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)
+11-28 12:52:15.464 D/PlayMatch( 8609): takılma kaynak=4KHDHub sayı=0 toplam=0.0 sn oynama=4 dk
+11-28 12:52:15.464 D/PlayMatch( 8609): takılma-ayrıntı kaynak=4KHDHub bitHızı=bilinmiyor bantTahmini=2.16 Mbps tampon=26.0 sn
+11-28 12:52:24.710 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10211
+11-28 12:52:25.101 D/PlayMatch( 8609): kaynak başlatılıyor: Anthology — Canlı TV (<sunucu>)
+11-28 12:52:26.261 I/PlayMatch( 8609): ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-28 12:52:26.285 I/PlayMatch( 8609): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=23ms
+11-28 12:52:26.293 I/PlayMatch( 8609): Ses çözücü: decoder=OMX.google.aac.decoder süre=7ms
+11-28 12:52:26.337 D/PlayMatch( 8609): ilk kare: Anthology — Canlı TV (faz=Starting)
+11-28 12:53:32.359 D/PlayMatch( 8609): takılma kaynak=Anthology — Canlı TV sayı=0 toplam=0.0 sn oynama=1 dk
+11-28 12:53:32.359 D/PlayMatch( 8609): takılma-ayrıntı kaynak=Anthology — Canlı TV bitHızı=2.20 Mbps bantTahmini=40.93 Mbps tampon=14.1 sn
+11-28 12:55:18.674 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity (has extras)} from uid 10066
+11-28 12:55:18.691 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity (has extras)} from uid 10066
+11-28 12:55:19.898 I/ActivityManager( 1600): Displayed com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity: +2s790ms
+11-28 12:55:19.909 D/PlayMatch(14919): kaynak başlatılıyor: TestPrimary (<sunucu>)
+11-28 12:55:19.970 D/PlayMatch(14919): kaynak yoklama uyarısı (Network), oynatıcıya devrediliyor: TestPrimary
+11-28 12:55:30.024 W/PlayMatch(14919): Ağ veya HLS canlı pencere hatası yakalandı (ERROR_CODE_IO_NETWORK_CONNECTION_FAILED): akış tazeleniyor pos=0 deneme=1
+11-28 12:55:38.027 W/PlayMatch(14919): Seek sonrası 8 saniye tamponlama aşıldı: veri akmıyor, akış otomatik kurtarılıyor pos=0 buffered=0
+11-28 12:55:40.053 W/PlayMatch(14919): Ağ veya HLS canlı pencere hatası yakalandı (ERROR_CODE_IO_NETWORK_CONNECTION_FAILED): akış tazeleniyor pos=0 deneme=2
+11-28 12:55:46.029 D/PlayMatch(14919): Seek sonrası watchdog vazgeçti: deneme sınırı aşıldı
+11-28 12:56:17.481 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity (has extras)} from uid 10066
+11-28 12:56:17.489 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity (has extras)} from uid 10066
+11-28 12:56:18.405 D/PlayMatch(15099): kaynak başlatılıyor: TestPrimary (<sunucu>)
+11-28 12:56:18.539 I/ActivityManager( 1600): Displayed com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity: +2s275ms
+11-28 12:56:18.610 D/PlayMatch(15099): kaynak yoklamada elendi (boyut yetersiz: 12261432 bayt): TestPrimary
+11-28 12:56:18.714 D/PlayMatch(15099): kaynak boyutu çok küçük (sahte kaynak): 127.0.0.1 (12261432B)
+11-28 12:57:25.672 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity (has extras)} from uid 10066
+11-28 12:57:25.690 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity (has extras)} from uid 10066
+11-28 12:57:26.153 D/PlayMatch(15267): kaynak başlatılıyor: TestPrimary (<sunucu>)
+11-28 12:57:26.775 I/ActivityManager( 1600): Displayed com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity: +2s233ms
+11-28 12:57:26.867 I/PlayMatch(15267): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=122ms
+11-28 12:57:26.873 I/PlayMatch(15267): ses parçaları: audio/mp4a-latm 1k dil=und destek=evet seçili=evet
+11-28 12:57:26.912 I/PlayMatch(15267): Ses çözücü: decoder=OMX.google.aac.decoder süre=31ms
+11-28 12:57:27.099 D/PlayMatch(15267): ilk kare: TestPrimary (faz=Starting)
+11-28 12:57:27.109 D/PlayMatch(15267): süre kontrolü kaynak=TestPrimary (<sunucu>) süre=1.0 dk beklenen=? dk tür=Movie -> Unknown
+11-28 12:58:27.211 D/PlayMatch(15267): kaynak başlatılıyor: TestPrimary (<sunucu>)
+11-28 12:58:27.459 I/PlayMatch(15267): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=17ms
+11-28 12:58:27.459 I/PlayMatch(15267): Ses çözücü: decoder=OMX.google.aac.decoder süre=8ms
+11-28 12:58:27.459 I/PlayMatch(15267): ses parçaları: audio/mp4a-latm 1k dil=und destek=evet seçili=evet
+11-28 12:58:27.470 D/PlayMatch(15267): ilk kare: TestPrimary (faz=Starting)
+11-28 12:58:27.498 D/PlayMatch(15267): süre kontrolü kaynak=TestPrimary (<sunucu>) süre=1.0 dk beklenen=? dk tür=Movie -> Unknown
+11-28 12:58:27.614 D/PlayMatch(15267): takılma kaynak=TestPrimary sayı=0 toplam=0.0 sn oynama=0 dk
+11-28 12:58:27.614 D/PlayMatch(15267): takılma-ayrıntı kaynak=TestPrimary bitHızı=4.00 Mbps bantTahmini=7.15 Mbps tampon=0.0 sn
+11-28 12:59:38.685 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity (has extras)} from uid 10066
+11-28 12:59:38.698 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity (has extras)} from uid 10066
+11-28 12:59:39.708 D/PlayMatch(15599): kaynak başlatılıyor: TestPrimary (<sunucu>)
+11-28 12:59:39.806 I/ActivityManager( 1600): Displayed com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity: +1m7s350ms
+11-28 12:59:39.999 I/PlayMatch(15599): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=27ms
+11-28 12:59:39.999 I/PlayMatch(15599): Ses çözücü: decoder=OMX.google.aac.decoder süre=17ms
+11-28 12:59:40.001 I/PlayMatch(15599): ses parçaları: audio/mp4a-latm 1k dil=und destek=evet seçili=evet
+11-28 12:59:40.109 D/PlayMatch(15599): ilk kare: TestPrimary (faz=Starting)
+11-28 12:59:40.116 D/PlayMatch(15599): süre kontrolü kaynak=TestPrimary (<sunucu>) süre=1.0 dk beklenen=? dk tür=Movie -> Unknown
+11-28 13:00:57.654 D/PlayMatch(15599): kaynak başlatılıyor: TestPrimary (<sunucu>)
+11-28 13:00:57.932 I/PlayMatch(15599): ses parçaları: audio/mp4a-latm 1k dil=und destek=evet seçili=evet
+11-28 13:00:57.932 I/PlayMatch(15599): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=15ms
+11-28 13:00:57.933 I/PlayMatch(15599): Ses çözücü: decoder=OMX.google.aac.decoder süre=6ms
+11-28 13:00:57.944 D/PlayMatch(15599): ilk kare: TestPrimary (faz=Starting)
+11-28 13:00:57.946 D/PlayMatch(15599): süre kontrolü kaynak=TestPrimary (<sunucu>) süre=1.0 dk beklenen=? dk tür=Movie -> Unknown
+11-28 13:00:58.070 D/PlayMatch(15599): takılma kaynak=TestPrimary sayı=0 toplam=0.0 sn oynama=0 dk
+11-28 13:00:58.070 D/PlayMatch(15599): takılma-ayrıntı kaynak=TestPrimary bitHızı=4.00 Mbps bantTahmini=7.16 Mbps tampon=9.9 sn
+11-28 13:01:08.130 D/PlayMatch(15599): takılma kaynak=TestPrimary sayı=0 toplam=0.0 sn oynama=0 dk
+11-28 13:01:08.130 D/PlayMatch(15599): takılma-ayrıntı kaynak=TestPrimary bitHızı=4.00 Mbps bantTahmini=7.16 Mbps tampon=20.2 sn
+11-28 13:03:48.976 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity (has extras)} from uid 10066
+11-28 13:03:48.984 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity (has extras)} from uid 10066
+11-28 13:03:50.080 I/ActivityManager( 1600): Displayed com.kaan.play.dikeytest/com.kaan.play.ui.player.PlayerActivity: +2s346ms
+11-28 13:03:50.109 D/PlayMatch(16808): kaynak başlatılıyor: TestPrimary (<sunucu>)
+11-28 13:03:50.374 I/PlayMatch(16808): ses parçaları: audio/mp4a-latm 1k dil=und destek=evet seçili=evet
+11-28 13:03:50.463 I/PlayMatch(16808): Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=45ms
+11-28 13:03:50.466 I/PlayMatch(16808): Ses çözücü: decoder=OMX.google.aac.decoder süre=11ms
+11-28 13:03:50.469 D/PlayMatch(16808): ilk kare: TestPrimary (faz=Starting)
+11-28 13:03:50.547 D/PlayMatch(16808): süre kontrolü kaynak=TestPrimary (<sunucu>) süre=1.0 dk beklenen=? dk tür=Movie -> Unknown
+11-28 13:08:41.458 I/ActivityManager( 1600): START u0 {cmp=com.kaan.play/.ui.player.PlayerActivity (has extras)} from uid 10211
+11-28 13:08:45.054 D/PlayMatch( 8609): kaynak başlatılıyor: 4KHDHub (<sunucu>)
+11-28 13:08:46.442 I/PlayMatch( 8609): ses parçaları: audio/mp4a-latm 6k dil=en destek=evet seçili=evet; audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır
+11-28 13:08:46.455 I/PlayMatch( 8609): Video çözücü: decoder=OMX.qcom.video.decoder.hevc tür=donanım süre=12ms
+11-28 13:08:46.455 I/PlayMatch( 8609): Ses çözücü: decoder=OMX.google.aac.decoder süre=4ms
+11-28 13:08:46.905 D/PlayMatch( 8609): ilk kare: 4KHDHub (faz=Starting)
+11-28 13:08:46.959 D/PlayMatch( 8609): süre kontrolü kaynak=4KHDHub (<sunucu>) süre=176.8 dk beklenen=173 dk tür=Movie -> Ok
+11-28 13:08:56.906 D/PlayMatch( 8609): kaynak araması oynatmaya öncelik için durduruluyor (ilk kareden 10000ms sonra)
+11-28 13:12:50.466 D/PlayMatch( 8609): kaynak başlatılıyor: Jinbe (<sunucu>)
+11-28 13:12:51.783 I/PlayMatch( 8609): ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/vnd.dts.hd 6k dil=en destek=evet seçili=evet
+11-28 13:12:51.871 I/PlayMatch( 8609): Video çözücü: decoder=OMX.qcom.video.decoder.hevc tür=donanım süre=18ms
+11-28 13:12:51.885 I/PlayMatch( 8609): Ses çözücü: decoder=ffmpegLavc63.1.101-dca süre=14ms
+11-28 13:12:53.519 D/PlayMatch( 8609): ilk kare: Jinbe (faz=Starting)
+11-28 13:12:53.520 D/PlayMatch( 8609): süre kontrolü kaynak=Jinbe (<sunucu>) süre=176.8 dk beklenen=173 dk tür=Movie -> Ok
+11-28 13:13:41.898 D/PlayMatch( 8609): takılma kaynak=Jinbe sayı=0 toplam=0.0 sn oynama=0 dk
+11-28 13:13:41.898 D/PlayMatch( 8609): takılma-ayrıntı kaynak=Jinbe bitHızı=bilinmiyor bantTahmini=27.09 Mbps tampon=7.1 sn

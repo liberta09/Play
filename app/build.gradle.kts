@@ -40,8 +40,8 @@ android {
         applicationId = "com.kaan.play"
         minSdk = 24
         targetSdk = 37
-        versionCode = 49
-        versionName = "1.3.2"
+        versionCode = 50
+        versionName = "1.3.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         ndk {
@@ -178,6 +178,7 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer.dash)
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.media3.datasource.okhttp)
+    implementation(libs.nextlib.media3ext)
 
     // Cihaz üstünde çeviri (Türkçe altyazı yoksa İngilizceden); model ilk kullanımda iner, metin sunucuya gitmez.
     implementation(libs.mlkit.translate)

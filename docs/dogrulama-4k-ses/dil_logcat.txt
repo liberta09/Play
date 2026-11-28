@@ -1,0 +1,74 @@
+# Ses dili sırası — yeni APK 1.3.3 (vc50, SHA-256 dfb92354…). Ana makine adları '(adres çıkarıldı)' ile değiştirildi.
+
+## 3 Jinbe 4K
+11-23 00:47:36.466 13862 13862 D PlayMatch: kaynak başlatılıyor: Jinbe (adres çıkarıldı)
+11-23 00:47:38.456 13862 13862 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/vnd.dts.hd 6k dil=en destek=evet seçili=evet
+11-23 00:47:38.549 13862 13862 I PlayMatch: Ses çözücü: decoder=ffmpegLavc63.1.101-dca süre=5ms
+11-23 00:47:39.555 13862 13862 D PlayMatch: ilk kare: Jinbe (faz=Starting)
+11-23 00:47:40.671 13862 13862 D PlayMatch: süre kontrolü kaynak=Jinbe (adres çıkarıldı) süre=176.8 dk beklenen=173 dk tür=Movie -> Ok
+(FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 3 4KHDHub 4K
+11-23 00:49:29.692 13862 13862 D PlayMatch: kaynak başlatılıyor: 4KHDHub (adres çıkarıldı)
+11-23 00:49:32.196 13862 13862 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/vnd.dts.hd 6k dil=en destek=evet seçili=evet
+11-23 00:49:32.310 13862 13862 I PlayMatch: Ses çözücü: decoder=ffmpegLavc63.1.101-dca süre=0ms
+11-23 00:49:33.225 13862 13862 D PlayMatch: ilk kare: 4KHDHub (faz=Starting)
+11-23 00:49:33.731 13862 13862 D PlayMatch: süre kontrolü kaynak=4KHDHub (adres çıkarıldı) süre=176.8 dk beklenen=173 dk tür=Movie -> Ok
+(FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 5 Elle Hintçe seçimi, 30 sn
+11-23 00:50:47.561 13862 13862 I PlayMatch: Ses çözücü: decoder=ffmpegLavc63.1.101-eac3 süre=0ms
+11-23 00:50:47.562 13862 13862 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=evet; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/vnd.dts.hd 6k dil=en destek=evet seçili=hayır
+(FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 3+6 Örümcek-Adam
+11-23 00:52:02.765 13862 13862 D PlayMatch: kaynak başlatılıyor: 4KHDHub (adres çıkarıldı)
+11-23 00:52:04.135 13862 13862 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/eac3 6k dil=en destek=evet seçili=evet
+11-23 00:52:04.138 13862 13862 I PlayMatch: Ses çözücü: decoder=ffmpegLavc63.1.101-eac3 süre=0ms
+11-23 00:52:04.553 13862 13862 D PlayMatch: süre kontrolü kaynak=4KHDHub (adres çıkarıldı) süre=145.0 dk beklenen=145 dk tür=Movie -> Ok
+11-23 00:52:04.553 13862 13862 D PlayMatch: ilk kare: 4KHDHub (faz=Starting)
+(FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6 Joker
+11-23 00:53:22.885 13862 13862 D PlayMatch: kaynak başlatılıyor: 4KHDHub (adres çıkarıldı)
+11-23 00:53:27.267 13862 13862 D PlayMatch: kaynak başlatılıyor: DesiFlix (adres çıkarıldı)
+11-23 00:53:42.273 13862 13862 D PlayMatch: kaynak başlatılıyor: Reanime (adres çıkarıldı)
+11-23 00:53:47.456 13862 13862 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=ja destek=evet seçili=hayır; audio/mp4a-latm 2k dil=en destek=evet seçili=evet
+11-23 00:53:47.476 13862 13862 I PlayMatch: Ses çözücü: decoder=OMX.google.aac.decoder süre=9ms
+11-23 00:53:48.089 13862 13862 D PlayMatch: ilk kare: Reanime (faz=Starting)
+11-23 00:53:48.095 13862 13862 D PlayMatch: süre kontrolü kaynak=Reanime (adres çıkarıldı) süre=23.6 dk beklenen=122 dk tür=Movie -> Mismatch
+11-23 00:53:48.095 13862 13862 D PlayMatch: kaynak başlatılıyor: 🏰 Castle (adres çıkarıldı)
+11-23 00:53:48.097 13862 13862 D PlayMatch: ilk kare olayı yok sayıldı (eski kaynaktan kalma): 🏰 Castle
+11-23 00:53:49.290 13862 13862 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-23 00:53:49.377 13862 13862 D PlayMatch: ilk kare: 🏰 Castle (faz=Starting)
+11-23 00:53:49.512 13862 13862 D PlayMatch: süre kontrolü kaynak=🏰 Castle (adres çıkarıldı) süre=121.8 dk beklenen=122 dk tür=Movie -> Ok
+(FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 4 Ters Yüz 2 — Imu (Dublaj / Altyazılı, gömülü Türkçe)
+11-23 01:02:43.919 13862 13862 D PlayMatch: kaynak başlatılıyor: Imu (adres çıkarıldı)
+11-23 01:02:45.089 13862 13862 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=tr destek=evet seçili=evet; audio/mp4a-latm 2k dil=en destek=evet seçili=hayır
+11-23 01:02:45.568 13862 13862 D PlayMatch: ilk kare: Imu (faz=Starting)
+11-23 01:02:45.870 13862 13862 D PlayMatch: süre kontrolü kaynak=Imu (adres çıkarıldı) süre=96.3 dk beklenen=96 dk tür=Movie -> Ok
+(FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6 Criminal Minds
+11-23 01:04:09.932 13862 13862 D PlayMatch: kaynak başlatılıyor: 4KHDHub (adres çıkarıldı)
+11-23 01:04:23.769 13862 13862 D PlayMatch: kaynak başlatılıyor: 🏰 Castle (adres çıkarıldı)
+11-23 01:04:24.688 13862 13862 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-23 01:04:24.726 13862 13862 I PlayMatch: Ses çözücü: decoder=OMX.google.aac.decoder süre=19ms
+11-23 01:04:25.439 13862 13862 D PlayMatch: ilk kare: 🏰 Castle (faz=Starting)
+11-23 01:04:25.476 13862 13862 D PlayMatch: süre kontrolü kaynak=🏰 Castle (adres çıkarıldı) süre=55.9 dk beklenen=42 dk tür=Tv -> Ok
+(FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## 6 Canlı A2 TV
+11-23 01:05:25.411 13862 13862 D PlayMatch: kaynak başlatılıyor: Anthology — Canlı TV (adres çıkarıldı)
+11-23 01:05:27.567 13862 13862 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-23 01:05:27.844 13862 13862 I PlayMatch: Ses çözücü: decoder=OMX.google.aac.decoder süre=5ms
+11-23 01:05:27.894 13862 13862 D PlayMatch: ilk kare: Anthology — Canlı TV (faz=Starting)
+(FATAL/VerifyError/UnsatisfiedLinkError: 0)
+
+## Otomatik başlangıç The Odyssey (4KHDHub 1080p; konsoldan aktarıldı)
+ PlayMatch: kaynak başlatılıyor: 4KHDHub (adres çıkarıldı)
+ PlayMatch: ses parçaları: audio/mp4a-latm 6k dil=en destek=evet seçili=evet; audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır
+ PlayMatch: Ses çözücü: decoder=OMX.google.aac.decoder süre=8ms
+ PlayMatch: ilk kare: 4KHDHub (faz=Starting)

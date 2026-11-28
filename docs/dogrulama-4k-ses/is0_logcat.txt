@@ -1,0 +1,34 @@
+# İş 0 — eski APK (1.3.2, vc49). Adres/host içeren satırlar çıkarıldı.
+## 4KHDHub 4K (3840x2160, 53,3 GB)
+11-22 23:38:46.366  4408  5332 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H153.90, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:38:46.366  4408  5332 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H153.90, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:38:46.366  4408  5332 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H153.90, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:38:46.366  4408  5332 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H153.90, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:38:46.487  4408  5332 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H153.90, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:38:46.487  4408  5332 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H153.90, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:38:46.489  1539  1539 I OMXMaster: makeComponentInstance(OMX.qcom.video.decoder.hevc) in omx@1.0-service process
+11-22 23:38:46.504  4408  5332 D MediaCodecInfo: NoSupport [codec.profileLevel, hvc1.2.4.H153.90, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:38:46.504  4408  5332 W MediaCodecRenderer: Format exceeds selected codec's capabilities [id=1, mimeType=video/hevc, container=video/x-matroska, codecs=hvc1.2.4.H153.90, res=3840x2160, color=BT709/Limited range/SDR SMPTE 170M/10/10, language=und, selectionFlags=[default], OMX.qcom.video.decoder.hevc]
+11-22 23:38:46.504  4408  4408 I PlayMatch: Video çözücü: decoder=OMX.qcom.video.decoder.hevc tür=donanım süre=17ms
+11-22 23:38:47.959  4408  4408 D PlayMatch: ilk kare: 4KHDHub (faz=Starting)
+
+## Jinbe 4K (3840x2160, 90,8 GB)
+11-22 23:44:21.517  4408  6025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:44:21.517  4408  6025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:44:21.518  4408  6025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:44:21.518  4408  6025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:44:21.640  4408  6025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:44:21.640  4408  6025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.google.hevc.decoder, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:44:21.642  1539  1539 I OMXMaster: makeComponentInstance(OMX.qcom.video.decoder.hevc) in omx@1.0-service process
+11-22 23:44:21.655  4408  6025 D MediaCodecInfo: NoSupport [codec.profileLevel, dvhe.08.06, video/hevc] [OMX.qcom.video.decoder.hevc, video/hevc] [star2qltechn, SM-X710N, samsung, 28]
+11-22 23:44:21.655  4408  6025 W MediaCodecRenderer: Format exceeds selected codec's capabilities [id=1, mimeType=video/dolby-vision, container=video/x-matroska, codecs=dvhe.08.06, res=3840x2160, color=BT2020/Limited range/ST2084 PQ/10/10, language=und, selectionFlags=[default], OMX.qcom.video.decoder.hevc]
+11-22 23:44:21.655  4408  4408 I PlayMatch: Video çözücü: decoder=OMX.qcom.video.decoder.hevc tür=donanım süre=15ms
+11-22 23:44:22.860  4408  4408 D PlayMatch: ilk kare: Jinbe (faz=Starting)
+
+## Jinbe 1080p (karşılaştırma)
+11-22 23:45:29.103  1539  5442 I OMXMaster: makeComponentInstance(OMX.google.h264.decoder) in omx@1.0-service process
+11-22 23:45:29.118  4408  4408 I PlayMatch: Video çözücü: decoder=OMX.google.h264.decoder tür=yazılım süre=17ms
+11-22 23:45:29.119  1539  5442 I OMXMaster: makeComponentInstance(OMX.google.aac.decoder) in omx@1.0-service process
+11-22 23:45:29.410  1539  8042 I SoftAAC2: Reconfiguring decoder: 0->44100 Hz, 0->2 channels
+11-22 23:45:29.421  1462  1515 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000008) and output flags (00000002)
+11-22 23:45:30.355  4408  4408 D PlayMatch: ilk kare: Jinbe (faz=Starting)

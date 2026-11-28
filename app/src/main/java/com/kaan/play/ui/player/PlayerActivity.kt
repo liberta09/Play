@@ -1,6 +1,7 @@
 package com.kaan.play.ui.player
 
 import android.media.AudioManager
+import android.content.pm.ActivityInfo
 import com.kaan.play.BuildConfig
 import android.os.Build
 import android.os.Bundle
@@ -34,6 +35,8 @@ import com.kaan.play.data.library.WatchRules
 import com.kaan.play.data.model.AgeRating
 import com.kaan.play.data.model.MediaDetail
 import com.kaan.play.data.model.MediaType
+import com.kaan.play.data.player.AudioLanguagePolicy
+import com.kaan.play.data.player.AudioPlayabilityRules
 import com.kaan.play.data.player.AudioTrackLearning
 import com.kaan.play.data.player.AutoRetryPolicy
 import com.kaan.play.data.player.AudioTrackRules
@@ -92,6 +95,9 @@ import kotlinx.coroutines.withContext
 class PlayerActivity : AppCompatActivity() {
 
     private lateinit var session: PlaySession
+    private var portraitPlayback by mutableStateOf(false)
+    private var orientationManuallyChosen = false
+    private var autoPortraitEnabled = false
     private lateinit var controller: PlaybackController
     private lateinit var subtitles: SubtitleController
     private lateinit var autoNext: AutoNextController
@@ -200,6 +206,9 @@ class PlayerActivity : AppCompatActivity() {
         }
         session = parsed
         activeTarget = parsed.target
+        orientationManuallyChosen = savedInstanceState?.getBoolean("play_orientation_manual",
+            VideoOrientationPolicy.wasManuallyChosen(parsed.orientationManuallyChosen, parsed.portraitMode))
+            ?: VideoOrientationPolicy.wasManuallyChosen(parsed.orientationManuallyChosen, parsed.portraitMode)
         if (parsed.fromAutoNext) noTransition(open = true)
         val incomingZapKey = PlaySession.liveZapKey(incomingIntent)
         liveZapKey = incomingZapKey
@@ -226,6 +235,9 @@ class PlayerActivity : AppCompatActivity() {
             showLiveChannelBanner(parsed.target.title, switching = false)
         }
         val container = (application as PlayApp).container
+        autoPortraitEnabled = runBlocking { container.settings.autoPortraitVideos.first() }
+        val restoredPortrait = savedInstanceState?.getBoolean("play_portrait_mode", parsed.portraitMode) ?: parsed.portraitMode
+        applyPlaybackOrientation(if (orientationManuallyChosen || autoPortraitEnabled) restoredPortrait else false)
         if (!isLiveSession && parsed.offline == null) {
             val targetRating = parsed.target.ageRating?.takeIf { it.isNotBlank() }
             val targetRegion = parsed.target.ageRatingRegion?.takeIf { it.isNotBlank() }
@@ -271,6 +283,10 @@ class PlayerActivity : AppCompatActivity() {
         )
         skips.attach(controller.player)
         controller.player.addListener(object : Player.Listener {
+            override fun onVideoSizeChanged(videoSize: androidx.media3.common.VideoSize) {
+                followVideoOrientation(videoSize)
+            }
+
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 if (!isPlaying) saveProgress() // duraklatma
                 broadcastPartyControlIfHost()
@@ -294,6 +310,14 @@ class PlayerActivity : AppCompatActivity() {
                 }
             }
         })
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                container.settings.autoPortraitVideos.collect { enabled ->
+                    autoPortraitEnabled = enabled
+                    followVideoOrientation(controller.player.videoSize)
+                }
+            }
+        }
         autoNext = AutoNextController(
             scope = lifecycleScope,
             target = session.target,
@@ -364,6 +388,7 @@ class PlayerActivity : AppCompatActivity() {
             // Ayarlar: tek seferlik okuma (milisaniyeler); oynatma başlamadan önce bilinmeli.
             autoSourceSetting = runBlocking { settings.autoSource.first() }
             preferDub = runBlocking { settings.preferDub.first() }
+            controller.setPreferredAudioLanguages(AudioLanguagePolicy.preferredLanguages(preferDub))
             tryUntilTurkishAudio = runBlocking { settings.trySourcesUntilTurkishAudio.first() }
             autoDubSwitchSetting = runBlocking { settings.autoDubSwitch.first() }
             revertOnSelectedFailureSetting = runBlocking { settings.revertOnSelectedFailure.first() }
@@ -616,6 +641,8 @@ class PlayerActivity : AppCompatActivity() {
                             controller.speed = packet.speed
                         }
                     },
+                    portraitMode = portraitPlayback,
+                    onToggleOrientation = if (DeviceLevels.supportsTouch(this)) ({ orientationManuallyChosen = true; applyPlaybackOrientation(!portraitPlayback) }) else null,
                     onBack = ::finish,
                 )
             }
@@ -1234,8 +1261,20 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Ses parçaları var ama hiçbiri çalınamıyorsa (görüntü sessiz oynardı) kaynak koordinatörüne bildirilir: otomatik modda sıradaki
+     * kaynağa geçilir, elle seçilmişse kısa ileti çıkar. Tanı satırı adres içermez (yalnızca biçim/kanal/dil/destek).
+     */
+    private fun checkAudioPlayable() {
+        val all = controller.allAudioTrackInfos()
+        if (all.isEmpty()) return
+        android.util.Log.i("PlayMatch", "ses parçaları: ${AudioPlayabilityRules.describe(all)}")
+        if (AudioPlayabilityRules.isUnplayable(all)) coordinator?.onAudioUnplayable()
+    }
+
     /** Ses parçası listesi değişti: elle seçilen dil korunur; yoksa Türkçe ses izi doğrulama veya otomatik seçim çalışır. */
     private fun syncAudio() {
+        checkAudioPlayable()
         val handledByVerifier = evaluateTurkishAudio()
         val tracks = controller.audioTracks()
         if (tracks.isEmpty()) {
@@ -1248,6 +1287,9 @@ class PlayerActivity : AppCompatActivity() {
                 val wanted = userAudioLanguage
                 val match = if (wanted != null) tracks.firstOrNull { lang(it) == wanted } else null
                 if (match != null && !match.selected) controller.selectAudio(match.index)
+            } else if (session.offline == null) {
+                // Ses dili sırası (Kullanıcı kararı 2026-11-23): Türkçe dublaj (açıksa) → İngilizce → dosyanın varsayılanı.
+                AudioLanguagePolicy.choose(controller.allAudioTrackInfos(), preferDub, streamDubbed = currentStream?.dubbed == true)?.let(controller::selectAudio)
             } else if (preferDub) {
                 val turkish = tracks.firstOrNull { TurkishAudioTrackRules.isTurkishTrack(it.language, it.label) }
                 if (turkish != null && !turkish.selected) controller.selectAudio(turkish.index)
@@ -1438,6 +1480,7 @@ class PlayerActivity : AppCompatActivity() {
             ageRating = resolvedAgeRating?.rating ?: session.target.ageRating,
             ageRatingRegion = resolvedAgeRating?.region ?: session.target.ageRatingRegion,
         )
+        autoNext.rememberPreparedTarget(target)
         appContainer.downloads.completedFor(request)?.let { return NextPlayback.Offline(target, it) }
         if (session.offline != null) return null
         val playing = currentStream
@@ -1567,7 +1610,7 @@ class PlayerActivity : AppCompatActivity() {
             if (markWatched) finishedForAdvance = true
             saveProgress() // markWatched ise bu bölüm izlendi
             if (currentStream?.url?.let(TorrentLinks::isMagnet) == true) container.torrentEngine.closeActive()
-            startActivity(nextSession.toIntent(this@PlayerActivity))
+            startActivity(nextSession.copy(portraitMode = portraitPlayback, orientationManuallyChosen = orientationManuallyChosen).toIntent(this@PlayerActivity))
             noTransition(open = false)
             finish()
         }
@@ -1580,6 +1623,26 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /** Etkinlik geçişi animasyonsuz: bölümden bölüme geçiş kesintisiz görünür. */
+    private fun followVideoOrientation(size: androidx.media3.common.VideoSize) {
+        val portrait = VideoOrientationPolicy.resolve(DeviceLevels.supportsTouch(this), autoPortraitEnabled,
+            orientationManuallyChosen, portraitPlayback, size.width, size.height,
+            size.pixelWidthHeightRatio, size.unappliedRotationDegrees)
+        if (portrait != portraitPlayback) applyPlaybackOrientation(portrait)
+    }
+
+    private fun applyPlaybackOrientation(portrait: Boolean) {
+        portraitPlayback = portrait && DeviceLevels.supportsTouch(this)
+        session = session.copy(portraitMode = portraitPlayback, orientationManuallyChosen = orientationManuallyChosen)
+        requestedOrientation = if (portraitPlayback) ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+            else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("play_portrait_mode", portraitPlayback)
+        outState.putBoolean("play_orientation_manual", orientationManuallyChosen)
+        super.onSaveInstanceState(outState)
+    }
+
     private fun noTransition(open: Boolean) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             overrideActivityTransition(
@@ -1625,6 +1688,8 @@ class PlayerActivity : AppCompatActivity() {
             return
         }
         session = parsed
+        orientationManuallyChosen = VideoOrientationPolicy.wasManuallyChosen(parsed.orientationManuallyChosen, parsed.portraitMode)
+        applyPlaybackOrientation(if (orientationManuallyChosen || autoPortraitEnabled) parsed.portraitMode else false)
         if (::controller.isInitialized) {
             val stream = parsed.stream
             if (stream != null && !stream.url.isNullOrBlank()) {

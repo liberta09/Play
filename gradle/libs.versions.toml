@@ -14,6 +14,8 @@ coroutines = "1.11.0"
 serialization = "1.11.0"
 okhttp = "5.5.0"
 media3 = "1.11.1"
+# FFmpeg ses çözücüsü (NextLib, GPL-3.0); sürümün ilk kısmı media3 sürümüyle birebir aynı olmalı.
+nextlib = "1.11.1-0.19.0"
 quickjs = "1.0.15"
 jsoup = "1.23.2"
 jackson = "2.17.2"
@@ -78,6 +80,7 @@ androidx-media3-exoplayer-hls = { module = "androidx.media3:media3-exoplayer-hls
 androidx-media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "media3" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3" }
 androidx-media3-datasource-okhttp = { module = "androidx.media3:media3-datasource-okhttp", version.ref = "media3" }
+nextlib-media3ext = { module = "io.github.anilbeesetti:nextlib-media3ext", version.ref = "nextlib" }
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }

@@ -104,6 +104,9 @@ sealed interface SourceNotice {
 
     /** Ağ koptu, cihaz çevrimdışı: internet bekleniyor. */
     data object WaitingForInternet : SourceNotice
+
+    /** Elle seçilen kaynağın ses parçalarının hiçbiri bu cihazda çalınamıyor (otomatik geçilmez). */
+    data object AudioUnsupported : SourceNotice
 }
 
 /**
@@ -300,6 +303,7 @@ class SourceCoordinator(
     private var expectedRuntime: Int? = null
     private var runtimeJob: Job? = null
     private val durationChecked = HashSet<String>()
+    private val audioChecked = HashSet<String>()
     private val queue = ArrayDeque<PlayableStream>()
     private val probed = HashSet<String>()
     private val probeGate = Semaphore(PROBE_PARALLEL)
@@ -832,14 +836,14 @@ class SourceCoordinator(
         return true
     }
 
-    private fun startFailed(detail: String, mismatch: Boolean = false) {
+    private fun startFailed(detail: String, mismatch: Boolean = false, recordFailure: Boolean = !mismatch) {
         discoveryStopJob?.cancel()
         if (phase == SourcePhase.Playing) {
             Log.d(TAG, "startFailed yok sayıldı (zaten Playing durumunda): $detail")
             return
         }
         val failed = current
-        if (failed != null && !mismatch) {
+        if (failed != null && recordFailure) {
             recordFailureAsync(failed, detail)
         }
         val previous = revertTo
@@ -1053,6 +1057,32 @@ class SourceCoordinator(
         }
     }
 
+    /**
+     * Kaynağın ses parçaları var ama hiçbiri bu cihazda çalınamıyor ([com.kaan.play.data.player.AudioPlayabilityRules]; cihaz
+     * çözücüsü de FFmpeg de desteklemiyor), görüntü sessiz oynardı. Otomatik modda kaynak bu içerik için reddedilir ([verdicts]),
+     * listeden çıkar ve kaldığı saniyeden sıradakine geçilir (kaynak hatası sayılmaz, sunucu kara listesine yazılmaz). Kaynak elle
+     * seçildiyse geçilmez, yalnızca [SourceNotice.AudioUnsupported] gösterilir. Aynı kaynak için bir kez bakılır; ses parçası seçimine
+     * dokunulmaz.
+     */
+    fun onAudioUnplayable() {
+        val stream = current ?: return
+        if (phase != SourcePhase.Starting && phase != SourcePhase.Playing) return
+        if (!audioChecked.add(stream.url)) return
+        val manual = userPicked || !autoSource
+        Log.d("PlayMatch", "ses çalınamıyor: kaynak=${stream.source.addonName} elle=$manual")
+        if (manual) {
+            notice = SourceNotice.AudioUnsupported
+            return
+        }
+        verdicts.reject(requestKey, stream.url)
+        streams = streams.filterNot { it.url == stream.url }
+        lastStartMs = position().takeIf { it > 0 } ?: lastStartMs
+        firstFrameJob?.cancel()
+        phase = SourcePhase.Starting // başarısızlık yolu (sıradaki kaynak / hepsi bitti) ortak
+        firstFrameNotBefore = clock() + STALE_FRAME_GUARD_MS
+        startFailed("audio-unsupported", recordFailure = false)
+    }
+
     private fun nextQueuedCandidate(): PlayableStream? {
         while (true) {
             val queued = queue.removeFirstOrNull() ?: break
@@ -1125,7 +1155,7 @@ class SourceCoordinator(
         val isLive = request.addonType in listOf("tv", "channel")
         val mimeType = streams.firstOrNull { it.url == url }?.mimeType
         if (!isLive && !SourceMediaRules.isAcceptableSize(bytes, isMovie, url, mimeType)) {
-            Log.d(TAG, "kaynak boyutu çok küçük (sahte kaynak): $url (${bytes}B)")
+            Log.d(TAG, "kaynak boyutu çok küçük (sahte kaynak): ${StreamLog.hostOf(url)} (${bytes}B)")
             verdicts.reject(requestKey, url)
             streams = streams.filterNot { it.url == url }
             if (current?.url == url && (phase == SourcePhase.Starting || phase == SourcePhase.Playing)) {

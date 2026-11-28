@@ -177,7 +177,7 @@
     <string name="notify_new_episode_body">Season %1$d, Episode %2$d aired</string>
     <string name="whats_new_title">What is new in Play?</string>
     <string name="whats_new_dismiss">Got it</string>
-    <string name="whats_new_message">• Direct Play button on TV series to resume next episode\n• Share Watch Party invite code via system share sheet\n• Live TV channel categories with group name fallback\n• Import external catalog from JSON file to Home shelves\n• Automatic playback resume when internet connection returns\n• Silent hero trailer on the home cover\n• New episode notifications for favorite TV series\n• 6 color theme options and reorganized Settings</string>
+    <string name="whats_new_message">• Sound now plays in 4K movies (including Dolby and DTS audio)\n• If a source\'s audio can\'t be played on this device, another source opens automatically\n• Audio language order: Turkish dub first, then English\n• Series no longer skip the end of an episode; the next episode opens when the current one finishes\n• Vertical videos (like Shorts) play in portrait on phones; the player has a rotate screen button</string>
     <!-- Dil adları her zaman kendi dillerinde yazılır. -->
     <string name="language_english" translatable="false">English</string>
     <string name="language_turkish" translatable="false">Türkçe</string>
@@ -796,6 +796,7 @@
     <string name="player_audio_sync_broken">Audio out of sync · switch to another source</string>
     <string name="player_audio_sync_switching">Audio sync issue noted; switching to another source.</string>
     <string name="player_audio_sync_no_other">Audio sync issue noted. No other source available right now.</string>
+    <string name="player_audio_unsupported">This source\'s audio can\'t be played on this device. Try another source.</string>
     <string name="player_estimated_end">Ends at · %1$s</string>
     <string name="settings_slow_connection_mode">Slow connection mode</string>
     <string name="settings_suggest_slow_connection">Suggest when playback is slow</string>
@@ -1103,4 +1104,7 @@
     <string name="episodes_panel_searching">Searching source for S%1$d E%2$d…</string>
     <string name="episodes_panel_source_not_found">Source not found for this episode</string>
     <string name="episodes_panel_list_failed">Could not load episodes</string>
+    <string name="player_portrait_fullscreen">Portrait fullscreen</string>
+    <string name="player_landscape_fullscreen">Landscape fullscreen</string>
+    <string name="settings_auto_portrait_videos">Automatically play vertical videos in portrait</string>
 </resources>
