@@ -1155,7 +1155,7 @@ class SourceCoordinator(
         val isLive = request.addonType in listOf("tv", "channel")
         val mimeType = streams.firstOrNull { it.url == url }?.mimeType
         if (!isLive && !SourceMediaRules.isAcceptableSize(bytes, isMovie, url, mimeType)) {
-            Log.d(TAG, "kaynak boyutu çok küçük (sahte kaynak): $url (${bytes}B)")
+            Log.d(TAG, "kaynak boyutu çok küçük (sahte kaynak): ${StreamLog.hostOf(url)} (${bytes}B)")
             verdicts.reject(requestKey, url)
             streams = streams.filterNot { it.url == url }
             if (current?.url == url && (phase == SourcePhase.Starting || phase == SourcePhase.Playing)) {
