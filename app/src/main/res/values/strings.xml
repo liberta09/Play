@@ -177,7 +177,7 @@
     <string name="notify_new_episode_body">Season %1$d, Episode %2$d aired</string>
     <string name="whats_new_title">What is new in Play?</string>
     <string name="whats_new_dismiss">Got it</string>
-    <string name="whats_new_message">• Sound now plays in 4K movies (including Dolby and DTS audio)\n• If a source\'s audio can\'t be played on this device, another source opens automatically\n• Audio language order: Turkish dub first, then English</string>
+    <string name="whats_new_message">• Sound now plays in 4K movies (including Dolby and DTS audio)\n• If a source\'s audio can\'t be played on this device, another source opens automatically\n• Audio language order: Turkish dub first, then English\n• Series no longer skip the end of an episode; the next episode opens when the current one finishes\n• Vertical videos (like Shorts) play in portrait on phones; the player has a rotate screen button</string>
     <!-- Dil adları her zaman kendi dillerinde yazılır. -->
     <string name="language_english" translatable="false">English</string>
     <string name="language_turkish" translatable="false">Türkçe</string>

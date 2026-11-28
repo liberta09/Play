@@ -164,7 +164,7 @@
     <string name="notify_new_episode_body">%1$d. sezon %2$d. bölüm yayınlandı</string>
     <string name="whats_new_title">Bu sürümde neler yeni?</string>
     <string name="whats_new_dismiss">Anladım</string>
-    <string name="whats_new_message">• 4K filmlerde ses artık çıkıyor (Dolby ve DTS sesler dahil)\n• Sesi bu cihazda çalınamayan kaynak yerine otomatik olarak başka kaynak açılır\n• Ses dili sırası: önce Türkçe dublaj, yoksa İngilizce</string>
+    <string name="whats_new_message">• 4K filmlerde ses artık çıkıyor (Dolby ve DTS sesler dahil)\n• Sesi bu cihazda çalınamayan kaynak yerine otomatik olarak başka kaynak açılır\n• Ses dili sırası: önce Türkçe dublaj, yoksa İngilizce\n• Dizilerde bölüm sonu artık atlanmıyor; sonraki bölüm bölüm bitince açılır\n• Dikey videolar (Shorts gibi) telefonda dikey ekranda oynar; oynatıcıda ekranı döndürme düğmesi</string>
     <string name="about_version">Sürüm %1$s</string>
     <string name="about_telegram">Telegram topluluğu</string>
     <string name="about_telegram_title">Telegram Topluluğumuz</string>
