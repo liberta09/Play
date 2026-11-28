@@ -1265,7 +1265,7 @@ class PlayerActivity : AppCompatActivity() {
                 if (match != null && !match.selected) controller.selectAudio(match.index)
             } else if (session.offline == null) {
                 // Ses dili sırası (Kullanıcı kararı 2026-11-23): Türkçe dublaj (açıksa) → İngilizce → dosyanın varsayılanı.
-                AudioLanguagePolicy.choose(controller.allAudioTrackInfos(), preferDub)?.let(controller::selectAudio)
+                AudioLanguagePolicy.choose(controller.allAudioTrackInfos(), preferDub, streamDubbed = currentStream?.dubbed == true)?.let(controller::selectAudio)
             } else if (preferDub) {
                 val turkish = tracks.firstOrNull { TurkishAudioTrackRules.isTurkishTrack(it.language, it.label) }
                 if (turkish != null && !turkish.selected) controller.selectAudio(turkish.index)

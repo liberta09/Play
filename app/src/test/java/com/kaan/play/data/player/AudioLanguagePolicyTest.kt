@@ -66,6 +66,42 @@ class AudioLanguagePolicyTest {
     }
 
     @Test
+    fun `h - dublajli kaynakta etiketsiz secili parca kalir`() {
+        val list = tracks(t("und", selected = true), t("en"))
+        assertNull(AudioLanguagePolicy.choose(list, preferDub = true, streamDubbed = true))
+    }
+
+    @Test
+    fun `i - dublajli kaynakta Ingilizce seciliyse etiketsiz parcaya gecilir`() {
+        val list = tracks(t("en", selected = true), t("und"))
+        assertEquals(1, AudioLanguagePolicy.choose(list, preferDub = true, streamDubbed = true))
+    }
+
+    @Test
+    fun `j - dublajli kaynakta etiketli Turkce varsa Turkce secilir`() {
+        val list = tracks(t("hi", selected = true), t("en"), t("tr"))
+        assertEquals(2, AudioLanguagePolicy.choose(list, preferDub = true, streamDubbed = true))
+    }
+
+    @Test
+    fun `k - dublajli kaynakta etiketsiz parca yoksa dokunulmaz`() {
+        val list = tracks(t("hi", selected = true), t("en"))
+        assertNull(AudioLanguagePolicy.choose(list, preferDub = true, streamDubbed = true))
+    }
+
+    @Test
+    fun `l - dublajsiz kaynakta etiketsiz parca yerine Ingilizce secilir`() {
+        val list = tracks(t("und", selected = true), t("en"))
+        assertEquals(1, AudioLanguagePolicy.choose(list, preferDub = true, streamDubbed = false))
+    }
+
+    @Test
+    fun `m - dublaj onceligi kapaliysa dublajli kaynakta da Ingilizce secilir`() {
+        val list = tracks(t("und", selected = true), t("en"))
+        assertEquals(1, AudioLanguagePolicy.choose(list, preferDub = false, streamDubbed = true))
+    }
+
+    @Test
     fun `hedef zaten seciliyse dokunulmaz`() {
         assertNull(AudioLanguagePolicy.choose(tracks(t("hi"), t("en", selected = true)), preferDub = true))
     }
