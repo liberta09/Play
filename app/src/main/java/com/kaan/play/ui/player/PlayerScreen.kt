@@ -234,9 +234,8 @@ fun PlayerScreen(
     val scope = rememberCoroutineScope()
     val subtitleStyle by container.settings.subtitleStyle.collectAsStateWithLifecycle(initialValue = SubtitleStyle())
     val resize by container.settings.resizeMode.collectAsStateWithLifecycle(initialValue = ResizeMode.Fit)
-    // Portrait fitting is local to this viewing mode, never a rewrite of the landscape preference.
-    var portraitResize by remember(portraitMode) { mutableStateOf(ResizeMode.Fit) }
-    val displayResize = if (portraitMode) portraitResize else resize
+    val portraitResize = rememberPortraitResize(portraitMode)
+    val displayResize = OrientationResize.display(portraitMode, portraitResize.value, resize)
     val locale = remember { Locale.forLanguageTag(AppLanguage.effective().iso) }
 
     val ui = controller.ui
@@ -346,8 +345,8 @@ fun PlayerScreen(
         if (step > 0) seek(direction * step) else bump()
     }
     fun nextResize() {
-        val next = ResizeMode.entries[(displayResize.ordinal + 1) % ResizeMode.entries.size]
-        if (portraitMode) portraitResize = next else scope.launch { container.settings.setResizeMode(next) }
+        val next = OrientationResize.next(displayResize)
+        if (portraitMode) portraitResize.value = next else scope.launch { container.settings.setResizeMode(next) }
         resizeToast = next
         bump()
     }
@@ -1671,13 +1670,7 @@ private fun Controls(
                     modifier = Modifier.padding(end = 12.dp),
                 )
             }
-            if (onToggleOrientation != null) {
-                IconButton(onClick = onToggleOrientation) {
-                    Icon(PlayIcons.RotateScreen,
-                        contentDescription = stringResource(if (portraitMode) R.string.player_landscape_fullscreen else R.string.player_portrait_fullscreen),
-                        tint = tint)
-                }
-            }
+            OrientationToggleButton(portraitMode, onToggleOrientation, tint)
         }
 
         if (!minimal) {
