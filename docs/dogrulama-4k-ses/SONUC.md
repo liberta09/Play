@@ -77,3 +77,32 @@ Tüm turda FATAL / VerifyError / UnsatisfiedLinkError: 0 (`dil_logcat.txt`).
 1. **Parçalar paneli:** desteklenen parçalar dosyadaki teknik etiketiyle görünüyor. Kullanıcı kararıyla panelde kalabilir; değiştirilmedi.
 2. **Emülatörde 4K:** ilk kare kimi zaman 10 sn'yi aşıyor. Elle seçimde önceki kaynağa dönülüyor, otomatikte sıradakine geçiliyor. Bu mevcut kural; gerçek cihazda denenmeli.
 3. **Türkçe dublaj denemesi:** Imu akışında Türkçe parça zaten listede ilkti. Türkçenin varsayılan olmadığı, ikinci sırada olduğu çok sesli bir dosya bulunamadı; bu durum birim testle (b) güvence altında.
+
+## Düzeltme: etiketsiz Türkçe dublaj (2026-11-28)
+**Sorun:** "TR Dublaj" işaretli kaynakta Türkçe ses parçası etiketsizse (dil null / "und", adında Türkçe işareti yok) ve yanında etiketli İngilizce varsa, ses sırası kuralı İngilizceyi seçiyordu. Eskiden dosyanın varsayılanı, yani dublaj çalıyordu.
+
+**Düzeltme:** `AudioLanguagePolicy.choose(tracks, preferDub, streamDubbed = false)`.
+- `preferDub && streamDubbed` ise ve etiketli Türkçe parça yoksa İngilizceye geçilmez.
+  - Dil bilgisi olmayan (null/boş/"und") desteklenen ilk parça seçilir; zaten seçiliyse dokunulmaz.
+  - Öyle parça yoksa dosyanın varsayılanı kalır.
+- Etiketli Türkçe varsa her zamanki gibi o seçilir. `streamDubbed` false iken davranış değişmedi.
+- `PlayerActivity.syncAudio()` çağrısı `streamDubbed = currentStream?.dubbed == true` verir. `setPreferredAudioLanguages` aynen kaldı.
+
+**Testler:** `AudioLanguagePolicyTest` (h)–(m) eklendi, toplam 15. Tüm paket **1560 test, 0 hata, 2 atlanan**.
+
+**APK:** `Play-1.3.3.apk` SHA-256 `1128520631bcfa2c0f1737b66e9dbdfc71bd7c80d29da4d494ad32192184a22d`. `adb install -r` ile kuruldu.
+
+**Cihaz turu:** kanıt `etk_*.png` ve `etk_logcat.txt` (yalnızca "ses parçaları" ve "Ses çözücü" satırları, adres yok).
+
+| İçerik | Seçilen ses | Kanıt |
+|---|---|---|
+| Ters Yüz 2 (otomatik başlangıç Imu'ya geçti, "Dublajlı (gömülü ses)") | **tr** AAC | `etk_01_ters_yuz2_imu_parcalar.png` |
+| The Odyssey → Jinbe 4K (hi/ta/te E-AC-3 + en DTS-HD) | **en** DTS-HD (`ffmpeg…-dca`) | `etk_02_jinbe4k_parcalar.png` |
+| Örümcek-Adam (4KHDHub; hi/ta/te/en E-AC-3, Türkçe yok) | **en** E-AC-3 7.1 | `etk_03_orumcek_adam_parcalar.png` |
+| Joker | Reanime (ja/en → en) süre uyuşmazlığıyla elendi; Castle (und AAC) 60 sn oynadı, Geri çalıştı | `etk_04_joker.png` |
+| Criminal Minds S1 B7 | Castle (und AAC) 60 sn oynadı, Geri çalıştı | `etk_05_criminal_minds.png` |
+| Canlı A2 TV HD | und AAC 60 sn; AudioFlinger'da Play izi aktif (stereo 48 kHz, underrun 0), Geri çalıştı | `etk_06_canli_a2.png` |
+
+- FATAL / VerifyError / UnsatisfiedLinkError: 0.
+- Jinbe 4K'dan çıkılırken bir kez `ERROR_CODE_TIMEOUT` görüldü. Bu, emülatörde 4K akışta bilinen ağ/çözüm yavaşlığıdır.
+- **Sınır:** yeni dal (dublajlı kaynak + etiketsiz Türkçe parça) cihazda denenemedi. Elde böyle bir dosya yok; Imu'daki parça `tr` etiketli. Bu durum yalnızca birim testlerle (h, i, k) güvence altında.

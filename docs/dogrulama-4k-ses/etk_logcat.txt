@@ -1,0 +1,19 @@
+# 2026-11-28 etiketsiz dublaj düzeltmesi, cihaz turu. Yalnızca "ses parçaları" ve "Ses çözücü" satırları (adres yok).
+# İlk üç blok (Ters Yüz 2, Jinbe 4K, Örümcek-Adam) logcat tamponundan düştüğü için tur sırasında alınan çıktıdan aynen kopyalandı.
+# Ters Yüz 2 (Imu, Dublajlı)
+11-28 12:01:46.694  4122  4122 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=tr destek=evet seçili=evet; audio/mp4a-latm 2k dil=en destek=evet seçili=hayır
+11-28 12:01:47.598  4122  4122 I PlayMatch: Ses çözücü: decoder=OMX.google.aac.decoder süre=25ms
+# The Odyssey -> Jinbe 4K
+11-28 12:06:30.673  4122  4122 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/vnd.dts.hd 6k dil=en destek=evet seçili=evet
+11-28 12:06:30.757  4122  4122 I PlayMatch: Ses çözücü: decoder=ffmpegLavc63.1.101-dca süre=7ms
+# Örümcek-Adam (4KHDHub)
+11-28 12:07:28.287  4122  4122 I PlayMatch: ses parçaları: audio/eac3 6k dil=hi destek=evet seçili=hayır; audio/eac3 6k dil=ta destek=evet seçili=hayır; audio/eac3 6k dil=te destek=evet seçili=hayır; audio/eac3 8k dil=en destek=evet seçili=evet
+11-28 12:07:28.292  4122  4122 I PlayMatch: Ses çözücü: decoder=ffmpegLavc63.1.101-eac3 süre=2ms
+# Joker (Reanime ja/en -> süre uyuşmazlığıyla elendi; Castle und), Criminal Minds (Castle und), Canlı A2 TV (und)
+11-28 12:08:51.595  4122  4122 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=ja destek=evet seçili=hayır; audio/mp4a-latm 2k dil=en destek=evet seçili=evet
+11-28 12:08:51.616  4122  4122 I PlayMatch: Ses çözücü: decoder=OMX.google.aac.decoder süre=5ms
+11-28 12:08:53.104  4122  4122 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-28 12:09:52.336  4122  4122 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-28 12:09:52.356  4122  4122 I PlayMatch: Ses çözücü: decoder=OMX.google.aac.decoder süre=6ms
+11-28 12:12:12.407  4122  4122 I PlayMatch: ses parçaları: audio/mp4a-latm 2k dil=und destek=evet seçili=evet
+11-28 12:12:12.790  4122  4122 I PlayMatch: Ses çözücü: decoder=OMX.google.aac.decoder süre=6ms
